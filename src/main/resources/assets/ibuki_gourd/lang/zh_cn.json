@@ -1,0 +1,22 @@
+{
+  "ibuki_gourd.initializing": "%s 初始化中...",
+  "ibuki_gourd.initialized": "%s 初始化完成",
+  "ibuki_gourd.on": "开",
+  "ibuki_gourd.off": "关",
+  "ibuki_gourd.confirm": "确认",
+  "ibuki_gourd.cancel": "取消",
+  "ibuki_gourd.delete": "删除",
+  "ibuki_gourd.update": "更新",
+  "ibuki_gourd.apply": "应用",
+  "ibuki_gourd.toggle": "开关",
+  "ibuki_gourd.value": "值",
+  "ibuki_gourd.hotkey": "热键",
+  "ibuki_gourd.execute": "执行",
+  "ibuki_gourd.edit": "编辑",
+  "ibuki_gourd.enable": "启用",
+  "ibuki_gourd.enabled": "已启用",
+  "ibuki_gourd.disable": "禁用",
+  "ibuki_gourd.disabled": "已禁用",
+  "ibuki_gourd.status": "状态",
+  "ibuki_gourd.config.set_from_json_failed": "无法从JSON中读取配置 '%s',JSON: '%s' "
+}

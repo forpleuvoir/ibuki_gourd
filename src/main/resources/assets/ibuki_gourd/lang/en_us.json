@@ -1,0 +1,22 @@
+{
+  "ibuki_gourd.initializing": "%s initializing...",
+  "ibuki_gourd.initialized": "%s initialized",
+  "ibuki_gourd.on": "On",
+  "ibuki_gourd.off": "Off",
+  "ibuki_gourd.confirm": "confirm",
+  "ibuki_gourd.cancel": "cancel",
+  "ibuki_gourd.delete": "delete",
+  "ibuki_gourd.update": "update",
+  "ibuki_gourd.apply": "apply",
+  "ibuki_gourd.toggle": "toggle",
+  "ibuki_gourd.value": "value",
+  "ibuki_gourd.hotkey": "hotkey",
+  "ibuki_gourd.execute": "execute",
+  "ibuki_gourd.edit": "edit",
+  "ibuki_gourd.enable": "enable",
+  "ibuki_gourd.enabled": "enabled",
+  "ibuki_gourd.disable": "disable",
+  "ibuki_gourd.disabled": "disabled",
+  "ibuki_gourd.status": "status",
+  "ibuki_gourd.config.set_from_json_failed": "Failed to set config value for '%s' from the JSON element '%s'"
+}
