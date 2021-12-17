@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.mod.initialize
 import forpleuvoir.ibuki_gourd.common.IModInitialize
 import forpleuvoir.ibuki_gourd.event.events.KeyPressEvent
 import forpleuvoir.ibuki_gourd.event.events.KeyReleaseEvent
-import forpleuvoir.ibuki_gourd.mod.keyboard.KeyboardUtil
+import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents
 import net.minecraft.client.MinecraftClient

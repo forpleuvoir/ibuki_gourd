@@ -1,6 +1,8 @@
-package forpleuvoir.ibuki_gourd.mod.keyboard
+package forpleuvoir.ibuki_gourd.keyboard
 
 import net.minecraft.client.util.InputUtil
+import java.util.*
+import kotlin.collections.HashSet
 
 
 /**
@@ -8,7 +10,7 @@ import net.minecraft.client.util.InputUtil
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.mod.keyboard
+ * 包名 forpleuvoir.ibuki_gourd.keyboard
 
  * 文件名 KeyboardUtil
 
@@ -23,10 +25,12 @@ object KeyboardUtil {
 		HashSet()
 	}
 
+	private val onPressCallback: LinkedList<KeyBind> = LinkedList()
+
 	fun wasPressed(vararg keys: Int): Boolean {
 		var returnValue = true
 		keys.forEach {
-			if (!this.keys.contains(it)) returnValue = false
+			if (!KeyboardUtil.keys.contains(it)) returnValue = false
 		}
 		return returnValue
 	}
@@ -38,9 +42,9 @@ object KeyboardUtil {
 	}
 
 	fun wasPressed(vararg keys: InputUtil.Key): Boolean {
-		var returnValue = false
+		var returnValue = true
 		keys.forEach {
-			if (!this.keys.contains(it.code)) returnValue = false
+			if (!KeyboardUtil.keys.contains(it.code)) returnValue = false
 		}
 		return returnValue
 	}
@@ -51,9 +55,26 @@ object KeyboardUtil {
 		}
 	}
 
+	fun setOnPressCallback(vararg keys: Int, callback: () -> Unit) {
+		val keyBind = KeyBind(*keys, callback = callback)
+		onPressCallback.addLast(keyBind)
+	}
+
+	private fun callbackHandler() {
+		onPressCallback.forEach {
+			it.callbackHandler(this.keys)
+		}
+	}
+
+	private fun onPressChanged(){
+		callbackHandler()
+	}
 
 	fun setPressed(key: Int) {
-		keys.add(key)
+		if (keys.add(key)) {
+			onPressChanged()
+		}
+
 	}
 
 	fun setRelease(key: Int) {

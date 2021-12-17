@@ -32,6 +32,8 @@ class SnakeGameScreen : BaseScreen(Text.of("Snake")) {
 	private val snake: LinkedList<Vector2d> = LinkedList()
 	private val head: Vector2d
 		get() = snake.first
+	private val neck: Vector2d
+		get() = snake[1]
 	private var runnable: Boolean = true
 
 	private val defaultSize = 3
@@ -39,12 +41,12 @@ class SnakeGameScreen : BaseScreen(Text.of("Snake")) {
 	private var score: Int = 0
 	private val horizontalPadding = 10
 	private val bottomPadding = 10
-	private val topPadding = titlePadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 10
+	private val topPadding = titlePadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 5
 	private val speed = 5
 	private var tickCounter: Int = 0
-
-	private val gameWidth: Int = 62
-	private val gameHeight: Int = 29
+	private var scale: Int = mc.options.guiScale
+	private val gameWidth: Int = 186 / scale
+	private val gameHeight: Int = 87 / scale
 	private var isGameOver: Boolean = false
 
 	/**
@@ -79,19 +81,19 @@ class SnakeGameScreen : BaseScreen(Text.of("Snake")) {
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
 		when (keyCode) {
 			GLFW_KEY_UP    -> {
-				if (direction != 1)
+				if (direction != 1 && neck.y == head.y)
 					direction = 0
 			}
 			GLFW_KEY_DOWN  -> {
-				if (direction != 0)
+				if (direction != 0 && neck.y == head.y)
 					direction = 1
 			}
 			GLFW_KEY_LEFT  -> {
-				if (direction != 3)
+				if (direction != 3 && neck.x == head.x)
 					direction = 2
 			}
 			GLFW_KEY_RIGHT -> {
-				if (direction != 2)
+				if (direction != 2 && neck.x == head.x)
 					direction = 3
 			}
 			GLFW_KEY_P     -> {
@@ -180,7 +182,7 @@ class SnakeGameScreen : BaseScreen(Text.of("Snake")) {
 		renderVector2d(food, Color4i().fromInt(-0xe81a1b))
 	}
 
-	private fun renderVector2d(vector2d: Vector2d, bgColor: Color4i, lineColor: Color4i = Color4i.BLUE) {
+	private fun renderVector2d(vector2d: Vector2d, bgColor: Color4i, lineColor: Color4i = Color4i.WHITE) {
 		RenderUtil.drawOutlinedBox(horizontalPadding + vector2d.x * size, topPadding + vector2d.y * size, size - 2, size - 2, bgColor, lineColor)
 	}
 
