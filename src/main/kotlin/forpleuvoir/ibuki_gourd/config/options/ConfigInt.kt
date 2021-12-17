@@ -3,37 +3,38 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IBaseValueConfig
+import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import net.minecraft.util.math.MathHelper
 
 
 /**
- * 浮点数配置
+ * 整数配置
 
  * 项目名 ibuki_gourd
 
  * 包名 forpleuvoir.ibuki_gourd.config.options
 
- * 文件名 DoubleConfig
+ * 文件名 ConfigInt
 
- * 创建时间 2021/12/9 19:05
+ * 创建时间 2021/12/9 18:55
 
  * @author forpleuvoir
 
  */
-class DoubleConfig(
+class ConfigInt(
 	override val name: String,
 	override val remark: String,
-	override val defaultValue: Double = 0.0,
-	private val maxValue: Double = Double.MAX_VALUE,
-	private val minValue: Double = Double.MIN_VALUE
+	override val defaultValue: Int = 0,
+	val minValue: Int = Int.MIN_VALUE,
+	val maxValue: Int = Int.MAX_VALUE
 ) : ConfigBase(),
-	IBaseValueConfig<Double> {
+	IConfigBaseValue<Int> {
 
-	private var value: Double = defaultValue
+	private var value: Int = defaultValue
 
 	override val type: ConfigType
-		get() = ConfigType.DOUBLE
+		get() = ConfigType.INTEGER
 
 
 	override val isDefaultValue: Boolean
@@ -43,15 +44,14 @@ class DoubleConfig(
 		setValue(defaultValue)
 	}
 
-	override fun getValue(): Double {
+	override fun getValue(): Int {
 		return value
 	}
 
-	override fun setValue(value: Double) {
+	override fun setValue(value: Int) {
 		val oldValue = this.value
 		this.value = value
-		this.value = this.value.coerceAtLeast(minValue)
-		this.value = this.value.coerceAtMost(maxValue)
+		this.value = MathHelper.clamp(this.value, minValue, maxValue)
 		if (oldValue != this.value) {
 			this.onValueChange()
 		}
@@ -60,7 +60,7 @@ class DoubleConfig(
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
 			if (jsonElement.isJsonPrimitive) {
-				this.value = jsonElement.asDouble
+				this.value = jsonElement.asInt
 			} else {
 				log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
 			}

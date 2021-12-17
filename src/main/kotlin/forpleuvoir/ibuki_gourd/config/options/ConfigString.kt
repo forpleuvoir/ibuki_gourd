@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IBaseValueConfig
+import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
 
@@ -14,15 +14,15 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
  * 包名 forpleuvoir.ibuki_gourd.config.options
 
- * 文件名 StringConfig
+ * 文件名 ConfigString
 
  * 创建时间 2021/12/9 19:06
 
  * @author forpleuvoir
 
  */
-class StringConfig(override val name: String, override val remark: String, override val defaultValue: String) : ConfigBase(),
-	IBaseValueConfig<String> {
+class ConfigString(override val name: String, override val remark: String, override val defaultValue: String) : ConfigBase(),
+	IConfigBaseValue<String> {
 
 	private var value: String = defaultValue
 

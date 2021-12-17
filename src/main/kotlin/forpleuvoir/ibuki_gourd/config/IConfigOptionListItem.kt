@@ -11,14 +11,14 @@ import net.minecraft.text.TranslatableText
 
  * 包名 forpleuvoir.ibuki_gourd.config
 
- * 文件名 OptionListConfigItem
+ * 文件名 IConfigOptionListItem
 
  * 创建时间 2021/12/12 14:56
 
  * @author forpleuvoir
 
  */
-interface IOptionListConfigItem {
+interface IConfigOptionListItem {
 
 	val name: String
 
@@ -30,10 +30,10 @@ interface IOptionListConfigItem {
 	val displayRemark: TranslatableText
 		get() = remark.tText()
 
-	fun cycle(): IOptionListConfigItem
+	fun cycle(): IConfigOptionListItem
 
-	fun fromString(string: String): IOptionListConfigItem
+	fun fromString(string: String): IConfigOptionListItem
 
-	fun getAllItem(): List<IOptionListConfigItem>
+	fun getAllItem(): List<IConfigOptionListItem>
 
 }

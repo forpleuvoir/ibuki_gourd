@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IBaseValueConfig
+import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigListConfig
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
@@ -23,7 +23,7 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
  */
 class ConfigListConfig(override val name: String, override val remark: String, override val defaultValue: Set<ConfigBase>) : ConfigBase(),
-	IBaseValueConfig<Set<ConfigBase>>, IConfigListConfig<ConfigBase> {
+	IConfigBaseValue<Set<ConfigBase>>, IConfigListConfig<ConfigBase> {
 
 	override val type: ConfigType
 		get() = ConfigType.LIST

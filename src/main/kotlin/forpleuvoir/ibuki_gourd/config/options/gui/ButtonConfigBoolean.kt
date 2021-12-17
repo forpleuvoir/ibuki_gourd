@@ -1,6 +1,7 @@
-package forpleuvoir.ibuki_gourd.gui.button
+package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.options.BooleanConfig
+import forpleuvoir.ibuki_gourd.config.options.ConfigBoolean
+import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
@@ -10,17 +11,17 @@ import net.minecraft.util.Formatting
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.gui.button
+ * 包名 forpleuvoir.ibuki_gourd.config.options.gui
 
- * 文件名 ButtonBooleanConfig
+ * 文件名 ButtonConfigBoolean
 
  * 创建时间 2021/12/13 15:51
 
  * @author forpleuvoir
 
  */
-class ButtonBooleanConfig(x: Int, y: Int, width: Int, height: Int = 20, private val config: BooleanConfig) :
-	ButtonBase<ButtonBooleanConfig>(x, y, width, height, Text.of(""), null) {
+class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigBoolean) :
+	ButtonBase<ButtonConfigBoolean>(x, y, width, height, Text.of(""), null) {
 
 	init {
 		this.updateText()

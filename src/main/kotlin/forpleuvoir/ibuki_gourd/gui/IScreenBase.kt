@@ -10,14 +10,14 @@ import net.minecraft.client.gui.screen.Screen
 
  * 包名 forpleuvoir.ibuki_gourd.gui
 
- * 文件名 IBaseScreen
+ * 文件名 IScreenBase
 
  * 创建时间 2021/12/13 16:58
 
  * @author forpleuvoir
 
  */
-interface IBaseScreen {
+interface IScreenBase {
 
 	var parent: Screen?
 

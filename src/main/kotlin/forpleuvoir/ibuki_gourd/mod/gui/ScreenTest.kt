@@ -1,7 +1,11 @@
 package forpleuvoir.ibuki_gourd.mod.gui
 
 import com.google.common.collect.Lists
-import forpleuvoir.ibuki_gourd.gui.BaseScreen
+import forpleuvoir.ibuki_gourd.config.options.ConfigDouble
+import forpleuvoir.ibuki_gourd.config.options.ConfigInt
+import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
+import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigInt
+import forpleuvoir.ibuki_gourd.gui.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.button.ButtonOnOff
 import net.minecraft.text.Text
@@ -14,14 +18,14 @@ import net.minecraft.text.Text
 
  * 包名 forpleuvoir.ibuki_gourd.mod.gui
 
- * 文件名 TestScreen
+ * 文件名 ScreenTest
 
  * 创建时间 2021/12/13 17:50
 
  * @author forpleuvoir
 
  */
-class TestScreen(title: String) : BaseScreen(title = Text.of(title)) {
+class ScreenTest(title: String) : ScreenBase(title = Text.of(title)) {
 
 	override fun onScreenClose() {
 		println("哈哈")
@@ -45,13 +49,19 @@ class TestScreen(title: String) : BaseScreen(title = Text.of(title)) {
 				Text.of("这是第三行")
 			)
 		) {
-			val n = TestScreen("新的测试")
+			val n = ScreenTest("新的测试")
 			n.parent = this
 			openScreen(n)
 		})
-		this.addDrawableChild(Button(20, buttonOnOff.y + 10, Text.of("Game")){
-			openScreen(SnakeGameScreen())
+		this.addDrawableChild(Button(20, buttonOnOff.y + 10, Text.of("Game")) {
+			openScreen(ScreenSnakeGame())
 		})
+		val config = ConfigDouble("aa", "remark", 20.0, 0.0, 100.0)
+		val double = WidgetSliderConfigDouble(20, 90, 60, 20, config)
+		this.addDrawableChild(double)
+		val intConfig = ConfigInt("aa", "remark", 20, 0, 100)
+		val int = WidgetSliderConfigInt(20, 120, 60, 20, intConfig)
+		this.addDrawableChild(int)
 
 	}
 }

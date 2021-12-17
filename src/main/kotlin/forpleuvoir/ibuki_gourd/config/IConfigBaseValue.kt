@@ -8,14 +8,14 @@ package forpleuvoir.ibuki_gourd.config
 
  * 包名 forpleuvoir.ibuki_gourd.config
 
- * 文件名 IBooleanConfig
+ * 文件名 IConfigBaseValue
 
  * 创建时间 2021/12/9 18:30
 
  * @author forpleuvoir
 
  */
-interface IBaseValueConfig<T> {
+interface IConfigBaseValue<T> {
 
 	val defaultValue: T
 	fun getValue(): T

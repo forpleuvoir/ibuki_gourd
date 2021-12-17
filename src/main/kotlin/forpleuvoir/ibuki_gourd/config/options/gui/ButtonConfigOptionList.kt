@@ -1,6 +1,7 @@
-package forpleuvoir.ibuki_gourd.gui.button
+package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.options.OptionListConfig
+import forpleuvoir.ibuki_gourd.config.options.ConfigOptionList
+import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import net.minecraft.text.Text
 
 
@@ -9,17 +10,17 @@ import net.minecraft.text.Text
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.gui.button
+ * 包名 forpleuvoir.ibuki_gourd.config.options.gui
 
- * 文件名 ButtonOptionListConfig
+ * 文件名 ButtonConfigOptionList
 
  * 创建时间 2021/12/13 16:06
 
  * @author forpleuvoir
 
  */
-class ButtonOptionListConfig(x: Int, y: Int, width: Int, height: Int = 20, private val config: OptionListConfig) :
-	ButtonBase<ButtonOptionListConfig>(
+class ButtonConfigOptionList(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigOptionList) :
+	ButtonBase<ButtonConfigOptionList>(
 		x, y, width, height, Text.of(""), null
 	) {
 

@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.util.InputUtil
 
 
 /**
@@ -37,13 +36,13 @@ object ScreenInitialize : IModInitialize {
 	}
 
 	private fun afterInit(client: MinecraftClient, screen: Screen, width: Int, height: Int) {
-		ScreenKeyboardEvents.afterKeyPress(screen).register { _, key, scancode, modifiers ->
-			KeyboardUtil.setPressed(key)
-			KeyPressEvent(key, scancode, modifiers).broadcast()
-		}
-		ScreenKeyboardEvents.afterKeyRelease(screen).register { _, key, scancode, modifiers ->
-			KeyboardUtil.setRelease(key)
-			KeyReleaseEvent(key, scancode, modifiers).broadcast()
-		}
+//		ScreenKeyboardEvents.afterKeyPress(screen).register { _, key, scancode, modifiers ->
+//			KeyboardUtil.setPressed(key)
+//			KeyPressEvent(key, scancode, modifiers).broadcast()
+//		}
+//		ScreenKeyboardEvents.afterKeyRelease(screen).register { _, key, scancode, modifiers ->
+//			KeyboardUtil.setRelease(key)
+//			KeyReleaseEvent(key, scancode, modifiers).broadcast()
+//		}
 	}
 }

@@ -1,7 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.options
 
 import forpleuvoir.ibuki_gourd.common.tText
-import forpleuvoir.ibuki_gourd.config.IBaseValueConfig
+import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.IConfigNotifiable
 import forpleuvoir.ibuki_gourd.config.IConfigResettable
@@ -45,7 +45,7 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
 
 	override fun isValueEquals(other: IConfigBase): Boolean {
 		if (this.type == other.type) {
-			if (this is IBaseValueConfig<*> && other is IBaseValueConfig<*>) {
+			if (this is IConfigBaseValue<*> && other is IConfigBaseValue<*>) {
 				return this.isEquals(other.getValue())
 			}
 		}

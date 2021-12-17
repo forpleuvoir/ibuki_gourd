@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.keyboard
 
+import forpleuvoir.ibuki_gourd.event.util.KeyEnvironment
 import net.minecraft.client.util.InputUtil
 import java.util.*
 import kotlin.collections.HashSet
@@ -55,8 +56,8 @@ object KeyboardUtil {
 		}
 	}
 
-	fun setOnPressCallback(vararg keys: Int, callback: () -> Unit) {
-		val keyBind = KeyBind(*keys, callback = callback)
+	fun setOnPressCallback(vararg keys: Int, keyEnvironment: KeyEnvironment = KeyEnvironment.IN_GAME, callback: () -> Unit) {
+		val keyBind = KeyBind(*keys, keyEnvironment = keyEnvironment, callback = callback)
 		onPressCallback.addLast(keyBind)
 	}
 
@@ -66,10 +67,11 @@ object KeyboardUtil {
 		}
 	}
 
-	private fun onPressChanged(){
+	private fun onPressChanged() {
 		callbackHandler()
 	}
 
+	@JvmStatic
 	fun setPressed(key: Int) {
 		if (keys.add(key)) {
 			onPressChanged()
@@ -77,6 +79,7 @@ object KeyboardUtil {
 
 	}
 
+	@JvmStatic
 	fun setRelease(key: Int) {
 		keys.remove(key)
 	}

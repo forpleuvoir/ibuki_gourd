@@ -1,5 +1,8 @@
 package forpleuvoir.ibuki_gourd.keyboard
 
+import forpleuvoir.ibuki_gourd.event.util.KeyEnvironment
+import net.minecraft.client.MinecraftClient
+
 
 /**
  *
@@ -15,12 +18,14 @@ package forpleuvoir.ibuki_gourd.keyboard
  * @author forpleuvoir
 
  */
-class KeyBind(vararg key: Int, private val callback: () -> Unit) {
+class KeyBind(vararg key: Int, val keyEnvironment: KeyEnvironment, private val callback: () -> Unit) {
 	private val keys: Set<Int> = key.toSet()
 
 	fun callbackHandler(key: Set<Int>) {
 		if (key.containsAll(keys)) {
-			callback.invoke()
+			val keyEnv = if (MinecraftClient.getInstance().currentScreen == null) KeyEnvironment.IN_GAME else KeyEnvironment.IN_SCREEN
+			if (keyEnv == this.keyEnvironment || this.keyEnvironment == KeyEnvironment.ALL)
+				callback.invoke()
 		}
 	}
 }

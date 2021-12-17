@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.mod.gui
 
-import forpleuvoir.ibuki_gourd.gui.BaseScreen
+import forpleuvoir.ibuki_gourd.gui.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import net.minecraft.client.MinecraftClient
@@ -17,14 +17,14 @@ import java.util.*
 
  * 包名 forpleuvoir.ibuki_gourd.mod.gui
 
- * 文件名 SnakeGameScreen
+ * 文件名 ScreenSnakeGame
 
  * 创建时间 2021/12/14 22:13
 
  * @author forpleuvoir
 
  */
-class SnakeGameScreen : BaseScreen(Text.of("Snake")) {
+class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 
 	/**
 	 * 蛇的身体

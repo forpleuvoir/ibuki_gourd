@@ -1,6 +1,5 @@
 package forpleuvoir.ibuki_gourd.gui
 
-import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.BLACK
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.WHITE
 import net.minecraft.client.MinecraftClient
@@ -17,14 +16,14 @@ import net.minecraft.text.Text
 
  * 包名 forpleuvoir.ibuki_gourd.gui
 
- * 文件名 BaseScreen
+ * 文件名 ScreenBase
 
  * 创建时间 2021/12/13 16:47
 
  * @author forpleuvoir
 
  */
-abstract class BaseScreen(title: Text) : Screen(title), IBaseScreen {
+abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	companion object {
 		@JvmStatic

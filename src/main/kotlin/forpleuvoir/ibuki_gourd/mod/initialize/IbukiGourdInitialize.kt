@@ -1,13 +1,10 @@
 package forpleuvoir.ibuki_gourd.mod.initialize
 
 import forpleuvoir.ibuki_gourd.common.IModInitialize
-import forpleuvoir.ibuki_gourd.event.EventBus
-import forpleuvoir.ibuki_gourd.event.events.KeyPressEvent
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
-import forpleuvoir.ibuki_gourd.mod.gui.TestScreen
+import forpleuvoir.ibuki_gourd.mod.gui.ScreenTest
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
-import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 
@@ -34,7 +31,7 @@ object IbukiGourdInitialize : IModInitialize {
 		ScreenInitialize.initialize()
 		KeyboardUtil.setOnPressCallback(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G) {
 			println("触发了组合键")
-			val screen = TestScreen("TEST")
+			val screen = ScreenTest("TEST")
 			screen.parent = mc.currentScreen
 			mc.setScreen(screen)
 		}

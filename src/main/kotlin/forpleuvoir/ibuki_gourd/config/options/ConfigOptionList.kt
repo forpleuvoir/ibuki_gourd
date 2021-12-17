@@ -3,8 +3,8 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IBaseValueConfig
-import forpleuvoir.ibuki_gourd.config.IOptionListConfigItem
+import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigOptionListItem
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
 
@@ -15,19 +15,19 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
  * 包名 forpleuvoir.ibuki_gourd.config.options
 
- * 文件名 OptionListConfig
+ * 文件名 ConfigOptionList
 
  * 创建时间 2021/12/12 14:55
 
  * @author forpleuvoir
 
  */
-class OptionListConfig(override val name: String, override val remark: String, override val defaultValue: IOptionListConfigItem) : ConfigBase(),
-	IBaseValueConfig<IOptionListConfigItem> {
+class ConfigOptionList(override val name: String, override val remark: String, override val defaultValue: IConfigOptionListItem) : ConfigBase(),
+	IConfigBaseValue<IConfigOptionListItem> {
 	override val type: ConfigType
 		get() = ConfigType.OPTION_LIST
 
-	private var value: IOptionListConfigItem = defaultValue
+	private var value: IConfigOptionListItem = defaultValue
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
@@ -52,11 +52,11 @@ class OptionListConfig(override val name: String, override val remark: String, o
 		setValue(defaultValue)
 	}
 
-	override fun getValue(): IOptionListConfigItem {
+	override fun getValue(): IConfigOptionListItem {
 		return value
 	}
 
-	override fun setValue(value: IOptionListConfigItem) {
+	override fun setValue(value: IConfigOptionListItem) {
 		val oldValue = this.value
 		this.value = value
 		if (oldValue != this.value)

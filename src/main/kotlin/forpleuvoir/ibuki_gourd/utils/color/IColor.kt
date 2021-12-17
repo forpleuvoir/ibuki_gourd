@@ -19,6 +19,10 @@ import forpleuvoir.ibuki_gourd.common.IJsonData
  */
 interface IColor<T> : IJsonData {
 	val intValue: Int
+	val hexString: String
+		get() = intValue.toString(16)
+
 	fun intValue(alpha: T): Int
-	fun fromInt(color: Int):IColor<T>
+	fun fromInt(color: Int): IColor<T>
+
 }

@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.event.events
 
 import forpleuvoir.ibuki_gourd.event.Event
+import forpleuvoir.ibuki_gourd.event.util.KeyEnvironment
 import net.minecraft.client.util.InputUtil
 
 
@@ -18,7 +19,7 @@ import net.minecraft.client.util.InputUtil
  * @author forpleuvoir
 
  */
-class KeyReleaseEvent(key: Int, scancode: Int, @JvmField val modifiers: Int) : Event {
+class KeyReleaseEvent(key: Int, scancode: Int, @JvmField val modifiers: Int, @JvmField val environment: KeyEnvironment) : Event {
 	@JvmField
 	val key: InputUtil.Key
 

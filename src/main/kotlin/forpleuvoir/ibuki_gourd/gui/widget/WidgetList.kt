@@ -9,14 +9,14 @@ package forpleuvoir.ibuki_gourd.gui.widget
 
  * 包名 forpleuvoir.ibuki_gourd.gui
 
- * 文件名 ListWidget
+ * 文件名 WidgetList
 
  * 创建时间 2021/12/13 16:45
 
  * @author forpleuvoir
 
  */
-class ListWidget {
+class WidgetList {
 
 
 }
