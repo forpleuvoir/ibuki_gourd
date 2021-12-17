@@ -52,7 +52,7 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
 		return false
 	}
 
-	override fun setCallback(callback: ((IConfigBase) -> Unit)) {
+	override fun setOnValueChangedCallback(callback: ((IConfigBase) -> Unit)) {
 		this.callback = callback
 	}
 

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * MinecraftClient
+ * Keyboard
  * <p>
  * 项目名 ibuki_gourd
  * <p>
@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * @author forpleuvoir
  */
 @Mixin(Keyboard.class)
-public class MixinKeyboard {
+public abstract class MixinKeyboard {
 
 	@Shadow
 	@Final

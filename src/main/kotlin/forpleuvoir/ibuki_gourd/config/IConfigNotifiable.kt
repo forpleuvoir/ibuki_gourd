@@ -25,6 +25,6 @@ interface IConfigNotifiable {
 	 * 回调
 	 * @param callback Function1<C, Unit>
 	 */
-	fun setCallback(callback: (IConfigBase) -> Unit)
+	fun setOnValueChangedCallback(callback: (IConfigBase) -> Unit)
 
 }
