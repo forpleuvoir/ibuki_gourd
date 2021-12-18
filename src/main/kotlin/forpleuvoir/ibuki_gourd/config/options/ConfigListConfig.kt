@@ -22,7 +22,7 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-class ConfigListConfig(override val name: String, override val remark: String, override val defaultValue: Set<ConfigBase>) : ConfigBase(),
+class ConfigListConfig(override val name: String, override val remark: String = "$name.remark", override val defaultValue: Set<ConfigBase>) : ConfigBase(),
 	IConfigBaseValue<Set<ConfigBase>>, IConfigListConfig<ConfigBase> {
 
 	override val type: ConfigType

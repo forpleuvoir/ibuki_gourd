@@ -118,13 +118,13 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 	}
 
 	private fun renderGameOverMessage(matrices: MatrixStack) {
-		textRenderer.drawWithShadow(matrices, "Game Over", this.width.toFloat() / 2, this.height.toFloat() / 2, Color4i.WHITE.intValue)
+		textRenderer.drawWithShadow(matrices, "Game Over", this.width.toFloat() / 2, this.height.toFloat() / 2, Color4i.WHITE.rgb)
 		textRenderer.drawWithShadow(
 			matrices,
 			"Press R to restart",
 			this.width.toFloat() / 2,
 			this.height.toFloat() / 2 + textRenderer.fontHeight,
-			Color4i.WHITE.intValue
+			Color4i.WHITE.rgb
 		)
 	}
 
@@ -134,14 +134,14 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 			Text.of("score:"),
 			titlePadding + textRenderer.getWidth(title) + 10,
 			titlePadding,
-			Color4i.WHITE.intValue
+			Color4i.WHITE.rgb
 		)
 		textRenderer.drawWithShadow(
 			matrices,
 			Text.of(score.toString()),
 			titlePadding + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
 			titlePadding,
-			Color4i.WHITE.intValue
+			Color4i.WHITE.rgb
 		)
 	}
 

@@ -17,8 +17,8 @@ import forpleuvoir.ibuki_gourd.keyboard.KeyBind
  * @author forpleuvoir
 
  */
-class ConfigBooleanHotkey(name: String, remark: String, defaultValue: KeyBind, val config: ConfigBoolean) :
-	ConfigHotkey(name, remark, defaultValue) {
+class ConfigBooleanHotkey(defaultValue: KeyBind, val config: ConfigBoolean) :
+	ConfigHotkey("${config.name}.hotkey", "${config.name}.remark", defaultValue) {
 	init {
 		this.setKeyCallback {
 			this.config.toggle()

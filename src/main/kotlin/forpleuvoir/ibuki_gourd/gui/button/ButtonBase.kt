@@ -49,7 +49,7 @@ abstract class ButtonBase<T : ButtonWidget>(
 	}
 
 
-	private val mc: MinecraftClient = MinecraftClient.getInstance()
+	protected val mc: MinecraftClient = MinecraftClient.getInstance()
 	protected val textRenderer: TextRenderer = mc.textRenderer
 	protected val hoverText: ArrayList<Text> = ArrayList()
 	private var hoverCallback: ((T) -> Unit)? = null
@@ -61,6 +61,11 @@ abstract class ButtonBase<T : ButtonWidget>(
 		if (hovered && hoverCallbackAble) {
 			hoverCallback?.invoke(this as T)
 		}
+	}
+
+	fun setPosition(x: Int, y: Int) {
+		this.x = x
+		this.y = y
 	}
 
 	fun setOnHoverCallback(hoverCallback: (T) -> Unit) {

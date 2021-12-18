@@ -21,7 +21,7 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-class ConfigString(override val name: String, override val remark: String, override val defaultValue: String) : ConfigBase(),
+class ConfigString(override val name: String, override val remark: String = "$name.remark", override val defaultValue: String) : ConfigBase(),
 	IConfigBaseValue<String> {
 
 	private var value: String = defaultValue

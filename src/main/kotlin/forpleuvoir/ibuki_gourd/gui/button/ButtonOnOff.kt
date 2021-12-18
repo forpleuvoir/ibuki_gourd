@@ -3,6 +3,7 @@ package forpleuvoir.ibuki_gourd.gui.button
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 
 
@@ -21,8 +22,8 @@ import net.minecraft.util.Formatting
 
  */
 
-private val on: Text = IbukiGourdLang.On.tText()
-private val off: Text = IbukiGourdLang.Off.tText()
+private val on: TranslatableText = IbukiGourdLang.On.tText()
+private val off: TranslatableText = IbukiGourdLang.Off.tText()
 
 class ButtonOnOff(
 	x: Int,
@@ -60,8 +61,9 @@ class ButtonOnOff(
 	}
 
 	private fun toggleMessageText() {
+		on.style.withColor(onFormatting)
+		off.style.withColor(offFormatting)
 		message = if (status) on else off
-		message.style.withColor(if (status) onFormatting else offFormatting)
 	}
 
 	override fun onPress() {

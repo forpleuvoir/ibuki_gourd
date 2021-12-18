@@ -21,7 +21,7 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-class ConfigBoolean(override val name: String, override val remark: String, override val defaultValue: Boolean) : ConfigBase(),
+class ConfigBoolean(override val name: String, override val remark: String = "$name.remark", override val defaultValue: Boolean) : ConfigBase(),
 	IConfigBaseValue<Boolean> {
 
 	private var value: Boolean = defaultValue

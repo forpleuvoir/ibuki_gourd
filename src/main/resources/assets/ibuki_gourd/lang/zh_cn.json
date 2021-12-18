@@ -18,5 +18,16 @@
   "ibuki_gourd.disable": "禁用",
   "ibuki_gourd.disabled": "已禁用",
   "ibuki_gourd.status": "状态",
-  "ibuki_gourd.config.set_from_json_failed": "无法从JSON中读取配置 '%s',JSON: '%s' "
+  "ibuki_gourd.rest": "重置",
+  "ibuki_gourd.config.set_from_json_failed": "无法从JSON中读取配置 '%s',JSON: '%s' ",
+  "ibuki_gourd.test.color": "测试颜色",
+  "ibuki_gourd.test.color.remark": "测试颜色",
+  "ibuki_gourd.test.boolean": "测试布尔",
+  "ibuki_gourd.test.boolean.remark": "测试布尔",
+  "ibuki_gourd.test.int": "测试整数",
+  "ibuki_gourd.test.int.remark": "测试整数",
+  "ibuki_gourd.test.double": "测试浮点",
+  "ibuki_gourd.test.double.remark": "测试浮点",
+  "ibuki_gourd.test.string": "测试字符串",
+  "ibuki_gourd.test.string.remark": "测试字符串"
 }

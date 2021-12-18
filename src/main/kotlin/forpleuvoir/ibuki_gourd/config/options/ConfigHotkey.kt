@@ -4,6 +4,7 @@ import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
 
@@ -21,11 +22,15 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-open class ConfigHotkey(override val name: String, override val remark: String, final override val defaultValue: KeyBind) : ConfigBase(),
+open class ConfigHotkey(override val name: String, override val remark: String = "$name.remark", final override val defaultValue: KeyBind) : ConfigBase(),
 	IConfigBaseValue<KeyBind> {
 	override val type: ConfigType
 		get() = ConfigType.HOTKEY
 	private var value: KeyBind = defaultValue
+
+	init {
+		KeyboardUtil.registerKeyBind(this.getValue())
+	}
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
@@ -59,9 +64,7 @@ open class ConfigHotkey(override val name: String, override val remark: String, 
 	}
 
 	override fun setValue(value: KeyBind) {
-		val oldValue = this.value
-		this.value = value
-		if (oldValue != this.value) {
+		if (this.value.copyOf(value)) {
 			this.onValueChange()
 		}
 	}

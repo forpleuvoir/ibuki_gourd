@@ -21,11 +21,14 @@ import java.awt.Color.*
 
  */
 class Color4f(
-	var red: Float = 0f,
-	var green: Float = 0f,
-	var blue: Float = 0f,
-	var alpha: Float = 1f
+	override var red: Float = 0f,
+	override var green: Float = 0f,
+	override var blue: Float = 0f,
+	override var alpha: Float = 1f
 ) : IColor<Float> {
+
+	override val hexString: String
+		get() = "#${(red * 255).toInt().toString(16).uppercase()}${(green * 255).toInt().toString(16).uppercase()}${(blue * 255).toInt().toString(16).uppercase()}${(alpha * 255).toInt().toString(16).uppercase()}"
 
 	init {
 		fixAllValue()
@@ -42,10 +45,10 @@ class Color4f(
 		val MAGENTA = Color4f(0.5f, 0f, 0.5f, 1f)
 	}
 
-	override val intValue: Int
+	override val rgb: Int
 		get() = Color(red, green, blue, alpha).rgb
 
-	override fun intValue(alpha: Float): Int {
+	override fun rgb(alpha: Float): Int {
 		return Color(red, green, blue, alpha).rgb
 	}
 

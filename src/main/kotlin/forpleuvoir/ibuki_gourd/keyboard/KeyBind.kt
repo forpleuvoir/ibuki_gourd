@@ -4,9 +4,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.common.IJsonData
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
-import forpleuvoir.ibuki_gourd.event.util.KeyEnvironment
-import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.Text
@@ -64,6 +61,21 @@ class KeyBind(vararg key: Int, var keyEnvironment: KeyEnvironment = KeyEnvironme
 			this.keys.add(InputUtil.fromTranslationKey(it.asString).code)
 		}
 		this.keyEnvironment = KeyEnvironment.valueOf(jsonObject["keyEnvironment"].asString)
+	}
+
+	fun copyOf(key: KeyBind): Boolean {
+		var valueChange = false
+		if (this.keys != key.keys) {
+			this.keys.clear()
+			this.keys.addAll(key.keys)
+			valueChange = true
+		}
+		this.callback = key.callback
+		if (this.keyEnvironment != key.keyEnvironment) {
+			this.keyEnvironment = key.keyEnvironment
+			valueChange = true
+		}
+		return valueChange
 	}
 
 	override fun equals(other: Any?): Boolean {

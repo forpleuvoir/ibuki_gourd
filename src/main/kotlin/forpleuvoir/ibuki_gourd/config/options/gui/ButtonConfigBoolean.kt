@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigBoolean
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
@@ -33,9 +34,14 @@ class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private 
 		this.updateText()
 	}
 
+	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+		super.render(matrices, mouseX, mouseY, delta)
+		this.updateText()
+	}
+
 	private fun updateText() {
 		val valueStr = this.config.getValue().toString()
-		message = Text.of(valueStr)
-		message.style.withColor(if (this.config.getValue()) Formatting.GREEN else Formatting.RED)
+		val formatting = if (this.config.getValue()) Formatting.GREEN else Formatting.RED
+		message = Text.of(formatting.toString() + valueStr)
 	}
 }

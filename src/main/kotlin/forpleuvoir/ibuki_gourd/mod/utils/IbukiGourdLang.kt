@@ -38,6 +38,7 @@ enum class IbukiGourdLang(override val key:String): Lang {
 	Disable("disable"),
 	Disabled("disabled"),
 	Status("status"),
+	Rest("rest"),
 	SetFromJsonFailed("config.set_from_json_failed"),
 	;
 

@@ -22,20 +22,23 @@ import java.awt.Color
 
  */
 class Color4i(
-	var red: Int = 0,
-	var green: Int = 0,
-	var blue: Int = 0,
-	var alpha: Int = 255
+	override var red: Int = 0,
+	override var green: Int = 0,
+	override var blue: Int = 0,
+	override var alpha: Int = 255
 ) : IColor<Int> {
+
+	override val hexString: String
+		get() = "#${red.toString(16).uppercase()}${green.toString(16).uppercase()}${blue.toString(16).uppercase()}${alpha.toString(16).uppercase()}"
 
 	init {
 		fixAllValue()
 	}
 
-	override val intValue: Int
+	override val rgb: Int
 		get() = Color(red, green, blue, alpha).rgb
 
-	override fun intValue(alpha: Int): Int {
+	override fun rgb(alpha: Int): Int {
 		return Color(red, green, blue, alpha).rgb
 	}
 

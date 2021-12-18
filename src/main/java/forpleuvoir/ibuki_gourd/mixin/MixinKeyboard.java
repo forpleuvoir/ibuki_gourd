@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.mixin;
 
 import forpleuvoir.ibuki_gourd.event.events.KeyPressEvent;
 import forpleuvoir.ibuki_gourd.event.events.KeyReleaseEvent;
-import forpleuvoir.ibuki_gourd.event.util.KeyEnvironment;
+import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment;
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;

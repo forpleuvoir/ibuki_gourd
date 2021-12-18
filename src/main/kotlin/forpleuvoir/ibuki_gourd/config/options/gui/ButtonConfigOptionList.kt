@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigOptionList
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
 
@@ -29,6 +30,11 @@ class ButtonConfigOptionList(x: Int, y: Int, width: Int, height: Int = 20, priva
 		this.config.getValue().getAllItem().forEach {
 			this.hoverText.add(it.displayName.append(" - ").append(it.displayRemark))
 		}
+	}
+
+	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+		super.render(matrices, mouseX, mouseY, delta)
+		this.updateText()
 	}
 
 	override fun onPress() {

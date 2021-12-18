@@ -106,4 +106,20 @@ object RenderUtil {
 		RenderSystem.enableBlend()
 		RenderSystem.blendFuncSeparate(SrcFactor.SRC_ALPHA, DstFactor.ONE_MINUS_SRC_ALPHA, SrcFactor.ONE, DstFactor.ZERO)
 	}
+
+	fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Int, mouseY: Int): Boolean {
+		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
+	}
+
+	inline fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Int, mouseY: Int, callback: () -> Unit) {
+		if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) callback.invoke()
+	}
+
+	fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Double, mouseY: Double): Boolean {
+		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
+	}
+
+	inline fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Double, mouseY: Double, callback: () -> Unit) {
+		if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) callback.invoke()
+	}
 }

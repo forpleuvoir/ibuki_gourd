@@ -24,14 +24,14 @@ import net.minecraft.util.math.MathHelper
  */
 class ConfigInt(
 	override val name: String,
-	override val remark: String,
+	override val remark: String = "$name.remark",
 	override val defaultValue: Int = 0,
 	val minValue: Int = Int.MIN_VALUE,
 	val maxValue: Int = Int.MAX_VALUE
 ) : ConfigBase(),
 	IConfigBaseValue<Int> {
 
-	private var value: Int = defaultValue
+	private var value: Int = MathHelper.clamp(defaultValue, minValue, maxValue)
 
 	override val type: ConfigType
 		get() = ConfigType.INTEGER

@@ -25,14 +25,14 @@ import kotlin.math.max
  */
 class ConfigDouble(
 	override val name: String,
-	override val remark: String,
+	override val remark: String = "$name.remark",
 	override val defaultValue: Double = 0.0,
 	val minValue: Double = Double.MIN_VALUE,
 	val maxValue: Double = Double.MAX_VALUE
 ) : ConfigBase(),
 	IConfigBaseValue<Double> {
 
-	private var value: Double = defaultValue
+	private var value: Double = MathHelper.clamp(defaultValue, minValue, maxValue)
 
 	override val type: ConfigType
 		get() = ConfigType.DOUBLE

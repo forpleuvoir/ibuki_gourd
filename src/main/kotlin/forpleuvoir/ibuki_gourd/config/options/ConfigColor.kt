@@ -22,7 +22,7 @@ import forpleuvoir.ibuki_gourd.utils.color.IColor
  * @author forpleuvoir
 
  */
-class ConfigColor(override val name: String, override val remark: String, override val defaultValue: IColor<*> = WHITE) : ConfigBase(),
+class ConfigColor(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IColor<*> = WHITE) : ConfigBase(),
 	IConfigBaseValue<IColor<*>> {
 
 	private var value: IColor<*> = defaultValue

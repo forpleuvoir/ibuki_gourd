@@ -1,11 +1,11 @@
-package forpleuvoir.ibuki_gourd.event.util
+package forpleuvoir.ibuki_gourd.keyboard
 
 /**
  * 按键按下事件 环境
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.event.util
+ * 包名 forpleuvoir.ibuki_gourd.keyboard
 
  * 文件名 KeyEnvironment
 

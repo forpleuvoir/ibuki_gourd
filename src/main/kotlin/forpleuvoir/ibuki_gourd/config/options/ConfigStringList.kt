@@ -23,7 +23,11 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-class ConfigStringList(override val name: String, override val remark: String, override val defaultValue: ImmutableList<String>) : ConfigBase(),
+class ConfigStringList(
+	override val name: String,
+	override val remark: String = "$name.remark",
+	override val defaultValue: ImmutableList<String>
+) : ConfigBase(),
 	IConfigBaseValue<List<String>> {
 
 	private var value: ArrayList<String> = ArrayList(defaultValue)
