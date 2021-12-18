@@ -1,6 +1,5 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
-import com.mojang.blaze3d.systems.RenderSystem
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
@@ -8,11 +7,9 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
 import net.minecraft.client.gui.widget.EntryListWidget
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat.DrawMode
-import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.math.MatrixStack
+import java.util.function.Predicate
 
 
 /**
@@ -32,17 +29,32 @@ import net.minecraft.client.util.math.MatrixStack
 class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, height: Int, top: Int, bottom: Int, itemHeight: Int) :
 	EntryListWidget<ConfigBaseEntry>(MinecraftClient.getInstance(), width, height, top, bottom, itemHeight) {
 
+	private var configPredicate: Predicate<ConfigBase> = Predicate { true }
+
 	val hoveredEntry: ConfigBaseEntry?
 		get() = this.getHoveredEntry()
 
 	init {
-		this.clearEntries()
-		configs.forEach {
-			this.addEntry(ConfigBaseEntry(this, it))
-		}
+		initConfigs()
 		setRenderBackground(false)
 		setRenderHorizontalShadows(true)
 		setRenderHeader(true, 0)
+	}
+
+	fun setDefaultFilter() {
+		configPredicate = Predicate { true }
+	}
+
+	fun setFilter(predicate: Predicate<ConfigBase>) {
+		this.configPredicate = predicate
+		initConfigs()
+	}
+
+	private fun initConfigs() {
+		this.clearEntries()
+		configs.stream().filter(configPredicate).forEach {
+			this.addEntry(ConfigBaseEntry(this, it))
+		}
 	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
@@ -52,8 +64,6 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 
 	override fun renderList(matrices: MatrixStack?, x: Int, y: Int, mouseX: Int, mouseY: Int, delta: Float) {
 		val i = this.entryCount
-		val tessellator = Tessellator.getInstance()
-		val bufferBuilder = tessellator.buffer
 		for (j in 0 until i) {
 			val k = getRowTop(j)
 			val l = getRowTop(j) + this.itemHeight
@@ -62,33 +72,49 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 				val n = itemHeight
 				val entry: ConfigBaseEntry = getEntry(j)
 				val o = this.rowWidth
-				var p: Int
 				if (isSelectedEntry(j)) {
-					p = left + width / 2 - o / 2
-					val q = left + width / 2 + o / 2
-					RenderSystem.disableTexture()
-					RenderSystem.setShader { GameRenderer.getPositionShader() }
-					val f = if (this.isFocused) 1.0f else 0.5f
-					RenderSystem.setShaderColor(f, f, f, 1.0f)
-					bufferBuilder.begin(DrawMode.QUADS, VertexFormats.POSITION)
-					bufferBuilder.vertex(p.toDouble(), (m + n + 2).toDouble(), 0.0).next()
-					bufferBuilder.vertex(q.toDouble(), (m + n + 2).toDouble(), 0.0).next()
-					bufferBuilder.vertex(q.toDouble(), (m - 2).toDouble(), 0.0).next()
-					bufferBuilder.vertex(p.toDouble(), (m - 2).toDouble(), 0.0).next()
-					tessellator.draw()
-					RenderSystem.setShaderColor(0.0f, 0.0f, 0.0f, 1.0f)
-					bufferBuilder.begin(DrawMode.QUADS, VertexFormats.POSITION)
-					bufferBuilder.vertex((p + 1).toDouble(), (m + n + 1).toDouble(), 0.0).next()
-					bufferBuilder.vertex((q - 1).toDouble(), (m + n + 1).toDouble(), 0.0).next()
-					bufferBuilder.vertex((q - 1).toDouble(), (m - 1).toDouble(), 0.0).next()
-					bufferBuilder.vertex((p + 1).toDouble(), (m - 1).toDouble(), 0.0).next()
-					tessellator.draw()
-					RenderSystem.enableTexture()
+					entry.renderSelected()
 				}
-				p = this.rowLeft
-				entry.render(matrices, j, k, p, o, n, mouseX, mouseY, this.hoveredEntry == entry, delta)
+				val p: Int = this.rowLeft
+				entry.render(matrices, j, k, p, o - 10, n, mouseX, mouseY, this.hoveredEntry == entry, delta)
 			}
 		}
+	}
+
+	fun tick(){
+		this.children().forEach {
+			if (selectedOrNull == it) {
+				(it.tick())
+			}
+		}
+	}
+
+	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+		this.children().forEach {
+			if (selectedOrNull == it) {
+				(it.keyPressed(keyCode, scanCode, modifiers))
+			}
+		}
+
+		return super.keyPressed(keyCode, scanCode, modifiers)
+	}
+
+	override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+		this.children().forEach {
+			if (selectedOrNull == it) {
+				(it.keyReleased(keyCode, scanCode, modifiers))
+			}
+		}
+		return super.keyReleased(keyCode, scanCode, modifiers)
+	}
+
+	override fun charTyped(chr: Char, modifiers: Int): Boolean {
+		this.children().forEach {
+			if (selectedOrNull == it) {
+				it.charTyped(chr, modifiers)
+			}
+		}
+		return super.charTyped(chr, modifiers)
 	}
 
 
@@ -113,12 +139,13 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 		this.children().forEach {
 			it.mouseClicked(mouseX, mouseY, button)
 		}
+		setSelected(hoveredEntry)
 		return true
 	}
 
 	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
 		this.children().forEach {
-			it.mouseDragged(mouseX, mouseY, button,deltaX, deltaY)
+			it.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 		}
 		return true
 	}

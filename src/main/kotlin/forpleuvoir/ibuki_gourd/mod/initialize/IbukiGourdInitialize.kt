@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.mod.initialize
 
 import forpleuvoir.ibuki_gourd.common.IModInitialize
+import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.mod.gui.ScreenTest
@@ -30,7 +31,7 @@ object IbukiGourdInitialize : IModInitialize {
 	override fun initialize() {
 		log.info("${IbukiGourdMod.modName} initializing...")
 		ScreenInitialize.initialize()
-		KeyboardUtil.setOnPressCallback(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G) {
+		KeyboardUtil.setOnPressCallback(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.ALL) {
 			val screen = IbukiGourdConfigsGui()
 			screen.parent = mc.currentScreen
 			mc.setScreen(screen)

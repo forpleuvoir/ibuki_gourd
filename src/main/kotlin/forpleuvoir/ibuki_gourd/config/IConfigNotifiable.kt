@@ -27,4 +27,10 @@ interface IConfigNotifiable {
 	 */
 	fun setOnValueChangedCallback(callback: (IConfigBase) -> Unit)
 
+	/**
+	 * 保存文件用
+	 * @param callback Function1<IConfigBase, Unit>
+	 */
+	fun setOnValueChanged(callback: (IConfigBase) -> Unit)
+
 }

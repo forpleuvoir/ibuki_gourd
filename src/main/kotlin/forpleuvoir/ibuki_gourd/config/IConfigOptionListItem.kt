@@ -20,10 +20,10 @@ import net.minecraft.text.TranslatableText
  */
 interface IConfigOptionListItem {
 
-	val name: String
+	val key: String
 
 	val displayName: TranslatableText
-		get() = name.tText()
+		get() = key.tText()
 
 	val remark: String
 

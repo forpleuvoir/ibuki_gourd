@@ -36,9 +36,12 @@ class IbukiGourdConfigs : IConfigHandler {
 		@JvmStatic
 		val TEST_STRING = ConfigString(name = "ibuki_gourd.test.string", defaultValue = "true")
 
+		@JvmStatic
+		val TEST_OPTION_LIST = ConfigOptionList(name = "ibuki_gourd.test.option_list", defaultValue = WhiteListMode.None)
+
 
 		val OPTION: List<ConfigBase> = listOf(
-			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING,TEST_OPTION_LIST
 		)
 	}
 

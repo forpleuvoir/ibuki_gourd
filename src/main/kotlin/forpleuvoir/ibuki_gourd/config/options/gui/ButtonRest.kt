@@ -27,12 +27,15 @@ class ButtonRest(
 	height: Int = 20,
 	val config: IConfigResettable
 ) :
-	ButtonBase<ButtonRest>(x, y, width, height, message = IbukiGourdLang.Rest.tText(), onButtonPress = {
-		config.resetDefaultValue()
-	}) {
+	ButtonBase<ButtonRest>(x, y, width, height, message = IbukiGourdLang.Rest.tText(), onButtonPress = null) {
 
 	init {
 		this.active = !config.isDefaultValue
+	}
+
+	override fun onPress() {
+		config.resetDefaultValue()
+		super.onPress()
 	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {

@@ -22,7 +22,11 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-class ConfigOptionList(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IConfigOptionListItem) : ConfigBase(),
+class ConfigOptionList(
+	override val name: String,
+	override val remark: String = "$name.remark",
+	override val defaultValue: IConfigOptionListItem
+) : ConfigBase(),
 	IConfigBaseValue<IConfigOptionListItem> {
 	override val type: ConfigType
 		get() = ConfigType.OPTION_LIST
@@ -43,10 +47,10 @@ class ConfigOptionList(override val name: String, override val remark: String = 
 	}
 
 	override val asJsonElement: JsonElement
-		get() = JsonPrimitive(getValue().name)
+		get() = JsonPrimitive(getValue().key)
 
 	override val isDefaultValue: Boolean
-		get() = getValue() != defaultValue
+		get() = getValue() == defaultValue
 
 	override fun resetDefaultValue() {
 		setValue(defaultValue)

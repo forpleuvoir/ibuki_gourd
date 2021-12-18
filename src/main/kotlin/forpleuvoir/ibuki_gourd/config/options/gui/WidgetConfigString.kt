@@ -28,10 +28,12 @@ class WidgetConfigString(x: Int, y: Int, width: Int, height: Int, private val co
 		setChangedListener {
 			config.setValue(it)
 		}
+		config.setOnValueChangedCallback {
+			updateText()
+		}
 	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
-		updateText()
 		super.render(matrices, mouseX, mouseY, delta)
 	}
 

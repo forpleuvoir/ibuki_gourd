@@ -6,6 +6,7 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.gui.widget.EntryListWidget
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
@@ -36,7 +37,7 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 	private val restButton: ButtonRest = ButtonRest(x = 0, y = 0, config = config)
 	private val configWidget: ClickableWidget
 	private val leftPadding = 10
-	private val rightPadding = 30
+	private val rightPadding = 10
 	private val topPadding = 2
 	private val bottomPadding = 2
 	private val maxBgOpacity = 60
@@ -85,6 +86,9 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 		this.update(index, y, x, entryWidth, entryHeight, mouseX, mouseY, hovered, tickDelta)
 		this.updateWidgetPos()
 		this.renderBackground()
+		if (parent.selectedOrNull == this) {
+			this.renderSelected()
+		}
 		this.textRenderer.drawWithShadow(
 			matrices,
 			message,
@@ -92,6 +96,7 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 			messageY.toFloat(),
 			Color4i.WHITE.rgb
 		)
+
 		this.renderWidget(matrices)
 		this.onHoverText(matrices)
 	}
@@ -112,7 +117,14 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 	}
 
 	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-		if (hovered) {
+		RenderUtil.isMouseHovered(
+			this.configWidget.x,
+			this.configWidget.y,
+			this.configWidget.width,
+			this.configWidget.height,
+			mouseX,
+			mouseY
+		) {
 			return this.configWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 		}
 		return false
@@ -142,6 +154,29 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 		this.mouseY = mouseY
 		this.hovered = RenderUtil.isMouseHovered(x, y, entryWidth, entryHeight, mouseX, mouseY)
 		this.tickDelta = tickDelta
+	}
+
+	fun renderSelected() {
+		RenderUtil.drawOutline(x = x, y = y, width = entryWidth, height = entryHeight, colorBorder = Color4i(255, 255, 255, 255))
+	}
+
+	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+		return this.configWidget.keyPressed(keyCode, scanCode, modifiers)
+	}
+
+	override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+		return this.configWidget.keyReleased(keyCode, scanCode, modifiers)
+	}
+
+	fun tick() {
+		if (configWidget is TextFieldWidget) {
+			configWidget.tick()
+		}
+	}
+
+
+	override fun charTyped(chr: Char, modifiers: Int): Boolean {
+		return this.configWidget.charTyped(chr, modifiers)
 	}
 
 	private fun renderBackground() {

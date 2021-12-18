@@ -29,6 +29,7 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
 		val log = IbukiGourdLogger.getLogger(this::class.java)
 	}
 
+	private var onValueChange: ((IConfigBase) -> Unit)? = null
 	private var callback: ((IConfigBase) -> Unit)? = null
 
 	override val displayName: Text
@@ -56,10 +57,13 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
 		this.callback = callback
 	}
 
+	override fun setOnValueChanged(callback: (IConfigBase) -> Unit) {
+		this.onValueChange = callback
+	}
+
 	override fun onValueChange() {
-		if (callback != null) {
-			callback?.invoke(this)
-		}
+		callback?.invoke(this)
+		onValueChange?.invoke(this)
 	}
 
 	override fun hashCode(): Int {

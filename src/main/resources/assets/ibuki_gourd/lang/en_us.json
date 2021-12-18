@@ -19,5 +19,11 @@
   "ibuki_gourd.disabled": "Disabled",
   "ibuki_gourd.status": "Status",
   "ibuki_gourd.rest": "Rest",
-  "ibuki_gourd.config.set_from_json_failed": "Failed to set config value for '%s' from the JSON element '%s'"
+  "ibuki_gourd.config.set_from_json_failed": "Failed to set config value for '%s' from the JSON element '%s'",
+  "ibuki_gourd.white_list.white_list": "White List",
+  "ibuki_gourd.white_list.black_list":"Black List",
+  "ibuki_gourd.white_list.none": "None",
+  "ibuki_gourd.white_list.white_list.remark": "Only match options in the list",
+  "ibuki_gourd.white_list.black_list.remark":"Does not match the options in the list",
+  "ibuki_gourd.white_list.none.remark": "None"
 }
