@@ -45,10 +45,10 @@ class Color4f(
 		val MAGENTA = Color4f(0.5f, 0f, 0.5f, 1f)
 	}
 
-	override val rgb: Int
+	override val rgba: Int
 		get() = Color(red, green, blue, alpha).rgb
 
-	override fun rgb(alpha: Float): Int {
+	override fun rgba(alpha: Float): Int {
 		return Color(red, green, blue, alpha).rgb
 	}
 
@@ -66,6 +66,7 @@ class Color4f(
 		return v
 	}
 
+
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		if (jsonElement.isJsonObject) {
 			val jsonObject = jsonElement.asJsonObject
@@ -76,16 +77,6 @@ class Color4f(
 			fixAllValue()
 		}
 	}
-
-	override val asJsonElement: JsonElement
-		get() {
-			val jsonObject = JsonObject()
-			jsonObject.addProperty("red", red)
-			jsonObject.addProperty("green", red)
-			jsonObject.addProperty("blue", red)
-			jsonObject.addProperty("alpha", red)
-			return jsonObject
-		}
 
 	override fun fromInt(color: Int): Color4f {
 		val c = Color(color)

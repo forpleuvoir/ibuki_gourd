@@ -3,7 +3,10 @@ package forpleuvoir.ibuki_gourd.render
 import com.mojang.blaze3d.platform.GlStateManager.DstFactor
 import com.mojang.blaze3d.platform.GlStateManager.SrcFactor
 import com.mojang.blaze3d.systems.RenderSystem
+import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import forpleuvoir.ibuki_gourd.utils.color.IColor
+import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat.DrawMode
@@ -27,45 +30,46 @@ import net.minecraft.client.render.VertexFormats
 object RenderUtil {
 
 	//from malilib
-	fun drawOutlinedBox(x: Int, y: Int, width: Int, height: Int, colorBg: Color4i, colorBorder: Color4i, zLevel: Double = 0.0) {
+	fun drawOutlinedBox(x: Number, y: Number, width: Number, height: Number, colorBg: IColor<*>, colorBorder: IColor<*>, zLevel: Number = 0.0) {
 		drawRect(x, y, width, height, colorBg, zLevel)
-		drawOutline(x - 1, y - 1, width + 2, height + 2, colorBorder = colorBorder, zLevel = zLevel)
+		drawOutline(x.toDouble() - 1, y.toDouble() - 1, width.toDouble() + 2, height.toDouble() + 2, borderColor = colorBorder, zLevel = zLevel)
 	}
 
+
 	//from malilib
-	fun drawOutline(x: Int, y: Int, width: Int, height: Int, borderWidth: Int = 1, colorBorder: Color4i, zLevel: Double = 0.0) {
-		drawRect(x, y, borderWidth, height, colorBorder, zLevel)
-		drawRect(x + width - borderWidth, y, borderWidth, height, colorBorder, zLevel)
-		drawRect(x + borderWidth, y, width - 2 * borderWidth, borderWidth, colorBorder, zLevel)
+	fun drawOutline(x: Number, y: Number, width: Number, height: Number, borderWidth: Number = 1, borderColor: IColor<*>, zLevel: Number = 0.0) {
+		drawRect(x, y, borderWidth, height, borderColor, zLevel)
+		drawRect(x.toDouble() + width.toDouble() - borderWidth.toDouble(), y, borderWidth, height, borderColor, zLevel)
+		drawRect(x.toDouble() + borderWidth.toDouble(), y, width.toDouble() - 2 * borderWidth.toDouble(), borderWidth, borderColor, zLevel)
 		drawRect(
-			x + borderWidth,
-			y + height - borderWidth,
-			width - 2 * borderWidth,
+			x.toDouble() + borderWidth.toDouble(),
+			y.toDouble() + height.toDouble() - borderWidth.toDouble(),
+			width.toDouble() - 2 * borderWidth.toDouble(),
 			borderWidth,
-			colorBorder,
+			borderColor,
 			zLevel
 		)
 	}
 
-	//from malilib
-	fun drawRect(x: Int, y: Int, width: Int, height: Int, color: Color4i, zLevel: Double = 0.0) {
-		val a = color.alpha
-		val r = color.red
-		val g = color.green
-		val b = color.blue
+	fun drawRect(x: Number, y: Number, width: Number, height: Number, color: IColor<*>, zLevel: Number = 0.0) {
 		RenderSystem.setShader { GameRenderer.getPositionColorShader() }
 		RenderSystem.applyModelViewMatrix()
 		val tessellator = Tessellator.getInstance()
 		val buffer = tessellator.buffer
 		setupBlend()
 		buffer.begin(DrawMode.QUADS, VertexFormats.POSITION_COLOR)
-		buffer.vertex(x.toDouble(), y.toDouble(), zLevel).color(r, g, b, a).next()
-		buffer.vertex(x.toDouble(), (y + height).toDouble(), zLevel).color(r, g, b, a).next()
-		buffer.vertex((x + width).toDouble(), (y + height).toDouble(), zLevel).color(r, g, b, a).next()
-		buffer.vertex((x + width).toDouble(), y.toDouble(), zLevel).color(r, g, b, a).next()
+		buffer.vertex(x.toDouble(), y.toDouble(), zLevel.toDouble()).color(color.rgba).next()
+		buffer.vertex(x.toDouble(), (y.toDouble() + height.toDouble()), zLevel.toDouble()).color(color.rgba).next()
+		buffer.vertex((x.toDouble() + width.toDouble()), (y.toDouble() + height.toDouble()), zLevel.toDouble()).color(color.rgba).next()
+		buffer.vertex((x.toDouble() + width.toDouble()), y.toDouble(), zLevel.toDouble()).color(color.rgba).next()
 		tessellator.draw()
 		RenderSystem.disableBlend()
 	}
+
+	fun drawRect(x: Number, y: Number, width: Number, height: Number, color: Color4f, zLevel: Number = 0.0) {
+		drawRect(x, y, width, height, Color4i().fromInt(color.rgba), zLevel)
+	}
+
 
 	/**
 	 * 绘制渐变矩形
@@ -77,15 +81,15 @@ object RenderUtil {
 	 * @param startColor Int
 	 * @param endColor Int
 	 */
-	fun drawGradientRect(left: Int, top: Int, right: Int, bottom: Int, startColor: Color4i, endColor: Color4i, zLevel: Double = 0.0) {
-		val sa = startColor.alpha
-		val sr = startColor.red
-		val sg = startColor.green
-		val sb = startColor.blue
-		val ea = endColor.alpha
-		val er = endColor.red
-		val eg = endColor.green
-		val eb = endColor.blue
+	fun drawGradientRect(
+		left: Number,
+		top: Number,
+		right: Number,
+		bottom: Number,
+		startColor: IColor<*>,
+		endColor: IColor<*>,
+		zLevel: Number = 0.0
+	) {
 		RenderSystem.disableTexture()
 		setupBlend()
 		RenderSystem.setShader { GameRenderer.getPositionColorShader() }
@@ -93,10 +97,10 @@ object RenderUtil {
 		val tessellator = Tessellator.getInstance()
 		val buffer = tessellator.buffer
 		buffer.begin(DrawMode.QUADS, VertexFormats.POSITION_COLOR)
-		buffer.vertex(right.toDouble(), top.toDouble(), zLevel).color(sr, sg, sb, sa).next()
-		buffer.vertex(left.toDouble(), top.toDouble(), zLevel).color(sr, sg, sb, sa).next()
-		buffer.vertex(left.toDouble(), bottom.toDouble(), zLevel).color(er, eg, eb, ea).next()
-		buffer.vertex(right.toDouble(), bottom.toDouble(), zLevel).color(er, eg, eb, ea).next()
+		buffer.vertex(right.toDouble(), top.toDouble(), zLevel.toDouble()).color(startColor.rgba).next()
+		buffer.vertex(left.toDouble(), top.toDouble(), zLevel.toDouble()).color(startColor.rgba).next()
+		buffer.vertex(left.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(endColor.rgba).next()
+		buffer.vertex(right.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(endColor.rgba).next()
 		tessellator.draw()
 		RenderSystem.disableBlend()
 		RenderSystem.enableTexture()
@@ -107,19 +111,31 @@ object RenderUtil {
 		RenderSystem.blendFuncSeparate(SrcFactor.SRC_ALPHA, DstFactor.ONE_MINUS_SRC_ALPHA, SrcFactor.ONE, DstFactor.ZERO)
 	}
 
-	fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Int, mouseY: Int): Boolean {
-		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
+	fun isMouseHovered(x: Number, y: Number, width: Number, height: Number, mouseX: Number, mouseY: Number): Boolean {
+		return mouseX.toDouble() >= x.toDouble() && mouseX.toDouble() <= x.toDouble() + width.toDouble() && mouseY.toDouble() >= y.toDouble() && mouseY.toDouble() <= y.toDouble() + height.toDouble()
 	}
 
-	inline fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Int, mouseY: Int, callback: () -> Unit) {
-		if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) callback.invoke()
+	inline fun isMouseHovered(x: Number, y: Number, width: Number, height: Number, mouseX: Number, mouseY: Number, callback: () -> Unit) {
+		if (isMouseHovered(x, y, width, height, mouseX, mouseY)) callback.invoke()
 	}
 
-	fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Double, mouseY: Double): Boolean {
-		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
+	fun isMouseHovered(widget: ClickableWidget, mouseX: Number, mouseY: Number): Boolean {
+		return isMouseHovered(widget.x, widget.y, widget.width, widget.height, mouseX, mouseY)
 	}
 
-	inline fun isMouseHovered(x: Int, y: Int, width: Int, height: Int, mouseX: Double, mouseY: Double, callback: () -> Unit) {
-		if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) callback.invoke()
+	@Suppress("unchecked_cast")
+	inline fun ClickableWidget.isMouseHovered(mouseX: Number, mouseY: Number, callback: (ClickableWidget) -> Unit) {
+		if (isMouseHovered(this, mouseX, mouseY)) {
+			callback.invoke(this)
+		}
 	}
+
+	@JvmName("isMouseHovered1")
+	@Suppress("unchecked_cast")
+	inline fun <W : ClickableWidget> ClickableWidget.isMouseHovered(mouseX: Number, mouseY: Number, callback: (W) -> Unit) {
+		if (isMouseHovered(this, mouseX, mouseY)) {
+			callback.invoke(this as W)
+		}
+	}
+
 }

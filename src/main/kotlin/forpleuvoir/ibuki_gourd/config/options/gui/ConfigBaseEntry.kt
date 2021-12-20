@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.render.RenderUtil.isMouseHovered
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.ClickableWidget
@@ -40,8 +41,8 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 	private val rightPadding = 10
 	private val topPadding = 2
 	private val bottomPadding = 2
-	private val maxBgOpacity = 60
-	private val bgOpacityDelta: Float = 25f
+	private val maxBgOpacity = 80
+	private val bgOpacityDelta: Float = 20f
 
 	private var index: Int = 0
 	private var y: Int = 0
@@ -86,17 +87,13 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 		this.update(index, y, x, entryWidth, entryHeight, mouseX, mouseY, hovered, tickDelta)
 		this.updateWidgetPos()
 		this.renderBackground()
-		if (parent.selectedOrNull == this) {
-			this.renderSelected()
-		}
 		this.textRenderer.drawWithShadow(
 			matrices,
 			message,
 			messageX.toFloat(),
 			messageY.toFloat(),
-			Color4i.WHITE.rgb
+			Color4i.WHITE.rgba
 		)
-
 		this.renderWidget(matrices)
 		this.onHoverText(matrices)
 	}
@@ -104,7 +101,7 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 	private fun onHoverText(matrices: MatrixStack?) {
 		val textWidth = textRenderer.getWidth(message)
 		val textHeight = textRenderer.fontHeight
-		RenderUtil.isMouseHovered(messageX, messageY, textWidth, textHeight, mouseX, mouseY) {
+		isMouseHovered(messageX, messageY, textWidth, textHeight, mouseX, mouseY) {
 			mc.currentScreen?.renderTooltip(matrices, messageHoverText, mouseX, mouseY)
 		}
 
@@ -113,21 +110,22 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
 		this.restButton.mouseClicked(mouseX, mouseY, button)
 		this.configWidget.mouseClicked(mouseX, mouseY, button)
+		if (isMouseHovered(this.configWidget, mouseX, mouseY)) {
+			if (!this.configWidget.isFocused)
+				configWidget.changeFocus(true)
+		} else {
+			if (this.configWidget.isFocused)
+				configWidget.changeFocus(true)
+		}
 		return false
 	}
 
+
 	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-		RenderUtil.isMouseHovered(
-			this.configWidget.x,
-			this.configWidget.y,
-			this.configWidget.width,
-			this.configWidget.height,
-			mouseX,
-			mouseY
-		) {
+		if (configWidget.isFocused) {
 			return this.configWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 		}
-		return false
+		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 	}
 
 	private fun renderWidget(matrices: MatrixStack?) {
@@ -152,12 +150,12 @@ class ConfigBaseEntry(private val parent: WidgetListConfigBase, private val conf
 		this.entryHeight = entryHeight
 		this.mouseX = mouseX
 		this.mouseY = mouseY
-		this.hovered = RenderUtil.isMouseHovered(x, y, entryWidth, entryHeight, mouseX, mouseY)
+		this.hovered = isMouseHovered(x, y, entryWidth, entryHeight, mouseX, mouseY)
 		this.tickDelta = tickDelta
 	}
 
 	fun renderSelected() {
-		RenderUtil.drawOutline(x = x, y = y, width = entryWidth, height = entryHeight, colorBorder = Color4i(255, 255, 255, 255))
+		RenderUtil.drawOutline(x = x, y = y, width = entryWidth, height = entryHeight, borderColor = Color4i(255, 255, 255, 255))
 	}
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {

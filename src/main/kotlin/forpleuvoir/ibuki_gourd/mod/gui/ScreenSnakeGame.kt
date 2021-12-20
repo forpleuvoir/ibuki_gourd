@@ -41,7 +41,7 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 	private var score: Int = 0
 	private val horizontalPadding = 10
 	private val bottomPadding = 10
-	private val topPadding = titlePadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 5
+	private val topPadding = titleTopPadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 5
 	private val speed = 5
 	private var tickCounter: Int = 0
 	private var scale: Int = mc.options.guiScale
@@ -118,13 +118,13 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 	}
 
 	private fun renderGameOverMessage(matrices: MatrixStack) {
-		textRenderer.drawWithShadow(matrices, "Game Over", this.width.toFloat() / 2, this.height.toFloat() / 2, Color4i.WHITE.rgb)
+		textRenderer.drawWithShadow(matrices, "Game Over", this.width.toFloat() / 2, this.height.toFloat() / 2, Color4i.WHITE.rgba)
 		textRenderer.drawWithShadow(
 			matrices,
 			"Press R to restart",
 			this.width.toFloat() / 2,
 			this.height.toFloat() / 2 + textRenderer.fontHeight,
-			Color4i.WHITE.rgb
+			Color4i.WHITE.rgba
 		)
 	}
 
@@ -132,16 +132,16 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 		textRenderer.drawWithShadow(
 			matrices,
 			Text.of("score:"),
-			titlePadding + textRenderer.getWidth(title) + 10,
-			titlePadding,
-			Color4i.WHITE.rgb
+			titleLeftPadding + textRenderer.getWidth(title) + 10,
+			titleTopPadding,
+			Color4i.WHITE.rgba
 		)
 		textRenderer.drawWithShadow(
 			matrices,
 			Text.of(score.toString()),
-			titlePadding + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
-			titlePadding,
-			Color4i.WHITE.rgb
+			titleLeftPadding + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
+			titleTopPadding,
+			Color4i.WHITE.rgba
 		)
 	}
 

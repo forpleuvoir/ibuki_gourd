@@ -7,7 +7,6 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
 import net.minecraft.client.gui.widget.EntryListWidget
-import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.math.MatrixStack
 import java.util.function.Predicate
 
@@ -37,7 +36,7 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 	init {
 		initConfigs()
 		setRenderBackground(false)
-		setRenderHorizontalShadows(true)
+		setRenderHorizontalShadows(false)
 		setRenderHeader(true, 0)
 	}
 
@@ -55,33 +54,41 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 		configs.stream().filter(configPredicate).forEach {
 			this.addEntry(ConfigBaseEntry(this, it))
 		}
+		setSelected(null)
 	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
-		RenderUtil.drawRect(x = (width - rowWidth) / 2 + 2, y = top, width = rowWidth, height = height, Color4i(0, 0, 0, 30))
+		RenderUtil.drawRect(x = (width - rowWidth) / 2, y = top, width = rowWidth, height = height, Color4i(0, 0, 0, 30))
 		super.render(matrices, mouseX, mouseY, delta)
+	}
+
+	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+		scrollAmount -= amount * itemHeight.toDouble()
+		return true
+	}
+
+	override fun getMaxScroll(): Int {
+		return 0.coerceAtLeast(this.maxPosition - (bottom - top))
 	}
 
 	override fun renderList(matrices: MatrixStack?, x: Int, y: Int, mouseX: Int, mouseY: Int, delta: Float) {
 		val i = this.entryCount
+		selectedOrNull?.renderSelected()
 		for (j in 0 until i) {
 			val k = getRowTop(j)
 			val l = getRowTop(j) + this.itemHeight
-			if (l >= top && k <= bottom) {
+			if (l > top && k < bottom) {
 				val m = y + j * itemHeight + headerHeight
 				val n = itemHeight
 				val entry: ConfigBaseEntry = getEntry(j)
 				val o = this.rowWidth
-				if (isSelectedEntry(j)) {
-					entry.renderSelected()
-				}
 				val p: Int = this.rowLeft
 				entry.render(matrices, j, k, p, o - 10, n, mouseX, mouseY, this.hoveredEntry == entry, delta)
 			}
 		}
 	}
 
-	fun tick(){
+	fun tick() {
 		this.children().forEach {
 			if (selectedOrNull == it) {
 				(it.tick())
@@ -95,7 +102,6 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 				(it.keyPressed(keyCode, scanCode, modifiers))
 			}
 		}
-
 		return super.keyPressed(keyCode, scanCode, modifiers)
 	}
 
@@ -135,19 +141,21 @@ class WidgetListConfigBase(private val configs: List<ConfigBase>, width: Int, he
 	}
 
 
+
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-		this.children().forEach {
-			it.mouseClicked(mouseX, mouseY, button)
+		RenderUtil.isMouseHovered(x = (width - rowWidth) / 2, y = top, width = rowWidth, height = height, mouseX, mouseY) {
+			this.children().forEach {
+				it.mouseClicked(mouseX, mouseY, button)
+			}
+			setSelected(hoveredEntry)
 		}
-		setSelected(hoveredEntry)
-		return true
+		return super.mouseClicked(mouseX, mouseY, button)
 	}
 
+
 	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-		this.children().forEach {
-			it.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
-		}
-		return true
+		selectedOrNull?.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 	}
 
 

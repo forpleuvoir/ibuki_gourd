@@ -56,9 +56,9 @@ abstract class ButtonBase<T : ButtonWidget>(
 
 	@Suppress("UNCHECKED_CAST")
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
-		val hoverCallbackAble = !hovered
+		val hoverCallbacks = !hovered
 		super.render(matrices, mouseX, mouseY, delta)
-		if (hovered && hoverCallbackAble) {
+		if (hovered && hoverCallbacks) {
 			hoverCallback?.invoke(this as T)
 		}
 	}
@@ -88,6 +88,15 @@ abstract class ButtonBase<T : ButtonWidget>(
 	}
 
 	override fun renderTooltip(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
-		if (hovered) mc.currentScreen?.renderTooltip(matrices, hoverText, mouseX, mouseY)
+		if (hovered) {
+			mc.currentScreen?.let {
+				val height = this.hoverText.size * textRenderer.fontHeight
+				var y = this.y + this.height + this.height*0.7
+				if (it.height - y < height) {
+					y = this.y - height - this.height*0.7
+				}
+				it.renderTooltip(matrices, hoverText, mouseX, y.toInt())
+			}
+		}
 	}
 }

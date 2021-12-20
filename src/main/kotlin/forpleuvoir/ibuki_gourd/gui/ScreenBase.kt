@@ -33,8 +33,9 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 	val mc: MinecraftClient = MinecraftClient.getInstance()
-	var backgroundColor: Int = BLACK.rgb(0.5f)
-	var titlePadding = 20f
+	var backgroundColor: Int = BLACK.rgba(0.5f)
+	var titleLeftPadding = 15f
+	var titleTopPadding = 10f
 	override var parent: Screen? = null
 
 	override fun isPauseScreen(): Boolean {
@@ -52,7 +53,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 	private fun drawTitle(matrices: MatrixStack?) {
-		this.textRenderer.drawWithShadow(matrices, title, titlePadding, titlePadding, WHITE.rgb)
+		this.textRenderer.drawWithShadow(matrices, title, titleLeftPadding, titleTopPadding, WHITE.rgba)
 	}
 
 	override fun onScreenClose() {

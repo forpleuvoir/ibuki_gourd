@@ -35,10 +35,10 @@ class Color4i(
 		fixAllValue()
 	}
 
-	override val rgb: Int
+	override val rgba: Int
 		get() = Color(red, green, blue, alpha).rgb
 
-	override fun rgb(alpha: Int): Int {
+	override fun rgba(alpha: Int): Int {
 		return Color(red, green, blue, alpha).rgb
 	}
 
@@ -68,15 +68,6 @@ class Color4i(
 		}
 	}
 
-	override val asJsonElement: JsonElement
-		get() {
-			val jsonObject = JsonObject()
-			jsonObject.addProperty("red", red)
-			jsonObject.addProperty("green", red)
-			jsonObject.addProperty("blue", red)
-			jsonObject.addProperty("alpha", red)
-			return jsonObject
-		}
 
 	companion object {
 		val WHITE = Color4i(255, 255, 255, 255)

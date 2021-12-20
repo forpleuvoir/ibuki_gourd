@@ -24,6 +24,7 @@ class WidgetConfigString(x: Int, y: Int, width: Int, height: Int, private val co
 	TextFieldWidget(MinecraftClient.getInstance().textRenderer, x, y, width, height, "".text()) {
 
 	init {
+		this.setMaxLength(65535)
 		updateText()
 		setChangedListener {
 			config.setValue(it)
