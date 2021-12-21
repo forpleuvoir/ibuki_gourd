@@ -7,6 +7,7 @@ import forpleuvoir.ibuki_gourd.config.IConfigNotifiable
 import forpleuvoir.ibuki_gourd.config.IConfigResettable
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 
 
 /**
@@ -32,10 +33,10 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
 	private var onValueChange: ((IConfigBase) -> Unit)? = null
 	private var callback: ((IConfigBase) -> Unit)? = null
 
-	override val displayName: Text
+	override val displayName: TranslatableText
 		get() = name.tText()
 
-	override val displayRemark: Text
+	override val displayRemark: TranslatableText
 		get() = remark.tText()
 
 	override fun equals(other: Any?): Boolean {

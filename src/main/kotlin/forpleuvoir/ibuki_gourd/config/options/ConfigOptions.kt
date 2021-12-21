@@ -4,7 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
-import forpleuvoir.ibuki_gourd.config.IConfigOptionListItem
+import forpleuvoir.ibuki_gourd.config.IConfigOptionItem
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
 
@@ -15,23 +15,23 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
  * 包名 forpleuvoir.ibuki_gourd.config.options
 
- * 文件名 ConfigOptionList
+ * 文件名 ConfigOptions
 
  * 创建时间 2021/12/12 14:55
 
  * @author forpleuvoir
 
  */
-class ConfigOptionList(
+class ConfigOptions(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	override val defaultValue: IConfigOptionListItem
+	override val defaultValue: IConfigOptionItem
 ) : ConfigBase(),
-	IConfigBaseValue<IConfigOptionListItem> {
+	IConfigBaseValue<IConfigOptionItem> {
 	override val type: ConfigType
-		get() = ConfigType.OPTION_LIST
+		get() = ConfigType.OPTIONS
 
-	private var value: IConfigOptionListItem = defaultValue
+	private var value: IConfigOptionItem = defaultValue
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
@@ -56,11 +56,11 @@ class ConfigOptionList(
 		setValue(defaultValue)
 	}
 
-	override fun getValue(): IConfigOptionListItem {
+	override fun getValue(): IConfigOptionItem {
 		return value
 	}
 
-	override fun setValue(value: IConfigOptionListItem) {
+	override fun setValue(value: IConfigOptionItem) {
 		val oldValue = this.value
 		this.value = value
 		if (oldValue != this.value)

@@ -7,7 +7,10 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.Drawable
+import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.ParentElement
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.MathHelper
@@ -27,16 +30,26 @@ import net.minecraft.util.math.MathHelper
  * @author forpleuvoir
 
  */
-abstract class WidgetListEntry(
+abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	val parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int
 ) : ClickableWidget(x, y, width, height, "".text()), ParentElement {
 
 	protected val client: MinecraftClient by lazy { MinecraftClient.getInstance() }
 	protected val textRenderer: TextRenderer by lazy { client.textRenderer }
 
+	private var focused: Element? = null
+	private var dragging = false
+
+	var index: Int = 0
 	private val maxBgOpacity = 80
 	private val bgOpacityDelta: Float = 20f
 	private var bgOpacity = 0
+
+	protected val children: MutableList<Element> by lazy { ArrayList() }
+	protected val drawableChildren: MutableList<Drawable> by lazy { ArrayList() }
+
+	private var onHoverCallback: ((E) -> Unit)? = null
+	private var hoverCallback: ((E) -> Unit)? = null
 
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
 		return if (!active || !visible) {
@@ -62,15 +75,35 @@ abstract class WidgetListEntry(
 		} else super<ParentElement>.changeFocus(lookForwards)
 	}
 
-
+	@Suppress("UNCHECKED_CAST")
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) {
 			return
 		}
+		val hoverCallbacks = !hovered
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height
+		if (hovered && hoverCallbacks) {
+			onHoverCallback?.invoke(this as E)
+		}
+		if (hovered) hoverCallback?.invoke(this as E)
 		renderBackground(matrices, mouseX, mouseY, delta)
 		if (isFocused) renderFocusedBorder(matrices, mouseX, mouseY, delta)
+		renderChildren(matrices, mouseX, mouseY, delta)
 		renderEntry(matrices, mouseX, mouseY, delta)
+	}
+
+	fun setHoverCallback(hoverCallback: (E) -> Unit) {
+		this.hoverCallback = hoverCallback
+	}
+
+	fun setOnHoverCallback(hoverCallback: (E) -> Unit) {
+		this.onHoverCallback = hoverCallback
+	}
+
+	protected fun renderChildren(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		drawableChildren.forEach {
+			it.render(matrices, mouseX, mouseY, delta)
+		}
 	}
 
 	abstract fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float)
@@ -90,8 +123,49 @@ abstract class WidgetListEntry(
 	}
 
 	fun setPosition(x: Int, y: Int) {
+		val positionChanged = (x != this.x || y != this.y)
 		this.x = x
 		this.y = y
+		if (positionChanged) onPositionChanged()
+	}
+
+	abstract fun onPositionChanged()
+
+
+	override fun appendNarrations(builder: NarrationMessageBuilder?) {
+	}
+
+	override fun setFocused(focused: Element?) {
+		this.focused = focused
+	}
+
+	override fun children(): MutableList<out Element> {
+		return children
+	}
+
+	protected fun addChildren(children: Element) {
+		this.children.add(children)
+	}
+
+	protected open fun <T> addDrawableChild(drawableElement: T) where T : Element, T : Drawable {
+		this.drawableChildren.add(drawableElement)
+		this.children.add(drawableElement)
+	}
+
+	open fun tick() {
+
+	}
+
+	override fun isDragging(): Boolean {
+		return this.dragging
+	}
+
+	override fun setDragging(dragging: Boolean) {
+		this.dragging = dragging
+	}
+
+	override fun getFocused(): Element? {
+		return focused
 	}
 
 }

@@ -22,13 +22,15 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-open class ConfigHotkey(override val name: String, override val remark: String = "$name.remark", final override val defaultValue: KeyBind) : ConfigBase(),
+open class ConfigHotkey(override val name: String, override val remark: String = "$name.remark", final override val defaultValue: KeyBind) :
+	ConfigBase(),
 	IConfigBaseValue<KeyBind> {
 	override val type: ConfigType
 		get() = ConfigType.HOTKEY
-	private var value: KeyBind = defaultValue
+	private var value: KeyBind = KeyBind().apply { copyOf(defaultValue) }
 
-	init {
+
+	fun initKeyBind() {
 		KeyboardUtil.registerKeyBind(this.getValue())
 	}
 

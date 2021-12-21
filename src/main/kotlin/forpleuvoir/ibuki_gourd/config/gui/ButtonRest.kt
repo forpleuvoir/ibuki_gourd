@@ -1,4 +1,4 @@
-package forpleuvoir.ibuki_gourd.config.options.gui
+package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.config.IConfigResettable
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
@@ -11,7 +11,7 @@ import net.minecraft.client.util.math.MatrixStack
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.config.options.gui
+ * 包名 forpleuvoir.ibuki_gourd.config.gui
 
  * 文件名 ButtonRest
 

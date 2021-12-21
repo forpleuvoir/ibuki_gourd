@@ -3,6 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 import forpleuvoir.ibuki_gourd.config.options.ConfigColor
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.math.MatrixStack
@@ -46,10 +47,10 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 			mc.currentScreen?.renderTooltip(
 				matrices,
 				listOf(
-					"§cRED:${config.getValue().red}".text(),
-					"§aGREEN:${config.getValue().green}".text(),
-					"§9BLUE:${config.getValue().blue}".text(),
-					"§rALPHA:${config.getValue().alpha}".text()
+					"§cRed:${config.getValue().red}".text(),
+					"§aGreen:${config.getValue().green}".text(),
+					"§9Blue:${config.getValue().blue}".text(),
+					"§rAlpha:${config.getValue().alpha}".text()
 				),
 				mouseX,
 				mouseY
@@ -70,8 +71,8 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 			this.y + colorBoxPadding / 2,
 			colorBoxSize,
 			colorBoxSize,
-			Color4i().fromInt(config.getValue().rgba),
-			Color4i.WHITE
+			config.getValue(),
+			Color4f.WHITE
 		)
 	}
 

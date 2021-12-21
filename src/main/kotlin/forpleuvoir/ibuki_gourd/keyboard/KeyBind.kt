@@ -4,9 +4,13 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.common.IJsonData
+import net.fabricmc.tinyremapper.InputTag
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.Text
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashSet
 import kotlin.jvm.Throws
 
 
@@ -25,7 +29,7 @@ import kotlin.jvm.Throws
 
  */
 class KeyBind(vararg key: Int, var keyEnvironment: KeyEnvironment = KeyEnvironment.IN_GAME, var callback: () -> Unit = {}) : IJsonData {
-	val keys: HashSet<Int> = HashSet(key.toSet())
+	val keys: LinkedHashSet<Int> = LinkedHashSet(key.toSet())
 
 	fun callbackHandler(key: Set<Int>) {
 		if (key.containsAll(keys)) {
@@ -37,18 +41,24 @@ class KeyBind(vararg key: Int, var keyEnvironment: KeyEnvironment = KeyEnvironme
 
 	val asTexts: List<Text>
 		get() {
-			val list = ArrayList<Text>()
+			val list = LinkedList<Text>()
 			keys.forEach {
-				list.add(InputUtil.fromKeyCode(it, 0).localizedText)
+				if (it > 8)
+					list.addLast(InputUtil.fromKeyCode(it, 0).localizedText)
+				else
+					list.addLast(InputUtil.Type.MOUSE.createFromCode(it).localizedText)
 			}
 			return list
 		}
 
 	val asTranslatableKey: List<String>
 		get() {
-			val list = ArrayList<String>()
+			val list = LinkedList<String>()
 			keys.forEach {
-				list.add(InputUtil.fromKeyCode(it, 0).translationKey)
+				if (it > 8)
+					list.addLast(InputUtil.fromKeyCode(it, 0).translationKey)
+				else
+					list.addLast(InputUtil.Type.MOUSE.createFromCode(it).translationKey)
 			}
 			return list
 		}
@@ -61,6 +71,14 @@ class KeyBind(vararg key: Int, var keyEnvironment: KeyEnvironment = KeyEnvironme
 			this.keys.add(InputUtil.fromTranslationKey(it.asString).code)
 		}
 		this.keyEnvironment = KeyEnvironment.valueOf(jsonObject["keyEnvironment"].asString)
+	}
+
+	fun clearKey() {
+		keys.clear()
+	}
+
+	fun add(keyCode: Int) {
+		keys.add(keyCode)
 	}
 
 	fun copyOf(key: KeyBind): Boolean {

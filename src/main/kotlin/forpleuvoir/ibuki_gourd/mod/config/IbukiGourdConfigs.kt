@@ -1,8 +1,16 @@
 package forpleuvoir.ibuki_gourd.mod.config
 
+import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.config.IConfigHandler
 import forpleuvoir.ibuki_gourd.config.options.*
+import forpleuvoir.ibuki_gourd.config.gui.ConfigScreen
+import forpleuvoir.ibuki_gourd.gui.ScreenBase
+import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
+import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdConfigGroup
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import net.minecraft.client.util.InputUtil
 
 /**
  * mod配置
@@ -22,7 +30,7 @@ class IbukiGourdConfigs : IConfigHandler {
 
 	object Values {
 		@JvmStatic
-		val TEST_COLOR = ConfigColor(name = "ibuki_gourd.test.color", defaultValue = Color4i(0, 127, 127, 0))
+		val TEST_COLOR = ConfigColor(name = "ibuki_gourd.test.color", defaultValue = Color4i(0, 127, 127, 255))
 
 		@JvmStatic
 		val TEST_BOOLEAN = ConfigBoolean(name = "ibuki_gourd.test.boolean", defaultValue = true)
@@ -37,11 +45,19 @@ class IbukiGourdConfigs : IConfigHandler {
 		val TEST_STRING = ConfigString(name = "ibuki_gourd.test.string", defaultValue = "true")
 
 		@JvmStatic
-		val TEST_OPTION_LIST = ConfigOptionList(name = "ibuki_gourd.test.option_list", defaultValue = WhiteListMode.None)
+		val TEST_OPTION_LIST = ConfigOptions(name = "ibuki_gourd.test.option_list", defaultValue = WhiteListMode.None)
+
+		@JvmStatic
+		val OPEN_GUI = ConfigHotkey(
+			name = "ibuki_gourd.test.open_gui",
+			defaultValue = KeyBind(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.IN_GAME) {
+				ScreenBase.openScreen(ConfigScreen(IbukiGourdMod.modName.tText(), configGroup = IbukiGourdConfigGroup.Toggles))
+			}
+		)
 
 
 		val OPTION: List<ConfigBase> = listOf(
-			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING,TEST_OPTION_LIST
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTION_LIST, OPEN_GUI
 		)
 	}
 

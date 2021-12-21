@@ -6,7 +6,6 @@ import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.ClickableWidget
-import net.minecraft.client.gui.widget.TextFieldWidget
 
 /**
  *
@@ -35,8 +34,8 @@ object ConfigWrapper {
 			COLOR       -> ButtonConfigColor(x = 0, y = 0, width = width, config = config as ConfigColor)
 			STRING      -> WidgetConfigString(x = 0, y = 0, width = width, height = 20, config as ConfigString)
 			STRING_LIST -> Button(x = 0, y = 0, width = width, message = "null".text()) {}
-			OPTION_LIST -> ButtonConfigOptionList(x = 0, y = 0, width = width, config = config as ConfigOptionList)
-			HOTKEY      -> Button(x = 0, y = 0, width = width, message = "null".text()) {}
+			OPTIONS     -> ButtonConfigOptions(x = 0, y = 0, width = width, config = config as ConfigOptions)
+			HOTKEY      -> ButtonConfigHotkey(x = 0, y = 0, width = width, config = config as ConfigHotkey)
 			LIST        -> Button(x = 0, y = 0, width = width, message = "null".text()) {}
 		}
 	}

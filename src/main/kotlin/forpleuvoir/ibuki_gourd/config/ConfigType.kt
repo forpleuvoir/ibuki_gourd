@@ -22,7 +22,7 @@ enum class ConfigType {
 	COLOR,
 	STRING,
 	STRING_LIST,
-	OPTION_LIST,
+	OPTIONS,
 	HOTKEY,
 	LIST;
 }

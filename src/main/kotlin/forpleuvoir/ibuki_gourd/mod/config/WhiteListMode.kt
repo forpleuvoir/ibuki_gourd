@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.mod.config
 
-import forpleuvoir.ibuki_gourd.config.IConfigOptionListItem
+import forpleuvoir.ibuki_gourd.config.IConfigOptionItem
 
 
 /**
@@ -17,13 +17,13 @@ import forpleuvoir.ibuki_gourd.config.IConfigOptionListItem
  * @author forpleuvoir
 
  */
-enum class WhiteListMode(override val key: String, override val remark: String = "$key.remark") : IConfigOptionListItem {
+enum class WhiteListMode(override val key: String, override val remark: String = "$key.remark") : IConfigOptionItem {
 	WhiteList("ibuki_gourd.white_list.white_list"),
 	BlackList("ibuki_gourd.white_list.black_list"),
 	None("ibuki_gourd.white_list.none")
 	;
 
-	override fun cycle(): IConfigOptionListItem {
+	override fun cycle(): IConfigOptionItem {
 		var id = ordinal
 		if (++id >= values().size) {
 			id = 0
@@ -31,11 +31,11 @@ enum class WhiteListMode(override val key: String, override val remark: String =
 		return values()[id % values().size]
 	}
 
-	override fun fromString(string: String): IConfigOptionListItem {
+	override fun fromString(string: String): IConfigOptionItem {
 		return valueOf(string)
 	}
 
-	override fun getAllItem(): List<IConfigOptionListItem> {
+	override fun getAllItem(): List<IConfigOptionItem> {
 		return values().toList()
 	}
 }

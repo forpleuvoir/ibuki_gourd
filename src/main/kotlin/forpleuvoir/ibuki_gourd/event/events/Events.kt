@@ -26,6 +26,9 @@ object Events {
 		register(ClientStartEvent::class.java)
 		register(ClientStopEvent::class.java)
 		register(KeyPressEvent::class.java)
+		register(KeyReleaseEvent::class.java)
+		register(MousePressEvent::class.java)
+		register(MouseReleaseEvent::class.java)
 	}
 
 	@JvmStatic

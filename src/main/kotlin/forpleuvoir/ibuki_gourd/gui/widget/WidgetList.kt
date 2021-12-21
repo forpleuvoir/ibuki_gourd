@@ -8,7 +8,6 @@ import net.fabricmc.api.Environment
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.AbstractParentElement
 import net.minecraft.client.gui.Drawable
-import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.Selectable.SelectionType
 import net.minecraft.client.gui.screen.Screen
@@ -36,7 +35,7 @@ import java.util.function.Predicate
 
  */
 
-abstract class WidgetList<E : WidgetListEntry>(
+abstract class WidgetList<E : WidgetListEntry<*>>(
 	var parent: Screen,
 	var x: Int,
 	var y: Int,
@@ -56,7 +55,7 @@ abstract class WidgetList<E : WidgetListEntry>(
 	protected val client: MinecraftClient by lazy { MinecraftClient.getInstance() }
 	private val children: MutableList<E> = ArrayList()
 
-	val height: Int get() = this.pageSize * this.itemHeight + this.topPadding + this.bottomPadding
+	val height: Int get() = this.rowHeight + this.topPadding + this.bottomPadding
 	val top: Int get() = this.y
 	val bottom: Int get() = this.y + this.height
 	val left: Int get() = this.x
@@ -70,7 +69,7 @@ abstract class WidgetList<E : WidgetListEntry>(
 	var scrollbarColor: IColor<*> = Color4f.WHITE
 	var scrollbarBgColor: IColor<*> = Color4f(1f, 1f, 1f, 0.3f)
 	protected val scrollbarPadding: Int = 1
-	protected val scrollbarWidth: Int = 10
+	protected val scrollbarWidth: Int = 6
 	private val scrollbarHeight: Int get() = this.rowHeight
 	private val scrollbarX: Int get() = this.x + this.width - this.scrollbarWidth
 	private val scrollbarY: Int get() = this.rowTop
@@ -84,7 +83,6 @@ abstract class WidgetList<E : WidgetListEntry>(
 		if (scrollbarHovered(mouseX, mouseY)) callback.invoke()
 	}
 
-
 	protected val maxPosition: Int get() = entryCount * this.itemHeight
 
 	private var scrolling = false
@@ -92,7 +90,7 @@ abstract class WidgetList<E : WidgetListEntry>(
 	private var hoveredEntry: E? = null
 
 
-	protected val rowWidth: Int get() = this.width - this.leftPadding - this.rightPadding
+	protected val rowWidth: Int get() = this.width - this.leftPadding - this.rightPadding - this.scrollbarWidth
 
 	protected val rowHeight: Int get() = this.pageSize * this.itemHeight
 
@@ -113,15 +111,20 @@ abstract class WidgetList<E : WidgetListEntry>(
 		return getRowTop(index) + itemHeight
 	}
 
-	@Suppress("unchecked_cast")
-	override fun getFocused(): E? {
-		return super.getFocused() as E
-	}
-
 	protected val entryCount: Int get() = this.children().size
 
 	private var childFilter: Predicate<E> = Predicate { true }
 
+	private var onHoverCallback: ((E) -> Unit)? = null
+	private var hoverCallback: ((E) -> Unit)? = null
+
+	fun setHoverCallback(hoverCallback: (E) -> Unit) {
+		this.hoverCallback = hoverCallback
+	}
+
+	fun setOnHoverCallback(hoverCallback: (E) -> Unit) {
+		this.onHoverCallback = hoverCallback
+	}
 
 	fun resetDefaultFilter() {
 		childFilter = Predicate { true }
@@ -131,8 +134,12 @@ abstract class WidgetList<E : WidgetListEntry>(
 		childFilter = filter
 	}
 
+	@Suppress("unchecked_cast")
 	override fun children(): List<E> {
-		return children.stream().filter(childFilter).toList()
+		return children.stream().filter(childFilter).toList().also { list ->
+			list.forEach { it.setOnHoverCallback { e -> onHoverCallback?.invoke(e as E) } }
+			list.forEach { it.setHoverCallback { e -> hoverCallback?.invoke(e as E) } }
+		}
 	}
 
 	protected fun clearEntries() {
@@ -159,15 +166,9 @@ abstract class WidgetList<E : WidgetListEntry>(
 	}
 
 	protected fun getEntryAtPosition(x: Double, y: Double): E? {
-		// TODO: 2021/12/21 需要修复
-
-		val i = rowWidth / 2
-		val j = left + width / 2
-		val k = j - i
-		val l = j + i
-		val m = MathHelper.floor(y - top.toDouble()) + scrollAmount.toInt()
-		val n = m / itemHeight
-		return if (x < scrollbarX.toDouble() && x >= k.toDouble() && x <= l.toDouble() && n >= 0 && m >= 0 && n < entryCount) children()[n] else null
+		return children().filter {
+			it.isMouseOver(x, y)
+		}.getOrNull(0)
 	}
 
 
@@ -181,8 +182,14 @@ abstract class WidgetList<E : WidgetListEntry>(
 
 	protected open fun renderDecorations(matrices: MatrixStack, mouseX: Int, mouseY: Int) {}
 
-	fun updateChildren() {
-		// TODO: 2021/12/21 更新显示状态
+	protected fun updateChildren() {
+		for (index in 0 until children().size) {
+			children()[index].index = index
+			children()[index].setPosition(this.rowLeft, this.rowTop + this.itemHeight * index - this.scrollAmount.toInt())
+			val active = !(children()[index].y < this.rowTop || children()[index].y + 1 > this.rowBottom)
+			children()[index].active = active
+			children()[index].visible = active
+		}
 	}
 
 
@@ -191,6 +198,9 @@ abstract class WidgetList<E : WidgetListEntry>(
 		renderBackground(matrices)
 		hoveredEntry = if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) getEntryAtPosition(mouseX.toDouble(), mouseY.toDouble()) else null
 		renderScrollbar()
+		children().forEach {
+			it.render(matrices, mouseX, mouseY, delta)
+		}
 		renderDecorations(matrices, mouseX, mouseY)
 	}
 
@@ -198,7 +208,7 @@ abstract class WidgetList<E : WidgetListEntry>(
 	protected fun renderScrollbar() {
 		if (this.maxScroll > 0) {
 			//draw scrollbar background
-			RenderUtil.drawRect(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.itemHeight, this.scrollbarBgColor)
+			RenderUtil.drawRect(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.rowHeight, this.scrollbarBgColor)
 
 			val renderWidth = this.scrollbarWidth.toDouble() - this.scrollbarPadding * 2
 			val height = (this.pageSize.toDouble() / this.entryCount.toDouble()) * this.scrollbarHeight
@@ -331,17 +341,20 @@ abstract class WidgetList<E : WidgetListEntry>(
 		}
 	}
 
+	fun tick() {
+		children().forEach { it.tick() }
+	}
+
 	override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean {
 		return RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY)
 	}
 
 	@Suppress("unchecked_cast")
-	inline fun <W : WidgetListEntry> isMouseOver(mouseX: Double, mouseY: Double, callback: (W) -> Unit) {
+	inline fun <W : WidgetListEntry<*>> isMouseOver(mouseX: Double, mouseY: Double, callback: (W) -> Unit) {
 		if (isMouseOver(mouseX, mouseY)) {
 			callback.invoke(this as W)
 		}
 	}
-
 
 	protected open fun isFocused(): Boolean {
 		return false
@@ -367,6 +380,9 @@ abstract class WidgetList<E : WidgetListEntry>(
 		return hoveredEntry
 	}
 
+
+	override fun appendNarrations(builder: NarrationMessageBuilder?) {
+	}
 
 	protected fun appendNarrations(builder: NarrationMessageBuilder, entry: E) {
 		val list = children()

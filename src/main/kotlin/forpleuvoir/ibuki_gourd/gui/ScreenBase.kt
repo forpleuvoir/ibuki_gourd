@@ -24,10 +24,11 @@ import net.minecraft.text.Text
 
  */
 abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
+	var shouldCloseOnEsc: Boolean = true
 
 	companion object {
 		@JvmStatic
-		fun openScreen(screen: Screen) {
+		fun openScreen(screen: Screen?) {
 			MinecraftClient.getInstance().setScreen(screen)
 		}
 	}
@@ -50,6 +51,10 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		this.drawBackgroundColor(matrices)
 		super.render(matrices, mouseX, mouseY, delta)
 		this.drawTitle(matrices)
+	}
+
+	override fun shouldCloseOnEsc(): Boolean {
+		return shouldCloseOnEsc
 	}
 
 	private fun drawTitle(matrices: MatrixStack?) {
