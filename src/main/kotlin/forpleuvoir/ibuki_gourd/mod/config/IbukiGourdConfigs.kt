@@ -43,19 +43,19 @@ object IbukiGourdConfigs : IConfigHandler {
 		val TEST_STRING = ConfigString(name = "ibuki_gourd.test.string", defaultValue = "true")
 
 		@JvmStatic
-		val TEST_OPTION_LIST = ConfigOptions(name = "ibuki_gourd.test.option_list", defaultValue = WhiteListMode.None)
+		val TEST_OPTIONS = ConfigOptions(name = "ibuki_gourd.test.options", defaultValue = WhiteListMode.None)
 
 		@JvmStatic
 		val OPEN_GUI = ConfigHotkey(
 			name = "ibuki_gourd.test.open_gui",
 			defaultValue = KeyBind(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.IN_GAME) {
-				ScreenBase.openScreen(IbukiGourdScreen.current().apply { parent = MinecraftClient.getInstance().currentScreen })
+				IbukiGourdScreen.openScreen(MinecraftClient.getInstance().currentScreen)
 			}
 		)
 
 
 		val CONFIGS: List<ConfigBase> = listOf(
-			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTION_LIST, OPEN_GUI
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI
 		)
 	}
 

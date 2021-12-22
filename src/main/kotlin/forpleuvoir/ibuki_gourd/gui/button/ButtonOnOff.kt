@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.button
 
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
@@ -21,10 +22,6 @@ import net.minecraft.util.Formatting
  * @author forpleuvoir
 
  */
-
-private val on: TranslatableText = IbukiGourdLang.On.tText()
-private val off: TranslatableText = IbukiGourdLang.Off.tText()
-
 class ButtonOnOff(
 	x: Int,
 	y: Int,
@@ -32,14 +29,16 @@ class ButtonOnOff(
 	height: Int = 20,
 	private var status: Boolean = false,
 ) :
-	ButtonBase<ButtonOnOff>(x, y, width, height, message = on) {
+	ButtonBase<ButtonOnOff>(x, y, width, height, message = "".text()) {
+
+	private var on: Text = IbukiGourdLang.On.tText()
+	private var off: Text = IbukiGourdLang.Off.tText()
 
 	init {
-		toggleMessageText()
+		updateText()
+		setOnPressAction(this::toggle)
 	}
 
-	private var onFormatting: Formatting = Formatting.GREEN
-	private var offFormatting: Formatting = Formatting.RED
 	private var onCallback: ((ButtonOnOff) -> Unit)? = null
 	private var offCallback: ((ButtonOnOff) -> Unit)? = null
 
@@ -60,28 +59,23 @@ class ButtonOnOff(
 		this.hoverText.addAll(hoverText)
 	}
 
-	private fun toggleMessageText() {
-		on.style.withColor(onFormatting)
-		off.style.withColor(offFormatting)
+	private fun updateText() {
 		message = if (status) on else off
 	}
 
-	override fun onPress() {
-		toggle()
-		super.onPress()
+	private fun setOnOffText(on: Text = this.on, off: Text = this.off) {
+		this.on = on
+		this.off = off
 	}
 
-	private fun toggle() {
+
+	private fun toggle(button: ButtonOnOff) {
 		status = !status
-		toggleMessageText()
+		updateText()
 		if (status) onCallback?.invoke(this)
 		else offCallback?.invoke(this)
 	}
 
-	fun setTextFormatting(on: Formatting = Formatting.GREEN, off: Formatting = Formatting.RED) {
-		this.onFormatting = on
-		this.offFormatting = off
-	}
 
 	fun getStatus(): Boolean {
 		return status

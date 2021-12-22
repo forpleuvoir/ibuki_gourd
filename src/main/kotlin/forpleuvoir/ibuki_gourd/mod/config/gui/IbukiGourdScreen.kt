@@ -7,6 +7,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs
 import forpleuvoir.ibuki_gourd.mod.gui.ScreenTest
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 
 
@@ -31,7 +32,7 @@ object IbukiGourdScreen {
 	private val values = IbukiGourdConfigGroup("ibuki_gourd.config.toggles", baseTitle, IbukiGourdConfigs.Values.CONFIGS)
 	private val toggles = IbukiGourdConfigGroup("ibuki_gourd.config.values", baseTitle, ArrayList(IbukiGourdConfigs.Values.CONFIGS).apply {
 		for (i in 1..30) {
-			this.add(ConfigInt("凑数的", "凑数的", i, 0, 30))
+			this.add(ConfigInt("凑数的", "凑数的", i, 1, 30))
 		}
 	})
 	private val test = object : IScreenTabEntry {
@@ -66,5 +67,9 @@ object IbukiGourdScreen {
 
 	fun openScreen() {
 		ScreenBase.openScreen(current())
+	}
+
+	fun openScreen(parent: Screen?) {
+		ScreenBase.openScreen(current().apply { this.parent = parent })
 	}
 }

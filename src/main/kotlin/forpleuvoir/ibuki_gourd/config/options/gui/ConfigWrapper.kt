@@ -32,7 +32,7 @@ object ConfigWrapper {
 			INTEGER     -> WidgetSliderConfigInt(x = 0, y = 0, width = width, height = 20, config = config as ConfigInt)
 			DOUBLE      -> WidgetSliderConfigDouble(x = 0, y = 0, width = width, height = 20, config = config as ConfigDouble)
 			COLOR       -> ButtonConfigColor(x = 0, y = 0, width = width, config = config as ConfigColor)
-			STRING      -> WidgetConfigString(x = 0, y = 0, width = width, height = 20, config as ConfigString)
+			STRING      -> WidgetConfigString(x = 0, y = 0, width = width , height = 16, config as ConfigString)
 			STRING_LIST -> Button(x = 0, y = 0, width = width, message = "null".text()) {}
 			OPTIONS     -> ButtonConfigOptions(x = 0, y = 0, width = width, config = config as ConfigOptions)
 			HOTKEY      -> ButtonConfigHotkey(x = 0, y = 0, width = width, config = config as ConfigHotkey)

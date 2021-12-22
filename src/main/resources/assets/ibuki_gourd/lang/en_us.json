@@ -1,8 +1,8 @@
 {
   "ibuki_gourd.initializing": "%s initializing...",
   "ibuki_gourd.initialized": "%s initialized",
-  "ibuki_gourd.on": "On",
-  "ibuki_gourd.off": "Off",
+  "ibuki_gourd.on": "§aOn§r",
+  "ibuki_gourd.off": "§cOff§r",
   "ibuki_gourd.confirm": "Confirm",
   "ibuki_gourd.cancel": "Cancel",
   "ibuki_gourd.delete": "Delete",

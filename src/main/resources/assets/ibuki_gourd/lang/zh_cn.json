@@ -1,8 +1,8 @@
 {
   "ibuki_gourd.initializing": "%s 初始化中...",
   "ibuki_gourd.initialized": "%s 初始化完成",
-  "ibuki_gourd.on": "开",
-  "ibuki_gourd.off": "关",
+  "ibuki_gourd.on": "§a开§r",
+  "ibuki_gourd.off": "§c关§r",
   "ibuki_gourd.confirm": "确认",
   "ibuki_gourd.cancel": "取消",
   "ibuki_gourd.delete": "删除",
@@ -40,8 +40,8 @@
   "ibuki_gourd.test.double.remark": "测试浮点",
   "ibuki_gourd.test.string": "测试字符串",
   "ibuki_gourd.test.string.remark": "测试字符串",
-  "ibuki_gourd.test.option_list": "测试选项",
-  "ibuki_gourd.test.option_list.remark": "测试选项",
+  "ibuki_gourd.test.options": "测试选项",
+  "ibuki_gourd.test.options.remark": "测试选项",
   "ibuki_gourd.test.open_gui": "打开配置界面",
   "ibuki_gourd.test.open_gui.remark": "打开配置界面"
 }

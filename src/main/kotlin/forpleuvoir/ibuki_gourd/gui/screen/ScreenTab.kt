@@ -35,7 +35,6 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 	override fun init() {
 		super.init()
 		initConfigGroupButton()
-
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
@@ -44,16 +43,14 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 	}
 
 	protected fun drawTopMessage(message: Text) {
-		matrices.let {
-			if (textRenderer.getWidth(message) > (textRenderer.getWidth(message) / 2))
-				textRenderer.drawWithShadow(
-					it,
-					message,
-					(this.width / 2 - textRenderer.getWidth(message) / 2).toFloat(),
-					titleTopPadding,
-					Color4f.WHITE.rgba
-				)
-		}
+		if (textRenderer.getWidth(message) > (textRenderer.getWidth(message) / 2))
+			textRenderer.drawWithShadow(
+				matrices,
+				message,
+				(this.width / 2 - textRenderer.getWidth(message) / 2).toFloat(),
+				titleTopPadding,
+				Color4f.WHITE.rgba
+			)
 	}
 
 	private fun initConfigGroupButton() {

@@ -22,17 +22,16 @@ import net.minecraft.util.Formatting
 
  */
 class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigBoolean) :
-	ButtonBase<ButtonConfigBoolean>(x, y, width, height, Text.of(""), null) {
+	ButtonBase<ButtonConfigBoolean>(x, y, width, height, Text.of("")) {
 
 	init {
 		this.updateText()
+		setOnPressAction {
+			this.config.toggle()
+			this.updateText()
+		}
 	}
 
-	override fun onPress() {
-		super.onPress()
-		this.config.toggle()
-		this.updateText()
-	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
 		super.render(matrices, mouseX, mouseY, delta)

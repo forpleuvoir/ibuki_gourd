@@ -34,7 +34,7 @@ class WidgetConfigString(x: Int, y: Int, width: Int, height: Int, private val co
 		}
 	}
 
-	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		super.render(matrices, mouseX, mouseY, delta)
 	}
 
