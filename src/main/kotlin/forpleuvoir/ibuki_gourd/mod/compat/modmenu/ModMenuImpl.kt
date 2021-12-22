@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.mod.compat.modmenu
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi
+import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen
 import forpleuvoir.ibuki_gourd.mod.gui.ScreenTest
 
 
@@ -23,9 +24,7 @@ class ModMenuImpl : ModMenuApi {
 
 	override fun getModConfigScreenFactory(): ConfigScreenFactory<*> {
 		return ConfigScreenFactory {
-			val screen = ScreenTest("测试啊")
-			screen.parent = it
-			return@ConfigScreenFactory screen
+			return@ConfigScreenFactory IbukiGourdScreen.current().apply { parent = it }
 		}
 	}
 }

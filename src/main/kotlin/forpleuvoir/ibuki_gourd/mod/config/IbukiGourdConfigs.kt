@@ -1,15 +1,13 @@
 package forpleuvoir.ibuki_gourd.mod.config
 
-import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.config.IConfigHandler
 import forpleuvoir.ibuki_gourd.config.options.*
-import forpleuvoir.ibuki_gourd.config.gui.ConfigScreen
-import forpleuvoir.ibuki_gourd.gui.ScreenBase
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
-import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
-import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdConfigGroup
+import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 
 /**
@@ -26,7 +24,7 @@ import net.minecraft.client.util.InputUtil
  * @author forpleuvoir
 
  */
-class IbukiGourdConfigs : IConfigHandler {
+object IbukiGourdConfigs : IConfigHandler {
 
 	object Values {
 		@JvmStatic
@@ -51,12 +49,12 @@ class IbukiGourdConfigs : IConfigHandler {
 		val OPEN_GUI = ConfigHotkey(
 			name = "ibuki_gourd.test.open_gui",
 			defaultValue = KeyBind(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.IN_GAME) {
-				ScreenBase.openScreen(ConfigScreen(IbukiGourdMod.modName.tText(), configGroup = IbukiGourdConfigGroup.Toggles))
+				ScreenBase.openScreen(IbukiGourdScreen.current().apply { parent = MinecraftClient.getInstance().currentScreen })
 			}
 		)
 
 
-		val OPTION: List<ConfigBase> = listOf(
+		val CONFIGS: List<ConfigBase> = listOf(
 			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTION_LIST, OPEN_GUI
 		)
 	}

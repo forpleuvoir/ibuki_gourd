@@ -1,7 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
-import forpleuvoir.ibuki_gourd.gui.ScreenBase
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import forpleuvoir.ibuki_gourd.utils.text

@@ -1,4 +1,4 @@
-package forpleuvoir.ibuki_gourd.gui
+package forpleuvoir.ibuki_gourd.gui.screen
 
 import net.minecraft.client.gui.screen.Screen
 
@@ -8,7 +8,7 @@ import net.minecraft.client.gui.screen.Screen
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.gui
+ * 包名 forpleuvoir.ibuki_gourd.gui.screen
 
  * 文件名 IScreenBase
 

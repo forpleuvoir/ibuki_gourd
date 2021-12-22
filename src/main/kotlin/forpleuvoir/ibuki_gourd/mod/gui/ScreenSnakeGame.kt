@@ -1,9 +1,8 @@
 package forpleuvoir.ibuki_gourd.mod.gui
 
-import forpleuvoir.ibuki_gourd.gui.ScreenBase
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil.*
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -41,10 +40,9 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 	private var score: Int = 0
 	private val horizontalPadding = 10
 	private val bottomPadding = 10
-	private val topPadding = titleTopPadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 5
 	private val speed = 5
 	private var tickCounter: Int = 0
-	private var scale: Int = mc.options.guiScale
+	private var scale: Int = guiScale
 	private val gameWidth: Int = 186 / scale
 	private val gameHeight: Int = 87 / scale
 	private var isGameOver: Boolean = false
@@ -108,13 +106,13 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 	}
 
 
-	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		renderBord()
 		super.render(matrices, mouseX, mouseY, delta)
-		matrices?.let { renderScore(it) }
+		renderScore(matrices)
 		renderFood()
 		renderSnake()
-		if (isGameOver) matrices?.let { renderGameOverMessage(it) }
+		if (isGameOver) renderGameOverMessage(matrices)
 	}
 
 	private fun renderGameOverMessage(matrices: MatrixStack) {

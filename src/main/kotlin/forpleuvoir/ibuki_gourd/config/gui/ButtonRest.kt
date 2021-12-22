@@ -31,11 +31,11 @@ class ButtonRest(
 
 	init {
 		this.active = !config.isDefaultValue
+		setOnPressAction(this::rest)
 	}
 
-	override fun onPress() {
+	private fun rest(buttonRest: ButtonRest) {
 		config.resetDefaultValue()
-		super.onPress()
 	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {

@@ -1,14 +1,13 @@
 package forpleuvoir.ibuki_gourd.mod.initialize
 
 import forpleuvoir.ibuki_gourd.common.IModInitialize
-import forpleuvoir.ibuki_gourd.common.tText
-import forpleuvoir.ibuki_gourd.config.gui.ConfigScreen
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
 import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs
-import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdConfigGroup
+import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 
@@ -34,9 +33,7 @@ object IbukiGourdInitialize : IModInitialize {
 		log.info("${IbukiGourdMod.modName} initializing...")
 		ScreenInitialize.initialize()
 		KeyboardUtil.setOnPressCallback(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.ALL) {
-			val screen = ConfigScreen(IbukiGourdMod.modName.tText(), configGroup = IbukiGourdConfigGroup.Toggles.current)
-			screen.parent = mc.currentScreen
-			mc.setScreen(screen)
+			ScreenBase.openScreen(IbukiGourdScreen.current().apply { parent = mc.currentScreen })
 		}
 		IbukiGourdConfigs.Values.OPEN_GUI.initKeyBind()
 		log.info("${IbukiGourdMod.modName} Initialized...")

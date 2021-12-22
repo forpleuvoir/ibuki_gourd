@@ -28,6 +28,14 @@ class Button(x: Int, y: Int, width: Int, height: Int = 20, message: Text, onButt
 		onButtonPress = onButtonPress
 	)
 
+	constructor(x: Int, y: Int, height: Int, message: Text, onButtonPress: ((Button) -> Unit)? = null) : this(
+		x = x, y = y,
+		height = height,
+		width = MinecraftClient.getInstance().textRenderer.getWidth(message) + 20,
+		message = message,
+		onButtonPress = onButtonPress
+	)
+
 	constructor(x: Int, y: Int, message: Text, hoverText: List<Text>, onButtonPress: ((Button) -> Unit)? = null) : this(
 		x = x,
 		y = y,

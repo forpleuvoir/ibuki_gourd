@@ -36,13 +36,5 @@ object ScreenInitialize : IModInitialize {
 	}
 
 	private fun afterInit(client: MinecraftClient, screen: Screen, width: Int, height: Int) {
-//		ScreenKeyboardEvents.afterKeyPress(screen).register { _, key, scancode, modifiers ->
-//			KeyboardUtil.setPressed(key)
-//			KeyPressEvent(key, scancode, modifiers).broadcast()
-//		}
-//		ScreenKeyboardEvents.afterKeyRelease(screen).register { _, key, scancode, modifiers ->
-//			KeyboardUtil.setRelease(key)
-//			KeyReleaseEvent(key, scancode, modifiers).broadcast()
-//		}
 	}
 }

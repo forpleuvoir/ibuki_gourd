@@ -1,8 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
-import net.minecraft.text.TranslatableText
+import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 
 
 /**
@@ -19,23 +18,6 @@ import net.minecraft.text.TranslatableText
  * @author forpleuvoir
 
  */
-interface IConfigGroup {
-	val key: String
-
-	val displayKey: TranslatableText
-		get() = key.tText()
-
-	val remark: String
-
-	val displayRemark: TranslatableText
-		get() = remark.tText()
-
-	val current: IConfigGroup
-
-	fun all(): List<IConfigGroup>
-
-	fun option(): List<ConfigBase>
-
-
-	fun changeCurrent(configGroup: IConfigGroup)
+interface IConfigGroup : IScreenTabEntry {
+	val configs: List<ConfigBase>
 }
