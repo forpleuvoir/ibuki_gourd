@@ -27,6 +27,8 @@ class Color4f(
 	override var alpha: Float = 1f
 ) : IColor<Float> {
 
+
+
 	override val hexString: String
 		get() = "#${(red * 255).toInt().toString(16).uppercase()}${(green * 255).toInt().toString(16).uppercase()}${(blue * 255).toInt().toString(16).uppercase()}${(alpha * 255).toInt().toString(16).uppercase()}"
 
@@ -50,20 +52,6 @@ class Color4f(
 
 	override fun rgba(alpha: Float): Int {
 		return Color(red, green, blue, alpha).rgb
-	}
-
-	private fun fixAllValue() {
-		red = fixValue(red)
-		green = fixValue(green)
-		blue = fixValue(blue)
-		alpha = fixValue(alpha)
-	}
-
-	private fun fixValue(value: Float): Float {
-		var v = value
-		if (v < 0f) v = 0f
-		if (v > 1f) v = 1f
-		return v
 	}
 
 
@@ -101,6 +89,11 @@ class Color4f(
 	override fun hashCode(): Int {
 		return rgba
 	}
+
+	override val minValue: Float
+		get() = 0f
+	override val maxValue: Float
+		get() = 1f
 
 
 }

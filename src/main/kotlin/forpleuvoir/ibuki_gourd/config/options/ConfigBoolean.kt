@@ -56,6 +56,9 @@ class ConfigBoolean(override val name: String, override val remark: String = "$n
 		setValue(defaultValue)
 	}
 
+	override fun matched(regex: Regex): Boolean {
+		return if (regex.containsMatchIn(getValue().toString())) true else super.matched(regex)
+	}
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {

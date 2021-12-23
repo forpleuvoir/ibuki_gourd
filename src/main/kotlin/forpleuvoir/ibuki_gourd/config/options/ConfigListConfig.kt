@@ -66,6 +66,13 @@ class ConfigListConfig(override val name: String, override val remark: String = 
 		return value
 	}
 
+	override fun matched(regex: Regex): Boolean {
+		getValue().forEach {
+			if(it.matched(regex)) return true
+		}
+		return super.matched(regex)
+	}
+
 	override fun setValue(value: Set<ConfigBase>) {
 		if (this.value != value) {
 			this.value = HashSet<ConfigBase>(value)

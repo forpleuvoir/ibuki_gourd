@@ -3,6 +3,9 @@ package forpleuvoir.ibuki_gourd.utils.color
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.common.IJsonData
+import net.minecraft.util.math.MathHelper
+import kotlin.math.max
+import kotlin.math.min
 
 
 /**
@@ -39,6 +42,21 @@ interface IColor<T : Number> : IJsonData {
 			jsonObject.addProperty("alpha", red)
 			return jsonObject
 		}
+
+	fun fixAllValue() {
+		red = fixValue(red)
+		green = fixValue(green)
+		blue = fixValue(blue)
+		alpha = fixValue(alpha)
+	}
+
+	@Suppress("unchecked_cast")
+	fun fixValue(value: T): T {
+		return MathHelper.clamp(value.toDouble(), minValue.toDouble(), maxValue.toDouble()) as T
+	}
+
+	val minValue: T
+	val maxValue: T
 
 	var red: T
 	var green: T

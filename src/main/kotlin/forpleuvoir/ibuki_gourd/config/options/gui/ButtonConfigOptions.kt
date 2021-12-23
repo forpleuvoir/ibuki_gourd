@@ -28,7 +28,7 @@ class ButtonConfigOptions(x: Int, y: Int, width: Int, height: Int = 20, private 
 	init {
 		this.updateText()
 		this.config.getValue().getAllItem().forEach {
-			this.hoverText.add(it.displayName.append(" - ").append(it.displayRemark))
+			this.hoverText.add(it.displayKey.append(" - ").append(it.displayRemark))
 		}
 	}
 
@@ -44,7 +44,7 @@ class ButtonConfigOptions(x: Int, y: Int, width: Int, height: Int = 20, private 
 	}
 
 	private fun updateText() {
-		message = this.config.getValue().displayName
+		message = this.config.getValue().displayKey
 	}
 
 }

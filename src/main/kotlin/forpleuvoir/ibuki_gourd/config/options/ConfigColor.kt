@@ -38,6 +38,10 @@ class ConfigColor(override val name: String, override val remark: String = "$nam
 		}
 	}
 
+	override fun matched(regex: Regex): Boolean {
+		return if (regex.containsMatchIn(getValue().hexString)) true else super.matched(regex)
+	}
+
 	override fun getValue(): IColor<*> {
 		return value
 	}

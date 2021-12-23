@@ -47,6 +47,16 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 		}
 	}
 
+	override fun matched(regex: Regex): Boolean {
+		return if (regex.run {
+				getValue().asTexts.forEach {
+					if (this.containsMatchIn(it.string)) return@run true
+				}
+				false
+			}) true
+		else super.matched(regex)
+	}
+
 	fun setKeyCallback(callback: () -> Unit) {
 		this.value.callback = callback
 	}

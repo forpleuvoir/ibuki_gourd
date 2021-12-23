@@ -59,31 +59,31 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	protected val titleBottom: Int
 		get() = titleTop + titleHeight
 	protected val titleRight: Int
-		get(){
-			return if(title.string.isNotEmpty())  titleLeftPadding.toInt() + titleWidth
+		get() {
+			return if (title.string.isNotEmpty()) titleLeftPadding.toInt() + titleWidth
 			else 0
 		}
-	protected val titleLeft:Int
+	protected val titleLeft: Int
 		get() {
-			return if(title.string.isNotEmpty())  titleLeftPadding.toInt()
+			return if (title.string.isNotEmpty()) titleLeftPadding.toInt()
 			else 0
 		}
 
-	var titleLeftPadding = 15f
-	var titleTopPadding = 10f
+	open var titleLeftPadding = 15f
+	open var titleTopPadding = 10f
 	protected val topPadding: Int
 		get() {
 			return if (title.string.isNotEmpty())
 				titleTopPadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 5
 			else titleTopPadding.toInt()
 		}
-	override var parent: Screen? = null
+	final override var parent: Screen? = null
 
 	override fun isPauseScreen(): Boolean {
 		return this.pauseScreen
 	}
 
-	private fun drawBackgroundColor(matrices: MatrixStack) {
+	protected open fun drawBackgroundColor(matrices: MatrixStack) {
 		DrawableHelper.fill(matrices, 0, 0, this.width, this.height, backgroundColor)
 	}
 

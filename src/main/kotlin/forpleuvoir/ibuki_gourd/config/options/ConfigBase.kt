@@ -6,7 +6,6 @@ import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.IConfigNotifiable
 import forpleuvoir.ibuki_gourd.config.IConfigResettable
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
-import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 
 
@@ -38,6 +37,16 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
 
 	override val displayRemark: TranslatableText
 		get() = remark.tText()
+
+	override fun matched(regex: Regex): Boolean {
+		return regex.run {
+			containsMatchIn(displayName.string)
+					|| containsMatchIn(displayRemark.string)
+					|| containsMatchIn(name)
+					|| containsMatchIn(remark)
+		}
+	}
+
 
 	override fun equals(other: Any?): Boolean {
 		return if (other is ConfigBase)

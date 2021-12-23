@@ -49,6 +49,10 @@ class ConfigString(override val name: String, override val remark: String = "$na
 		}
 	}
 
+	override fun matched(regex:Regex): Boolean {
+		return if (regex.containsMatchIn(getValue())) true else super.matched(regex)
+	}
+
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
 			if (jsonElement.isJsonPrimitive) {

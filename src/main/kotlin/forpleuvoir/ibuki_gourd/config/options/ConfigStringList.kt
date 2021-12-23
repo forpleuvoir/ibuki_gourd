@@ -35,6 +35,17 @@ class ConfigStringList(
 	override val type: ConfigType
 		get() = ConfigType.STRING_LIST
 
+
+	override fun matched(regex: Regex): Boolean {
+		return if (regex.run {
+				getValue().forEach {
+					if (containsMatchIn(it)) return@run true
+				}
+				false
+			}) true
+		else super.matched(regex)
+	}
+
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
 			if (jsonElement.isJsonArray) {

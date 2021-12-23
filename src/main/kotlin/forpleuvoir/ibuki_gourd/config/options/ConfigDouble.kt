@@ -58,6 +58,10 @@ class ConfigDouble(
 		}
 	}
 
+	override fun matched(regex: Regex): Boolean {
+		return if (regex.containsMatchIn(getValue().toString())) true else super.matched(regex)
+	}
+
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
 			if (jsonElement.isJsonPrimitive) {

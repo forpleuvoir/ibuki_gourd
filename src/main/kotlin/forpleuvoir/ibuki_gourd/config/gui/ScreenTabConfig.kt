@@ -3,6 +3,7 @@ package forpleuvoir.ibuki_gourd.config.gui
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.text.LiteralText
+import java.util.regex.PatternSyntaxException
 
 /**
  * 配置界面
@@ -32,17 +33,17 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 	}
 
 	private fun initListWidget(pageSize: Int) {
-		searchBar.let {
-			listWidget = WidgetListConfig(configGroup.configs, this, 0, it.y + searchBarHeight + margin, pageSize, itemHeight, this.width)
-			listWidget.setFilter { configEntry ->
-				configEntry.config.displayName.string.contains(it.text)
-						|| configEntry.config.displayRemark.string.contains(it.text)
-						|| configEntry.config.name.contains(it.text)
-						|| configEntry.config.remark.contains(it.text)
+		listWidget = WidgetListConfig(configGroup.configs, this, 0, searchBar.y + searchBarHeight + margin, pageSize, itemHeight, this.width)
+		listWidget.setFilter {
+			try {
+				val regex = Regex(searchBar.text)
+				it.config.matched(regex)
+			} catch (_: PatternSyntaxException) {
+				true
 			}
-			listWidget.setHoverCallback { entry -> drawTopMessage(entry.config.displayRemark) }
-			this.addDrawableChild(listWidget)
 		}
+		listWidget.setHoverCallback { entry -> drawTopMessage(entry.config.displayRemark) }
+		this.addDrawableChild(listWidget)
 	}
 
 	private fun initSearchBar() {

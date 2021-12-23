@@ -22,7 +22,7 @@ interface IConfigOptionItem {
 
 	val key: String
 
-	val displayName: TranslatableText
+	val displayKey: TranslatableText
 		get() = key.tText()
 
 	val remark: String

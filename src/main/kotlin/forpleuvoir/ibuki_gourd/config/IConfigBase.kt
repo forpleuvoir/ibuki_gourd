@@ -2,6 +2,8 @@ package forpleuvoir.ibuki_gourd.config
 
 import forpleuvoir.ibuki_gourd.common.IJsonData
 import net.minecraft.text.Text
+import java.util.regex.PatternSyntaxException
+import kotlin.jvm.Throws
 
 
 /**
@@ -26,6 +28,7 @@ interface IConfigBase : IJsonData {
 	val displayName: Text
 	val displayRemark: Text
 
+	fun matched(regex: Regex): Boolean
 
 	fun isValueEquals(other: IConfigBase): Boolean
 

@@ -56,6 +56,16 @@ class ConfigOptions(
 		setValue(defaultValue)
 	}
 
+	override fun matched(regex:Regex): Boolean {
+		return if (regex.run {
+				containsMatchIn(getValue().displayKey.string)
+						|| containsMatchIn(getValue().displayRemark.string)
+						|| containsMatchIn(getValue().key)
+						|| containsMatchIn(getValue().remark)
+			}) true
+		else super.matched(regex)
+	}
+
 	override fun getValue(): IConfigOptionItem {
 		return value
 	}

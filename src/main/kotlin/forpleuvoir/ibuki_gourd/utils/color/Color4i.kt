@@ -42,20 +42,6 @@ class Color4i(
 		return Color(red, green, blue, alpha).rgb
 	}
 
-	private fun fixAllValue() {
-		red = fixValue(red)
-		green = fixValue(green)
-		blue = fixValue(blue)
-		alpha = fixValue(alpha)
-	}
-
-	private fun fixValue(value: Int): Int {
-		var v = value
-		v = 0.coerceAtLeast(v)
-		v = 255.coerceAtMost(v)
-		return v
-	}
-
 	@Throws(Exception::class)
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		if (jsonElement.isJsonObject) {
@@ -103,6 +89,11 @@ class Color4i(
 	override fun hashCode(): Int {
 		return rgba
 	}
+
+	override val minValue: Int
+		get() = 0
+	override val maxValue: Int
+		get() = 255
 
 }
 
