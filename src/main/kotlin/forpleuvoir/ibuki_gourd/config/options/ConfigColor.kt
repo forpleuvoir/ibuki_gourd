@@ -25,14 +25,14 @@ import forpleuvoir.ibuki_gourd.utils.color.IColor
 class ConfigColor(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IColor<*> = WHITE) : ConfigBase(),
 	IConfigBaseValue<IColor<*>> {
 
-	private var value: IColor<*> = defaultValue
+	private var value: IColor<*> = IColor.copy(defaultValue)
 
 	override val type: ConfigType
 		get() = ConfigType.COLOR
 
 	override fun setValue(value: IColor<*>) {
 		val oldValue = this.value
-		this.value = value
+		this.value = IColor.copy(value)
 		if (oldValue != this.value) {
 			this.onValueChange()
 		}

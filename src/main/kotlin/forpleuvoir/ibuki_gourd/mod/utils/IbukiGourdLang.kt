@@ -21,6 +21,10 @@ import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 enum class IbukiGourdLang(override val key:String): Lang {
 	Initializing("initializing"),
 	Initialized("initialized"),
+	Red("color.red"),
+	Green("color.green"),
+	Blue("color.blue"),
+	Alpha("color.alpha"),
 	On("on"),
 	Off("off"),
 	Confirm("confirm"),

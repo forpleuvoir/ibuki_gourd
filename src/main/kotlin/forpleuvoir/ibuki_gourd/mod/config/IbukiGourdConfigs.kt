@@ -7,6 +7,7 @@ import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 

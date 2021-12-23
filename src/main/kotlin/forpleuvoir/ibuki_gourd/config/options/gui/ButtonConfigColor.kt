@@ -2,9 +2,12 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigColor
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
+import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.LiteralText
@@ -27,9 +30,16 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 	ButtonBase<ButtonConfigColor>(x, y, width, height, message = config.getValue().hexString.text(), onButtonPress = null) {
 	private val colorBoxPadding = 4
 	private val colorBoxSize = this.height - colorBoxPadding
-	override fun onPress() {
-		super.onPress()
-		// TODO: 2021/12/17 打开颜色编辑组件 
+
+
+	init {
+		setOnPressAction {
+			ScreenBase.openScreen(
+				@Suppress("unchecked_cast")
+				DialogColorEditor(this.config.getValue() as IColor<Number> , 240, 140,this.config.displayName, mc.currentScreen!!) {
+					this.config.setValue(it)
+				})
+		}
 	}
 
 	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {

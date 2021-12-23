@@ -29,7 +29,10 @@ class Color4i(
 ) : IColor<Int> {
 
 	override val hexString: String
-		get() = "#${red.toString(16).uppercase()}${green.toString(16).uppercase()}${blue.toString(16).uppercase()}${alpha.toString(16).uppercase()}"
+		get() = "#${red.toString(16).run { if (this == "0") return@run "00" else this }.uppercase()}" +
+				green.toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
+				blue.toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
+				alpha.toString(16).run { if (this == "0") return@run "00" else this }.uppercase()
 
 	init {
 		fixAllValue()
@@ -56,14 +59,14 @@ class Color4i(
 
 
 	companion object {
-		val WHITE = Color4i(255, 255, 255, 255)
-		val RED = Color4i(255, 0, 0, 255)
-		val YELLOW = Color4i(127, 127, 0, 255)
-		val GREEN = Color4i(0, 255, 0, 255)
-		val CYAN = Color4i(0, 127, 127, 255)
-		val BLUE = Color4i(0, 0, 255, 255)
-		val MAGENTA = Color4i(127, 0, 127, 255)
-		val BLACK = Color4i(0, 0, 0, 255)
+		val WHITE get() = Color4i(255, 255, 255, 255)
+		val RED get() = Color4i(255, 0, 0, 255)
+		val YELLOW get() = Color4i(127, 127, 0, 255)
+		val GREEN get() = Color4i(0, 255, 0, 255)
+		val CYAN get() = Color4i(0, 127, 127, 255)
+		val BLUE get() = Color4i(0, 0, 255, 255)
+		val MAGENTA get() = Color4i(127, 0, 127, 255)
+		val BLACK get() = Color4i(0, 0, 0, 255)
 	}
 
 	override fun fromInt(color: Int): Color4i {
@@ -78,12 +81,8 @@ class Color4i(
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false
-
-		other as Color4f
-
-		if (rgba != other.rgba) return false
-
-		return true
+		if (other is IColor<*>) return other.rgba == this.rgba
+		return false
 	}
 
 	override fun hashCode(): Int {

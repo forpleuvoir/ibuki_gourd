@@ -2,7 +2,9 @@ package forpleuvoir.ibuki_gourd.gui.dialog
 
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
@@ -25,8 +27,8 @@ import net.minecraft.text.Text
 open class DialogBase<D : DialogBase<D>>(private var dialogWidth: Int, private var dialogHeight: Int, title: Text, parent: Screen) :
 	ScreenBase(title) {
 
-	var x: Int = width / 2 - dialogWidth / 2
-	var y: Int = height / 2 - dialogHeight / 2
+	val x: Int get() = width / 2 - dialogWidth / 2
+	val y: Int get() = height / 2 - dialogHeight / 2
 
 	private var onCloseCallback: ((D) -> Unit)? = null
 
@@ -56,15 +58,20 @@ open class DialogBase<D : DialogBase<D>>(private var dialogWidth: Int, private v
 	}
 
 	override fun drawBackgroundColor(matrices: MatrixStack) {
-		RenderUtil.drawOutlinedBox(x, y, dialogWidth, dialogHeight, Color4i().fromInt(backgroundColor), Color4i.WHITE)
+		RenderUtil.drawOutlinedBox(x, y, dialogWidth, dialogHeight, Color4i.BLACK.apply { alpha = 180 }, Color4f.WHITE)
 	}
 
 	override fun renderBackground(matrices: MatrixStack?, vOffset: Int) {
 		if (client!!.world != null) {
-			this.fillGradient(matrices, 0, 0, dialogWidth, dialogHeight, -1072689136, -804253680)
+			this.fillGradient(matrices, x, y, dialogWidth, dialogHeight, -1072689136, -804253680)
 		} else {
 			renderBackgroundTexture(vOffset)
 		}
+	}
+
+	override fun resize(client: MinecraftClient?, width: Int, height: Int) {
+		parent?.resize(client, width, height)
+		super.resize(client, width, height)
 	}
 
 	@Suppress("unchecked_cast")

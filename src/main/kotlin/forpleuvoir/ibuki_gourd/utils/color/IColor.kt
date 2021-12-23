@@ -3,7 +3,9 @@ package forpleuvoir.ibuki_gourd.utils.color
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.common.IJsonData
+import forpleuvoir.ibuki_gourd.utils.clamp
 import net.minecraft.util.math.MathHelper
+import java.awt.Color.red
 import kotlin.math.max
 import kotlin.math.min
 
@@ -23,9 +25,19 @@ import kotlin.math.min
 
  */
 interface IColor<T : Number> : IJsonData {
+	companion object {
+		fun copy(color: IColor<*>): IColor<*> {
+			if (color.red is Int) {
+				return Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
+			} else {
+				return Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
+			}
+		}
+	}
+
 	val rgba: Int
 	val hexString: String
-		get() = "0x${rgba.toString(16).uppercase()}"
+		get() = "#${String.format("%x", hashCode()).uppercase()}"
 
 	fun rgba(alpha: T): Int
 	fun fromInt(color: Int): IColor<T>
@@ -52,7 +64,7 @@ interface IColor<T : Number> : IJsonData {
 
 	@Suppress("unchecked_cast")
 	fun fixValue(value: T): T {
-		return MathHelper.clamp(value.toDouble(), minValue.toDouble(), maxValue.toDouble()) as T
+		return (value as Number).clamp(minValue as Number, maxValue as Number) as T
 	}
 
 	val minValue: T

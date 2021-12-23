@@ -1,6 +1,10 @@
 {
   "ibuki_gourd.initializing": "%s initializing...",
   "ibuki_gourd.initialized": "%s initialized",
+  "ibuki_gourd.color.red": "Red",
+  "ibuki_gourd.color.green": "Green",
+  "ibuki_gourd.color.blue": "Blue",
+  "ibuki_gourd.color.alpha": "Alpha",
   "ibuki_gourd.on": "§aOn§r",
   "ibuki_gourd.off": "§cOff§r",
   "ibuki_gourd.confirm": "Confirm",

@@ -28,23 +28,25 @@ class Color4f(
 ) : IColor<Float> {
 
 
-
 	override val hexString: String
-		get() = "#${(red * 255).toInt().toString(16).uppercase()}${(green * 255).toInt().toString(16).uppercase()}${(blue * 255).toInt().toString(16).uppercase()}${(alpha * 255).toInt().toString(16).uppercase()}"
+		get() = "#${(red * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase()}" +
+				(green * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
+				(blue * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
+				(alpha * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase()
 
 	init {
 		fixAllValue()
 	}
 
 	companion object {
-		val WHITE = Color4f(1f, 1f, 1f, 1f)
-		val BLACK = Color4f(0f, 0f, 0f, 1f)
-		val RED = Color4f(1f, 0f, 0f, 1f)
-		val YELLOW = Color4f(0.5f, 0.5f, 0f, 1f)
-		val GREEN = Color4f(0f, 1f, 0f, 1f)
-		val CYAN = Color4f(0f, 0.5f, 0.5f, 1f)
-		val BLUE = Color4f(0f, 0f, 1f, 1f)
-		val MAGENTA = Color4f(0.5f, 0f, 0.5f, 1f)
+		val WHITE get() = Color4f(1f, 1f, 1f, 1f)
+		val BLACK get() = Color4f(0f, 0f, 0f, 1f)
+		val RED get() = Color4f(1f, 0f, 0f, 1f)
+		val YELLOW get() = Color4f(0.5f, 0.5f, 0f, 1f)
+		val GREEN get() = Color4f(0f, 1f, 0f, 1f)
+		val CYAN get() = Color4f(0f, 0.5f, 0.5f, 1f)
+		val BLUE get() = Color4f(0f, 0f, 1f, 1f)
+		val MAGENTA get() = Color4f(0.5f, 0f, 0.5f, 1f)
 	}
 
 	override val rgba: Int
@@ -78,12 +80,8 @@ class Color4f(
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false
-
-		other as Color4f
-
-		if (rgba != other.rgba) return false
-
-		return true
+		if (other is IColor<*>) return other.rgba == this.rgba
+		return false
 	}
 
 	override fun hashCode(): Int {

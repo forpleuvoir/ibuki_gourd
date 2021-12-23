@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.gui.screen
 
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.BLACK
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.WHITE
+import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
@@ -46,7 +47,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	protected val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
 
-	var backgroundColor: Int = BLACK.rgba(0.5f)
+	var backgroundColor: IColor<*> = BLACK.apply { alpha = 0.5f }
 	protected val titleWidth: Int
 		get() = textRenderer.getWidth(title)
 	protected val titleHeight: Int
@@ -84,7 +85,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 	protected open fun drawBackgroundColor(matrices: MatrixStack) {
-		DrawableHelper.fill(matrices, 0, 0, this.width, this.height, backgroundColor)
+		DrawableHelper.fill(matrices, 0, 0, this.width, this.height, backgroundColor.rgba)
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {

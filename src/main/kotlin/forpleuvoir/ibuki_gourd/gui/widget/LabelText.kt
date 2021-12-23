@@ -1,13 +1,18 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText.Align.*
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
+import net.minecraft.client.gui.Selectable
+import net.minecraft.client.gui.Selectable.SelectionType
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 
 
@@ -25,9 +30,13 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) : Drawable, Element {
+class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) : Drawable, Element,
+	Selectable {
 
 	private val textRenderer = MinecraftClient.getInstance().textRenderer
+
+	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
+	private lateinit var matrices: MatrixStack
 
 	private var topPadding: Int = 2
 	private var bottomPadding: Int = 2
@@ -57,12 +66,30 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
 		renderBox()
 		renderText(matrices)
+		RenderUtil.isMouseHovered(x,y,width,height,mouseX,mouseY){
+			hoverCallback?.invoke(this)
+			MinecraftClient.getInstance().currentScreen?.renderTooltip(matrices, hoverTexts, mouseX.toInt(), mouseY.toInt())
+		}
 	}
 
 	private fun renderBox() {
 		RenderUtil.drawOutlinedBox(x, y, width, height, backgroundColor, bordColor)
+	}
+
+	fun setHoverTexts(vararg texts: Text) {
+		hoverTexts.clear()
+		hoverTexts.addAll(texts)
+	}
+
+	fun addHoverText(vararg texts: Text) {
+		hoverTexts.addAll(texts)
+	}
+
+	fun clearHoverText() {
+		hoverTexts.clear()
 	}
 
 
@@ -118,8 +145,9 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 
 	}
 
+
 	override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean {
-		hoverCallback?.invoke(this)
+
 		return super.isMouseOver(mouseX, mouseY)
 	}
 
@@ -127,5 +155,13 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		TOP_LEFT, TOP_CENTER, TOP_RIGHT,
 		CENTER_LEFT, CENTER, CENTER_RIGHT,
 		BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
+	}
+
+	override fun appendNarrations(builder: NarrationMessageBuilder?) {
+
+	}
+
+	override fun getType(): SelectionType {
+		return SelectionType.HOVERED
 	}
 }

@@ -1,6 +1,10 @@
 {
   "ibuki_gourd.initializing": "%s 初始化中...",
   "ibuki_gourd.initialized": "%s 初始化完成",
+  "ibuki_gourd.color.red": "红色",
+  "ibuki_gourd.color.green": "绿色",
+  "ibuki_gourd.color.blue": "蓝色",
+  "ibuki_gourd.color.alpha": "透明",
   "ibuki_gourd.on": "§a开§r",
   "ibuki_gourd.off": "§c关§r",
   "ibuki_gourd.confirm": "确认",
