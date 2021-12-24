@@ -1,6 +1,6 @@
-package forpleuvoir.ibuki_gourd.config.options.gui
+package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
+import forpleuvoir.ibuki_gourd.gui.dialog.DialogConfirm
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang.*
@@ -17,7 +17,7 @@ import net.minecraft.text.Text
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.config.options.gui
+ * 包名 forpleuvoir.ibuki_gourd.config.gui
 
  * 文件名 DialogBase
 
@@ -31,11 +31,13 @@ class DialogColorEditor(
 	dialogWidth: Int,
 	dialogHeight: Int,
 	title: Text,
-	parent: Screen,
-	private val closeCallback: (IColor<Number>) -> Unit
-) : DialogBase<DialogColorEditor>(dialogWidth, dialogHeight, title, parent) {
+	parent: Screen?,
+	private val onApply: (IColor<Number>) -> Unit
+) : DialogConfirm(dialogWidth, dialogHeight, title, parent, {
+	it as DialogColorEditor
+	onApply.invoke(it.color)
+}, null) {
 
-	private val margin: Int = 5
 
 	private lateinit var red: WidgetSliderNumber
 	private lateinit var green: WidgetSliderNumber
@@ -46,10 +48,6 @@ class DialogColorEditor(
 	private lateinit var greenText: LabelText
 	private lateinit var blueText: LabelText
 	private lateinit var alphaText: LabelText
-
-	init {
-		setOnCloseCallback { closeCallback.invoke(color) }
-	}
 
 	override fun init() {
 		super.init()
@@ -76,7 +74,6 @@ class DialogColorEditor(
 	private fun initText() {
 		redText = LabelText(Red.tText(), this.x + margin, this.topPadding + margin, 30, 20)
 		greenText = LabelText(Green.tText(), this.x + margin, redText.y + redText.height + margin, 30, 20)
-		greenText.setHoverTexts(Green.tText())
 		blueText = LabelText(Blue.tText(), this.x + margin, greenText.y + greenText.height + margin, 30, 20)
 		alphaText = LabelText(Alpha.tText(), this.x + margin, blueText.y + blueText.height + margin, 30, 20)
 		this.addDrawableChild(redText)

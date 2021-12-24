@@ -24,5 +24,6 @@ enum class ConfigType {
 	STRING_LIST,
 	OPTIONS,
 	HOTKEY,
-	LIST;
+	Group,
+	MAP;
 }

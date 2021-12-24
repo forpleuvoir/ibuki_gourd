@@ -1,18 +1,20 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText.Align.*
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.Selectable.SelectionType
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 
 
@@ -33,7 +35,15 @@ import net.minecraft.text.Text
 class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) : Drawable, Element,
 	Selectable {
 
-	private val textRenderer = MinecraftClient.getInstance().textRenderer
+	constructor(text: Text, x: Int, y: Int, padding: Int = 2) : this(text, x, y, mc.textRenderer.getWidth(text), mc.textRenderer.fontHeight) {
+		setPadding(padding, padding, padding, padding)
+		this.width += rightPadding + leftPadding
+		this.height += topPadding + bottomPadding
+	}
+
+	private val parent: Screen? = MinecraftClient.getInstance().currentScreen
+
+	private val textRenderer: TextRenderer get() = MinecraftClient.getInstance().textRenderer
 
 	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
 	private lateinit var matrices: MatrixStack
@@ -42,6 +52,18 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	private var bottomPadding: Int = 2
 	private var leftPadding: Int = 2
 	private var rightPadding: Int = 2
+
+	fun setPadding(
+		topPadding: Int = 2,
+		bottomPadding: Int = 2,
+		leftPadding: Int = 2,
+		rightPadding: Int = 2
+	) {
+		this.topPadding = topPadding
+		this.bottomPadding = bottomPadding
+		this.leftPadding = leftPadding
+		this.rightPadding = rightPadding
+	}
 
 	private val textWidth: Int
 		get() = textRenderer.getWidth(this.text)
@@ -69,10 +91,11 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
 		renderBox()
 		renderText(matrices)
-		RenderUtil.isMouseHovered(x,y,width,height,mouseX,mouseY){
-			hoverCallback?.invoke(this)
-			MinecraftClient.getInstance().currentScreen?.renderTooltip(matrices, hoverTexts, mouseX.toInt(), mouseY.toInt())
-		}
+		if (ScreenBase.isCurrent(parent))
+			RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
+				hoverCallback?.invoke(this)
+				MinecraftClient.getInstance().currentScreen?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
+			}
 	}
 
 	private fun renderBox() {
@@ -145,11 +168,6 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 
 	}
 
-
-	override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean {
-
-		return super.isMouseOver(mouseX, mouseY)
-	}
 
 	enum class Align {
 		TOP_LEFT, TOP_CENTER, TOP_RIGHT,

@@ -31,12 +31,16 @@ import kotlin.jvm.Throws
 class KeyBind(vararg key: Int, var keyEnvironment: KeyEnvironment = KeyEnvironment.IN_GAME, var callback: () -> Unit = {}) : IJsonData {
 	val keys: LinkedHashSet<Int> = LinkedHashSet(key.toSet())
 
-	fun callbackHandler(key: Set<Int>) {
+	fun callbackHandler(key: Set<Int>): Boolean {
+		if (keys.isEmpty()) return false
 		if (key.containsAll(keys)) {
 			val keyEnv = if (MinecraftClient.getInstance().currentScreen == null) KeyEnvironment.IN_GAME else KeyEnvironment.IN_SCREEN
-			if (keyEnv == this.keyEnvironment || this.keyEnvironment == KeyEnvironment.ALL)
+			if (keyEnv == this.keyEnvironment || this.keyEnvironment == KeyEnvironment.ALL) {
 				callback.invoke()
+				return true
+			}
 		}
+		return false
 	}
 
 	val asTexts: List<Text>

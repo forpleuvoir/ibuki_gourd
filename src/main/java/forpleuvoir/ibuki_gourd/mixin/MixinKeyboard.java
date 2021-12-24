@@ -38,13 +38,13 @@ public abstract class MixinKeyboard {
 	@Shadow
 	private boolean repeatEvents;
 
-	@Inject(method = "onKey", at = @At("HEAD"))
+	@Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
 	public void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
 		if (window == this.client.getWindow().getHandle()) {
 			KeyEnvironment keyEnv = this.client.currentScreen == null ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
 			if (action == 1 || action == 2 && this.repeatEvents) {
-				KeyboardUtil.setPressed(key);
 				new KeyPressEvent(key, scancode, modifiers, keyEnv).broadcast();
+				if (KeyboardUtil.setPressed(key)) ci.cancel();
 			} else {
 				KeyboardUtil.setRelease(key);
 				new KeyReleaseEvent(key, scancode, modifiers, keyEnv).broadcast();

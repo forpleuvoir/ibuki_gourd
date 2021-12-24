@@ -47,16 +47,26 @@ object IbukiGourdConfigs : IConfigHandler {
 		val TEST_OPTIONS = ConfigOptions(name = "ibuki_gourd.test.options", defaultValue = WhiteListMode.None)
 
 		@JvmStatic
+		val TEST_BOOLEAN_HOTKEY = ConfigBooleanHotkey(KeyBind(InputUtil.GLFW_KEY_LEFT_CONTROL,InputUtil.GLFW_KEY_R), TEST_BOOLEAN)
+
+
+		@JvmStatic
 		val OPEN_GUI = ConfigHotkey(
 			name = "ibuki_gourd.test.open_gui",
 			defaultValue = KeyBind(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.IN_GAME) {
-				IbukiGourdScreen.openScreen(MinecraftClient.getInstance().currentScreen)
+				IbukiGourdScreen.openScreen()
 			}
+		)
+
+		@JvmStatic
+		val TEST_GROUP = ConfigGroup(name =  "ibuki_gourd.test.group", defaultValue = listOf(
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI,TEST_BOOLEAN_HOTKEY
+		)
 		)
 
 
 		val CONFIGS: List<ConfigBase> = listOf(
-			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI,TEST_BOOLEAN_HOTKEY,TEST_GROUP
 		)
 	}
 

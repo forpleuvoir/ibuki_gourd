@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
 
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
@@ -114,8 +115,10 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	}
 
 	protected fun updateBgOpacity(delta: Float) {
-		bgOpacity += delta.toInt()
-		bgOpacity = MathHelper.clamp(bgOpacity, 0, maxBgOpacity)
+		if(ScreenBase.isCurrent(parent.parent)) {
+			bgOpacity += delta.toInt()
+			bgOpacity = MathHelper.clamp(bgOpacity, 0, maxBgOpacity)
+		}
 	}
 
 	protected fun renderFocusedBorder(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {

@@ -47,5 +47,9 @@
   "ibuki_gourd.test.options": "测试选项",
   "ibuki_gourd.test.options.remark": "测试选项",
   "ibuki_gourd.test.open_gui": "打开配置界面",
-  "ibuki_gourd.test.open_gui.remark": "打开配置界面"
+  "ibuki_gourd.test.open_gui.remark": "打开配置界面",
+  "ibuki_gourd.test.boolean.hotkey": "测试布尔热键",
+  "ibuki_gourd.test.boolean.hotkey.remark": "测试布尔热键",
+  "ibuki_gourd.test.group": "测试组",
+  "ibuki_gourd.test.group.remark": "测试组"
 }

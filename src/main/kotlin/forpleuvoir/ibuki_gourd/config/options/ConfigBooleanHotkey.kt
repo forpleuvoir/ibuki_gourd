@@ -1,6 +1,8 @@
 package forpleuvoir.ibuki_gourd.config.options
 
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import forpleuvoir.ibuki_gourd.utils.Message
 
 
 /**
@@ -18,11 +20,13 @@ import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 
  */
 class ConfigBooleanHotkey(defaultValue: KeyBind, val config: ConfigBoolean) :
-	ConfigHotkey("${config.name}.hotkey", "${config.name}.remark", defaultValue) {
-	init {
-		this.setKeyCallback {
-			this.config.toggle()
+	ConfigHotkey("${config.name}.hotkey", "${config.name}.remark", KeyBind().apply {
+		copyOf(defaultValue)
+		this.callback = {
+			config.toggle()
+			val status = if (config.getValue()) IbukiGourdLang.On.tText() else IbukiGourdLang.Off.tText()
+			Message.showInfo(config.displayName.append(": ").append(status))
 		}
-	}
+	}) {
 
 }

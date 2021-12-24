@@ -130,15 +130,15 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 		textRenderer.drawWithShadow(
 			matrices,
 			Text.of("score:"),
-			titleLeftPadding + textRenderer.getWidth(title) + 10,
-			titleTopPadding,
+			titleLeftPadding.toFloat() + textRenderer.getWidth(title) + 10,
+			titleTopPadding.toFloat(),
 			Color4i.WHITE.rgba
 		)
 		textRenderer.drawWithShadow(
 			matrices,
 			Text.of(score.toString()),
-			titleLeftPadding + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
-			titleTopPadding,
+			titleLeftPadding.toFloat() + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
+			titleTopPadding.toFloat(),
 			Color4i.WHITE.rgba
 		)
 	}

@@ -1,12 +1,11 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
+import forpleuvoir.ibuki_gourd.config.gui.DialogColorEditor
 import forpleuvoir.ibuki_gourd.config.options.ConfigColor
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
-import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
-import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.math.MatrixStack
@@ -36,9 +35,16 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 		setOnPressAction {
 			ScreenBase.openScreen(
 				@Suppress("unchecked_cast")
-				DialogColorEditor(this.config.getValue() as IColor<Number> , 240, 140,this.config.displayName, mc.currentScreen!!) {
-					this.config.setValue(it)
-				})
+				(DialogColorEditor(
+		IColor.copy(this.config.getValue()) as IColor<Number>,
+		240,
+		165,
+		this.config.displayName,
+		mc.currentScreen!!
+	) {
+		this.config.setValue(it)
+	})
+			)
 		}
 	}
 

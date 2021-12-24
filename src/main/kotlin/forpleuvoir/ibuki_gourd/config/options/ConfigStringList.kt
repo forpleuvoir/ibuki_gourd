@@ -80,6 +80,24 @@ class ConfigStringList(
 		value = ArrayList(defaultValue)
 	}
 
+	fun add(string: String) {
+		this.value.add(string)
+		this.onValueChange()
+	}
+
+	fun remove(index: Int) {
+		if (index >= 0 && index < this.value.size) {
+			this.value.removeAt(index)
+			this.onValueChange()
+		}
+	}
+
+	fun remove(string: String) {
+		if (this.value.remove(string)) {
+			this.onValueChange()
+		}
+	}
+
 	override fun getValue(): List<String> {
 		return ImmutableList.copyOf(value)
 	}

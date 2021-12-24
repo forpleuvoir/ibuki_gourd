@@ -29,7 +29,6 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 	private lateinit var matrices: MatrixStack
 
 	init {
-		tabEntry.changeCurrent(tabEntry)
 	}
 
 	override fun init() {
@@ -48,7 +47,7 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 				matrices,
 				message,
 				(this.width / 2 - textRenderer.getWidth(message) / 2).toFloat(),
-				titleTopPadding,
+				titleTopPadding.toFloat(),
 				Color4f.WHITE.rgba
 			)
 	}

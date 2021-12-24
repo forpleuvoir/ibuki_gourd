@@ -33,13 +33,13 @@ public abstract class MixinMouse {
 	@Final
 	private MinecraftClient client;
 
-	@Inject(method = "onMouseButton", at = @At("HEAD"))
+	@Inject(method = "onMouseButton", at = @At("HEAD"), cancellable = true)
 	public void onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
 		if (window == this.client.getWindow().getHandle()) {
 			KeyEnvironment keyEnv = this.client.currentScreen == null ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
 			if (action == 1) {
-				KeyboardUtil.setPressed(button);
 				new MousePressEvent(button, mods, keyEnv).broadcast();
+				if(KeyboardUtil.setPressed(button)) ci.cancel();
 			} else {
 				KeyboardUtil.setRelease(button);
 				new MouseReleaseEvent(button, mods, keyEnv).broadcast();

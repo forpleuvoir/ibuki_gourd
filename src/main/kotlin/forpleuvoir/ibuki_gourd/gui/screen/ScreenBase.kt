@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.gui.screen
 
+import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.BLACK
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.WHITE
 import forpleuvoir.ibuki_gourd.utils.color.IColor
@@ -43,6 +44,10 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		fun openScreen(screen: Screen?) {
 			MinecraftClient.getInstance().setScreen(screen)
 		}
+
+		fun isCurrent(screen: Screen?): Boolean {
+			return screen == MinecraftClient.getInstance().currentScreen
+		}
 	}
 
 	protected val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
@@ -56,29 +61,39 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 			else 0
 		}
 	protected val titleTop: Int
-		get() = titleTopPadding.toInt()
+		get() = titleTopPadding
 	protected val titleBottom: Int
 		get() = titleTop + titleHeight
 	protected val titleRight: Int
 		get() {
-			return if (title.string.isNotEmpty()) titleLeftPadding.toInt() + titleWidth
+			return if (title.string.isNotEmpty()) titleLeftPadding + titleWidth
 			else 0
 		}
 	protected val titleLeft: Int
 		get() {
-			return if (title.string.isNotEmpty()) titleLeftPadding.toInt()
+			return if (title.string.isNotEmpty()) titleLeftPadding
 			else 0
 		}
 
-	open var titleLeftPadding = 15f
-	open var titleTopPadding = 10f
+	open var titleLeftPadding = 15
+	open var titleTopPadding = 10
+
+	protected lateinit var titleLabel: LabelText
+
+
 	protected val topPadding: Int
 		get() {
 			return if (title.string.isNotEmpty())
-				titleTopPadding.toInt() + MinecraftClient.getInstance().textRenderer.fontHeight + 5
-			else titleTopPadding.toInt()
+				titleTopPadding + MinecraftClient.getInstance().textRenderer.fontHeight + 5
+			else titleTopPadding
 		}
 	final override var parent: Screen? = null
+
+	override fun init() {
+		super.init()
+		titleLabel = LabelText(title, titleLeftPadding, titleTopPadding).apply { align = LabelText.Align.CENTER_LEFT }
+		this.addDrawableChild(titleLabel)
+	}
 
 	override fun isPauseScreen(): Boolean {
 		return this.pauseScreen
@@ -91,17 +106,12 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		this.drawBackgroundColor(matrices)
 		super.render(matrices, mouseX, mouseY, delta)
-		this.drawTitle(matrices)
 	}
 
 	override fun shouldCloseOnEsc(): Boolean {
 		return shouldCloseOnEsc
 	}
 
-	private fun drawTitle(matrices: MatrixStack) {
-		if (title.string.isNotEmpty())
-			this.textRenderer.drawWithShadow(matrices, title, titleLeftPadding, titleTopPadding, WHITE.rgba)
-	}
 
 	override fun onScreenClose() {
 

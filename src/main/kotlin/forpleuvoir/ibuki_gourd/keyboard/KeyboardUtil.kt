@@ -69,22 +69,24 @@ object KeyboardUtil {
 		this.onPressCallback.addAll(key)
 	}
 
-	private fun callbackHandler() {
+	private fun callbackHandler():Boolean {
 		onPressCallback.forEach {
-			it.callbackHandler(this.keys)
+			if(it.callbackHandler(this.keys)) return true
 		}
+		return false
 	}
 
-	private fun onPressChanged() {
-		callbackHandler()
+	private fun onPressChanged():Boolean {
+		return callbackHandler()
 	}
 
 	@JvmStatic
-	fun setPressed(key: Int) {
+	fun setPressed(key: Int): Boolean {
 		if (key != GLFW.GLFW_KEY_UNKNOWN)
 			if (keys.add(key)) {
-				onPressChanged()
+				if(onPressChanged()) return true
 			}
+		return false
 	}
 
 	@JvmStatic

@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.mod.initialize
 
 import forpleuvoir.ibuki_gourd.common.IModInitialize
+import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
@@ -32,10 +33,11 @@ object IbukiGourdInitialize : IModInitialize {
 	override fun initialize() {
 		log.info("${IbukiGourdMod.modName} initializing...")
 		ScreenInitialize.initialize()
-		KeyboardUtil.setOnPressCallback(InputUtil.GLFW_KEY_I, InputUtil.GLFW_KEY_G, keyEnvironment = KeyEnvironment.ALL) {
-			ScreenBase.openScreen(IbukiGourdScreen.current().apply { parent = mc.currentScreen })
+		IbukiGourdConfigs.Values.CONFIGS.forEach {
+			if(it is ConfigHotkey){
+				it.initKeyBind()
+			}
 		}
-		IbukiGourdConfigs.Values.OPEN_GUI.initKeyBind()
 		log.info("${IbukiGourdMod.modName} Initialized...")
 	}
 }

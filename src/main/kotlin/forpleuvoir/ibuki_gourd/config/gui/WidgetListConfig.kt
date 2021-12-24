@@ -20,7 +20,7 @@ import net.minecraft.client.gui.screen.Screen
 
  */
 class WidgetListConfig(
-	private val configs: List<ConfigBase>,
+	private val configs: Collection<ConfigBase>,
 	parent: Screen,
 	x: Int,
 	y: Int,

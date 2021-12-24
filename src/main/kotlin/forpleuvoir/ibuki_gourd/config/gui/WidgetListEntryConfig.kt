@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.config.options.gui.ConfigWrapper
+import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
@@ -44,13 +45,20 @@ class WidgetListEntryConfig(val config: ConfigBase, parent: WidgetList<*>, x: In
 	private val text: MutableText = config.displayName
 	private val textHoverText: MutableText = config.displayRemark
 
+	private val textLabel: LabelText = LabelText(text, 0, 0).apply {
+		this.align = LabelText.Align.CENTER_LEFT
+		this.height = this@WidgetListEntryConfig.height
+		this.addHoverText(textHoverText)
+	}
+
 	private val textX: Int
 		get() = this.left
 
 	private val textY: Int
 		get() {
-			return this.y + this.height / 2 - this.textHeight / 2
+			return this.y + this.height / 2 - this.textLabel.height / 2
 		}
+
 	private val textWidth get() = textRenderer.getWidth(text)
 	private val textHeight get() = textRenderer.fontHeight
 
@@ -61,6 +69,7 @@ class WidgetListEntryConfig(val config: ConfigBase, parent: WidgetList<*>, x: In
 	init {
 		addDrawableChild(configClickableWidget)
 		addDrawableChild(restButton)
+		addDrawableChild(textLabel)
 		onPositionChanged()
 	}
 
@@ -70,20 +79,16 @@ class WidgetListEntryConfig(val config: ConfigBase, parent: WidgetList<*>, x: In
 
 		configClickableWidget.x = restButton.x - configClickableWidget.width - this.rightMargin
 		configClickableWidget.y = (this.y + this.height / 2) - (configClickableWidget.height / 2)
+
+		textLabel.x = textX
+		textLabel.y = textY
+		textLabel.width = this.width - restButton.width - configClickableWidget.width - this.rightMargin * 3 - 40
+
 	}
 
 
 	override fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		textRenderer.drawWithShadow(
-			matrices,
-			text,
-			textX.toFloat(),
-			textY.toFloat(),
-			Color4i.WHITE.rgba
-		)
-		isMouseHovered(textX, textY, textWidth, textHeight, mouseX, mouseY) {
-			mc.currentScreen?.renderTooltip(matrices, textHoverText, mouseX, mouseY)
-		}
+
 	}
 
 	override fun tick() {

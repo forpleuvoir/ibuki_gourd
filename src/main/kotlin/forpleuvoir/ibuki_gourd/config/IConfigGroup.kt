@@ -8,14 +8,14 @@ package forpleuvoir.ibuki_gourd.config
 
  * 包名 forpleuvoir.ibuki_gourd.config
 
- * 文件名 IConfigListConfig
+ * 文件名 IConfigGroup
 
  * 创建时间 2021/12/12 16:31
 
  * @author forpleuvoir
 
  */
-interface IConfigListConfig<T> {
+interface IConfigGroup<T> {
 
 	fun getValueItem(key: String): T?
 

@@ -28,7 +28,6 @@ import net.minecraft.text.Text
 class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 
 	override fun onScreenClose() {
-		println("哈哈")
 	}
 
 	private val buttonOnOff = ButtonOnOff(20, 60, true)
@@ -36,7 +35,6 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 
 	override fun init() {
 		super.init()
-		println("初始化")
 		buttonOnOff.setOnHoverCallback {
 			it.y = if (it.y == 60) 60 else 90
 		}
