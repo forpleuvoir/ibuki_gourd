@@ -27,12 +27,12 @@ class WidgetListConfig(
 	pageSize: Int,
 	itemHeight: Int,
 	width: Int
-) : WidgetList<WidgetListEntryConfig>(parent, x, y, pageSize, itemHeight, width) {
+) : WidgetList<WidgetListConfigEntry>(parent, x, y, pageSize, itemHeight, width) {
 
 	init {
 		clearEntries()
 		configs.forEach {
-			addEntry(WidgetListEntryConfig(it, this, 0, 0, this.rowWidth, this.itemHeight))
+			addEntry(WidgetListConfigEntry(it, this, 0, 0, this.rowWidth, this.itemHeight))
 		}
 	}
 }

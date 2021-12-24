@@ -1,6 +1,8 @@
 package forpleuvoir.ibuki_gourd.gui.dialog
 
 import com.mojang.blaze3d.systems.RenderSystem
+import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
+import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
@@ -32,6 +34,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 
 	private var onCloseCallback: ((D) -> Unit)? = null
 
+	private lateinit var closeButton: ButtonIcon
+
 	fun setOnCloseCallback(onCloseCallback: (D) -> Unit) {
 		this.onCloseCallback = onCloseCallback
 	}
@@ -54,6 +58,15 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			value + this.y
 		}
 
+	override fun init() {
+		super.init()
+		val size = 8
+		closeButton = ButtonIcon(this.x + this.dialogWidth - margin - size - size/2, this.y + margin, Icon.CLOSE, size) {
+			this.onClose()
+		}
+		this.addDrawableChild(closeButton)
+	}
+
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		parent?.render(matrices, mouseX, mouseY, delta)
 		renderBackground(matrices)
@@ -71,9 +84,9 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		RenderSystem.enableBlend()
 		RenderSystem.defaultBlendFunc()
 		RenderSystem.enableDepthTest()
-		matrices.translate(0.0,0.0,10.0)
+		matrices.translate(0.0, 0.0, 5.0)
 		//top left
-		DrawableHelper.drawTexture(matrices,  x, y, 4, 4, 0f, 0f, 4, 4, 256, 256)
+		DrawableHelper.drawTexture(matrices, x, y, 4, 4, 0f, 0f, 4, 4, 256, 256)
 		//top center
 		DrawableHelper.drawTexture(matrices, x + 4, y, this.dialogWidth - 8, 4, 4f, 0f, 151, 4, 256, 256)
 		//top right

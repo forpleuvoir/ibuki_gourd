@@ -50,16 +50,19 @@ open class WidgetSliderNumber(
 
 	override fun updateMessage() {
 		if (getNumber() is Double || getNumber() is Float) {
-			this.message = String.format("%.2f", getNumber()).text()
+			if ((getNumber().toDouble() - getNumber().toInt()) != 0.0)
+				this.message = String.format("%.2f", getNumber()).text
+			else
+				this.message = String.format("%d", getNumber().toInt()).text
 		} else if (getNumber() is Int || getNumber() is Short) {
-			this.message = getNumber().toInt().toString().text()
+			this.message = getNumber().toInt().toString().text
 		} else {
-			this.message = getNumber().toString().text()
+			this.message = getNumber().toString().text
 		}
 		this.value = number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))
 	}
 
-	private fun getNumber(): Number {
+	protected open fun getNumber(): Number {
 		return this.value * (this.maxValue.toDouble() - this.minValue.toDouble())
 	}
 

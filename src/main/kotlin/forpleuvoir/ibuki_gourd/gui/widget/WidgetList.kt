@@ -178,7 +178,9 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	}
 
 
-	protected open fun renderBackground(matrices: MatrixStack) {}
+	protected open fun renderBackground(matrices: MatrixStack) {
+//		RenderUtil.drawOutline(this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE, zLevel = 6)
+	}
 
 	protected open fun renderDecorations(matrices: MatrixStack, mouseX: Int, mouseY: Int) {}
 
@@ -208,7 +210,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	protected fun renderScrollbar() {
 		if (this.maxScroll > 0) {
 			//draw scrollbar background
-			RenderUtil.drawRect(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.rowHeight, this.scrollbarBgColor)
+			RenderUtil.drawRect(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.rowHeight, this.scrollbarBgColor, 6)
 
 			val renderWidth = this.scrollbarWidth.toDouble() - this.scrollbarPadding * 2
 			val height = (this.pageSize.toDouble() / this.entryCount.toDouble()) * this.scrollbarHeight
@@ -217,7 +219,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			val posY = this.scrollbarY + this.scrollbarPadding + (this.scrollAmount / this.maxScroll) * maxScrollLength
 			val posX = this.scrollbarX + this.scrollbarPadding
 
-			RenderUtil.drawRect(posX, posY, renderWidth, renderHeight, this.scrollbarColor)
+			RenderUtil.drawRect(posX, posY, renderWidth, renderHeight, this.scrollbarColor, 6)
 		}
 	}
 

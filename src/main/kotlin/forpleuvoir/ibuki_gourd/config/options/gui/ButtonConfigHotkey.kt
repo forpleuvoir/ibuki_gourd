@@ -25,7 +25,7 @@ import net.minecraft.util.Formatting
 
  */
 class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigHotkey) :
-	ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text(), null) {
+	ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text, null) {
 
 	private var selected: Boolean = false
 		set(value) {

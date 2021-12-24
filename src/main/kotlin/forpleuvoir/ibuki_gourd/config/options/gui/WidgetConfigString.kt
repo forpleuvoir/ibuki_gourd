@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigString
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetText
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.TextFieldWidget
@@ -21,7 +22,7 @@ import net.minecraft.client.util.math.MatrixStack
 
  */
 class WidgetConfigString(x: Int, y: Int, width: Int, height: Int, private val config: ConfigString) :
-	TextFieldWidget(MinecraftClient.getInstance().textRenderer, x, y, width, height, "".text()) {
+	WidgetText(MinecraftClient.getInstance().textRenderer, x, y, width, height, "".text) {
 
 	init {
 		this.setMaxLength(65535)

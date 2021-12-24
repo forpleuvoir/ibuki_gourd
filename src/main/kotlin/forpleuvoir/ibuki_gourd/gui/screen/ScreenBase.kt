@@ -7,6 +7,7 @@ import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -31,8 +32,8 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	protected var pauseScreen: Boolean = false
 
 
-	constructor() : this("".text())
-	constructor(title: String) : this(title.text())
+	constructor() : this("".text)
+	constructor(title: String) : this(title.text)
 
 	companion object {
 
@@ -47,6 +48,10 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 		fun isCurrent(screen: Screen?): Boolean {
 			return screen == MinecraftClient.getInstance().currentScreen
+		}
+
+		fun inCurrent(element: Element): Boolean {
+			return MinecraftClient.getInstance().currentScreen?.children()?.contains(element) ?: false
 		}
 	}
 

@@ -62,4 +62,7 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 		this.addDrawableChild(searchBar)
 	}
 
+	override fun tick() {
+		listWidget.tick()
+	}
 }

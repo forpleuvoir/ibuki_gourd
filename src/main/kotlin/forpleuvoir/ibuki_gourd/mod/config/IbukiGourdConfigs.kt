@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.mod.config
 
+import com.google.common.collect.ImmutableList
 import forpleuvoir.ibuki_gourd.config.IConfigHandler
 import forpleuvoir.ibuki_gourd.config.options.*
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
@@ -47,6 +48,12 @@ object IbukiGourdConfigs : IConfigHandler {
 		val TEST_OPTIONS = ConfigOptions(name = "ibuki_gourd.test.options", defaultValue = WhiteListMode.None)
 
 		@JvmStatic
+		val TEST_STRING_LIST = ConfigStringList(name = "ibuki_gourd.test.string_list", defaultValue = ImmutableList.of(
+			"aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa",
+			"aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa","aaaaaa"
+		))
+
+		@JvmStatic
 		val TEST_BOOLEAN_HOTKEY = ConfigBooleanHotkey(KeyBind(InputUtil.GLFW_KEY_LEFT_CONTROL,InputUtil.GLFW_KEY_R), TEST_BOOLEAN)
 
 
@@ -60,13 +67,13 @@ object IbukiGourdConfigs : IConfigHandler {
 
 		@JvmStatic
 		val TEST_GROUP = ConfigGroup(name =  "ibuki_gourd.test.group", defaultValue = listOf(
-			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI,TEST_BOOLEAN_HOTKEY
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI,TEST_BOOLEAN_HOTKEY,TEST_STRING_LIST
 		)
 		)
 
 
 		val CONFIGS: List<ConfigBase> = listOf(
-			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI,TEST_BOOLEAN_HOTKEY,TEST_GROUP
+			TEST_COLOR, TEST_BOOLEAN, TEST_INT, TEST_DOUBLE, TEST_STRING, TEST_OPTIONS, OPEN_GUI,TEST_STRING_LIST,TEST_BOOLEAN_HOTKEY,TEST_GROUP
 		)
 	}
 

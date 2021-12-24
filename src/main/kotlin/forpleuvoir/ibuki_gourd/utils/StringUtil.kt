@@ -17,4 +17,5 @@ import net.minecraft.text.Text
 
  */
 
-fun String.text(): Text = Text.of(this)
+val String.text: Text
+	get() = Text.of(this)

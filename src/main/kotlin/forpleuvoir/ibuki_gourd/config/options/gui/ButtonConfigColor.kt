@@ -26,7 +26,7 @@ import net.minecraft.text.LiteralText
 
  */
 class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigColor) :
-	ButtonBase<ButtonConfigColor>(x, y, width, height, message = config.getValue().hexString.text(), onButtonPress = null) {
+	ButtonBase<ButtonConfigColor>(x, y, width, height, message = config.getValue().hexString.text, onButtonPress = null) {
 	private val colorBoxPadding = 4
 	private val colorBoxSize = this.height - colorBoxPadding
 
@@ -36,14 +36,14 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 			ScreenBase.openScreen(
 				@Suppress("unchecked_cast")
 				(DialogColorEditor(
-		IColor.copy(this.config.getValue()) as IColor<Number>,
-		240,
-		165,
-		this.config.displayName,
-		mc.currentScreen!!
-	) {
-		this.config.setValue(it)
-	})
+					IColor.copy(this.config.getValue()) as IColor<Number>,
+					240,
+					165,
+					this.config.displayName,
+					mc.currentScreen!!
+				) {
+					this.config.setValue(it)
+				})
 			)
 		}
 	}
@@ -63,10 +63,10 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 			mc.currentScreen?.renderTooltip(
 				matrices,
 				listOf(
-					"§cRed:${config.getValue().red}".text(),
-					"§aGreen:${config.getValue().green}".text(),
-					"§9Blue:${config.getValue().blue}".text(),
-					"§rAlpha:${config.getValue().alpha}".text()
+					"§cRed:${config.getValue().red}".text,
+					"§aGreen:${config.getValue().green}".text,
+					"§9Blue:${config.getValue().blue}".text,
+					"§rAlpha:${config.getValue().alpha}".text
 				),
 				mouseX,
 				mouseY

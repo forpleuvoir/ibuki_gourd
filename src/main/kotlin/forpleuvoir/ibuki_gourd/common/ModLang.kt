@@ -11,14 +11,14 @@ import net.minecraft.text.TranslatableText
 
  * 包名 forpleuvoir.ibuki_gourd.common
 
- * 文件名 Lang
+ * 文件名 ModLang
 
  * 创建时间 2021/12/9 16:10
 
  * @author forpleuvoir
 
  */
-interface Lang {
+interface ModLang {
 	val key: String
 	val modId: String
 

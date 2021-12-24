@@ -15,7 +15,7 @@ import forpleuvoir.ibuki_gourd.utils.toJsonObject
 
  * 包名 forpleuvoir.ibuki_gourd.config.options
 
- * 文件名 ConfigBooleanHotkey
+ * 文件名 ConfigMap
 
  * 创建时间 2021/12/17 22:55
 

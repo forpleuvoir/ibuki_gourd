@@ -85,6 +85,13 @@ class ConfigStringList(
 		this.onValueChange()
 	}
 
+	fun set(index: Int, string: String) {
+		if (this.value[index] != string) {
+			this.value[index] = string
+			this.onValueChange()
+		}
+	}
+
 	fun remove(index: Int) {
 		if (index >= 0 && index < this.value.size) {
 			this.value.removeAt(index)

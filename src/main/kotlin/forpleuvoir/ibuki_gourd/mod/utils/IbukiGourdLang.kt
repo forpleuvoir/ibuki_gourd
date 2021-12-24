@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.mod.utils
 
-import forpleuvoir.ibuki_gourd.common.Lang
+import forpleuvoir.ibuki_gourd.common.ModLang
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 
 
@@ -18,7 +18,7 @@ import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
  * @author forpleuvoir
 
  */
-enum class IbukiGourdLang(override val key:String): Lang {
+enum class IbukiGourdLang(override val key:String): ModLang {
 	Initializing("initializing"),
 	Initialized("initialized"),
 	Red("color.red"),

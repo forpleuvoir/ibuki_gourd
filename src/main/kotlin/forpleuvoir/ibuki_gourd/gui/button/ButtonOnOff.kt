@@ -29,7 +29,7 @@ class ButtonOnOff(
 	height: Int = 20,
 	private var status: Boolean = false,
 ) :
-	ButtonBase<ButtonOnOff>(x, y, width, height, message = "".text()) {
+	ButtonBase<ButtonOnOff>(x, y, width, height, message = "".text) {
 
 	private var on: Text = IbukiGourdLang.On.tText()
 	private var off: Text = IbukiGourdLang.Off.tText()

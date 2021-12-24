@@ -51,5 +51,7 @@
   "ibuki_gourd.test.boolean.hotkey": "测试布尔热键",
   "ibuki_gourd.test.boolean.hotkey.remark": "测试布尔热键",
   "ibuki_gourd.test.group": "测试组",
-  "ibuki_gourd.test.group.remark": "测试组"
+  "ibuki_gourd.test.group.remark": "测试组",
+  "ibuki_gourd.test.string_list": "测试列表",
+  "ibuki_gourd.test.string_list.remark": "测试列表"
 }

@@ -37,4 +37,8 @@ class WidgetSliderConfigInt(x: Int, y: Int, width: Int, height: Int, private val
 		}
 	}
 
+	override fun getNumber(): Int {
+		return super.getNumber().toInt()
+	}
+
 }

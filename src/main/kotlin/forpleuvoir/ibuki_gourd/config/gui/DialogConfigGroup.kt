@@ -3,6 +3,8 @@ package forpleuvoir.ibuki_gourd.config.gui
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.config.options.ConfigGroup
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
+import forpleuvoir.ibuki_gourd.gui.widget.LabelText
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 
@@ -25,10 +27,9 @@ class DialogConfigGroup(
 	private val itemHeight: Int = 24,
 	dialogWidth: Int,
 	dialogHeight: Int,
-	title: Text,
 	parent: Screen?
 ) :
-	DialogBase<DialogConfigGroup>(dialogWidth, dialogHeight, title, parent) {
+	DialogBase<DialogConfigGroup>(dialogWidth, dialogHeight, title = config.displayName, parent) {
 
 	private lateinit var listWidget: WidgetListConfig
 
@@ -48,5 +49,9 @@ class DialogConfigGroup(
 			this.dialogWidth - margin * 2
 		)
 		this.addDrawableChild(listWidget)
+	}
+
+	override fun tick() {
+		listWidget.tick()
 	}
 }

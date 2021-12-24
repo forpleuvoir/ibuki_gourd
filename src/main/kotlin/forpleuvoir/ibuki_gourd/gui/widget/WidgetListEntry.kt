@@ -33,7 +33,7 @@ import net.minecraft.util.math.MathHelper
  */
 abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	val parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int
-) : ClickableWidget(x, y, width, height, "".text()), ParentElement {
+) : ClickableWidget(x, y, width, height, "".text), ParentElement {
 
 	protected val client: MinecraftClient by lazy { MinecraftClient.getInstance() }
 	protected val textRenderer: TextRenderer by lazy { client.textRenderer }
@@ -111,7 +111,7 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 
 	protected fun renderBackground(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		updateBgOpacity(if (hovered) delta * bgOpacityDelta else -delta * bgOpacityDelta)
-		RenderUtil.drawRect(x = x, y = y, width = this.width, height = this.height, Color4i(255, 255, 255, bgOpacity))
+		RenderUtil.drawRect(x = x, y = y, width = this.width, height = this.height, Color4i(255, 255, 255, bgOpacity),5)
 	}
 
 	protected fun updateBgOpacity(delta: Float) {

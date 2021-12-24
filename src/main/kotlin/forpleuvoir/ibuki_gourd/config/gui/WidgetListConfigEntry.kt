@@ -5,9 +5,6 @@ import forpleuvoir.ibuki_gourd.config.options.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry
-import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
-import forpleuvoir.ibuki_gourd.render.RenderUtil.isMouseHovered
-import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.util.math.MatrixStack
@@ -21,15 +18,15 @@ import net.minecraft.text.MutableText
 
  * 包名 forpleuvoir.ibuki_gourd.config.gui
 
- * 文件名 WidgetListEntryConfig
+ * 文件名 WidgetListConfigEntry
 
  * 创建时间 2021/12/21 13:48
 
  * @author forpleuvoir
 
  */
-class WidgetListEntryConfig(val config: ConfigBase, parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int) :
-	WidgetListEntry<WidgetListEntryConfig>(parent, x, y, width, height) {
+class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int) :
+	WidgetListEntry<WidgetListConfigEntry>(parent, x, y, width, height) {
 
 	private val leftPadding: Int = 15
 	private val rightPadding: Int = 15
@@ -47,7 +44,7 @@ class WidgetListEntryConfig(val config: ConfigBase, parent: WidgetList<*>, x: In
 
 	private val textLabel: LabelText = LabelText(text, 0, 0).apply {
 		this.align = LabelText.Align.CENTER_LEFT
-		this.height = this@WidgetListEntryConfig.height
+		this.height = this@WidgetListConfigEntry.height
 		this.addHoverText(textHoverText)
 	}
 
