@@ -23,6 +23,8 @@
   "ibuki_gourd.disabled": "已禁用",
   "ibuki_gourd.status": "状态",
   "ibuki_gourd.rest": "重置",
+  "ibuki_gourd.save": "保存",
+  "ibuki_gourd.key_environment": "按键触发环境",
   "ibuki_gourd.config.toggles": "开关",
   "ibuki_gourd.config.toggles.remark": "开关",
   "ibuki_gourd.config.values": "数值",
@@ -53,5 +55,7 @@
   "ibuki_gourd.test.group": "测试组",
   "ibuki_gourd.test.group.remark": "测试组",
   "ibuki_gourd.test.string_list": "测试列表",
-  "ibuki_gourd.test.string_list.remark": "测试列表"
+  "ibuki_gourd.test.string_list.remark": "测试列表",
+  "ibuki_gourd.test.map": "测试map",
+  "ibuki_gourd.test.map.remark": "测试map"
 }

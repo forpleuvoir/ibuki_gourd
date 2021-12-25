@@ -67,6 +67,25 @@ class ConfigMap(
 		}
 	}
 
+	fun rename(old: String, new: String) {
+		if (this.value.containsKey(old)) {
+			val value = this.value[old]
+			value?.let {
+				this.value.remove(old)
+				this.value[new] = it
+				this.onValueChange()
+			}
+		}
+	}
+
+	fun reset(oldKey: String, newKey: String, value: String) {
+		if (this.value.containsKey(oldKey)) {
+			if (oldKey != newKey) rename(oldKey, newKey)
+			this.value[newKey] = value
+			this.onValueChange()
+		}
+	}
+
 	fun put(key: String, value: String) {
 		val oldValue: String? = this.value[key]
 		this.value[key] = value

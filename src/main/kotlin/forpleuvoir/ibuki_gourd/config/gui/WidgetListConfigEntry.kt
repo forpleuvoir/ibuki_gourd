@@ -2,6 +2,7 @@ package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.config.options.gui.ConfigWrapper
+import forpleuvoir.ibuki_gourd.gui.widget.IPositionElement
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry
@@ -56,9 +57,6 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 			return this.y + this.height / 2 - this.textLabel.height / 2
 		}
 
-	private val textWidth get() = textRenderer.getWidth(text)
-	private val textHeight get() = textRenderer.fontHeight
-
 	private val configClickableWidget: ClickableWidget = ConfigWrapper.wrap(config)
 
 	private val restButton: ButtonRest = ButtonRest(x = 0, y = 0, config = config)
@@ -67,20 +65,25 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 		addDrawableChild(configClickableWidget)
 		addDrawableChild(restButton)
 		addDrawableChild(textLabel)
-		onPositionChanged()
+		initPosition()
 	}
 
-	override fun onPositionChanged() {
+
+
+	 override fun initPosition() {
 		restButton.x = this.right - restButton.width
 		restButton.y = (this.y + this.height / 2) - (restButton.height / 2)
 
-		configClickableWidget.x = restButton.x - configClickableWidget.width - this.rightMargin
-		configClickableWidget.y = (this.y + this.height / 2) - (configClickableWidget.height / 2)
-
-		textLabel.x = textX
-		textLabel.y = textY
+		val x = restButton.x - configClickableWidget.width - this.rightMargin
+		val y = (this.y + this.height / 2) - (configClickableWidget.height / 2)
+		if (configClickableWidget is IPositionElement) {
+			configClickableWidget.setPosition(x, y)
+		} else {
+			configClickableWidget.x = x
+			configClickableWidget.y = y
+		}
+		textLabel.setPosition(textX,textY)
 		textLabel.width = this.width - restButton.width - configClickableWidget.width - this.rightMargin * 3 - 40
-
 	}
 
 

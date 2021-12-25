@@ -210,7 +210,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	protected fun renderScrollbar() {
 		if (this.maxScroll > 0) {
 			//draw scrollbar background
-			RenderUtil.drawRect(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.rowHeight, this.scrollbarBgColor, 6)
+			RenderUtil.drawRect(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.rowHeight, this.scrollbarBgColor, parent.zOffset *2)
 
 			val renderWidth = this.scrollbarWidth.toDouble() - this.scrollbarPadding * 2
 			val height = (this.pageSize.toDouble() / this.entryCount.toDouble()) * this.scrollbarHeight
@@ -219,7 +219,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			val posY = this.scrollbarY + this.scrollbarPadding + (this.scrollAmount / this.maxScroll) * maxScrollLength
 			val posX = this.scrollbarX + this.scrollbarPadding
 
-			RenderUtil.drawRect(posX, posY, renderWidth, renderHeight, this.scrollbarColor, 6)
+			RenderUtil.drawRect(posX, posY, renderWidth, renderHeight, this.scrollbarColor, parent.zOffset * 2)
 		}
 	}
 

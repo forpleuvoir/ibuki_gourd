@@ -20,6 +20,18 @@ import com.google.gson.*
 object JsonUtil {
 	val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
+	fun JsonObject.getNestedObject(key: String, create: Boolean = false): JsonObject? {
+		return if (!this.has(key) || this[key].isJsonObject) {
+			if (!create) {
+				return null
+			}
+			val obj = JsonObject()
+			this.add(key, obj)
+			obj
+		} else {
+			this[key].asJsonObject
+		}
+	}
 
 	fun toStringBuffer(obj: Any?): StringBuffer {
 		return StringBuffer(gson.toJson(obj))

@@ -42,6 +42,7 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 
 	init {
 		this.parent = parent
+		parent?.let { zOffset += parent.zOffset + 5 }
 	}
 
 	protected val margin: Int get() = 5
@@ -60,21 +61,29 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 
 	override fun init() {
 		super.init()
-		val size = 8
-		closeButton = ButtonIcon(this.x + this.dialogWidth - margin - size - size/2, this.y + margin, Icon.CLOSE, size) {
+		val size = 12
+		closeButton = ButtonIcon(this.x + this.dialogWidth - margin - size, this.y + margin, Icon.CLOSE, size) {
 			this.onClose()
 		}
 		this.addDrawableChild(closeButton)
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		parent?.render(matrices, mouseX, mouseY, delta)
+		if (parent is DialogBase<*>) {
+			if ((parent as DialogBase<*>).dialogWidth > this.dialogWidth && (parent as DialogBase<*>).dialogWidth > this.dialogWidth)
+				parent?.render(matrices, mouseX, mouseY, delta)
+			else{
+				(parent as DialogBase<*>).parent?.render(matrices, mouseX, mouseY, delta)
+			}
+		} else {
+			parent?.render(matrices, mouseX, mouseY, delta)
+		}
 		renderBackground(matrices)
 		super.render(matrices, mouseX, mouseY, delta)
 	}
 
 	override fun drawBackgroundColor(matrices: MatrixStack) {
-		//RenderUtil.drawOutlinedBox(x, y, dialogWidth, dialogHeight, Color4i.BLACK.apply { alpha = 180 }, Color4f.WHITE)
+
 	}
 
 	override fun renderBackground(matrices: MatrixStack, vOffset: Int) {
@@ -84,7 +93,7 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		RenderSystem.enableBlend()
 		RenderSystem.defaultBlendFunc()
 		RenderSystem.enableDepthTest()
-		matrices.translate(0.0, 0.0, 5.0)
+		matrices.translate(0.0, 0.0, zOffset.toDouble())
 		//top left
 		DrawableHelper.drawTexture(matrices, x, y, 4, 4, 0f, 0f, 4, 4, 256, 256)
 		//top center

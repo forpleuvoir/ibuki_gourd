@@ -29,6 +29,7 @@ object Events {
 		register(KeyReleaseEvent::class.java)
 		register(MousePressEvent::class.java)
 		register(MouseReleaseEvent::class.java)
+		register(GameInitialized::class.java)
 	}
 
 	@JvmStatic

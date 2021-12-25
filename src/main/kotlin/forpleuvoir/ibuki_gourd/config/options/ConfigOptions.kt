@@ -36,7 +36,7 @@ class ConfigOptions(
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
 			if (jsonElement.isJsonPrimitive) {
-				this.value = defaultValue.fromString(jsonElement.asString)
+				this.value = defaultValue.fromKey(jsonElement.asString)
 			} else {
 				log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
 			}

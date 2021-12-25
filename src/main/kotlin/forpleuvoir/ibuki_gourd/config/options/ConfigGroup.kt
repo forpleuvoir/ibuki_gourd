@@ -55,7 +55,7 @@ class ConfigGroup(override val name: String, override val remark: String = "$nam
 	}
 
 	override fun getValue(): List<ConfigBase> {
-		return value
+		return ArrayList(value)
 	}
 
 	override fun matched(regex: Regex): Boolean {

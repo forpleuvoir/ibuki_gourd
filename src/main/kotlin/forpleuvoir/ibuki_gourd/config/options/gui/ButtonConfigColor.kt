@@ -8,6 +8,7 @@ import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.LiteralText
 
@@ -48,30 +49,31 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 		}
 	}
 
-	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		updateText()
 		super.render(matrices, mouseX, mouseY, delta)
-		RenderUtil.isMouseHovered(
-			this.x - this.colorBoxSize - colorBoxPadding,
-			this.y + colorBoxPadding / 2,
-			colorBoxSize,
-			colorBoxSize,
-			mouseX,
-			mouseY
-		)
-		{
-			mc.currentScreen?.renderTooltip(
-				matrices,
-				listOf(
-					"§cRed:${config.getValue().red}".text,
-					"§aGreen:${config.getValue().green}".text,
-					"§9Blue:${config.getValue().blue}".text,
-					"§rAlpha:${config.getValue().alpha}".text
-				),
+		if (ScreenBase.isCurrent(parent))
+			RenderUtil.isMouseHovered(
+				this.x - this.colorBoxSize - colorBoxPadding,
+				this.y + colorBoxPadding / 2,
+				colorBoxSize,
+				colorBoxSize,
 				mouseX,
 				mouseY
 			)
-		}
+			{
+				mc.currentScreen?.renderTooltip(
+					matrices,
+					listOf(
+						"§cRed:${config.getValue().red}".text,
+						"§aGreen:${config.getValue().green}".text,
+						"§9Blue:${config.getValue().blue}".text,
+						"§rAlpha:${config.getValue().alpha}".text
+					),
+					mouseX,
+					mouseY
+				)
+			}
 	}
 
 	private fun updateText() {

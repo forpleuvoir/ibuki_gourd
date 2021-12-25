@@ -43,6 +43,8 @@ enum class IbukiGourdLang(override val key:String): ModLang {
 	Disabled("disabled"),
 	Status("status"),
 	Rest("rest"),
+	Save("save"),
+	KeyEnvironment("key_environment"),
 	SetFromJsonFailed("config.set_from_json_failed"),
 	;
 

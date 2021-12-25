@@ -1,10 +1,12 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
+import forpleuvoir.ibuki_gourd.config.options.ConfigMap
 import forpleuvoir.ibuki_gourd.config.options.ConfigStringList
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.text.Text
 
 
 /**
@@ -14,24 +16,22 @@ import net.minecraft.client.gui.screen.Screen
 
  * 包名 forpleuvoir.ibuki_gourd.config.gui
 
- * 文件名 DialogConfigStringList
+ * 文件名 DialogConfigMap
 
- * 创建时间 2021/12/24 22:39
+ * 创建时间 2021/12/25 12:57
 
  * @author forpleuvoir
 
  */
-class DialogConfigStringList(
-	private val config: ConfigStringList,
+class DialogConfigMap(
+	private val config: ConfigMap,
 	private val itemHeight: Int = 24,
 	dialogWidth: Int,
 	dialogHeight: Int,
 	parent: Screen?
-) :
-	DialogBase<DialogConfigStringList>(dialogWidth, dialogHeight, config.displayName, parent) {
+) : DialogBase<DialogConfigMap>(dialogWidth, dialogHeight,  config.displayName, parent) {
 
-
-	private lateinit var listWidget: WidgetListString
+	private lateinit var listWidget: WidgetListMap
 	private lateinit var add: ButtonIcon
 
 	override fun init() {
@@ -41,7 +41,7 @@ class DialogConfigStringList(
 	}
 
 	private fun initList(pageSize: Int) {
-		listWidget = WidgetListString(
+		listWidget = WidgetListMap(
 			config,
 			this,
 			this.x + margin,
@@ -53,13 +53,15 @@ class DialogConfigStringList(
 		this.addDrawableChild(listWidget)
 	}
 
+
 	private fun initAdd() {
 		add = ButtonIcon(
 			titleLabel.x + titleLabel.width + margin,
 			titleLabel.y,
-			Icon.PLUS, titleLabel.height , renderBord = true
+			Icon.PLUS, titleLabel.height, renderBord = true
 		) {
-			this.config.add("")
+			if (!config.getValue().containsKey(""))
+				this.config.put("", "")
 		}
 		this.addDrawableChild(add)
 	}

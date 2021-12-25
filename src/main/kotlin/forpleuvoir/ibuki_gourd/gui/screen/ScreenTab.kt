@@ -56,7 +56,7 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 		var posX = 15
 		tabEntry.all.forEach {
 			val button = Button(posX, top, tabEntry.buttonHeight, it.displayKey) { _ ->
-				tabEntry.buttonPress.invoke(it)
+				it.buttonPress.invoke(tabEntry)
 			}.apply {
 				setHoverCallback { _ ->
 					drawTopMessage(it.displayRemark)

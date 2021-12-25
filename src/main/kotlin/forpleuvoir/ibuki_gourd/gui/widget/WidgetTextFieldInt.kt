@@ -22,13 +22,14 @@ import java.util.function.Consumer
 class WidgetTextFieldInt(x: Int, y: Int, width: Int, height: Int, value: Int) :
 	TextFieldWidget(mc.textRenderer, x, y, width, height, value.toString().tText()) {
 	init {
+		this.text = value.toString()
 		setTextPredicate {
-			val regex = Regex("^-?[1-9]\\d*\$")
+			val regex = Regex("-?[0-9]*")
 			regex.containsMatchIn(it)
 		}
 	}
 
-	fun setConsumer(consumer: Consumer<Int?>){
+	fun setConsumer(consumer: Consumer<Int?>) {
 		setChangedListener {
 			consumer.accept(it.toIntOrNull())
 		}

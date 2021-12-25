@@ -31,7 +31,8 @@ open class WidgetSliderNumber(
 	private val minValue: Number,
 	private val maxValue: Number,
 ) :
-	SliderWidget(x, y, width, height, LiteralText.EMPTY, number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))) {
+	SliderWidget(x, y, width, height, LiteralText.EMPTY, number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))),
+	IPositionElement {
 
 	init {
 		this.updateMessage()
@@ -70,8 +71,19 @@ open class WidgetSliderNumber(
 		consumer?.accept(getNumber())
 	}
 
-	fun setPosition(x: Int, y: Int) {
+	override fun setPosition(x: Int, y: Int) {
+		val deltaX = x - this.x
+		val deltaY = y - this.y
 		this.x = x
 		this.y = y
+		onPositionChanged?.invoke(deltaX, deltaY, x, y)
 	}
+
+	override fun deltaPosition(deltaX: Int, deltaY: Int) {
+		this.x += deltaX
+		this.y += deltaY
+		onPositionChanged?.invoke(deltaX, deltaY, this.x, this.y)
+	}
+
+	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
 }

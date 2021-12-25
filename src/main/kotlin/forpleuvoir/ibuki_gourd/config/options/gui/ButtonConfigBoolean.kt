@@ -33,7 +33,7 @@ class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private 
 	}
 
 
-	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		super.render(matrices, mouseX, mouseY, delta)
 		this.updateText()
 	}

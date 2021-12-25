@@ -3,8 +3,19 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
+import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
+import forpleuvoir.ibuki_gourd.gui.button.ButtonOption
+import forpleuvoir.ibuki_gourd.gui.button.ButtonParentElement
+import forpleuvoir.ibuki_gourd.gui.dialog.DialogSimple
+import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
+import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.client.gui.Drawable
+import net.minecraft.client.gui.Element
+import net.minecraft.client.gui.ParentElement
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting
@@ -25,7 +36,8 @@ import net.minecraft.util.Formatting
 
  */
 class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigHotkey) :
-	ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text, null) {
+	ButtonParentElement(x, y, width, height, "".text, null) {
+
 
 	private var selected: Boolean = false
 		set(value) {
@@ -38,6 +50,9 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 		}
 	private val keyBind: KeyBind = KeyBind()
 	private var firstKey: Boolean = true
+
+	private lateinit var setting: ButtonIcon
+
 
 	init {
 		keyBind.copyOf(config.getValue())
@@ -54,35 +69,33 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 				updateText()
 			}
 		}
-	}
-
-
-	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-		if (selected) {
-			addKey(button)
-			updateText()
-		}
-		return super.mouseClicked(mouseX, mouseY, button)
-	}
-
-
-	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-		if (selected) {
-			if (keyCode == InputUtil.GLFW_KEY_ESCAPE) {
-				mc.currentScreen?.let {
-					if (it is ScreenBase) {
-						it.shouldCloseOnEsc = !selected
+		val size = 20
+		setting = ButtonIcon(this.x - size - 2, this.y + this.height / 2 - size / 2, Icon.SETTING, renderBord = true) {
+			ScreenBase.openScreen(
+				object : DialogSimple(140, 60, IbukiGourdLang.KeyEnvironment.tText(), current) {
+					override fun iniWidget() {
+						val values = ArrayList<String>()
+						KeyEnvironment.values().forEach {
+							values.add(it.name)
+						}
+						addDrawableChild(
+							ButtonOption(
+								values,
+								config.getValue().keyEnvironment.name,
+								x = this.x + this.dialogWidth / 2 - 60,
+								y = this.y + 30,
+								width = 120
+							) {
+								config.setKeyEnvironment(KeyEnvironment.valueOf(it))
+							}
+						)
 					}
 				}
-				if (firstKey) keyBind.clearKey()
-				save()
-			} else {
-				addKey(keyCode)
-			}
-			updateText()
+			)
 		}
-		return true
+		addDrawableChild(setting)
 	}
+
 
 	private fun save() {
 		firstKey = true
@@ -109,6 +122,34 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 		if (selected) message.styled { it.withColor(Formatting.GOLD) }
 		this.message = message
 	}
+
+	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+		if (selected) {
+			addKey(button)
+			updateText()
+		}
+		return super.mouseClicked(mouseX, mouseY, button)
+	}
+
+	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+		if (selected) {
+			if (keyCode == InputUtil.GLFW_KEY_ESCAPE) {
+				mc.currentScreen?.let {
+					if (it is ScreenBase) {
+						it.shouldCloseOnEsc = !selected
+					}
+				}
+				if (firstKey) keyBind.clearKey()
+				save()
+			} else {
+				addKey(keyCode)
+			}
+			updateText()
+		}
+		return true
+	}
+
+
 
 
 }

@@ -43,7 +43,7 @@ class ConfigColor(override val name: String, override val remark: String = "$nam
 	}
 
 	override fun getValue(): IColor<*> {
-		return value
+		return IColor.copy(value)
 	}
 
 	override val isDefaultValue: Boolean

@@ -28,6 +28,7 @@ import net.minecraft.text.Text
 
  */
 abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
+
 	var shouldCloseOnEsc: Boolean = true
 	protected var pauseScreen: Boolean = false
 
@@ -50,9 +51,13 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 			return screen == MinecraftClient.getInstance().currentScreen
 		}
 
+		val current: Screen? get() = MinecraftClient.getInstance().currentScreen
+
 		fun inCurrent(element: Element): Boolean {
 			return MinecraftClient.getInstance().currentScreen?.children()?.contains(element) ?: false
 		}
+
+
 	}
 
 	protected val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
@@ -94,6 +99,10 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		}
 	final override var parent: Screen? = null
 
+	init {
+		zOffset = 0
+	}
+
 	override fun init() {
 		super.init()
 		titleLabel = LabelText(title, titleLeftPadding, titleTopPadding).apply { align = LabelText.Align.CENTER_LEFT }
@@ -109,6 +118,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		matrices.translate(0.0,0.0,zOffset.toDouble())
 		this.drawBackgroundColor(matrices)
 		super.render(matrices, mouseX, mouseY, delta)
 	}

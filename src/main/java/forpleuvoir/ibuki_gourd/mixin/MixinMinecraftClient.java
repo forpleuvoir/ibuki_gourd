@@ -1,10 +1,8 @@
 package forpleuvoir.ibuki_gourd.mixin;
 
-import forpleuvoir.ibuki_gourd.event.events.ClientEndTickEvent;
-import forpleuvoir.ibuki_gourd.event.events.ClientStartEvent;
-import forpleuvoir.ibuki_gourd.event.events.ClientStartTickEvent;
-import forpleuvoir.ibuki_gourd.event.events.ClientStopEvent;
+import forpleuvoir.ibuki_gourd.event.events.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.RunArgs;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,6 +23,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
+
+	@Inject(method = "<init>", at = @At("RETURN"))
+	private void onInitialized(RunArgs args, CallbackInfo callbackInfo) {
+		new GameInitialized().broadcast();
+	}
 
 	/**
 	 * tick start 事件发布

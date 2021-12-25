@@ -40,6 +40,7 @@ enum class Icon(
 	MINUS(32, 0),
 	SEARCH(48, 0),
 	CLOSE(64, 0),
+	SAVE(80, 0),
 	;
 
 	override fun render(matrices: MatrixStack, x: Int, y: Int, width: Int, height: Int, hovered: Boolean) {

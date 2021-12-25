@@ -44,7 +44,7 @@ interface IScreenTabEntry {
 
 	val buttonPress: (IScreenTabEntry) -> Unit
 		get() = {
-			changeCurrent(it)
-			ScreenBase.openScreen(it.screen.apply { this.parent = this@IScreenTabEntry.screen.parent })
+			changeCurrent(this)
+			ScreenBase.openScreen(this.screen.apply { this.parent = if (ScreenBase.current is ScreenBase) (ScreenBase.current as ScreenBase).parent else null })
 		}
 }

@@ -1,7 +1,10 @@
 package forpleuvoir.ibuki_gourd.gui.button
 
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.gui.widget.IPositionElement
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction
 import net.minecraft.client.util.math.MatrixStack
@@ -30,7 +33,9 @@ abstract class ButtonBase<T : ButtonWidget>(
 	message: Text,
 	private var onButtonPress: ((T) -> Unit)? = null
 ) :
-	ButtonWidget(x, y, width, height, message, PressAction {}) {
+	ButtonWidget(x, y, width, height, message, PressAction {}), IPositionElement {
+
+	protected val parent: Screen? = ScreenBase.current
 
 	constructor(x: Int, y: Int, message: Text, onButtonPress: ((T) -> Unit)? = null) : this(
 		x = x, y = y,
@@ -56,9 +61,10 @@ abstract class ButtonBase<T : ButtonWidget>(
 	private var onHoverCallback: ((T) -> Unit)? = null
 	private var hoverCallback: ((T) -> Unit)? = null
 	private var onClickCallback: ((Double, Double, Int) -> Unit)? = null
+	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
 
 	@Suppress("UNCHECKED_CAST")
-	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		val hoverCallbacks = !hovered
 		super.render(matrices, mouseX, mouseY, delta)
 		if (hovered && hoverCallbacks) {
@@ -67,9 +73,18 @@ abstract class ButtonBase<T : ButtonWidget>(
 		if (hovered) hoverCallback?.invoke(this as T)
 	}
 
-	fun setPosition(x: Int, y: Int) {
+	override fun setPosition(x: Int, y: Int) {
+		val deltaX = x - this.x
+		val deltaY = y - this.y
 		this.x = x
 		this.y = y
+		onPositionChanged?.invoke(deltaX, deltaY, x, y)
+	}
+
+	override fun deltaPosition(deltaX: Int, deltaY: Int) {
+		this.x += deltaX
+		this.y += deltaY
+		onPositionChanged?.invoke(deltaX, deltaY, this.x, this.y)
 	}
 
 	fun setHoverCallback(hoverCallback: (T) -> Unit) {
@@ -113,7 +128,7 @@ abstract class ButtonBase<T : ButtonWidget>(
 	}
 
 	override fun renderTooltip(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
-		if (hovered) {
+		if (hovered && ScreenBase.isCurrent(parent)) {
 			mc.currentScreen?.let {
 				val height = this.hoverText.size * textRenderer.fontHeight
 				var y = this.y + this.height + this.height * 0.7

@@ -23,6 +23,8 @@
   "ibuki_gourd.disabled": "Disabled",
   "ibuki_gourd.status": "Status",
   "ibuki_gourd.rest": "Rest",
+  "ibuki_gourd.save": "Save",
+  "ibuki_gourd.key_environment": "KeyEnvironment",
   "ibuki_gourd.config.toggles": "Toggles",
   "ibuki_gourd.config.toggles.remark": "Toggles",
   "ibuki_gourd.config.values": "Values",

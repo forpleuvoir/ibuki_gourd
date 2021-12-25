@@ -33,7 +33,7 @@ import net.minecraft.util.math.MathHelper
  */
 abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	val parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int
-) : ClickableWidget(x, y, width, height, "".text), ParentElement {
+) : ClickableWidget(x, y, width, height, "".text), ParentElement, IPositionElement {
 
 	protected val client: MinecraftClient by lazy { MinecraftClient.getInstance() }
 	protected val textRenderer: TextRenderer by lazy { client.textRenderer }
@@ -41,7 +41,16 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	private var focused: Element? = null
 	private var dragging = false
 
+	private var indexFirstChanged = true
+
 	var index: Int = 0
+		set(value) {
+			if (field != value && indexFirstChanged) {
+				field = value
+				updateIndex()
+				indexFirstChanged = false
+			}
+		}
 	private val maxBgOpacity = 80
 	private val bgOpacityDelta: Float = 20f
 	private var bgOpacity = 0
@@ -93,6 +102,8 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		renderEntry(matrices, mouseX, mouseY, delta)
 	}
 
+	protected open fun updateIndex() {}
+
 	fun setHoverCallback(hoverCallback: (E) -> Unit) {
 		this.hoverCallback = hoverCallback
 	}
@@ -111,11 +122,18 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 
 	protected fun renderBackground(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		updateBgOpacity(if (hovered) delta * bgOpacityDelta else -delta * bgOpacityDelta)
-		RenderUtil.drawRect(x = x, y = y, width = this.width, height = this.height, Color4i(255, 255, 255, bgOpacity),5)
+		RenderUtil.drawRect(
+			x = x,
+			y = y,
+			width = this.width,
+			height = this.height,
+			Color4i(255, 255, 255, bgOpacity),
+			parent.parent.zOffset
+		)
 	}
 
 	protected fun updateBgOpacity(delta: Float) {
-		if(ScreenBase.isCurrent(parent.parent)) {
+		if (ScreenBase.isCurrent(parent.parent)) {
 			bgOpacity += delta.toInt()
 			bgOpacity = MathHelper.clamp(bgOpacity, 0, maxBgOpacity)
 		}
@@ -125,14 +143,31 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		RenderUtil.drawOutline(this.x, this.y, this.width, this.width, borderColor = Color4f.WHITE)
 	}
 
-	fun setPosition(x: Int, y: Int) {
-		val positionChanged = (x != this.x || y != this.y)
-		this.x = x
-		this.y = y
-		if (positionChanged) onPositionChanged()
+	override var onPositionChanged: ((Int, Int, Int, Int) -> Unit)? = { deltaX, deltaY, _, _ ->
+		children().forEach {
+			if (it is ClickableWidget) {
+				it.deltaPosition(deltaX, deltaY)
+			} else if (it is IPositionElement) {
+				it.deltaPosition(deltaX, deltaY)
+			}
+		}
 	}
 
-	abstract fun onPositionChanged()
+	override fun deltaPosition(deltaX: Int, deltaY: Int) {
+		this.x += deltaX
+		this.y += deltaY
+		onPositionChanged?.invoke(deltaX, deltaY, this.x, this.y)
+	}
+
+	override fun setPosition(x: Int, y: Int) {
+		val deltaX = x - this.x
+		val deltaY = y - this.y
+		this.x = x
+		this.y = y
+		onPositionChanged?.invoke(deltaX, deltaY, x, y)
+	}
+
+	abstract fun initPosition()
 
 
 	override fun appendNarrations(builder: NarrationMessageBuilder?) {

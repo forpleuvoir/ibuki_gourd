@@ -1,7 +1,10 @@
 package forpleuvoir.ibuki_gourd.mod.initialize
 
 import forpleuvoir.ibuki_gourd.common.IModInitialize
+import forpleuvoir.ibuki_gourd.config.ConfigManager
 import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
+import forpleuvoir.ibuki_gourd.event.EventBus
+import forpleuvoir.ibuki_gourd.event.events.GameInitialized
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
@@ -33,11 +36,11 @@ object IbukiGourdInitialize : IModInitialize {
 	override fun initialize() {
 		log.info("${IbukiGourdMod.modName} initializing...")
 		ScreenInitialize.initialize()
-		IbukiGourdConfigs.Values.CONFIGS.forEach {
-			if(it is ConfigHotkey){
-				it.initKeyBind()
-			}
+		ConfigManager.register(IbukiGourdMod.modId,IbukiGourdConfigs)
+		EventBus.subscribe<GameInitialized> {
+			ConfigManager.loadAll()
 		}
+
 		log.info("${IbukiGourdMod.modName} Initialized...")
 	}
 }

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 
@@ -72,7 +73,14 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 	}
 
 	override fun getValue(): KeyBind {
-		return this.value
+		return KeyBind().apply { copyOf(this@ConfigHotkey.value) }
+	}
+
+	fun setKeyEnvironment(keyEnvironment: KeyEnvironment) {
+		if (getValue().keyEnvironment != keyEnvironment) {
+			getValue().keyEnvironment = keyEnvironment
+			this.onValueChange()
+		}
 	}
 
 	override fun setValue(value: KeyBind) {

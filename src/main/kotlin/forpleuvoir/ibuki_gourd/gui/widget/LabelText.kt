@@ -33,7 +33,7 @@ import net.minecraft.text.Text
 
  */
 class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) : Drawable, Element,
-	Selectable {
+	Selectable, IPositionElement {
 
 	constructor(text: Text, x: Int, y: Int, padding: Int = 2) : this(text, x, y, mc.textRenderer.getWidth(text), mc.textRenderer.fontHeight) {
 		setPadding(padding, padding, padding, padding)
@@ -182,4 +182,20 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	override fun getType(): SelectionType {
 		return SelectionType.HOVERED
 	}
+
+	override fun setPosition(x: Int, y: Int) {
+		val deltaX = x - this.x
+		val deltaY = y - this.y
+		this.x = x
+		this.y = y
+		onPositionChanged?.invoke(deltaX, deltaY, x, y)
+	}
+
+	override fun deltaPosition(deltaX: Int, deltaY: Int) {
+		this.x += deltaX
+		this.y += deltaY
+		onPositionChanged?.invoke(deltaX, deltaY, this.x, this.y)
+	}
+
+	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
 }

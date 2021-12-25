@@ -27,10 +27,10 @@ import kotlin.math.min
 interface IColor<T : Number> : IJsonData {
 	companion object {
 		fun copy(color: IColor<*>): IColor<*> {
-			if (color.red is Int) {
-				return Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
+			return if (color.red is Int) {
+				Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
 			} else {
-				return Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
+				Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
 			}
 		}
 	}
@@ -49,9 +49,9 @@ interface IColor<T : Number> : IJsonData {
 		get() {
 			val jsonObject = JsonObject()
 			jsonObject.addProperty("red", red)
-			jsonObject.addProperty("green", red)
-			jsonObject.addProperty("blue", red)
-			jsonObject.addProperty("alpha", red)
+			jsonObject.addProperty("green", green)
+			jsonObject.addProperty("blue", blue)
+			jsonObject.addProperty("alpha", alpha)
 			return jsonObject
 		}
 

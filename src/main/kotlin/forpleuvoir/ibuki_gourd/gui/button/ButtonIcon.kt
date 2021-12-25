@@ -26,9 +26,9 @@ class ButtonIcon(
 	y: Int,
 	private val icon: IIcon,
 	private val iconSize: Int = 20,
-	private val padding: Int = 4,
-	width: Int = iconSize + padding,
-	height: Int = iconSize + padding,
+	private val padding: Int = 2,
+	width: Int = iconSize,
+	height: Int = iconSize,
 	private val renderBord: Boolean = false,
 	private val renderBg: Boolean = false,
 	onButtonPress: ((ButtonIcon) -> Unit)? = null
@@ -40,16 +40,27 @@ class ButtonIcon(
 		if (renderBg) super.renderButton(matrices, mouseX, mouseY, delta)
 		else if (this.isHovered) {
 			renderTooltip(matrices, mouseX, mouseY)
-			if (renderBord) RenderUtil.drawOutline(this.x, this.y, this.width, this.height, 1, Color4f.WHITE, 5)
+			if (renderBord)
+				RenderUtil.drawOutline(
+					this.x,
+					this.y,
+					this.width,
+					this.height,
+					1,
+					Color4f.WHITE,
+					parent?.zOffset?.times(2.0) ?: 5
+				)
 		}
+		matrices.translate(0.0, 0.0, parent?.zOffset?.times(2.0) ?: 0.0)
 		icon.render(
 			matrices,
-			this.x + this.width / 2 - iconSize / 2,
-			this.y + this.height / 2 - iconSize / 2,
-			iconSize,
-			iconSize,
+			this.x + padding,
+			this.y + padding,
+			iconSize - padding * 2,
+			iconSize - padding * 2,
 			isHovered
 		)
 	}
+
 
 }

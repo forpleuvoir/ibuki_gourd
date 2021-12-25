@@ -23,8 +23,9 @@ import java.util.function.Consumer
 class WidgetTextFieldDouble(x: Int, y: Int, width: Int, height: Int, value: Double) :
 	TextFieldWidget(IbukiGourdMod.mc.textRenderer, x, y, width, height, value.toString().tText()) {
 	init {
+		this.text = value.toString()
 		setTextPredicate {
-			val regex = Regex("^-?([1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*|0?\\.0+|0)\$")
+			val regex = Regex("^-?([0-9]+(\\.[0-9]*)?)?")
 			regex.containsMatchIn(it)
 		}
 	}

@@ -32,7 +32,7 @@ interface IConfigOptionItem {
 
 	fun cycle(): IConfigOptionItem
 
-	fun fromString(string: String): IConfigOptionItem
+	fun fromKey(key: String): IConfigOptionItem
 
 	fun getAllItem(): List<IConfigOptionItem>
 

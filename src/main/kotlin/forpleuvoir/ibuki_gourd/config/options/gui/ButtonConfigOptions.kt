@@ -32,14 +32,16 @@ class ButtonConfigOptions(x: Int, y: Int, width: Int, height: Int = 20, private 
 		}
 	}
 
-	override fun render(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		super.render(matrices, mouseX, mouseY, delta)
 		this.updateText()
 	}
 
 	override fun onPress() {
 		super.onPress()
+		println(this.config.getValue().displayKey.string)
 		this.config.setValue(this.config.getValue().cycle())
+		println(this.config.getValue().displayKey.string)
 		this.updateText()
 	}
 

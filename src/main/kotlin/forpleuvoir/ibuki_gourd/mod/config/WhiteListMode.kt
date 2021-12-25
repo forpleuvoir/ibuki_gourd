@@ -24,15 +24,20 @@ enum class WhiteListMode(override val key: String, override val remark: String =
 	;
 
 	override fun cycle(): IConfigOptionItem {
-		var id = ordinal
-		if (++id >= values().size) {
-			id = 0
+		val size = values().size
+		val index = values().indexOf(this)
+		return if (index < size - 1) {
+			values()[index + 1]
+		} else {
+			values()[0]
 		}
-		return values()[id % values().size]
 	}
 
-	override fun fromString(string: String): IConfigOptionItem {
-		return valueOf(string)
+	override fun fromKey(key: String): IConfigOptionItem {
+		getAllItem().forEach {
+			if (it.key == key) return it
+		}
+		return None
 	}
 
 	override fun getAllItem(): List<IConfigOptionItem> {
