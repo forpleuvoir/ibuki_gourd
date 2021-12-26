@@ -4,8 +4,13 @@ import com.google.common.collect.ImmutableMap
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.gui.DialogConfigMap
+import forpleuvoir.ibuki_gourd.gui.button.Button
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.toJsonObject
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -113,6 +118,19 @@ class ConfigMap(
 			this.value.clear()
 			this.value.putAll(value)
 			this.onValueChange()
+		}
+	}
+
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return Button(x = x, y = 0, width = width, height = height, message = this.displayName) {
+			ScreenBase.openScreen(
+				DialogConfigMap(
+					config = this,
+					dialogHeight = 220,
+					dialogWidth = 360,
+					parent = MinecraftClient.getInstance().currentScreen
+				)
+			)
 		}
 	}
 }

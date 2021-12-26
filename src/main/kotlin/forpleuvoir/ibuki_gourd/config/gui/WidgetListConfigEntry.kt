@@ -57,7 +57,7 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 			return this.y + this.height / 2 - this.textLabel.height / 2
 		}
 
-	private val configClickableWidget: ClickableWidget = ConfigWrapper.wrap(config)
+	private val configClickableWidget: ClickableWidget = config.wrapper()
 
 	private val restButton: ButtonRest = ButtonRest(x = 0, y = 0, config = config)
 

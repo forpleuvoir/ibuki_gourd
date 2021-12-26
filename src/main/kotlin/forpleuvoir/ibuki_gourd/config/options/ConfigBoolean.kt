@@ -4,7 +4,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -73,5 +75,8 @@ class ConfigBoolean(override val name: String, override val remark: String = "$n
 		}
 	}
 
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return ButtonConfigBoolean(x = x, y = y, width = width, height = height, config = this)
+	}
 
 }

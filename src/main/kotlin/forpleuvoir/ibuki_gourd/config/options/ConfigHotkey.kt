@@ -3,10 +3,12 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigHotkey
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -32,7 +34,7 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 
 
 	fun initKeyBind() {
-		KeyboardUtil.registerKeyBind(this.getValue())
+		KeyboardUtil.registerKeyBind(value)
 	}
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
@@ -50,7 +52,7 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 
 	override fun matched(regex: Regex): Boolean {
 		return if (regex.run {
-				getValue().asTexts.forEach {
+				value.asTexts.forEach {
 					if (this.containsMatchIn(it.string)) return@run true
 				}
 				false
@@ -77,8 +79,8 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 	}
 
 	fun setKeyEnvironment(keyEnvironment: KeyEnvironment) {
-		if (getValue().keyEnvironment != keyEnvironment) {
-			getValue().keyEnvironment = keyEnvironment
+		if (value.keyEnvironment != keyEnvironment) {
+			this.value.keyEnvironment = keyEnvironment
 			this.onValueChange()
 		}
 	}
@@ -87,5 +89,9 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 		if (this.value.copyOf(value)) {
 			this.onValueChange()
 		}
+	}
+
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return ButtonConfigHotkey(x = x, y = y, width = width, height = height, config = this)
 	}
 }

@@ -2,20 +2,12 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigInt
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
-import forpleuvoir.ibuki_gourd.gui.button.ButtonOption
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogSimple
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.gui.widget.IPositionElement
-import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumberParentElement
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldInt
-import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
-import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.gui.widget.SliderWidget
-import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.LiteralText
+import java.util.function.Supplier
 
 /**
  *
@@ -31,25 +23,42 @@ import net.minecraft.text.LiteralText
  * @author forpleuvoir
 
  */
-class WidgetSliderConfigInt(x: Int, y: Int, width: Int, height: Int, private val config: ConfigInt) :
+class WidgetSliderConfigInt(
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int,
+	private val config: ConfigInt,
+	private var valueInt: Int = config.getValue()
+) :
 	WidgetSliderNumberParentElement(
 		x,
 		y,
 		width,
 		height,
-		{ config.getValue() },
+		{ valueInt },
 		config.minValue,
 		config.maxValue
 	) {
 	init {
+		number = Supplier {
+			this.valueInt
+		}
 		setConsumer {
-			this.config.setValue(it.toInt())
+			this.valueInt = it.toInt()
+		}
+		onStopCallback = { _, _ ->
+			config.setValue(valueInt)
+		}
+		config.setOnValueChangedCallback {
+			this.valueInt = config.getValue()
+			updateMessage()
 		}
 		val size = 20
 		addDrawableChild(
-			ButtonIcon(this.x - size - 2, this.y + this.height / 2 - size / 2, Icon.SETTING, renderBord = true) {
+			ButtonIcon(this.x - size - 2, this.y + this.height / 2 - size / 2, Icon.SETTING, padding = 4, renderBord = false, renderBg = true) {
 				ScreenBase.openScreen(
-					object : DialogSimple(140, 60,config.displayName, current) {
+					object : DialogSimple(140, 60, config.displayName, current) {
 						override fun iniWidget() {
 							addDrawableChild(
 								WidgetTextFieldInt(
@@ -69,10 +78,6 @@ class WidgetSliderConfigInt(x: Int, y: Int, width: Int, height: Int, private val
 				)
 			}
 		)
-	}
-
-	override fun getNumber(): Int {
-		return super.getNumber().toInt()
 	}
 
 

@@ -1,6 +1,5 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
-import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.ParentElement
@@ -23,12 +22,21 @@ import java.util.function.Supplier
  * @author forpleuvoir
 
  */
-abstract class WidgetSliderNumberParentElement(x: Int, y: Int, width: Int, height: Int, number: Supplier<Number>, minValue: Number, maxValue: Number) :
-	WidgetSliderNumber(x, y, width, height, number, minValue, maxValue),ParentElement,IPositionElement {
+open class WidgetSliderNumberParentElement(
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int,
+	number: Supplier<Number>,
+	minValue: Number,
+	maxValue: Number
+) :
+	WidgetSliderNumber(x, y, width, height, number, minValue, maxValue), ParentElement {
 
 	private var dragging: Boolean = false
 
 	private var focused: Element? = null
+
 
 	private val children: MutableList<ClickableWidget> = ArrayList()
 	protected val drawableChildren: MutableList<Drawable> by lazy { ArrayList() }
@@ -67,26 +75,26 @@ abstract class WidgetSliderNumberParentElement(x: Int, y: Int, width: Int, heigh
 	}
 
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-		return if (!super<WidgetSliderNumber>.mouseClicked(mouseX, mouseY, button))
-			super<ParentElement>.mouseClicked(mouseX, mouseY, button)
+		return if (!super<ParentElement>.mouseClicked(mouseX, mouseY, button))
+			super<WidgetSliderNumber>.mouseClicked(mouseX, mouseY, button)
 		else true
 	}
 
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-		return if (!super<WidgetSliderNumber>.mouseReleased(mouseX, mouseY, button))
-			return super<ParentElement>.mouseReleased(mouseX, mouseY, button)
+		return if (!super<ParentElement>.mouseReleased(mouseX, mouseY, button))
+			return super<WidgetSliderNumber>.mouseReleased(mouseX, mouseY, button)
 		else true
 	}
 
 	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-		return if (!super<WidgetSliderNumber>.mouseDragged(mouseX, mouseY, button,deltaX, deltaY))
-			return super<ParentElement>.mouseDragged(mouseX, mouseY, button,deltaX, deltaY)
+		return if (!super<ParentElement>.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+			return super<WidgetSliderNumber>.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 		else true
 	}
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-		return if (super<WidgetSliderNumber>.keyPressed(keyCode, scanCode, modifiers))
-			return super<ParentElement>.keyPressed(keyCode, scanCode, modifiers)
+		return if (super<ParentElement>.keyPressed(keyCode, scanCode, modifiers))
+			return super<WidgetSliderNumber>.keyPressed(keyCode, scanCode, modifiers)
 		else true
 	}
 

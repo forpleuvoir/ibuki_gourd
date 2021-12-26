@@ -4,7 +4,10 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
+import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigInt
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.util.math.MathHelper
 
 
@@ -76,4 +79,8 @@ class ConfigInt(
 
 	override val asJsonElement: JsonElement
 		get() = JsonPrimitive(getValue())
+
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return WidgetSliderConfigInt(x = x, y = y, width = width, height = height, config = this)
+	}
 }

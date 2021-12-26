@@ -3,9 +3,11 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigColor
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.color.Color4i.Companion.WHITE
 import forpleuvoir.ibuki_gourd.utils.color.IColor
+import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -22,7 +24,8 @@ import forpleuvoir.ibuki_gourd.utils.color.IColor
  * @author forpleuvoir
 
  */
-class ConfigColor(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IColor<*> = WHITE) : ConfigBase(),
+class ConfigColor(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IColor<*> = WHITE) :
+	ConfigBase(),
 	IConfigBaseValue<IColor<*>> {
 
 	private var value: IColor<*> = IColor.copy(defaultValue)
@@ -66,4 +69,8 @@ class ConfigColor(override val name: String, override val remark: String = "$nam
 	override val asJsonElement: JsonElement
 		get() = value.asJsonElement
 
+
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return ButtonConfigColor(x = x, y = y, width = width, height = height, config = this)
+	}
 }

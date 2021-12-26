@@ -41,6 +41,8 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		this.height += topPadding + bottomPadding
 	}
 
+	var visable = true
+
 	private val parent: Screen? = MinecraftClient.getInstance().currentScreen
 
 	private val textRenderer: TextRenderer get() = MinecraftClient.getInstance().textRenderer
@@ -88,14 +90,16 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
-		renderBox()
-		renderText(matrices)
-		if (ScreenBase.isCurrent(parent))
-			RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
-				hoverCallback?.invoke(this)
-				MinecraftClient.getInstance().currentScreen?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
-			}
+		if (visable) {
+			if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
+			renderBox()
+			renderText(matrices)
+			if (ScreenBase.isCurrent(parent))
+				RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
+					hoverCallback?.invoke(this)
+					ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
+				}
+		}
 	}
 
 	private fun renderBox() {

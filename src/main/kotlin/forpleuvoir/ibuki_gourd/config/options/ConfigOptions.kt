@@ -5,7 +5,9 @@ import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigOptionItem
+import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigOptions
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -75,5 +77,9 @@ class ConfigOptions(
 		this.value = value
 		if (oldValue != this.value)
 			this.onValueChange()
+	}
+
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return ButtonConfigOptions(x = x, y = y, width = width, height = height, config = this)
 	}
 }

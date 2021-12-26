@@ -1,10 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.options
 
 import forpleuvoir.ibuki_gourd.common.tText
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
-import forpleuvoir.ibuki_gourd.config.IConfigBase
-import forpleuvoir.ibuki_gourd.config.IConfigNotifiable
-import forpleuvoir.ibuki_gourd.config.IConfigResettable
+import forpleuvoir.ibuki_gourd.config.*
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import net.minecraft.text.TranslatableText
 
@@ -23,11 +20,9 @@ import net.minecraft.text.TranslatableText
  * @author forpleuvoir
 
  */
-abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable {
+abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable, IConfigWrapper {
 
-	companion object {
-		val log = IbukiGourdLogger.getLogger(this::class.java)
-	}
+	val log = IbukiGourdLogger.getLogger(this::class.java)
 
 	private var onValueChange: ((IConfigBase) -> Unit)? = null
 	private var callback: ((IConfigBase) -> Unit)? = null

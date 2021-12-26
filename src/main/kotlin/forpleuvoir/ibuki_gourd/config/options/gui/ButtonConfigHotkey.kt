@@ -70,7 +70,7 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 			}
 		}
 		val size = 20
-		setting = ButtonIcon(this.x - size - 2, this.y + this.height / 2 - size / 2, Icon.SETTING, renderBord = true) {
+		setting = ButtonIcon(this.x - size - 2, this.y + this.height / 2 - size / 2, Icon.SETTING, padding = 4, renderBord = false, renderBg = true) {
 			ScreenBase.openScreen(
 				object : DialogSimple(140, 60, IbukiGourdLang.KeyEnvironment.tText(), current) {
 					override fun iniWidget() {

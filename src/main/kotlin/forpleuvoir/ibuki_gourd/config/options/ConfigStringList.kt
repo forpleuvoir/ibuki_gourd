@@ -6,7 +6,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.gui.DialogConfigStringList
+import forpleuvoir.ibuki_gourd.gui.button.Button
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -114,6 +119,19 @@ class ConfigStringList(
 			this.value.clear()
 			this.value.addAll(value)
 			this.onValueChange()
+		}
+	}
+
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
+		return Button(x = x, y = y, width = width, height = height, message = this.displayName) {
+			ScreenBase.openScreen(
+				DialogConfigStringList(
+					config = this,
+					dialogHeight = 220,
+					dialogWidth = 330,
+					parent = MinecraftClient.getInstance().currentScreen
+				)
+			)
 		}
 	}
 }

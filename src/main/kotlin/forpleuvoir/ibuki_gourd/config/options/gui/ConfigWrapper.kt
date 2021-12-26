@@ -1,6 +1,5 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.ConfigType.*
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigGroup
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigMap
@@ -8,7 +7,6 @@ import forpleuvoir.ibuki_gourd.config.gui.DialogConfigStringList
 import forpleuvoir.ibuki_gourd.config.options.*
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.ClickableWidget
 

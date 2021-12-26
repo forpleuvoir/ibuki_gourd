@@ -124,7 +124,7 @@ object IbukiGourdConfigs : IConfigHandler {
 	override fun load() {
 		ConfigUtil.paresJsonFile(ConfigUtil.configFile(IbukiGourdMod))?.let {
 			if (it is JsonObject) {
-				ConfigUtil.readConfigBase(it as JsonObject, "Values", CONFIGS)
+				ConfigUtil.readConfigBase(it, "Values", CONFIGS)
 			}
 		}
 	}

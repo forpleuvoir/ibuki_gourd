@@ -27,12 +27,20 @@ open class WidgetSliderNumber(
 	y: Int,
 	width: Int,
 	height: Int,
-	private val number: Supplier<Number>,
+	protected var number: Supplier<Number>,
 	private val minValue: Number,
 	private val maxValue: Number,
 ) :
 	SliderWidget(x, y, width, height, LiteralText.EMPTY, number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))),
 	IPositionElement {
+
+	var onStopCallback: ((mouseX: Double, mouseY: Double) -> Unit)? = null
+	private var status: Boolean = false
+
+	private var isDragging: Boolean = false
+		set(value) {
+			field = value
+		}
 
 	init {
 		this.updateMessage()
@@ -44,9 +52,20 @@ open class WidgetSliderNumber(
 		this.consumer = consumer
 	}
 
+	override fun onClick(mouseX: Double, mouseY: Double) {
+		status = true
+		super.onClick(mouseX, mouseY)
+	}
+
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		this.updateMessage()
 		super.render(matrices, mouseX, mouseY, delta)
+	}
+
+	override fun onRelease(mouseX: Double, mouseY: Double) {
+		status = false
+		onStopCallback?.invoke(mouseX, mouseY)
+		super.onRelease(mouseX, mouseY)
 	}
 
 	override fun updateMessage() {
@@ -60,6 +79,7 @@ open class WidgetSliderNumber(
 		} else {
 			this.message = getNumber().toString().text
 		}
+		this.message = "${if (status) "§6" else "§r"}${this.message.string}".text
 		this.value = number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))
 	}
 

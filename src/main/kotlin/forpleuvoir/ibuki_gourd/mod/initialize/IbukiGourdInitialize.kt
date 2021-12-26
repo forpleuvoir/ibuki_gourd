@@ -40,7 +40,6 @@ object IbukiGourdInitialize : IModInitialize {
 		EventBus.subscribe<GameInitialized> {
 			ConfigManager.loadAll()
 		}
-
 		log.info("${IbukiGourdMod.modName} Initialized...")
 	}
 }
