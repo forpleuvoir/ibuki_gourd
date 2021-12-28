@@ -17,14 +17,14 @@ import net.minecraft.client.util.math.MatrixStack
 
  * 包名 forpleuvoir.ibuki_gourd.config.gui
 
- * 文件名 WidgetListStringEntry
+ * 文件名 WidgetListStringConfigEntry
 
  * 创建时间 2021/12/24 23:04
 
  * @author forpleuvoir
 
  */
-class WidgetListStringEntry(
+class WidgetListStringConfigEntry(
 	private val config: ConfigStringList,
 	parent: WidgetList<*>,
 	x: Int,
@@ -32,7 +32,7 @@ class WidgetListStringEntry(
 	width: Int,
 	height: Int
 ) :
-	WidgetListEntry<WidgetListStringEntry>(parent, x, y, width, height) {
+	WidgetListEntry<WidgetListStringConfigEntry>(parent, x, y, width, height) {
 
 	private val textInput: WidgetText = WidgetText(textRenderer, 0, 0, (this.width * 0.8).toInt(), this.height - 8, "".text)
 	private val remove: ButtonIcon = ButtonIcon(0, 0, Icon.MINUS, iconSize = this.height - 8, renderBord = true) {

@@ -24,7 +24,7 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable, I
 
 	val log = IbukiGourdLogger.getLogger(this::class.java)
 
-	private var onValueChange: ((IConfigBase) -> Unit)? = null
+	protected var onValueChange: ((IConfigBase) -> Unit)? = null
 	private var callback: ((IConfigBase) -> Unit)? = null
 
 	override val displayName: TranslatableText

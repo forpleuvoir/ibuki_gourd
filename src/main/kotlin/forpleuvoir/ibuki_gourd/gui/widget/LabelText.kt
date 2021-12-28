@@ -41,7 +41,7 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		this.height += topPadding + bottomPadding
 	}
 
-	var visable = true
+	var visible = true
 
 	private val parent: Screen? = MinecraftClient.getInstance().currentScreen
 
@@ -49,6 +49,15 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 
 	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
 	private lateinit var matrices: MatrixStack
+
+	private val renderText: String
+		get() {
+			return if (this.width > mc.textRenderer.getWidth(text)) {
+				text.string
+			} else {
+				textRenderer.trimToWidth(text,this.width-(rightPadding + leftPadding)).string
+			}
+		}
 
 	private var topPadding: Int = 2
 	private var bottomPadding: Int = 2
@@ -90,7 +99,7 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (visable) {
+		if (visible) {
 			if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
 			renderBox()
 			renderText(matrices)
@@ -163,7 +172,7 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		}
 		textRenderer.drawWithShadow(
 			matrices,
-			this.text.string,
+			renderText,
 			textX.toFloat(),
 			textY.toFloat(),
 			text.style.color?.rgb ?: Color4i.WHITE.rgba,

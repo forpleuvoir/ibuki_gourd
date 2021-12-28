@@ -4,10 +4,14 @@ import forpleuvoir.ibuki_gourd.config.options.ConfigDouble
 import forpleuvoir.ibuki_gourd.config.options.ConfigInt
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigInt
+import forpleuvoir.ibuki_gourd.event.events.Events
+import forpleuvoir.ibuki_gourd.event.events.KeyReleaseEvent
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.button.ButtonOnOff
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.text.Text
 
 
@@ -48,5 +52,25 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		val intConfig = ConfigInt("aa", "remark", 20, 0, 100)
 		val int = WidgetSliderConfigInt(20, 120, 60, 20, intConfig)
 		this.addDrawableChild(int)
+		val dropList = WidgetDropList(
+			items = Events.getEvents(),
+			default = KeyReleaseEvent::class.java,
+			stringAdapter = { e -> e!!.simpleName },
+			entryAdapter = { s -> Events.getEventByName(s) },
+			this,
+			5,
+			16,
+			120,
+			100,
+			100
+		)
+		val bt = Button(120, buttonOnOff.y + 10, Text.of("get")) { bt ->
+			dropList.current?.let { bt.message = it.simpleName.text }
+		}
+		dropList.toggleCallback = {
+			bt.message = it!!.simpleName.text
+		}
+		this.addDrawableChild(bt)
+		this.addDrawableChild(dropList)
 	}
 }

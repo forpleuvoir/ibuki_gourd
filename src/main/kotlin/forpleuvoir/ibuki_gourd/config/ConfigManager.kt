@@ -1,7 +1,8 @@
 package forpleuvoir.ibuki_gourd.config
 
+import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.config.options.ConfigGroup
 import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
-import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs
 
 
 /**
@@ -21,16 +22,18 @@ import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs
 object ConfigManager {
 	private val configHandler: HashMap<String, IConfigHandler> = HashMap()
 
-	fun register(modId: String, handler: IConfigHandler) {
+	fun register(info: ModInfo, handler: IConfigHandler) {
 		handler.allConfig().forEach {
 			it.setOnValueChanged { handler.onConfigChange() }
-		}
-		handler.allConfig().forEach {
 			if (it is ConfigHotkey) {
 				it.initKeyBind()
+			} else if (it is ConfigGroup) {
+				it.getValue().forEach { item ->
+					if (item is ConfigHotkey) item.initKeyBind()
+				}
 			}
+			configHandler[info.modId] = handler
 		}
-		configHandler[modId] = handler
 	}
 
 	fun onChanged(modId: String) {

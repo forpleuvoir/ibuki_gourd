@@ -99,11 +99,6 @@ object IbukiGourdConfigs : IConfigHandler {
 
 
 		val CONFIGS: List<ConfigBase> = listOf(
-			TEST_COLOR,
-			TEST_BOOLEAN,
-			TEST_INT,
-			TEST_DOUBLE,
-			TEST_STRING,
 			TEST_OPTIONS,
 			OPEN_GUI,
 			TEST_STRING_LIST,

@@ -18,7 +18,7 @@ import forpleuvoir.ibuki_gourd.event.Event
 
  */
 object Events {
-	private val events = HashMap<String, Class<out Event>>()
+	private val events = HashSet<Class<out Event>>()
 
 	init {
 		register(ClientStartTickEvent::class.java)
@@ -34,30 +34,24 @@ object Events {
 
 	@JvmStatic
 	fun <E : Event> register(event: Class<out E>) {
-		val simpleName = event.simpleName
-		events[simpleName] = event
+		events.add(event)
 	}
 
-	fun getEvents(): Iterable<Class<out Event>> {
-		return events.values
+	fun getEvents(): Collection<Class<out Event>> {
+		return events
 	}
 
-	fun getEventsName(): Iterable<String> {
-		return events.keys
+	fun getEventsName(): Collection<String> {
+		return HashSet<String>().apply {
+			events.forEach { add(it.simpleName) }
+		}
 	}
 
 	fun getEventByName(name: String): Class<out Event>? {
-		return events[name]
+		return events.find { it.simpleName == name }
 	}
 
 	fun getEventName(eventType: Class<out Event>): String {
-		var name = ""
-		for ((key, value) in events) {
-			if (value == eventType) {
-				name = key
-				break
-			}
-		}
-		return name
+		return eventType.simpleName
 	}
 }

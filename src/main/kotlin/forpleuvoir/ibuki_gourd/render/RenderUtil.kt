@@ -67,10 +67,6 @@ object RenderUtil {
 		RenderSystem.disableBlend()
 	}
 
-	fun drawRect(x: Number, y: Number, width: Number, height: Number, color: Color4f, zLevel: Number = 0.0) {
-		drawRect(x, y, width, height, Color4i().fromInt(color.rgba), zLevel)
-	}
-
 
 	/**
 	 * 绘制渐变矩形

@@ -35,11 +35,13 @@ object IbukiGourdInitialize : IModInitialize {
 
 	override fun initialize() {
 		log.info("${IbukiGourdMod.modName} initializing...")
+		EventBus.subscribe<GameInitialized> { onGameInitialized() }
 		ScreenInitialize.initialize()
-		ConfigManager.register(IbukiGourdMod.modId,IbukiGourdConfigs)
-		EventBus.subscribe<GameInitialized> {
-			ConfigManager.loadAll()
-		}
+		ConfigManager.register(IbukiGourdMod,IbukiGourdConfigs)
 		log.info("${IbukiGourdMod.modName} Initialized...")
+	}
+
+	private fun onGameInitialized(){
+		ConfigManager.loadAll()
 	}
 }

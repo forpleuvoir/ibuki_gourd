@@ -51,9 +51,10 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 				indexFirstChanged = false
 			}
 		}
-	private val maxBgOpacity = 80
-	private val bgOpacityDelta: Float = 20f
-	private var bgOpacity = 0
+	protected var bgColor = Color4i(255, 255, 255)
+	protected val maxBgOpacity = 80
+	protected val bgOpacityDelta: Float = 20f
+	protected var bgOpacity = 0
 
 	protected val children: MutableList<Element> by lazy { ArrayList() }
 	protected val drawableChildren: MutableList<Drawable> by lazy { ArrayList() }
@@ -61,10 +62,14 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	private var onHoverCallback: ((E) -> Unit)? = null
 	private var hoverCallback: ((E) -> Unit)? = null
 
+	var onClickedCallback: ((mouseX: Double, mouseY: Double, button: Int) -> Boolean)? = null
+
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
 		return if (!active || !visible) {
 			false
-		} else super<ParentElement>.mouseClicked(mouseX, mouseY, button)
+		} else if(onClickedCallback?.invoke(mouseX, mouseY, button) != true) {
+			 super<ParentElement>.mouseClicked(mouseX, mouseY, button)
+		}else false
 	}
 
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -127,12 +132,12 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 			y = y,
 			width = this.width,
 			height = this.height,
-			Color4i(255, 255, 255, bgOpacity),
+			bgColor.apply { alpha = bgOpacity },
 			parent.parent.zOffset
 		)
 	}
 
-	protected fun updateBgOpacity(delta: Float) {
+	protected open fun updateBgOpacity(delta: Float) {
 		if (ScreenBase.isCurrent(parent.parent)) {
 			bgOpacity += delta.toInt()
 			bgOpacity = MathHelper.clamp(bgOpacity, 0, maxBgOpacity)

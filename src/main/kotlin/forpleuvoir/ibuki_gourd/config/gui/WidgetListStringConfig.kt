@@ -12,14 +12,14 @@ import net.minecraft.client.gui.screen.Screen
 
  * 包名 forpleuvoir.ibuki_gourd.config.gui
 
- * 文件名 WidgetListString
+ * 文件名 WidgetListStringConfig
 
  * 创建时间 2021/12/24 23:04
 
  * @author forpleuvoir
 
  */
-class WidgetListString(
+class WidgetListStringConfig(
 	private val config: ConfigStringList,
 	parent: Screen,
 	x: Int,
@@ -31,7 +31,7 @@ class WidgetListString(
 	rightPadding: Int = 0,
 	topPadding: Int = 0,
 	bottomPadding: Int = 0
-) : WidgetList<WidgetListStringEntry>(parent, x, y, pageSize, itemHeight, width, leftPadding, rightPadding, topPadding, bottomPadding) {
+) : WidgetList<WidgetListStringConfigEntry>(parent, x, y, pageSize, itemHeight, width, leftPadding, rightPadding, topPadding, bottomPadding) {
 	init {
 		initData()
 		config.setOnValueChangedCallback { initData() }
@@ -40,7 +40,7 @@ class WidgetListString(
 	private fun initData(){
 		clearEntries()
 		config.getValue().forEach { _ ->
-			addEntry(WidgetListStringEntry(config, this, 0, 0, this.rowWidth, this.itemHeight))
+			addEntry(WidgetListStringConfigEntry(config, this, 0, 0, this.rowWidth, this.itemHeight))
 		}
 	}
 }

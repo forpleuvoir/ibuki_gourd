@@ -31,7 +31,7 @@ class DialogConfigStringList(
 	DialogBase<DialogConfigStringList>(dialogWidth, dialogHeight, config.displayName, parent) {
 
 
-	private lateinit var listWidget: WidgetListString
+	private lateinit var listWidget: WidgetListStringConfig
 	private lateinit var add: ButtonIcon
 
 	override fun init() {
@@ -41,7 +41,7 @@ class DialogConfigStringList(
 	}
 
 	private fun initList(pageSize: Int) {
-		listWidget = WidgetListString(
+		listWidget = WidgetListStringConfig(
 			config,
 			this,
 			this.x + margin,

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigGroup
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigGroup
@@ -38,11 +39,29 @@ class ConfigGroup(override val name: String, override val remark: String = "$nam
 	private var value = ArrayList<ConfigBase>(defaultValue)
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
-
+		try {
+			if (jsonElement.isJsonObject) {
+				val jsonObject = jsonElement.asJsonObject
+				this.value.forEach {
+					it.setValueFromJsonElement(jsonObject[it.name])
+				}
+			} else {
+				log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
+			}
+		} catch (e: Exception) {
+			log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
+			log.error(e)
+		}
 	}
 
 	override val asJsonElement: JsonElement
-		get() = JsonPrimitive("")
+		get() {
+			val json = JsonObject()
+			this.value.forEach {
+				json.add(it.name, it.asJsonElement)
+			}
+			return json
+		}
 
 
 	override val isDefaultValue: Boolean
@@ -88,6 +107,10 @@ class ConfigGroup(override val name: String, override val remark: String = "$nam
 			keys.add(it.name)
 		}
 		return keys
+	}
+
+	override fun setOnValueChanged(callback: (IConfigBase) -> Unit) {
+		this.value.forEach { it.setOnValueChanged(callback) }
 	}
 
 	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {

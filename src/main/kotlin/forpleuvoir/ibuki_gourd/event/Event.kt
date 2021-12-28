@@ -20,6 +20,9 @@ import com.google.common.collect.ImmutableMap
  */
 interface Event : IEventBroadcastHandler, Publisher {
 
+	val name: String
+		get() = this::class.java.simpleName
+
 	override fun broadcast() {
 		EventBus.broadcast(this)
 	}
