@@ -10,6 +10,7 @@ import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.button.ButtonOnOff
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
+import forpleuvoir.ibuki_gourd.gui.widget.MultilineTextField
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.text.Text
@@ -44,7 +45,7 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		}
 		this.addDrawableChild(buttonOnOff)
 		this.addDrawableChild(Button(20, buttonOnOff.y + 10, Text.of("Game")) {
-			openScreen(ScreenSnakeGame())
+			openScreen(ScreenSnakeGame().apply { parent = this })
 		})
 		val config = ConfigDouble("aa", "remark", 20.0, 0.0, 100.0)
 		val double = WidgetSliderConfigDouble(20, 90, 60, 20, config)
@@ -72,5 +73,6 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		}
 		this.addDrawableChild(bt)
 		this.addDrawableChild(dropList)
+		MultilineTextField(0, 0, 0, 0)
 	}
 }

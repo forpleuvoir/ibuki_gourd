@@ -1,5 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
+import forpleuvoir.ibuki_gourd.gui.common.deltaPosition
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.ParentElement

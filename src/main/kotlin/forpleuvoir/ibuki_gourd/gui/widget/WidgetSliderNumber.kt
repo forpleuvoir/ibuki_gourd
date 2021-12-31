@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.gui.widget.SliderWidget
 import net.minecraft.client.util.math.MatrixStack

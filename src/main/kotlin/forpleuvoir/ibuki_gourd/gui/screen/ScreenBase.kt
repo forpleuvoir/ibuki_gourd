@@ -109,7 +109,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		this.addDrawableChild(titleLabel)
 	}
 
-	override fun isPauseScreen(): Boolean {
+	override fun shouldPause(): Boolean {
 		return this.pauseScreen
 	}
 

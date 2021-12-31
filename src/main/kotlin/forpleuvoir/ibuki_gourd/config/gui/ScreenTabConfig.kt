@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
+import forpleuvoir.ibuki_gourd.gui.widget.SearchBar
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.text.LiteralText
 import java.util.regex.PatternSyntaxException
@@ -21,8 +22,8 @@ import java.util.regex.PatternSyntaxException
  */
 class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup: IConfigGroup) : ScreenTab(configGroup) {
 
-	private lateinit var searchBar: TextFieldWidget
-	private val searchBarHeight: Int = 15
+	private lateinit var searchBar: SearchBar
+	private val searchBarHeight: Int = 16
 
 	private lateinit var listWidget: WidgetListConfig
 
@@ -48,21 +49,17 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 
 	private fun initSearchBar() {
 		searchBar =
-			TextFieldWidget(
-				textRenderer,
+			SearchBar(
 				15 + 2,
 				top + margin + 20,
 				this.width - 15 * 2 - 2,
-				searchBarHeight,
-				LiteralText.EMPTY
-			).apply {
-				text = ""
-				setMaxLength(65535)
-			}
+				searchBarHeight
+			)
 		this.addDrawableChild(searchBar)
 	}
 
 	override fun tick() {
 		listWidget.tick()
+		searchBar.tick()
 	}
 }

@@ -1,4 +1,4 @@
-package forpleuvoir.ibuki_gourd.gui.widget
+package forpleuvoir.ibuki_gourd.gui.common
 
 import net.minecraft.client.gui.widget.ClickableWidget
 
@@ -8,7 +8,7 @@ import net.minecraft.client.gui.widget.ClickableWidget
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.gui.widget
+ * 包名 forpleuvoir.ibuki_gourd.gui.common
 
  * 文件名 IPostionElement
 

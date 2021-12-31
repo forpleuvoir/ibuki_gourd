@@ -1,5 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.IColor
@@ -13,7 +15,9 @@ import net.minecraft.client.gui.Selectable.SelectionType
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
+import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.math.MathHelper
 import java.lang.Double.max
@@ -295,6 +299,8 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 
 	var onClickedCallback: ((entry: E, mouseX: Double, mouseY: Double, button: Int) -> Boolean)? = null
 
+	var onPressCallback: ((entry: E) -> Boolean)? = null
+
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
 		if (!active) return false
 		updateScrollingState(mouseX, mouseY, button)
@@ -303,8 +309,13 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 		} else {
 			val entry = getEntryAtPosition(mouseX, mouseY)
 			if (entry != null) {
-				if (onClickedCallback != null) {
-					if (onClickedCallback!!.invoke(entry, mouseX, mouseY, button)) return true
+				if (onClickedCallback?.invoke(entry, mouseX, mouseY, button) == true) {
+					IbukiGourdMod.mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+					return true
+				}
+				if (button == 0 && onPressCallback?.invoke(entry) == true) {
+					IbukiGourdMod.mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+					return true
 				}
 				if (entry.mouseClicked(mouseX, mouseY, button)) {
 					focused = entry
@@ -343,6 +354,8 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			false
 		}
 	}
+
+
 
 	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
 		if (!active) return false

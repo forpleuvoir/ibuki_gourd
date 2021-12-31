@@ -34,7 +34,7 @@ class WidgetListStringConfigEntry(
 ) :
 	WidgetListEntry<WidgetListStringConfigEntry>(parent, x, y, width, height) {
 
-	private val textInput: WidgetText = WidgetText(textRenderer, 0, 0, (this.width * 0.8).toInt(), this.height - 8, "".text)
+	private val textInput: WidgetText = WidgetText( 0, 0, (this.width * 0.8).toInt(), this.height - 8, "".text)
 	private val remove: ButtonIcon = ButtonIcon(0, 0, Icon.MINUS, iconSize = this.height - 8, renderBord = true) {
 		config.remove(index)
 	}

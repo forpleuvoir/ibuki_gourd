@@ -1,8 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
-import forpleuvoir.ibuki_gourd.config.options.gui.ConfigWrapper
-import forpleuvoir.ibuki_gourd.gui.widget.IPositionElement
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry

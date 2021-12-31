@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText.Align.*
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
@@ -14,7 +15,10 @@ import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.Selectable.SelectionType
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
+import net.minecraft.client.gui.screen.narration.NarrationPart
+import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 
 
@@ -35,34 +39,53 @@ import net.minecraft.text.Text
 class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) : Drawable, Element,
 	Selectable, IPositionElement {
 
+	var visible = true
+	var active = true
+	private var onPressCallback: ((LabelText) -> Boolean)? = null
+	private var onClickedCallback: ((LabelText, Int) -> Boolean)? = null
+	private val parent: Screen? = MinecraftClient.getInstance().currentScreen
+	private val textRenderer: TextRenderer get() = MinecraftClient.getInstance().textRenderer
+	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
+	private lateinit var matrices: MatrixStack
+	private val renderText: String
+		get() {
+			return if (this.width > mc.textRenderer.getWidth(text)) {
+				text.string
+			} else {
+				textRenderer.trimToWidth(text, this.width - (rightPadding + leftPadding)).string
+			}
+		}
+	private var topPadding: Int = 2
+	private var bottomPadding: Int = 2
+	private var leftPadding: Int = 2
+	private var rightPadding: Int = 2
+	private val textWidth: Int
+		get() = textRenderer.getWidth(this.text)
+	private val textHeight: Int
+		get() = textRenderer.fontHeight
+	private val centerX: Int
+		get() = this.x + this.width / 2
+	private val centerY: Int
+		get() = this.y + this.height / 2
+	var rightToLeft: Boolean = false
+	var backgroundColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
+	var bordColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
+	private var hoverCallback: ((LabelText) -> Unit)? = null
+	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
+
 	constructor(text: Text, x: Int, y: Int, padding: Int = 2) : this(text, x, y, mc.textRenderer.getWidth(text), mc.textRenderer.fontHeight) {
 		setPadding(padding, padding, padding, padding)
 		this.width += rightPadding + leftPadding
 		this.height += topPadding + bottomPadding
 	}
 
-	var visible = true
+	fun setOnPressCallback(onPressCallback: (LabelText) -> Boolean) {
+		this.onPressCallback = onPressCallback
+	}
 
-	private val parent: Screen? = MinecraftClient.getInstance().currentScreen
-
-	private val textRenderer: TextRenderer get() = MinecraftClient.getInstance().textRenderer
-
-	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
-	private lateinit var matrices: MatrixStack
-
-	private val renderText: String
-		get() {
-			return if (this.width > mc.textRenderer.getWidth(text)) {
-				text.string
-			} else {
-				textRenderer.trimToWidth(text,this.width-(rightPadding + leftPadding)).string
-			}
-		}
-
-	private var topPadding: Int = 2
-	private var bottomPadding: Int = 2
-	private var leftPadding: Int = 2
-	private var rightPadding: Int = 2
+	fun setOnClickedCallback(onClickedCallback: (LabelText, Int) -> Boolean) {
+		this.onClickedCallback = onClickedCallback
+	}
 
 	fun setPadding(
 		topPadding: Int = 2,
@@ -76,39 +99,20 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		this.rightPadding = rightPadding
 	}
 
-	private val textWidth: Int
-		get() = textRenderer.getWidth(this.text)
-
-	private val textHeight: Int
-		get() = textRenderer.fontHeight
-
-	private val centerX: Int
-		get() = this.x + this.width / 2
-
-	private val centerY: Int
-		get() = this.y + this.height / 2
-
-	var rightToLeft: Boolean = false
-	var backgroundColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
-	var bordColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
-
-	private var hoverCallback: ((LabelText) -> Unit)? = null
-
 	fun setHoverCallback(hoverCallback: (LabelText) -> Unit) {
 		this.hoverCallback = hoverCallback
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (visible) {
-			if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
-			renderBox()
-			renderText(matrices)
-			if (ScreenBase.isCurrent(parent))
-				RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
-					hoverCallback?.invoke(this)
-					ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
-				}
-		}
+		if (!visible) return
+		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
+		renderBox()
+		renderText(matrices)
+		if (ScreenBase.isCurrent(parent))
+			RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
+				hoverCallback?.invoke(this)
+				ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
+			}
 	}
 
 	private fun renderBox() {
@@ -128,44 +132,58 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		hoverTexts.clear()
 	}
 
+	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+		if (!active) return false
+		RenderUtil.isMouseHovered(this.x, this.y, this.width, this.height, mouseX, mouseY) {
+			if (button == 0 && this.onPressCallback?.invoke(this) == true) {
+				mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+				return true
+			}
+			if (this.onClickedCallback?.invoke(this, button) == true) {
+				mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+				return true
+			}
+		}
+		return false
+	}
 
 	private fun renderText(matrices: MatrixStack) {
 		val textX: Int
 		val textY: Int
 		when (align) {
-			TOP_LEFT      -> {
+			Align.TOP_LEFT   -> {
 				textX = this.x + leftPadding
 				textY = this.y + topPadding
 			}
-			TOP_CENTER    -> {
+			Align.TOP_CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = this.y + topPadding
 			}
-			TOP_RIGHT     -> {
+			TOP_RIGHT        -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y + topPadding
 			}
-			CENTER_LEFT   -> {
+			CENTER_LEFT      -> {
 				textX = this.x + leftPadding
 				textY = centerY - textHeight / 2
 			}
-			CENTER        -> {
+			CENTER           -> {
 				textX = centerX - textWidth / 2
 				textY = centerY - textHeight / 2
 			}
-			CENTER_RIGHT  -> {
+			CENTER_RIGHT     -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = centerY - textHeight / 2
 			}
-			BOTTOM_LEFT   -> {
+			BOTTOM_LEFT      -> {
 				textX = this.x + leftPadding
 				textY = this.y - textHeight - bottomPadding
 			}
-			BOTTOM_CENTER -> {
+			BOTTOM_CENTER    -> {
 				textX = centerX - textWidth / 2
 				textY = this.y - textHeight - bottomPadding
 			}
-			BOTTOM_RIGHT  -> {
+			BOTTOM_RIGHT     -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y - textHeight - bottomPadding
 			}
@@ -181,15 +199,8 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 
 	}
 
-
-	enum class Align {
-		TOP_LEFT, TOP_CENTER, TOP_RIGHT,
-		CENTER_LEFT, CENTER, CENTER_RIGHT,
-		BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
-	}
-
-	override fun appendNarrations(builder: NarrationMessageBuilder?) {
-
+	override fun appendNarrations(builder: NarrationMessageBuilder) {
+		builder.put(NarrationPart.TITLE, this.text)
 	}
 
 	override fun getType(): SelectionType {
@@ -210,5 +221,9 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		onPositionChanged?.invoke(deltaX, deltaY, this.x, this.y)
 	}
 
-	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
+	enum class Align {
+		TOP_LEFT, TOP_CENTER, TOP_RIGHT,
+		CENTER_LEFT, CENTER, CENTER_RIGHT,
+		BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
+	}
 }

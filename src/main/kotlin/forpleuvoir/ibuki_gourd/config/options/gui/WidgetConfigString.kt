@@ -22,7 +22,7 @@ import net.minecraft.client.util.math.MatrixStack
 
  */
 class WidgetConfigString(x: Int, y: Int, width: Int, height: Int, private val config: ConfigString) :
-	WidgetText(MinecraftClient.getInstance().textRenderer, x, y, width, height, "".text) {
+	WidgetText(x, y, width, height, "".text) {
 
 	init {
 		this.setMaxLength(65535)

@@ -1,7 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.button
 
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.gui.widget.IPositionElement
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.screen.Screen
@@ -103,10 +103,10 @@ abstract class ButtonBase<T : ButtonWidget>(
 		if (!active || !visible) {
 			return false
 		}
-		if (isValidClickButton(button) && clicked(mouseX, mouseY)) {
+		if (clicked(mouseX, mouseY)) {
 			playDownSound(MinecraftClient.getInstance().soundManager)
 			onClickCallback?.invoke(mouseX, mouseY, button)
-			onClick(mouseX, mouseY)
+			if (isValidClickButton(button)) onClick(mouseX, mouseY)
 			return true
 		}
 		return false
@@ -114,7 +114,6 @@ abstract class ButtonBase<T : ButtonWidget>(
 
 	@Suppress("UNCHECKED_CAST")
 	override fun onPress() {
-		super.onPress()
 		onButtonPress?.invoke(this as T)
 	}
 

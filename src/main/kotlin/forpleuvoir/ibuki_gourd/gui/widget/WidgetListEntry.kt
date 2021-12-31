@@ -1,6 +1,8 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
 
+import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
+import forpleuvoir.ibuki_gourd.gui.common.deltaPosition
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4f

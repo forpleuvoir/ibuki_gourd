@@ -24,7 +24,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
 
-	@Inject(method = "<init>", at = @At("RETURN"))
+	/**
+	 * 客户端加载完毕事件
+	 * @param args 参数
+	 */
+	@Inject(method = "<init>", at = @At("TAIL"))
 	private void onInitialized(RunArgs args, CallbackInfo callbackInfo) {
 		new GameInitialized().broadcast();
 	}
@@ -48,7 +52,7 @@ public abstract class MixinMinecraftClient {
 	/**
 	 * 客户端关闭事件
 	 */
-	@Inject(at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;)V", shift = At.Shift.AFTER), method = "stop")
+	@Inject(at = @At(value = "HEAD"), method = "stop")
 	private void onStopping(CallbackInfo callbackInfo) {
 		new ClientStopEvent().broadcast();
 	}
