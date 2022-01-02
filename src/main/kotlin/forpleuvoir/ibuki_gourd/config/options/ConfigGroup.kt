@@ -124,7 +124,6 @@ class ConfigGroup(override val name: String, override val remark: String = "$nam
 			ScreenBase.openScreen(
 				DialogConfigGroup(
 					config = this,
-					dialogHeight = 220,
 					dialogWidth = 330,
 					parent = MinecraftClient.getInstance().currentScreen
 				)

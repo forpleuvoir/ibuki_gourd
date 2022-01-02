@@ -38,7 +38,7 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 				@Suppress("unchecked_cast")
 				(DialogColorEditor(
 					IColor.copy(this.config.getValue()) as IColor<Number>,
-					240,
+					250,
 					165,
 					this.config.displayName,
 					mc.currentScreen!!

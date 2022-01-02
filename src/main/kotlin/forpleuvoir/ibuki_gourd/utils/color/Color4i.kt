@@ -28,6 +28,10 @@ class Color4i(
 	override var alpha: Int = 255
 ) : IColor<Int> {
 
+	constructor(color: IColor<*>) : this() {
+		fromInt(color.rgba)
+	}
+
 	override val hexString: String
 		get() = "#${red.toString(16).run { if (this == "0") return@run "00" else this }.uppercase()}" +
 				green.toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +

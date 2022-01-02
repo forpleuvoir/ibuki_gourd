@@ -91,12 +91,16 @@ class ConfigMap(
 		}
 	}
 
-	fun put(key: String, value: String) {
+	operator fun set(key: String, value: String) {
 		val oldValue: String? = this.value[key]
 		this.value[key] = value
 		if (oldValue != value) {
 			this.onValueChange()
 		}
+	}
+
+	operator fun get(key: String): String? {
+		return this.value[key]
 	}
 
 	override fun matched(regex: Regex): Boolean {
@@ -126,7 +130,6 @@ class ConfigMap(
 			ScreenBase.openScreen(
 				DialogConfigMap(
 					config = this,
-					dialogHeight = 220,
 					dialogWidth = 360,
 					parent = MinecraftClient.getInstance().currentScreen
 				)

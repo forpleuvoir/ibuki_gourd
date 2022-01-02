@@ -16,6 +16,9 @@ import net.minecraft.client.gui.Selectable.SelectionType
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
+import net.minecraft.client.render.LightmapTextureManager
+import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
@@ -49,10 +52,10 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	private lateinit var matrices: MatrixStack
 	private val renderText: String
 		get() {
-			return if (this.width > mc.textRenderer.getWidth(text)) {
+			return if (this.width - this.rightPadding - this.leftPadding > mc.textRenderer.getWidth(text)) {
 				text.string
 			} else {
-				textRenderer.trimToWidth(text, this.width - (rightPadding + leftPadding)).string
+				textRenderer.trimToWidth(text, this.width - this.rightPadding - this.leftPadding - (rightPadding + leftPadding)).string
 			}
 		}
 	private var topPadding: Int = 2
@@ -67,7 +70,9 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		get() = this.x + this.width / 2
 	private val centerY: Int
 		get() = this.y + this.height / 2
+	var textColor: IColor<out Number> = Color4i().fromInt(text.style.color?.rgb ?: Color4i.WHITE.rgba)
 	var rightToLeft: Boolean = false
+	var shadow: Boolean = true
 	var backgroundColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
 	var bordColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
 	private var hoverCallback: ((LabelText) -> Unit)? = null
@@ -188,15 +193,21 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 				textY = this.y - textHeight - bottomPadding
 			}
 		}
-		textRenderer.drawWithShadow(
-			matrices,
+		val immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().buffer)
+		textRenderer.draw(
 			renderText,
 			textX.toFloat(),
 			textY.toFloat(),
-			text.style.color?.rgb ?: Color4i.WHITE.rgba,
+			textColor.rgba,
+			shadow,
+			matrices.peek().positionMatrix,
+			immediate,
+			false,
+			0,
+			LightmapTextureManager.MAX_LIGHT_COORDINATE,
 			rightToLeft
 		)
-
+		immediate.draw()
 	}
 
 	override fun appendNarrations(builder: NarrationMessageBuilder) {

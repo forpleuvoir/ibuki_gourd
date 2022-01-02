@@ -88,7 +88,8 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	open var titleLeftPadding = 15
 	open var titleTopPadding = 10
 
-	protected lateinit var titleLabel: LabelText
+	protected var titleLabel: LabelText =
+		LabelText(title, 0, 0).apply { align = LabelText.Align.CENTER_LEFT }
 
 
 	protected val topPadding: Int
@@ -105,7 +106,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	override fun init() {
 		super.init()
-		titleLabel = LabelText(title, titleLeftPadding, titleTopPadding).apply { align = LabelText.Align.CENTER_LEFT }
+		titleLabel.setPosition(titleLeftPadding, titleTopPadding)
 		this.addDrawableChild(titleLabel)
 	}
 
@@ -118,7 +119,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		matrices.translate(0.0,0.0,zOffset.toDouble())
+		matrices.translate(0.0, 0.0, zOffset.toDouble())
 		this.drawBackgroundColor(matrices)
 		super.render(matrices, mouseX, mouseY, delta)
 	}

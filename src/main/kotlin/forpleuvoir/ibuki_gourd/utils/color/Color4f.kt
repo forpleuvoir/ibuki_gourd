@@ -1,9 +1,7 @@
 package forpleuvoir.ibuki_gourd.utils.color
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import java.awt.Color
-import java.awt.Color.*
 
 
 /**
@@ -26,6 +24,10 @@ class Color4f(
 	override var blue: Float = 0f,
 	override var alpha: Float = 1f
 ) : IColor<Float> {
+
+	constructor(color: IColor<*>) : this() {
+		fromInt(color.rgba)
+	}
 
 
 	override val hexString: String

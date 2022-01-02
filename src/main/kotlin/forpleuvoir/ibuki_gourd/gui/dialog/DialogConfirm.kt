@@ -34,6 +34,9 @@ open class DialogConfirm(
 	private val buttonMargin: Int
 		get() = 10
 
+	override val paddingBottom: Int
+		get() = super.paddingBottom + buttonHeight + buttonMargin
+
 	override fun init() {
 		super.init()
 		initButton()

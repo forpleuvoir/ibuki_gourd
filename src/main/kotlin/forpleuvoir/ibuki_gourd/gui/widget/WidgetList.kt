@@ -82,6 +82,9 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	var scrollbarBgColor: IColor<*> = Color4f(1f, 1f, 1f, 0.3f)
 	protected val scrollbarPadding: Int = 1
 	protected val scrollbarWidth: Int = 6
+		get() {
+			return if (maxScroll > 0) field else 0
+		}
 	private val scrollbarHeight: Int get() = this.rowHeight
 	private val scrollbarX: Int get() = this.x + this.width - this.scrollbarWidth
 	private val scrollbarY: Int get() = this.rowTop
@@ -229,13 +232,14 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 
 	protected open fun renderDecorations(matrices: MatrixStack, mouseX: Int, mouseY: Int) {}
 
-	protected fun updateChildren() {
+	protected open fun updateChildren() {
 		for (index in 0 until children().size) {
 			children()[index].index = index
 			children()[index].setPosition(this.rowLeft, this.rowTop + this.itemHeight * index - this.scrollAmount.toInt())
-			val active = !(children()[index].y < this.rowTop || children()[index].y + 1 > this.rowBottom)
+			val active = !(children()[index].y < this.rowTop || children()[index].y + children()[index].height > this.rowBottom)
 			children()[index].active = active
 			children()[index].visible = active
+			if (active) children()[index].width = this.rowWidth
 		}
 	}
 
@@ -354,7 +358,6 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			false
 		}
 	}
-
 
 
 	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {

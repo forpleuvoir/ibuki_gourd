@@ -59,7 +59,7 @@ class DialogColorEditor(
 	private fun initColorBlock() {
 		val colorBlock = Drawable { _, _, _, _ ->
 			RenderUtil.drawOutlinedBox(
-				red.x + red.width + margin,
+				red.x + red.width + margin * 2,
 				red.y + margin,
 				alpha.y + alpha.height - red.y - margin * 2,
 				alpha.y + alpha.height - red.y - margin * 2,

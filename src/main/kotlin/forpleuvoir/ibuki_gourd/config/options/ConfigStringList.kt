@@ -127,7 +127,6 @@ class ConfigStringList(
 			ScreenBase.openScreen(
 				DialogConfigStringList(
 					config = this,
-					dialogHeight = 220,
 					dialogWidth = 330,
 					parent = MinecraftClient.getInstance().currentScreen
 				)

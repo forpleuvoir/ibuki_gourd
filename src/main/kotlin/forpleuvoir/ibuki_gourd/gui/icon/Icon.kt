@@ -2,6 +2,9 @@ package forpleuvoir.ibuki_gourd.gui.icon
 
 import com.mojang.blaze3d.systems.RenderSystem
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
+import forpleuvoir.ibuki_gourd.utils.color.Color4f
+import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.util.math.MatrixStack
@@ -43,10 +46,20 @@ enum class Icon(
 	SAVE(80, 0),
 	;
 
-	override fun render(matrices: MatrixStack, x: Int, y: Int, width: Int, height: Int, hovered: Boolean) {
+	override fun render(
+		matrices: MatrixStack,
+		x: Int,
+		y: Int,
+		width: Int,
+		height: Int,
+		hovered: Boolean,
+		color: Color4f,
+		hoveredColor: Color4f
+	) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader)
 		RenderSystem.setShaderTexture(0, TEXTURE)
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f)
+		if (hovered) RenderSystem.setShaderColor(hoveredColor.red, hoveredColor.green, hoveredColor.blue, hoveredColor.alpha)
+		else RenderSystem.setShaderColor(color.red, color.green, color.blue, color.alpha)
 		RenderSystem.enableBlend()
 		RenderSystem.defaultBlendFunc()
 		RenderSystem.enableDepthTest()
@@ -77,6 +90,7 @@ enum class Icon(
 			textureWidth,
 			textureHeight
 		)
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
 		RenderSystem.disableTexture()
 	}
 

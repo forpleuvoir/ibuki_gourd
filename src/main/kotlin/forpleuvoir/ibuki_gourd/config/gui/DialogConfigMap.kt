@@ -1,12 +1,10 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.config.options.ConfigMap
-import forpleuvoir.ibuki_gourd.config.options.ConfigStringList
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.text.Text
 
 
 /**
@@ -26,10 +24,14 @@ import net.minecraft.text.Text
 class DialogConfigMap(
 	private val config: ConfigMap,
 	private val itemHeight: Int = 24,
+	private val pageSize: Int = 8,
 	dialogWidth: Int,
-	dialogHeight: Int,
 	parent: Screen?
-) : DialogBase<DialogConfigMap>(dialogWidth, dialogHeight,  config.displayName, parent) {
+) : DialogBase<DialogConfigMap>(dialogWidth, 0,  config.displayName, parent) {
+
+	init {
+		this.dialogHeight = pageSize * itemHeight + (paddingTop + paddingBottom)
+	}
 
 	private lateinit var listWidget: WidgetListMap
 	private lateinit var add: ButtonIcon
@@ -37,18 +39,18 @@ class DialogConfigMap(
 	override fun init() {
 		super.init()
 		initAdd()
-		initList((this.dialogHeight - (topPadding - this.y + margin)) / itemHeight)
+		initList(pageSize)
 	}
 
 	private fun initList(pageSize: Int) {
 		listWidget = WidgetListMap(
 			config,
 			this,
-			this.x + margin,
-			this.topPadding + margin,
+			left,
+			top + 1,
 			pageSize,
 			itemHeight,
-			this.dialogWidth - margin * 2
+			contentWidth - 1
 		)
 		this.addDrawableChild(listWidget)
 	}
@@ -61,7 +63,7 @@ class DialogConfigMap(
 			Icon.PLUS, titleLabel.height, renderBord = true
 		) {
 			if (!config.getValue().containsKey(""))
-				this.config.put("", "")
+				this.config[""] = ""
 		}
 		this.addDrawableChild(add)
 	}

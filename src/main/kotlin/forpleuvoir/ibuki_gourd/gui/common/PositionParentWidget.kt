@@ -24,11 +24,13 @@ import java.util.function.Predicate
  * @author forpleuvoir
 
  */
-abstract class PositionParentWidget(var x: Int, var y: Int, var width: Int, var height: Int) : AbstractParentElement(), IPositionElement,
+abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,open var height: Int) : AbstractParentElement(), IPositionElement,
 	Drawable, Selectable {
 
 	var active: Boolean = true
 	var visible: Boolean = true
+
+	var hovered = false
 
 	protected val children: MutableList<Element> by lazy { ArrayList() }
 	var childrenPredicate: Predicate<Element> = Predicate { true }
@@ -36,7 +38,8 @@ abstract class PositionParentWidget(var x: Int, var y: Int, var width: Int, var 
 	var drawableChildrenPredicate: Predicate<Drawable> = Predicate { true }
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if(!visible) return
+		if (!visible) return
+		hovered = isMouseOver(mouseX.toDouble(), mouseY.toDouble())
 		drawableChildren().forEach { it.render(matrices, mouseX, mouseY, delta) }
 	}
 
@@ -62,8 +65,44 @@ abstract class PositionParentWidget(var x: Int, var y: Int, var width: Int, var 
 		this.children.add(drawableElement)
 	}
 
+	override fun changeFocus(lookForwards: Boolean): Boolean {
+		if (!active) return false
+		return super.changeFocus(lookForwards)
+	}
+
+	override fun charTyped(chr: Char, modifiers: Int): Boolean {
+		if (!active) return false
+		return super.charTyped(chr, modifiers)
+	}
+
+	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+		if (!active) return false
+		return super.mouseClicked(mouseX, mouseY, button)
+	}
+
+
+	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
+		if (!active) return false
+		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+	}
+
+	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+		if (!active) return false
+		return super.mouseScrolled(mouseX, mouseY, amount)
+	}
+
+	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
+		if (!active) return false
+		return super.mouseReleased(mouseX, mouseY, button)
+	}
+
+	override fun mouseMoved(mouseX: Double, mouseY: Double) {
+		if (!active) return
+		super.mouseMoved(mouseX, mouseY)
+	}
+
 	override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean {
-		if(!active) return false
+		if (!active) return false
 		return RenderUtil.isMouseHovered(this.x, this.y, this.width, this.height, mouseX, mouseY)
 	}
 

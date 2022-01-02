@@ -31,6 +31,8 @@ class ButtonIcon(
 	height: Int = iconSize,
 	private val renderBord: Boolean = false,
 	private val renderBg: Boolean = false,
+	var color: Color4f = Color4f.WHITE,
+	var hoveredColor: Color4f = Color4f.WHITE,
 	onButtonPress: ((ButtonIcon) -> Unit)? = null
 ) :
 	ButtonBase<ButtonIcon>(x, y, width, height, "".text, onButtonPress) {
@@ -58,7 +60,9 @@ class ButtonIcon(
 			this.y + padding,
 			iconSize - padding * 2,
 			iconSize - padding * 2,
-			isHovered
+			isHovered,
+			color,
+			hoveredColor
 		)
 	}
 

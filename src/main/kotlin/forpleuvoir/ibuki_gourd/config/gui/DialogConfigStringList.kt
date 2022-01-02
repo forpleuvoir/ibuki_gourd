@@ -24,12 +24,15 @@ import net.minecraft.client.gui.screen.Screen
 class DialogConfigStringList(
 	private val config: ConfigStringList,
 	private val itemHeight: Int = 24,
+	private val pageSize: Int = 8,
 	dialogWidth: Int,
-	dialogHeight: Int,
 	parent: Screen?
 ) :
-	DialogBase<DialogConfigStringList>(dialogWidth, dialogHeight, config.displayName, parent) {
+	DialogBase<DialogConfigStringList>(dialogWidth, 0, config.displayName, parent) {
 
+	init {
+		this.dialogHeight = pageSize * itemHeight + (paddingTop + paddingBottom)
+	}
 
 	private lateinit var listWidget: WidgetListStringConfig
 	private lateinit var add: ButtonIcon
@@ -37,18 +40,18 @@ class DialogConfigStringList(
 	override fun init() {
 		super.init()
 		initAdd()
-		initList((this.dialogHeight - (topPadding - this.y + margin)) / itemHeight)
+		initList(pageSize)
 	}
 
 	private fun initList(pageSize: Int) {
 		listWidget = WidgetListStringConfig(
 			config,
 			this,
-			this.x + margin,
-			this.topPadding + margin,
+			left,
+			top + 1,
 			pageSize,
 			itemHeight,
-			this.dialogWidth - margin * 2
+			contentWidth - 1
 		)
 		this.addDrawableChild(listWidget)
 	}
@@ -57,7 +60,7 @@ class DialogConfigStringList(
 		add = ButtonIcon(
 			titleLabel.x + titleLabel.width + margin,
 			titleLabel.y,
-			Icon.PLUS, titleLabel.height , renderBord = true
+			Icon.PLUS, titleLabel.height, renderBord = true
 		) {
 			this.config.add("")
 		}

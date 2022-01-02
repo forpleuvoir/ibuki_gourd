@@ -62,9 +62,9 @@ class WidgetSliderConfigInt(
 						override fun iniWidget() {
 							addDrawableChild(
 								WidgetTextFieldInt(
-									x = this.x + this.dialogWidth / 2 - 60,
-									y = this.y + 30,
-									width = 120,
+									x = this.x + this.paddingLeft + 5,
+									y = this.y + this.paddingTop + ((this.dialogHeight - (this.paddingTop + paddingBottom)) / 2) - size / 2,
+									width = this.dialogWidth - (this.paddingLeft + this.paddingRight) - 10,
 									height = size,
 									config.getValue()
 								).apply {
