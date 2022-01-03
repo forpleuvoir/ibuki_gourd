@@ -4,12 +4,14 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
-import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
+import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
+import forpleuvoir.ibuki_gourd.config.options.gui.WrapperNumber
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldDouble
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import net.minecraft.client.gui.widget.ClickableWidget
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.util.math.MathHelper
-import kotlin.math.max
 
 
 /**
@@ -81,8 +83,17 @@ class ConfigDouble(
 	override val asJsonElement: JsonElement
 		get() = JsonPrimitive(getValue())
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
-		return WidgetSliderConfigDouble(x = x, y = y, width = width, height = height, config = this)
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigBase> {
+		return object : WrapperNumber(this, x, y, width, height) {
+			override val slider: WidgetSliderNumber
+				get() = WidgetSliderConfigDouble(0, 0, 0, height, config = config as ConfigDouble)
+			override val field: TextFieldWidget
+				get() = WidgetTextFieldDouble(0, 0, 0, height - 2, (config as ConfigDouble).getValue()).apply {
+					setConsumer {
+						it?.let { this@ConfigDouble.setValue(it) }
+					}
+				}
+		}
 	}
 
 }

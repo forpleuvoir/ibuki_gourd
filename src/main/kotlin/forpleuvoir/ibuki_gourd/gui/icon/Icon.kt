@@ -44,6 +44,7 @@ enum class Icon(
 	SEARCH(48, 0),
 	CLOSE(64, 0),
 	SAVE(80, 0),
+	SWITCH(96,0),
 	;
 
 	override fun render(

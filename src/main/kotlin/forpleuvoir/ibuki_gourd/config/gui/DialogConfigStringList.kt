@@ -31,10 +31,12 @@ class DialogConfigStringList(
 	DialogBase<DialogConfigStringList>(dialogWidth, 0, config.displayName, parent) {
 
 	init {
-		this.dialogHeight = pageSize * itemHeight + (paddingTop + paddingBottom)
+		this.dialogHeight = 2 + pageSize * itemHeight + (paddingTop + paddingBottom)
 	}
 
 	private lateinit var listWidget: WidgetListStringConfig
+	private var scrollAmount: Double = 0.0
+
 	private lateinit var add: ButtonIcon
 
 	override fun init() {
@@ -53,6 +55,10 @@ class DialogConfigStringList(
 			itemHeight,
 			contentWidth - 1
 		)
+		listWidget.scrollAmount = scrollAmount
+		listWidget.scrollAmountConsumer = {
+			scrollAmount = it
+		}
 		this.addDrawableChild(listWidget)
 	}
 
@@ -66,6 +72,7 @@ class DialogConfigStringList(
 		}
 		this.addDrawableChild(add)
 	}
+
 
 	override fun tick() {
 		listWidget.tick()

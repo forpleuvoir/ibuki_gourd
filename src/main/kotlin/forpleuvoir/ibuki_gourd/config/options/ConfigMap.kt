@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMap
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigMap
+import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
@@ -125,15 +127,19 @@ class ConfigMap(
 		}
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
-		return Button(x = x, y = 0, width = width, height = height, message = this.displayName) {
-			ScreenBase.openScreen(
-				DialogConfigMap(
-					config = this,
-					dialogWidth = 360,
-					parent = MinecraftClient.getInstance().currentScreen
-				)
-			)
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigMap> {
+		return object : ConfigWrapper<ConfigMap>(this, x, y, width, height) {
+			override fun initWidget() {
+				addDrawableChild(Button(x = x, y = 0, width = width, height = height, message = config.displayName) {
+					ScreenBase.openScreen(
+						DialogConfigMap(
+							config = config,
+							dialogWidth = 360,
+							parent = ScreenBase.current
+						)
+					)
+				})
+			}
 		}
 	}
 }

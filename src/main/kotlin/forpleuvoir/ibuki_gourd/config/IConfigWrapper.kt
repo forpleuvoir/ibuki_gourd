@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config
 
-import net.minecraft.client.gui.widget.ClickableWidget
+import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
+import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 
 
 /**
@@ -18,5 +19,5 @@ import net.minecraft.client.gui.widget.ClickableWidget
 
  */
 interface IConfigWrapper {
-	fun wrapper(x: Int = 0, y: Int = 0, width: Int = 120, height: Int = 20): ClickableWidget
+	fun wrapper(x: Int = 0, y: Int = 0, width: Int = 120, height: Int = 20): ConfigWrapper<out ConfigBase>
 }

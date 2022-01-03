@@ -39,6 +39,7 @@ class DialogConfigGroup(
 	}
 
 	private lateinit var listWidget: WidgetListConfig
+	private var scrollAmount: Double = 0.0
 
 	override fun init() {
 		super.init()
@@ -55,6 +56,10 @@ class DialogConfigGroup(
 			itemHeight,
 			contentWidth - 1
 		)
+		listWidget.scrollAmount = scrollAmount
+		listWidget.scrollAmountConsumer = {
+			scrollAmount = it
+		}
 		this.addDrawableChild(listWidget)
 	}
 

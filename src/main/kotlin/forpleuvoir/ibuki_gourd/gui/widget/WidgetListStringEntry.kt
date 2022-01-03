@@ -33,7 +33,7 @@ class WidgetListStringEntry(val value: String, parent: WidgetList<*>, x: Int, y:
 	}
 
 	override fun updateBgOpacity(delta: Float) {
-		if (ScreenBase.isCurrent(parent.parent)) {
+		if (ScreenBase.isCurrent(parentWidget.parent)) {
 			bgOpacity += delta.toInt()
 			bgOpacity = MathHelper.clamp(bgOpacity, if (isOdd) 0 else 50, maxBgOpacity)
 		}

@@ -27,13 +27,15 @@ class DialogConfigMap(
 	private val pageSize: Int = 8,
 	dialogWidth: Int,
 	parent: Screen?
-) : DialogBase<DialogConfigMap>(dialogWidth, 0,  config.displayName, parent) {
+) : DialogBase<DialogConfigMap>(dialogWidth, 0, config.displayName, parent) {
 
 	init {
-		this.dialogHeight = pageSize * itemHeight + (paddingTop + paddingBottom)
+		this.dialogHeight = 2 + pageSize * itemHeight + (paddingTop + paddingBottom)
 	}
 
 	private lateinit var listWidget: WidgetListMap
+	private var scrollAmount: Double = 0.0
+
 	private lateinit var add: ButtonIcon
 
 	override fun init() {
@@ -52,6 +54,10 @@ class DialogConfigMap(
 			itemHeight,
 			contentWidth - 1
 		)
+		listWidget.scrollAmount = scrollAmount
+		listWidget.scrollAmountConsumer = {
+			scrollAmount = it
+		}
 		this.addDrawableChild(listWidget)
 	}
 
@@ -67,6 +73,8 @@ class DialogConfigMap(
 		}
 		this.addDrawableChild(add)
 	}
+
+
 
 	override fun tick() {
 		listWidget.tick()

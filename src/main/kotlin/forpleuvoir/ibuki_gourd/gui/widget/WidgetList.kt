@@ -21,6 +21,7 @@ import net.minecraft.sound.SoundEvents
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.math.MathHelper
 import java.lang.Double.max
+import java.util.function.Consumer
 import java.util.function.Predicate
 
 
@@ -73,15 +74,18 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	var renderBord: Boolean = false
 	var bordColor: IColor<*> = Color4f.WHITE
 
-	protected var scrollAmount = 0.0
+	var scrollAmountConsumer: ((Double) -> Unit)? = null
+
+	var scrollAmount = 0.0
 		set(value) {
 			field = MathHelper.clamp(value, 0.0, maxScroll.toDouble())
+			scrollAmountConsumer?.invoke(field)
 		}
 
 	var scrollbarColor: IColor<*> = Color4f.WHITE
 	var scrollbarBgColor: IColor<*> = Color4f(1f, 1f, 1f, 0.3f)
-	protected val scrollbarPadding: Int = 1
-	protected val scrollbarWidth: Int = 6
+	protected open val scrollbarPadding: Int = 1
+	protected open val scrollbarWidth: Int = 6
 		get() {
 			return if (maxScroll > 0) field else 0
 		}

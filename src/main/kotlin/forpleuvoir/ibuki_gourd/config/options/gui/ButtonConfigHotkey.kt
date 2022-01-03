@@ -3,19 +3,8 @@ package forpleuvoir.ibuki_gourd.config.options.gui
 import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
-import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
-import forpleuvoir.ibuki_gourd.gui.button.ButtonOption
-import forpleuvoir.ibuki_gourd.gui.button.ButtonParentElement
-import forpleuvoir.ibuki_gourd.gui.dialog.DialogSimple
-import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
-import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
-import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
-import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.gui.Drawable
-import net.minecraft.client.gui.Element
-import net.minecraft.client.gui.ParentElement
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting
@@ -36,7 +25,7 @@ import net.minecraft.util.Formatting
 
  */
 class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigHotkey) :
-	ButtonParentElement(x, y, width, height, "".text, null) {
+	ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text, null) {
 
 
 	private var selected: Boolean = false
@@ -50,9 +39,6 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 		}
 	private val keyBind: KeyBind = KeyBind()
 	private var firstKey: Boolean = true
-
-	private lateinit var setting: ButtonIcon
-
 
 	init {
 		keyBind.copyOf(config.getValue())
@@ -69,32 +55,6 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 				updateText()
 			}
 		}
-		val size = 20
-		setting = ButtonIcon(this.x - size - 2, this.y + this.height / 2 - size / 2, Icon.SETTING, padding = 4, renderBord = false, renderBg = true) {
-			ScreenBase.openScreen(
-				object : DialogSimple(140, 60, IbukiGourdLang.KeyEnvironment.tText(), current) {
-					override fun iniWidget() {
-						val values = ArrayList<String>()
-						KeyEnvironment.values().forEach {
-							values.add(it.name)
-						}
-						addDrawableChild(
-							ButtonOption(
-								values,
-								config.getValue().keyEnvironment.name,
-								x = this.x + this.paddingLeft + 5,
-								y = this.y + this.paddingTop + ((this.dialogHeight - (this.paddingTop + paddingBottom)) / 2) - size / 2,
-								width = this.dialogWidth - (this.paddingLeft + this.paddingRight) - 10,
-								size
-							) {
-								config.setKeyEnvironment(KeyEnvironment.valueOf(it))
-							}
-						)
-					}
-				}
-			)
-		}
-		addDrawableChild(setting)
 	}
 
 

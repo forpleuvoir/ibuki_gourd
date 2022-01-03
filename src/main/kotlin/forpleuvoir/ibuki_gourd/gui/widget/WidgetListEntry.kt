@@ -30,7 +30,7 @@ import net.minecraft.util.math.MathHelper
 
  */
 abstract class WidgetListEntry<E : WidgetListEntry<E>>(
-	val parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int
+	val parentWidget: WidgetList<*>, x: Int, y: Int, width: Int, height: Int
 ) : PositionParentWidget(x, y, width, height) {
 
 	protected val client: MinecraftClient by lazy { MinecraftClient.getInstance() }
@@ -100,20 +100,20 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 			width = this.width,
 			height = this.height,
 			bgColor.apply { alpha = bgOpacity },
-			parent.parent.zOffset
+			parentWidget.parent.zOffset
 		)
 	}
 
 	protected open fun updateBgOpacity(delta: Float) {
-		if (ScreenBase.isCurrent(parent.parent)) {
+		if (ScreenBase.isCurrent(parentWidget.parent)) {
 			bgOpacity += delta.toInt()
 			bgOpacity = MathHelper.clamp(bgOpacity, 0, maxBgOpacity)
 		}
 	}
 
 	protected open fun renderBorder(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (ScreenBase.isCurrent(parent.parent))
-			RenderUtil.drawOutline(this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE, zLevel = parent.parent.zOffset)
+		if (ScreenBase.isCurrent(parentWidget.parent))
+			RenderUtil.drawOutline(this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE, zLevel = parentWidget.parent.zOffset)
 	}
 
 	abstract fun initPosition()

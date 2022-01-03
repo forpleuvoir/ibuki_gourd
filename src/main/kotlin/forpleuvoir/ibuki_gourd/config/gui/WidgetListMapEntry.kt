@@ -41,7 +41,7 @@ class WidgetListMapEntry(
 		it.text = oldKey
 	}
 	private val value: WidgetText =
-		WidgetText( 0, 0, (this.width * 0.65).toInt(), this.height - 8, config.getValue()[oldKey]?.text).also {
+		WidgetText( 0, 0, (this.width * 0.67).toInt(), this.height - 8, config.getValue()[oldKey]?.text).also {
 			it.text = config.getValue()[oldKey]
 		}
 	private val remove: ButtonIcon = ButtonIcon(0, 0, Icon.MINUS, iconSize = this.height - 8, renderBord = true) {

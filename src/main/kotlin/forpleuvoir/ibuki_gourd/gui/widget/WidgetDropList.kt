@@ -29,13 +29,17 @@ open class WidgetDropList<E>(
 	private val default: E,
 	private val stringAdapter: Function<E, String>,
 	private val entryAdapter: Function<String, E>,
-	val parent: Screen,
+	parent: Screen,
 	private val pageSize: Int,
 	private val itemHeight: Int,
 	x: Int,
 	y: Int,
 	width: Int,
 ) : PositionParentWidget(x, y, width, itemHeight * (pageSize + 1)) {
+
+	init {
+		this.parent = parent
+	}
 
 	val current: E
 		get() = entryAdapter.apply(text.text.string)
@@ -61,7 +65,7 @@ open class WidgetDropList<E>(
 
 	private val listWidget: WidgetListString = WidgetListString(
 		ArrayList<String>().apply { items.forEach { this.add(stringAdapter.apply(it)) } },
-		this.parent,
+		this.parent!!,
 		this.x,
 		this.y + this.itemHeight,
 		pageSize,

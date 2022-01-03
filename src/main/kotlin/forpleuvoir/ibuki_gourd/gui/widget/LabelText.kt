@@ -52,7 +52,7 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	private lateinit var matrices: MatrixStack
 	private val renderText: String
 		get() {
-			return if (this.width - this.rightPadding - this.leftPadding > mc.textRenderer.getWidth(text)) {
+			return if (this.width - this.rightPadding - this.leftPadding >= mc.textRenderer.getWidth(text)) {
 				text.string
 			} else {
 				textRenderer.trimToWidth(text, this.width - this.rightPadding - this.leftPadding - (rightPadding + leftPadding)).string
@@ -156,39 +156,39 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		val textX: Int
 		val textY: Int
 		when (align) {
-			Align.TOP_LEFT   -> {
+			TOP_LEFT      -> {
 				textX = this.x + leftPadding
 				textY = this.y + topPadding
 			}
-			Align.TOP_CENTER -> {
+			TOP_CENTER    -> {
 				textX = centerX - textWidth / 2
 				textY = this.y + topPadding
 			}
-			TOP_RIGHT        -> {
+			TOP_RIGHT     -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y + topPadding
 			}
-			CENTER_LEFT      -> {
+			CENTER_LEFT   -> {
 				textX = this.x + leftPadding
 				textY = centerY - textHeight / 2
 			}
-			CENTER           -> {
+			CENTER        -> {
 				textX = centerX - textWidth / 2
 				textY = centerY - textHeight / 2
 			}
-			CENTER_RIGHT     -> {
+			CENTER_RIGHT  -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = centerY - textHeight / 2
 			}
-			BOTTOM_LEFT      -> {
+			BOTTOM_LEFT   -> {
 				textX = this.x + leftPadding
 				textY = this.y - textHeight - bottomPadding
 			}
-			BOTTOM_CENTER    -> {
+			BOTTOM_CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = this.y - textHeight - bottomPadding
 			}
-			BOTTOM_RIGHT     -> {
+			BOTTOM_RIGHT  -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y - textHeight - bottomPadding
 			}

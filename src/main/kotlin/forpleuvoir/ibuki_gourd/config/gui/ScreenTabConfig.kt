@@ -2,8 +2,6 @@ package forpleuvoir.ibuki_gourd.config.gui
 
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 import forpleuvoir.ibuki_gourd.gui.widget.SearchBar
-import net.minecraft.client.gui.widget.TextFieldWidget
-import net.minecraft.text.LiteralText
 import java.util.regex.PatternSyntaxException
 
 /**
@@ -27,6 +25,8 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 
 	private lateinit var listWidget: WidgetListConfig
 
+	private var scrollAmount: Double = 0.0
+
 	override fun init() {
 		super.init()
 		initSearchBar()
@@ -42,6 +42,10 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 			} catch (_: PatternSyntaxException) {
 				true
 			}
+		}
+		listWidget.scrollAmount = scrollAmount
+		listWidget.scrollAmountConsumer = {
+			scrollAmount = it
 		}
 		listWidget.setHoverCallback { entry -> drawTopMessage(entry.config.displayRemark) }
 		this.addDrawableChild(listWidget)

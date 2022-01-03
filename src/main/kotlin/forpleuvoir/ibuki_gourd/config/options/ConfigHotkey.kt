@@ -3,7 +3,9 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigHotkey
+import forpleuvoir.ibuki_gourd.config.options.gui.WrapperHotKey
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
@@ -91,7 +93,7 @@ open class ConfigHotkey(override val name: String, override val remark: String =
 		}
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
-		return ButtonConfigHotkey(x = x, y = y, width = width, height = height, config = this)
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigHotkey> {
+		return WrapperHotKey(x = x, y = y, width = width, height = height, config = this)
 	}
 }

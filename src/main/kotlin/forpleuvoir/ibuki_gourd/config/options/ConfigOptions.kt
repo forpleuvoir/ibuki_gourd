@@ -5,6 +5,8 @@ import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigOptionItem
+import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
+import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigOptions
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.client.gui.widget.ClickableWidget
@@ -58,7 +60,7 @@ class ConfigOptions(
 		setValue(defaultValue)
 	}
 
-	override fun matched(regex:Regex): Boolean {
+	override fun matched(regex: Regex): Boolean {
 		return if (regex.run {
 				containsMatchIn(getValue().displayKey.string)
 						|| containsMatchIn(getValue().displayRemark.string)
@@ -79,7 +81,11 @@ class ConfigOptions(
 			this.onValueChange()
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ClickableWidget {
-		return ButtonConfigOptions(x = x, y = y, width = width, height = height, config = this)
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigOptions> {
+		return object : ConfigWrapper<ConfigOptions>(this, x, y, width, height) {
+			override fun initWidget() {
+				addDrawableChild(ButtonConfigOptions(x = x, y = y, width = width, height = height, config = config))
+			}
+		}
 	}
 }

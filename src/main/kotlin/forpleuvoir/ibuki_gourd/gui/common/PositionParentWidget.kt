@@ -1,10 +1,12 @@
 package forpleuvoir.ibuki_gourd.gui.common
 
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import net.minecraft.client.gui.AbstractParentElement
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.util.math.MatrixStack
 import java.util.function.Predicate
@@ -24,9 +26,11 @@ import java.util.function.Predicate
  * @author forpleuvoir
 
  */
-abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,open var height: Int) : AbstractParentElement(), IPositionElement,
+abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,open var height: Int) : AbstractParentElement(),
+	IPositionElement,
 	Drawable, Selectable {
 
+	var parent: Screen? = null
 	var active: Boolean = true
 	var visible: Boolean = true
 
@@ -36,6 +40,11 @@ abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,
 	var childrenPredicate: Predicate<Element> = Predicate { true }
 	protected val drawableChildren: MutableList<Drawable> by lazy { ArrayList() }
 	var drawableChildrenPredicate: Predicate<Drawable> = Predicate { true }
+
+
+	init {
+		parent = ScreenBase.current
+	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return

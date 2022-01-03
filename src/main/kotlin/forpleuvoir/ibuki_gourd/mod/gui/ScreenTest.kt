@@ -8,10 +8,12 @@ import forpleuvoir.ibuki_gourd.event.events.Events
 import forpleuvoir.ibuki_gourd.event.events.KeyReleaseEvent
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.button.ButtonOnOff
+import forpleuvoir.ibuki_gourd.gui.button.ButtonOption
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 import forpleuvoir.ibuki_gourd.gui.widget.MultilineTextField
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
+import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.text.Text
 
@@ -43,16 +45,18 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		buttonOnOff.setOnHoverCallback {
 			it.y = if (it.y == 60) 60 else 90
 		}
-		this.addDrawableChild(buttonOnOff)
-		this.addDrawableChild(Button(20, buttonOnOff.y + 10, Text.of("Game")) {
-			openScreen(ScreenSnakeGame().apply { parent = this })
-		})
-		val config = ConfigDouble("aa", "remark", 20.0, 0.0, 100.0)
-		val double = WidgetSliderConfigDouble(20, 90, 60, 20, config)
-		this.addDrawableChild(double)
-		val intConfig = ConfigInt("aa", "remark", 20, 0, 100)
-		val int = WidgetSliderConfigInt(20, 120, 60, 20, intConfig)
-		this.addDrawableChild(int)
+		addDrawableChild(buttonOnOff)
+		val envButton = ButtonOption(
+			listOf("aa", "bb", "cc", "dd", "ee"),
+			"cc",
+			x = 60,
+			y = 80,
+			width =80,
+			20
+		) {
+			println(it)
+		}
+		addDrawableChild(envButton)
 		val dropList = WidgetDropList(
 			items = Events.getEvents(),
 			default = KeyReleaseEvent::class.java,

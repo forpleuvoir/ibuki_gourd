@@ -7,6 +7,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.screen.Screen
@@ -185,9 +186,9 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		//center
 		DrawableHelper.drawTexture(
 			matrices,
-			x + paddingLeft,
+			x + paddingLeft -1 ,
 			y + paddingTop,
-			this.dialogWidth - (paddingLeft + paddingRight),
+			this.dialogWidth - (paddingLeft + paddingRight) + 1,
 			1,
 			8f,
 			17f,
@@ -198,9 +199,9 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		)
 		DrawableHelper.drawTexture(
 			matrices,
-			x + paddingLeft,
-			y + this.dialogHeight - paddingBottom,
-			this.dialogWidth - (paddingLeft + paddingRight),
+			x + paddingLeft - 1,
+			y + this.dialogHeight - paddingBottom - 1,
+			this.dialogWidth - (paddingLeft + paddingRight) + 1,
 			1,
 			8f,
 			131f,
@@ -260,7 +261,7 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			this.dialogWidth - 8,
 			paddingBottom - 4,
 			4f,
-			132f,
+			133f,
 			244,
 			4,
 			256,
