@@ -3,6 +3,7 @@ package forpleuvoir.ibuki_gourd.gui.widget
 import com.google.common.base.Predicate
 import forpleuvoir.ibuki_gourd.gui.common.PositionClickableWidget
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
@@ -11,6 +12,8 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.text.LiteralText
+import net.minecraft.text.StringVisitable
 import net.minecraft.text.Style
 import net.minecraft.util.math.MathHelper
 import java.util.function.Consumer
@@ -39,6 +42,7 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 
 	private val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
 	private val textRenderer: TextRenderer by lazy { mc.textRenderer }
+	private val fontHeight: Int get() = textRenderer.fontHeight
 
 	var maxLength: Int = 65535
 		set(value) {
@@ -56,10 +60,12 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 	private val multilineText: List<String>
 		get() {
 			val width = this.width - padding * 2
-			val wrapLines = textRenderer.textHandler.wrapLines(this.text.text, width, Style.EMPTY)
-			return ArrayList<String>().apply {
-				wrapLines.forEach { this.add(it.string) }
-			}
+			return wrapToWidth(text, width)
+		}
+
+	private val renderText: List<String>
+		get() {
+			return emptyList()
 		}
 
 	private var textPredicate: Predicate<String> = Predicate { it != null }
@@ -120,8 +126,37 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 		}
 	}
 
-	protected open fun renderCursor(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float){
+	protected open fun renderCursor(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 
 	}
 
+	fun insertStringAt(insert: String, insertTo: String, pos: Int): String {
+		return insertTo.substring(0, pos) + insert + insertTo.substring(pos)
+	}
+
+	companion object {
+
+		@JvmStatic
+		fun wrapToWidth(str: String, wrapWidth: Int): MutableList<String> {
+			val strings: MutableList<String> = ArrayList()
+			var temp = StringBuilder()
+			for (element in str) {
+				run {
+					if (element != '\n') {
+						val text = temp.toString()
+						if (mc.textRenderer.getWidth(text + element) < wrapWidth) {
+							return@run
+						}
+					}
+					strings.add(temp.toString())
+					temp = StringBuilder()
+				}
+				if (element != '\n') {
+					temp.append(element)
+				}
+			}
+			strings.add(temp.toString())
+			return strings
+		}
+	}
 }

@@ -43,8 +43,8 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 				true
 			}
 		}
-		listWidget.scrollAmount = scrollAmount
-		listWidget.scrollAmountConsumer = {
+		listWidget.scrollbar.amount = scrollAmount
+		listWidget.setScrollAmountConsumer {
 			scrollAmount = it
 		}
 		listWidget.setHoverCallback { entry -> drawTopMessage(entry.config.displayRemark) }

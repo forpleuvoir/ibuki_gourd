@@ -44,7 +44,7 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 
 	private val textLabel: LabelText = LabelText(text, 0, 0).apply {
 		this.align = LabelText.Align.CENTER_LEFT
-		this.height = this@WidgetListConfigEntry.height
+		this.height = this@WidgetListConfigEntry.height - 2
 		this.addHoverText(textHoverText)
 	}
 
@@ -61,13 +61,14 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 	private val restButton: ButtonRest = ButtonRest(x = 0, y = 0, config = config)
 
 	init {
-
 		addDrawableChild(configWidget)
 		addDrawableChild(restButton)
 		addDrawableChild(textLabel)
 		initPosition()
 	}
 
+	override fun resize() {
+	}
 
 	override fun initPosition() {
 		restButton.x = this.right - restButton.width

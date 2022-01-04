@@ -33,15 +33,13 @@ class WidgetListMapEntry(
 	y: Int,
 	width: Int,
 	height: Int
-) :
+) : WidgetListEntry<WidgetListMapEntry>(parent, x, y, width, height) {
 
-	WidgetListEntry<WidgetListMapEntry>(parent, x, y, width, height) {
-
-	private val key: WidgetText = WidgetText( 0, 0, (this.width * 0.17).toInt(), this.height - 8, oldKey.text).also {
+	private val key: WidgetText = WidgetText(0, 0, (this.width * 0.17).toInt(), this.height - 8, oldKey.text).also {
 		it.text = oldKey
 	}
 	private val value: WidgetText =
-		WidgetText( 0, 0, (this.width * 0.67).toInt(), this.height - 8, config.getValue()[oldKey]?.text).also {
+		WidgetText(0, 0, (this.width * 0.67).toInt(), this.height - 8, config.getValue()[oldKey]?.text).also {
 			it.text = config.getValue()[oldKey]
 		}
 	private val remove: ButtonIcon = ButtonIcon(0, 0, Icon.MINUS, iconSize = this.height - 8, renderBord = true) {
@@ -59,6 +57,11 @@ class WidgetListMapEntry(
 		addDrawableChild(value)
 		addDrawableChild(remove)
 		initPosition()
+	}
+
+	override fun resize() {
+		value.width = (this.width * 0.67).toInt()
+		key.width = (this.width * 0.17).toInt()
 	}
 
 	override fun initPosition() {

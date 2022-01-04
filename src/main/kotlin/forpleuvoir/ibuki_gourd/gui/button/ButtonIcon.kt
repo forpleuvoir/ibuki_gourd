@@ -39,9 +39,9 @@ class ButtonIcon(
 
 
 	override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		matrices.translate(0.0, 0.0, parent?.zOffset?.times(2.0) ?: 0.0)
 		if (renderBg) super.renderButton(matrices, mouseX, mouseY, delta)
-		else if (this.isHovered) {
-			renderTooltip(matrices, mouseX, mouseY)
+		if (this.isHovered) {
 			if (renderBord)
 				RenderUtil.drawOutline(
 					this.x,
@@ -52,8 +52,8 @@ class ButtonIcon(
 					Color4f.WHITE,
 					parent?.zOffset?.times(2.0) ?: 5
 				)
+			renderTooltip(matrices, mouseX, mouseY)
 		}
-		matrices.translate(0.0, 0.0, parent?.zOffset?.times(2.0) ?: 0.0)
 		icon.render(
 			matrices,
 			this.x + padding,

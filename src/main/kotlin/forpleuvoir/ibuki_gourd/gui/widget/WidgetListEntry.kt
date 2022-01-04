@@ -61,6 +61,7 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	override var width: Int = width
 		set(value) {
 			field = value
+			resize()
 			initPosition()
 		}
 
@@ -116,7 +117,16 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 			RenderUtil.drawOutline(this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE, zLevel = parentWidget.parent.zOffset)
 	}
 
+	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
+		if (!active) return false
+		this.focused?.mouseReleased(mouseX, mouseY, button)
+		//children().forEach { it.mouseReleased(mouseX, mouseY, button) }
+		return false
+	}
+
 	abstract fun initPosition()
+
+	abstract fun resize()
 
 	override fun appendNarrations(builder: NarrationMessageBuilder?) {
 	}

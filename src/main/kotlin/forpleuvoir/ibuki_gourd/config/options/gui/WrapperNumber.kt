@@ -62,7 +62,10 @@ abstract class WrapperNumber(config: ConfigBase, x: Int, y: Int, width: Int, hei
 	}
 
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-		children().forEach { if (it is WidgetSliderNumber) it.mouseReleased(mouseX, mouseY, button) }
+		children().forEach {
+			if (it is WidgetSliderNumber)
+				if(it.mouseReleased(mouseX, mouseY, button)) return true
+		}
 		return super.mouseReleased(mouseX, mouseY, button)
 	}
 

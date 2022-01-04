@@ -56,6 +56,10 @@ class WidgetListStringConfigEntry(
 
 	}
 
+	override fun resize() {
+		textInput.width = (this.width * 0.835).toInt()
+	}
+
 	override fun updateIndex() {
 		textInput.text = config.getValue()[index]
 	}

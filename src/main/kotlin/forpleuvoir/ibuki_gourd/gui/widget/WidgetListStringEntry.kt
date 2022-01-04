@@ -44,4 +44,7 @@ class WidgetListStringEntry(val value: String, parent: WidgetList<*>, x: Int, y:
 	override fun initPosition() {
 		text.setPosition(this.x, this.y)
 	}
+
+	override fun resize() {
+	}
 }

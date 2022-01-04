@@ -32,7 +32,7 @@ class WidgetListConfig(
 	init {
 		clearEntries()
 		configs.forEach {
-			addEntry(WidgetListConfigEntry(it, this, 0, 0, this.rowWidth, this.itemHeight))
+			addEntry(WidgetListConfigEntry(it, this, 0, 0, this.contentWidth, this.itemHeight))
 		}
 	}
 }

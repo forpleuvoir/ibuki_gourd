@@ -39,7 +39,7 @@ class WidgetListString(
 	private fun initData() {
 		clearEntries()
 		list.forEach {
-			addEntry(WidgetListStringEntry(it, this, 0, 0, this.rowWidth, this.itemHeight))
+			addEntry(WidgetListStringEntry(it, this, 0, 0, this.contentWidth, this.itemHeight))
 		}
 	}
 }

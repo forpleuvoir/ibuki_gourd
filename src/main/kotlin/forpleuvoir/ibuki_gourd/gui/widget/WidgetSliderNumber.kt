@@ -2,8 +2,11 @@ package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.widget.SliderWidget
+import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.LiteralText
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -31,8 +34,7 @@ open class WidgetSliderNumber(
 	protected var number: Supplier<Number>,
 	private val minValue: Number,
 	private val maxValue: Number,
-) :
-	SliderWidget(x, y, width, height, LiteralText.EMPTY, number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))),
+) : SliderWidget(x, y, width, height, LiteralText.EMPTY, number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))),
 	IPositionElement {
 
 	var onStopCallback: ((mouseX: Double, mouseY: Double) -> Unit)? = null
@@ -54,19 +56,22 @@ open class WidgetSliderNumber(
 	}
 
 	override fun onClick(mouseX: Double, mouseY: Double) {
+		if(!active) return
 		status = true
 		super.onClick(mouseX, mouseY)
+		MinecraftClient.getInstance().soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		if(!visible) return
 		this.updateMessage()
 		super.render(matrices, mouseX, mouseY, delta)
 	}
 
 	override fun onRelease(mouseX: Double, mouseY: Double) {
+		if(!active) return
 		status = false
 		onStopCallback?.invoke(mouseX, mouseY)
-		super.onRelease(mouseX, mouseY)
 	}
 
 	override fun updateMessage() {

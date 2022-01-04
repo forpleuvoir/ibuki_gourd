@@ -54,8 +54,8 @@ class DialogConfigMap(
 			itemHeight,
 			contentWidth - 1
 		)
-		listWidget.scrollAmount = scrollAmount
-		listWidget.scrollAmountConsumer = {
+		listWidget.scrollbar.amount = scrollAmount
+		listWidget.setScrollAmountConsumer {
 			scrollAmount = it
 		}
 		this.addDrawableChild(listWidget)

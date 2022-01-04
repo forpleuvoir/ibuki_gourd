@@ -40,7 +40,7 @@ class WidgetListMap(
 	private fun initData() {
 		clearEntries()
 		config.getValue().forEach {
-			addEntry(WidgetListMapEntry(config, it.key, this, 0, 0, this.rowWidth, this.itemHeight))
+			addEntry(WidgetListMapEntry(config, it.key, this, 0, 0, this.contentWidth, this.itemHeight))
 		}
 	}
 }

@@ -40,7 +40,7 @@ class WidgetListStringConfig(
 	private fun initData(){
 		clearEntries()
 		config.getValue().forEach { _ ->
-			addEntry(WidgetListStringConfigEntry(config, this, 0, 0, this.rowWidth, this.itemHeight))
+			addEntry(WidgetListStringConfigEntry(config, this, 0, 0, this.contentWidth, this.itemHeight))
 		}
 	}
 }
