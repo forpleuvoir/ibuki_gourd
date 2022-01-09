@@ -4,6 +4,7 @@ package forpleuvoir.ibuki_gourd.gui.widget
 import forpleuvoir.ibuki_gourd.gui.common.PositionParentWidget
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import net.minecraft.client.MinecraftClient
@@ -108,7 +109,7 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 	protected open fun updateBgOpacity(delta: Float) {
 		if (ScreenBase.isCurrent(parentWidget.parent)) {
 			bgOpacity += delta.toInt()
-			bgOpacity = MathHelper.clamp(bgOpacity, 0, maxBgOpacity)
+			bgOpacity = bgOpacity.clamp(0, maxBgOpacity).toInt()
 		}
 	}
 

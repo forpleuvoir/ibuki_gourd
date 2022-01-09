@@ -25,7 +25,7 @@ class Color4f(
 	override var alpha: Float = 1f
 ) : IColor<Float> {
 
-	constructor(color: IColor<*>) : this() {
+	constructor(color: IColor<out Number>) : this() {
 		fromInt(color.rgba)
 	}
 
@@ -40,6 +40,10 @@ class Color4f(
 		fixAllValue()
 	}
 
+	override fun opacity(opacity: Double): Color4f {
+		return Color4f().fromInt(rgba).apply { this.alpha = (this.alpha * opacity).toFloat() }
+	}
+
 	companion object {
 		val WHITE get() = Color4f(1f, 1f, 1f, 1f)
 		val BLACK get() = Color4f(0f, 0f, 0f, 1f)
@@ -52,10 +56,16 @@ class Color4f(
 	}
 
 	override val rgba: Int
-		get() = Color(red, green, blue, alpha).rgb
+		get() = (alpha * 255 + 0.5).toInt() and 0xFF shl 24 or
+				((red * 255 + 0.5).toInt() and 0xFF shl 16) or
+				((green * 255 + 0.5).toInt() and 0xFF shl 8) or
+				((blue * 255 + 0.5).toInt() and 0xFF shl 0)
 
 	override fun rgba(alpha: Float): Int {
-		return Color(red, green, blue, alpha).rgb
+		return (alpha * 255 + 0.5).toInt() and 0xFF shl 24 or
+				((red * 255 + 0.5).toInt() and 0xFF shl 16) or
+				((green * 255 + 0.5).toInt() and 0xFF shl 8) or
+				((blue * 255 + 0.5).toInt() and 0xFF shl 0)
 	}
 
 
@@ -71,18 +81,18 @@ class Color4f(
 	}
 
 	override fun fromInt(color: Int): Color4f {
-		val c = Color(color)
-		this.alpha = c.alpha.toFloat() / 255f
-		this.red = c.red.toFloat() / 255f
-		this.green = c.green.toFloat() / 255f
-		this.blue = c.blue.toFloat() / 255f
+		this.alpha = (color shr 24 and 0xFF).toFloat() / 255f
+		this.red = (color shr 16 and 0xFF).toFloat() / 255f
+		this.green = (color shr 8 and 0xFF).toFloat() / 255f
+		this.blue = (color shr 0 and 0xFF).toFloat() / 255f
+		fixAllValue()
 		return this
 	}
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false
-		if (other is IColor<*>) return other.rgba == this.rgba
+		if (other is IColor<out Number>) return other.rgba == this.rgba
 		return false
 	}
 

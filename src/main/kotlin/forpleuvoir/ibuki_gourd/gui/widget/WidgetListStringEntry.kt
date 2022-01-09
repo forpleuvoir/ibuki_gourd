@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.MathHelper
@@ -35,7 +36,7 @@ class WidgetListStringEntry(val value: String, parent: WidgetList<*>, x: Int, y:
 	override fun updateBgOpacity(delta: Float) {
 		if (ScreenBase.isCurrent(parentWidget.parent)) {
 			bgOpacity += delta.toInt()
-			bgOpacity = MathHelper.clamp(bgOpacity, if (isOdd) 0 else 50, maxBgOpacity)
+			bgOpacity = bgOpacity.clamp(if (isOdd) 0 else 50, maxBgOpacity).toInt()
 		}
 	}
 

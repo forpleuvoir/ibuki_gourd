@@ -62,7 +62,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	protected val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
 
-	var backgroundColor: IColor<*> = BLACK.apply { alpha = 0.5f }
+	var backgroundColor: IColor<out Number> = BLACK.apply { alpha = 0.5f }
 	protected val titleWidth: Int
 		get() = textRenderer.getWidth(title)
 	protected val titleHeight: Int

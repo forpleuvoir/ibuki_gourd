@@ -1,12 +1,13 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.common.PositionDrawable
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
+import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.math.MathHelper
 
 
 /**
@@ -34,10 +35,24 @@ open class Scrollbar(x: Int, y: Int, width: Int, height: Int, private val maxScr
 	var color: IColor<out Number> = Color4i.WHITE
 	var backgroundColor: IColor<out Number> = Color4f.WHITE.apply { alpha = 0.3f }
 
+	var holdVisible: Boolean = false
+
+	private val holdTime: Double = 10.0
+	private var hold: Double = 0.0
+		set(value) {
+			field = value.clamp(0.0, holdTime).toDouble()
+		}
+	private var opacity: Double = 1.0
+		set(value) {
+			field = value.clamp(0.0, 1.0).toDouble()
+		}
+
 	var amountConsumer: ((Double) -> Unit)? = null
 	var amount = 0.0
 		set(value) {
-			field = MathHelper.clamp(value, 0.0, maxScroll.invoke().toDouble())
+			field = value.clamp(0.0, maxScroll.invoke().toDouble()).toDouble()
+			opacity += 0.5
+			hold = 0.0
 			amountConsumer?.invoke(field)
 		}
 
@@ -48,12 +63,29 @@ open class Scrollbar(x: Int, y: Int, width: Int, height: Int, private val maxScr
 		paddingBottom = padding
 	}
 
+	open operator fun plus(amount: Number) {
+		this.amount += amount.toDouble()
+	}
+
+	open operator fun minus(amount: Number){
+		this.amount -= amount.toDouble()
+	}
+
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		if (this.maxScroll.invoke() > 0) {
-			matrices.translate(0.0, 0.0, parent?.zOffset?.times(2.0) ?: 0.0)
+			if (!holdVisible)
+				updateOpacity(delta)
 			//draw scrollbar background
-			DrawableHelper.fill(matrices, this.x, this.y, this.x + width, this.y + this.height, backgroundColor.rgba)
+			drawRect(matrices, this.x, this.y, this.width, this.height, backgroundColor.opacity(opacity))
 			renderBar(matrices, mouseX, mouseY, delta)
+		}
+	}
+
+	protected open fun updateOpacity(delta: Float) {
+		if (hold < holdTime) {
+			hold += delta
+		} else {
+			opacity -= delta * 0.05
 		}
 	}
 
@@ -64,6 +96,8 @@ open class Scrollbar(x: Int, y: Int, width: Int, height: Int, private val maxScr
 		val maxScrollLength = this.height - height
 		val posY: Int = this.y + this.paddingTop + ((this.amount / this.maxScroll.invoke()) * maxScrollLength).toInt()
 		val posX: Int = this.x + this.paddingLeft
-		DrawableHelper.fill(matrices, posX, posY, posX + renderWidth, posY + renderHeight, color.rgba)
+		drawRect(matrices, posX, posY, renderWidth, renderHeight, color.opacity(opacity))
 	}
+
+
 }

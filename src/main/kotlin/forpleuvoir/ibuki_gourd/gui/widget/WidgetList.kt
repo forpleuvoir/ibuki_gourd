@@ -67,12 +67,12 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	var visible: Boolean = true
 
 	var renderBackground: Boolean = false
-	var backgroundColor: IColor<*> = Color4f.BLACK
+	var backgroundColor: IColor<out Number> = Color4f.BLACK
 	var renderBord: Boolean = false
-	var bordColor: IColor<*> = Color4f.WHITE
+	var bordColor: IColor<out Number> = Color4f.WHITE
 
-	var scrollbarColor: IColor<*> = Color4f.WHITE
-	var scrollbarBgColor: IColor<*> = Color4f(1f, 1f, 1f, 0.3f)
+	var scrollbarColor: IColor<out Number> = Color4f.WHITE
+	var scrollbarBgColor: IColor<out Number> = Color4f(1f, 1f, 1f, 0.3f)
 	protected open val scrollbarPadding: Int = 1
 	protected val scrollbarWidth: Int = 6
 		get() {
@@ -199,6 +199,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	override var onPositionChanged: ((Int, Int, Int, Int) -> Unit)? = { deltaX, deltaY, _, _ ->
 		children().forEach {
 			it.deltaPosition(deltaX, deltaY)
+			scrollbar.deltaPosition(deltaX, deltaY)
 		}
 	}
 
@@ -309,29 +310,12 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 
 	override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
 		if (!active) return false
-		return if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
-			true
-		} else if (button == 0 && scrolling) {
-			if (mouseY < top.toDouble()) {
-				scrollbar.amount = 0.0
-			} else if (mouseY > bottom.toDouble()) {
-				scrollbar.amount = maxScroll.toDouble()
-			} else {
-				val d = 1.coerceAtLeast(maxPosition).toDouble()
-				val i = bottom - top
-				val j = MathHelper.clamp(((i * i).toFloat() / maxPosition.toFloat()).toInt(), 32, i - 8)
-				val e = max(1.0, d / (i - j).toDouble())
-				scrollbar.amount += deltaY * e
-			}
-			true
-		} else {
-			false
-		}
+		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 	}
 
 	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
 		if (!active) return false
-		scrollbar.amount -= amount * itemHeight.toDouble()
+		scrollbar - amount * itemHeight
 		return true
 	}
 

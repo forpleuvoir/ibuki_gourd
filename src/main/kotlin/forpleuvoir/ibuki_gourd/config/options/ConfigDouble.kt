@@ -10,6 +10,7 @@ import forpleuvoir.ibuki_gourd.config.options.gui.WrapperNumber
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldDouble
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import forpleuvoir.ibuki_gourd.utils.clamp
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.util.math.MathHelper
 
@@ -37,7 +38,7 @@ class ConfigDouble(
 ) : ConfigBase(),
 	IConfigBaseValue<Double> {
 
-	private var value: Double = MathHelper.clamp(defaultValue, minValue, maxValue)
+	private var value: Double = defaultValue.clamp(minValue, maxValue).toDouble()
 
 	override val type: ConfigType
 		get() = ConfigType.DOUBLE
@@ -57,7 +58,7 @@ class ConfigDouble(
 	override fun setValue(value: Double) {
 		val oldValue = this.value
 		this.value = value
-		this.value = MathHelper.clamp(this.value, minValue, maxValue)
+		this.value = this.value.clamp(minValue, maxValue).toDouble()
 		if (oldValue != this.value) {
 			this.onValueChange()
 		}

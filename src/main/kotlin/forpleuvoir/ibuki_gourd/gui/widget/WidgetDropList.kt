@@ -72,6 +72,7 @@ open class WidgetDropList<E>(
 		this.itemHeight,
 		this.width
 	).apply {
+		scrollbar.holdVisible = true
 		renderBord = true
 		renderBackground = true
 		visible = false

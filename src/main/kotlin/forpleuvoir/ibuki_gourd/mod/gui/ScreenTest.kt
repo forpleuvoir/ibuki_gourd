@@ -77,10 +77,10 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		}
 		this.addDrawableChild(bt)
 		this.addDrawableChild(dropList)
-		this.addDrawableChild(MultilineTextField(220, 60, 233, 240).apply {
+		this.addDrawableChild(MultilineTextField(220, 60, 233, 120).apply {
 			val stringBuilder = StringBuilder("换行测试\n")
 			for (i in 1..30) {
-				stringBuilder.append(" 超长的文本啊啊啊啊啊啊啊啊啊啊啊")
+				stringBuilder.append("$i 超长的文本啊啊啊啊啊啊啊啊啊啊啊\n")
 			}
 			text = stringBuilder.toString()
 		})

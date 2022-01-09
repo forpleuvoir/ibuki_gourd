@@ -12,6 +12,7 @@ import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldDouble
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldInt
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import forpleuvoir.ibuki_gourd.utils.clamp
 import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.util.math.MathHelper
@@ -40,7 +41,7 @@ class ConfigInt(
 ) : ConfigBase(),
 	IConfigBaseValue<Int> {
 
-	private var value: Int = MathHelper.clamp(defaultValue, minValue, maxValue)
+	private var value: Int = defaultValue.clamp(minValue, maxValue).toInt()
 
 	override val type: ConfigType
 		get() = ConfigType.INTEGER
@@ -60,7 +61,7 @@ class ConfigInt(
 	override fun setValue(value: Int) {
 		val oldValue = this.value
 		this.value = value
-		this.value = MathHelper.clamp(this.value, minValue, maxValue)
+		this.value = this.value.clamp(minValue, maxValue).toInt()
 		if (oldValue != this.value) {
 			this.onValueChange()
 		}

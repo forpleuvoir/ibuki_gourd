@@ -73,8 +73,8 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	var textColor: IColor<out Number> = Color4i().fromInt(text.style.color?.rgb ?: Color4i.WHITE.rgba)
 	var rightToLeft: Boolean = false
 	var shadow: Boolean = true
-	var backgroundColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
-	var bordColor: IColor<*> = Color4i.WHITE.apply { alpha = 0 }
+	var backgroundColor: IColor<out Number> = Color4i.WHITE.apply { alpha = 0 }
+	var bordColor: IColor<out Number> = Color4i.WHITE.apply { alpha = 0 }
 	private var hoverCallback: ((LabelText) -> Unit)? = null
 	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
 

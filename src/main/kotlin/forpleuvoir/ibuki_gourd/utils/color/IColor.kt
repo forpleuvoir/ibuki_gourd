@@ -26,11 +26,11 @@ import kotlin.math.min
  */
 interface IColor<T : Number> : IJsonData {
 	companion object {
-		fun copy(color: IColor<*>): IColor<*> {
+		fun copy(color: IColor<out Number>): IColor<out Number> {
 			return if (color.red is Int) {
 				Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
 			} else {
-				Color4i(color.red as Int, color.green as Int, color.blue as Int, color.alpha as Int)
+				Color4f(color.red as Float, color.green as Float, color.blue as Float, color.alpha as Float)
 			}
 		}
 	}
@@ -44,6 +44,7 @@ interface IColor<T : Number> : IJsonData {
 	fun alpha(alpha: T): IColor<T> {
 		return fromInt(this.rgba(alpha))
 	}
+	fun opacity(opacity: Double):IColor<T>
 
 	override val asJsonElement: JsonElement
 		get() {

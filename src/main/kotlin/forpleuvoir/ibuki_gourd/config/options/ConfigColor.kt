@@ -26,16 +26,16 @@ import net.minecraft.client.gui.widget.ClickableWidget
  * @author forpleuvoir
 
  */
-class ConfigColor(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IColor<*> = WHITE) :
+class ConfigColor(override val name: String, override val remark: String = "$name.remark", override val defaultValue: IColor<out Number> = WHITE) :
 	ConfigBase(),
-	IConfigBaseValue<IColor<*>> {
+	IConfigBaseValue<IColor<out Number>> {
 
-	private var value: IColor<*> = IColor.copy(defaultValue)
+	private var value: IColor<out Number> = IColor.copy(defaultValue)
 
 	override val type: ConfigType
 		get() = ConfigType.COLOR
 
-	override fun setValue(value: IColor<*>) {
+	override fun setValue(value: IColor<out Number>) {
 		val oldValue = this.value
 		this.value = IColor.copy(value)
 		if (oldValue != this.value) {
@@ -47,7 +47,7 @@ class ConfigColor(override val name: String, override val remark: String = "$nam
 		return if (regex.containsMatchIn(getValue().hexString)) true else super.matched(regex)
 	}
 
-	override fun getValue(): IColor<*> {
+	override fun getValue(): IColor<out Number> {
 		return IColor.copy(value)
 	}
 

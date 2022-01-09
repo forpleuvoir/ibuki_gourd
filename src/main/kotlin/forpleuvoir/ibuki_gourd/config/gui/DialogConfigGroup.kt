@@ -21,7 +21,7 @@ import net.minecraft.client.gui.screen.Screen
 class DialogConfigGroup(
 	private val config: ConfigGroup,
 	private val itemHeight: Int = 24,
-	private val maxPageSize: Int = 8,
+	private val maxPageSize: Int = 9,
 	dialogWidth: Int,
 	parent: Screen?
 ) :
@@ -35,7 +35,7 @@ class DialogConfigGroup(
 	val pageSize get() = if (maxPageSize >= config.getValue().size) config.getValue().size else maxPageSize
 
 	init {
-		this.dialogHeight = 2 + (pageSize * itemHeight) + (paddingTop + paddingBottom)
+		this.dialogHeight = 3 + (pageSize * itemHeight) + (paddingTop + paddingBottom)
 	}
 
 	private lateinit var listWidget: WidgetListConfig

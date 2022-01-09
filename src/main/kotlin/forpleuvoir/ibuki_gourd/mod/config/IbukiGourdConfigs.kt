@@ -11,6 +11,7 @@ import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs.Values.CONFIGS
 import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen
+import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
@@ -34,7 +35,7 @@ object IbukiGourdConfigs : IConfigHandler {
 
 	object Values {
 		@JvmStatic
-		val TEST_COLOR = ConfigColor(name = "ibuki_gourd.test.color", defaultValue = Color4i(0, 127, 127, 255))
+		val TEST_COLOR = ConfigColor(name = "ibuki_gourd.test.color", defaultValue = Color4f(0.0f, 0.5f, 0.5f, 1f))
 
 		@JvmStatic
 		val TEST_BOOLEAN = ConfigBoolean(name = "ibuki_gourd.test.boolean", defaultValue = true)

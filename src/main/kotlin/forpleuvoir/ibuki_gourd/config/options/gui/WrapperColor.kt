@@ -5,9 +5,11 @@ import forpleuvoir.ibuki_gourd.config.options.ConfigColor
 import forpleuvoir.ibuki_gourd.gui.common.PositionDrawable
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutlinedBox
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.util.math.MatrixStack
 
 
@@ -33,15 +35,8 @@ class WrapperColor(config: ConfigColor, x: Int, y: Int, width: Int, height: Int)
 	private val colorBox: PositionDrawable =
 		object : PositionDrawable(this.x + 1, this.y + this.colorBoxPadding / 2, colorBoxSize, colorBoxSize) {
 			override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-				RenderUtil.drawOutlinedBox(
-					this.x,
-					this.y,
-					this.width,
-					this.height,
-					config.getValue(),
-					if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) Color4f.WHITE else Color4i(160,160,160),
-					parent?.zOffset ?: 0
-				)
+				val bordColor = if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) Color4f.WHITE else Color4i(160, 160, 160)
+				drawOutlinedBox(matrices,this.x,this.y,this.width,this.height,config.getValue(),bordColor)
 				if (isMouseOver(mouseX.toDouble(), mouseY.toDouble()) && ScreenBase.isCurrent(parent)) {
 					parent?.renderTooltip(
 						matrices,

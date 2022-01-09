@@ -4,7 +4,11 @@ import com.google.common.base.Predicate
 import forpleuvoir.ibuki_gourd.gui.common.PositionClickableWidget
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
-import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutline
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
+import forpleuvoir.ibuki_gourd.render.RenderUtil.isMouseHovered
+import forpleuvoir.ibuki_gourd.utils.clamp
+import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
@@ -12,10 +16,6 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.LiteralText
-import net.minecraft.text.StringVisitable
-import net.minecraft.text.Style
-import net.minecraft.util.math.MathHelper
 import java.util.function.Consumer
 
 
@@ -46,7 +46,7 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 
 	var maxLength: Int = 65535
 		set(value) {
-			field = MathHelper.clamp(value, 0, 65535)
+			field = value.clamp(0, 65535).toInt()
 		}
 	var text: String = text
 		set(value) {
@@ -63,15 +63,27 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 			return wrapToWidth(text, width)
 		}
 
-	private val renderText: List<String>
+	private val visibleText: List<String>
 		get() {
-			return emptyList()
+			val fast = (scrollbar.amount / fontHeight).toInt()
+			return ArrayList<String>().apply {
+				for (i in 0 until pageSize) {
+					val index = fast + i
+					if (index < multilineText.size)
+						add(multilineText[index])
+				}
+			}
 		}
+
+	private val pageSize: Int
+		get() = contentHeight / fontHeight
 
 	private var textPredicate: Predicate<String> = Predicate { it != null }
 	fun setTextPredicate(textPredicate: Predicate<String>) {
 		this.textPredicate = textPredicate
 	}
+
+	private val contentHeight: Int get() = this.height - (padding * 2)
 
 	private var onTextChangedCallback: Consumer<String>? = null
 	fun onTextChangedCallback(consumer: Consumer<String>) {
@@ -82,6 +94,8 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 
 	var cursor: String = "_"
 	private var cursorPos: Int = 0
+	private var cursorPosX: Int = 0
+	private var cursorPosY: Int = 0
 
 	private var selectedStart: Int = 0
 	private var selectedEnd: Int = 0
@@ -94,44 +108,103 @@ open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: Str
 
 	var padding: Int = 4
 
+	private val scrollbarWidth: Int = 4
+	private val scrollbar: Scrollbar = Scrollbar(
+		this.x + this.width - scrollbarWidth - padding,
+		this.y + padding,
+		scrollbarWidth,
+		contentHeight,
+		{ 0.coerceAtLeast(multilineText.size * fontHeight - contentHeight) },
+		{ contentHeight.toDouble() / (multilineText.size * fontHeight) }
+	)
+
+	override var onPositionChanged: ((Int, Int, Int, Int) -> Unit)? = { deltaX, deltaY, _, _ ->
+		scrollbar.deltaPosition(deltaX, deltaY)
+	}
+
 	var textColor: IColor<out Number> = Color4i.WHITE
 	var backgroundColor: IColor<out Number> = Color4i.BLACK
 	var borderColor: IColor<out Number> = Color4i.WHITE
+
+	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+		scrollbar - amount * fontHeight
+		return super.mouseScrolled(mouseX, mouseY, amount)
+	}
+
+	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+		isMouseHovered(mouseX,mouseY){
+			if (button == 0) setCursorPos(mouseX.toInt(), mouseY.toInt())
+		}
+		return super.mouseClicked(mouseX, mouseY, button)
+	}
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
 		if (Screen.isCopy(keyCode)) mc.keyboard.clipboard = this.selectedText
 		return super.keyPressed(keyCode, scanCode, modifiers)
 	}
 
+	override fun charTyped(chr: Char, modifiers: Int): Boolean {
+		text = text.insert(chr.toString(), cursorPos)
+		cursorPos++
+		if (cursorPosX + 1 >= visibleText[cursorPosY].length) {
+			if (cursorPosY + 1 >= visibleText.size) {
+				scrollbar + fontHeight
+			} else {
+				cursorPosY++
+			}
+			cursorPosX = 0
+		} else {
+			cursorPosX++
+		}
+
+		return super.charTyped(chr, modifiers)
+	}
+
+	protected open fun setCursorPos(mouseX: Int, mouseY: Int) {
+		cursorPos = 0
+		cursorPosY = (((mouseY - this.y + this.padding) / fontHeight) - 1).clamp(0, visibleText.size - 1).toInt()
+		cursorPosX = textRenderer.trimToWidth(visibleText[cursorPosY], (mouseX - this.x + this.padding)).length - 1
+		val amount = scrollbar.amount / fontHeight
+		for (i in 0 until (cursorPosY + amount).toInt()) {
+			cursorPos += multilineText[i].length
+		}
+		println("x:$cursorPosX,y:$cursorPosY")
+		cursorPos += cursorPosX
+		cursorPos += text.substring(0, cursorPos).filter { it == '\n' }.length
+	}
+
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		matrices.translate(0.0, 0.0, parent?.zOffset?.toDouble() ?: 0.0)
 		renderBackground(matrices, mouseX, mouseY, delta)
 		renderBorder(matrices, mouseX, mouseY, delta)
+		scrollbar.render(matrices, mouseX, mouseY, delta)
 		renderText(matrices, mouseX, mouseY, delta)
 		renderCursor(matrices, mouseX, mouseY, delta)
 	}
 
 	protected open fun renderBackground(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		RenderUtil.drawRect(this.x, this.y, this.width, this.height, backgroundColor, parent?.zOffset ?: 0)
+		drawRect(matrices, this.x, this.y, this.width, this.height, backgroundColor)
 	}
 
 	protected open fun renderBorder(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		RenderUtil.drawOutline(this.x, this.y, this.width, this.height, 1, borderColor, parent?.zOffset ?: 0)
+		drawOutline(matrices, this.x, this.y, this.width, this.height, 1, borderColor)
 	}
 
 	protected open fun renderText(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		val textHeight = textRenderer.fontHeight
-		multilineText.forEachIndexed { index, s ->
+		visibleText.forEachIndexed { index, s ->
 			textRenderer.draw(matrices, s, this.x + this.padding.toFloat(), this.y + this.padding.toFloat() + textHeight * index, textColor.rgba)
 		}
 	}
 
 	protected open fun renderCursor(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-
+		val x = this.x + padding + textRenderer.getWidth(visibleText[cursorPosY].substring(0, cursorPosX)) - 1
+		val y = this.y + padding + (cursorPosY) * fontHeight
+		textRenderer.drawWithShadow(matrices, "|", x.toFloat(), y.toFloat(), Color4f.RED.rgba)
 	}
 
-	fun insertStringAt(insert: String, insertTo: String, pos: Int): String {
-		return insertTo.substring(0, pos) + insert + insertTo.substring(pos)
+	private fun String.insert(insert: String, pos: Int): String {
+		return this.substring(0, pos) + insert + this.substring(pos)
 	}
 
 	companion object {

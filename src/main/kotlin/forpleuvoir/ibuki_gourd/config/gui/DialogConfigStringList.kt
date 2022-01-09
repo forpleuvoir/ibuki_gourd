@@ -31,7 +31,7 @@ class DialogConfigStringList(
 	DialogBase<DialogConfigStringList>(dialogWidth, 0, config.displayName, parent) {
 
 	init {
-		this.dialogHeight = 2 + pageSize * itemHeight + (paddingTop + paddingBottom)
+		this.dialogHeight = 3 + pageSize * itemHeight + (paddingTop + paddingBottom)
 	}
 
 	private lateinit var listWidget: WidgetListStringConfig

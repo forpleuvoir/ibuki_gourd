@@ -1,8 +1,6 @@
 package forpleuvoir.ibuki_gourd.utils.color
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import java.awt.Color
 
 
 /**
@@ -28,7 +26,7 @@ class Color4i(
 	override var alpha: Int = 255
 ) : IColor<Int> {
 
-	constructor(color: IColor<*>) : this() {
+	constructor(color: IColor<out Number>) : this() {
 		fromInt(color.rgba)
 	}
 
@@ -43,10 +41,16 @@ class Color4i(
 	}
 
 	override val rgba: Int
-		get() = Color(red, green, blue, alpha).rgb
+		get() = alpha and 0xFF shl 24 or
+				(red and 0xFF shl 16) or
+				(green and 0xFF shl 8) or
+				(blue and 0xFF shl 0)
 
 	override fun rgba(alpha: Int): Int {
-		return Color(red, green, blue, alpha).rgb
+		return alpha and 0xFF shl 24 or
+				(red and 0xFF shl 16) or
+				(green and 0xFF shl 8) or
+				(blue and 0xFF shl 0)
 	}
 
 	@Throws(Exception::class)
@@ -61,6 +65,9 @@ class Color4i(
 		}
 	}
 
+	override fun opacity(opacity: Double): Color4i {
+		return Color4i().fromInt(rgba).apply { this.alpha = (this.alpha * opacity).toInt() }
+	}
 
 	companion object {
 		val WHITE get() = Color4i(255, 255, 255, 255)
@@ -74,18 +81,18 @@ class Color4i(
 	}
 
 	override fun fromInt(color: Int): Color4i {
-		val c = Color(color)
-		this.alpha = c.alpha
-		this.red = c.red
-		this.green = c.green
-		this.blue = c.blue
+		this.alpha = color shr 24 and 0xFF
+		this.red = color shr 16 and 0xFF
+		this.green = color shr 8 and 0xFF
+		this.blue = color shr 0 and 0xFF
+		fixAllValue()
 		return this
 	}
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false
-		if (other is IColor<*>) return other.rgba == this.rgba
+		if (other is IColor<out Number>) return other.rgba == this.rgba
 		return false
 	}
 
