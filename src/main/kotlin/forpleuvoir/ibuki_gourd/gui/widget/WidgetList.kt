@@ -14,12 +14,9 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
 import net.minecraft.client.sound.PositionedSoundInstance
-import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.TranslatableText
-import net.minecraft.util.math.MathHelper
-import java.lang.Double.max
 import java.util.function.Predicate
 
 
@@ -97,7 +94,14 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	}
 
 	protected fun scrollbarHovered(mouseX: Double, mouseY: Double): Boolean {
-		return RenderUtil.isMouseHovered(this.scrollbarX, this.scrollbarY, this.scrollbarWidth, this.scrollbarHeight, mouseX, mouseY)
+		return RenderUtil.isMouseHovered(
+			this.scrollbarX,
+			this.scrollbarY,
+			this.scrollbarWidth,
+			this.scrollbarHeight,
+			mouseX,
+			mouseY
+		)
 	}
 
 	protected inline fun scrollbarHovered(mouseX: Double, mouseY: Double, callback: () -> Unit) {
@@ -148,6 +152,10 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 
 	fun setFilter(filter: Predicate<E>) {
 		childFilter = filter
+	}
+
+	fun allChildren(): List<E> {
+		return children
 	}
 
 	@Suppress("unchecked_cast")
@@ -245,8 +253,12 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	protected open fun updateChildren() {
 		for (index in 0 until children().size) {
 			children()[index].index = index
-			children()[index].setPosition(this.contentLeft, this.contentTop + this.itemHeight * index - this.scrollbar.amount.toInt())
-			val active = !(children()[index].y < this.contentTop || children()[index].y + children()[index].height > this.contentBottom)
+			children()[index].setPosition(
+				this.contentLeft,
+				this.contentTop + this.itemHeight * index - this.scrollbar.amount.toInt()
+			)
+			val active =
+				!(children()[index].y < this.contentTop || children()[index].y + children()[index].height > this.contentBottom)
 			children()[index].active = active
 			children()[index].visible = active
 			if (active) children()[index].width = this.contentWidth
@@ -260,7 +272,10 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			if (renderBackground) renderBackground(matrices)
 			if (renderBord) renderBord(matrices)
 			hoveredEntry =
-				if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) getEntryAtPosition(mouseX.toDouble(), mouseY.toDouble()) else null
+				if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) getEntryAtPosition(
+					mouseX.toDouble(),
+					mouseY.toDouble()
+				) else null
 			scrollbar.render(matrices, mouseX, mouseY, delta)
 			children().forEach {
 				it.render(matrices, mouseX, mouseY, delta)
@@ -281,11 +296,21 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			val entry = getEntryAtPosition(mouseX, mouseY)
 			if (entry != null) {
 				if (onClickedCallback?.invoke(entry, mouseX, mouseY, button) == true) {
-					IbukiGourdMod.mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+					IbukiGourdMod.mc.soundManager.play(
+						PositionedSoundInstance.master(
+							SoundEvents.UI_BUTTON_CLICK,
+							1.0f
+						)
+					)
 					return true
 				}
 				if (button == 0 && onPressCallback?.invoke(entry) == true) {
-					IbukiGourdMod.mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+					IbukiGourdMod.mc.soundManager.play(
+						PositionedSoundInstance.master(
+							SoundEvents.UI_BUTTON_CLICK,
+							1.0f
+						)
+					)
 					return true
 				}
 				if (entry.mouseClicked(mouseX, mouseY, button)) {

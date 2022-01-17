@@ -1,21 +1,23 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
-import com.google.common.base.Predicate
-import forpleuvoir.ibuki_gourd.gui.common.PositionClickableWidget
-import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutline
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
-import forpleuvoir.ibuki_gourd.render.RenderUtil.isMouseHovered
-import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
-import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
+import net.minecraft.client.util.InputUtil.*
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.text.LiteralText
+import net.minecraft.text.StringVisitable
+import net.minecraft.util.Language
+import net.minecraft.util.math.MathHelper
+import java.util.*
 import java.util.function.Consumer
 
 
@@ -33,203 +35,730 @@ import java.util.function.Consumer
  * @author forpleuvoir
 
  */
-open class MultilineTextField(x: Int, y: Int, width: Int, height: Int, text: String = "") :
-	PositionClickableWidget(x, y, width, height, "".text) {
+open class MultilineTextField(
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int,
+	margin: Int = 2,
+	multiline: Boolean = true
+) : WidgetText(x, y, width, height), Selectable {
 
-	init {
-		parent = ScreenBase.current
+	companion object {
+		private val mc = MinecraftClient.getInstance()
+		private val FILTER_CHARS = charArrayOf('\r', '\u000c')
 	}
 
-	private val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
-	private val textRenderer: TextRenderer by lazy { mc.textRenderer }
-	private val fontHeight: Int get() = textRenderer.fontHeight
+	private val fontRenderer: TextRenderer get() = mc.textRenderer
+	private val fontHeight: Int get() = fontRenderer.fontHeight
+	private val margin: Int
+	private val maxVisibleLines: Int
+	private val wrapWidth: Int
+	private val multiline: Boolean
+	private var text: String
+	private var textChangedListener: Consumer<String>? = null
+	private var topVisibleLine = 0
+	private var bottomVisibleLine = 0
+	private var cursorCounter = 0
+	private var isFocused = false
+	private var cursorPos = 0
+	private var selectionPos: Int
 
-	var maxLength: Int = 65535
-		set(value) {
-			field = value.clamp(0, 65535).toInt()
-		}
-	var text: String = text
-		set(value) {
-			if (!textPredicate.test(value)) {
-				return
-			}
-			field = if (value.length > maxLength) value.substring(0, maxLength) else value
-			onTextChangedCallback?.accept(field)
-		}
+	var backgroundColor: IColor<out Number> = Color4f.BLACK
+	var borderColor: IColor<out Number> = Color4f.WHITE
+	var textColor: IColor<out Number> = Color4i(224, 224, 224)
+	var cursorColor: IColor<out Number> = Color4i(208, 208, 208)
 
-	private val multilineText: List<String>
-		get() {
-			val width = this.width - padding * 2
-			return wrapToWidth(text, width)
-		}
+	val scrollbar: Scrollbar = Scrollbar(
+		x = this.x + this.width - margin - 4,
+		y = this.y + margin,
+		width = 4,
+		height = this.height - margin * 2,
+		maxScroll = { toLines().size * fontHeight },
+		percent = { visibleLineCount.toDouble() / toLines().size }
+	).apply { this.holdVisible = true }
 
-	private val visibleText: List<String>
-		get() {
-			val fast = (scrollbar.amount / fontHeight).toInt()
-			return ArrayList<String>().apply {
-				for (i in 0 until pageSize) {
-					val index = fast + i
-					if (index < multilineText.size)
-						add(multilineText[index])
-				}
-			}
-		}
-
-	private val pageSize: Int
-		get() = contentHeight / fontHeight
-
-	private var textPredicate: Predicate<String> = Predicate { it != null }
-	fun setTextPredicate(textPredicate: Predicate<String>) {
-		this.textPredicate = textPredicate
+	fun setTextChangedListener(textChangedListener: Consumer<String>?) {
+		this.textChangedListener = textChangedListener
 	}
 
-	private val contentHeight: Int get() = this.height - (padding * 2)
-
-	private var onTextChangedCallback: Consumer<String>? = null
-	fun onTextChangedCallback(consumer: Consumer<String>) {
-		this.onTextChangedCallback = consumer
+	override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		drawBackground(matrixStack, mouseX, mouseY, delta)
+		renderVisibleText(matrixStack)
+		renderCursor(matrixStack)
+		scrollbar.render(matrixStack, mouseX, mouseY, delta)
+		drawSelectionBox(matrixStack, mouseX, mouseY, delta)
 	}
 
-	var editable: Boolean = true
-
-	var cursor: String = "_"
-	private var cursorPos: Int = 0
-	private var cursorPosX: Int = 0
-	private var cursorPosY: Int = 0
-
-	private var selectedStart: Int = 0
-	private var selectedEnd: Int = 0
-	private var selectedText: String = ""
-
-	private var focusedTicks: Int = 0
-	fun tick() {
-		focusedTicks++
+	protected open fun drawBackground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		drawRect(matrixStack, x, y, width, height, backgroundColor)
 	}
 
-	var padding: Int = 4
-
-	private val scrollbarWidth: Int = 4
-	private val scrollbar: Scrollbar = Scrollbar(
-		this.x + this.width - scrollbarWidth - padding,
-		this.y + padding,
-		scrollbarWidth,
-		contentHeight,
-		{ 0.coerceAtLeast(multilineText.size * fontHeight - contentHeight) },
-		{ contentHeight.toDouble() / (multilineText.size * fontHeight) }
-	)
-
-	override var onPositionChanged: ((Int, Int, Int, Int) -> Unit)? = { deltaX, deltaY, _, _ ->
-		scrollbar.deltaPosition(deltaX, deltaY)
+	protected open fun drawBorder(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		drawOutline(matrixStack, x, y, width, height, 1, borderColor)
 	}
 
-	var textColor: IColor<out Number> = Color4i.WHITE
-	var backgroundColor: IColor<out Number> = Color4i.BLACK
-	var borderColor: IColor<out Number> = Color4i.WHITE
+	override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {
+		val isWithinBounds = isWithinBounds(mouseX, mouseY)
+		setFocused(isWithinBounds)
+		return click(mouseX, mouseY, mouseButton, isWithinBounds)
+	}
+
+
+	override fun mouseReleased(mouseX: Double, mouseY: Double, state: Int): Boolean {
+		val isWithinBounds = isWithinBounds(mouseX, mouseY)
+		setFocused(isWithinBounds)
+		return click(mouseX, mouseY, state, isWithinBounds)
+	}
 
 	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+		if (!active || !isFocused) return false
 		scrollbar - amount * fontHeight
-		return super.mouseScrolled(mouseX, mouseY, amount)
+		return if (amount < 0.0) {
+			incrementVisibleLines()
+			true
+		} else if (amount > 0.0) {
+			decrementVisibleLines()
+			true
+		} else {
+			false
+		}
 	}
 
-	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-		isMouseHovered(mouseX,mouseY){
-			if (button == 0) setCursorPos(mouseX.toInt(), mouseY.toInt())
+	private fun click(mouseX: Double, mouseY: Double, mouseButton: Int, isWithinBounds: Boolean): Boolean {
+		return if (isFocused && isWithinBounds && mouseButton == 0) {
+			val relativeMouseX = mouseX.toInt() - x - margin
+			val relativeMouseY = mouseY.toInt() - y - margin
+			val y = MathHelper.clamp(relativeMouseY / 9 + topVisibleLine, 0, finalLineIndex)
+			val x =
+				fontRenderer.trimToWidth(StringVisitable.plain(getLine(y).string), relativeMouseX).string.length
+			setCursorPos(countCharacters(y) + x)
+			true
+		} else {
+			false
 		}
-		return super.mouseClicked(mouseX, mouseY, button)
 	}
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-		if (Screen.isCopy(keyCode)) mc.keyboard.clipboard = this.selectedText
-		return super.keyPressed(keyCode, scanCode, modifiers)
-	}
-
-	override fun charTyped(chr: Char, modifiers: Int): Boolean {
-		text = text.insert(chr.toString(), cursorPos)
-		cursorPos++
-		if (cursorPosX + 1 >= visibleText[cursorPosY].length) {
-			if (cursorPosY + 1 >= visibleText.size) {
-				scrollbar + fontHeight
-			} else {
-				cursorPosY++
+		if (!this.isActive) {
+			return false
+		}
+		if (Screen.isSelectAll(keyCode)) {
+			setCursorToEnd()
+			setSelectionEnd(0)
+			return true
+		}
+		if (Screen.isCopy(keyCode)) {
+			mc.keyboard.clipboard = this.selectedText
+		} else if (Screen.isCut(keyCode)) {
+			if (selectionDifference != 0) {
+				mc.keyboard.clipboard = this.selectedText
+				deleteSelectedText()
 			}
-			cursorPosX = 0
+		} else if (Screen.isPaste(keyCode)) {
+			insert(mc.keyboard.clipboard)
+		} else if (isKeyComboCtrlBack(keyCode)) {
+			deletePrevWord()
 		} else {
-			cursorPosX++
-		}
-
-		return super.charTyped(chr, modifiers)
-	}
-
-	protected open fun setCursorPos(mouseX: Int, mouseY: Int) {
-		cursorPos = 0
-		cursorPosY = (((mouseY - this.y + this.padding) / fontHeight) - 1).clamp(0, visibleText.size - 1).toInt()
-		cursorPosX = textRenderer.trimToWidth(visibleText[cursorPosY], (mouseX - this.x + this.padding)).length - 1
-		val amount = scrollbar.amount / fontHeight
-		for (i in 0 until (cursorPosY + amount).toInt()) {
-			cursorPos += multilineText[i].length
-		}
-		println("x:$cursorPosX,y:$cursorPosY")
-		cursorPos += cursorPosX
-		cursorPos += text.substring(0, cursorPos).filter { it == '\n' }.length
-	}
-
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		matrices.translate(0.0, 0.0, parent?.zOffset?.toDouble() ?: 0.0)
-		renderBackground(matrices, mouseX, mouseY, delta)
-		renderBorder(matrices, mouseX, mouseY, delta)
-		scrollbar.render(matrices, mouseX, mouseY, delta)
-		renderText(matrices, mouseX, mouseY, delta)
-		renderCursor(matrices, mouseX, mouseY, delta)
-	}
-
-	protected open fun renderBackground(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		drawRect(matrices, this.x, this.y, this.width, this.height, backgroundColor)
-	}
-
-	protected open fun renderBorder(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		drawOutline(matrices, this.x, this.y, this.width, this.height, 1, borderColor)
-	}
-
-	protected open fun renderText(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		val textHeight = textRenderer.fontHeight
-		visibleText.forEachIndexed { index, s ->
-			textRenderer.draw(matrices, s, this.x + this.padding.toFloat(), this.y + this.padding.toFloat() + textHeight * index, textColor.rgba)
-		}
-	}
-
-	protected open fun renderCursor(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		val x = this.x + padding + textRenderer.getWidth(visibleText[cursorPosY].substring(0, cursorPosX)) - 1
-		val y = this.y + padding + (cursorPosY) * fontHeight
-		textRenderer.drawWithShadow(matrices, "|", x.toFloat(), y.toFloat(), Color4f.RED.rgba)
-	}
-
-	private fun String.insert(insert: String, pos: Int): String {
-		return this.substring(0, pos) + insert + this.substring(pos)
-	}
-
-	companion object {
-
-		@JvmStatic
-		fun wrapToWidth(str: String, wrapWidth: Int): MutableList<String> {
-			val strings: MutableList<String> = ArrayList()
-			var temp = StringBuilder()
-			for (element in str) {
-				run {
-					if (element != '\n') {
-						val text = temp.toString()
-						if (mc.textRenderer.getWidth(text + element) < wrapWidth) {
-							return@run
-						}
-					}
-					strings.add(temp.toString())
-					temp = StringBuilder()
+			if (keyCode == GLFW_KEY_BACKSPACE) {
+				if (selectionDifference != 0) {
+					deleteSelectedText()
+				} else {
+					deletePrev()
 				}
-				if (element != '\n') {
-					temp.append(element)
+				return true
+			}
+			if (keyCode == GLFW_KEY_DELETE) {
+				if (selectionDifference != 0) {
+					deleteSelectedText()
+				} else {
+					deleteNext()
+				}
+				return true
+			}
+			if (keyCode == GLFW_KEY_TAB) {
+				insert("    ")
+				return true
+			}
+			if (keyCode == GLFW_KEY_KP_ENTER) {
+				if (multiline) {
+					insertNewLine()
+				}
+				return true
+			}
+			if (keyCode == GLFW_KEY_ENTER) {
+				if (multiline) {
+					insertNewLine()
+				}
+				return true
+			}
+			if (keyCode == GLFW_KEY_HOME) {
+				updateSelectionPos()
+				setCursorPos(0)
+				return true
+			}
+			if (keyCode == GLFW_KEY_END) {
+				updateSelectionPos()
+				setCursorPos(this.text.length)
+				return true
+			}
+			if (keyCode == GLFW_KEY_UP) {
+				updateSelectionPos()
+				moveUp()
+				return true
+			}
+			if (keyCode == GLFW_KEY_DOWN) {
+				updateSelectionPos()
+				moveDown()
+				return true
+			}
+			var moveRight: Boolean
+			if (keyCode == GLFW_KEY_LEFT) {
+				moveRight = true
+				if (Screen.hasShiftDown()) {
+					if (selectionPos < 0) {
+						selectionPos = cursorPos
+					}
+				} else {
+					if (selectionPos > -1) {
+						setCursorPos(this.getSelectionStart())
+						moveRight = false
+					}
+					selectionPos = -1
+				}
+				if (moveRight) {
+					moveLeft()
+				}
+				return true
+			}
+			if (keyCode == GLFW_KEY_RIGHT) {
+				moveRight = true
+				if (Screen.hasShiftDown()) {
+					if (selectionPos < 0) {
+						selectionPos = cursorPos
+					}
+				} else {
+					if (selectionPos > -1) {
+						setCursorPos(this.getSelectionEnd())
+						moveRight = false
+					}
+					selectionPos = -1
+				}
+				if (moveRight) {
+					moveRight()
+				}
+				return true
+			}
+		}
+		return false
+	}
+
+	override fun charTyped(typedChar: Char, p_charTyped_2_: Int): Boolean {
+		return if (isFocused() && SharedConstants.isValidChar(typedChar)) {
+			insert(typedChar.toString())
+			updateVisibleLines()
+			true
+		} else {
+			false
+		}
+	}
+
+	override fun tick() {
+		++cursorCounter
+	}
+
+	private fun toLines(): List<StringVisitable> {
+		return wrapToWidth(this.text, wrapWidth)
+	}
+
+	private fun toLinesWithIndication(): List<WrappedString> {
+		return wrapToWidthWithIndication(this.text, wrapWidth)
+	}
+
+	private fun getLine(line: Int): StringVisitable {
+		return if (line >= 0 && line < toLines().size) toLines()[line] else finalLine
+	}
+
+	val finalLine: StringVisitable
+		get() = getLine(finalLineIndex)
+
+	val currentLine: StringVisitable
+		get() = getLine(cursorY)
+
+	val visibleLines: List<StringVisitable>
+		get() {
+			val lines = toLines()
+			val visibleLines: MutableList<StringVisitable> = ArrayList()
+			for (i in topVisibleLine..bottomVisibleLine) {
+				if (i < lines.size) {
+					visibleLines.add(lines[i])
 				}
 			}
-			strings.add(temp.toString())
-			return strings
+			return visibleLines
 		}
+
+	override fun getText(): String {
+		return this.text
+	}
+
+	override fun setText(newText: String) {
+		if (multiline) {
+			this.text = newText
+		} else {
+			this.text = newText.replace("\n".toRegex(), "")
+		}
+		this.onChanged()
+		updateVisibleLines()
+	}
+
+	private fun onChanged() {
+		if (textChangedListener != null) {
+			textChangedListener!!.accept(this.text)
+		}
+	}
+
+	private val finalLineIndex: Int
+		get() = toLines().size - 1
+
+	private fun cursorIsValid(): Boolean {
+		val y = cursorY
+		return y in (topVisibleLine..bottomVisibleLine)
+	}
+
+	private val renderSafeCursorY: Int
+		get() = cursorY - topVisibleLine
+
+	val absoluteBottomVisibleLine: Int
+		get() = topVisibleLine + (maxVisibleLines - 1)
+
+	private fun getCursorWidth(): Int {
+		val line = currentLine
+		return fontRenderer.getWidth(line.string.substring(0, MathHelper.clamp(cursorX, 0, line.string.length)))
+	}
+
+
+	private fun isWithinBounds(mouseX: Double, mouseY: Double): Boolean {
+		return isMouseOver(mouseX, mouseY)
+	}
+
+	fun atBeginningOfLine(): Boolean {
+		return cursorX == 0
+	}
+
+	fun atEndOfLine(): Boolean {
+		return cursorX == currentLine.string.length
+	}
+
+	private fun atBeginningOfNote(): Boolean {
+		return cursorPos == 0
+	}
+
+	private fun atEndOfNote(): Boolean {
+		return cursorPos >= this.text.length
+	}
+
+	private val visibleLineCount: Int
+		get() = bottomVisibleLine - topVisibleLine + 1
+
+	private fun updateVisibleLines() {
+		while (visibleLineCount <= maxVisibleLines && bottomVisibleLine < finalLineIndex) {
+			++bottomVisibleLine
+		}
+	}
+
+	private fun needsScrollBar(): Boolean {
+		return toLines().size > visibleLineCount
+	}
+
+	override fun getWidth(): Int {
+		return this.width - margin * 2
+	}
+
+	override fun isFocused(): Boolean {
+		return isFocused
+	}
+
+	override fun setFocused(focused: Boolean) {
+		if (focused && !isFocused) {
+			cursorCounter = 0
+		}
+		isFocused = focused
+	}
+
+	private fun isKeyComboCtrlBack(keyCode: Int): Boolean {
+		return keyCode == GLFW_KEY_BACKSPACE && Screen.hasControlDown() && !Screen.hasShiftDown() && !Screen.hasAltDown()
+	}
+
+	private fun insert(newText: String) {
+		deleteSelectedText()
+		val finalText = insertStringAt(filter(newText), this.text, cursorPos)
+		setText(finalText)
+		moveCursorPosBy(newText.length)
+	}
+
+	private fun insertNewLine() {
+		insert('\n'.toString())
+	}
+
+	private fun deleteNext() {
+		val currentText = this.text
+		if (!atEndOfNote() && currentText.isNotEmpty()) {
+			val sb = StringBuilder(currentText)
+			sb.deleteCharAt(cursorPos)
+			setText(sb.toString())
+			--selectionPos
+		}
+	}
+
+	private fun deletePrev() {
+		val currentText = this.text
+		if (!atBeginningOfNote() && currentText.isNotEmpty()) {
+			val sb = StringBuilder(currentText)
+			sb.deleteCharAt(cursorPos - 1)
+			setText(sb.toString())
+			moveLeft()
+		}
+	}
+
+	private fun deletePrevWord() {
+		if (!atBeginningOfNote()) {
+			var prev = this.text[cursorPos - 1]
+			if (prev == ' ') {
+				while (prev == ' ') {
+					deletePrev()
+					if (atBeginningOfNote()) {
+						return
+					}
+					prev = this.text[cursorPos - 1]
+				}
+			} else {
+				while (prev != ' ') {
+					deletePrev()
+					if (atBeginningOfNote()) {
+						return
+					}
+					prev = this.text[cursorPos - 1]
+				}
+			}
+		}
+	}
+
+	private fun deleteSelectedText() {
+		while (selectionDifference > 0) {
+			deletePrev()
+		}
+		while (selectionDifference < 0) {
+			deleteNext()
+		}
+		selectionPos = -1
+	}
+
+	private fun incrementVisibleLines() {
+		if (bottomVisibleLine < finalLineIndex) {
+			++topVisibleLine
+			++bottomVisibleLine
+		}
+	}
+
+	private fun decrementVisibleLines() {
+		if (topVisibleLine > 0) {
+			--topVisibleLine
+			--bottomVisibleLine
+		}
+	}
+
+	private fun countCharacters(maxLineIndex: Int): Int {
+		val wrappedLines = toLinesWithIndication()
+		var count = 0
+		for (i in 0 until maxLineIndex) {
+			val wrappedLine = wrappedLines[i]
+			count += wrappedLine.text.length
+			if (!wrappedLine.isWrapped) {
+				++count
+			}
+		}
+		return count
+	}
+
+	private fun getCursorX(pos: Int): Int {
+		val wrappedLines = toLinesWithIndication()
+		val y = cursorY
+		var currentLineIsWrapped = false
+		var count = 0
+		for (i in 0..y) {
+			if (i < wrappedLines.size) {
+				val wrappedLine = wrappedLines[i]
+				if (i < y) {
+					count += wrappedLine.text.length
+					if (!wrappedLine.isWrapped) {
+						++count
+					}
+				}
+				if (wrappedLine.isWrapped && i == y && i > 0) {
+					currentLineIsWrapped = true
+				}
+			}
+		}
+		if (currentLineIsWrapped) {
+			--count
+		}
+		return pos - count
+	}
+
+	private val cursorX: Int
+		get() = getCursorX(cursorPos)
+
+	private fun getCursorY(pos: Int): Int {
+		val wrappedLines = toLinesWithIndication()
+		var count = 0
+		for (i in wrappedLines.indices) {
+			val wrappedLine = wrappedLines[i]
+			count += wrappedLine.text.length
+			if (!wrappedLine.isWrapped) {
+				++count
+			}
+			if (count > pos) {
+				return i
+			}
+		}
+		return finalLineIndex
+	}
+
+	private val cursorY: Int
+		get() = getCursorY(cursorPos)
+	private val selectionDifference: Int
+		get() = if (selectionPos > -1) cursorPos - selectionPos else 0
+
+	private fun hasSelectionOnLine(line: Int): Boolean {
+		if (selectionPos > -1) {
+			val wrappedLines = toLinesWithIndication()
+			var count = 0
+			for (i in 0..line) {
+				val wrappedLine = wrappedLines[i]
+				for (j in 0 until wrappedLine.text.length) {
+					++count
+					if (line == i && isInSelection(count)) {
+						return true
+					}
+				}
+				if (!wrappedLine.isWrapped) {
+					++count
+				}
+			}
+		}
+		return false
+	}
+
+	private fun setCursorPos(pos: Int) {
+		cursorPos = MathHelper.clamp(pos, 0, this.text.length)
+		if (cursorY > bottomVisibleLine) {
+			incrementVisibleLines()
+		} else if (cursorY < topVisibleLine) {
+			decrementVisibleLines()
+		}
+	}
+
+	private fun moveCursorPosBy(amount: Int) {
+		setCursorPos(cursorPos + amount)
+	}
+
+	private fun moveRight() {
+		if (!atEndOfNote()) {
+			moveCursorPosBy(1)
+		}
+	}
+
+	private fun moveLeft() {
+		if (!atBeginningOfNote()) {
+			moveCursorPosBy(-1)
+		}
+	}
+
+	private fun moveUp() {
+		val width = getCursorWidth()
+		val y = cursorY
+		while (cursorPos > 0 && (cursorY == y || getCursorWidth() > width)) {
+			moveLeft()
+		}
+	}
+
+	private fun moveDown() {
+		val width = getCursorWidth()
+		val y = cursorY
+		while (cursorPos < this.text.length && (cursorY == y || getCursorWidth() < width)) {
+			moveRight()
+		}
+	}
+
+	private fun updateSelectionPos() {
+		if (Screen.hasShiftDown()) {
+			if (selectionPos < 0) {
+				selectionPos = cursorPos
+			}
+		} else {
+			selectionPos = -1
+		}
+	}
+
+	private fun isInSelection(pos: Int): Boolean {
+		return if (selectionPos <= -1) {
+			false
+		} else {
+			pos >= this.getSelectionStart() && pos <= this.getSelectionEnd()
+		}
+	}
+
+	private fun getSelectionStart(): Int {
+		if (selectionPos > -1) {
+			if (selectionPos > cursorPos) {
+				return cursorPos
+			}
+			if (cursorPos > selectionPos) {
+				return selectionPos
+			}
+		}
+		return -1
+	}
+
+
+	private fun getSelectionEnd(): Int {
+		if (selectionPos > -1) {
+			if (selectionPos > cursorPos) {
+				return selectionPos
+			}
+			if (cursorPos > selectionPos) {
+				return cursorPos
+			}
+		}
+		return -1
+	}
+
+
+	override fun getSelectedText(): String {
+		return if (this.getSelectionStart() >= 0 && this.getSelectionEnd() >= 0) this.text.substring(
+			this.getSelectionStart(),
+			this.getSelectionEnd()
+		) else ""
+	}
+
+	private fun drawSelectionBox(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		if (isFocused()) drawBorder(matrixStack, mouseX, mouseY, delta)
+	}
+
+	private fun renderVisibleText(matrixStack: MatrixStack) {
+		var renderY = y + margin
+		for (line in visibleLines) {
+			val language = Language.getInstance()
+			fontRenderer.drawWithShadow(
+				matrixStack,
+				language.reorder(line),
+				(x + margin).toFloat(),
+				renderY.toFloat(),
+				textColor.rgba
+			)
+			renderY += 9
+		}
+	}
+
+	private fun renderCursor(matrixStack: MatrixStack) {
+		val shouldDisplayCursor = isFocused && cursorCounter / 6 % 2 == 0 && cursorIsValid()
+		if (shouldDisplayCursor) {
+			val line = currentLine
+			val renderCursorX = x + margin + fontRenderer.getWidth(
+				line.string.substring(
+					0, MathHelper.clamp(
+						cursorX, 0, line.string.length
+					)
+				)
+			)
+			val y1 = y + margin
+			val y2 = renderSafeCursorY
+			val renderCursorY = y1 + y2 * 9
+			drawRect(matrixStack, renderCursorX, renderCursorY - 0.5, 1, fontRenderer.fontHeight, cursorColor)
+		}
+	}
+
+
+	override fun appendNarrations(builder: NarrationMessageBuilder) {}
+	override fun getType(): Selectable.SelectionType {
+		return Selectable.SelectionType.FOCUSED
+	}
+
+	class WrappedString(val text: String, private val wrapped: Boolean) {
+		val isWrapped: Boolean
+			get() = this.wrapped
+	}
+
+
+	private fun insertStringAt(insert: String, insertTo: String, pos: Int): String {
+		return insertTo.substring(0, pos) + insert + insertTo.substring(pos)
+	}
+
+	private fun filter(s: String): String {
+		var filtered = s.replace('\t'.toString(), "    ")
+		for (c in FILTER_CHARS) {
+			filtered = filtered.replace(c.toString(), "")
+		}
+		return filtered
+	}
+
+	private fun wrapToWidthWithIndication(str: String, wrapWidth: Int): List<WrappedString> {
+		val strings: MutableList<WrappedString> = ArrayList()
+		var temp = StringBuilder()
+		var wrapped = false
+		for (element in str) {
+			if (element == '\n') {
+				strings.add(WrappedString(temp.toString(), wrapped))
+				temp = StringBuilder()
+				wrapped = false
+			} else {
+				val text = temp.toString()
+				if (fontRenderer.getWidth(text + element) >= wrapWidth) {
+					strings.add(WrappedString(temp.toString(), wrapped))
+					temp = StringBuilder()
+					wrapped = true
+				}
+			}
+			if (element != '\n') {
+				temp.append(element)
+			}
+		}
+		strings.add(WrappedString(temp.toString(), wrapped))
+		return strings
+	}
+
+	private fun wrapToWidth(str: String, wrapWidth: Int): MutableList<StringVisitable> {
+		val strings: MutableList<StringVisitable> = ArrayList()
+		var temp = StringBuilder()
+		for (element in str) {
+			run {
+				if (element != '\n') {
+					val text = temp.toString()
+					if (fontRenderer.getWidth(text + element) < wrapWidth) {
+						return@run
+					}
+				}
+				strings.add(LiteralText(temp.toString()))
+				temp = StringBuilder()
+			}
+			if (element != '\n') {
+				temp.append(element)
+			}
+		}
+		strings.add(LiteralText(temp.toString()))
+		return strings
+	}
+
+	init {
+		this.width = width
+		this.height = height
+		this.margin = margin
+		this.multiline = multiline
+		this.text = ""
+		val var10001 = height.toFloat() - margin.toFloat() * 2.0f
+		Objects.requireNonNull(fontRenderer)
+		maxVisibleLines = MathHelper.floor(var10001 / 9.0f) - 1
+		wrapWidth = width - margin * 2
+		selectionPos = -1
 	}
 }

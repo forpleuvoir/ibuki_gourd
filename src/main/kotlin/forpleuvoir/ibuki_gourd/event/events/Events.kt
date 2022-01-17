@@ -1,6 +1,11 @@
 package forpleuvoir.ibuki_gourd.event.events
 
+import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.event.Event
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
+import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 
 
 /**
@@ -19,6 +24,7 @@ import forpleuvoir.ibuki_gourd.event.Event
  */
 object Events {
 	private val events = HashSet<Class<out Event>>()
+	private val descriptions = HashMap<Class<out Event>, Text>()
 
 	init {
 		register(ClientStartTickEvent::class.java)
@@ -33,8 +39,20 @@ object Events {
 	}
 
 	@JvmStatic
-	fun <E : Event> register(event: Class<out E>) {
+	fun <E : Event> register(event: Class<out E>, modInfo: ModInfo) {
 		events.add(event)
+		descriptions[event] = translate(modInfo, event)
+	}
+
+	@JvmStatic
+	fun <E : Event> register(event: Class<out E>, description: Text) {
+		events.add(event)
+		descriptions[event] = description
+	}
+
+	private fun <E : Event> register(event: Class<out E>) {
+		events.add(event)
+		descriptions[event] = translate(event)
 	}
 
 	fun getEvents(): Collection<Class<out Event>> {
@@ -51,7 +69,23 @@ object Events {
 		return events.find { it.simpleName == name }
 	}
 
+	fun getDescription(eventType: Class<out Event>): Text? {
+		return descriptions[eventType]
+	}
+
+	fun getDescription(eventType: String): Text? {
+		return descriptions[getEventByName(eventType)]
+	}
+
 	fun getEventName(eventType: Class<out Event>): String {
 		return eventType.simpleName
+	}
+
+	private fun translate(key: Class<out Event>): TranslatableText {
+		return "${IbukiGourdMod.modId}.event.description.${key.simpleName}".tText()
+	}
+
+	fun translate(modInfo: ModInfo, key: Class<out Event>): TranslatableText {
+		return "${modInfo.modId}.event.description.${key.simpleName}".tText()
 	}
 }

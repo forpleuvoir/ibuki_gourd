@@ -3,7 +3,8 @@ package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.common.PositionParentWidget
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutline
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
@@ -13,7 +14,7 @@ import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.math.MathHelper
+import net.minecraft.text.Text
 
 
 /**
@@ -56,6 +57,20 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 
 	private var onHoverCallback: ((E) -> Unit)? = null
 	private var hoverCallback: ((E) -> Unit)? = null
+	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
+
+	fun setHoverTexts(vararg texts: Text) {
+		hoverTexts.clear()
+		hoverTexts.addAll(texts)
+	}
+
+	fun addHoverText(vararg texts: Text) {
+		hoverTexts.addAll(texts)
+	}
+
+	fun clearHoverText() {
+		hoverTexts.clear()
+	}
 
 	var onClickedCallback: ((mouseX: Double, mouseY: Double, button: Int) -> Boolean)? = null
 
@@ -78,7 +93,10 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		if (hovered && hoverCallbacks) {
 			onHoverCallback?.invoke(this as E)
 		}
-		if (hovered) hoverCallback?.invoke(this as E)
+		if (hovered) {
+			hoverCallback?.invoke(this as E)
+			renderHoverText(matrices, mouseX, mouseY, delta)
+		}
 
 	}
 
@@ -94,16 +112,14 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 
 	abstract fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float)
 
+	protected open fun renderHoverText(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+		if (ScreenBase.isCurrent(parent))
+			ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
+	}
+
 	protected open fun renderBackground(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		updateBgOpacity(if (hovered) delta * bgOpacityDelta else -delta * bgOpacityDelta)
-		RenderUtil.drawRect(
-			x = x,
-			y = y,
-			width = this.width,
-			height = this.height,
-			bgColor.apply { alpha = bgOpacity },
-			parentWidget.parent.zOffset
-		)
+		drawRect(matrices, x, y, width, height, bgColor.apply { alpha = bgOpacity })
 	}
 
 	protected open fun updateBgOpacity(delta: Float) {
@@ -115,13 +131,12 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 
 	protected open fun renderBorder(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		if (ScreenBase.isCurrent(parentWidget.parent))
-			RenderUtil.drawOutline(this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE, zLevel = parentWidget.parent.zOffset)
+			drawOutline(matrices, this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE)
 	}
 
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
 		if (!active) return false
 		this.focused?.mouseReleased(mouseX, mouseY, button)
-		//children().forEach { it.mouseReleased(mouseX, mouseY, button) }
 		return false
 	}
 

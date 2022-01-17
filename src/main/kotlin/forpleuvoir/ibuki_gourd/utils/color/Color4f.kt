@@ -1,7 +1,6 @@
 package forpleuvoir.ibuki_gourd.utils.color
 
 import com.google.gson.JsonElement
-import java.awt.Color
 
 
 /**
@@ -48,11 +47,11 @@ class Color4f(
 		val WHITE get() = Color4f(1f, 1f, 1f, 1f)
 		val BLACK get() = Color4f(0f, 0f, 0f, 1f)
 		val RED get() = Color4f(1f, 0f, 0f, 1f)
-		val YELLOW get() = Color4f(0.5f, 0.5f, 0f, 1f)
+		val YELLOW get() = Color4f(1f, 1f, 0f, 1f)
 		val GREEN get() = Color4f(0f, 1f, 0f, 1f)
-		val CYAN get() = Color4f(0f, 0.5f, 0.5f, 1f)
+		val CYAN get() = Color4f(0f, 1f, 1f, 1f)
 		val BLUE get() = Color4f(0f, 0f, 1f, 1f)
-		val MAGENTA get() = Color4f(0.5f, 0f, 0.5f, 1f)
+		val MAGENTA get() = Color4f(1f, 0f, 1f, 1f)
 	}
 
 	override val rgba: Int

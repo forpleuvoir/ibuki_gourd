@@ -72,11 +72,11 @@ class Color4i(
 	companion object {
 		val WHITE get() = Color4i(255, 255, 255, 255)
 		val RED get() = Color4i(255, 0, 0, 255)
-		val YELLOW get() = Color4i(127, 127, 0, 255)
+		val YELLOW get() = Color4i(255, 255, 0, 255)
 		val GREEN get() = Color4i(0, 255, 0, 255)
-		val CYAN get() = Color4i(0, 127, 127, 255)
+		val CYAN get() = Color4i(0, 255, 255, 255)
 		val BLUE get() = Color4i(0, 0, 255, 255)
-		val MAGENTA get() = Color4i(127, 0, 127, 255)
+		val MAGENTA get() = Color4i(255, 0, 255, 255)
 		val BLACK get() = Color4i(0, 0, 0, 255)
 	}
 

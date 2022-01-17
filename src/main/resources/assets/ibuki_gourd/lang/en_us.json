@@ -31,9 +31,18 @@
   "ibuki_gourd.config.values.remark": "Values",
   "ibuki_gourd.config.set_from_json_failed": "Failed to set config value for '%s' from the JSON element '%s'",
   "ibuki_gourd.white_list.white_list": "White List",
-  "ibuki_gourd.white_list.black_list":"Black List",
+  "ibuki_gourd.white_list.black_list": "Black List",
   "ibuki_gourd.white_list.none": "None",
   "ibuki_gourd.white_list.white_list.remark": "Only match options in the list",
-  "ibuki_gourd.white_list.black_list.remark":"Does not match the options in the list",
-  "ibuki_gourd.white_list.none.remark": "None"
+  "ibuki_gourd.white_list.black_list.remark": "Does not match the options in the list",
+  "ibuki_gourd.white_list.none.remark": "None",
+  "ibuki_gourd.event.description.ClientStartTickEvent": "ClientStartTickEvent",
+  "ibuki_gourd.event.description.ClientEndTickEvent": "ClientEndTickEvent",
+  "ibuki_gourd.event.description.ClientStartEvent": "ClientStartEvent",
+  "ibuki_gourd.event.description.ClientStopEvent": "ClientStopEvent",
+  "ibuki_gourd.event.description.KeyPressEvent": "KeyPressEvent",
+  "ibuki_gourd.event.description.KeyReleaseEvent": "KeyReleaseEvent",
+  "ibuki_gourd.event.description.MousePressEvent": "MousePressEvent",
+  "ibuki_gourd.event.description.MouseReleaseEvent": "MouseReleaseEvent",
+  "ibuki_gourd.event.description.GameInitialized": "GameInitialized"
 }

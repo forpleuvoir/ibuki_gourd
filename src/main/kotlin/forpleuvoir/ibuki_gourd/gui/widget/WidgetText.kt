@@ -2,7 +2,6 @@ package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.Text
@@ -22,7 +21,7 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-open class WidgetText(x: Int, y: Int, width: Int, height: Int, text: Text?) :
+open class WidgetText(x: Int, y: Int, width: Int, height: Int, text: Text? = null) :
 	TextFieldWidget(MinecraftClient.getInstance().textRenderer, x, y, width, height, text), IPositionElement {
 	var unFocusedCallback: ((WidgetText) -> Unit)? = null
 

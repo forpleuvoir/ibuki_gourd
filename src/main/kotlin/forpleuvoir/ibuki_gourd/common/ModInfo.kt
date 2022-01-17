@@ -36,9 +36,7 @@ interface ModInfo {
 	 * 获取Mod版本
 	 * @return String Mod版本
 	 */
-	val version: () -> String
-		get() = {
-			FabricLoader.getInstance().getModContainer(modId).get().metadata.version.friendlyString
-		}
+	val version: String
+		get() = FabricLoader.getInstance().getModContainer(modId).get().metadata.version.friendlyString
 
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
+import net.minecraft.text.Text
 import java.util.function.Function
 
 
@@ -29,6 +30,7 @@ open class WidgetDropList<E>(
 	private val default: E,
 	private val stringAdapter: Function<E, String>,
 	private val entryAdapter: Function<String, E>,
+	private val hoverTextAdapter: Function<String, List<Text>> = Function { emptyList() },
 	parent: Screen,
 	private val pageSize: Int,
 	private val itemHeight: Int,
@@ -72,6 +74,9 @@ open class WidgetDropList<E>(
 		this.itemHeight,
 		this.width
 	).apply {
+		allChildren().forEach {
+			it.setHoverTexts(*hoverTextAdapter.apply(it.value).toTypedArray())
+		}
 		scrollbar.holdVisible = true
 		renderBord = true
 		renderBackground = true

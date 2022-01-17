@@ -89,7 +89,8 @@ object EventBus {
 		} else false
 	}
 
-	fun registerEventsListener(@NotNull subscriber: Subscriber) {
+	@JvmStatic
+	fun registerSubscriber(@NotNull subscriber: Subscriber) {
 		subscriber.subscribe(this)
 	}
 
