@@ -4,7 +4,7 @@ import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
-import java.util.function.Consumer
+import java.util.function.Function
 
 
 /**
@@ -26,10 +26,9 @@ open class DialogConfirm(
 	dialogHeight: Int,
 	title: Text,
 	parent: Screen?,
-	protected val confirmCallback: Consumer<DialogConfirm>?,
-	protected val cancelCallback: Consumer<DialogConfirm>?
-) :
-	DialogBase<DialogConfirm>(dialogWidth, dialogHeight, title, parent) {
+	protected open var confirmCallback: Function<DialogConfirm, Boolean> = Function { true },
+	protected open var cancelCallback: Function<DialogConfirm, Boolean> = Function { true }
+) : DialogBase<DialogConfirm>(dialogWidth, dialogHeight, title, parent) {
 
 	private val buttonMargin: Int
 		get() = 10
@@ -46,10 +45,10 @@ open class DialogConfirm(
 
 	private lateinit var cancel: Button
 
-	protected val buttonWidth: Int
+	protected open val buttonWidth: Int
 		get() = this.dialogWidth / 2 - this.buttonMargin * 2
 
-	protected val buttonHeight: Int
+	protected open val buttonHeight: Int
 		get() = 20
 
 	private fun initButton() {
@@ -60,8 +59,10 @@ open class DialogConfirm(
 			buttonHeight,
 			IbukiGourdLang.Confirm.tText()
 		) {
-			confirmCallback?.accept(this)
-			this.onClose()
+			if (confirmCallback.apply(this)) {
+				this.onClose()
+				return@Button
+			}
 		}
 		this.cancel = Button(
 			this.x + this.dialogWidth / 2 - buttonWidth - this.buttonMargin,
@@ -70,8 +71,10 @@ open class DialogConfirm(
 			buttonHeight,
 			IbukiGourdLang.Cancel.tText()
 		) {
-			cancelCallback?.accept(this)
-			this.onClose()
+			if (cancelCallback.apply(this)) {
+				this.onClose()
+				return@Button
+			}
 		}
 		this.addDrawableChild(confirm)
 		this.addDrawableChild(cancel)

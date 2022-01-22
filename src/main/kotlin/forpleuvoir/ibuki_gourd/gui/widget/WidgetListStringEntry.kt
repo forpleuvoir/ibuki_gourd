@@ -4,7 +4,6 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.math.MathHelper
 
 
 /**
@@ -24,7 +23,8 @@ import net.minecraft.util.math.MathHelper
 class WidgetListStringEntry(val value: String, parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int) :
 	WidgetListEntry<WidgetListStringEntry>(parent, x, y, width, height) {
 
-	private val text = LabelText(value.text, this.x, this.y, this.width, this.height, align = LabelText.Align.CENTER_LEFT)
+	private val text =
+		LabelText(value.text, this.x, this.y, this.width, this.height, align = LabelText.Align.CENTER_LEFT)
 
 	private val isOdd: Boolean get() = index % 2 == 1
 
@@ -47,5 +47,6 @@ class WidgetListStringEntry(val value: String, parent: WidgetList<*>, x: Int, y:
 	}
 
 	override fun resize() {
+		this.text.width = this.width
 	}
 }

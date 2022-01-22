@@ -36,7 +36,8 @@ class DialogColorEditor(
 ) : DialogConfirm(dialogWidth, dialogHeight, title, parent, {
 	it as DialogColorEditor
 	onApply.invoke(it.color)
-}, null) {
+	true
+}) {
 
 
 	private lateinit var red: WidgetSliderNumber

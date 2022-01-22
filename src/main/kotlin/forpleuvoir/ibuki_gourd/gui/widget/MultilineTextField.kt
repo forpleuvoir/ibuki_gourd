@@ -17,7 +17,6 @@ import net.minecraft.text.LiteralText
 import net.minecraft.text.StringVisitable
 import net.minecraft.util.Language
 import net.minecraft.util.math.MathHelper
-import java.util.*
 import java.util.function.Consumer
 
 
@@ -64,6 +63,18 @@ open class MultilineTextField(
 	private var cursorPos = 0
 	private var selectionPos: Int
 
+	init {
+		this.width = width
+		this.height = height
+		this.margin = margin
+		this.multiline = multiline
+		this.text = ""
+		val contentHeight = height.toFloat() - margin.toFloat() * 2.0f
+		maxVisibleLines = MathHelper.floor(contentHeight / fontHeight) - 1
+		wrapWidth = width - margin * 2
+		selectionPos = -1
+	}
+
 	var backgroundColor: IColor<out Number> = Color4f.BLACK
 	var borderColor: IColor<out Number> = Color4f.WHITE
 	var textColor: IColor<out Number> = Color4i(224, 224, 224)
@@ -74,8 +85,8 @@ open class MultilineTextField(
 		y = this.y + margin,
 		width = 4,
 		height = this.height - margin * 2,
-		maxScroll = { toLines().size * fontHeight },
-		percent = { visibleLineCount.toDouble() / toLines().size }
+		maxScroll = { 0.coerceAtLeast(toLines().size * fontHeight - maxVisibleLines * fontHeight) },
+		percent = { maxVisibleLines.toDouble() / toLines().size }
 	).apply { this.holdVisible = true }
 
 	fun setTextChangedListener(textChangedListener: Consumer<String>?) {
@@ -94,9 +105,6 @@ open class MultilineTextField(
 		drawRect(matrixStack, x, y, width, height, backgroundColor)
 	}
 
-	protected open fun drawBorder(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		drawOutline(matrixStack, x, y, width, height, 1, borderColor)
-	}
 
 	override fun mouseClicked(mouseX: Double, mouseY: Double, mouseButton: Int): Boolean {
 		val isWithinBounds = isWithinBounds(mouseX, mouseY)
@@ -312,9 +320,7 @@ open class MultilineTextField(
 	}
 
 	private fun onChanged() {
-		if (textChangedListener != null) {
-			textChangedListener!!.accept(this.text)
-		}
+		textChangedListener?.accept(this.text)
 	}
 
 	private val finalLineIndex: Int
@@ -409,6 +415,7 @@ open class MultilineTextField(
 			--selectionPos
 		}
 	}
+
 
 	private fun deletePrev() {
 		val currentText = this.text
@@ -642,7 +649,8 @@ open class MultilineTextField(
 	}
 
 	private fun drawSelectionBox(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (isFocused()) drawBorder(matrixStack, mouseX, mouseY, delta)
+		if (isFocused()) drawOutline(matrixStack, x, y, width, height, 1, borderColor)
+		else drawOutline(matrixStack, x, y, width, height, 1, borderColor.opacity(0.5))
 	}
 
 	private fun renderVisibleText(matrixStack: MatrixStack) {
@@ -749,16 +757,5 @@ open class MultilineTextField(
 		return strings
 	}
 
-	init {
-		this.width = width
-		this.height = height
-		this.margin = margin
-		this.multiline = multiline
-		this.text = ""
-		val var10001 = height.toFloat() - margin.toFloat() * 2.0f
-		Objects.requireNonNull(fontRenderer)
-		maxVisibleLines = MathHelper.floor(var10001 / 9.0f) - 1
-		wrapWidth = width - margin * 2
-		selectionPos = -1
-	}
+
 }

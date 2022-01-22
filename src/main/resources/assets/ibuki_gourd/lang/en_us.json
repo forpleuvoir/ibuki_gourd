@@ -9,6 +9,8 @@
   "ibuki_gourd.off": "§cOff§r",
   "ibuki_gourd.confirm": "Confirm",
   "ibuki_gourd.cancel": "Cancel",
+  "ibuki_gourd.post": "Post",
+  "ibuki_gourd.add": "Add",
   "ibuki_gourd.delete": "Delete",
   "ibuki_gourd.update": "Update",
   "ibuki_gourd.apply": "Apply",
@@ -25,10 +27,10 @@
   "ibuki_gourd.rest": "Rest",
   "ibuki_gourd.save": "Save",
   "ibuki_gourd.key_environment": "KeyEnvironment",
-  "ibuki_gourd.config.toggles": "Toggles",
-  "ibuki_gourd.config.toggles.remark": "Toggles",
-  "ibuki_gourd.config.values": "Values",
-  "ibuki_gourd.config.values.remark": "Values",
+  "ibuki_gourd.config.setting": "Setting",
+  "ibuki_gourd.config.setting.remark": "Setting",
+  "ibuki_gourd.config.open_gui": "Open GUI",
+  "ibuki_gourd.config.open_gui.remark": "Open this screen",
   "ibuki_gourd.config.set_from_json_failed": "Failed to set config value for '%s' from the JSON element '%s'",
   "ibuki_gourd.white_list.white_list": "White List",
   "ibuki_gourd.white_list.black_list": "Black List",
@@ -44,5 +46,5 @@
   "ibuki_gourd.event.description.KeyReleaseEvent": "KeyReleaseEvent",
   "ibuki_gourd.event.description.MousePressEvent": "MousePressEvent",
   "ibuki_gourd.event.description.MouseReleaseEvent": "MouseReleaseEvent",
-  "ibuki_gourd.event.description.GameInitialized": "GameInitialized"
+  "ibuki_gourd.event.description.GameInitializedEvent": "GameInitializedEvent"
 }

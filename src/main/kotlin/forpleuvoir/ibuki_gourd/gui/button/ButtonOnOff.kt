@@ -4,8 +4,6 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
-import net.minecraft.util.Formatting
 
 
 /**
@@ -41,6 +39,7 @@ class ButtonOnOff(
 
 	private var onCallback: ((ButtonOnOff) -> Unit)? = null
 	private var offCallback: ((ButtonOnOff) -> Unit)? = null
+	private var callback: ((ButtonOnOff, Boolean) -> Unit)? = null
 
 	constructor(x: Int, y: Int, status: Boolean) : this(
 		x = x, y = y,
@@ -63,22 +62,28 @@ class ButtonOnOff(
 		message = if (status) on else off
 	}
 
-	private fun setOnOffText(on: Text = this.on, off: Text = this.off) {
+	fun setOnOffText(on: Text = this.on, off: Text = this.off) {
 		this.on = on
 		this.off = off
+		updateText()
 	}
 
 
 	private fun toggle(button: ButtonOnOff) {
 		status = !status
 		updateText()
-		if (status) onCallback?.invoke(this)
-		else offCallback?.invoke(this)
+		if (status) onCallback?.invoke(button)
+		else offCallback?.invoke(button)
+		callback?.invoke(button, status)
 	}
 
 
 	fun getStatus(): Boolean {
 		return status
+	}
+
+	fun setCallback(callback: (ButtonOnOff, Boolean) -> Unit) {
+		this.callback = callback
 	}
 
 	fun setOnCallback(onCallback: (ButtonOnOff) -> Unit) {

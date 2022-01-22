@@ -30,10 +30,10 @@ class Color4f(
 
 
 	override val hexString: String
-		get() = "#${(red * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase()}" +
-				(green * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
-				(blue * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
-				(alpha * 255).toInt().toString(16).run { if (this == "0") return@run "00" else this }.uppercase()
+		get() = "#${(red * 255).toInt().toString(16).run { formatStr(this) }}" +
+				(green * 255).toInt().toString(16).run { formatStr(this) } +
+				(blue * 255).toInt().toString(16).run { formatStr(this) } +
+				(alpha * 255).toInt().toString(16).run { formatStr(this) }
 
 	init {
 		fixAllValue()

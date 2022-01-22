@@ -4,10 +4,6 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.common.IJsonData
 import forpleuvoir.ibuki_gourd.utils.clamp
-import net.minecraft.util.math.MathHelper
-import java.awt.Color.red
-import kotlin.math.max
-import kotlin.math.min
 
 
 /**
@@ -44,7 +40,12 @@ interface IColor<T : Number> : IJsonData {
 	fun alpha(alpha: T): IColor<T> {
 		return fromInt(this.rgba(alpha))
 	}
-	fun opacity(opacity: Double):IColor<T>
+
+	fun opacity(opacity: Double): IColor<T>
+
+	fun formatStr(str: String): String {
+		return (if (str == "0") "00" else if (str.length == 1) "0$str" else str).uppercase()
+	}
 
 	override val asJsonElement: JsonElement
 		get() {

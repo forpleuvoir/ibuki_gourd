@@ -9,6 +9,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 import forpleuvoir.ibuki_gourd.gui.widget.MultilineTextField
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetIntInput
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
@@ -85,6 +86,7 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		)
 		val bt = Button(120, buttonOnOff.y + 10, Text.of("get")) { bt ->
 			dropList.current?.let { bt.message = it.simpleName.text }
+			openScreen(ScreenGameOfLife().apply { parent = this@ScreenTest })
 		}
 		dropList.toggleCallback = {
 			bt.message = it!!.simpleName.text
@@ -97,6 +99,11 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 				stringBuilder.append("$i 超长的文本啊啊啊啊啊啊啊啊啊啊啊${if (i != 30) '\n' else ""}")
 			}
 			text = stringBuilder.toString()
+		})
+		this.addDrawableChild(WidgetIntInput(120, 220, 45, 16, 0, -10).apply {
+			setOnValueChangedCallback {
+				bt.message = it.toString().text
+			}
 		})
 	}
 }

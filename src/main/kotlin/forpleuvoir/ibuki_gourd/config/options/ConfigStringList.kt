@@ -3,17 +3,17 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.common.collect.ImmutableList
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigStringList
-import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigOptions
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.widget.ClickableWidget
+import net.minecraft.text.Text
 
 
 /**
@@ -71,12 +71,8 @@ class ConfigStringList(
 	}
 
 	override val asJsonElement: JsonElement
-		get() {
-			val arr = JsonArray()
-			value.forEach {
-				arr.add(JsonPrimitive(it))
-			}
-			return arr
+		get() = JsonArray().apply {
+			value.forEach(::add)
 		}
 
 	override val isDefaultValue: Boolean
@@ -125,9 +121,23 @@ class ConfigStringList(
 	}
 
 	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigStringList> {
+		val str = StringBuilder("[")
+		for (i in 0 until getValue().size) {
+			if (getValue()[i] != "" && i != 0) str.append(",")
+			if (mc.textRenderer.getWidth("$str${getValue()[i]}]") > width) {
+				str.append("...")
+				break
+			}
+			str.append(getValue()[i])
+		}
+		str.append("]")
+		val hoverTexts = ArrayList<Text>()
+		getValue().forEach {
+			hoverTexts.add(mc.textRenderer.trimToWidth(it, 360).text)
+		}
 		return object : ConfigWrapper<ConfigStringList>(this, x, y, width, height) {
 			override fun initWidget() {
-				addDrawableChild(Button(x = x, y = y, width = width, height = height, message = config.displayName) {
+				addDrawableChild(Button(x = x, y = y, width = width, height = height, message = str.toString().text) {
 					ScreenBase.openScreen(
 						DialogConfigStringList(
 							config = config,
@@ -135,7 +145,7 @@ class ConfigStringList(
 							parent = MinecraftClient.getInstance().currentScreen
 						)
 					)
-				})
+				}.apply { setHoverText(hoverTexts) })
 			}
 		}
 	}

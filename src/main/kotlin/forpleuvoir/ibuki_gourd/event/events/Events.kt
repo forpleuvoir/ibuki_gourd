@@ -23,7 +23,7 @@ import net.minecraft.text.TranslatableText
 
  */
 object Events {
-	private val events = HashSet<Class<out Event>>()
+	private val events = LinkedHashSet<Class<out Event>>()
 	private val descriptions = HashMap<Class<out Event>, Text>()
 
 	init {
@@ -35,7 +35,7 @@ object Events {
 		register(KeyReleaseEvent::class.java)
 		register(MousePressEvent::class.java)
 		register(MouseReleaseEvent::class.java)
-		register(GameInitialized::class.java)
+		register(GameInitializedEvent::class.java)
 	}
 
 	@JvmStatic

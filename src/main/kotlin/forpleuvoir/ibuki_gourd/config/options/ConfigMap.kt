@@ -6,13 +6,14 @@ import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigMap
-import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import forpleuvoir.ibuki_gourd.utils.toJsonObject
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.widget.ClickableWidget
+import forpleuvoir.ibuki_gourd.utils.JsonUtil.toJsonObject
+import forpleuvoir.ibuki_gourd.utils.text
+
+import net.minecraft.text.Text
 
 
 /**
@@ -35,7 +36,7 @@ class ConfigMap(
 	override val defaultValue: Map<String, String>
 ) : ConfigBase(), IConfigBaseValue<Map<String, String>> {
 
-	private val value: HashMap<String, String> = HashMap(defaultValue)
+	private val value: LinkedHashMap<String, String> = LinkedHashMap(defaultValue)
 
 	override val type: ConfigType
 		get() = ConfigType.MAP
@@ -128,6 +129,10 @@ class ConfigMap(
 	}
 
 	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigMap> {
+		val hoverTexts = ArrayList<Text>()
+		getValue().forEach {
+			hoverTexts.add(mc.textRenderer.trimToWidth("${it.key}:${it.value}", 360).text)
+		}
 		return object : ConfigWrapper<ConfigMap>(this, x, y, width, height) {
 			override fun initWidget() {
 				addDrawableChild(Button(x = x, y = 0, width = width, height = height, message = config.displayName) {
@@ -138,7 +143,7 @@ class ConfigMap(
 							parent = ScreenBase.current
 						)
 					)
-				})
+				}.apply { setHoverText(hoverTexts) })
 			}
 		}
 	}

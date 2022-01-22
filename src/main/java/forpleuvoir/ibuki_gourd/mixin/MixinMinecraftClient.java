@@ -30,7 +30,7 @@ public abstract class MixinMinecraftClient {
 	 */
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void onInitialized(RunArgs args, CallbackInfo callbackInfo) {
-		new GameInitialized().broadcast();
+		new GameInitializedEvent().broadcast();
 	}
 
 	/**

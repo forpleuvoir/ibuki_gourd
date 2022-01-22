@@ -29,6 +29,8 @@ enum class IbukiGourdLang(override val key:String): ModLang {
 	Off("off"),
 	Confirm("confirm"),
 	Cancel("cancel"),
+	Post("post"),
+	Add("add"),
 	Delete("delete"),
 	Update("update"),
 	Apply("apply"),

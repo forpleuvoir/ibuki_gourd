@@ -32,7 +32,7 @@ interface ModLang {
 }
 
 fun String.tText(vararg args: Any?): TranslatableText {
-	return TranslatableText(this, args)
+	return TranslatableText(this, *args)
 }
 
 fun String.tString(vararg args: Any?): String {

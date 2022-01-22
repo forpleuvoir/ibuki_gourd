@@ -2,18 +2,12 @@ package forpleuvoir.ibuki_gourd.mod.initialize
 
 import forpleuvoir.ibuki_gourd.common.IModInitialize
 import forpleuvoir.ibuki_gourd.config.ConfigManager
-import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
 import forpleuvoir.ibuki_gourd.event.EventBus
-import forpleuvoir.ibuki_gourd.event.events.GameInitialized
-import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
+import forpleuvoir.ibuki_gourd.event.events.GameInitializedEvent
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
-import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
 import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs
-import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.util.InputUtil
 
 /**
  * Mod初始化
@@ -35,7 +29,7 @@ object IbukiGourdInitialize : IModInitialize {
 
 	override fun initialize() {
 		log.info("${IbukiGourdMod.modName} initializing...")
-		EventBus.subscribe<GameInitialized> { onGameInitialized() }
+		EventBus.subscribe<GameInitializedEvent> { onGameInitialized() }
 		ScreenInitialize.initialize()
 		ConfigManager.register(IbukiGourdMod,IbukiGourdConfigs)
 		log.info("${IbukiGourdMod.modName} Initialized...")

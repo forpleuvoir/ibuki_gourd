@@ -31,10 +31,10 @@ class Color4i(
 	}
 
 	override val hexString: String
-		get() = "#${red.toString(16).run { if (this == "0") return@run "00" else this }.uppercase()}" +
-				green.toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
-				blue.toString(16).run { if (this == "0") return@run "00" else this }.uppercase() +
-				alpha.toString(16).run { if (this == "0") return@run "00" else this }.uppercase()
+		get() = "#${red.toString(16).run { formatStr(this) }}" +
+				green.toString(16).run { formatStr(this) } +
+				blue.toString(16).run { formatStr(this) } +
+				alpha.toString(16).run { formatStr(this) }
 
 	init {
 		fixAllValue()

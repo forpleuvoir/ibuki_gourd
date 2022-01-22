@@ -19,3 +19,9 @@ import net.minecraft.text.Text
 
 val String.text: Text
 	get() = Text.of(this)
+
+/**
+ * 替换 & 字符为格式符号 § 的Text
+ */
+val String.fText: Text
+	get() = Text.of(this.replace("&", "§"))

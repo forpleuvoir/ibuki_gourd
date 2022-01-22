@@ -9,6 +9,7 @@ group = project.maven_group
 
 repositories {
     maven { url "https://maven.terraformersmc.com/" }
+    mavenLocal()
 }
 
 dependencies {
@@ -62,6 +63,7 @@ jar {
         rename { "${it}_${project.archivesBaseName}" }
     }
 }
+
 
 // configure the maven publication
 publishing {

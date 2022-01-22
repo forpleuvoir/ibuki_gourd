@@ -1,13 +1,11 @@
 package forpleuvoir.ibuki_gourd.gui.icon
 
 import com.mojang.blaze3d.systems.RenderSystem
-import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
-
 
 /**
  *
@@ -16,36 +14,33 @@ import net.minecraft.util.Identifier
 
  * 包名 forpleuvoir.ibuki_gourd.gui.icon
 
- * 文件名 Icon
+ * 文件名 ArrowIcon
 
- * 创建时间 2021/12/24 20:47
+ * 创建时间 2022/1/20 15:32
 
  * @author forpleuvoir
 
  */
-enum class Icon(
+
+enum class ArrowIcon(
 	override val u: Int,
 	override val v: Int,
-	override val width: Int = 16,
-	override val height: Int = 16,
+	override val width: Int,
+	override val height: Int,
 	override val hoverU: Int = u,
-	override val hoverV: Int = v + 16,
+	override val hoverV: Int = v,
 	override val textureWidth: Int = 256,
 	override val textureHeight: Int = 256
 ) : IIcon {
-	SETTING(0, 0),
-	PLUS(16, 0),
-	MINUS(32, 0),
-	SEARCH(48, 0),
-	CLOSE(64, 0),
-	SAVE(80, 0),
-	SWITCH(96, 0),
+	Right(12, 5, 22, 22, 12, 37),
+	Left(30, 5, 22, 22, 30, 37),
+	Up(97, 1, 15, 15, 97, 33),
+	Down(65, 16, 15, 15, 65, 48)
 	;
 
 	companion object {
-		val TEXTURE = Identifier(IbukiGourdMod.modId, "textures/gui/icon/gui_icons.png")
+		val TEXTURE = Identifier("textures/gui/server_selection.png")
 	}
-
 
 	override fun render(
 		matrices: MatrixStack,
@@ -64,8 +59,7 @@ enum class Icon(
 			hoveredColor.green,
 			hoveredColor.blue,
 			hoveredColor.alpha
-		)
-		else RenderSystem.setShaderColor(color.red, color.green, color.blue, color.alpha)
+		) else RenderSystem.setShaderColor(color.red, color.green, color.blue, color.alpha)
 		RenderSystem.enableBlend()
 		RenderSystem.defaultBlendFunc()
 		RenderSystem.enableDepthTest()
@@ -99,6 +93,4 @@ enum class Icon(
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
 		RenderSystem.disableTexture()
 	}
-
-
 }

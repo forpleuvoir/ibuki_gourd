@@ -51,8 +51,8 @@ object JsonUtil {
 	 * @param json 需要转换的对象
 	 * @return json字符串
 	 */
-	fun toJsonStr(json: Any?): String {
-		return gson.toJson(json)
+	fun Any.toJsonStr(): String {
+		return gson.toJson(this)
 	}
 
 	/**
@@ -61,15 +61,16 @@ object JsonUtil {
 	 * @param json 需要转换的字符串对象
 	 * @return JsonObject对象
 	 */
-	fun parseToJsonObject(json: String?): JsonObject {
-		return JsonParser.parseString(json).asJsonObject
+	fun String.parseToJsonObject(): JsonObject {
+		return JsonParser.parseString(this).asJsonObject
 	}
 
-	fun parseToJsonArray(json: String): JsonArray {
-		return JsonParser.parseString(json).asJsonArray
+	fun String.parseToJsonArray(): JsonArray {
+		return JsonParser.parseString(this).asJsonArray
+	}
+
+	fun Any.toJsonObject(): JsonObject {
+		return JsonUtil.gson.toJsonTree(this).asJsonObject
 	}
 }
 
-fun Any.toJsonObject(): JsonObject {
-	return JsonUtil.gson.toJsonTree(this).asJsonObject
-}

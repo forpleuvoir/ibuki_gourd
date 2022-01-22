@@ -3,6 +3,8 @@ package forpleuvoir.ibuki_gourd.gui.widget
 import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutline
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
@@ -34,7 +36,6 @@ import java.util.function.Predicate
  * @author forpleuvoir
 
  */
-
 abstract class WidgetList<E : WidgetListEntry<*>>(
 	var parent: Screen,
 	var x: Int,
@@ -52,7 +53,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 ) : AbstractParentElement(), Drawable, Selectable, IPositionElement {
 
 	protected val client: MinecraftClient by lazy { MinecraftClient.getInstance() }
-	private val children: MutableList<E> = ArrayList()
+	protected open val children: MutableList<E> = ArrayList()
 
 	val height: Int get() = this.contentHeight + this.topPadding + this.bottomPadding
 	val top: Int get() = this.y
@@ -227,24 +228,24 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 
 
 	protected open fun renderBord(matrices: MatrixStack) {
-		RenderUtil.drawOutline(
+		drawOutline(
+			matrices,
 			this.x - 1,
 			this.y - 1,
 			this.width + 2,
 			this.height + 2,
-			borderColor = bordColor,
-			zLevel = parent.zOffset
+			borderColor = bordColor
 		)
 	}
 
 	protected open fun renderBackground(matrices: MatrixStack) {
-		RenderUtil.drawRect(
+		drawRect(
+			matrices,
 			this.x,
 			this.y,
 			this.width,
 			this.height,
-			color = backgroundColor,
-			zLevel = parent.zOffset
+			color = backgroundColor
 		)
 	}
 

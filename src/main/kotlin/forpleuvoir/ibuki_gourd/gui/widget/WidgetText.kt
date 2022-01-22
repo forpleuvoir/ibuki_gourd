@@ -23,6 +23,11 @@ import net.minecraft.text.Text
  */
 open class WidgetText(x: Int, y: Int, width: Int, height: Int, text: Text? = null) :
 	TextFieldWidget(MinecraftClient.getInstance().textRenderer, x, y, width, height, text), IPositionElement {
+
+	init {
+		setMaxLength(65535)
+	}
+
 	var unFocusedCallback: ((WidgetText) -> Unit)? = null
 
 	override fun setTextFieldFocused(focused: Boolean) {

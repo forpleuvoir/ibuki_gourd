@@ -5,6 +5,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText.Align.*
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.render.RenderUtil
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutlinedBox
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
@@ -39,7 +40,8 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) : Drawable, Element,
+class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var height: Int, var align: Align = CENTER) :
+	Drawable, Element,
 	Selectable, IPositionElement {
 
 	var visible = true
@@ -49,13 +51,14 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	private val parent: Screen? = MinecraftClient.getInstance().currentScreen
 	private val textRenderer: TextRenderer get() = MinecraftClient.getInstance().textRenderer
 	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
+	var renderHoverText: Boolean = true
 	private lateinit var matrices: MatrixStack
 	private val renderText: String
 		get() {
 			return if (this.width - this.rightPadding - this.leftPadding >= mc.textRenderer.getWidth(text)) {
 				text.string
 			} else {
-				textRenderer.trimToWidth(text, this.width - this.rightPadding - this.leftPadding - (rightPadding + leftPadding)).string
+				textRenderer.trimToWidth(text, this.width - this.rightPadding - this.leftPadding).string
 			}
 		}
 	private var topPadding: Int = 2
@@ -78,7 +81,13 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	private var hoverCallback: ((LabelText) -> Unit)? = null
 	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
 
-	constructor(text: Text, x: Int, y: Int, padding: Int = 2) : this(text, x, y, mc.textRenderer.getWidth(text), mc.textRenderer.fontHeight) {
+	constructor(text: Text, x: Int, y: Int, padding: Int = 2) : this(
+		text,
+		x,
+		y,
+		mc.textRenderer.getWidth(text),
+		mc.textRenderer.fontHeight
+	) {
 		setPadding(padding, padding, padding, padding)
 		this.width += rightPadding + leftPadding
 		this.height += topPadding + bottomPadding
@@ -111,17 +120,19 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
 		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
-		renderBox()
+		renderBox(matrices)
 		renderText(matrices)
-		if (ScreenBase.isCurrent(parent))
+		if (ScreenBase.isCurrent(parent) && renderHoverText)
 			RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
 				hoverCallback?.invoke(this)
+				matrices.translate(0.0, 0.0, 2.0)
 				ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
+				matrices.translate(0.0, 0.0, -2.0)
 			}
 	}
 
-	private fun renderBox() {
-		RenderUtil.drawOutlinedBox(x, y, width, height, backgroundColor, bordColor)
+	private fun renderBox(matrices: MatrixStack) {
+		drawOutlinedBox(matrices, x, y, width, height, backgroundColor, bordColor)
 	}
 
 	fun setHoverTexts(vararg texts: Text) {
@@ -156,31 +167,31 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		val textX: Int
 		val textY: Int
 		when (align) {
-			TOP_LEFT      -> {
+			TOP_LEFT -> {
 				textX = this.x + leftPadding
 				textY = this.y + topPadding
 			}
-			TOP_CENTER    -> {
+			TOP_CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = this.y + topPadding
 			}
-			TOP_RIGHT     -> {
+			TOP_RIGHT -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y + topPadding
 			}
-			CENTER_LEFT   -> {
+			CENTER_LEFT -> {
 				textX = this.x + leftPadding
 				textY = centerY - textHeight / 2
 			}
-			CENTER        -> {
+			CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = centerY - textHeight / 2
 			}
-			CENTER_RIGHT  -> {
+			CENTER_RIGHT -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = centerY - textHeight / 2
 			}
-			BOTTOM_LEFT   -> {
+			BOTTOM_LEFT -> {
 				textX = this.x + leftPadding
 				textY = this.y - textHeight - bottomPadding
 			}
@@ -188,7 +199,7 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 				textX = centerX - textWidth / 2
 				textY = this.y - textHeight - bottomPadding
 			}
-			BOTTOM_RIGHT  -> {
+			BOTTOM_RIGHT -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y - textHeight - bottomPadding
 			}

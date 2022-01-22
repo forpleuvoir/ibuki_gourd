@@ -1,7 +1,5 @@
-package forpleuvoir.ibuki_gourd.config.options.gui
+package forpleuvoir.ibuki_gourd.gui.button
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
-import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import forpleuvoir.ibuki_gourd.utils.text
@@ -9,24 +7,29 @@ import net.minecraft.client.util.InputUtil
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting
 
-
 /**
  *
 
  * 项目名 ibuki_gourd
 
- * 包名 forpleuvoir.ibuki_gourd.config.options.gui
+ * 包名 forpleuvoir.ibuki_gourd.gui.button
 
- * 文件名 ButtonConfigHotkey
+ * 文件名 ButtonKeyBind
 
- * 创建时间 2021/12/21 18:06
+ * 创建时间 2022/1/19 19:49
 
  * @author forpleuvoir
 
  */
-class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigHotkey) :
-	ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text, null) {
-
+class ButtonKeyBind(
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int = 20,
+	private val keyBind: KeyBind,
+	private val saveCallback: (KeyBind) -> Unit = {}
+) :
+	ButtonBase<ButtonKeyBind>(x, y, width, height, "".text, null) {
 
 	private var selected: Boolean = false
 		set(value) {
@@ -37,18 +40,11 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 				}
 			}
 		}
-	private val keyBind: KeyBind = KeyBind()
+
 	private var firstKey: Boolean = true
 
 	init {
-		keyBind.copyOf(config.getValue())
 		updateText()
-		config.setOnValueChangedCallback {
-			selected = false
-			firstKey = true
-			keyBind.copyOf(config.getValue())
-			updateText()
-		}
 		setOnPressAction {
 			if (!selected) {
 				this.selected = true
@@ -61,8 +57,8 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 	private fun save() {
 		firstKey = true
 		this.selected = false
-		config.setValue(keyBind)
 		updateText()
+		saveCallback.invoke(keyBind)
 	}
 
 	private fun addKey(keyCode: Int) {
@@ -110,8 +106,6 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 		}
 		return true
 	}
-
-
 
 
 }

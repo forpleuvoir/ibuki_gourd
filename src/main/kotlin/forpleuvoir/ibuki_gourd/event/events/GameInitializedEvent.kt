@@ -17,5 +17,5 @@ import forpleuvoir.ibuki_gourd.event.Event
  * @author forpleuvoir
 
  */
-class GameInitialized : Event {
+class GameInitializedEvent : Event {
 }
