@@ -34,16 +34,20 @@ open class WidgetSliderNumber(
 	protected var number: Supplier<Number>,
 	private val minValue: Number,
 	private val maxValue: Number,
-) : SliderWidget(x, y, width, height, LiteralText.EMPTY, number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))),
+) : SliderWidget(
+	x,
+	y,
+	width,
+	height,
+	LiteralText.EMPTY,
+	number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))
+),
 	IPositionElement {
 
 	var onStopCallback: ((mouseX: Double, mouseY: Double) -> Unit)? = null
 	private var status: Boolean = false
 
 	private var isDragging: Boolean = false
-		set(value) {
-			field = value
-		}
 
 	init {
 		this.updateMessage()
@@ -56,20 +60,25 @@ open class WidgetSliderNumber(
 	}
 
 	override fun onClick(mouseX: Double, mouseY: Double) {
-		if(!active) return
+		if (!active) return
 		status = true
 		super.onClick(mouseX, mouseY)
-		MinecraftClient.getInstance().soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+		MinecraftClient.getInstance().soundManager.play(
+			PositionedSoundInstance.master(
+				SoundEvents.UI_BUTTON_CLICK,
+				1.0f
+			)
+		)
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if(!visible) return
+		if (!visible) return
 		this.updateMessage()
 		super.render(matrices, mouseX, mouseY, delta)
 	}
 
 	override fun onRelease(mouseX: Double, mouseY: Double) {
-		if(!active) return
+		if (!active) return
 		status = false
 		onStopCallback?.invoke(mouseX, mouseY)
 	}
@@ -86,11 +95,11 @@ open class WidgetSliderNumber(
 			this.message = getNumber().toString().text
 		}
 		this.message = "${if (status) "§6" else "§r"}${this.message.string}".text
-		this.value = number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))
+		this.value = (number.get().toDouble() - minValue.toDouble()) / ((maxValue.toDouble() - minValue.toDouble()))
 	}
 
 	protected open fun getNumber(): Number {
-		return this.value * (this.maxValue.toDouble() - this.minValue.toDouble())
+		return (this.value * (this.maxValue.toDouble() - this.minValue.toDouble())) + minValue.toDouble()
 	}
 
 	override fun applyValue() {

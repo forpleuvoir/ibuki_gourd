@@ -2,12 +2,13 @@ package forpleuvoir.ibuki_gourd.gui.screen
 
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.BLACK
-import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.WHITE
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.Element
+import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -60,7 +61,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	}
 
-	protected val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
+	val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
 
 	var backgroundColor: IColor<out Number> = BLACK.apply { alpha = 0.5f }
 	protected val titleWidth: Int
@@ -128,6 +129,14 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		return shouldCloseOnEsc
 	}
 
+
+	fun <T> addElement(drawableElement: T) where  T : Element, T : Drawable, T : Selectable {
+		addDrawableChild(drawableElement)
+	}
+
+	fun removeElement(element: Element) {
+		this.remove(element)
+	}
 
 	override fun onScreenClose() {
 

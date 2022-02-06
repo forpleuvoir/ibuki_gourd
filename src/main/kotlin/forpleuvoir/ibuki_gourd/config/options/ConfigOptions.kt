@@ -6,10 +6,8 @@ import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigOptionItem
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
-import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigOptions
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -26,10 +24,10 @@ import net.minecraft.client.gui.widget.ClickableWidget
  * @author forpleuvoir
 
  */
-class ConfigOptions(
+open class ConfigOptions(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	override val defaultValue: IConfigOptionItem
+	final override val defaultValue: IConfigOptionItem
 ) : ConfigBase(),
 	IConfigBaseValue<IConfigOptionItem> {
 	override val type: ConfigType

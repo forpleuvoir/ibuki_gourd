@@ -22,6 +22,8 @@ import net.minecraft.client.MinecraftClient
  * @author forpleuvoir
 
  */
+@JvmField
+val mc = MinecraftClient.getInstance()
 @Environment(EnvType.CLIENT)
 object IbukiGourdMod : ModInfo, ClientModInitializer {
 

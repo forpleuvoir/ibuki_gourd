@@ -36,11 +36,15 @@ public abstract class MixinMouse {
 		if (window == this.client.getWindow().getHandle()) {
 			KeyEnvironment keyEnv = this.client.currentScreen == null ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
 			if (action == 1) {
-				new MousePressEvent(button, mods, keyEnv).broadcast();
-				if(KeyboardUtil.setPressed(button)) ci.cancel();
+				var event = new MousePressEvent(button, mods, keyEnv);
+				event.broadcast();
+				if (event.isCanceled()) ci.cancel();
+				if (KeyboardUtil.setPressed(button)) ci.cancel();
 			} else {
+				var event = new MouseReleaseEvent(button, mods, keyEnv);
+				event.broadcast();
+				if (event.isCanceled()) ci.cancel();
 				KeyboardUtil.setRelease(button);
-				new MouseReleaseEvent(button, mods, keyEnv).broadcast();
 			}
 		}
 	}

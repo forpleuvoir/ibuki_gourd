@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.event.events
 
-import forpleuvoir.ibuki_gourd.event.Event
+import forpleuvoir.ibuki_gourd.event.CancelableEvent
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import net.minecraft.client.util.InputUtil
 
@@ -19,11 +19,13 @@ import net.minecraft.client.util.InputUtil
  * @author forpleuvoir
 
  */
-class MousePressEvent(code: Int, @JvmField val mods: Int, @JvmField val keyEnvironment: KeyEnvironment) : Event {
-	@JvmField
-	val code: InputUtil.Key
+class MousePressEvent(
+	@JvmField val mouseCode: Int,
+	@JvmField val mods: Int,
+	@JvmField val keyEnvironment: KeyEnvironment
+) : CancelableEvent() {
 
-	init {
-		this.code = InputUtil.Type.MOUSE.createFromCode(code)
-	}
+	@JvmField
+	val code: InputUtil.Key = InputUtil.Type.MOUSE.createFromCode(mouseCode)
+
 }

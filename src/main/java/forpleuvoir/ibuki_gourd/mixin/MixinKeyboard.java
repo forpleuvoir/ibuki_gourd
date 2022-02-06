@@ -7,7 +7,6 @@ import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment;
 import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.InputUtil;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,11 +42,15 @@ public abstract class MixinKeyboard {
 		if (window == this.client.getWindow().getHandle()) {
 			KeyEnvironment keyEnv = this.client.currentScreen == null ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
 			if (action == 1 || action == 2 && this.repeatEvents) {
-				new KeyPressEvent(key, scancode, modifiers, keyEnv).broadcast();
+				var event = new KeyPressEvent(key, scancode, modifiers, keyEnv);
+				event.broadcast();
+				if (event.isCanceled()) ci.cancel();
 				if (KeyboardUtil.setPressed(key)) ci.cancel();
 			} else {
+				var event = new KeyReleaseEvent(key, scancode, modifiers, keyEnv);
+				event.broadcast();
+				if (event.isCanceled()) ci.cancel();
 				KeyboardUtil.setRelease(key);
-				new KeyReleaseEvent(key, scancode, modifiers, keyEnv).broadcast();
 			}
 		}
 	}

@@ -25,10 +25,18 @@ class WidgetTextFieldDouble(x: Int, y: Int, width: Int, height: Int, value: Doub
 	init {
 		this.text = value.toString()
 		setTextPredicate {
-			val regex = Regex("^-?([0-9]+(\\.[0-9]*)?)?")
-			regex.containsMatchIn(it)
+			Regex("^-?([0-9]+(\\.[0-9]*)?)?").containsMatchIn(it)
 		}
 	}
+
+
+	override fun setText(text: String) {
+		val value = text.toDoubleOrNull()
+		value?.let {
+			super.setText(String.format("%6f", it))
+		}
+	}
+
 
 	fun setConsumer(consumer: Consumer<Double?>) {
 		setChangedListener {

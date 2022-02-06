@@ -12,7 +12,6 @@ import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldDouble
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.clamp
 import net.minecraft.client.gui.widget.TextFieldWidget
-import net.minecraft.util.math.MathHelper
 
 
 /**
@@ -29,10 +28,10 @@ import net.minecraft.util.math.MathHelper
  * @author forpleuvoir
 
  */
-class ConfigDouble(
+open class ConfigDouble(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	override val defaultValue: Double = 0.0,
+	final override val defaultValue: Double = 0.0,
 	val minValue: Double = Double.MIN_VALUE,
 	val maxValue: Double = Double.MAX_VALUE
 ) : ConfigBase(),

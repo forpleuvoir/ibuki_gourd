@@ -23,6 +23,21 @@ interface Event : IEventBroadcastHandler, Publisher {
 	val type: String
 		get() = this::class.java.simpleName
 
+	/**
+	 * 事件是否可以被取消
+	 */
+	fun cancelable(): Boolean = false
+
+	/**
+	 * 取消该事件
+	 */
+	fun cancel() {}
+
+	/**
+	 * 是否被取消
+	 */
+	val isCanceled: Boolean get() = false
+
 	override fun broadcast() {
 		EventBus.broadcast(this)
 	}

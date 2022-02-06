@@ -27,7 +27,11 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
  * @author forpleuvoir
 
  */
-class ConfigGroup(override val name: String, override val remark: String = "$name.remark", override val defaultValue: List<ConfigBase>) :
+open class ConfigGroup(
+	override val name: String,
+	override val remark: String = "$name.remark",
+	final override val defaultValue: List<ConfigBase>
+) :
 	ConfigBase(),
 	IConfigBaseValue<List<ConfigBase>>, IConfigGroup<ConfigBase> {
 

@@ -7,7 +7,6 @@ import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -24,7 +23,11 @@ import net.minecraft.client.gui.widget.ClickableWidget
  * @author forpleuvoir
 
  */
-class ConfigBoolean(override val name: String, override val remark: String = "$name.remark", override val defaultValue: Boolean) : ConfigBase(),
+open class ConfigBoolean(
+	override val name: String,
+	override val remark: String = "$name.remark",
+	final override val defaultValue: Boolean
+) : ConfigBase(),
 	IConfigBaseValue<Boolean> {
 
 	private var value: Boolean = defaultValue
@@ -37,7 +40,7 @@ class ConfigBoolean(override val name: String, override val remark: String = "$n
 		return value
 	}
 
-	fun toggle() {
+	open fun toggle() {
 		this.setValue(!getValue())
 	}
 
@@ -79,7 +82,15 @@ class ConfigBoolean(override val name: String, override val remark: String = "$n
 	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigBoolean> {
 		return object : ConfigWrapper<ConfigBoolean>(this, x, y, width, height) {
 			override fun initWidget() {
-				addDrawableChild(ButtonConfigBoolean(x = x, y = y, width = width, height = height, config = this.config))
+				addDrawableChild(
+					ButtonConfigBoolean(
+						x = x,
+						y = y,
+						width = width,
+						height = height,
+						config = this.config
+					)
+				)
 			}
 		}
 	}

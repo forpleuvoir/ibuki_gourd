@@ -5,11 +5,8 @@ import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
-import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigOptions
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetConfigString
-import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import net.minecraft.client.gui.widget.ClickableWidget
 
 
 /**
@@ -26,7 +23,11 @@ import net.minecraft.client.gui.widget.ClickableWidget
  * @author forpleuvoir
 
  */
-class ConfigString(override val name: String, override val remark: String = "$name.remark", override val defaultValue: String) : ConfigBase(),
+open class ConfigString(
+	override val name: String,
+	override val remark: String = "$name.remark",
+	final override val defaultValue: String
+) : ConfigBase(),
 	IConfigBaseValue<String> {
 
 	private var value: String = defaultValue

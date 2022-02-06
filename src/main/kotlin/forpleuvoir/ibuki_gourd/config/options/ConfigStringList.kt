@@ -30,14 +30,14 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-class ConfigStringList(
+open class ConfigStringList(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	override val defaultValue: ImmutableList<String>
+	final override val defaultValue: ImmutableList<String>
 ) : ConfigBase(),
 	IConfigBaseValue<List<String>> {
 
-	private var value: ArrayList<String> = ArrayList(defaultValue)
+	protected open var value: ArrayList<String> = ArrayList(defaultValue)
 
 	override val type: ConfigType
 		get() = ConfigType.STRING_LIST
@@ -83,26 +83,26 @@ class ConfigStringList(
 		value = ArrayList(defaultValue)
 	}
 
-	fun add(string: String) {
+	open fun add(string: String) {
 		this.value.add(string)
 		this.onValueChange()
 	}
 
-	fun set(index: Int, string: String) {
+	open fun set(index: Int, string: String) {
 		if (this.value[index] != string) {
 			this.value[index] = string
 			this.onValueChange()
 		}
 	}
 
-	fun remove(index: Int) {
+	open fun remove(index: Int) {
 		if (index >= 0 && index < this.value.size) {
 			this.value.removeAt(index)
 			this.onValueChange()
 		}
 	}
 
-	fun remove(string: String) {
+	open fun remove(string: String) {
 		if (this.value.remove(string)) {
 			this.onValueChange()
 		}

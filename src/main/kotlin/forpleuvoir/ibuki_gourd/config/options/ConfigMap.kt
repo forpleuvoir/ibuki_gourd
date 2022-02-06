@@ -30,13 +30,13 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-class ConfigMap(
+open class ConfigMap(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	override val defaultValue: Map<String, String>
+	final override val defaultValue: Map<String, String>
 ) : ConfigBase(), IConfigBaseValue<Map<String, String>> {
 
-	private val value: LinkedHashMap<String, String> = LinkedHashMap(defaultValue)
+	protected open val value: LinkedHashMap<String, String> = LinkedHashMap(defaultValue)
 
 	override val type: ConfigType
 		get() = ConfigType.MAP
@@ -68,14 +68,14 @@ class ConfigMap(
 		setValue(defaultValue)
 	}
 
-	fun remove(key: String) {
+	open fun remove(key: String) {
 		if (key.contains(key)) {
 			this.value.remove(key)
 			this.onValueChange()
 		}
 	}
 
-	fun rename(old: String, new: String) {
+	open fun rename(old: String, new: String) {
 		if (this.value.containsKey(old)) {
 			val value = this.value[old]
 			value?.let {
@@ -86,7 +86,7 @@ class ConfigMap(
 		}
 	}
 
-	fun reset(oldKey: String, newKey: String, value: String) {
+	open fun reset(oldKey: String, newKey: String, value: String) {
 		if (this.value.containsKey(oldKey)) {
 			if (oldKey != newKey) rename(oldKey, newKey)
 			this.value[newKey] = value

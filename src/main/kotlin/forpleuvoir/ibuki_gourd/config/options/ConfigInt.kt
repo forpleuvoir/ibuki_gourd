@@ -5,17 +5,13 @@ import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
-import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigInt
 import forpleuvoir.ibuki_gourd.config.options.gui.WrapperNumber
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
-import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldDouble
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetTextFieldInt
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.clamp
-import net.minecraft.client.gui.widget.ClickableWidget
 import net.minecraft.client.gui.widget.TextFieldWidget
-import net.minecraft.util.math.MathHelper
 
 
 /**
@@ -32,10 +28,10 @@ import net.minecraft.util.math.MathHelper
  * @author forpleuvoir
 
  */
-class ConfigInt(
+open class ConfigInt(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	override val defaultValue: Int = 0,
+	final override val defaultValue: Int = 0,
 	val minValue: Int = Int.MIN_VALUE,
 	val maxValue: Int = Int.MAX_VALUE
 ) : ConfigBase(),

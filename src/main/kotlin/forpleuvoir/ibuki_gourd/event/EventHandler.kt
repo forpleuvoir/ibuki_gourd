@@ -32,8 +32,7 @@ fun Subscriber.subscribe(eventBus: EventBus) {
 		eventBus.subscribe(type) { event: Event? ->
 			try {
 				method.invoke(this, event)
-			} catch (e: Exception) {
-
+			} catch (_: Exception) {
 			}
 		}
 	}

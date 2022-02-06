@@ -10,6 +10,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 import forpleuvoir.ibuki_gourd.gui.widget.MultilineTextField
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetIntInput
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
@@ -31,10 +32,9 @@ import org.lwjgl.glfw.GLFW
  */
 class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 
-	override fun onScreenClose() {
-	}
 
 	private val buttonOnOff = ButtonOnOff(20, 60, true)
+	private var testValue = 10.0
 
 	override fun tick() {
 		children().forEach {
@@ -54,10 +54,19 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		return super.keyPressed(keyCode, scanCode, modifiers)
 	}
 
+
 	override fun init() {
 		super.init()
 		buttonOnOff.setOnHoverCallback {
 			it.y = if (it.y == 60) 60 else 90
+		}
+		Button(
+			text = "测试按钮".text,
+			onClick = {
+				println("测试按钮按下了")
+			}
+		) {
+			setHoverText(listOf("测试按钮".text))
 		}
 		addDrawableChild(buttonOnOff)
 		val envButton = ButtonOption(
@@ -70,6 +79,11 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		) {
 			println(it)
 		}
+		addDrawableChild(WidgetSliderNumber(200, 200, 120, 20, { testValue }, -20, 20).apply {
+			setConsumer {
+				testValue = it.toDouble()
+			}
+		})
 		addDrawableChild(envButton)
 		val dropList = WidgetDropList(
 			items = Events.getEvents(),
