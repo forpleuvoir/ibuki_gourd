@@ -1,6 +1,9 @@
 package forpleuvoir.ibuki_gourd.gui.screen
 
+import forpleuvoir.ibuki_gourd.config.ConfigManager
 import forpleuvoir.ibuki_gourd.gui.button.Button
+import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
+import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -28,12 +31,34 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 
 	private lateinit var matrices: MatrixStack
 
-	init {
-	}
-
 	override fun init() {
 		super.init()
 		initConfigGroupButton()
+		initModScreen()
+	}
+
+	private fun initModScreen() {
+		if (ConfigManager.modScreen.size != 0)
+			this.addLastDrawableElement(
+				WidgetDropList(
+					items = ConfigManager.modScreen.keys,
+					default = tabEntry.currentMod.modName,
+					stringAdapter = { it },
+					entryAdapter = { str -> ConfigManager.modScreen.keys.find { it == str }!! },
+					parent = this,
+					x = this.width - 10 - 80,
+					y = 10,
+					width = 80,
+					itemHeight = 14,
+					pageSize = ConfigManager.modScreen.size.clamp(1, 5).toInt()
+				).apply {
+					toggleCallback = { name ->
+						ConfigManager.modScreen[name]?.let {
+							openScreen(it.invoke().apply { parent = this@ScreenTab.parent })
+						}
+					}
+				}
+			)
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {

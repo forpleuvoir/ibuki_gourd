@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigDouble
 import forpleuvoir.ibuki_gourd.config.options.gui.WrapperNumber
@@ -28,18 +28,17 @@ import net.minecraft.client.gui.widget.TextFieldWidget
  * @author forpleuvoir
 
  */
-open class ConfigDouble(
+class ConfigDouble(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	final override val defaultValue: Double = 0.0,
-	val minValue: Double = Double.MIN_VALUE,
-	val maxValue: Double = Double.MAX_VALUE
-) : ConfigBase(),
-	IConfigBaseValue<Double> {
+	override val defaultValue: Double = 0.0,
+	override val minValue: Double = Double.MIN_VALUE,
+	override val maxValue: Double = Double.MAX_VALUE
+) : ConfigBase(), IConfigDouble {
 
 	private var value: Double = defaultValue.clamp(minValue, maxValue).toDouble()
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.DOUBLE
 
 
@@ -83,12 +82,12 @@ open class ConfigDouble(
 	override val asJsonElement: JsonElement
 		get() = JsonPrimitive(getValue())
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigBase> {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
 		return object : WrapperNumber(this, x, y, width, height) {
 			override val slider: WidgetSliderNumber
-				get() = WidgetSliderConfigDouble(0, 0, 0, height, config = config as ConfigDouble)
+				get() = WidgetSliderConfigDouble(0, 0, 0, height, config = config, double = this@ConfigDouble)
 			override val field: TextFieldWidget
-				get() = WidgetTextFieldDouble(0, 0, 0, height - 2, (config as ConfigDouble).getValue()).apply {
+				get() = WidgetTextFieldDouble(0, 0, 0, height - 2, this@ConfigDouble.getValue()).apply {
 					setConsumer {
 						it?.let { this@ConfigDouble.setValue(it) }
 					}

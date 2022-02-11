@@ -1,7 +1,6 @@
 package forpleuvoir.ibuki_gourd.config
 
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 
 
 /**
@@ -19,5 +18,5 @@ import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 
  */
 interface IConfigWrapper {
-	fun wrapper(x: Int = 0, y: Int = 0, width: Int = 120, height: Int = 20): ConfigWrapper<out ConfigBase>
+	fun wrapper(x: Int = 0, y: Int = 0, width: Int = 140, height: Int = 20): ConfigWrapper
 }

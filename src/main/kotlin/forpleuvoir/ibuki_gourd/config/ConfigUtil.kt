@@ -92,7 +92,7 @@ object ConfigUtil {
 		return null
 	}
 
-	fun writeConfigBase(root: JsonObject, key: String, configs: List<ConfigBase>) {
+	fun writeConfigBase(root: JsonObject, key: String, configs: List<IConfigBase>) {
 		root.getNestedObject(key, true)?.let {
 			for (config in configs) {
 				it.add(config.name, config.asJsonElement)

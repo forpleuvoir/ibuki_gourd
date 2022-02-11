@@ -1,8 +1,6 @@
 package forpleuvoir.ibuki_gourd.config
 
-import forpleuvoir.ibuki_gourd.common.ModInfo
-import forpleuvoir.ibuki_gourd.config.options.ConfigGroup
-import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
 
 
 /**
@@ -22,17 +20,17 @@ import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
 object ConfigManager {
 	private val configHandler: HashMap<String, IConfigHandler> = HashMap()
 
-	fun register(info: ModInfo, handler: IConfigHandler) {
+	val modScreen: HashMap<String, () -> ScreenTab> = HashMap()
+
+	fun registerScreen(modName: String, screen: () -> ScreenTab) {
+		modScreen[modName] = screen
+	}
+
+	fun register(modId: String, handler: IConfigHandler) {
 		handler.allConfig().forEach {
 			it.setOnValueChanged { handler.onConfigChange() }
-			if (it is ConfigHotkey) {
-				it.initKeyBind()
-			} else if (it is ConfigGroup) {
-				it.getValue().forEach { item ->
-					if (item is ConfigHotkey) item.initKeyBind()
-				}
-			}
-			configHandler[info.modId] = handler
+			it.init()
+			configHandler[modId] = handler
 		}
 	}
 

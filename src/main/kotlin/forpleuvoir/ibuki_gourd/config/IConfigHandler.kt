@@ -1,6 +1,5 @@
 package forpleuvoir.ibuki_gourd.config
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 
 
 /**
@@ -28,5 +27,5 @@ interface IConfigHandler {
 
 	fun load()
 
-	fun allConfig():List<ConfigBase>
+	fun allConfig(): List<IConfigBase>
 }

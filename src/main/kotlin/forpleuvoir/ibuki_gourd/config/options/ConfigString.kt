@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetConfigString
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
@@ -27,12 +27,11 @@ open class ConfigString(
 	override val name: String,
 	override val remark: String = "$name.remark",
 	final override val defaultValue: String
-) : ConfigBase(),
-	IConfigBaseValue<String> {
+) : ConfigBase(), IConfigString {
 
 	private var value: String = defaultValue
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.STRING
 
 
@@ -75,9 +74,16 @@ open class ConfigString(
 	override val asJsonElement: JsonElement
 		get() = JsonPrimitive(getValue())
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigString> {
-		val widget = WidgetConfigString(x = x + 1, y = y + 1, width = width - 2, height = height - 2, config = this)
-		return object : ConfigWrapper<ConfigString>(this, x, y, width, height) {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
+		val widget = WidgetConfigString(
+			x = x + 1,
+			y = y + 1,
+			width = width - 2,
+			height = height - 2,
+			config = this,
+			string = this
+		)
+		return object : ConfigWrapper(this, x, y, width, height) {
 			override fun initWidget() {
 				addDrawableChild(widget)
 			}

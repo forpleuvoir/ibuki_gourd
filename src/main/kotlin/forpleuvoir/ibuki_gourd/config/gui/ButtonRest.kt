@@ -26,8 +26,7 @@ class ButtonRest(
 	width: Int = MinecraftClient.getInstance().textRenderer.getWidth(IbukiGourdLang.Rest.tText()) + 10,
 	height: Int = 20,
 	val config: IConfigResettable
-) :
-	ButtonBase<ButtonRest>(x, y, width, height, message = IbukiGourdLang.Rest.tText(), onButtonPress = null) {
+) : ButtonBase<ButtonRest>(x, y, width, height, message = IbukiGourdLang.Rest.tText(), onButtonPress = null) {
 
 	init {
 		this.active = !config.isDefaultValue

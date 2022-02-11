@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigInt
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.options.IConfigInt
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetSliderNumber
 import java.util.function.Supplier
 
@@ -23,8 +24,9 @@ class WidgetSliderConfigInt(
 	y: Int,
 	width: Int,
 	height: Int,
-	private val config: ConfigInt,
-	private var valueInt: Int = config.getValue()
+	config: IConfigBase,
+	private val int: IConfigInt,
+	private var valueInt: Int = int.getValue()
 ) :
 	WidgetSliderNumber(
 		x,
@@ -32,8 +34,8 @@ class WidgetSliderConfigInt(
 		width,
 		height,
 		{ valueInt },
-		config.minValue,
-		config.maxValue
+		int.minValue,
+		int.maxValue
 	) {
 	init {
 		number = Supplier {
@@ -43,10 +45,10 @@ class WidgetSliderConfigInt(
 			this.valueInt = it.toInt()
 		}
 		onStopCallback = { _, _ ->
-			config.setValue(valueInt)
+			int.setValue(valueInt)
 		}
 		config.setOnValueChangedCallback {
-			this.valueInt = config.getValue()
+			this.valueInt = int.getValue()
 			updateMessage()
 		}
 	}

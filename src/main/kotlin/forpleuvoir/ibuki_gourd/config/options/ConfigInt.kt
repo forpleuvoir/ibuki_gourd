@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.WidgetSliderConfigInt
 import forpleuvoir.ibuki_gourd.config.options.gui.WrapperNumber
@@ -28,18 +28,17 @@ import net.minecraft.client.gui.widget.TextFieldWidget
  * @author forpleuvoir
 
  */
-open class ConfigInt(
+class ConfigInt(
 	override val name: String,
 	override val remark: String = "$name.remark",
 	final override val defaultValue: Int = 0,
-	val minValue: Int = Int.MIN_VALUE,
-	val maxValue: Int = Int.MAX_VALUE
-) : ConfigBase(),
-	IConfigBaseValue<Int> {
+	override val minValue: Int = Int.MIN_VALUE,
+	override val maxValue: Int = Int.MAX_VALUE
+) : ConfigBase(), IConfigInt {
 
 	private var value: Int = defaultValue.clamp(minValue, maxValue).toInt()
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.INTEGER
 
 
@@ -83,12 +82,12 @@ open class ConfigInt(
 	override val asJsonElement: JsonElement
 		get() = JsonPrimitive(getValue())
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigBase> {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
 		return object : WrapperNumber(this, x, y, width, height) {
 			override val slider: WidgetSliderNumber
-				get() = WidgetSliderConfigInt(0, 0, 0, height, config = config as ConfigInt)
+				get() = WidgetSliderConfigInt(0, 0, 0, height, config = config, int = this@ConfigInt)
 			override val field: TextFieldWidget
-				get() = WidgetTextFieldInt(0, 0, 0, height, (config as ConfigInt).getValue()).apply {
+				get() = WidgetTextFieldInt(0, 0, 0, height, this@ConfigInt.getValue()).apply {
 					setConsumer {
 						it?.let { this@ConfigInt.setValue(it) }
 					}

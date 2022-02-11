@@ -24,8 +24,13 @@ import net.minecraft.client.gui.widget.TextFieldWidget
  * @author forpleuvoir
 
  */
-abstract class WrapperNumber(config: ConfigBase, x: Int, y: Int, width: Int, height: Int) :
-	ConfigWrapper<ConfigBase>(config, x, y, width, height) {
+abstract class WrapperNumber(
+	config: ConfigBase,
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int
+) : ConfigWrapper(config, x, y, width, height) {
 
 	private lateinit var switchButton: ButtonIcon
 
@@ -64,7 +69,7 @@ abstract class WrapperNumber(config: ConfigBase, x: Int, y: Int, width: Int, hei
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
 		children().forEach {
 			if (it is WidgetSliderNumber)
-				if(it.mouseReleased(mouseX, mouseY, button)) return true
+				if (it.mouseReleased(mouseX, mouseY, button)) return true
 		}
 		return super.mouseReleased(mouseX, mouseY, button)
 	}

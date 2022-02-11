@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import net.minecraft.client.gui.screen.Screen
 
@@ -20,13 +20,14 @@ import net.minecraft.client.gui.screen.Screen
 
  */
 class WidgetListConfig(
-	private val configs: Collection<ConfigBase>,
+	private val configs: Collection<IConfigBase>,
 	parent: Screen,
 	x: Int,
 	y: Int,
 	pageSize: Int,
 	itemHeight: Int,
-	width: Int
+	width: Int,
+	val wrapperWidth: Int = 140
 ) : WidgetList<WidgetListConfigEntry>(parent, x, y, pageSize, itemHeight, width) {
 
 	init {

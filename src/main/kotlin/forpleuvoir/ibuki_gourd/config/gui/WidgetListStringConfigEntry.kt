@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigStringList
+import forpleuvoir.ibuki_gourd.config.options.IConfigStringList
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
@@ -25,7 +25,7 @@ import net.minecraft.client.util.math.MatrixStack
 
  */
 class WidgetListStringConfigEntry(
-	private val config: ConfigStringList,
+	private val config: IConfigStringList,
 	parent: WidgetList<*>,
 	x: Int,
 	y: Int,

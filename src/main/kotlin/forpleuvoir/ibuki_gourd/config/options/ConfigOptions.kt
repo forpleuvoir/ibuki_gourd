@@ -3,8 +3,8 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.config.IConfigOptionItem
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigOptions
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
@@ -28,9 +28,8 @@ open class ConfigOptions(
 	override val name: String,
 	override val remark: String = "$name.remark",
 	final override val defaultValue: IConfigOptionItem
-) : ConfigBase(),
-	IConfigBaseValue<IConfigOptionItem> {
-	override val type: ConfigType
+) : ConfigBase(), IConfigOptions {
+	override val type: IConfigType
 		get() = ConfigType.OPTIONS
 
 	private var value: IConfigOptionItem = defaultValue
@@ -79,11 +78,21 @@ open class ConfigOptions(
 			this.onValueChange()
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigOptions> {
-		return object : ConfigWrapper<ConfigOptions>(this, x, y, width, height) {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
+		return object : ConfigWrapper(this, x, y, width, height) {
 			override fun initWidget() {
-				addDrawableChild(ButtonConfigOptions(x = x, y = y, width = width, height = height, config = config))
+				addDrawableChild(
+					ButtonConfigOptions(
+						x = x,
+						y = y,
+						width = width,
+						height = height,
+						config = this@ConfigOptions
+					)
+				)
 			}
 		}
 	}
+
+
 }

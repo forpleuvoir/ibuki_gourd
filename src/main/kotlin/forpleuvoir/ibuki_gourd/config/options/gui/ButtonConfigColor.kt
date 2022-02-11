@@ -1,14 +1,12 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.gui.DialogColorEditor
-import forpleuvoir.ibuki_gourd.config.options.ConfigColor
+import forpleuvoir.ibuki_gourd.config.options.IConfigColor
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.render.RenderUtil
-import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.LiteralText
 
@@ -26,21 +24,34 @@ import net.minecraft.text.LiteralText
  * @author forpleuvoir
 
  */
-class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigColor) :
-	ButtonBase<ButtonConfigColor>(x, y, width, height, message = config.getValue().hexString.text, onButtonPress = null) {
+class ButtonConfigColor(
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int = 20,
+	private val config: IConfigBase,
+	private val color: IConfigColor
+) : ButtonBase<ButtonConfigColor>(
+	x,
+	y,
+	width,
+	height,
+	message = color.getValue().hexString.text,
+	onButtonPress = null
+) {
 
 	init {
 		setOnPressAction {
 			ScreenBase.openScreen(
 				@Suppress("unchecked_cast")
 				(DialogColorEditor(
-					IColor.copy(this.config.getValue()) as IColor<Number>,
+					IColor.copy(this.color.getValue()) as IColor<Number>,
 					250,
 					165,
 					this.config.displayName,
 					mc.currentScreen!!
 				) {
-					this.config.setValue(it)
+					this.color.setValue(it)
 				})
 			)
 		}
@@ -52,8 +63,8 @@ class ButtonConfigColor(x: Int, y: Int, width: Int, height: Int = 20, private va
 	}
 
 	private fun updateText() {
-		message = LiteralText(config.getValue().hexString).styled {
-			it.withColor(config.getValue().rgba)
+		message = LiteralText(color.getValue().hexString).styled {
+			it.withColor(color.getValue().rgba)
 		}
 	}
 

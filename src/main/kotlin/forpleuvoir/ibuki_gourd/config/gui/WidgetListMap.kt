@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigMap
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.options.IConfigMap
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import net.minecraft.client.gui.screen.Screen
 
@@ -20,7 +21,8 @@ import net.minecraft.client.gui.screen.Screen
 
  */
 class WidgetListMap(
-	private val config: ConfigMap,
+	config: IConfigBase,
+	private val map: IConfigMap,
 	parent: Screen,
 	x: Int,
 	y: Int,
@@ -39,8 +41,8 @@ class WidgetListMap(
 
 	private fun initData() {
 		clearEntries()
-		config.getValue().forEach {
-			addEntry(WidgetListMapEntry(config, it.key, this, 0, 0, this.contentWidth, this.itemHeight))
+		map.getValue().forEach {
+			addEntry(WidgetListMapEntry(map, it.key, this, 0, 0, this.contentWidth, this.itemHeight))
 		}
 	}
 }

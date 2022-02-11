@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.mod.config.gui
 
+import forpleuvoir.ibuki_gourd.common.ModInfo
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
@@ -32,6 +33,8 @@ object IbukiGourdScreen {
 	private val setting =
 		IbukiGourdConfigGroup("ibuki_gourd.config.setting", baseTitle, IbukiGourdConfigs.Setting.CONFIGS)
 
+	private val testConfig = IbukiGourdConfigGroup("测试", baseTitle, IbukiGourdConfigs.Test.CONFIGS, 180)
+
 	private val stinger = object : IScreenTabEntry {
 		override val key: String
 			get() = "§6?§b?§d?"
@@ -49,6 +52,9 @@ object IbukiGourdScreen {
 		override fun changeCurrent(current: IScreenTabEntry) {
 			currentEntry = current
 		}
+
+		override val currentMod: ModInfo
+			get() = IbukiGourdMod
 	}
 
 	private val test = object : IScreenTabEntry {
@@ -68,11 +74,14 @@ object IbukiGourdScreen {
 		override fun changeCurrent(current: IScreenTabEntry) {
 			currentEntry = current
 		}
+
+		override val currentMod: ModInfo
+			get() = IbukiGourdMod
 	}
 
 
 	val allTabsEntry: List<IScreenTabEntry> = listOf(
-		setting, stinger, test
+		setting, stinger, testConfig, test
 	)
 
 	var currentEntry: IScreenTabEntry = setting

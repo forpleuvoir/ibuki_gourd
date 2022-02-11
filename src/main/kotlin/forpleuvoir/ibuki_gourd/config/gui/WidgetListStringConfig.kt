@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigStringList
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.options.IConfigStringList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import net.minecraft.client.gui.screen.Screen
 
@@ -20,7 +21,8 @@ import net.minecraft.client.gui.screen.Screen
 
  */
 class WidgetListStringConfig(
-	private val config: ConfigStringList,
+	private val config: IConfigBase,
+	private val list: IConfigStringList,
 	parent: Screen,
 	x: Int,
 	y: Int,
@@ -37,10 +39,10 @@ class WidgetListStringConfig(
 		config.setOnValueChangedCallback { initData() }
 	}
 
-	private fun initData(){
+	private fun initData() {
 		clearEntries()
-		config.getValue().forEach { _ ->
-			addEntry(WidgetListStringConfigEntry(config, this, 0, 0, this.contentWidth, this.itemHeight))
+		list.getValue().forEach { _ ->
+			addEntry(WidgetListStringConfigEntry(list, this, 0, 0, this.contentWidth, this.itemHeight))
 		}
 	}
 }

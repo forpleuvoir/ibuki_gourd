@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigMap
+import forpleuvoir.ibuki_gourd.config.options.IConfigMap
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
@@ -26,7 +26,7 @@ import net.minecraft.client.util.math.MatrixStack
 
  */
 class WidgetListMapEntry(
-	private val config: ConfigMap,
+	private val map: IConfigMap,
 	private var oldKey: String,
 	parent: WidgetList<*>,
 	x: Int,
@@ -39,15 +39,15 @@ class WidgetListMapEntry(
 		it.text = oldKey
 	}
 	private val value: WidgetText =
-		WidgetText(0, 0, (this.width * 0.67).toInt(), this.height - 8, config.getValue()[oldKey]?.text).also {
-			it.text = config.getValue()[oldKey]
+		WidgetText(0, 0, (this.width * 0.67).toInt(), this.height - 8, map.getValue()[oldKey]?.text).also {
+			it.text = map.getValue()[oldKey]
 		}
 	private val remove: ButtonIcon = ButtonIcon(0, 0, Icon.MINUS, iconSize = this.height - 8, renderBord = true) {
-		config.remove(key.text)
+		map.remove(key.text)
 	}
 
 	private val save: ButtonIcon = ButtonIcon(0, 0, Icon.SAVE, iconSize = this.height - 8, renderBord = true) {
-		config.reset(oldKey, key.text, value.text)
+		map.reset(oldKey, key.text, value.text)
 		oldKey = key.text
 	}.apply { setHoverText(listOf(IbukiGourdLang.Save.tText())) }
 

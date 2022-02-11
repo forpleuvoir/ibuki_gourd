@@ -1,8 +1,9 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogHotkeySetting
-import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
+import forpleuvoir.ibuki_gourd.config.options.IConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
@@ -22,15 +23,23 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
  * @author forpleuvoir
 
  */
-class WrapperHotKey(config: ConfigHotkey, x: Int, y: Int, width: Int, height: Int) : ConfigWrapper<ConfigHotkey>(config, x, y, width, height) {
+class WrapperHotKey(config: IConfigBase, private val hotkey: IConfigHotkey, x: Int, y: Int, width: Int, height: Int) :
+	ConfigWrapper(config, x, y, width, height) {
 
 	private val setting: ButtonIcon =
 		ButtonIcon(this.x, this.y, Icon.SETTING, this.height, padding = 4, renderBord = false, renderBg = true) {
-			ScreenBase.openScreen(DialogHotkeySetting(this.config, 140, 60, parent))
+			ScreenBase.openScreen(DialogHotkeySetting(this.hotkey, 140, 60, parent))
 		}
 
 	private val button: ButtonConfigHotkey =
-		ButtonConfigHotkey(this.setting.x + this.setting.width + 2, this.y, this.width - this.setting.width - 2, this.height, config)
+		ButtonConfigHotkey(
+			this.setting.x + this.setting.width + 2,
+			this.y,
+			this.width - this.setting.width - 2,
+			this.height,
+			config,
+			hotkey
+		)
 
 	override fun initWidget() {
 		addDrawableChild(setting)

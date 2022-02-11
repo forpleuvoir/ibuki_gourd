@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigStringList
 import forpleuvoir.ibuki_gourd.gui.button.Button
@@ -34,12 +34,11 @@ open class ConfigStringList(
 	override val name: String,
 	override val remark: String = "$name.remark",
 	final override val defaultValue: ImmutableList<String>
-) : ConfigBase(),
-	IConfigBaseValue<List<String>> {
+) : ConfigBase(), IConfigStringList {
 
 	protected open var value: ArrayList<String> = ArrayList(defaultValue)
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.STRING_LIST
 
 
@@ -83,26 +82,26 @@ open class ConfigStringList(
 		value = ArrayList(defaultValue)
 	}
 
-	open fun add(string: String) {
+	override fun add(string: String) {
 		this.value.add(string)
 		this.onValueChange()
 	}
 
-	open fun set(index: Int, string: String) {
+	override fun set(index: Int, string: String) {
 		if (this.value[index] != string) {
 			this.value[index] = string
 			this.onValueChange()
 		}
 	}
 
-	open fun remove(index: Int) {
+	override fun remove(index: Int) {
 		if (index >= 0 && index < this.value.size) {
 			this.value.removeAt(index)
 			this.onValueChange()
 		}
 	}
 
-	open fun remove(string: String) {
+	override fun remove(string: String) {
 		if (this.value.remove(string)) {
 			this.onValueChange()
 		}
@@ -120,7 +119,7 @@ open class ConfigStringList(
 		}
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigStringList> {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
 		val str = StringBuilder("[")
 		for (i in 0 until getValue().size) {
 			if (getValue()[i] != "" && i != 0) str.append(",")
@@ -135,12 +134,13 @@ open class ConfigStringList(
 		getValue().forEach {
 			hoverTexts.add(mc.textRenderer.trimToWidth(it, 360).text)
 		}
-		return object : ConfigWrapper<ConfigStringList>(this, x, y, width, height) {
+		return object : ConfigWrapper(this, x, y, width, height) {
 			override fun initWidget() {
 				addDrawableChild(Button(x = x, y = y, width = width, height = height, message = str.toString().text) {
 					ScreenBase.openScreen(
 						DialogConfigStringList(
 							config = config,
+							list = this@ConfigStringList,
 							dialogWidth = 330,
 							parent = MinecraftClient.getInstance().currentScreen
 						)

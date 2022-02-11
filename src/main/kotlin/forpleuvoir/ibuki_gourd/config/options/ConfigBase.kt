@@ -1,7 +1,8 @@
 package forpleuvoir.ibuki_gourd.config.options
 
 import forpleuvoir.ibuki_gourd.common.tText
-import forpleuvoir.ibuki_gourd.config.*
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
 import net.minecraft.text.TranslatableText
 
@@ -20,7 +21,7 @@ import net.minecraft.text.TranslatableText
  * @author forpleuvoir
 
  */
-abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable, IConfigWrapper {
+abstract class ConfigBase : IConfigBase {
 
 	val log = IbukiGourdLogger.getLogger(this::class.java)
 
@@ -44,13 +45,13 @@ abstract class ConfigBase : IConfigBase, IConfigResettable, IConfigNotifiable, I
 
 
 	override fun equals(other: Any?): Boolean {
-		return if (other is ConfigBase)
+		return if (other is IConfigBase)
 			(this.name == other.name && this.isValueEquals(other))
 		else false
 	}
 
 	override fun isValueEquals(other: IConfigBase): Boolean {
-		if (this.type == other.type) {
+		if (this.type.name == other.type.name) {
 			if (this is IConfigBaseValue<*> && other is IConfigBaseValue<*>) {
 				return this.isEquals(other.getValue())
 			}

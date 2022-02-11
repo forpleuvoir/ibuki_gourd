@@ -31,6 +31,8 @@
   "ibuki_gourd.config.setting.remark": "Setting",
   "ibuki_gourd.config.open_gui": "Open GUI",
   "ibuki_gourd.config.open_gui.remark": "Open this screen",
+  "ibuki_gourd.config.screen_background_color": "screenBackgroundColor",
+  "ibuki_gourd.config.screen_background_color.remark": "screenBackgroundColor",
   "ibuki_gourd.config.set_from_json_failed": "Failed to set config value for '%s' from the JSON element '%s'",
   "ibuki_gourd.white_list.white_list": "White List",
   "ibuki_gourd.white_list.black_list": "Black List",

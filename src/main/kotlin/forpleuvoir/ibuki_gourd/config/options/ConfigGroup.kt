@@ -4,8 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.config.ConfigType
 import forpleuvoir.ibuki_gourd.config.IConfigBase
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
-import forpleuvoir.ibuki_gourd.config.IConfigGroup
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigGroup
 import forpleuvoir.ibuki_gourd.gui.button.Button
@@ -30,15 +29,19 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 open class ConfigGroup(
 	override val name: String,
 	override val remark: String = "$name.remark",
-	final override val defaultValue: List<ConfigBase>
-) :
-	ConfigBase(),
-	IConfigBaseValue<List<ConfigBase>>, IConfigGroup<ConfigBase> {
+	final override val defaultValue: List<IConfigBase>
+) : ConfigBase(), IConfigGroup {
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.Group
 
-	private var value = ArrayList<ConfigBase>(defaultValue)
+	private var value = ArrayList<IConfigBase>(defaultValue)
+
+	override fun init() {
+		getValue().forEach {
+			it.init()
+		}
+	}
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
@@ -80,7 +83,7 @@ open class ConfigGroup(
 		}
 	}
 
-	override fun getValue(): List<ConfigBase> {
+	override fun getValue(): List<IConfigBase> {
 		return ArrayList(value)
 	}
 
@@ -91,7 +94,7 @@ open class ConfigGroup(
 		return super.matched(regex)
 	}
 
-	override fun setValue(value: List<ConfigBase>) {
+	override fun setValue(value: List<IConfigBase>) {
 		if (this.value != value) {
 			this.value = ArrayList(value)
 			this.onValueChange()
@@ -99,7 +102,7 @@ open class ConfigGroup(
 	}
 
 
-	override fun getValueItem(key: String): ConfigBase? {
+	override fun getValueItem(key: String): IConfigBase? {
 		return this.value.find { it.name == key }
 	}
 
@@ -115,22 +118,24 @@ open class ConfigGroup(
 		this.value.forEach { it.setOnValueChanged(callback) }
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigGroup> {
-		return object : ConfigWrapper<ConfigGroup>(this, x, y, width, height) {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
+		return object : ConfigWrapper(this, x, y, width, height) {
 			override fun initWidget() {
-				addDrawableChild(Button(
-					x = x,
-					y = y,
-					width = width,
-					height = height,
-					message = config.displayName
-				) {
-					ScreenBase.openScreen(
-						DialogConfigGroup(
-							config = config,
-							dialogWidth = 330,
-							parent = ScreenBase.current
-						)
+				addDrawableChild(
+					Button(
+						x = x,
+						y = y,
+						width = width,
+						height = height,
+						message = config.displayName
+					) {
+						ScreenBase.openScreen(
+							DialogConfigGroup(
+								config = config,
+								group = this@ConfigGroup,
+								dialogWidth = 330,
+								parent = ScreenBase.current
+							)
 					)
 				})
 			}

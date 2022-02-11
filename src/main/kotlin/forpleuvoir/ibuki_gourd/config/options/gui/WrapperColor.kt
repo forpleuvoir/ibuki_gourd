@@ -1,15 +1,14 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
-import forpleuvoir.ibuki_gourd.config.options.ConfigColor
+import forpleuvoir.ibuki_gourd.config.options.IConfigColor
 import forpleuvoir.ibuki_gourd.gui.common.PositionDrawable
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
-import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutlinedBox
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.util.math.MatrixStack
 
 
@@ -27,7 +26,8 @@ import net.minecraft.client.util.math.MatrixStack
  * @author forpleuvoir
 
  */
-class WrapperColor(config: ConfigColor, x: Int, y: Int, width: Int, height: Int) : ConfigWrapper<ConfigColor>(config, x, y, width, height) {
+class WrapperColor(config: IConfigBase, private val color: IConfigColor, x: Int, y: Int, width: Int, height: Int) :
+	ConfigWrapper(config, x, y, width, height) {
 
 	private val colorBoxPadding = 4
 	private val colorBoxSize = this.height - colorBoxPadding
@@ -35,16 +35,17 @@ class WrapperColor(config: ConfigColor, x: Int, y: Int, width: Int, height: Int)
 	private val colorBox: PositionDrawable =
 		object : PositionDrawable(this.x + 1, this.y + this.colorBoxPadding / 2, colorBoxSize, colorBoxSize) {
 			override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-				val bordColor = if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) Color4f.WHITE else Color4i(160, 160, 160)
-				drawOutlinedBox(matrices,this.x,this.y,this.width,this.height,config.getValue(),bordColor)
+				val bordColor =
+					if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) Color4f.WHITE else Color4i(160, 160, 160)
+				drawOutlinedBox(matrices, this.x, this.y, this.width, this.height, color.getValue(), bordColor)
 				if (isMouseOver(mouseX.toDouble(), mouseY.toDouble()) && ScreenBase.isCurrent(parent)) {
 					parent?.renderTooltip(
 						matrices,
 						listOf(
-							"§cRed:${config.getValue().red}".text,
-							"§aGreen:${config.getValue().green}".text,
-							"§9Blue:${config.getValue().blue}".text,
-							"§rAlpha:${config.getValue().alpha}".text
+							"§cRed:${color.getValue().red}".text,
+							"§aGreen:${color.getValue().green}".text,
+							"§9Blue:${color.getValue().blue}".text,
+							"§rAlpha:${color.getValue().alpha}".text
 						),
 						mouseX,
 						mouseY
@@ -61,7 +62,8 @@ class WrapperColor(config: ConfigColor, x: Int, y: Int, width: Int, height: Int)
 				y = y,
 				width = width - colorBox.width - colorBoxPadding,
 				height = height,
-				config = config
+				config = config,
+				color = color
 			)
 		)
 	}

@@ -1,12 +1,12 @@
 package forpleuvoir.ibuki_gourd.mod.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
-import forpleuvoir.ibuki_gourd.config.options.ConfigInt
-import forpleuvoir.ibuki_gourd.config.gui.IConfigGroup
+import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.config.gui.IConfigList
 import forpleuvoir.ibuki_gourd.config.gui.ScreenTabConfig
+import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenTab
-import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen.allTabsEntry
 import forpleuvoir.ibuki_gourd.mod.config.gui.IbukiGourdScreen.currentEntry
 import net.minecraft.text.Text
@@ -29,8 +29,9 @@ import net.minecraft.text.Text
 class IbukiGourdConfigGroup(
 	override val key: String,
 	override val baseTitle: Text,
-	override val configs: List<ConfigBase>
-) : IConfigGroup {
+	override val configs: List<ConfigBase>,
+	override val wrapperWidth: Int = 140
+) : IConfigList {
 
 	override val screen: ScreenTab
 		get() = ScreenTabConfig(24, this)
@@ -44,6 +45,9 @@ class IbukiGourdConfigGroup(
 	override fun changeCurrent(current: IScreenTabEntry) {
 		currentEntry = current
 	}
+
+	override val currentMod: ModInfo
+		get() = IbukiGourdMod
 
 }
 
