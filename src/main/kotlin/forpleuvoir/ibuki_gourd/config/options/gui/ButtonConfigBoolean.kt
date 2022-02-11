@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBoolean
+import forpleuvoir.ibuki_gourd.config.options.IConfigBoolean
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -21,7 +21,7 @@ import net.minecraft.util.Formatting
  * @author forpleuvoir
 
  */
-class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigBoolean) :
+class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private val config: IConfigBoolean) :
 	ButtonBase<ButtonConfigBoolean>(x, y, width, height, Text.of("")) {
 
 	init {

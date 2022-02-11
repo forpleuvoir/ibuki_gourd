@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.options.IConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
@@ -24,8 +25,14 @@ import net.minecraft.util.Formatting
  * @author forpleuvoir
 
  */
-class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigHotkey) :
-	ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text, null) {
+class ButtonConfigHotkey(
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int = 20,
+	config: IConfigBase,
+	private val hotkey: IConfigHotkey
+) : ButtonBase<ButtonConfigHotkey>(x, y, width, height, "".text, null) {
 
 
 	private var selected: Boolean = false
@@ -41,12 +48,12 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 	private var firstKey: Boolean = true
 
 	init {
-		keyBind.copyOf(config.getValue())
+		keyBind.copyOf(hotkey.getValue())
 		updateText()
 		config.setOnValueChangedCallback {
 			selected = false
 			firstKey = true
-			keyBind.copyOf(config.getValue())
+			keyBind.copyOf(hotkey.getValue())
 			updateText()
 		}
 		setOnPressAction {
@@ -61,7 +68,7 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 	private fun save() {
 		firstKey = true
 		this.selected = false
-		config.setValue(keyBind)
+		hotkey.setValue(keyBind)
 		updateText()
 	}
 
@@ -110,8 +117,6 @@ class ButtonConfigHotkey(x: Int, y: Int, width: Int, height: Int = 20, private v
 		}
 		return true
 	}
-
-
 
 
 }

@@ -1,12 +1,10 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
-import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
+import forpleuvoir.ibuki_gourd.common.tText
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry
-import net.minecraft.client.gui.widget.ClickableWidget
-import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.MutableText
 
@@ -25,7 +23,7 @@ import net.minecraft.text.MutableText
  * @author forpleuvoir
 
  */
-class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int) :
+class WidgetListConfigEntry(val config: IConfigBase, parent: WidgetList<*>, x: Int, y: Int, width: Int, height: Int) :
 	WidgetListEntry<WidgetListConfigEntry>(parent, x, y, width, height) {
 
 	private val leftPadding: Int = 15
@@ -39,8 +37,8 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 	val bottom: Int get() = this.y + height
 
 
-	private val text: MutableText = config.displayName
-	private val textHoverText: MutableText = config.displayRemark
+	private val text: MutableText = config.name.tText()
+	private val textHoverText: MutableText = config.remark.tText()
 
 	private val textLabel: LabelText = LabelText(text, 0, 0).apply {
 		this.align = LabelText.Align.CENTER_LEFT
@@ -56,7 +54,8 @@ class WidgetListConfigEntry(val config: ConfigBase, parent: WidgetList<*>, x: In
 			return this.y + this.height / 2 - this.textLabel.height / 2
 		}
 
-	private val configWidget: ConfigWrapper<out ConfigBase> = config.wrapper(width = 140).apply { initWidget() }
+	private val configWidget: ConfigWrapper =
+		config.wrapper(width = (parentWidget as WidgetListConfig).wrapperWidth).apply { initWidget() }
 
 	private val restButton: ButtonRest = ButtonRest(x = 0, y = 0, config = config)
 

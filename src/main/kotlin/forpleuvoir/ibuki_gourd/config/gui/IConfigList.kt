@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 
 
@@ -18,6 +18,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
  * @author forpleuvoir
 
  */
-interface IConfigGroup : IScreenTabEntry {
-	val configs: List<ConfigBase>
+interface IConfigList : IScreenTabEntry {
+	val configs: List<IConfigBase>
+	val wrapperWidth: Int
 }

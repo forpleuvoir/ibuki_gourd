@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.options.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigOptions
+import forpleuvoir.ibuki_gourd.config.options.IConfigOptions
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -20,7 +20,7 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-class ButtonConfigOptions(x: Int, y: Int, width: Int, height: Int = 20, private val config: ConfigOptions) :
+class ButtonConfigOptions(x: Int, y: Int, width: Int, height: Int = 20, private val config: IConfigOptions) :
 	ButtonBase<ButtonConfigOptions>(
 		x, y, width, height, Text.of(""), null
 	) {
@@ -39,7 +39,7 @@ class ButtonConfigOptions(x: Int, y: Int, width: Int, height: Int = 20, private 
 
 	override fun onPress() {
 		super.onPress()
-		this.config.setValue(this.config.getValue().cycle())
+		this.config.toggle()
 		this.updateText()
 	}
 

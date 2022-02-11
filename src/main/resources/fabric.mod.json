@@ -5,47 +5,59 @@
   "name": "Ibuki Gourd",
   "description": "可能是个前置库",
   "authors": [
-	"forpleuvoir"
+    "forpleuvoir"
   ],
   "contact": {
-	"email": "695801070@qq.com",
-	"website": "还没有",
-	"repo": "还没有"
+    "email": "695801070@qq.com",
+    "website": "还没有",
+    "repo": "还没有"
   },
   "license": "LGPLv3",
   "icon": "assets/ibuki_gourd/icon.png",
   "environment": "client",
   "entrypoints": {
-	"client": [
-	  {
-		"adapter": "kotlin",
-		"value": "forpleuvoir.ibuki_gourd.mod.IbukiGourdMod"
-	  }
-	],
-	"modmenu": [
-	  {
-		"adapter": "kotlin",
-		"value": "forpleuvoir.ibuki_gourd.mod.compat.modmenu.ModMenuImpl"
-	  }
-	]
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.ibuki_gourd.mod.IbukiGourdMod"
+      }
+    ],
+    "modmenu": [
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.ibuki_gourd.mod.compat.modmenu.ModMenuImpl"
+      }
+    ],
+    "ibScreen": [
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.ibuki_gourd.mod.compat.ibuki_gourd.ScreenImpl"
+      }
+    ],
+    "ibConfig": [
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.ibuki_gourd.mod.compat.ibuki_gourd.ConfigImpl"
+      }
+    ]
   },
   "custom": {
-	"modmenu": {
-	  "badges": [
-		"library"
-	  ]
-	}
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
   },
   "mixins": [
-	"ibuki_gourd.mixins.json"
+    "ibuki_gourd.mixins.json"
   ],
   "depends": {
-	"fabricloader": ">=0.12.8",
-	"fabric": "*",
-	"minecraft": "1.18.x",
-	"fabric-language-kotlin": ">=1.7.0+kotlin.1.6.0"
+    "fabricloader": ">=0.12.8",
+    "fabric": "*",
+    "minecraft": "1.18.x",
+    "fabric-language-kotlin": ">=1.7.0+kotlin.1.6.0"
   },
   "suggests": {
-	"another-mod": "modmenu"
+    "another-mod": "modmenu"
   }
 }

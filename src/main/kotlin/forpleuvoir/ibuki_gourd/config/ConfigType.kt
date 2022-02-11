@@ -15,7 +15,7 @@ package forpleuvoir.ibuki_gourd.config
  * @author forpleuvoir
 
  */
-enum class ConfigType {
+enum class ConfigType : IConfigType {
 	BOOLEAN,
 	INTEGER,
 	DOUBLE,
@@ -25,5 +25,7 @@ enum class ConfigType {
 	OPTIONS,
 	HOTKEY,
 	Group,
-	MAP;
+	MAP,
+	BOOLEAN_WITH_KEY_BIND
+	;
 }

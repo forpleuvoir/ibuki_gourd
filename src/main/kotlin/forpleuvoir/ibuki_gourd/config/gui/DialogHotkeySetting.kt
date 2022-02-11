@@ -1,12 +1,11 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
+import forpleuvoir.ibuki_gourd.config.options.IConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.button.ButtonOption
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyEnvironment
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.text.Text
 
 
 /**
@@ -23,7 +22,7 @@ import net.minecraft.text.Text
  * @author forpleuvoir
 
  */
-class DialogHotkeySetting(private val config: ConfigHotkey, dialogWidth: Int, dialogHeight: Int, parent: Screen?) :
+class DialogHotkeySetting(private val config: IConfigHotkey, dialogWidth: Int, dialogHeight: Int, parent: Screen?) :
 	DialogBase<DialogHotkeySetting>(dialogWidth, dialogHeight, IbukiGourdLang.KeyEnvironment.tText(), parent) {
 
 	private val values = ArrayList<String>().apply {

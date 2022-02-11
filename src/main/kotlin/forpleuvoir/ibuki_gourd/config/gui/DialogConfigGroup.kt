@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigGroup
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.options.IConfigGroup
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
 import net.minecraft.client.gui.screen.Screen
 
@@ -19,7 +20,8 @@ import net.minecraft.client.gui.screen.Screen
 
  */
 class DialogConfigGroup(
-	private val config: ConfigGroup,
+	private val config: IConfigBase,
+	private val group: IConfigGroup,
 	private val itemHeight: Int = 24,
 	private val maxPageSize: Int = 9,
 	dialogWidth: Int,
@@ -32,7 +34,7 @@ class DialogConfigGroup(
 		parent
 	) {
 
-	val pageSize get() = if (maxPageSize >= config.getValue().size) config.getValue().size else maxPageSize
+	val pageSize get() = if (maxPageSize >= group.getValue().size) group.getValue().size else maxPageSize
 
 	init {
 		this.dialogHeight = 3 + (pageSize * itemHeight) + (paddingTop + paddingBottom)
@@ -48,7 +50,7 @@ class DialogConfigGroup(
 
 	private fun initList(pageSize: Int) {
 		listWidget = WidgetListConfig(
-			config.getValue(),
+			group.getValue(),
 			this,
 			left,
 			top + 1,

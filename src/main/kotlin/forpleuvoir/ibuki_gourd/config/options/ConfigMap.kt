@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.common.collect.ImmutableMap
 import com.google.gson.JsonElement
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.gui.DialogConfigMap
 import forpleuvoir.ibuki_gourd.gui.button.Button
@@ -12,7 +12,6 @@ import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.JsonUtil.toJsonObject
 import forpleuvoir.ibuki_gourd.utils.text
-
 import net.minecraft.text.Text
 
 
@@ -34,11 +33,11 @@ open class ConfigMap(
 	override val name: String,
 	override val remark: String = "$name.remark",
 	final override val defaultValue: Map<String, String>
-) : ConfigBase(), IConfigBaseValue<Map<String, String>> {
+) : ConfigBase(), IConfigMap {
 
 	protected open val value: LinkedHashMap<String, String> = LinkedHashMap(defaultValue)
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.MAP
 
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
@@ -68,14 +67,14 @@ open class ConfigMap(
 		setValue(defaultValue)
 	}
 
-	open fun remove(key: String) {
+	override fun remove(key: String) {
 		if (key.contains(key)) {
 			this.value.remove(key)
 			this.onValueChange()
 		}
 	}
 
-	open fun rename(old: String, new: String) {
+	override fun rename(old: String, new: String) {
 		if (this.value.containsKey(old)) {
 			val value = this.value[old]
 			value?.let {
@@ -86,7 +85,7 @@ open class ConfigMap(
 		}
 	}
 
-	open fun reset(oldKey: String, newKey: String, value: String) {
+	override fun reset(oldKey: String, newKey: String, value: String) {
 		if (this.value.containsKey(oldKey)) {
 			if (oldKey != newKey) rename(oldKey, newKey)
 			this.value[newKey] = value
@@ -94,7 +93,7 @@ open class ConfigMap(
 		}
 	}
 
-	operator fun set(key: String, value: String) {
+	override operator fun set(key: String, value: String) {
 		val oldValue: String? = this.value[key]
 		this.value[key] = value
 		if (oldValue != value) {
@@ -102,7 +101,7 @@ open class ConfigMap(
 		}
 	}
 
-	operator fun get(key: String): String? {
+	override operator fun get(key: String): String? {
 		return this.value[key]
 	}
 
@@ -128,17 +127,18 @@ open class ConfigMap(
 		}
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigMap> {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
 		val hoverTexts = ArrayList<Text>()
 		getValue().forEach {
 			hoverTexts.add(mc.textRenderer.trimToWidth("${it.key}:${it.value}", 360).text)
 		}
-		return object : ConfigWrapper<ConfigMap>(this, x, y, width, height) {
+		return object : ConfigWrapper(this, x, y, width, height) {
 			override fun initWidget() {
 				addDrawableChild(Button(x = x, y = 0, width = width, height = height, message = config.displayName) {
 					ScreenBase.openScreen(
 						DialogConfigMap(
 							config = config,
+							map = this@ConfigMap,
 							dialogWidth = 360,
 							parent = ScreenBase.current
 						)

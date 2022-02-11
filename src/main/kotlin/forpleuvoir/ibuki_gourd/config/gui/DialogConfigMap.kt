@@ -1,6 +1,7 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigMap
+import forpleuvoir.ibuki_gourd.config.IConfigBase
+import forpleuvoir.ibuki_gourd.config.options.IConfigMap
 import forpleuvoir.ibuki_gourd.gui.button.ButtonIcon
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
 import forpleuvoir.ibuki_gourd.gui.icon.Icon
@@ -22,7 +23,8 @@ import net.minecraft.client.gui.screen.Screen
 
  */
 class DialogConfigMap(
-	private val config: ConfigMap,
+	private val config: IConfigBase,
+	private val map: IConfigMap,
 	private val itemHeight: Int = 24,
 	private val pageSize: Int = 8,
 	dialogWidth: Int,
@@ -47,6 +49,7 @@ class DialogConfigMap(
 	private fun initList(pageSize: Int) {
 		listWidget = WidgetListMap(
 			config,
+			map,
 			this,
 			left,
 			top + 1,
@@ -68,12 +71,11 @@ class DialogConfigMap(
 			titleLabel.y,
 			Icon.PLUS, titleLabel.height, renderBord = true
 		) {
-			if (!config.getValue().containsKey(""))
-				this.config[""] = ""
+			if (!map.getValue().containsKey(""))
+				this.map[""] = ""
 		}
 		this.addDrawableChild(add)
 	}
-
 
 
 	override fun tick() {

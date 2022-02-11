@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.options
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.ibuki_gourd.config.ConfigType
-import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
+import forpleuvoir.ibuki_gourd.config.IConfigType
 import forpleuvoir.ibuki_gourd.config.gui.ConfigWrapper
 import forpleuvoir.ibuki_gourd.config.options.gui.ButtonConfigBoolean
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
@@ -27,21 +27,16 @@ open class ConfigBoolean(
 	override val name: String,
 	override val remark: String = "$name.remark",
 	final override val defaultValue: Boolean
-) : ConfigBase(),
-	IConfigBaseValue<Boolean> {
+) : ConfigBase(), IConfigBoolean {
 
 	private var value: Boolean = defaultValue
 
-	override val type: ConfigType
+	override val type: IConfigType
 		get() = ConfigType.BOOLEAN
 
 
 	override fun getValue(): Boolean {
 		return value
-	}
-
-	open fun toggle() {
-		this.setValue(!getValue())
 	}
 
 	override fun setValue(value: Boolean) {
@@ -79,8 +74,8 @@ open class ConfigBoolean(
 		}
 	}
 
-	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper<ConfigBoolean> {
-		return object : ConfigWrapper<ConfigBoolean>(this, x, y, width, height) {
+	override fun wrapper(x: Int, y: Int, width: Int, height: Int): ConfigWrapper {
+		return object : ConfigWrapper(this, x, y, width, height) {
 			override fun initWidget() {
 				addDrawableChild(
 					ButtonConfigBoolean(
@@ -88,7 +83,7 @@ open class ConfigBoolean(
 						y = y,
 						width = width,
 						height = height,
-						config = this.config
+						config = this@ConfigBoolean
 					)
 				)
 			}

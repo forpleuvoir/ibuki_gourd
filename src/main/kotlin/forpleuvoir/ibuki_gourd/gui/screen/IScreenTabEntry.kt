@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.gui.screen
 
+import forpleuvoir.ibuki_gourd.common.ModInfo
 import forpleuvoir.ibuki_gourd.common.tText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
@@ -42,9 +43,13 @@ interface IScreenTabEntry {
 
 	fun changeCurrent(current: IScreenTabEntry)
 
+	val currentMod: ModInfo
+
 	val buttonPress: (IScreenTabEntry) -> Unit
 		get() = {
 			changeCurrent(this)
-			ScreenBase.openScreen(this.screen.apply { this.parent = if (ScreenBase.current is ScreenBase) (ScreenBase.current as ScreenBase).parent else null })
+			ScreenBase.openScreen(this.screen.apply {
+				this.parent = if (ScreenBase.current is ScreenBase) (ScreenBase.current as ScreenBase).parent else null
+			})
 		}
 }

@@ -1,6 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
-import forpleuvoir.ibuki_gourd.config.options.ConfigBase
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.gui.common.PositionParentWidget
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
@@ -21,8 +21,13 @@ import net.minecraft.client.gui.screen.narration.NarrationPart
  * @author forpleuvoir
 
  */
-abstract class ConfigWrapper<C : ConfigBase>(val config: C, x: Int, y: Int, width: Int, height: Int) :
-	PositionParentWidget(x, y, width, height) {
+abstract class ConfigWrapper(
+	val config: IConfigBase,
+	x: Int,
+	y: Int,
+	width: Int,
+	height: Int
+) : PositionParentWidget(x, y, width, height) {
 
 	abstract fun initWidget()
 

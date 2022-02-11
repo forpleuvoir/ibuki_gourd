@@ -2,8 +2,6 @@ package forpleuvoir.ibuki_gourd.config
 
 import forpleuvoir.ibuki_gourd.common.IJsonData
 import net.minecraft.text.Text
-import java.util.regex.PatternSyntaxException
-import kotlin.jvm.Throws
 
 
 /**
@@ -20,9 +18,9 @@ import kotlin.jvm.Throws
  * @author forpleuvoir
 
  */
-interface IConfigBase : IJsonData {
+interface IConfigBase : IJsonData, IConfigResettable, IConfigNotifiable, IConfigWrapper {
 
-	val type: ConfigType
+	val type: IConfigType
 	val name: String
 	val remark: String
 	val displayName: Text
@@ -31,5 +29,10 @@ interface IConfigBase : IJsonData {
 	fun matched(regex: Regex): Boolean
 
 	fun isValueEquals(other: IConfigBase): Boolean
+
+	/**
+	 * 配置初始化时调用 可以在此注册按键
+	 */
+	fun init() {}
 
 }

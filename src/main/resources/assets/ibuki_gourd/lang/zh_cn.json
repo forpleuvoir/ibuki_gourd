@@ -29,6 +29,8 @@
   "ibuki_gourd.key_environment": "按键触发环境",
   "ibuki_gourd.config.open_gui": "打开此界面",
   "ibuki_gourd.config.open_gui.remark": "打开此界面",
+  "ibuki_gourd.config.screen_background_color": "配置屏幕背景颜色",
+  "ibuki_gourd.config.screen_background_color.remark": "配置屏幕背景颜色",
   "ibuki_gourd.config.setting": "设置",
   "ibuki_gourd.config.setting.remark": "设置",
   "ibuki_gourd.config.set_from_json_failed": "无法从JSON中读取配置 '%s',JSON: '%s' ",

@@ -18,7 +18,8 @@ import java.util.regex.PatternSyntaxException
  * @author forpleuvoir
 
  */
-class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup: IConfigGroup) : ScreenTab(configGroup) {
+class ScreenTabConfig(private val itemHeight: Int = 24, private val configList: IConfigList) :
+	ScreenTab(configList) {
 
 	private lateinit var searchBar: SearchBar
 	private val searchBarHeight: Int = 16
@@ -34,7 +35,16 @@ class ScreenTabConfig(private val itemHeight: Int = 24, private val configGroup:
 	}
 
 	private fun initListWidget(pageSize: Int) {
-		listWidget = WidgetListConfig(configGroup.configs, this, 0, searchBar.y + searchBarHeight + margin, pageSize, itemHeight, this.width)
+		listWidget = WidgetListConfig(
+			configList.configs,
+			this,
+			0,
+			searchBar.y + searchBarHeight + margin,
+			pageSize,
+			itemHeight,
+			this.width,
+			configList.wrapperWidth
+		)
 		listWidget.setFilter {
 			try {
 				val regex = Regex(searchBar.text)

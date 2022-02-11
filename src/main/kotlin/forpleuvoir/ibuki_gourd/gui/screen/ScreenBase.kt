@@ -1,17 +1,18 @@
 package forpleuvoir.ibuki_gourd.gui.screen
 
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
-import forpleuvoir.ibuki_gourd.utils.color.Color4f.Companion.BLACK
+import forpleuvoir.ibuki_gourd.mod.config.IbukiGourdConfigs.Setting.SCREEN_BACKGROUND_COLOR
+import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.Drawable
-import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
+import java.util.*
 
 
 /**
@@ -33,6 +34,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	var shouldCloseOnEsc: Boolean = true
 	protected var pauseScreen: Boolean = false
 
+	private val lastDrawable: LinkedList<Drawable> = LinkedList()
 
 	constructor() : this("".text)
 	constructor(title: String) : this(title.text)
@@ -63,7 +65,8 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
 
-	var backgroundColor: IColor<out Number> = BLACK.apply { alpha = 0.5f }
+	open val backgroundColor: IColor<out Number> get() = SCREEN_BACKGROUND_COLOR.getValue()
+
 	protected val titleWidth: Int
 		get() = textRenderer.getWidth(title)
 	protected val titleHeight: Int
@@ -107,6 +110,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	override fun init() {
 		super.init()
+		lastDrawable.clear()
 		titleLabel.setPosition(titleLeftPadding, titleTopPadding)
 		this.addDrawableChild(titleLabel)
 	}
@@ -116,13 +120,16 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 	protected open fun drawBackgroundColor(matrices: MatrixStack) {
-		DrawableHelper.fill(matrices, 0, 0, this.width, this.height, backgroundColor.rgba)
+		drawRect(matrices, 0, 0, this.width, this.height, backgroundColor)
 	}
 
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
 		matrices.translate(0.0, 0.0, zOffset.toDouble())
 		this.drawBackgroundColor(matrices)
 		super.render(matrices, mouseX, mouseY, delta)
+		for (drawable in lastDrawable) {
+			drawable.render(matrices, mouseX, mouseY, delta)
+		}
 	}
 
 	override fun shouldCloseOnEsc(): Boolean {
@@ -130,8 +137,13 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 	}
 
 
-	fun <T> addElement(drawableElement: T) where  T : Element, T : Drawable, T : Selectable {
-		addDrawableChild(drawableElement)
+	fun <T> addElement(drawableElement: T): T where  T : Element, T : Drawable, T : Selectable {
+		return addDrawableChild(drawableElement)
+	}
+
+	fun <T> addLastDrawableElement(drawableElement: T): T where  T : Element, T : Drawable, T : Selectable {
+		lastDrawable.add(drawableElement as Drawable)
+		return addSelectableChild(drawableElement)
 	}
 
 	fun removeElement(element: Element) {

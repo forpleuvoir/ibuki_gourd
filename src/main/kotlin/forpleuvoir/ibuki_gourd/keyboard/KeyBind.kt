@@ -4,14 +4,10 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import forpleuvoir.ibuki_gourd.common.IJsonData
-import net.fabricmc.tinyremapper.InputTag
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.Text
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashSet
-import kotlin.jvm.Throws
 
 
 /**
@@ -28,13 +24,18 @@ import kotlin.jvm.Throws
  * @author forpleuvoir
 
  */
-class KeyBind(vararg key: Int, var keyEnvironment: KeyEnvironment = KeyEnvironment.IN_GAME, var callback: () -> Unit = {}) : IJsonData {
+class KeyBind(
+	vararg key: Int,
+	var keyEnvironment: KeyEnvironment = KeyEnvironment.IN_GAME,
+	var callback: () -> Unit = {}
+) : IJsonData {
 	val keys: LinkedHashSet<Int> = LinkedHashSet(key.toSet())
 
 	fun callbackHandler(key: Set<Int>): Boolean {
 		if (keys.isEmpty()) return false
-		if (key.containsAll(keys)) {
-			val keyEnv = if (MinecraftClient.getInstance().currentScreen == null) KeyEnvironment.IN_GAME else KeyEnvironment.IN_SCREEN
+		if (key.size == keys.size && key.containsAll(keys)) {
+			val keyEnv =
+				if (MinecraftClient.getInstance().currentScreen == null) KeyEnvironment.IN_GAME else KeyEnvironment.IN_SCREEN
 			if (keyEnv == this.keyEnvironment || this.keyEnvironment == KeyEnvironment.ALL) {
 				callback.invoke()
 				return true
