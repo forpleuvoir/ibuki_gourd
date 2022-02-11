@@ -165,7 +165,7 @@ open class ConfigBooleanWithKeyBind(
 	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
 			if (jsonElement.isJsonObject) {
-				this.setValue(jsonElement.asJsonObject["value"].asBoolean)
+				this.booleanValue = jsonElement.asJsonObject["value"].asBoolean
 				this.keyBind.setValueFromJsonElement(jsonElement.asJsonObject["keyBind"].asJsonObject)
 			} else {
 				log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
