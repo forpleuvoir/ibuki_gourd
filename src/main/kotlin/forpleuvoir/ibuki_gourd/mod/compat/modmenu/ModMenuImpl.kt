@@ -23,7 +23,7 @@ class ModMenuImpl : ModMenuApi {
 
 	override fun getModConfigScreenFactory(): ConfigScreenFactory<*> {
 		return ConfigScreenFactory {
-			return@ConfigScreenFactory IbukiGourdScreen.current().apply { parent = it }
+			IbukiGourdScreen.current().apply { parent = it }
 		}
 	}
 }
