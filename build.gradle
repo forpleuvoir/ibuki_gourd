@@ -9,22 +9,23 @@ group = project.maven_group
 
 repositories {
     maven { url "https://maven.terraformersmc.com/" }
+    maven { url "https://maven.pkg.github.com/hiirosakura/cookie" }
     mavenLocal()
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    //fabric api
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    //fabric-kotlin
-    modImplementation "net.fabricmc:fabric-language-kotlin:${project.kotlin_version}"
-    //modmenu
-    modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-    //javascript nashorn
-    modImplementation "org.mozilla:rhino:${project.rhino_version}"
-    include "org.mozilla:rhino:${project.rhino_version}"
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	//fabric api
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	//fabric-kotlin
+	modImplementation "net.fabricmc:fabric-language-kotlin:${project.kotlin_version}"
+	//modmenu
+	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	//javascript nashorn
+	modImplementation "org.mozilla:rhino:${project.rhino_version}"
+	include "org.mozilla:rhino:${project.rhino_version}"
 
 
 }

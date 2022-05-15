@@ -6,6 +6,7 @@ import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.MinecraftClient
+import org.hiirosakura.cookie.mod.Cookie
 
 
 /**
@@ -44,6 +45,7 @@ object IbukiGourdMod : ModInfo, ClientModInitializer {
 	 */
 	override fun onInitializeClient() {
 		IbukiGourdInitialize.initialize()
+		Cookie.initialize()
 	}
 
 

@@ -7,14 +7,12 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
-import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
-import net.minecraft.text.TextColor
 import net.minecraft.util.Identifier
 
 /**
@@ -90,7 +88,7 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		val size = 12
 		closeButton =
 			ButtonIcon(this.x + this.dialogWidth - margin - size, this.y + margin, Icon.CLOSE, size, color = Color4f(titleColor)) {
-				this.onClose()
+				this.close()
 			}
 		this.addDrawableChild(closeButton)
 	}
