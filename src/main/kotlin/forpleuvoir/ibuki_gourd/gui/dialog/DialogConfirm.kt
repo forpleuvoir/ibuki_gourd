@@ -60,7 +60,7 @@ open class DialogConfirm(
 			IbukiGourdLang.Confirm.tText()
 		) {
 			if (confirmCallback.apply(this)) {
-				this.onClose()
+				this.close()
 				return@Button
 			}
 		}
@@ -72,7 +72,7 @@ open class DialogConfirm(
 			IbukiGourdLang.Cancel.tText()
 		) {
 			if (cancelCallback.apply(this)) {
-				this.onClose()
+				this.close()
 				return@Button
 			}
 		}

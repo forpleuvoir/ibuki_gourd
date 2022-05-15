@@ -154,7 +154,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 	}
 
-	override fun onClose() {
+	override fun close() {
 		this.onScreenClose()
 		openScreen(parent)
 	}
