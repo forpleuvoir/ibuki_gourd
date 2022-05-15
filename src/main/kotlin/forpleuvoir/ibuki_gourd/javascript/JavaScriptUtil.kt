@@ -1,6 +1,5 @@
 package forpleuvoir.ibuki_gourd.javascript
 
-import org.mozilla.javascript.Context
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -19,6 +18,5 @@ import javax.script.ScriptEngineManager
 
  */
 
-val scriptEngin: ScriptEngine get() = ScriptEngineManager().getEngineByName("Rhino")
+val scriptEngin: ScriptEngine get() = ScriptEngineManager().getEngineByName("nashorn")
 
-val context: Context get() = Context.getCurrentContext()

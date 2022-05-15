@@ -24,7 +24,7 @@ dependencies {
     //modmenu
     modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     //javascript nashorn
-    implementation "org.openjdk.nashorn:nashorn-core:${project.nashorn_version}"
+    modImplementation "org.openjdk.nashorn:nashorn-core:${project.nashorn_version}"
     include "org.openjdk.nashorn:nashorn-core:${project.nashorn_version}"
 
 
