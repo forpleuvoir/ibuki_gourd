@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import forpleuvoir.ibuki_gourd.render.RenderUtil
@@ -18,7 +19,7 @@ import net.minecraft.client.gui.screen.narration.NarrationPart
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.TranslatableTextContent
 import java.util.function.Predicate
 
 
@@ -392,7 +393,10 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 		if (list.size > 1) {
 			val i = list.indexOf(entry)
 			if (i != -1) {
-				builder.put(NarrationPart.POSITION, TranslatableText("narrator.position.list", i + 1, list.size))
+				builder.put(
+					NarrationPart.POSITION,
+					TranslatableTextContent("narrator.position.list", i + 1, list.size).mText
+				)
 			}
 		}
 	}

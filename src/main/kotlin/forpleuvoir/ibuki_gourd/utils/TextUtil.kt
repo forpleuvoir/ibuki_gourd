@@ -21,3 +21,4 @@ import net.minecraft.text.Text
 
 val Text.width: Int
 	get() = MinecraftClient.getInstance().textRenderer.getWidth(this)
+

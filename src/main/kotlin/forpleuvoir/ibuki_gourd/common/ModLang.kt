@@ -1,7 +1,10 @@
 package forpleuvoir.ibuki_gourd.common
 
 import net.minecraft.client.resource.language.I18n
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.text.TextContent
+import net.minecraft.text.TranslatableTextContent
 
 
 /**
@@ -22,8 +25,8 @@ interface ModLang {
 	val key: String
 	val modId: String
 
-	fun tText(vararg args: Any?): TranslatableText {
-		return TranslatableText("$modId.$key", *args)
+	fun tText(vararg args: Any?): MutableText {
+		return MutableText.of(TranslatableTextContent("$modId.$key", *args))
 	}
 
 	fun tString(vararg args: Any?): String {
@@ -31,9 +34,13 @@ interface ModLang {
 	}
 }
 
-fun String.tText(vararg args: Any?): TranslatableText {
-	return TranslatableText(this, *args)
+fun String.tText(vararg args: Any?): TranslatableTextContent {
+	return TranslatableTextContent(this, *args)
 }
+
+val TextContent.text: Text get() = MutableText.of(this)
+
+val TextContent.mText: MutableText get() = MutableText.of(this)
 
 fun String.tString(vararg args: Any?): String {
 	return I18n.translate(this, *args)

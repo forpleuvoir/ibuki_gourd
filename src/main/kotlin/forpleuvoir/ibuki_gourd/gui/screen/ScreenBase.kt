@@ -43,7 +43,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 
 		@JvmStatic
 		protected val guiScale: Int
-			get() = MinecraftClient.getInstance().options.guiScale
+			get() = MinecraftClient.getInstance().options.guiScale.value
 
 		@JvmStatic
 		fun openScreen(screen: Screen?) {

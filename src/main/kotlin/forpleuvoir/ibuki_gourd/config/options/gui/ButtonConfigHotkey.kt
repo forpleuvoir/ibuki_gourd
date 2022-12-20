@@ -5,9 +5,9 @@ import forpleuvoir.ibuki_gourd.config.options.IConfigHotkey
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import forpleuvoir.ibuki_gourd.utils.mText
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.InputUtil
-import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting
 
 
@@ -81,7 +81,7 @@ class ButtonConfigHotkey(
 	}
 
 	private fun updateText() {
-		val message = LiteralText("")
+		val message = "".mText
 		keyBind.asTexts.forEachIndexed { index, it ->
 			message.append(it.string.uppercase())
 			if (index != keyBind.asTexts.lastIndex)

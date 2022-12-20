@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.utils
 
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
 /**
@@ -19,6 +20,10 @@ import net.minecraft.text.Text
 
 val String.text: Text
 	get() = Text.of(this)
+
+
+val String.mText: MutableText
+	get() = Text.empty().append(this)
 
 /**
  * 替换 & 字符为格式符号 § 的Text

@@ -1,7 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.widget
 
-import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.gui.widget.TextFieldWidget
 import java.util.function.Consumer
 
@@ -21,7 +21,7 @@ import java.util.function.Consumer
 
  */
 class WidgetTextFieldDouble(x: Int, y: Int, width: Int, height: Int, value: Double) :
-	TextFieldWidget(IbukiGourdMod.mc.textRenderer, x, y, width, height, value.toString().tText()) {
+	TextFieldWidget(IbukiGourdMod.mc.textRenderer, x, y, width, height, value.toString().text) {
 	init {
 		this.text = value.toString()
 		setTextPredicate {

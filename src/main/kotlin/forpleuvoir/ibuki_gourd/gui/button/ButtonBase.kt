@@ -32,8 +32,7 @@ abstract class ButtonBase<T : ButtonWidget>(
 	height: Int = 20,
 	message: Text,
 	private var onButtonPress: ((T) -> Unit)? = null
-) :
-	ButtonWidget(x, y, width, height, message, PressAction {}), IPositionElement {
+) : ButtonWidget(x, y, width, height, message, PressAction {}), IPositionElement {
 
 	protected val parent: Screen? = ScreenBase.current
 

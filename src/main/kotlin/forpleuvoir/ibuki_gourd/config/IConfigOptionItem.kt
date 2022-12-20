@@ -1,7 +1,8 @@
 package forpleuvoir.ibuki_gourd.config
 
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.MutableText
 
 
 /**
@@ -22,13 +23,13 @@ interface IConfigOptionItem {
 
 	val key: String
 
-	val displayKey: TranslatableText
-		get() = key.tText()
+	val displayKey: MutableText
+		get() = key.tText().mText
 
 	val remark: String
 
-	val displayRemark: TranslatableText
-		get() = remark.tText()
+	val displayRemark: MutableText
+		get() = remark.tText().mText
 
 	fun cycle(): IConfigOptionItem
 

@@ -1,9 +1,7 @@
 package forpleuvoir.ibuki_gourd.utils
 
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.MessageType
 import net.minecraft.text.Text
-import net.minecraft.util.Util
 
 
 /**
@@ -28,19 +26,15 @@ object Message {
 	 * @param message String
 	 */
 	fun sendChatMessage(message: String) {
-		mc.player?.sendChatMessage(message)
+		mc.player?.sendChatMessage(message, null)
 	}
 
-
-	fun showChatMessage(message:Text){
-		mc.inGameHud.addChatMessage(MessageType.CHAT,message, Util.NIL_UUID)
+	fun showChatMessage(message: Text) {
+		mc.inGameHud.chatHud.addMessage(message)
 	}
 
-	fun showInfo(message:Text){
-		mc.inGameHud.addChatMessage(MessageType.GAME_INFO,message, Util.NIL_UUID)
+	fun showInfo(message: Text) {
+		mc.inGameHud.setOverlayMessage(message, false)
 	}
 
-	fun showSystemMessage(message:Text){
-		mc.inGameHud.addChatMessage(MessageType.SYSTEM,message, Util.NIL_UUID)
-	}
 }

@@ -1,11 +1,12 @@
 package forpleuvoir.ibuki_gourd.event.events
 
 import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.event.Event
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.TranslatableTextContent
 
 
 /**
@@ -41,7 +42,7 @@ object Events {
 	@JvmStatic
 	fun <E : Event> register(event: Class<out E>, modInfo: ModInfo) {
 		events.add(event)
-		descriptions[event] = translate(modInfo, event)
+		descriptions[event] = translate(modInfo, event).mText
 	}
 
 	@JvmStatic
@@ -52,7 +53,7 @@ object Events {
 
 	private fun <E : Event> register(event: Class<out E>) {
 		events.add(event)
-		descriptions[event] = translate(event)
+		descriptions[event] = translate(event).mText
 	}
 
 	fun getEvents(): Collection<Class<out Event>> {
@@ -81,11 +82,11 @@ object Events {
 		return eventType.simpleName
 	}
 
-	private fun translate(key: Class<out Event>): TranslatableText {
+	private fun translate(key: Class<out Event>): TranslatableTextContent {
 		return "${IbukiGourdMod.modId}.event.description.${key.simpleName}".tText()
 	}
 
-	fun translate(modInfo: ModInfo, key: Class<out Event>): TranslatableText {
+	fun translate(modInfo: ModInfo, key: Class<out Event>): TranslatableTextContent {
 		return "${modInfo.modId}.event.description.${key.simpleName}".tText()
 	}
 }

@@ -1,9 +1,10 @@
 package forpleuvoir.ibuki_gourd.gui.screen
 
 import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 
 /**
  *
@@ -22,16 +23,16 @@ import net.minecraft.text.TranslatableText
 interface IScreenTabEntry {
 	val key: String
 
-	val displayKey: TranslatableText
-		get() = key.tText()
+	val displayKey: MutableText
+		get() = key.tText().mText
 
 	val remark: String
 		get() = "$key.remark"
 
 	val baseTitle: Text
 
-	val displayRemark: TranslatableText
-		get() = remark.tText()
+	val displayRemark: MutableText
+		get() = remark.tText().mText
 
 	val buttonHeight: Int get() = 20
 

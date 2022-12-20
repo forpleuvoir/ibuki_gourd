@@ -6,9 +6,9 @@ import forpleuvoir.ibuki_gourd.config.options.IConfigColor
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.utils.color.IColor
+import forpleuvoir.ibuki_gourd.utils.mText
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.LiteralText
 
 /**
  *
@@ -63,7 +63,7 @@ class ButtonConfigColor(
 	}
 
 	private fun updateText() {
-		message = LiteralText(color.getValue().hexString).styled {
+		message = color.getValue().hexString.mText.styled {
 			it.withColor(color.getValue().rgba)
 		}
 	}

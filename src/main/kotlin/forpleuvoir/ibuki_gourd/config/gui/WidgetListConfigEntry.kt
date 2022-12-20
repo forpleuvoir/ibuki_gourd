@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.config.gui
 
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
@@ -37,8 +38,8 @@ class WidgetListConfigEntry(val config: IConfigBase, parent: WidgetList<*>, x: I
 	val bottom: Int get() = this.y + height
 
 
-	private val text: MutableText = config.name.tText()
-	private val textHoverText: MutableText = config.remark.tText()
+	private val text: MutableText = config.name.tText().mText
+	private val textHoverText: MutableText = config.remark.tText().mText
 
 	private val textLabel: LabelText = LabelText(text, 0, 0).apply {
 		this.align = LabelText.Align.CENTER_LEFT

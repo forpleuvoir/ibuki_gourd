@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.config.gui
 import forpleuvoir.ibuki_gourd.config.IConfigResettable
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
-import net.minecraft.client.MinecraftClient
+import forpleuvoir.ibuki_gourd.utils.width
 import net.minecraft.client.util.math.MatrixStack
 
 /**
@@ -23,7 +23,7 @@ import net.minecraft.client.util.math.MatrixStack
 class ButtonRest(
 	x: Int,
 	y: Int,
-	width: Int = MinecraftClient.getInstance().textRenderer.getWidth(IbukiGourdLang.Rest.tText()) + 10,
+	width: Int = IbukiGourdLang.Rest.tText().width + 10,
 	height: Int = 20,
 	val config: IConfigResettable
 ) : ButtonBase<ButtonRest>(x, y, width, height, message = IbukiGourdLang.Rest.tText(), onButtonPress = null) {

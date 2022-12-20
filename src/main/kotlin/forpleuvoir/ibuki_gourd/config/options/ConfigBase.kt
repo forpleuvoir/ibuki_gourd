@@ -1,10 +1,11 @@
 package forpleuvoir.ibuki_gourd.config.options
 
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.IConfigBaseValue
 import forpleuvoir.ibuki_gourd.mod.IbukiGourdLogger
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.MutableText
 
 
 /**
@@ -28,11 +29,11 @@ abstract class ConfigBase : IConfigBase {
 	protected var onValueChange: ((IConfigBase) -> Unit)? = null
 	private var callback: ((IConfigBase) -> Unit)? = null
 
-	override val displayName: TranslatableText
-		get() = name.tText()
+	override val displayName: MutableText
+		get() = name.tText().mText
 
-	override val displayRemark: TranslatableText
-		get() = remark.tText()
+	override val displayRemark: MutableText
+		get() = remark.tText().mText
 
 	override fun matched(regex: Regex): Boolean {
 		return regex.run {

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.widget.SliderWidget
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
-import net.minecraft.text.LiteralText
+import net.minecraft.text.Text
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -39,7 +39,7 @@ open class WidgetSliderNumber(
 	y,
 	width,
 	height,
-	LiteralText.EMPTY,
+	Text.empty(),
 	number.get().toDouble() / ((maxValue.toDouble() - minValue.toDouble()))
 ),
 	IPositionElement {

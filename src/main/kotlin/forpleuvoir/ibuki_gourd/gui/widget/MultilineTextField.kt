@@ -5,6 +5,7 @@ import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
+import forpleuvoir.ibuki_gourd.utils.mText
 import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.util.InputUtil.*
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.LiteralText
 import net.minecraft.text.StringVisitable
 import net.minecraft.util.Language
 import net.minecraft.util.math.MathHelper
@@ -746,14 +746,14 @@ open class MultilineTextField(
 						return@run
 					}
 				}
-				strings.add(LiteralText(temp.toString()))
+				strings.add(temp.toString().mText)
 				temp = StringBuilder()
 			}
 			if (element != '\n') {
 				temp.append(element)
 			}
 		}
-		strings.add(LiteralText(temp.toString()))
+		strings.add(temp.toString().mText)
 		return strings
 	}
 
