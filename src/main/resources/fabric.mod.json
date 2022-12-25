@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "id": "ibukigourd",
+  "version": "${version}",
+  "name": "Ibuki Gourd",
+  "description": "不知道",
+  "authors": [
+    "forpleuvoir"
+  ],
+  "contact": {
+    "email": "695801070@qq.com",
+    "homepage": "https://github.com/forpleuvoir/ibuki_gourd",
+    "sources": "https://github.com/forpleuvoir/ibuki_gourd",
+    "issues": "https://github.com/forpleuvoir/ibuki_gourd/issues"
+  },
+  "license": "GPLv3",
+  "icon": "assets/ibukigourd/icon.png",
+  "accessWidener": "ibukigourd.accesswidener",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "com.forpleuvoir.ibukigourd.IbukiGourd"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "com.forpleuvoir.ibukigourd.IbukiGourdClient"
+      }
+    ],
+    "server": [
+      {
+        "adapter": "kotlin",
+        "value": "com.forpleuvoir.ibukigourd.IbukiGourdServer"
+      }
+    ]
+  },
+  "mixins": [
+    "ibukigourd.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.0",
+    "fabric": "*",
+    "minecraft": "1.19.x",
+    "java": ">=17",
+    "fabric-language-kotlin": ">=1.8.0+kotlin.1.7.0"
+  },
+  "suggests": {
+    "another-mod": "modmenu"
+  }
+}

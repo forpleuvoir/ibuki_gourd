@@ -1,19 +1,6 @@
-build/
-*.ipr
-run/
-*.iws
-out/
-*.iml
-.gradle/
-output/
-bin/
-libs/
+# Ignore Gradle project-specific cache directory
+.gradle
 
-.classpath
-.project
-.idea/
-classes/
-.metadata
-.vscode
-.settings
-*.launch
+# Ignore Gradle build output directory
+build
+run
