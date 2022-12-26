@@ -4,8 +4,13 @@
   "package": "com.forpleuvoir.ibukigourd.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "common.EntrypointUtilsMixin"
   ],
   "client": [
+    "client.MainMixin"
+  ],
+  "server": [
+    "server.MainMixin"
   ],
   "injectors": {
     "defaultRequire": 1

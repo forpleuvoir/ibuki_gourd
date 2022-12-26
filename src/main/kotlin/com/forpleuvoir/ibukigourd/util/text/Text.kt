@@ -64,11 +64,11 @@ class Text(
 		return super.fillStyle(styleOverride) as com.forpleuvoir.ibukigourd.util.text.Text
 	}
 
-	override fun formatted(vararg formattings: Formatting?): com.forpleuvoir.ibukigourd.util.text.Text {
+	override fun formatted(vararg formattings: Formatting): com.forpleuvoir.ibukigourd.util.text.Text {
 		return super.formatted(*formattings) as com.forpleuvoir.ibukigourd.util.text.Text
 	}
 
-	override fun formatted(formatting: Formatting?): com.forpleuvoir.ibukigourd.util.text.Text {
+	override fun formatted(formatting: Formatting): com.forpleuvoir.ibukigourd.util.text.Text {
 		return super.formatted(formatting) as com.forpleuvoir.ibukigourd.util.text.Text
 	}
 }
