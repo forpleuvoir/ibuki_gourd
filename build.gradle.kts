@@ -13,6 +13,7 @@ plugins {
 repositories {
 	mavenCentral()
 	mavenLocal()
+	maven { url = uri("https://www.jitpack.io") }
 	maven { url = uri("https://maven.terraformersmc.com/") }
 	maven { url = uri("https://maven.forpleuvoir.com/releases") }
 	maven { url = uri("https://maven.forpleuvoir.com/snapshots") }
@@ -30,6 +31,10 @@ val fabricKotlinVersion: String = properties["fabric_kotlin_version"].toString()
 val modMenuVersion: String = properties["mod_menu_version"].toString()
 
 val nebulaVersion: String = properties["nebula_version"].toString()
+
+loom {
+	accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
+}
 
 dependencies {
 	minecraft("com.mojang:minecraft:$minecraftVersion")
