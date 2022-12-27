@@ -7,7 +7,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.util.function.UnaryOperator
 
-class Text(
+open class Text(
 	content: TextContent,
 	siblings: List<Text> = emptyList(),
 	style: Style = Style.EMPTY
@@ -15,12 +15,19 @@ class Text(
 
 	companion object {
 
+		@JvmStatic
 		fun literal(content: String): com.forpleuvoir.ibukigourd.util.text.Text {
 			return Text(LiteralTextContent(content))
 		}
 
-		fun translate(content: String): com.forpleuvoir.ibukigourd.util.text.Text {
-			return Text(TranslatableTextContent(content))
+		@JvmStatic
+		fun empty(): com.forpleuvoir.ibukigourd.util.text.Text {
+			return Text(LiteralTextContent(""))
+		}
+
+		@JvmStatic
+		fun translate(key: String): com.forpleuvoir.ibukigourd.util.text.Text {
+			return Text(TranslatableTextContent(key))
 		}
 
 	}

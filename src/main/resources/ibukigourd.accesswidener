@@ -1,2 +1,6 @@
 accessWidener v2 named
 extendable method net/minecraft/text/MutableText <init> (Lnet/minecraft/text/TextContent;Ljava/util/List;Lnet/minecraft/text/Style;)V
+extendable method net/minecraft/text/TranslatableTextContent updateTranslations ()V
+extendable method net/minecraft/text/TranslatableTextContent forEachPart (Ljava/lang/String;Ljava/util/function/Consumer;)V
+accessible field net/minecraft/text/TranslatableTextContent languageCache Lnet/minecraft/util/Language;
+accessible field net/minecraft/text/TranslatableTextContent translations Ljava/util/List;
