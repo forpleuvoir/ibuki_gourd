@@ -4,3 +4,5 @@ extendable method net/minecraft/text/TranslatableTextContent updateTranslations 
 extendable method net/minecraft/text/TranslatableTextContent forEachPart (Ljava/lang/String;Ljava/util/function/Consumer;)V
 accessible field net/minecraft/text/TranslatableTextContent languageCache Lnet/minecraft/util/Language;
 accessible field net/minecraft/text/TranslatableTextContent translations Ljava/util/List;
+accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
+accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Lnet/minecraft/world/level/storage/LevelStorage$LevelSave;

@@ -6,6 +6,8 @@ import kotlin.reflect.KClass
 
 open class ModLogger(clazz: KClass<*>, modName: String) {
 
+	constructor(clazz: Class<*>, modName: String) : this(clazz.kotlin, modName)
+
 	private val log: Logger
 
 	init {

@@ -20,6 +20,7 @@ fun Collection<String>.maxWidth(): Int {
 	return temp
 }
 
+@JvmName("maxTextWidth")
 fun Collection<net.minecraft.text.Text>.maxWidth(): Int {
 	var temp = 0
 	for (t in this) {
@@ -57,21 +58,21 @@ fun Collection<String>.wrapToLines(width: Int = 0): List<String> {
 	return texts
 }
 
-fun net.minecraft.text.Text.wrapToLines(width: Int = 0): List<net.minecraft.text.Text> {
+fun net.minecraft.text.Text.wrapToTextLines(width: Int = 0): List<net.minecraft.text.Text> {
 	val texts: LinkedList<net.minecraft.text.Text> = LinkedList()
 	this.string.wrapToLines(width).forEach { texts.add(literal(it)) }
 	return texts
 }
 
-fun Collection<net.minecraft.text.Text>.wrapToLines(width: Int = 0): List<net.minecraft.text.Text> {
+fun Collection<net.minecraft.text.Text>.wrapToTextLines(width: Int = 0): List<net.minecraft.text.Text> {
 	val texts: LinkedList<net.minecraft.text.Text> = LinkedList()
 	for (text in this) {
-		texts.addAll(text.wrapToLines(width))
+		texts.addAll(text.wrapToTextLines(width))
 	}
 	return texts
 }
 
-fun List<String>.wrapToSingleText(width: Int = 0): String {
+fun List<String>.wrapToSingle(width: Int = 0): String {
 	val sb = StringBuilder()
 	this.forEachIndexed { index, text ->
 		val wrapToLines = text.wrapToLines(width)
@@ -87,7 +88,7 @@ fun List<String>.wrapToSingleText(width: Int = 0): String {
 fun List<net.minecraft.text.Text>.wrapToSingleText(width: Int = 0): net.minecraft.text.Text {
 	val sb = StringBuilder()
 	this.forEachIndexed { index, text ->
-		val wrapToLines = text.wrapToLines(width)
+		val wrapToLines = text.wrapToTextLines(width)
 		wrapToLines.forEachIndexed { i, t ->
 			sb.append(t.string)
 			if (i != wrapToLines.size - 1) sb.append("\n")

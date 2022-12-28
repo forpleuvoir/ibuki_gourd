@@ -4,15 +4,16 @@
   "package": "com.forpleuvoir.ibukigourd.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "common.EntrypointUtilsMixin"
+	"server.MinecraftServerMixin"
   ],
   "client": [
-    "client.MainMixin"
+	"client.MainMixin",
+	"client.MinecraftClientMixin"
   ],
   "server": [
-    "server.MainMixin"
+	"server.MainMixin"
   ],
   "injectors": {
-    "defaultRequire": 1
+	"defaultRequire": 1
   }
 }
