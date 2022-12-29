@@ -1,7 +1,5 @@
 package com.forpleuvoir.ibukigourd.config
 
-import com.forpleuvoir.nebula.common.runAsync
-
 interface ModConfigHandler {
 
 	val managers: Iterable<ModConfigManager>

@@ -38,7 +38,7 @@ object ServerModConfigHandler : ModConfigHandler {
 
 	@Subscriber
 	fun init(event: ServerLifecycleEvent.ServerStartingEvent) {
-		log.info("init server mod config")
+		log.info("init server mod config...")
 		init()
 		scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ServerModConfigManager::class) }.forEach { (modMeta, classes) ->
 			classes.forEach {
@@ -53,10 +53,11 @@ object ServerModConfigHandler : ModConfigHandler {
 				}
 				val annotation = it.findAnnotation<ModConfig>()!!
 				instance.init(event.server)
+				log.info("[${modMeta.id} - ${annotation.name}]server config init")
 				try {
 					instance.load()
 				} catch (e: Exception) {
-					instance.save()
+					instance.forceSave()
 					log.error(e)
 				}
 				configManagers["${modMeta.id} - ${annotation.name}"] = instance
@@ -65,16 +66,18 @@ object ServerModConfigHandler : ModConfigHandler {
 	}
 
 	@Subscriber
+	@Suppress("unused")
 	fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
 		log.info("save server mod config...")
 		save()
 	}
 
 	@Subscriber
+	@Suppress("unused")
 	fun serverSave(event: ServerSavingEvent) {
 		configManagers.forEach { (key, value) ->
 			if (value.needSave) {
-				log.info("[{}]auto save server config...", key)
+				log.info("[{}]auto async save server config...", key)
 				value.saveAsync()
 			}
 		}

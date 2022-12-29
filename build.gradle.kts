@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,6 +32,10 @@ val modMenuVersion: String = properties["mod_menu_version"].toString()
 
 val nebulaVersion: String = properties["nebula_version"].toString()
 
+val yamlVersion = "1.33"
+val forKomaVersion = "1.1.0"
+val antlr4Version = "4.10.1"
+
 loom {
 	accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
 }
@@ -56,6 +59,9 @@ dependencies {
 	include("com.forpleuvoir.nebula:event:$nebulaVersion")
 	implementation("com.forpleuvoir.nebula:serialization:$nebulaVersion")
 	include("com.forpleuvoir.nebula:serialization:$nebulaVersion")
+	include("org.yaml:snakeyaml:$yamlVersion")
+	include("cc.ekblad:4koma:$forKomaVersion")
+	include("org.antlr:antlr4-runtime:$antlr4Version")
 }
 
 

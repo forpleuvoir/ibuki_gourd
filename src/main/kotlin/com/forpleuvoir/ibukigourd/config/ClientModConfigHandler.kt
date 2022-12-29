@@ -3,7 +3,6 @@ package com.forpleuvoir.ibukigourd.config
 import com.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import com.forpleuvoir.ibukigourd.util.logger
 import com.forpleuvoir.ibukigourd.util.scanModPackage
-import com.forpleuvoir.nebula.common.runAsync
 import com.forpleuvoir.nebula.event.EventSubscriber
 import com.forpleuvoir.nebula.event.Subscriber
 import kotlin.reflect.full.createInstance
@@ -41,7 +40,7 @@ object ClientModConfigHandler : ModConfigHandler {
 				try {
 					instance.load()
 				} catch (e: Exception) {
-					instance.save()
+					instance.forceSave()
 					log.error(e)
 				}
 				configManagers["${modMeta.id} - ${annotation.name}"] = instance

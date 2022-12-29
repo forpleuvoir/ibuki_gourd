@@ -76,25 +76,28 @@ object ServerLanguage : Language() {
 	@Subscriber
 	fun modInit(event: ModInitializerEvent) {
 		if (event.meta.id == IbukiGourd.MOD_ID) {
-			ResourceManagerHelper.get(SERVER_DATA).registerReloadListener(object : SimpleSynchronousResourceReloadListener {
-				override fun reload(manager: ResourceManager) {
-					map.clear()
-					manager.allNamespaces.forEach { nameSpace ->
-						manager.findResources("server_language") { it.path.endsWith(".json") }.forEach { (identifier, resource) ->
-							try {
-								appendFrom(identifier.path, resource)
-							} catch (e: Exception) {
-								log.error("Skipped language file: {}:{} ({})", nameSpace, name, e)
-							}
+			ResourceManagerHelper.get(SERVER_DATA)
+				.registerReloadListener(object : SimpleSynchronousResourceReloadListener {
+					override fun reload(manager: ResourceManager) {
+						log.info("load server language...")
+						map.clear()
+						manager.allNamespaces.forEach { nameSpace ->
+							manager.findResources("server_language") { it.path.endsWith(".json") }
+								.forEach { (identifier, resource) ->
+									try {
+										appendFrom(identifier.path, resource)
+									} catch (e: Exception) {
+										log.error("Skipped language file: {}:{} ({})", nameSpace, name, e)
+									}
+								}
 						}
 					}
-				}
 
-				override fun getFabricId(): Identifier {
-					return resources("server_language")
-				}
+					override fun getFabricId(): Identifier {
+						return resources("server_language")
+					}
 
-			})
+				})
 		}
 	}
 
@@ -103,12 +106,14 @@ object ServerLanguage : Language() {
 		val path = languageName.replace(".json", "").replace("server_lang/", "")
 		try {
 			resource.inputStream.use {
-				val json = gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
+				val json =
+					gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
 				val languagePair = LanguagePair(path, json.getOr("rightToLft", false))
 				val map = Maps.newHashMap<String, String>()
 				json.entrySet().forEach { entry ->
 					map[entry.key] =
-						UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key)).replaceAll("%$1s")
+						UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key))
+							.replaceAll("%$1s")
 				}
 				if (this.map.containsKey(languagePair)) {
 					this.map[languagePair]!!.putAll(map)
