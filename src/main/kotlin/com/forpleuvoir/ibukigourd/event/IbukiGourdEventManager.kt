@@ -14,6 +14,7 @@ object IbukiGourdEventManager : EventManager() {
 		}
 	}
 
+	@Suppress("unchecked_cast")
 	override fun subscribe() {
 		scanPackage { it.java.isAnnotationPresent(EventSubscriber::class.java) }
 			.map { it.java }
