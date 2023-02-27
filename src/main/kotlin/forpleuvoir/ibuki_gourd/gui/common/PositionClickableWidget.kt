@@ -25,8 +25,7 @@ open class PositionClickableWidget(x: Int, y: Int, width: Int, height: Int, mess
 
 	var parent: Screen? = null
 
-
-	override fun appendNarrations(builder: NarrationMessageBuilder?) {}
+	override fun appendClickableNarrations(builder: NarrationMessageBuilder?) {}
 
 	override fun setPosition(x: Int, y: Int) {
 		val deltaX = x - this.x

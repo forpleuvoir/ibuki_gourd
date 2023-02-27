@@ -5,7 +5,9 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.tooltip.Tooltip
 import net.minecraft.client.gui.widget.ButtonWidget
+import net.minecraft.client.gui.widget.ButtonWidget.NarrationSupplier
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -32,7 +34,8 @@ abstract class ButtonBase<T : ButtonWidget>(
 	height: Int = 20,
 	message: Text,
 	private var onButtonPress: ((T) -> Unit)? = null
-) : ButtonWidget(x, y, width, height, message, PressAction {}), IPositionElement {
+) : ButtonWidget(x, y, width, height, message, PressAction {}, NarrationSupplier { Text.literal(message.string) }),
+	IPositionElement {
 
 	protected val parent: Screen? = ScreenBase.current
 
@@ -53,7 +56,6 @@ abstract class ButtonBase<T : ButtonWidget>(
 		this.hoverText.addAll(hoverText)
 	}
 
-
 	protected val mc: MinecraftClient = MinecraftClient.getInstance()
 	protected val textRenderer: TextRenderer = mc.textRenderer
 	protected val hoverText: ArrayList<Text> = ArrayList()
@@ -61,6 +63,14 @@ abstract class ButtonBase<T : ButtonWidget>(
 	private var hoverCallback: ((T) -> Unit)? = null
 	private var onClickCallback: ((Double, Double, Int) -> Unit)? = null
 	override var onPositionChanged: ((deltaX: Int, deltaY: Int, x: Int, y: Int) -> Unit)? = null
+
+	init {
+		val text = Text.empty()
+		hoverText.forEach {
+			text.append(it)
+		}
+		this.setTooltip(Tooltip.of(text))
+	}
 
 	@Suppress("UNCHECKED_CAST")
 	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
@@ -125,7 +135,7 @@ abstract class ButtonBase<T : ButtonWidget>(
 		this.onButtonPress = onButtonPress
 	}
 
-	override fun renderTooltip(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
+	fun renderTooltip(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
 		if (hovered && ScreenBase.isCurrent(parent)) {
 			mc.currentScreen?.let {
 				val height = this.hoverText.size * textRenderer.fontHeight

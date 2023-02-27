@@ -3,8 +3,6 @@ package forpleuvoir.ibuki_gourd.render
 import com.mojang.blaze3d.platform.GlStateManager.DstFactor
 import com.mojang.blaze3d.platform.GlStateManager.SrcFactor
 import com.mojang.blaze3d.systems.RenderSystem
-import forpleuvoir.ibuki_gourd.utils.color.Color4f
-import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.DrawableHelper
@@ -114,7 +112,7 @@ object RenderUtil {
 	}
 
 	fun drawRect(x: Number, y: Number, width: Number, height: Number, color: IColor<out Number>, zLevel: Number = 0.0) {
-		RenderSystem.setShader { GameRenderer.getPositionColorShader() }
+		RenderSystem.setShader { GameRenderer.getPositionColorProgram() }
 		RenderSystem.applyModelViewMatrix()
 		val tessellator = Tessellator.getInstance()
 		val buffer = tessellator.buffer
@@ -150,7 +148,7 @@ object RenderUtil {
 	) {
 		RenderSystem.disableTexture()
 		setupBlend()
-		RenderSystem.setShader { GameRenderer.getPositionColorShader() }
+		RenderSystem.setShader { GameRenderer.getPositionColorProgram() }
 		RenderSystem.applyModelViewMatrix()
 		val tessellator = Tessellator.getInstance()
 		val buffer = tessellator.buffer

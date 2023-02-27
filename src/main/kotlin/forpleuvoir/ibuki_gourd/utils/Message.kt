@@ -26,7 +26,10 @@ object Message {
 	 * @param message String
 	 */
 	fun sendChatMessage(message: String) {
-		mc.player?.sendChatMessage(message, null)
+		if (message.startsWith("/"))
+			mc.player?.networkHandler?.sendCommand(message)
+		else
+			mc.player?.networkHandler?.sendChatMessage(message)
 	}
 
 	fun showChatMessage(message: Text) {

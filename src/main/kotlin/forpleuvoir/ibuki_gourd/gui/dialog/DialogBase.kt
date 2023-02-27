@@ -112,7 +112,7 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 	}
 
 	override fun renderBackground(matrices: MatrixStack, vOffset: Int) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader)
+		RenderSystem.setShader(GameRenderer::getPositionTexProgram)
 		RenderSystem.setShaderTexture(0, texture)
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f)
 		RenderSystem.enableBlend()

@@ -34,19 +34,16 @@ public abstract class MixinKeyboard {
 	@Final
 	private MinecraftClient client;
 
-	@Shadow
-	private boolean repeatEvents;
-
 	@Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
 	public void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
 		if (window == this.client.getWindow().getHandle()) {
-			KeyEnvironment keyEnv = this.client.currentScreen == null ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
-			if (action == 1 || action == 2 && this.repeatEvents) {
+			KeyEnvironment keyEnv = this.client.currentScreen == null || this.client.currentScreen.passEvents ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
+			if (action == 1 || action == 2) {
 				var event = new KeyPressEvent(key, scancode, modifiers, keyEnv);
 				event.broadcast();
 				if (event.isCanceled()) ci.cancel();
 				if (KeyboardUtil.setPressed(key)) ci.cancel();
-			} else {
+			} else if (action == 0) {
 				var event = new KeyReleaseEvent(key, scancode, modifiers, keyEnv);
 				event.broadcast();
 				if (event.isCanceled()) ci.cancel();

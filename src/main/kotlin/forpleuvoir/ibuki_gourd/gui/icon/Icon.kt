@@ -57,7 +57,7 @@ enum class Icon(
 		color: Color4f,
 		hoveredColor: Color4f
 	) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader)
+		RenderSystem.setShader(GameRenderer::getPositionTexProgram)
 		RenderSystem.setShaderTexture(0, TEXTURE)
 		if (hovered) RenderSystem.setShaderColor(
 			hoveredColor.red,

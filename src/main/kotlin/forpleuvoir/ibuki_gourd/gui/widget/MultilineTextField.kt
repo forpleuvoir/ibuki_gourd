@@ -11,7 +11,6 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.util.InputUtil.*
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.StringVisitable
@@ -687,7 +686,6 @@ open class MultilineTextField(
 	}
 
 
-	override fun appendNarrations(builder: NarrationMessageBuilder) {}
 	override fun getType(): Selectable.SelectionType {
 		return Selectable.SelectionType.FOCUSED
 	}
