@@ -7,7 +7,7 @@ import java.util.*
 
 fun literal(content: String = ""): Text = Text.literal(content)
 
-fun translate(key: String): Text = Text.translate(key)
+fun translatable(key: String): Text = Text.translatable(key)
 
 fun serverText(key: String, vararg args: Any): ServerText = ServerText(key, *args)
 

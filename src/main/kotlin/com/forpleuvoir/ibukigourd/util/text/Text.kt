@@ -26,7 +26,7 @@ open class Text(
 		}
 
 		@JvmStatic
-		fun translate(key: String): com.forpleuvoir.ibukigourd.util.text.Text {
+		fun translatable(key: String): com.forpleuvoir.ibukigourd.util.text.Text {
 			return Text(TranslatableTextContent(key))
 		}
 
@@ -45,7 +45,7 @@ open class Text(
 	}
 
 	fun appendTranslate(text: String): com.forpleuvoir.ibukigourd.util.text.Text {
-		siblings.add(translate(text))
+		siblings.add(translatable(text))
 		return this
 	}
 

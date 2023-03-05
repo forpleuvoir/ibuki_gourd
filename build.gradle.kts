@@ -15,8 +15,8 @@ repositories {
 	mavenLocal()
 	maven { url = uri("https://www.jitpack.io") }
 	maven { url = uri("https://maven.terraformersmc.com/") }
-	maven { url = uri("https://maven.forpleuvoir.com/releases") }
-	maven { url = uri("https://maven.forpleuvoir.com/snapshots") }
+	maven { url = uri("https://maven.forpleuvoir.com:11443/releases") }
+	maven { url = uri("https://maven.forpleuvoir.com:11443/snapshots") }
 }
 
 val time: String = SimpleDateFormat("yyyyMMdd").format(Date())
@@ -32,9 +32,10 @@ val modMenuVersion: String = properties["mod_menu_version"].toString()
 
 val nebulaVersion: String = properties["nebula_version"].toString()
 
-val yamlVersion = "1.33"
-val forKomaVersion = "1.1.0"
-val antlr4Version = "4.10.1"
+val snakeyaml = "2.0"
+val forKomaVersion = "1.2.0"
+val hoconVersion = "1.4.2"
+val konbini = "0.1.3"
 
 loom {
 	accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
@@ -59,9 +60,10 @@ dependencies {
 	include("com.forpleuvoir.nebula:event:$nebulaVersion")
 	implementation("com.forpleuvoir.nebula:serialization:$nebulaVersion")
 	include("com.forpleuvoir.nebula:serialization:$nebulaVersion")
-	include("org.yaml:snakeyaml:$yamlVersion")
+	include("org.yaml:snakeyaml:$snakeyaml")
 	include("cc.ekblad:4koma:$forKomaVersion")
-	include("org.antlr:antlr4-runtime:$antlr4Version")
+	include("cc.ekblad.konbini:konbini:$konbini")
+	include("com.typesafe:config:$hoconVersion")
 }
 
 
@@ -118,6 +120,24 @@ publishing {
 	}
 	publications {
 		create<MavenPublication>(project.name) {
+			pom {
+				name.set(project.name)
+				description.set("forpleuvoir的Minecraft基础前置mod")
+				url.set("https://github.com/forpleuvoir/ibuki_gourd")
+				licenses {
+					license {
+						name.set("GNU General Public License, version 3 (GPLv3)")
+						url.set("https://www.gnu.org/licenses/gpl-3.0.txt")
+					}
+				}
+				developers {
+					developer {
+						id.set("forpleuvoir")
+						name.set("forpleuvoir")
+						email.set("forpleuvoir@gmail.com")
+					}
+				}
+			}
 			artifact("remapJar") {
 				builtBy(tasks.remapJar)
 			}

@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.util
 
 import com.forpleuvoir.ibukigourd.IbukiGourd
+import com.forpleuvoir.ibukigourd.util.text.literal
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.reflect.ClassPath
@@ -28,6 +29,22 @@ val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager 
 fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpace, path)
 
 internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
+
+fun chatMessage(message: net.minecraft.text.Text) {
+	mc.inGameHud.chatHud.addMessage(message)
+}
+
+fun chatMessage(message: String) {
+	chatMessage(literal(message))
+}
+
+fun overlayMessage(message: net.minecraft.text.Text, tinted: Boolean = false) {
+	mc.inGameHud.setOverlayMessage(message, tinted)
+}
+
+fun overlayMessage(message: String, tinted: Boolean = false) {
+	mc.inGameHud.setOverlayMessage(literal(message), tinted)
+}
 
 fun Any.logger(modName: String): ModLogger {
 	return ModLogger(this::class, modName)
@@ -72,9 +89,34 @@ fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Lis
 	ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack).forEach {
 		try {
 			val clazz = Class.forName(it.name).kotlin
+			clazz.java.declaredClasses.forEach { innerClass ->
+				if (predicate(innerClass.kotlin)) list.add(innerClass.kotlin)
+			}
 			if (predicate(clazz)) list.add(clazz)
 		} catch (_: Exception) {
 		}
 	}
 	return list
+}
+
+/**
+ * 判断两个list是否完全匹配
+ *
+ * list.size == list2.size && list.0 == list2.0
+ *
+ * @receiver List<*>
+ * @param list List<*>
+ * @return Boolean
+ */
+infix fun List<*>.exactMatch(list: List<*>): Boolean {
+	return if (this.size == list.size) {
+		var isEquals = true
+		this.forEachIndexed loop@{ index, obj ->
+			if (list[index]!! != obj) {
+				isEquals = false
+				return@loop
+			}
+		}
+		isEquals
+	} else false
 }

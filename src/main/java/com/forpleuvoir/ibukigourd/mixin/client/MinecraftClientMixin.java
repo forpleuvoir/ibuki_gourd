@@ -2,6 +2,7 @@ package com.forpleuvoir.ibukigourd.mixin.client;
 
 import com.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import com.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
+import com.forpleuvoir.ibukigourd.input.InputHandler;
 import com.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,6 +38,7 @@ public abstract class MinecraftClientMixin {
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void tickStart(CallbackInfo ci) {
 		EventBus.Companion.broadcast(new ClientTickEvent.ClientTickStartEvent((MinecraftClient) (Object) this));
+		InputHandler.INSTANCE.tick();
 	}
 
 	@Inject(method = "tick", at = @At("RETURN"))
