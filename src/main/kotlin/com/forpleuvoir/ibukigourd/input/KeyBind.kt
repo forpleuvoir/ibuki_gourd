@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.input
 
 import com.forpleuvoir.ibukigourd.api.Tickable
+import com.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.ibukigourd.util.exactMatch
 import com.forpleuvoir.ibukigourd.util.logger
@@ -26,7 +27,7 @@ import java.util.function.Consumer
 @Environment(EnvType.CLIENT)
 class KeyBind(
 	vararg keyCodes: Int,
-	private val defaultSetting: KeyBindSetting,
+	private val defaultSetting: KeyBindSetting = keyBindSetting(),
 	private val action: KeyBind.() -> Unit
 ) : Tickable, Resettable, Notifiable<KeyBind>, Matchable, Serializable, Deserializable {
 
@@ -47,14 +48,9 @@ class KeyBind(
 		private set
 
 	/**
-	 * 是否需要触发
-	 */
-	private var mustTrigger: Boolean = false
-
-	/**
 	 * 按键被按下的时间，释放时会清空
 	 */
-	private var tickCount: Int = 0
+	private var tickCount: Long = 0
 
 	fun setKey(vararg keyCodes: Int) {
 		keys.clear()
@@ -73,7 +69,19 @@ class KeyBind(
 			keys == currentKeyCode || currentKeyCode.containsAll(currentKeyCode)
 		}
 		if (wasPress) {
-			return setting.nextAction
+			return when (setting.triggerMode) {
+				OnPress -> {
+					action()
+					setting.nextAction
+				}
+
+				BOTH    -> {
+					action()
+					setting.nextAction
+				}
+
+				else    -> NextAction.Continue
+			}
 		}
 		return NextAction.Continue
 	}
@@ -83,23 +91,45 @@ class KeyBind(
 			wasPress = false
 			return NextAction.Continue
 		}
-		val isMatched = if (setting.exactMatch) {
+		val beforeMatched = if (setting.exactMatch) {
 			keys exactMatch beforeKeyCode
 		} else {
 			keys == beforeKeyCode || beforeKeyCode.containsAll(beforeKeyCode)
 		}
-		if (isMatched) {
-			if (setting.triggerMode == KeyTriggerMode.OnRelease || setting.triggerMode == KeyTriggerMode.BOTH) {
-
-			}
-			return setting.nextAction
+		val currentMath = if (setting.exactMatch) {
+			keys exactMatch currentKeyCode
+		} else {
+			keys == currentKeyCode || currentKeyCode.containsAll(currentKeyCode)
+		}
+		if (beforeMatched && !currentMath) {
+			return if (setting.triggerMode == OnRelease || setting.triggerMode == BOTH) {
+				action()
+				setting.nextAction
+			} else NextAction.Continue
 		}
 		return NextAction.Continue
 	}
 
 	override fun tick() {
 		if (wasPress) tickCount++
-		else tickCount = 0
+		if (wasPress)
+			when (setting.triggerMode) {
+				OnLongPress   -> {
+					if (tickCount == setting.longPressTime) action()
+				}
+
+				OnPressed     -> {
+					if (tickCount % setting.triggerPeriod == 0L) action()
+				}
+
+				OnLongPressed -> {
+					val temp = tickCount - setting.longPressTime
+					if (temp >= 0 && tickCount % setting.triggerPeriod == 0L) action()
+				}
+
+				else          -> Unit
+			}
+		if (!wasPress) tickCount = 0
 	}
 
 	val asTexts: List<Text>

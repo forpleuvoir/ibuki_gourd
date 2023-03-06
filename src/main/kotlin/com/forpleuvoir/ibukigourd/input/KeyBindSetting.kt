@@ -52,5 +52,6 @@ fun keyBindSetting(
 	triggerMode: KeyTriggerMode = KeyTriggerMode.OnRelease,
 	triggerPeriod: Long = 5,
 	longPressTime: Long = 20,
+	scope: (KeyBindSetting.() -> Unit)? = null
 ): KeyBindSetting =
-	KeyBindSettingImpl(environment, cancelFurtherProcess, ordered, triggerMode, triggerPeriod, longPressTime)
+	KeyBindSettingImpl(environment, cancelFurtherProcess, ordered, triggerMode, triggerPeriod, longPressTime).apply { scope?.invoke(this) }
