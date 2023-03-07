@@ -15,14 +15,13 @@ repositories {
 	mavenLocal()
 	maven { url = uri("https://www.jitpack.io") }
 	maven { url = uri("https://maven.terraformersmc.com/") }
-	maven { url = uri("https://maven.forpleuvoir.com:11443/releases") }
+//	maven { url = uri("https://maven.forpleuvoir.com:11443/releases") }
 	maven { url = uri("https://maven.forpleuvoir.com:11443/snapshots") }
 }
 
 val time: String = SimpleDateFormat("yyyyMMdd").format(Date())
-version = "${properties["mod_version"]}.$time"
-group = properties["maven_group"].toString()
 
+val modName = properties["archives_base_name"].toString()
 val minecraftVersion: String = properties["minecraft_version"].toString()
 val yarnMappings: String = properties["yarn_mappings"].toString()
 val fabricLoaderVersion: String = properties["fabric_loader_version"].toString()
@@ -32,10 +31,9 @@ val modMenuVersion: String = properties["mod_menu_version"].toString()
 
 val nebulaVersion: String = properties["nebula_version"].toString()
 
-val snakeyaml = "2.0"
-val forKomaVersion = "1.2.0"
-val hoconVersion = "1.4.2"
-val konbini = "0.1.3"
+version = properties["mod_version"].toString()
+group = properties["maven_group"].toString()
+archivesName.set(modName)
 
 loom {
 	accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
@@ -52,20 +50,10 @@ dependencies {
 	modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
 	//其他第三方库依赖
-	implementation("com.forpleuvoir.nebula:common:$nebulaVersion")
-	include("com.forpleuvoir.nebula:common:$nebulaVersion")
-	implementation("com.forpleuvoir.nebula:config:$nebulaVersion")
-	include("com.forpleuvoir.nebula:config:$nebulaVersion")
-	implementation("com.forpleuvoir.nebula:event:$nebulaVersion")
-	include("com.forpleuvoir.nebula:event:$nebulaVersion")
-	implementation("com.forpleuvoir.nebula:serialization:$nebulaVersion")
-	include("com.forpleuvoir.nebula:serialization:$nebulaVersion")
-	include("org.yaml:snakeyaml:$snakeyaml")
-	include("cc.ekblad:4koma:$forKomaVersion")
-	include("cc.ekblad.konbini:konbini:$konbini")
-	include("com.typesafe:config:$hoconVersion")
-}
+	implementation(include("com.forpleuvoir.nebula:config:$nebulaVersion:shadow")!!)
+	implementation(include("com.forpleuvoir.nebula:event:$nebulaVersion")!!)
 
+}
 
 tasks.apply {
 
@@ -77,26 +65,37 @@ tasks.apply {
 		}
 	}
 
-	withType(JavaCompile::class.java).configureEach {
+	withType<JavaCompile>().configureEach {
 		options.encoding = "UTF-8"
 		options.release.set(17)
 	}
 
 	jar {
 		from("LICENSE") {
-			rename { "${it}_${project.archivesName}" }
+			rename { "${it}_$modName" }
+		}
+	}
+
+	register("modJar", Copy::class) {
+		dependsOn("remapJar")
+		mustRunAfter("remapJar")
+		val outPath = "./out/$version"
+		val name = "$modName-$version.jar"
+		val newName = "$modName-$version.$time-minecraft.$minecraftVersion-fabric.jar"
+		from("build/libs")
+		into(outPath)
+		include(name)
+		doLast {
+			file("$outPath/$name").renameTo(file("$outPath/$newName"))
 		}
 	}
 
 }
 
-
 java {
 	withSourcesJar()
 	toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
-
-
 
 publishing {
 	//https://reposilite.com/guide/gradle
@@ -120,6 +119,8 @@ publishing {
 	}
 	publications {
 		create<MavenPublication>(project.name) {
+			artifact(tasks.remapJar)
+			artifact(tasks.remapSourcesJar)
 			pom {
 				name.set(project.name)
 				description.set("forpleuvoir的Minecraft基础前置mod")
@@ -137,12 +138,6 @@ publishing {
 						email.set("forpleuvoir@gmail.com")
 					}
 				}
-			}
-			artifact("remapJar") {
-				builtBy(tasks.remapJar)
-			}
-			artifact("sourcesJar") {
-				builtBy(tasks.remapSourcesJar)
 			}
 		}
 	}

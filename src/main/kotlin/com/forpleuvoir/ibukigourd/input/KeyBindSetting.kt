@@ -47,11 +47,18 @@ interface KeyBindSetting : Serializable, Deserializable, Matchable {
 
 fun keyBindSetting(
 	environment: KeyEnvironment = KeyEnvironment.InGame,
-	cancelFurtherProcess: NextAction = NextAction.Cancel,
-	ordered: Boolean = true,
+	nextAction: NextAction = NextAction.Cancel,
+	exactMatch: Boolean = true,
 	triggerMode: KeyTriggerMode = KeyTriggerMode.OnRelease,
 	triggerPeriod: Long = 5,
 	longPressTime: Long = 20,
 	scope: (KeyBindSetting.() -> Unit)? = null
 ): KeyBindSetting =
-	KeyBindSettingImpl(environment, cancelFurtherProcess, ordered, triggerMode, triggerPeriod, longPressTime).apply { scope?.invoke(this) }
+	KeyBindSettingImpl(
+		environment,
+		nextAction,
+		exactMatch,
+		triggerMode,
+		triggerPeriod,
+		longPressTime
+	).apply { scope?.invoke(this) }
