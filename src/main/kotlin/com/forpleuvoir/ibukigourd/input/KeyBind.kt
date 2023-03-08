@@ -28,7 +28,7 @@ import java.util.function.Consumer
 class KeyBind(
 	vararg keyCodes: Int,
 	private val defaultSetting: KeyBindSetting = keyBindSetting(),
-	private val action: KeyBind.() -> Unit
+	action: KeyBind.() -> Unit = {}
 ) : Tickable, Resettable, Notifiable<KeyBind>, Matchable, Serializable, Deserializable {
 
 	private val log = logger()
@@ -37,9 +37,18 @@ class KeyBind(
 
 	private val defaultKeys: MutableList<Int> = keyCodes.toMutableList()
 
-	var setting: KeyBindSetting = keyBindSetting().apply { copyOf(defaultSetting) }
+	val setting: KeyBindSetting = keyBindSetting().apply { copyOf(defaultSetting) }
 
 	val keys: MutableList<Int> = ArrayList(defaultKeys)
+
+	constructor(keyBind: KeyBind) : this(
+		*keyBind.keys.toIntArray(),
+		defaultSetting = keyBind.setting,
+		action = keyBind.action
+	)
+
+	var action: KeyBind.() -> Unit = action
+		private set
 
 	/**
 	 * 当前按键是否被按下
@@ -52,10 +61,13 @@ class KeyBind(
 	 */
 	private var tickCount: Long = 0
 
-	fun setKey(vararg keyCodes: Int) {
-		keys.clear()
-		keys.addAll(keyCodes.toMutableList())
-		onChange(this)
+	fun setKey(vararg keyCodes: Int): Boolean {
+		return if (!keys.exactMatch(keyCodes.toList())) {
+			keys.clear()
+			keys.addAll(keyCodes.toMutableList())
+			onChange(this)
+			true
+		} else false
 	}
 
 	fun onKeyPress(beforeKeyCode: List<Int>, currentKeyCode: List<Int>): NextAction {
@@ -63,25 +75,21 @@ class KeyBind(
 			wasPress = false
 			return NextAction.Continue
 		}
+		val beforeMatched = if (setting.exactMatch) {
+			keys exactMatch beforeKeyCode
+		} else {
+			keys == beforeKeyCode || beforeKeyCode.containsAll(beforeKeyCode)
+		}
 		wasPress = if (setting.exactMatch) {
 			keys exactMatch currentKeyCode
 		} else {
 			keys == currentKeyCode || currentKeyCode.containsAll(currentKeyCode)
 		}
-		if (wasPress) {
-			return when (setting.triggerMode) {
-				OnPress -> {
-					action()
-					setting.nextAction
-				}
-
-				BOTH    -> {
-					action()
-					setting.nextAction
-				}
-
-				else    -> NextAction.Continue
-			}
+		if (wasPress && !beforeMatched) {
+			return if (setting.triggerMode == OnPress || setting.triggerMode == BOTH) {
+				action
+				setting.nextAction
+			} else NextAction.Continue
 		}
 		return NextAction.Continue
 	}
@@ -114,11 +122,11 @@ class KeyBind(
 		if (wasPress) tickCount++
 		if (wasPress)
 			when (setting.triggerMode) {
-				OnLongPress   -> {
+				OnLongPress -> {
 					if (tickCount == setting.longPressTime) action()
 				}
 
-				OnPressed     -> {
+				OnPressed -> {
 					if (tickCount % setting.triggerPeriod == 0L) action()
 				}
 
@@ -127,7 +135,7 @@ class KeyBind(
 					if (temp >= 0 && tickCount % setting.triggerPeriod == 0L) action()
 				}
 
-				else          -> Unit
+				else -> Unit
 			}
 		if (!wasPress) tickCount = 0
 	}
@@ -176,8 +184,18 @@ class KeyBind(
 	override fun isDefault(): Boolean = defaultKeys exactMatch keys && setting == defaultSetting
 
 	override fun restDefault() {
-		setting = defaultSetting
+		setting.copyOf(defaultSetting)
 		setKey(*defaultKeys.toIntArray())
+	}
+
+	fun copyOf(target: KeyBind): Boolean {
+		var valueChange = setting.copyOf(target.setting)
+		if (this.setKey(*target.keys.toIntArray())) valueChange = true
+		if (action != target.action) {
+			action = target.action
+			valueChange = true
+		}
+		return valueChange
 	}
 
 	override fun serialization(): SerializeElement {
@@ -199,7 +217,7 @@ class KeyBind(
 		} catch (e: Exception) {
 			keys.clear()
 			keys.addAll(defaultKeys.toSet())
-			setting = defaultSetting
+			setting.copyOf(defaultSetting)
 			log.error(e)
 		}
 	}

@@ -58,6 +58,10 @@ val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
 
+fun isDevEnv(action: () -> Unit) {
+	if (isDevEnv) action()
+}
+
 fun scanModPackage(predicate: (KClass<*>) -> Boolean = { true }): Map<ModMetadata, Set<KClass<*>>> {
 	val builder = ImmutableMap.builder<ModMetadata, Set<KClass<*>>>()
 	modPacks.forEach { (metadata, packs) ->
