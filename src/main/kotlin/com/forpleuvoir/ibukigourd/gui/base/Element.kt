@@ -10,8 +10,21 @@ interface Element : Tickable, Initializable {
 	 */
 	val transform: Transform
 
+	/**
+	 * 是否为激活的元素
+	 */
 	var active: Boolean
 
+	/**
+	 * 处理优先级 越高越优先处理
+	 */
+	val priority: Int
 
-
+	/**
+	 * 渲染优先级 越高渲染层级越高
+	 */
+	val renderPriority: Int
+		get() {
+			return transform.position.z.toInt()
+		}
 }

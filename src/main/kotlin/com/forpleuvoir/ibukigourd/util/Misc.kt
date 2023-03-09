@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.forpleuvoir.ibukigourd.util
 
 import com.forpleuvoir.ibukigourd.IbukiGourd
@@ -15,7 +17,6 @@ import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.util.Identifier
 import kotlin.reflect.KClass
 
-
 val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
 
 val textRenderer: TextRenderer by lazy { mc.textRenderer }
@@ -25,6 +26,11 @@ val soundManager: SoundManager by lazy { mc.soundManager }
 val textureManager: TextureManager by lazy { mc.textureManager }
 
 val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager as ReloadableResourceManagerImpl }
+
+val mouseX: Double get() = mc.mouse.x * mc.window.scaledWidth.toDouble() / mc.window.width.toDouble()
+
+val mouseY: Double get() = mc.mouse.y * mc.window.scaledHeight.toDouble() / mc.window.height.toDouble()
+
 
 fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpace, path)
 
