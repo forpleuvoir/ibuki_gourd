@@ -68,6 +68,13 @@ tasks.apply {
 	withType<JavaCompile>().configureEach {
 		options.encoding = "UTF-8"
 		options.release.set(17)
+		targetCompatibility = JavaVersion.VERSION_17.toString()
+		sourceCompatibility = JavaVersion.VERSION_17.toString()
+	}
+
+	withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+		kotlinOptions.suppressWarnings = true
+		kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
 	}
 
 	jar {
