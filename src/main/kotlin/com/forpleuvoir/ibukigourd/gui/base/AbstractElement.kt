@@ -10,8 +10,6 @@ abstract class AbstractElement : Element {
 
 	override var active: Boolean = true
 
-	override val priority: Int = 0
-
 	override var tick: () -> Unit = ::tick
 
 	override var render: (matrixStack: MatrixStack, delta: Double) -> Unit = ::onRender

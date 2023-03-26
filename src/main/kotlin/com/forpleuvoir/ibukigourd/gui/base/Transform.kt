@@ -1,7 +1,9 @@
 package com.forpleuvoir.ibukigourd.gui.base
 
-import com.forpleuvoir.ibukigourd.util.math.Vector3
-import com.forpleuvoir.ibukigourd.util.math.Vector3d
+import com.forpleuvoir.ibukigourd.render.base.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.base.vertex.VertexImpl
 import com.forpleuvoir.ibukigourd.util.mouseX
 import com.forpleuvoir.ibukigourd.util.mouseY
 import com.forpleuvoir.nebula.common.ifc
@@ -11,19 +13,22 @@ import com.forpleuvoir.nebula.common.ifc
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 open class Transform(
-	val position: Vector3d = Vector3d(),
-	val width: Double = 0.0,
-	val height: Double = 0.0,
+	val position: Vector3f = Vector3f(),
+	val width: Float = 0.0f,
+	val height: Float = 0.0f,
 	var parent: Transform? = null,
 	var root: Transform? = null
 ) {
-	val top: Double get() = position.y
 
-	val bottom: Double get() = position.y + height
+	val asRect: Rectangle get() = Rectangle(VertexImpl(position), width, height)
 
-	val left: Double get() = position.x
+	val top: Float get() = position.y
 
-	val right: Double get() = position.x + width
+	val bottom: Float get() = position.y + height
+
+	val left: Float get() = position.x
+
+	val right: Float get() = position.x + width
 
 	/**
 	 * 鼠标是否在此元素[Element]内部
@@ -35,19 +40,19 @@ open class Transform(
 		mouseX.toDouble() in left..right && mouseY.toDouble() in top..bottom
 
 	fun move(vector3: Vector3<out Number>) {
-		position += Vector3d(vector3)
+		position += Vector3f(vector3)
 	}
 
 	fun move(x: Number, y: Number, z: Number) {
-		position += Vector3d(x, y, z)
+		position += Vector3f(x, y, z)
 	}
 
 	fun moveTo(vector3: Vector3<out Number>) {
-		position.set(Vector3d(vector3))
+		position.set(Vector3f(vector3))
 	}
 
 	fun moveTo(x: Number, y: Number, z: Number) {
-		position.set(Vector3d(x, y, z))
+		position.set(Vector3f(x, y, z))
 	}
 
 }

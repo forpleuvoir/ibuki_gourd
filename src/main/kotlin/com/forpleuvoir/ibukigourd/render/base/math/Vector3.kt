@@ -1,13 +1,11 @@
-package com.forpleuvoir.ibukigourd.util.math
+package com.forpleuvoir.ibukigourd.render.base.math
 
 
 import com.forpleuvoir.nebula.common.notc
 import com.forpleuvoir.nebula.serialization.Deserializable
 import com.forpleuvoir.nebula.serialization.Serializable
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
-import com.forpleuvoir.nebula.serialization.base.SerializeObject
 import com.forpleuvoir.nebula.serialization.extensions.serializeObject
-import com.google.gson.JsonObject
 
 
 interface Vector3<T : Number> : Serializable, Deserializable {
@@ -19,9 +17,12 @@ interface Vector3<T : Number> : Serializable, Deserializable {
 	override fun deserialization(serializeElement: SerializeElement) {
 		if (!serializeElement.isObject) throw IllegalArgumentException("serializeElement${serializeElement} is not SerializeObject")
 		serializeElement.asObject.apply {
-			this.containsKey("x").notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have x") }
-			this.containsKey("y").notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have y") }
-			this.containsKey("z").notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have z") }
+			this.containsKey("x")
+				.notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have x") }
+			this.containsKey("y")
+				.notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have y") }
+			this.containsKey("z")
+				.notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have z") }
 			x = valueMap(this["x"]!!)
 			y = valueMap(this["y"]!!)
 			z = valueMap(this["z"]!!)
@@ -29,7 +30,7 @@ interface Vector3<T : Number> : Serializable, Deserializable {
 
 	}
 
-	fun valueMap(serializeElement: SerializeElement):T
+	fun valueMap(serializeElement: SerializeElement): T
 
 	override fun serialization(): SerializeElement {
 		return serializeObject {
@@ -50,6 +51,14 @@ interface Vector3<T : Number> : Serializable, Deserializable {
 		this.y = vector3.y
 		this.z = vector3.z
 	}
+
+	fun x(x: T): Vector3<T>
+
+	fun y(y: T): Vector3<T>
+
+	fun z(z: T): Vector3<T>
+
+	fun xyz(x: T = this.x, y: T = this.y, z: T = this.z): Vector3<T>
 
 	operator fun unaryMinus(): Vector3<T>
 

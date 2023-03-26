@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.gui.base
 
 import com.forpleuvoir.ibukigourd.api.Tickable
+import com.forpleuvoir.ibukigourd.render.Drawable
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.client.util.math.MatrixStack
@@ -22,14 +23,14 @@ interface Element : Drawable, Tickable, Initializable {
 	 * 处理优先级 越高越优先处理
 	 */
 	val priority: Int
+		get() = transform.position.z.toInt()
+
 
 	/**
 	 * 渲染优先级 越高渲染层级越高
 	 */
 	override val renderPriority: Int
-		get() {
-			return transform.position.z.toInt()
-		}
+		get() = priority
 
 
 	/**
@@ -48,7 +49,7 @@ interface Element : Drawable, Tickable, Initializable {
 	 *
 	 * render={matrixStack,delta ->
 	 *
-	 *     render(matrixStack,delta)
+	 *     onRender(matrixStack,delta)
 	 *     code
 	 * }
 	 *

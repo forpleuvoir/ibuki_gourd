@@ -1,4 +1,4 @@
-package com.forpleuvoir.ibukigourd.gui.base
+package com.forpleuvoir.ibukigourd.render
 
 import net.minecraft.client.util.math.MatrixStack
 

@@ -1,4 +1,4 @@
-package com.forpleuvoir.ibukigourd.util.math
+package com.forpleuvoir.ibukigourd.render.base.math
 
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
 
@@ -15,6 +15,22 @@ class Vector3i(
 
 	override fun valueMap(serializeElement: SerializeElement): Int {
 		return serializeElement.asInt
+	}
+
+	override fun x(x: Int): Vector3i {
+		return Vector3i(x, this.y, this.z)
+	}
+
+	override fun y(y: Int): Vector3i {
+		return Vector3i(this.x, y, this.z)
+	}
+
+	override fun z(z: Int): Vector3i {
+		return Vector3i(this.x, this.y, z)
+	}
+
+	override fun xyz(x: Int, y: Int, z: Int): Vector3i {
+		return Vector3i(x, y, z)
 	}
 
 	override fun unaryMinus(): Vector3i {
