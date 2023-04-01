@@ -1,5 +1,6 @@
 package com.forpleuvoir.ibukigourd.event.events.client.input
 
+import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.KeyEnvironment
 import com.forpleuvoir.ibukigourd.input.currentEnv
 import com.forpleuvoir.nebula.event.CancellableEvent
@@ -9,9 +10,9 @@ class KeyboardEvent {
 
 	class KeyPressEvent(
 		@JvmField
-		val keyCode: Int,
+		val keyCode: KeyCode,
 		@JvmField
-		val name: String = InputUtil.fromKeyCode(keyCode, 0).localizedText.string,
+		val name: String = InputUtil.fromKeyCode(keyCode.code, 0).localizedText.string,
 		@JvmField
 		val env: KeyEnvironment = currentEnv()
 	) : CancellableEvent {
@@ -21,9 +22,9 @@ class KeyboardEvent {
 
 	class KeyReleaseEvent(
 		@JvmField
-		val keyCode: Int,
+		val keyCode: KeyCode,
 		@JvmField
-		val name: String = InputUtil.fromKeyCode(keyCode, 0).localizedText.string,
+		val name: String = InputUtil.fromKeyCode(keyCode.code, 0).localizedText.string,
 		@JvmField
 		val env: KeyEnvironment = currentEnv()
 	) : CancellableEvent {

@@ -3,9 +3,10 @@
 package com.forpleuvoir.ibukigourd.render
 
 import com.forpleuvoir.ibukigourd.gui.base.Transform
+import com.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
 import com.forpleuvoir.ibukigourd.render.base.Alignment
 import com.forpleuvoir.ibukigourd.render.base.HorizontalAlignment
-import com.forpleuvoir.ibukigourd.render.base.HorizontalAlignment.*
+import com.forpleuvoir.ibukigourd.render.base.HorizontalAlignment.Left
 import com.forpleuvoir.ibukigourd.render.base.Quadrilateral
 import com.forpleuvoir.ibukigourd.render.base.Rectangle
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3
@@ -73,17 +74,12 @@ fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
 	val y1 = framebufferHeight.toDouble() - (y.toDouble() + height.toDouble()) * scale
 	val width1 = width.toDouble() * scale
 	val height1 = height.toDouble() * scale
-	RenderSystem.enableScissor(
-		x1.toInt(),
-		y1.toInt(),
-		0.coerceAtLeast(width1.toInt()),
-		0.coerceAtLeast(height1.toInt())
-	)
+	RenderSystem.enableScissor(x1.toInt(), y1.toInt(), 0.coerceAtLeast(width1.toInt()), 0.coerceAtLeast(height1.toInt()))
 }
 
-fun enableScissor(transform: Transform) {
+fun enableScissor(transform: Transform) =
 	enableScissor(transform.position.x, transform.position.y, transform.width, transform.height)
-}
+
 
 fun disableScissor() = RenderSystem.disableScissor()
 
@@ -187,14 +183,9 @@ fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number
  * @param transform Transform
  * @param color Color
  */
-fun renderRect(matrixStack: MatrixStack, transform: Transform, color: Color) {
-	renderRect(
-		matrixStack,
-		colorVertex(transform.position, color),
-		transform.width,
-		transform.height,
-	)
-}
+fun renderRect(matrixStack: MatrixStack, transform: Transform, color: Color) =
+	renderRect(matrixStack, colorVertex(transform.position, color), transform.width, transform.height)
+
 
 /**
  * 渲染边框线条
@@ -204,22 +195,10 @@ fun renderRect(matrixStack: MatrixStack, transform: Transform, color: Color) {
  * @param height Number
  * @param borderWidth Number
  */
-fun renderOutline(
-	matrixStack: MatrixStack,
-	colorVertex: ColorVertex,
-	width: Number,
-	height: Number,
-	borderWidth: Number = 1,
-) {
+fun renderOutline(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number, height: Number, borderWidth: Number = 1) {
 	renderRect(matrixStack, colorVertex, borderWidth, height)
-	renderRect(
-		matrixStack, colorVertex.x(colorVertex.x.toDouble() + width.toFloat() - borderWidth.toFloat()),
-		borderWidth, height
-	)
-	renderRect(
-		matrixStack, colorVertex.x(colorVertex.x.toDouble() + borderWidth.toDouble()),
-		width.toDouble() - 2 * borderWidth.toDouble(), borderWidth
-	)
+	renderRect(matrixStack, colorVertex.x(colorVertex.x.toDouble() + width.toFloat() - borderWidth.toFloat()), borderWidth, height)
+	renderRect(matrixStack, colorVertex.x(colorVertex.x.toDouble() + borderWidth.toDouble()), width.toDouble() - 2 * borderWidth.toDouble(), borderWidth)
 	renderRect(
 		matrixStack, colorVertex.xyz(
 			colorVertex.x.toDouble() + borderWidth.toDouble(),
@@ -236,15 +215,9 @@ fun renderOutline(
  * @param color Color
  * @param borderWidth Number
  */
-fun renderOutline(matrixStack: MatrixStack, transform: Transform, color: Color, borderWidth: Number = 1) {
-	renderOutline(
-		matrixStack,
-		ColorVertexImpl(transform.position, color),
-		transform.width,
-		transform.height,
-		borderWidth,
-	)
-}
+fun renderOutline(matrixStack: MatrixStack, transform: Transform, color: Color, borderWidth: Number = 1) =
+	renderOutline(matrixStack, ColorVertexImpl(transform.position, color), transform.width, transform.height, borderWidth)
+
 
 /**
  * 渲染带边框线条的矩形
@@ -363,13 +336,7 @@ fun drawTexture(
  * @param vertex3 UVVertex
  * @param vertex4 UVVertex
  */
-fun drawTexture(
-	matrixStack: MatrixStack,
-	vertex1: UVVertex,
-	vertex2: UVVertex,
-	vertex3: UVVertex,
-	vertex4: UVVertex,
-) {
+fun drawTexture(matrixStack: MatrixStack, vertex1: UVVertex, vertex2: UVVertex, vertex3: UVVertex, vertex4: UVVertex) {
 	val matrix4f = matrixStack.peek().positionMatrix
 	setShader(GameRenderer::getPositionTexProgram)
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
@@ -389,24 +356,14 @@ fun drawTexture(
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun drawTexture(
-	matrixStack: MatrixStack,
-	quads: Quadrilateral,
-	uvMapping: UVMapping,
-	textureWidth: Int = 256,
-	textureHeight: Int = 256,
-) {
+fun drawTexture(matrixStack: MatrixStack, quads: Quadrilateral, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
 	val matrix4f = matrixStack.peek().positionMatrix
 	setShader(GameRenderer::getPositionTexProgram)
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
-	bufferBuilder.vertex(matrix4f, quads.vertex1)
-		.texture(uvMapping.u1.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
-	bufferBuilder.vertex(matrix4f, quads.vertex2)
-		.texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
-	bufferBuilder.vertex(matrix4f, quads.vertex3)
-		.texture(uvMapping.u1.toFloat() / textureHeight, uvMapping.v2.toFloat() / textureHeight).next()
-	bufferBuilder.vertex(matrix4f, quads.vertex4)
-		.texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v2.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, quads.vertex1).texture(uvMapping.u1.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, quads.vertex2).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, quads.vertex3).texture(uvMapping.u1.toFloat() / textureHeight, uvMapping.v2.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, quads.vertex4).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v2.toFloat() / textureHeight).next()
 	tessellator.draw()
 }
 
@@ -418,15 +375,8 @@ fun drawTexture(
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun drawTexture(
-	matrixStack: MatrixStack,
-	transform: Transform,
-	uvMapping: UVMapping,
-	textureWidth: Int = 256,
-	textureHeight: Int = 256
-) {
+fun drawTexture(matrixStack: MatrixStack, transform: Transform, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
 	drawTexture(matrixStack, transform.asRect, uvMapping, textureWidth, textureHeight)
-}
 
 /**
  *  渲染.9 格式的材质
@@ -491,64 +441,26 @@ fun draw9Texture(
 	val centerY = y.toDouble() + corner.top
 	val bottomY = y.toDouble() + (height.toDouble() - corner.bottom)
 	//top left
-	drawTexture(
-		matrixStack, x, y, corner.left, corner.top, u, v,
-		corner.left, corner.top, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, x, y, corner.left, corner.top, u, v, corner.left, corner.top, textureWidth, textureHeight, zOffset)
 	//top center
-	drawTexture(
-		matrixStack, centerX, y, cw, corner.top, centerU, v,
-		crw, corner.top, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, centerX, y, cw, corner.top, centerU, v, crw, corner.top, textureWidth, textureHeight, zOffset)
 	//top right
-	drawTexture(
-		matrixStack, rightX, y, corner.right, corner.top, rightU, v,
-		corner.right, corner.top, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, rightX, y, corner.right, corner.top, rightU, v, corner.right, corner.top, textureWidth, textureHeight, zOffset)
 	//center left
-	drawTexture(
-		matrixStack, x, centerY, corner.left, ch, u, centerV, corner.left, crh,
-		textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, x, centerY, corner.left, ch, u, centerV, corner.left, crh, textureWidth, textureHeight, zOffset)
 	//center
 	drawTexture(matrixStack, centerX, centerY, cw, ch, centerU, centerV, crw, crh, textureWidth, textureHeight, zOffset)
 	//center right
-	drawTexture(
-		matrixStack, rightX, centerY, corner.right, ch, rightU, centerV,
-		corner.right, crh, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, rightX, centerY, corner.right, ch, rightU, centerV, corner.right, crh, textureWidth, textureHeight, zOffset)
 	//bottom left
-	drawTexture(
-		matrixStack, x, bottomY, corner.left, corner.bottom, u, bottomV,
-		corner.left, corner.bottom, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, x, bottomY, corner.left, corner.bottom, u, bottomV, corner.left, corner.bottom, textureWidth, textureHeight, zOffset)
 	//bottom center
-	drawTexture(
-		matrixStack, centerX, bottomY, cw, corner.bottom, centerU, bottomV,
-		crw, corner.bottom, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, centerX, bottomY, cw, corner.bottom, centerU, bottomV, crw, corner.bottom, textureWidth, textureHeight, zOffset)
 	//bottom right
-	drawTexture(
-		matrixStack, rightX, bottomY, corner.right, corner.bottom, rightU, bottomV,
-		corner.right, corner.bottom, textureWidth, textureHeight,
-		zOffset
-	)
+	drawTexture(matrixStack, rightX, bottomY, corner.right, corner.bottom, rightU, bottomV, corner.right, corner.bottom, textureWidth, textureHeight, zOffset)
 }
 
-fun draw9Texture(
-	matrixStack: MatrixStack,
-	rect: Rectangle,
-	textureUV: TextureUVMapping,
-	textureWidth: Int = 256,
-	textureHeight: Int = 256,
-) {
+fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
 	draw9Texture(
 		matrixStack,
 		rect.position.x,
@@ -574,15 +486,8 @@ fun draw9Texture(
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun draw9Texture(
-	matrixStack: MatrixStack,
-	transform: Transform,
-	textureUV: TextureUVMapping,
-	textureWidth: Int = 256,
-	textureHeight: Int = 256,
-) {
+fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
 	draw9Texture(matrixStack, transform.asRect, textureUV, textureWidth, textureHeight)
-}
 
 /**
  * 渲染.9 格式的材质
@@ -594,16 +499,9 @@ fun draw9Texture(
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun draw9Texture(
-	matrixStack: MatrixStack,
-	rect: Rectangle,
-	cornerSize: Int,
-	uvMapping: UVMapping,
-	textureWidth: Int = 256,
-	textureHeight: Int = 256,
-) {
+fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, cornerSize: Int, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
 	draw9Texture(matrixStack, rect, TextureUVMapping(Corner(cornerSize), uvMapping), textureWidth, textureHeight)
-}
+
 
 /**
  * @see draw9Texture
@@ -614,23 +512,9 @@ fun draw9Texture(
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun draw9Texture(
-	matrixStack: MatrixStack,
-	transform: Transform,
-	cornerSize: Int,
-	uvMapping: UVMapping,
-	textureWidth: Int = 256,
-	textureHeight: Int = 256,
-) {
-	draw9Texture(
-		matrixStack,
-		transform.asRect,
-		cornerSize,
-		uvMapping,
-		textureWidth,
-		textureHeight,
-	)
-}
+fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
+	draw9Texture(matrixStack, transform.asRect, cornerSize, uvMapping, textureWidth, textureHeight)
+
 
 /**
  * 渲染纹理
@@ -640,13 +524,7 @@ fun draw9Texture(
  * @param textureInfo TextureInfo
  * @param shaderColor Color
  */
-fun renderTexture(
-	matrixStack: MatrixStack,
-	rect: Rectangle,
-	textureUV: TextureUVMapping,
-	textureInfo: TextureInfo,
-	shaderColor: Color = Colors.WHITE,
-) {
+fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureInfo: TextureInfo, shaderColor: Color = Colors.WHITE) {
 	setShaderTexture(textureInfo.texture)
 	enableBlend()
 	defaultBlendFunc()
@@ -664,15 +542,18 @@ fun renderTexture(
  * @param textureUV GuiTexture
  * @param shaderColor Color
  */
-fun renderTexture(
-	matrixStack: MatrixStack,
-	transform: Transform,
-	textureUV: TextureUVMapping,
-	textureInfo: TextureInfo,
-	shaderColor: Color = Colors.WHITE,
-) {
+fun renderTexture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureInfo: TextureInfo, shaderColor: Color = Colors.WHITE) =
 	renderTexture(matrixStack, transform.asRect, textureUV, textureInfo, shaderColor)
-}
+
+/**
+ * 渲染材质
+ * @param matrixStack MatrixStack
+ * @param transform Transform
+ * @param widgetTexture WidgetTexture
+ * @param shaderColor Color
+ */
+fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) =
+	renderTexture(matrixStack, transform.asRect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 
 /**
  * 渲染文本
@@ -701,8 +582,7 @@ fun TextRenderer.renderText(
 	val immediate = VertexConsumerProvider.immediate(bufferBuilder)
 	draw(
 		text.string, x.toFloat(), y.toFloat(), color.argb, shadow, matrixStack.peek().positionMatrix,
-		immediate, seeThrough,
-		backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft
+		immediate, seeThrough, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft
 	)
 	immediate.draw()
 }
@@ -731,11 +611,7 @@ fun TextRenderer.renderAlignmentText(
 ) {
 	val textWidth = getWidth(text)
 	val position = align.align(rect, Rectangle(vertex(Vector3f()), textWidth, fontHeight))
-	renderText(
-		matrixStack, text, position.x, position.y,
-		shadow, seeThrough, rightToLeft,
-		color, backgroundColor
-	)
+	renderText(matrixStack, text, position.x, position.y, shadow, seeThrough, rightToLeft, color, backgroundColor)
 }
 
 /**
@@ -760,12 +636,8 @@ fun TextRenderer.renderAlignmentText(
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
-) {
-	renderAlignmentText(
-		matrixStack, text, transform.asRect, align,
-		shadow, seeThrough, rightToLeft, color, backgroundColor
-	)
-}
+) = renderAlignmentText(matrixStack, text, transform.asRect, align, shadow, seeThrough, rightToLeft, color, backgroundColor)
+
 
 /**
  * 绘制多行字符串文本
@@ -866,14 +738,8 @@ fun TextRenderer.renderTextLines(
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
-) {
-	renderStringLines(
-		matrixStack,
-		text.string,
-		rect, lineSpacing,
-		align, shadow, seeThrough, rightToLeft, color, backgroundColor,
-	)
-}
+) = renderStringLines(matrixStack, text.string, rect, lineSpacing, align, shadow, seeThrough, rightToLeft, color, backgroundColor)
+
 
 /**
  * 绘制多行文本

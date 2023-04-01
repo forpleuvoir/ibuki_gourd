@@ -9,7 +9,8 @@
   "client": [
     "client.KeyboardMixin",
     "client.MainMixin",
-    "client.MinecraftClientMixin"
+    "client.MinecraftClientMixin",
+    "client.MouseMixin"
   ],
   "server": [
     "server.MainMixin"

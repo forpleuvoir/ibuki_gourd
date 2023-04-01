@@ -2,6 +2,7 @@ package com.forpleuvoir.ibukigourd.input
 
 import com.forpleuvoir.ibukigourd.api.Tickable
 import com.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
+import com.forpleuvoir.ibukigourd.input.Keyboard.*
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.ibukigourd.util.isDevEnv
 
@@ -9,41 +10,33 @@ object InputHandler : Tickable {
 
 	private val keyBinds: MutableList<KeyBind> = ArrayList()
 
-	private val beforePressKeyCode: MutableList<Int> = ArrayList()
+	private val beforePressKeyCode: MutableList<KeyCode> = ArrayList()
 
 	/**
 	 * 当前按下的所有键
 	 */
-	private val currentPressKeyCode: MutableList<Int> = ArrayList()
+	private val currentPressKeyCode: MutableList<KeyCode> = ArrayList()
 
 	init {
 		isDevEnv {
-			keyBinds.add(KeyBind(KEY_LEFT_CONTROL, KEY_KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
+			keyBinds.add(KeyBind(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
 				println("按下了 1")
 			})
-			keyBinds.add(KeyBind(KEY_LEFT_CONTROL, KEY_KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
+			keyBinds.add(KeyBind(LEFT_CONTROL, KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
 				println("按住了 2")
 			})
 			keyBinds.add(
-				KeyBind(
-					KEY_LEFT_CONTROL,
-					KEY_KP_3,
-					defaultSetting = keyBindSetting(triggerMode = OnLongPress)
-				) {
+				KeyBind(LEFT_CONTROL, KP_3, defaultSetting = keyBindSetting(triggerMode = OnLongPress)) {
 					println("长按了 3")
 				})
 			keyBinds.add(
-				KeyBind(
-					KEY_LEFT_CONTROL,
-					KEY_KP_4,
-					defaultSetting = keyBindSetting(triggerMode = OnLongPressed)
-				) {
+				KeyBind(LEFT_CONTROL, KP_4, defaultSetting = keyBindSetting(triggerMode = OnLongPressed)) {
 					println("长按住了 4")
 				})
-			keyBinds.add(KeyBind(KEY_LEFT_CONTROL, KEY_KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
+			keyBinds.add(KeyBind(LEFT_CONTROL, KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
 				println("释放了 5")
 			})
-			keyBinds.add(KeyBind(KEY_LEFT_CONTROL, KEY_KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
+			keyBinds.add(KeyBind(LEFT_CONTROL, KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
 				println("按下或者释放了 6")
 			})
 		}
@@ -64,7 +57,7 @@ object InputHandler : Tickable {
 	}
 
 	@JvmStatic
-	fun onKeyPress(keyCode: Int): NextAction {
+	fun onKeyPress(keyCode: KeyCode): NextAction {
 		if (!currentPressKeyCode.contains(keyCode)) {
 			//changed
 			currentPressKeyCode.add(keyCode)
@@ -81,7 +74,7 @@ object InputHandler : Tickable {
 	}
 
 	@JvmStatic
-	fun onKeyRelease(keyCode: Int): NextAction {
+	fun onKeyRelease(keyCode: KeyCode): NextAction {
 		if (currentPressKeyCode.contains(keyCode)) {
 			//changed
 			currentPressKeyCode.remove(keyCode)

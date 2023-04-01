@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.gui.base
 
 import com.forpleuvoir.ibukigourd.api.Tickable
+import com.forpleuvoir.ibukigourd.input.Mouse
 import com.forpleuvoir.ibukigourd.render.Drawable
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.nebula.common.api.Initializable
@@ -31,6 +32,23 @@ interface Element : Drawable, Tickable, Initializable {
 	 */
 	override val renderPriority: Int
 		get() = priority
+
+	/**
+	 * 子元素
+	 */
+	val elementTree: List<Element>
+
+	fun addElement(element: Element): Element
+
+	fun preElement(element: Element): Element?
+
+	fun nextElement(element: Element): Element?
+
+	fun elementIndexOf(element: Element): Int
+
+	fun removeElement(element: Element): Boolean
+
+	fun removeElement(index: Int)
 
 
 	/**
@@ -93,7 +111,7 @@ interface Element : Drawable, Tickable, Initializable {
 	 * @param mouseY Number
 	 * @return 是否处理之后的同类操作
 	 */
-	var mouseClick: (mouseX: Number, mouseY: Number, button: Int) -> NextAction
+	var mouseClick: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
 
 	/**
 	 * 鼠标点击
@@ -102,7 +120,7 @@ interface Element : Drawable, Tickable, Initializable {
 	 * @param mouseY Number
 	 * @return 是否处理之后的同类操作
 	 */
-	fun onMouseClick(mouseX: Number, mouseY: Number, button: Int): NextAction = NextAction.Cancel
+	fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
 
 	/**
 	 * 鼠标释放
@@ -111,7 +129,7 @@ interface Element : Drawable, Tickable, Initializable {
 	 * @param mouseY Number
 	 * @return 是否处理之后的同类操作
 	 */
-	var mouseRelease: (mouseX: Number, mouseY: Number, button: Int) -> NextAction
+	var mouseRelease: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
 
 	/**
 	 * 鼠标释放
@@ -120,7 +138,7 @@ interface Element : Drawable, Tickable, Initializable {
 	 * @param mouseY Number
 	 * @return 是否处理之后的同类操作
 	 */
-	fun onMouseRelease(mouseX: Number, mouseY: Number, button: Int): NextAction = NextAction.Cancel
+	fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
 
 	/**
 	 * 鼠标拖动

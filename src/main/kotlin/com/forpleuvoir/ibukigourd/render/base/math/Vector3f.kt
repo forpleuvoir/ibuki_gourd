@@ -36,6 +36,10 @@ class Vector3f(
 		return Vector3f(-x, -y, -z)
 	}
 
+	override operator fun plus(vector3: Vector3<Float>): Vector3f {
+		return plus(vector3.x, vector3.y, vector3.z)
+	}
+
 	override fun plus(x: Float, y: Float, z: Float): Vector3f {
 		return Vector3f(this.x + x, this.y + y, this.z + z)
 	}
@@ -44,6 +48,10 @@ class Vector3f(
 		this.x += x
 		this.y += y
 		this.z += z
+	}
+
+	override operator fun minus(vector3: Vector3<Float>): Vector3f {
+		return minus(vector3.x, vector3.y, vector3.z)
 	}
 
 	override fun minus(x: Float, y: Float, z: Float): Vector3f {
@@ -56,7 +64,11 @@ class Vector3f(
 		this.z -= z
 	}
 
-	override fun times(x: Float, y: Float, z: Float): Vector3<Float> {
+	override operator fun times(vector3: Vector3<Float>): Vector3f {
+		return times(vector3.x, vector3.y, vector3.z)
+	}
+
+	override fun times(x: Float, y: Float, z: Float): Vector3f {
 		return Vector3f(this.x * x, this.y * y, this.z * z)
 	}
 
@@ -66,7 +78,11 @@ class Vector3f(
 		this.z *= z
 	}
 
-	override fun div(x: Float, y: Float, z: Float): Vector3<Float> {
+	override operator fun div(vector3: Vector3<Float>): Vector3f {
+		return div(vector3.x, vector3.y, vector3.z)
+	}
+
+	override fun div(x: Float, y: Float, z: Float): Vector3f {
 		return Vector3f(this.x / x, this.y / y, this.z / z)
 	}
 
@@ -76,7 +92,12 @@ class Vector3f(
 		this.z /= z
 	}
 
-	override fun rem(x: Float, y: Float, z: Float): Vector3<Float> {
+	override operator fun rem(vector3: Vector3<Float>): Vector3f {
+		return rem(vector3.x, vector3.y, vector3.z)
+	}
+
+
+	override fun rem(x: Float, y: Float, z: Float): Vector3f {
 		return Vector3f(this.x % x, this.y % y, this.z % z)
 	}
 

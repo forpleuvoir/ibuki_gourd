@@ -2,6 +2,7 @@ package com.forpleuvoir.ibukigourd.mixin.client;
 
 import com.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent;
 import com.forpleuvoir.ibukigourd.input.InputHandler;
+import com.forpleuvoir.ibukigourd.input.KeyCode;
 import com.forpleuvoir.ibukigourd.util.NextAction;
 import com.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.Keyboard;
@@ -27,25 +28,26 @@ abstract class KeyboardMixin {
 	@Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
 	public void onKeyPress(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
 		if (window == this.client.getWindow().getHandle()) {
+			var keyCode = KeyCode.fromCode(key);
 			//key press
 			if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-				var keyEvent = new KeyboardEvent.KeyPressEvent(key, InputUtil.fromKeyCode(key, 0).getLocalizedText().getString(), currentEnv());
+				var keyEvent = new KeyboardEvent.KeyPressEvent(keyCode, InputUtil.fromKeyCode(key, 0).getLocalizedText().getString(), currentEnv());
 				EventBus.Companion.broadcast(keyEvent);
 				if (keyEvent.getCanceled()) {
 					ci.cancel();
 					return;
 				}
-				if (InputHandler.onKeyPress(key) == NextAction.Cancel) ci.cancel();
+				if (InputHandler.onKeyPress(keyCode) == NextAction.Cancel) ci.cancel();
 			}
 			//key release
 			else if (action == GLFW_RELEASE) {
-				var keyEvent = new KeyboardEvent.KeyReleaseEvent(key, InputUtil.fromKeyCode(key, 0).getLocalizedText().getString(), currentEnv());
+				var keyEvent = new KeyboardEvent.KeyReleaseEvent(keyCode, InputUtil.fromKeyCode(key, 0).getLocalizedText().getString(), currentEnv());
 				EventBus.Companion.broadcast(keyEvent);
 				if (keyEvent.getCanceled()) {
 					ci.cancel();
 					return;
 				}
-				if (InputHandler.onKeyRelease(key) == NextAction.Cancel) ci.cancel();
+				if (InputHandler.onKeyRelease(keyCode) == NextAction.Cancel) ci.cancel();
 			}
 		}
 

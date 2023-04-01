@@ -26,7 +26,7 @@ import java.util.function.Consumer
 @Suppress("MemberVisibilityCanBePrivate")
 @Environment(EnvType.CLIENT)
 class KeyBind(
-	vararg keyCodes: Int,
+	vararg keyCodes: KeyCode,
 	private val defaultSetting: KeyBindSetting = keyBindSetting(),
 	action: KeyBind.() -> Unit = {}
 ) : Tickable, Resettable, Notifiable<KeyBind>, Matchable, Serializable, Deserializable {
@@ -35,14 +35,14 @@ class KeyBind(
 
 	val uuid: UUID = UUID.randomUUID()
 
-	private val defaultKeys: MutableList<Int> = keyCodes.toMutableList()
+	private val defaultKeys: MutableList<KeyCode> = keyCodes.toMutableList()
 
 	val setting: KeyBindSetting = keyBindSetting().apply { copyOf(defaultSetting) }
 
-	val keys: MutableList<Int> = ArrayList(defaultKeys)
+	val keys: MutableList<KeyCode> = ArrayList(defaultKeys)
 
 	constructor(keyBind: KeyBind) : this(
-		*keyBind.keys.toIntArray(),
+		*keyBind.keys.toTypedArray(),
 		defaultSetting = keyBind.setting,
 		action = keyBind.action
 	)
@@ -61,7 +61,7 @@ class KeyBind(
 	 */
 	private var tickCount: Long = 0
 
-	fun setKey(vararg keyCodes: Int): Boolean {
+	fun setKey(vararg keyCodes: KeyCode): Boolean {
 		return if (!keys.exactMatch(keyCodes.toList())) {
 			keys.clear()
 			keys.addAll(keyCodes.toMutableList())
@@ -70,7 +70,7 @@ class KeyBind(
 		} else false
 	}
 
-	fun onKeyPress(beforeKeyCode: List<Int>, currentKeyCode: List<Int>): NextAction {
+	fun onKeyPress(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): NextAction {
 		if (currentKeyCode.isEmpty() || setting.environment.envMatch()) {
 			wasPress = false
 			return NextAction.Continue
@@ -94,7 +94,7 @@ class KeyBind(
 		return NextAction.Continue
 	}
 
-	fun onKeyRelease(beforeKeyCode: List<Int>, currentKeyCode: List<Int>): NextAction {
+	fun onKeyRelease(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): NextAction {
 		if (beforeKeyCode.isEmpty() || setting.environment.envMatch()) {
 			wasPress = false
 			return NextAction.Continue
@@ -144,10 +144,10 @@ class KeyBind(
 		get() {
 			val list = LinkedList<Text>()
 			keys.forEach {
-				if (it > 8)
-					list.addLast(literal("").append(InputUtil.fromKeyCode(it, 0).localizedText))
+				if (it.code > 8)
+					list.addLast(literal("").append(InputUtil.fromKeyCode(it.code, 0).localizedText))
 				else
-					list.addLast(literal("").append(InputUtil.Type.MOUSE.createFromCode(it).localizedText))
+					list.addLast(literal("").append(InputUtil.Type.MOUSE.createFromCode(it.code).localizedText))
 			}
 			return list
 		}
@@ -156,10 +156,10 @@ class KeyBind(
 		get() {
 			val list = LinkedList<String>()
 			keys.forEach {
-				if (it > 8)
-					list.addLast(InputUtil.fromKeyCode(it, 0).translationKey)
+				if (it.code > 8)
+					list.addLast(InputUtil.fromKeyCode(it.code, 0).translationKey)
 				else
-					list.addLast(InputUtil.Type.MOUSE.createFromCode(it).translationKey)
+					list.addLast(InputUtil.Type.MOUSE.createFromCode(it.code).translationKey)
 			}
 			return list
 		}
@@ -185,12 +185,12 @@ class KeyBind(
 
 	override fun restDefault() {
 		setting.copyOf(defaultSetting)
-		setKey(*defaultKeys.toIntArray())
+		setKey(*defaultKeys.toTypedArray())
 	}
 
 	fun copyOf(target: KeyBind): Boolean {
 		var valueChange = setting.copyOf(target.setting)
-		if (this.setKey(*target.keys.toIntArray())) valueChange = true
+		if (this.setKey(*target.keys.toTypedArray())) valueChange = true
 		if (action != target.action) {
 			action = target.action
 			valueChange = true
@@ -210,7 +210,7 @@ class KeyBind(
 			val obj = serializeElement.asObject
 			keys.clear()
 			obj["keys"]!!.asArray.forEach {
-				keys.add(InputUtil.fromTranslationKey(it.asString).code)
+				keys.add(KeyCode.fromCode(InputUtil.fromTranslationKey(it.asString).code))
 			}
 			setting.deserialization(obj["setting"]!!)
 			onChange(this)

@@ -8,7 +8,7 @@ import com.forpleuvoir.nebula.serialization.base.SerializeElement
 import com.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 
-interface Vector3<T : Number> : Serializable, Deserializable {
+sealed interface Vector3<T : Number> : Serializable, Deserializable {
 
 	var x: T
 	var y: T
@@ -60,8 +60,6 @@ interface Vector3<T : Number> : Serializable, Deserializable {
 
 	fun xyz(x: T = this.x, y: T = this.y, z: T = this.z): Vector3<T>
 
-	operator fun unaryMinus(): Vector3<T>
-
 	operator fun plus(vector3: Vector3<T>): Vector3<T> {
 		return plus(vector3.x, vector3.y, vector3.z)
 	}
@@ -86,6 +84,8 @@ interface Vector3<T : Number> : Serializable, Deserializable {
 	}
 
 	fun minusAssign(x: T, y: T, z: T)
+
+	operator fun unaryMinus(): Vector3<T>
 
 	operator fun times(vector3: Vector3<T>): Vector3<T> {
 		return times(vector3.x, vector3.y, vector3.z)

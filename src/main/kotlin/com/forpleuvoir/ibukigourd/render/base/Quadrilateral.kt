@@ -38,7 +38,7 @@ open class Rectangle(
 
 	val z = position.z
 
-	val center: Vector3f get() = Vector3f(this.width / 2, this.height / 2, z)
+	val center: Vector3f get() = Vector3f(x + this.width / 2, y + this.height / 2, z)
 
 
 }

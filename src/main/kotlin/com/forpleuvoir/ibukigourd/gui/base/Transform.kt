@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.forpleuvoir.ibukigourd.gui.base
 
 import com.forpleuvoir.ibukigourd.render.base.Rectangle
@@ -11,24 +13,67 @@ import com.forpleuvoir.nebula.common.ifc
 /**
  * 变换青春版
  */
-@Suppress("unused", "MemberVisibilityCanBePrivate")
 open class Transform(
 	val position: Vector3f = Vector3f(),
+	/**
+	 * 是否为世界坐标轴
+	 */
+	isWorldAxis: Boolean = false,
 	val width: Float = 0.0f,
 	val height: Float = 0.0f,
 	var parent: Transform? = null,
-	var root: Transform? = null
 ) {
 
-	val asRect: Rectangle get() = Rectangle(VertexImpl(position), width, height)
 
-	val top: Float get() = position.y
+	var isWorldAxis: Boolean = isWorldAxis
+		set(value) {
+			field = value
+			if (value) parent?.let { position += it.worldPosition }
+		}
 
-	val bottom: Float get() = position.y + height
+	val worldPosition: Vector3f
+		get() {
+			if (isWorldAxis) return position
+			var pos = position
+			parent?.let { pos = it.worldPosition + position }
+			return pos
+		}
 
-	val left: Float get() = position.x
+	val asRect: Rectangle get() = Rectangle(VertexImpl(worldPosition), width, height)
 
-	val right: Float get() = position.x + width
+	val x = position.x
+
+	val worldX = worldPosition.x
+
+	val y = position.y
+
+	val worldY = worldPosition.y
+
+	val z = position.z
+
+	val worldZ = worldPosition.z
+
+	val top: Float get() = y
+
+	val worldTop: Float get() = worldY
+
+	val bottom: Float get() = top + height
+
+	val worldBottom: Float get() = worldTop + height
+
+	val left: Float get() = x
+
+	val worldLeft: Float get() = worldX
+
+	val right: Float get() = left + width
+
+	val worldRight: Float get() = worldLeft + width
+
+
+	val center: Vector3f get() = Vector3f(x + this.width / 2, y + this.height / 2, z)
+
+	val worldCenter: Vector3f get() = Vector3f(worldX + this.width / 2, worldY + this.height / 2, worldZ)
+
 
 	/**
 	 * 鼠标是否在此元素[Element]内部
