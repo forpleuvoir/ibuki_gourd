@@ -21,11 +21,11 @@ abstract class AbstractElement : Element {
 
 	override val elementTree: List<Element> get() = elements
 
-	protected val renderTree get() = elementTree.sortedBy { it.renderPriority }
+	override val renderTree get() = elementTree.sortedBy { it.renderPriority }
 
-	protected val handleTree get() = elementTree.sortedByDescending { it.priority }
+	override val handleTree get() = elementTree.sortedByDescending { it.priority }
 
-	override fun addElement(element: Element): Element {
+	override fun <T : Element> addElement(element: T): T {
 		elements.add(element)
 		element.transform.parent = this.transform
 		return element

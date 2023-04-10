@@ -19,7 +19,7 @@ object IbukiGourd : ModInitializer {
 
 	override fun onInitialize() {
 		MixinExtrasBootstrap.init()
-		loader.allMods.forEach {
+		loader.getModContainer(MOD_ID).ifPresent {
 			EventBus.broadcast(ModInitializerEvent(it.metadata))
 		}
 		CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess, environment ->

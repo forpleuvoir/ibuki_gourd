@@ -38,7 +38,11 @@ interface Element : Drawable, Tickable, Initializable {
 	 */
 	val elementTree: List<Element>
 
-	fun addElement(element: Element): Element
+	val renderTree: List<Element>
+
+	val handleTree: List<Element>
+
+	fun <T : Element> addElement(element: T): T
 
 	fun preElement(element: Element): Element?
 

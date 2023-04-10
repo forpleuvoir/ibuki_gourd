@@ -3,62 +3,87 @@ package com.forpleuvoir.ibukigourd.gui.texture
 import com.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import com.forpleuvoir.ibukigourd.render.base.texture.Corner
 import com.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
-import com.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
-import com.forpleuvoir.ibukigourd.util.resourceManager
+import com.forpleuvoir.ibukigourd.util.logger
 import com.forpleuvoir.ibukigourd.util.resources
 import com.forpleuvoir.nebula.event.EventSubscriber
 import com.forpleuvoir.nebula.event.Subscriber
-import com.forpleuvoir.nebula.serialization.json.parseToJsonObject
+import com.forpleuvoir.nebula.serialization.json.jsonStringToObject
 import com.google.common.io.CharStreams
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener
 import net.minecraft.resource.ResourceManager
-import net.minecraft.resource.SynchronousResourceReloader
-import java.io.InputStreamReader
-import java.nio.charset.StandardCharsets
+import net.minecraft.resource.ResourceType
+import net.minecraft.util.Identifier
+import kotlin.reflect.full.isSubclassOf
 
 @EventSubscriber
-object IbukiGourdTextures : SynchronousResourceReloader {
+object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 
-	val TEXTURE_INFO = resources("texture/gui/ibukigourd_widget.json")
+	private val log = logger()
 
-	val TEXTURE = resources("texture/gui/ibukigourd_widget.png")
+	val TEXTURE_INFO_RESOURCES = resources("texture/gui/ibukigourd_widget.json")
 
-	val INFO = TextureInfo(256, 256, TEXTURE)
+	val TEXTURE_RESOURCES = resources("texture/gui/ibukigourd_widget.png")
+
+	val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
 
 	@Subscriber
 	fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
-		resourceManager.registerReloader(this)
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
+			.registerReloadListener(this)
 	}
+
+	override fun getFabricId(): Identifier = resources("widget")
+
 
 	override fun reload(manager: ResourceManager) {
-		CharStreams.toString(
-			InputStreamReader(
-				manager.getResource(TEXTURE_INFO).get().inputStream,
-				StandardCharsets.UTF_8
-			)
-		).parseToJsonObject.apply {
-
-
+		log.info("load widget textures...")
+		try {
+			manager.getResource(TEXTURE_INFO_RESOURCES).ifPresent { resource ->
+				CharStreams.toString(resource.inputStream.reader())
+					.jsonStringToObject().apply {
+						IbukiGourdTextures.javaClass.declaredFields
+							.asSequence()
+							.filter { field ->
+								field.type.kotlin.isSubclassOf(WidgetTexture::class)
+							}.forEach { widgetTexture ->
+								widgetTexture.isAccessible = true
+								val name = widgetTexture.name
+								val oldValue = widgetTexture.get(IbukiGourdTextures) as WidgetTexture
+								val newValue = WidgetTexture.deserialization(this[name], oldValue)
+								if (oldValue != newValue) widgetTexture.set(IbukiGourdTextures, newValue)
+							}
+					}
+			}
+		} catch (e: Exception) {
+			log.error("widget textures load fail", e)
 		}
+
 	}
 
-	var BUTTON_IDLE_1: WidgetTexture = WidgetTexture(TextureUVMapping(Corner(4), 0, 0, 15, 15), INFO)
+	var BUTTON_IDLE_1: WidgetTexture = WidgetTexture(Corner(4), 0, 0, 15, 15, TEXTURE_INFO)
 		private set
 
-	var BUTTON_HOVERED_1: WidgetTexture = WidgetTexture(TextureUVMapping(Corner(4), 0, 16, 15, 31), INFO)
+	var BUTTON_HOVERED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 16, 15, 31, TEXTURE_INFO)
 		private set
 
-	var BUTTON_PRESSED_1: WidgetTexture = WidgetTexture(TextureUVMapping(Corner(4), 0, 32, 15, 47), INFO)
+	var BUTTON_PRESSED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 32, 15, 47, TEXTURE_INFO)
 		private set
 
-	var BUTTON_IDLE_2: WidgetTexture = WidgetTexture(TextureUVMapping(Corner(4), 16, 0, 32, 15), INFO)
+	var BUTTON_DISABLED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 32, 15, 47, TEXTURE_INFO)
 		private set
 
-	var BUTTON_HOVERED_2: WidgetTexture = WidgetTexture(TextureUVMapping(Corner(4), 16, 16, 32, 31), INFO)
+	var BUTTON_IDLE_2: WidgetTexture = WidgetTexture(Corner(4), 16, 0, 32, 15, TEXTURE_INFO)
 		private set
 
-	var BUTTON_PRESSED_2: WidgetTexture = WidgetTexture(TextureUVMapping(Corner(4), 16, 32, 32, 47), INFO)
+	var BUTTON_HOVERED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 16, 32, 31, TEXTURE_INFO)
 		private set
 
+	var BUTTON_PRESSED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 47, TEXTURE_INFO)
+		private set
+
+	var BUTTON_DISABLED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 47, TEXTURE_INFO)
+		private set
 
 }
 

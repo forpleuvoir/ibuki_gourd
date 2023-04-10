@@ -24,7 +24,6 @@ open class Transform(
 	var parent: Transform? = null,
 ) {
 
-
 	var isWorldAxis: Boolean = isWorldAxis
 		set(value) {
 			field = value

@@ -1,6 +1,6 @@
 package com.forpleuvoir.ibukigourd.render.base.texture
 
-import com.google.gson.JsonObject
+import com.forpleuvoir.nebula.serialization.base.SerializeElement
 
 open class TextureUVMapping(
 	val corner: Corner,
@@ -13,15 +13,36 @@ open class TextureUVMapping(
 
 	companion object {
 
-		fun fromJson(jsonObject: JsonObject?, default: TextureUVMapping): TextureUVMapping {
-			if (jsonObject == null) return default
-			jsonObject.apply {
-				val corner = Corner.fromJson(get("corner"), default.corner)
-				val uv = UVMapping.fromJson(jsonObject, default)
+		fun deserialization(serializeElement: SerializeElement?, default: TextureUVMapping): TextureUVMapping {
+			if (serializeElement == null || !serializeElement.isObject) return default
+			serializeElement.asObject.apply {
+				val corner = Corner.deserialization(get("corner"), default.corner)
+				val uv = UVMapping.deserialization(this, default)
 				return TextureUVMapping(corner, uv)
 			}
 		}
 
+	}
+
+
+	override fun toString(): String {
+		return "TextureUVMapping(corner=$corner,u1=$u1, v1=$v1, u2=$u2, v2=$v2)"
+	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+		if (!super.equals(other)) return false
+
+		other as TextureUVMapping
+
+		return corner == other.corner
+	}
+
+	override fun hashCode(): Int {
+		var result = super.hashCode()
+		result = 31 * result + corner.hashCode()
+		return result
 	}
 
 }

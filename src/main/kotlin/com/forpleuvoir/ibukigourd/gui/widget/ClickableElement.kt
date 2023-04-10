@@ -21,31 +21,32 @@ abstract class ClickableElement : AbstractElement() {
 
 	override fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
-		if (button == Mouse.LEFT) {
+		if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+		if (button == Mouse.LEFT && transform.mouseHover()) {
 			soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
 			pressed = true
 			return onClick()
 		}
-		return super.onMouseClick(mouseX, mouseY, button)
+		return NextAction.Continue
 	}
 
 	override fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
+		if (super.onMouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		if (button == Mouse.LEFT) {
-			pressed = true
+			pressed = false
 			return onRelease()
 		}
-		return super.onMouseRelease(mouseX, mouseY, button)
+		return NextAction.Continue
 	}
 
 
-	protected fun <T> status(idle: T, hovered: T, pressed: T): T {
-		return if (active)
-			if (transform.mouseHover())
-				if (this.pressed)
-					pressed
-				else hovered
+	protected fun <T> status(disabled: T, idle: T, hovered: T, pressed: T): T {
+		return if (active) {
+			if (this.pressed) pressed
+			else if (transform.mouseHover()) hovered
 			else idle
-		else pressed
+		} else disabled
 	}
+
 }

@@ -14,19 +14,19 @@ open class ModLogger(clazz: KClass<*>, modName: String) {
 		log = LoggerFactory.getLogger("${modName}[${clazz.simpleName ?: clazz.java.simpleName}]")
 	}
 
-	fun info(str: String, vararg params: Any?) {
-		log.info(str, *params)
+	fun info(msg: String, vararg params: Any?) {
+		log.info(msg, *params)
 	}
 
-	fun error(str: String, vararg params: Any?) {
-		log.error(str, *params)
+	fun error(msg: String, vararg params: Any?) {
+		log.error(msg, *params)
 	}
 
 	fun error(e: Exception) {
 		log.error(e.message, e)
 	}
 
-	fun warn(str: String, vararg params: Any?) {
-		log.warn(str, *params)
+	fun warn(msg: String, vararg params: Any?) {
+		log.warn(msg, *params)
 	}
 }
