@@ -6,7 +6,7 @@ plugins {
 	java
 	signing
 	id("fabric-loom") version "0.13-SNAPSHOT"
-	kotlin("jvm") version "1.7.22"
+	kotlin("jvm") version "1.8.20"
 	id("maven-publish")
 }
 
