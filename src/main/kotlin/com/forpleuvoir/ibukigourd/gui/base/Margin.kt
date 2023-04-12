@@ -1,6 +1,6 @@
 package com.forpleuvoir.ibukigourd.gui.base
 
-data class Padding(
+data class Margin(
     val left: Float = 0.0f,
     val right: Float = 0.0f,
     val top: Float = 0.0f,

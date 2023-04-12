@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.gui.base
 
 import com.forpleuvoir.ibukigourd.api.Tickable
+import com.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import com.forpleuvoir.ibukigourd.input.Mouse
 import com.forpleuvoir.ibukigourd.render.Drawable
 import com.forpleuvoir.ibukigourd.util.NextAction
@@ -10,226 +11,232 @@ import net.minecraft.client.util.math.MatrixStack
 @Suppress("unused", "KDocUnresolvedReference")
 interface Element : Drawable, Tickable, Initializable {
 
-	/**
-	 * 基础属性变换
-	 */
-	val transform: Transform
+    /**
+     * 基础属性变换
+     */
+    val transform: Transform
 
-	/**
-	 * 是否为激活的元素
-	 */
-	var active: Boolean
+    /**
+     * 是否为激活的元素
+     */
+    var active: Boolean
 
-	/**
-	 * 处理优先级 越高越优先处理
-	 */
-	val priority: Int
-		get() = transform.position.z.toInt()
+    /**
+     * 处理优先级 越高越优先处理
+     */
+    val priority: Int
+        get() = transform.position.z.toInt()
+
+    /**
+     * 固定元素，不会受到布局排列方法 [com.forpleuvoir.ibukigourd.gui.base.layout.Layout.arrange] 的位置调整
+     */
+    val fixed: Boolean
+
+    val layout: Layout
+
+    /**
+     * 渲染优先级 越高渲染层级越高
+     */
+    override val renderPriority: Int
+        get() = priority
+
+    /**
+     * 子元素
+     */
+    val elementTree: List<Element>
+
+    val renderTree: List<Element>
+
+    val handleTree: List<Element>
+
+    fun <T : Element> addElement(element: T): T
+
+    fun preElement(element: Element): Element?
+
+    fun nextElement(element: Element): Element?
+
+    fun elementIndexOf(element: Element): Int
+
+    fun removeElement(element: Element): Boolean
+
+    fun removeElement(index: Int)
 
 
-	/**
-	 * 渲染优先级 越高渲染层级越高
-	 */
-	override val renderPriority: Int
-		get() = priority
+    /**
+     *
+     * 以下方法和对应作为对象的高阶函数
+     *
+     * 应该是高阶函数作为被系统内部调用的方法
+     *
+     * 普通方法由子类实现
+     *
+     * 如果在DSL场景需要给对应方法添加代码，只需要给对应的高阶函数重新赋值
+     *
+     * 子类重写方法,调用者调用高阶函数
+     *
+     * 例:
+     *
+     * render={matrixStack,delta ->
+     *
+     *     onRender(matrixStack,delta)
+     *     code
+     * }
+     *
+     */
+    var tick: () -> Unit
 
-	/**
-	 * 子元素
-	 */
-	val elementTree: List<Element>
+    override fun tick() {}
 
-	val renderTree: List<Element>
+    /**
+     * 渲染元素
+     * @param matrixStack MatrixStack
+     * @param delta Double 距离上一帧数渲染时间
+     */
+    override var render: (matrixStack: MatrixStack, delta: Double) -> Unit
 
-	val handleTree: List<Element>
+    /**
+     * 渲染元素
+     * @param matrixStack MatrixStack
+     * @param delta Double 距离上一帧数渲染时间
+     */
+    override fun onRender(matrixStack: MatrixStack, delta: Double)
 
-	fun <T : Element> addElement(element: T): T
+    /**
+     * 鼠标移动
+     * @param mouseX Number
+     * @param mouseY Number
+     */
+    var mouseMove: (mouseX: Number, mouseY: Number) -> Unit
 
-	fun preElement(element: Element): Element?
+    /**
+     * 鼠标移动
+     * @param mouseX Number
+     * @param mouseY Number
+     */
+    fun onMouseMove(mouseX: Number, mouseY: Number) {}
 
-	fun nextElement(element: Element): Element?
+    /**
+     * 鼠标点击
+     * @param button Int
+     * @param mouseX Number
+     * @param mouseY Number
+     * @return 是否处理之后的同类操作
+     */
+    var mouseClick: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
 
-	fun elementIndexOf(element: Element): Int
+    /**
+     * 鼠标点击
+     * @param button Int
+     * @param mouseX Number
+     * @param mouseY Number
+     * @return 是否处理之后的同类操作
+     */
+    fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
 
-	fun removeElement(element: Element): Boolean
+    /**
+     * 鼠标释放
+     * @param button Int
+     * @param mouseX Number
+     * @param mouseY Number
+     * @return 是否处理之后的同类操作
+     */
+    var mouseRelease: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
 
-	fun removeElement(index: Int)
+    /**
+     * 鼠标释放
+     * @param button Int
+     * @param mouseX Number
+     * @param mouseY Number
+     * @return 是否处理之后的同类操作
+     */
+    fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
 
+    /**
+     * 鼠标拖动
+     * @param mouseX Number
+     * @param mouseY Number
+     * @param button Int
+     * @param deltaX Number
+     * @param deltaY Number
+     * @return 是否处理之后的同类操作
+     */
+    var mouseDragging: (mouseX: Number, mouseY: Number, button: Int, deltaX: Number, deltaY: Number) -> NextAction
 
-	/**
-	 *
-	 * 以下方法和对应作为对象的高阶函数
-	 *
-	 * 应该是高阶函数作为被系统内部调用的方法
-	 *
-	 * 普通方法由子类实现
-	 *
-	 * 如果在DSL场景需要给对应方法添加代码，只需要给对应的高阶函数重新赋值
-	 *
-	 * 子类重写方法,调用者调用高阶函数
-	 *
-	 * 例:
-	 *
-	 * render={matrixStack,delta ->
-	 *
-	 *     onRender(matrixStack,delta)
-	 *     code
-	 * }
-	 *
-	 */
-	var tick: () -> Unit
+    /**
+     * 鼠标拖动
+     * @param mouseX Number
+     * @param mouseY Number
+     * @param button Int
+     * @param deltaX Number
+     * @param deltaY Number
+     * @return 是否处理之后的同类操作
+     */
+    fun onMouseDragging(mouseX: Number, mouseY: Number, button: Int, deltaX: Number, deltaY: Number): NextAction =
+        NextAction.Cancel
 
-	override fun tick() {}
+    /**
+     * 鼠标滚动
+     * @param mouseX Number
+     * @param mouseY Number
+     * @param amount Number
+     * @return 是否处理之后的同类操作
+     */
+    var mouseScrolling: (mouseX: Number, mouseY: Number, amount: Number) -> NextAction
 
-	/**
-	 * 渲染元素
-	 * @param matrixStack MatrixStack
-	 * @param delta Double 距离上一帧数渲染时间
-	 */
-	override var render: (matrixStack: MatrixStack, delta: Double) -> Unit
+    /**
+     * 鼠标滚动
+     * @param mouseX Number
+     * @param mouseY Number
+     * @param amount Number
+     * @return 是否处理之后的同类操作
+     */
+    fun onMouseScrolling(mouseX: Number, mouseY: Number, amount: Number): NextAction = NextAction.Cancel
 
-	/**
-	 * 渲染元素
-	 * @param matrixStack MatrixStack
-	 * @param delta Double 距离上一帧数渲染时间
-	 */
-	override fun onRender(matrixStack: MatrixStack, delta: Double)
+    /**
+     * 按键按下
+     * @param keyCode Int
+     * @param modifiers Int
+     * @return 是否处理之后的同类操作
+     */
+    var keyPress: (keyCode: Int, modifiers: Int) -> NextAction
 
-	/**
-	 * 鼠标移动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 */
-	var mouseMove: (mouseX: Number, mouseY: Number) -> Unit
+    /**
+     * 按键按下
+     * @param keyCode Int
+     * @param modifiers Int
+     * @return 是否处理之后的同类操作
+     */
+    fun onKeyPress(keyCode: Int, modifiers: Int): NextAction = NextAction.Cancel
 
-	/**
-	 * 鼠标移动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 */
-	fun onMouseMove(mouseX: Number, mouseY: Number) {}
+    /**
+     * 按键释放
+     * @param keyCode Int
+     * @param modifiers Int
+     * @return 是否处理之后的同类操作
+     */
+    var keyRelease: (keyCode: Int, modifiers: Int) -> NextAction
 
-	/**
-	 * 鼠标点击
-	 * @param button Int
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @return 是否处理之后的同类操作
-	 */
-	var mouseClick: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
+    /**
+     * 按键释放
+     * @param keyCode Int
+     * @param modifiers Int
+     * @return 是否处理之后的同类操作
+     */
+    fun onKeyRelease(keyCode: Int, modifiers: Int): NextAction = NextAction.Cancel
 
-	/**
-	 * 鼠标点击
-	 * @param button Int
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
+    /**
+     * 字符输入
+     * @param chr Char
+     * @param modifiers Int
+     * @return 是否处理之后的同类操作
+     */
+    var charTyped: (chr: Char, modifiers: Int) -> NextAction
 
-	/**
-	 * 鼠标释放
-	 * @param button Int
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @return 是否处理之后的同类操作
-	 */
-	var mouseRelease: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
-
-	/**
-	 * 鼠标释放
-	 * @param button Int
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
-
-	/**
-	 * 鼠标拖动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @param button Int
-	 * @param deltaX Number
-	 * @param deltaY Number
-	 * @return 是否处理之后的同类操作
-	 */
-	var mouseDragging: (mouseX: Number, mouseY: Number, button: Int, deltaX: Number, deltaY: Number) -> NextAction
-
-	/**
-	 * 鼠标拖动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @param button Int
-	 * @param deltaX Number
-	 * @param deltaY Number
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onMouseDragging(mouseX: Number, mouseY: Number, button: Int, deltaX: Number, deltaY: Number): NextAction =
-		NextAction.Cancel
-
-	/**
-	 * 鼠标滚动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @param amount Number
-	 * @return 是否处理之后的同类操作
-	 */
-	var mouseScrolling: (mouseX: Number, mouseY: Number, amount: Number) -> NextAction
-
-	/**
-	 * 鼠标滚动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @param amount Number
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onMouseScrolling(mouseX: Number, mouseY: Number, amount: Number): NextAction = NextAction.Cancel
-
-	/**
-	 * 按键按下
-	 * @param keyCode Int
-	 * @param modifiers Int
-	 * @return 是否处理之后的同类操作
-	 */
-	var keyPress: (keyCode: Int, modifiers: Int) -> NextAction
-
-	/**
-	 * 按键按下
-	 * @param keyCode Int
-	 * @param modifiers Int
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onKeyPress(keyCode: Int, modifiers: Int): NextAction = NextAction.Cancel
-
-	/**
-	 * 按键释放
-	 * @param keyCode Int
-	 * @param modifiers Int
-	 * @return 是否处理之后的同类操作
-	 */
-	var keyRelease: (keyCode: Int, modifiers: Int) -> NextAction
-
-	/**
-	 * 按键释放
-	 * @param keyCode Int
-	 * @param modifiers Int
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onKeyRelease(keyCode: Int, modifiers: Int): NextAction = NextAction.Cancel
-
-	/**
-	 * 字符输入
-	 * @param chr Char
-	 * @param modifiers Int
-	 * @return 是否处理之后的同类操作
-	 */
-	var charTyped: (chr: Char, modifiers: Int) -> NextAction
-
-	/**
-	 * 字符输入
-	 * @param chr Char
-	 * @param modifiers Int
-	 * @return 是否处理之后的同类操作
-	 */
-	fun onCharTyped(chr: Char, modifiers: Int): NextAction = NextAction.Cancel
+    /**
+     * 字符输入
+     * @param chr Char
+     * @param modifiers Int
+     * @return 是否处理之后的同类操作
+     */
+    fun onCharTyped(chr: Char, modifiers: Int): NextAction = NextAction.Cancel
 }
