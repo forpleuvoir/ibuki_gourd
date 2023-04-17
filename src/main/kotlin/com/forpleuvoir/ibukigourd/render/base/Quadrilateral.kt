@@ -20,6 +20,7 @@ open class Rectangle(
 	position.y(position.y + height.toFloat()),
 	position.xyz(position.x + width.toFloat(), position.y + height.toFloat())
 ) {
+
 	val width: Float = height.toFloat()
 
 	val height: Float = height.toFloat()

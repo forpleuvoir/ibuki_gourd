@@ -2,9 +2,15 @@
 
 package com.forpleuvoir.ibukigourd.input
 
+import net.minecraft.client.util.InputUtil
+
 interface KeyCode {
 
 	val code: Int
+
+	val keyName: String
+		get() = InputUtil.fromKeyCode(code, 0).localizedText.string
+
 
 	companion object {
 
@@ -36,7 +42,8 @@ enum class Mouse(override val code: Int) : KeyCode {
 	BUTTON_5(4),
 	BUTTON_6(5),
 	BUTTON_7(6),
-	BUTTON_8(7),
+	BUTTON_8(7), ;
+
 }
 
 enum class Keyboard(override val code: Int) : KeyCode {

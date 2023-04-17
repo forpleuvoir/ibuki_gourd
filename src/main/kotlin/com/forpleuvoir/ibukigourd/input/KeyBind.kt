@@ -188,6 +188,11 @@ class KeyBind(
 		setKey(*defaultKeys.toTypedArray())
 	}
 
+	fun rest() {
+		wasPress = false
+		tickCount = 0
+	}
+
 	fun copyOf(target: KeyBind): Boolean {
 		var valueChange = setting.copyOf(target.setting)
 		if (this.setKey(*target.keys.toTypedArray())) valueChange = true

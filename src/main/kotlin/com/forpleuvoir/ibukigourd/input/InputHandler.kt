@@ -56,6 +56,12 @@ object InputHandler : Tickable {
 		}
 	}
 
+	fun unpressAll() {
+		keyBinds.forEach(KeyBind::rest)
+		currentPressKeyCode.clear()
+		beforePressKeyCode.clear()
+	}
+
 	@JvmStatic
 	fun onKeyPress(keyCode: KeyCode): NextAction {
 		if (!currentPressKeyCode.contains(keyCode)) {

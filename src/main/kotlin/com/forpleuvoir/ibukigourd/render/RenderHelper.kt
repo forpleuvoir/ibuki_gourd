@@ -1,14 +1,11 @@
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "DuplicatedCode")
 
 package com.forpleuvoir.ibukigourd.render
 
 import com.forpleuvoir.ibukigourd.gui.base.Transform
 import com.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
-import com.forpleuvoir.ibukigourd.render.base.Alignment
-import com.forpleuvoir.ibukigourd.render.base.HorizontalAlignment
+import com.forpleuvoir.ibukigourd.render.base.*
 import com.forpleuvoir.ibukigourd.render.base.HorizontalAlignment.Left
-import com.forpleuvoir.ibukigourd.render.base.Quadrilateral
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import com.forpleuvoir.ibukigourd.render.base.texture.Corner
@@ -23,6 +20,7 @@ import com.forpleuvoir.nebula.common.color.Colors
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
 import net.minecraft.client.render.LightmapTextureManager.MAX_LIGHT_COORDINATE
@@ -43,10 +41,6 @@ fun setShader(shaderSupplier: (() -> ShaderProgram?)) = RenderSystem.setShader(s
 fun setShaderTexture(texture: Identifier) = RenderSystem.setShaderTexture(0, texture)
 
 fun lineWidth(width: Number) = RenderSystem.lineWidth(width.toFloat())
-
-fun enableTexture() = RenderSystem.enableTexture()
-
-fun disableTexture() = RenderSystem.disableTexture()
 
 fun setShaderColor(color: Color) = RenderSystem.setShaderColor(color.redF, color.greenF, color.blueF, color.alphaF)
 
@@ -78,7 +72,7 @@ fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
 }
 
 fun enableScissor(transform: Transform) =
-	enableScissor(transform.position.x, transform.position.y, transform.width, transform.height)
+	enableScissor(transform.worldX, transform.worldY, transform.width, transform.height)
 
 
 fun disableScissor() = RenderSystem.disableScissor()
@@ -129,7 +123,6 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg colorVertices
 	setShader(GameRenderer::getRenderTypeLinesProgram)
 	enableBlend()
 	defaultBlendFunc()
-	disableTexture()
 	lineWidth(lineWidth)
 	bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES)
 	for (vertex in colorVertices) {
@@ -137,7 +130,6 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg colorVertices
 	}
 	tessellator.draw()
 	lineWidth(1f)
-	enableTexture()
 	disableBlend()
 }
 
@@ -147,14 +139,12 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg colorVertices
  * @param quads Quadrilateral
  */
 fun renderQuads(matrixStack: MatrixStack, quads: Quadrilateral) {
-	disableTexture()
 	enableBlend()
 	setShader(GameRenderer::getPositionColorProgram)
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
 	bufferBuilder.quadsVertex(matrixStack, quads)
 	tessellator.draw()
 	disableBlend()
-	enableTexture()
 }
 
 /**
@@ -168,12 +158,10 @@ fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number
 	setShader(GameRenderer::getPositionColorProgram)
 	enableBlend()
 	defaultBlendFunc()
-	disableTexture()
 	val matrix4f = matrixStack.peek().positionMatrix
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
 	bufferBuilder.quadsVertex(matrix4f, Rectangle(colorVertex, width, height))
 	tessellator.draw()
-	enableTexture()
 	disableBlend()
 }
 
@@ -184,7 +172,7 @@ fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number
  * @param color Color
  */
 fun renderRect(matrixStack: MatrixStack, transform: Transform, color: Color) =
-	renderRect(matrixStack, colorVertex(transform.position, color), transform.width, transform.height)
+	renderRect(matrixStack, colorVertex(transform.worldPosition, color), transform.width, transform.height)
 
 
 /**
@@ -216,7 +204,7 @@ fun renderOutline(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Num
  * @param borderWidth Number
  */
 fun renderOutline(matrixStack: MatrixStack, transform: Transform, color: Color, borderWidth: Number = 1) =
-	renderOutline(matrixStack, ColorVertexImpl(transform.position, color), transform.width, transform.height, borderWidth)
+	renderOutline(matrixStack, ColorVertexImpl(transform.worldPosition, color), transform.width, transform.height, borderWidth)
 
 
 /**
@@ -280,7 +268,7 @@ fun renderOutlinedBox(
 	innerOutline: Boolean = true
 ) {
 	renderOutlinedBox(
-		matrixStack, ColorVertexImpl(transform.position, color), transform.width, transform.height,
+		matrixStack, ColorVertexImpl(transform.worldPosition, color), transform.width, transform.height,
 		outlineColor, borderWidth, innerOutline,
 	)
 }
@@ -376,7 +364,7 @@ fun drawTexture(matrixStack: MatrixStack, quads: Quadrilateral, uvMapping: UVMap
  * @param textureHeight Int
  */
 fun drawTexture(matrixStack: MatrixStack, transform: Transform, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-	drawTexture(matrixStack, transform.asRect, uvMapping, textureWidth, textureHeight)
+	drawTexture(matrixStack, transform.asWorldRect, uvMapping, textureWidth, textureHeight)
 
 /**
  *  渲染.9 格式的材质
@@ -487,7 +475,7 @@ fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUV
  * @param textureHeight Int
  */
 fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-	draw9Texture(matrixStack, transform.asRect, textureUV, textureWidth, textureHeight)
+	draw9Texture(matrixStack, transform.asWorldRect, textureUV, textureWidth, textureHeight)
 
 /**
  * 渲染.9 格式的材质
@@ -513,7 +501,7 @@ fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, cornerSize: Int, uvM
  * @param textureHeight Int
  */
 fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-	draw9Texture(matrixStack, transform.asRect, cornerSize, uvMapping, textureWidth, textureHeight)
+	draw9Texture(matrixStack, transform.asWorldRect, cornerSize, uvMapping, textureWidth, textureHeight)
 
 
 /**
@@ -543,7 +531,7 @@ fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureU
  * @param shaderColor Color
  */
 fun renderTexture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureInfo: TextureInfo, shaderColor: Color = Colors.WHITE) =
-	renderTexture(matrixStack, transform.asRect, textureUV, textureInfo, shaderColor)
+	renderTexture(matrixStack, transform.asWorldRect, textureUV, textureInfo, shaderColor)
 
 /**
  * 渲染材质
@@ -553,7 +541,7 @@ fun renderTexture(matrixStack: MatrixStack, transform: Transform, textureUV: Tex
  * @param shaderColor Color
  */
 fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) =
-	renderTexture(matrixStack, transform.asRect, widgetTexture, widgetTexture.textureInfo, shaderColor)
+	renderTexture(matrixStack, transform.asWorldRect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 
 /**
  * 渲染文本
@@ -563,7 +551,7 @@ fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture:
  * @param x Number
  * @param y Number
  * @param shadow Boolean
- * @param seeThrough Boolean
+ * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
  * @param color Color
  * @param backgroundColor Color
@@ -574,7 +562,7 @@ fun TextRenderer.renderText(
 	x: Number,
 	y: Number,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
@@ -582,7 +570,7 @@ fun TextRenderer.renderText(
 	val immediate = VertexConsumerProvider.immediate(bufferBuilder)
 	draw(
 		text.string, x.toFloat(), y.toFloat(), color.argb, shadow, matrixStack.peek().positionMatrix,
-		immediate, seeThrough, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft
+		immediate, layerType, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft
 	)
 	immediate.draw()
 }
@@ -602,16 +590,16 @@ fun TextRenderer.renderAlignmentText(
 	matrixStack: MatrixStack,
 	text: Text,
 	rect: Rectangle,
-	align: Alignment,
+	align: Alignment = PlanarAlignment.Center,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
 ) {
 	val textWidth = getWidth(text)
 	val position = align.align(rect, Rectangle(vertex(Vector3f()), textWidth, fontHeight))
-	renderText(matrixStack, text, position.x, position.y, shadow, seeThrough, rightToLeft, color, backgroundColor)
+	renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
 /**
@@ -621,7 +609,7 @@ fun TextRenderer.renderAlignmentText(
  * @param transform Transform
  * @param align Alignment
  * @param shadow Boolean
- * @param seeThrough Boolean
+ * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
  * @param color Color
  * @param backgroundColor Color
@@ -630,13 +618,13 @@ fun TextRenderer.renderAlignmentText(
 	matrixStack: MatrixStack,
 	text: Text,
 	transform: Transform,
-	align: Alignment,
+	align: Alignment = PlanarAlignment.Center,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
-) = renderAlignmentText(matrixStack, text, transform.asRect, align, shadow, seeThrough, rightToLeft, color, backgroundColor)
+) = renderAlignmentText(matrixStack, text, transform.asWorldRect, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
 
 /**
@@ -648,7 +636,7 @@ fun TextRenderer.renderAlignmentText(
  * @param lineSpacing Number
  * @param align HorizontalAlignment
  * @param shadow Boolean
- * @param seeThrough Boolean
+ * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
  * @param color Color
  * @param backgroundColor Color
@@ -660,7 +648,7 @@ fun TextRenderer.renderStringLines(
 	lineSpacing: Number = 1,
 	align: HorizontalAlignment = Left,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
@@ -670,7 +658,7 @@ fun TextRenderer.renderStringLines(
 		renderAlignmentText(
 			matrixStack, literal(text),
 			Rectangle(vertex(Vector3f(0, top, 0)), rect.width, this.fontHeight), align,
-			shadow, seeThrough, rightToLeft, color, backgroundColor
+			shadow, layerType, rightToLeft, color, backgroundColor
 		)
 		top += this.fontHeight + lineSpacing.toFloat()
 	}
@@ -685,7 +673,7 @@ fun TextRenderer.renderStringLines(
  * @param lineSpacing Number
  * @param align HorizontalAlignment
  * @param shadow Boolean
- * @param seeThrough Boolean
+ * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
  * @param color Color
  * @param backgroundColor Color
@@ -697,7 +685,7 @@ fun TextRenderer.renderStringLines(
 	lineSpacing: Number = 1,
 	align: HorizontalAlignment = Left,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
@@ -707,7 +695,7 @@ fun TextRenderer.renderStringLines(
 		renderAlignmentText(
 			matrixStack, literal(text),
 			Rectangle(vertex(Vector3f(0, top, 0)), rect.width, this.fontHeight), align,
-			shadow, seeThrough, rightToLeft, color, backgroundColor
+			shadow, layerType, rightToLeft, color, backgroundColor
 		)
 		top += this.fontHeight + lineSpacing.toFloat()
 	}
@@ -722,7 +710,7 @@ fun TextRenderer.renderStringLines(
  * @param lineSpacing Number
  * @param align HorizontalAlignment
  * @param shadow Boolean
- * @param seeThrough Boolean
+ * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
  * @param color Color
  * @param backgroundColor Color
@@ -734,11 +722,11 @@ fun TextRenderer.renderTextLines(
 	lineSpacing: Number = 1,
 	align: HorizontalAlignment = Left,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
-) = renderStringLines(matrixStack, text.string, rect, lineSpacing, align, shadow, seeThrough, rightToLeft, color, backgroundColor)
+) = renderStringLines(matrixStack, text.string, rect, lineSpacing, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
 
 /**
@@ -750,7 +738,7 @@ fun TextRenderer.renderTextLines(
  * @param lineSpacing Number
  * @param align HorizontalAlignment
  * @param shadow Boolean
- * @param seeThrough Boolean
+ * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
  * @param color Color
  * @param backgroundColor Color
@@ -762,7 +750,7 @@ fun TextRenderer.renderTextLines(
 	lineSpacing: Number = 1,
 	align: HorizontalAlignment = Left,
 	shadow: Boolean = true,
-	seeThrough: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Colors.WHITE,
 	backgroundColor: Color = Colors.WHITE.alpha(0),
@@ -771,7 +759,7 @@ fun TextRenderer.renderTextLines(
 		matrixStack,
 		ArrayList<String>().apply { lines.forEach { add(it.string) } },
 		rect, lineSpacing,
-		align, shadow, seeThrough, rightToLeft, color, backgroundColor,
+		align, shadow, layerType, rightToLeft, color, backgroundColor,
 	)
 }
 

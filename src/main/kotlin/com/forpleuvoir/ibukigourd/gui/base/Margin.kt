@@ -6,9 +6,13 @@ data class Margin(
     val top: Float = 0.0f,
     val bottom: Float = 0.0f
 ) {
-    constructor(left: Number, right: Number, top: Number, bottom: Number) : this(
-        left.toFloat(), right.toFloat(), top.toFloat(), bottom.toFloat()
-    )
+	constructor(left: Number, right: Number, top: Number, bottom: Number) : this(
+		left.toFloat(), right.toFloat(), top.toFloat(), bottom.toFloat()
+	)
 
-    constructor(horizontal: Number = 0f, vertical: Number = 0f) : this(horizontal, horizontal, vertical, vertical)
+	constructor(horizontal: Number = 0f, vertical: Number = 0f) : this(horizontal, horizontal, vertical, vertical)
+
+	val width get() = left + right
+
+	val height get() = top + bottom
 }

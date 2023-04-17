@@ -17,13 +17,13 @@ interface Drawable {
 	/**
 	 * 渲染
 	 */
-	val render: (matrixStack: MatrixStack, delta: Double) -> Unit
+	val render: (matrixStack: MatrixStack, delta: Float) -> Unit
 
 	/**
 	 * 渲染
 	 * @param matrixStack MatrixStack
-	 * @param delta Double
+	 * @param delta Float
 	 */
-	fun onRender(matrixStack: MatrixStack, delta: Double)
+	fun onRender(matrixStack: MatrixStack, delta: Float)
 
 }

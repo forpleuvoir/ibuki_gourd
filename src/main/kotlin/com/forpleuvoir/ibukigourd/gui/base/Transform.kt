@@ -19,8 +19,8 @@ open class Transform(
 	 * 是否为世界坐标轴
 	 */
 	isWorldAxis: Boolean = false,
-	val width: Float = 0.0f,
-	val height: Float = 0.0f,
+	var width: Float = 0.0f,
+	var height: Float = 0.0f,
 	var parent: Transform? = null,
 ) {
 
@@ -38,7 +38,9 @@ open class Transform(
 			return pos
 		}
 
-	val asRect: Rectangle get() = Rectangle(VertexImpl(worldPosition), width, height)
+	val asRect: Rectangle get() = Rectangle(VertexImpl(position), width, height)
+
+	val asWorldRect: Rectangle get() = Rectangle(VertexImpl(worldPosition), width, height)
 
 	val x = position.x
 

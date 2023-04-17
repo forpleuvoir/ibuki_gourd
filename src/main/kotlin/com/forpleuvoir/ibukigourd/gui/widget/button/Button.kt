@@ -19,14 +19,18 @@ open class Button(
 	override var onClick: () -> NextAction = { NextAction.Continue },
 	override var onRelease: () -> NextAction = { NextAction.Continue }
 ) : ClickableElement() {
+	init {
+		transform.width = 16f
+		transform.height = 16f
+	}
 
-	override fun onRender(matrixStack: MatrixStack, delta: Double) {
+	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		if (!visible) return
 		renderBackground(matrixStack, delta)
 		super.onRender(matrixStack, delta)
 	}
 
-	var renderBackground = { matrixStack: MatrixStack, delta: Double ->
+	var renderBackground = { matrixStack: MatrixStack, _: Float ->
 		renderTexture(matrixStack, this.transform, status(DISABLED, IDLE, HOVERED, PRESSED), color)
 	}
 

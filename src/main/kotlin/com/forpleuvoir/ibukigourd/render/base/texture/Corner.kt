@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.render.base.texture
 
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
+import com.forpleuvoir.nebula.serialization.base.SerializeObject
 import com.forpleuvoir.nebula.serialization.extensions.getOr
 
 data class Corner(
@@ -23,8 +24,8 @@ data class Corner(
 		fun deserialization(serializeElement: SerializeElement?, default: Corner): Corner {
 			if (serializeElement == null || serializeElement.isNull) return default
 			return try {
-				if (serializeElement.isObject)
-					serializeElement.asObject.let {
+				if (serializeElement is SerializeObject)
+					serializeElement.let {
 						val left: Int
 						val right: Int
 						if (it.containsKey("vertical")) {
@@ -47,7 +48,7 @@ data class Corner(
 					}
 				else if (serializeElement.isPrimitive)
 					Corner(serializeElement.asInt)
-				else throw Exception()
+				else default
 			} catch (_: Exception) {
 				default
 			}
