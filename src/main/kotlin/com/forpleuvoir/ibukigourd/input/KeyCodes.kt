@@ -42,8 +42,7 @@ enum class Mouse(override val code: Int) : KeyCode {
 	BUTTON_5(4),
 	BUTTON_6(5),
 	BUTTON_7(6),
-	BUTTON_8(7), ;
-
+	BUTTON_8(7);
 }
 
 enum class Keyboard(override val code: Int) : KeyCode {

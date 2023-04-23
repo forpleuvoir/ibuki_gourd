@@ -38,21 +38,23 @@ open class Transform(
 			return pos
 		}
 
+	var fixedSize: Boolean = false
+
 	val asRect: Rectangle get() = Rectangle(VertexImpl(position), width, height)
 
 	val asWorldRect: Rectangle get() = Rectangle(VertexImpl(worldPosition), width, height)
 
-	val x = position.x
+	val x get() = position.x
 
-	val worldX = worldPosition.x
+	val worldX get() = worldPosition.x
 
-	val y = position.y
+	val y get() = position.y
 
-	val worldY = worldPosition.y
+	val worldY get() = worldPosition.y
 
-	val z = position.z
+	val z get() = position.z
 
-	val worldZ = worldPosition.z
+	val worldZ get() = worldPosition.z
 
 	val top: Float get() = y
 
@@ -83,13 +85,13 @@ open class Transform(
 	 * @return Boolean
 	 */
 	fun isMouseOvered(mouseX: Number, mouseY: Number): Boolean =
-		mouseX.toDouble() in left..right && mouseY.toDouble() in top..bottom
+		mouseX.toDouble() in worldLeft..worldRight && mouseY.toDouble() in worldTop..worldBottom
 
 	fun move(vector3: Vector3<out Number>) {
 		position += Vector3f(vector3)
 	}
 
-	fun move(x: Number, y: Number, z: Number) {
+	fun move(x: Number = 0, y: Number = 0, z: Number = 0) {
 		position += Vector3f(x, y, z)
 	}
 

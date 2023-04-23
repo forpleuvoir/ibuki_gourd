@@ -16,12 +16,12 @@ open class Rectangle(
 	height: Number
 ) : Quadrilateral(
 	position,
-	position.x(position.x + width.toFloat()),
 	position.y(position.y + height.toFloat()),
-	position.xyz(position.x + width.toFloat(), position.y + height.toFloat())
+	position.xyz(position.x + width.toFloat(), position.y + height.toFloat()),
+	position.x(position.x + width.toFloat())
 ) {
 
-	val width: Float = height.toFloat()
+	val width: Float = width.toFloat()
 
 	val height: Float = height.toFloat()
 
@@ -33,13 +33,18 @@ open class Rectangle(
 
 	val right: Float get() = position.x + width
 
-	val x = position.x
+	val x: Float get() = position.x
 
-	val y = position.y
+	val y: Float get() = position.y
 
-	val z = position.z
+	val z: Float get() = position.z
 
 	val center: Vector3f get() = Vector3f(x + this.width / 2, y + this.height / 2, z)
 
-
 }
+
+val Iterable<Rectangle>.maxHeight: Float
+	get() = this.minByOrNull { it.height }!!.height
+
+val Iterable<Rectangle>.maxWidth: Float
+	get() = this.minByOrNull { it.width }!!.width

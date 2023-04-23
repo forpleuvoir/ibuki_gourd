@@ -44,7 +44,7 @@ public class MinecraftServerMixin {
 		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStartingEvent((MinecraftServer) (Object) this));
 	}
 
-	@Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
+	@Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;"))
 	private void afterSetupServer(CallbackInfo info) {
 		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStartedEvent((MinecraftServer) (Object) this));
 	}

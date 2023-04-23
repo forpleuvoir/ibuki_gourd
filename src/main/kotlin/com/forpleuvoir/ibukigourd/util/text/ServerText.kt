@@ -12,12 +12,12 @@ class ServerText(
 	style: Style = Style.EMPTY,
 ) : Text(content, list, style) {
 
-	constructor(key: String, vararg args: Any) : this(ServerTranslatableContents(key, *args))
+	constructor(key: String, fallback: String? = null, vararg args: Any) : this(ServerTranslatableContents(key, null, *args))
 
-	constructor(key: String) : this(key, emptyArray<Any>())
+	constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
 
-	class ServerTranslatableContents(key: String, vararg args: Any) : TranslatableTextContent(key, *args) {
-		constructor(key: String) : this(key, emptyArray<Any>())
+	class ServerTranslatableContents(key: String, fallback: String?, vararg args: Any) : TranslatableTextContent(key, fallback, args) {
+		constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
 
 		override fun updateTranslations() {
 			val language = ServerLanguage
@@ -25,7 +25,7 @@ class ServerText(
 				return
 			}
 			languageCache = language
-			val string = language[key]
+			val string = if (fallback != null) language.get(key, fallback!!) else language[key]
 			translations = try {
 				val builder = ImmutableList.builder<StringVisitable>()
 				forEachPart(string) { builder.add(it) }

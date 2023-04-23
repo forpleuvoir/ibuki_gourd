@@ -6,6 +6,8 @@ import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 
 interface Alignment {
 
+	val vertical: Boolean
+
 	/**
 	 * 计算对齐之后的位置信息
 	 * @param parent 外部矩形
@@ -18,7 +20,7 @@ interface Alignment {
 
 }
 
-enum class PlanarAlignment : Alignment {
+enum class PlanarAlignment(override val vertical: Boolean = true) : Alignment {
 	TopLeft {
 		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
 			val list = ArrayList<Vector3f>(rectangles.size)
@@ -132,7 +134,7 @@ enum class PlanarAlignment : Alignment {
 	}
 }
 
-enum class HorizontalAlignment : Alignment {
+enum class HorizontalAlignment(override val vertical: Boolean = false) : Alignment {
 	Left {
 		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
 			val list = ArrayList<Vector3f>(rectangles.size)
@@ -172,7 +174,7 @@ enum class HorizontalAlignment : Alignment {
 	},
 }
 
-enum class VerticalAlignment : Alignment {
+enum class VerticalAlignment(override val vertical: Boolean = true) : Alignment {
 	Top {
 		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
 			val list = ArrayList<Vector3f>(rectangles.size)

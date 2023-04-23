@@ -27,7 +27,7 @@ open class Text(
 
 		@JvmStatic
 		fun translatable(key: String): com.forpleuvoir.ibukigourd.util.text.Text {
-			return Text(TranslatableTextContent(key))
+			return Text(TranslatableTextContent(key, null, emptyArray()))
 		}
 
 	}

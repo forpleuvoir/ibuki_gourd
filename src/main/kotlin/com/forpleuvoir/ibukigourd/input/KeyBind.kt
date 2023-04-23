@@ -70,24 +70,28 @@ class KeyBind(
 		} else false
 	}
 
+	private fun List<KeyCode>.hasAll(elements: List<KeyCode>): Boolean {
+		return this.map { it.code }.containsAll(elements.map { it.code })
+	}
+
 	fun onKeyPress(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): NextAction {
-		if (currentKeyCode.isEmpty() || setting.environment.envMatch()) {
+		if (currentKeyCode.isEmpty() || !setting.environment.envMatch()) {
 			wasPress = false
 			return NextAction.Continue
 		}
 		val beforeMatched = if (setting.exactMatch) {
-			keys exactMatch beforeKeyCode
+			keys.exactMatch(beforeKeyCode)
 		} else {
-			keys == beforeKeyCode || beforeKeyCode.containsAll(beforeKeyCode)
+			keys == beforeKeyCode || beforeKeyCode.hasAll(beforeKeyCode)
 		}
 		wasPress = if (setting.exactMatch) {
-			keys exactMatch currentKeyCode
+			keys.exactMatch(currentKeyCode)
 		} else {
-			keys == currentKeyCode || currentKeyCode.containsAll(currentKeyCode)
+			keys == currentKeyCode || currentKeyCode.hasAll(currentKeyCode)
 		}
 		if (wasPress && !beforeMatched) {
 			return if (setting.triggerMode == OnPress || setting.triggerMode == BOTH) {
-				action
+				action()
 				setting.nextAction
 			} else NextAction.Continue
 		}
@@ -95,19 +99,19 @@ class KeyBind(
 	}
 
 	fun onKeyRelease(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): NextAction {
-		if (beforeKeyCode.isEmpty() || setting.environment.envMatch()) {
+		if (beforeKeyCode.isEmpty() || !setting.environment.envMatch()) {
 			wasPress = false
 			return NextAction.Continue
 		}
 		val beforeMatched = if (setting.exactMatch) {
-			keys exactMatch beforeKeyCode
+			keys.exactMatch(beforeKeyCode)
 		} else {
-			keys == beforeKeyCode || beforeKeyCode.containsAll(beforeKeyCode)
+			keys == beforeKeyCode || beforeKeyCode.hasAll(beforeKeyCode)
 		}
 		val currentMath = if (setting.exactMatch) {
-			keys exactMatch currentKeyCode
+			keys.exactMatch(currentKeyCode)
 		} else {
-			keys == currentKeyCode || currentKeyCode.containsAll(currentKeyCode)
+			keys == currentKeyCode || currentKeyCode.hasAll(currentKeyCode)
 		}
 		if (beforeMatched && !currentMath) {
 			return if (setting.triggerMode == OnRelease || setting.triggerMode == BOTH) {
@@ -181,7 +185,7 @@ class KeyBind(
 		onChangedCallback.add(callback)
 	}
 
-	override fun isDefault(): Boolean = defaultKeys exactMatch keys && setting == defaultSetting
+	override fun isDefault(): Boolean = defaultKeys.exactMatch(keys) && setting == defaultSetting
 
 	override fun restDefault() {
 		setting.copyOf(defaultSetting)

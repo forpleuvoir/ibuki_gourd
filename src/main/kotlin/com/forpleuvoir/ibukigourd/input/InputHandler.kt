@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.input
 
 import com.forpleuvoir.ibukigourd.api.Tickable
+import com.forpleuvoir.ibukigourd.gui.screen.testScreen
 import com.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
 import com.forpleuvoir.ibukigourd.input.Keyboard.*
 import com.forpleuvoir.ibukigourd.util.NextAction
@@ -19,6 +20,10 @@ object InputHandler : Tickable {
 
 	init {
 		isDevEnv {
+			keyBinds.add(KeyBind(KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
+				testScreen()
+				println("打开屏幕")
+			})
 			keyBinds.add(KeyBind(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
 				println("按下了 1")
 			})

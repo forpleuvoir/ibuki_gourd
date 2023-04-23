@@ -37,9 +37,9 @@ open class Tip(
 		}
 	}
 
-	override val render: (matrixStack: MatrixStack, delta: Double) -> Unit = ::onRender
+	override val render: (matrixStack: MatrixStack, delta: Float) -> Unit = ::onRender
 
-	override fun onRender(matrixStack: MatrixStack, delta: Double) {
+	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		TODO("Not yet implemented")
 	}
 }

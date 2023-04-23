@@ -15,8 +15,10 @@ abstract class AbstractElement : Element {
 	override fun init() {
 		for (e in elements) e.init.invoke()
 		layout.arrange(this.elements, margin, padding)?.let {
-			this.transform.width = it.width
-			this.transform.height = it.height
+			if (!transform.fixedSize) {
+				this.transform.width = it.width
+				this.transform.height = it.height
+			}
 		}
 	}
 
@@ -35,47 +37,49 @@ abstract class AbstractElement : Element {
 	override val layout: Layout
 		get() = LinearLayout(this)
 
-	override var margin: Margin = Margin()
+	final override var margin: Margin = Margin()
 		protected set
 
-	override var padding: Padding = Padding()
+	final override var padding: Padding = Padding()
 		protected set
 
-	override fun margin(margin: Number) {
+	final override fun margin(margin: Number) {
 		this.margin = Margin(margin, margin)
 	}
 
-	override fun margin(margin: Margin) {
+	final override fun margin(margin: Margin) {
 		this.margin = margin
 	}
 
-	override fun margin(left: Number, right: Number, top: Number, bottom: Number) {
+	final override fun margin(left: Number, right: Number, top: Number, bottom: Number) {
 		this.margin = Margin(left, right, top, bottom)
 	}
 
-	override fun padding(padding: Number) {
+	final override fun padding(padding: Number) {
 		this.padding = Padding(padding, padding)
 	}
 
-	override fun padding(padding: Padding) {
+	final override fun padding(padding: Padding) {
 		this.padding = padding
 	}
 
-	override fun padding(left: Number, right: Number, top: Number, bottom: Number) {
+	final override fun padding(left: Number, right: Number, top: Number, bottom: Number) {
 		this.padding = Padding(left, right, top, bottom)
 	}
 
 	override fun contentRect(isWorld: Boolean): Rectangle {
 		val top = if (isWorld) transform.worldTop + padding.top else padding.top
-		val bottom = if (isWorld) transform.worldBottom + padding.bottom else transform.height + padding.bottom
+		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height + padding.bottom
 		val left = if (isWorld) transform.worldLeft + padding.left else padding.left
-		val right = if (isWorld) transform.worldRight + padding.right else transform.width + padding.right
+		val right = if (isWorld) transform.worldRight - padding.right else transform.width + padding.right
 		return Rectangle(
-			vertex(Vector3f(top, left, transform.z)), right - left, bottom - top
+			vertex(Vector3f(left, top, if (isWorld) transform.z else transform.worldZ)), right - left, bottom - top
 		)
 	}
 
 	protected val elements = ArrayList<Element>()
+
+	val arrangeElements: List<Element> get() = elements.filter { !it.fixed }
 
 	override val elementTree: List<Element> get() = elements
 

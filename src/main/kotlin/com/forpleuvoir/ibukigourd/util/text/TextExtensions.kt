@@ -10,7 +10,7 @@ fun literal(content: String = ""): Text = Text.literal(content)
 
 fun translatable(key: String): Text = Text.translatable(key)
 
-fun serverText(key: String, vararg args: Any): ServerText = ServerText(key, *args)
+fun serverText(key: String, fallback: String? = null, vararg args: Any): ServerText = ServerText(key, fallback, *args)
 
 fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRender): Int {
 	var temp = 0
@@ -22,7 +22,7 @@ fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRender): Int {
 }
 
 @JvmName("maxTextWidth")
-fun Collection<net.minecraft.text.Text>.maxWidth(textRenderer: TextRenderer = tRender): Int {
+fun Collection<Text>.maxWidth(textRenderer: TextRenderer = tRender): Int {
 	var temp = 0
 	for (t in this) {
 		if (temp < textRenderer.getWidth(t))
@@ -59,20 +59,20 @@ fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRender, width: 
 	return texts
 }
 
-fun net.minecraft.text.Text.wrapToTextLines(
+fun Text.wrapToTextLines(
 	textRenderer: TextRenderer = tRender,
 	width: Int = 0
-): List<net.minecraft.text.Text> {
-	val texts: LinkedList<net.minecraft.text.Text> = LinkedList()
+): List<Text> {
+	val texts: LinkedList<Text> = LinkedList()
 	this.string.wrapToLines(textRenderer, width).forEach { texts.add(literal(it)) }
 	return texts
 }
 
-fun Collection<net.minecraft.text.Text>.wrapToTextLines(
+fun Collection<Text>.wrapToTextLines(
 	textRenderer: TextRenderer = tRender,
 	width: Int = 0
-): List<net.minecraft.text.Text> {
-	val texts: LinkedList<net.minecraft.text.Text> = LinkedList()
+): List<Text> {
+	val texts: LinkedList<Text> = LinkedList()
 	for (text in this) {
 		texts.addAll(text.wrapToTextLines(textRenderer, width))
 	}
@@ -92,10 +92,10 @@ fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRender, width: Int =
 	return sb.toString()
 }
 
-fun List<net.minecraft.text.Text>.wrapToSingleText(
+fun List<Text>.wrapToSingleText(
 	textRenderer: TextRenderer = tRender,
 	width: Int = 0
-): net.minecraft.text.Text {
+): Text {
 	val sb = StringBuilder()
 	this.forEachIndexed { index, text ->
 		val wrapToLines = text.wrapToTextLines(textRenderer, width)

@@ -526,6 +526,17 @@ fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureU
 /**
  * @see renderTexture
  * @param matrixStack MatrixStack
+ * @param rect Rectangle
+ * @param widgetTexture WidgetTexture
+ * @param shaderColor Color
+ */
+fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) {
+	renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
+}
+
+/**
+ * @see renderTexture
+ * @param matrixStack MatrixStack
  * @param transform Transform
  * @param textureUV GuiTexture
  * @param shaderColor Color
@@ -564,7 +575,7 @@ fun TextRenderer.renderText(
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
+	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
 	backgroundColor: Color = Colors.WHITE.alpha(0),
 ) {
 	val immediate = VertexConsumerProvider.immediate(bufferBuilder)
@@ -594,7 +605,7 @@ fun TextRenderer.renderAlignmentText(
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
+	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
 	backgroundColor: Color = Colors.WHITE.alpha(0),
 ) {
 	val textWidth = getWidth(text)
@@ -622,7 +633,7 @@ fun TextRenderer.renderAlignmentText(
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
+	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
 	backgroundColor: Color = Colors.WHITE.alpha(0),
 ) = renderAlignmentText(matrixStack, text, transform.asWorldRect, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
@@ -724,7 +735,7 @@ fun TextRenderer.renderTextLines(
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
+	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
 	backgroundColor: Color = Colors.WHITE.alpha(0),
 ) = renderStringLines(matrixStack, text.string, rect, lineSpacing, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
@@ -752,7 +763,7 @@ fun TextRenderer.renderTextLines(
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
+	color: Color = Color(lines[0].style.color?.rgb ?: 0xFFFFFF),
 	backgroundColor: Color = Colors.WHITE.alpha(0),
 ) {
 	renderStringLines(

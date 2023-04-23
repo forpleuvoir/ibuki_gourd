@@ -4,6 +4,11 @@ package com.forpleuvoir.ibukigourd.gui.widget.button
 
 import com.forpleuvoir.ibukigourd.gui.base.Element
 import com.forpleuvoir.ibukigourd.gui.widget.ClickableElement
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_HEIGHT
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_BOTTOM
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_LEFT
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_RIGHT
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_TOP
 import com.forpleuvoir.ibukigourd.render.renderTexture
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.nebula.common.color.Color
@@ -22,7 +27,18 @@ open class Button(
 	init {
 		transform.width = 16f
 		transform.height = 16f
+		padding(BUTTON_PADDING_LEFT, BUTTON_PADDING_RIGHT, BUTTON_PADDING_TOP, BUTTON_PADDING_BOTTOM)
 	}
+
+	override var pressed: Boolean = false
+		set(value) {
+			if (field != value) {
+				if (value)
+					transform.move(y = BUTTON_HEIGHT)
+				else transform.move(y = -BUTTON_HEIGHT)
+			}
+			field = value
+		}
 
 	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		if (!visible) return
@@ -40,5 +56,5 @@ fun Element.button(
 	color: Color = Colors.WHITE,
 	onClick: () -> NextAction = { NextAction.Continue },
 	onRelease: () -> NextAction = { NextAction.Continue },
-	scope: Element.() -> Unit
+	scope: Button.() -> Unit = {}
 ): Button = addElement(Button(color, onClick, onRelease).apply(scope))

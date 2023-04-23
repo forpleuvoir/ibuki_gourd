@@ -5,7 +5,6 @@ import com.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
 import com.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import com.forpleuvoir.ibukigourd.input.InputHandler;
 import com.forpleuvoir.nebula.event.EventBus;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import org.spongepowered.asm.mixin.Final;
@@ -14,8 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
@@ -47,9 +44,7 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "onResolutionChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/Window;setScaleFactor(D)V", shift = At.Shift.AFTER))
 	public void screenResize(CallbackInfo ci) {
-		ScreenManager.hasScreen(screen -> {
-			screen.getResize().invoke(this.window.getScaledWidth(), this.window.getScaledHeight());
-		});
+		ScreenManager.hasScreen(screen -> screen.getResize().invoke(this.window.getScaledWidth(), this.window.getScaledHeight()));
 	}
 
 	@Inject(method = "openPauseMenu", at = @At(value = "HEAD"), cancellable = true)
@@ -62,14 +57,14 @@ public abstract class MinecraftClientMixin {
 		if (ScreenManager.hasScreen()) ci.cancel();
 	}
 
-	@ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;shouldPause()Z", shift = At.Shift.AFTER))
-	public boolean pauseGame(boolean original) {
-		AtomicBoolean returnValue = new AtomicBoolean(original);
-		ScreenManager.hasScreen(screen -> {
-			returnValue.set(original || screen.getPauseGame());
-		});
-		return returnValue.get();
-	}
+//	@ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;shouldPause()Z", shift = At.Shift.AFTER))
+//	public boolean pauseGame(boolean original) {
+//		AtomicBoolean returnValue = new AtomicBoolean(original);
+//		ScreenManager.hasScreen(screen -> {
+//			returnValue.set(original || screen.getPauseGame());
+//		});
+//		return returnValue.get();
+//	}
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void tickStart(CallbackInfo ci) {

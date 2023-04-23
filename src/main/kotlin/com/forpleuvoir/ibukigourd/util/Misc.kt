@@ -118,11 +118,11 @@ fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Lis
  * @param list List<*>
  * @return Boolean
  */
-infix fun List<*>.exactMatch(list: List<*>): Boolean {
+fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -> a == b }): Boolean {
 	return if (this.size == list.size) {
 		var isEquals = true
 		this.forEachIndexed loop@{ index, obj ->
-			if (list[index]!! != obj) {
+			if (!contrast(list[index]!!, obj)) {
 				isEquals = false
 				return@loop
 			}

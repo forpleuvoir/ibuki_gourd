@@ -61,28 +61,28 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 
 	}
 
-	var BUTTON_IDLE_1: WidgetTexture = WidgetTexture(Corner(4), 0, 0, 15, 15, TEXTURE_INFO)
+	var BUTTON_IDLE_1: WidgetTexture = WidgetTexture(Corner(4), 0, 0, 16, 16, TEXTURE_INFO)
 		private set
 
-	var BUTTON_HOVERED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 16, 15, 31, TEXTURE_INFO)
+	var BUTTON_HOVERED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 16, 16, 32, TEXTURE_INFO)
 		private set
 
-	var BUTTON_PRESSED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 32, 15, 47, TEXTURE_INFO)
+	var BUTTON_PRESSED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 32, 16, 48, TEXTURE_INFO)
 		private set
 
-	var BUTTON_DISABLED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 32, 15, 47, TEXTURE_INFO)
+	var BUTTON_DISABLED_1: WidgetTexture = WidgetTexture(Corner(4), 0, 32, 16, 48, TEXTURE_INFO)
 		private set
 
-	var BUTTON_IDLE_2: WidgetTexture = WidgetTexture(Corner(4), 16, 0, 32, 15, TEXTURE_INFO)
+	var BUTTON_IDLE_2: WidgetTexture = WidgetTexture(Corner(4), 16, 0, 32, 16, TEXTURE_INFO)
 		private set
 
-	var BUTTON_HOVERED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 16, 32, 31, TEXTURE_INFO)
+	var BUTTON_HOVERED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 16, 32, 32, TEXTURE_INFO)
 		private set
 
-	var BUTTON_PRESSED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 47, TEXTURE_INFO)
+	var BUTTON_PRESSED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 48, TEXTURE_INFO)
 		private set
 
-	var BUTTON_DISABLED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 47, TEXTURE_INFO)
+	var BUTTON_DISABLED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 48, TEXTURE_INFO)
 		private set
 
 }

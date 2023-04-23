@@ -25,7 +25,6 @@ import net.minecraft.text.TextReorderingProcessor
 import net.minecraft.util.Identifier
 import net.minecraft.util.JsonHelper
 import net.minecraft.util.Language
-import org.spongepowered.include.com.google.common.collect.Maps
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.Reader
@@ -109,7 +108,7 @@ object ServerLanguage : Language() {
 				val json =
 					gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
 				val languagePair = LanguagePair(path, json.getOr("rightToLft", false))
-				val map = Maps.newHashMap<String, String>()
+				val map = HashMap<String, String>()
 				json.entrySet().forEach { entry ->
 					map[entry.key] =
 						UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key))
@@ -128,6 +127,10 @@ object ServerLanguage : Language() {
 
 	override fun get(key: String): String {
 		return currentMap[key] ?: key
+	}
+
+	override fun get(key: String, fallback: String): String {
+		return currentMap[key] ?: fallback
 	}
 
 	override fun hasTranslation(key: String): Boolean {

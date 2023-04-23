@@ -4,9 +4,20 @@ import com.forpleuvoir.ibukigourd.gui.base.AbstractElement
 import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.Keyboard
 import com.forpleuvoir.ibukigourd.util.NextAction
+import com.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.util.math.MatrixStack
 
-abstract class AbstractScreen : AbstractElement(), Screen {
+abstract class AbstractScreen(
+	width: Int = mc.window.scaledWidth,
+	height: Int = mc.window.scaledHeight
+) : AbstractElement(), Screen {
+
+	init {
+		this.transform.fixedSize = true
+		this.transform.width = width.toFloat()
+		this.transform.height = height.toFloat()
+	}
+
 
 	override var parentScreen: Screen? = null
 
@@ -33,6 +44,7 @@ abstract class AbstractScreen : AbstractElement(), Screen {
 	override fun onResize(width: Int, height: Int) {
 		this.transform.width = width.toFloat()
 		this.transform.height = height.toFloat()
+		layout.arrange(this.elements, this.margin, this.padding)
 	}
 
 	override var resize: (width: Int, height: Int) -> Unit = ::onResize
