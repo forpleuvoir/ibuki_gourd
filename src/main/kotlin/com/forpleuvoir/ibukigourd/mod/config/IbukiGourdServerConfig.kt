@@ -7,7 +7,7 @@ import com.forpleuvoir.nebula.config.impl.HoconConfigManagerSerializer
 import com.forpleuvoir.nebula.config.item.impl.ConfigString
 
 @ModConfig("config")
-object IbukiGourdServerConfig : ServerModConfigManager(IbukiGourd.MOD_ID, "config"), HoconConfigManagerSerializer {
+object IbukiGourdServerConfig : ServerModConfigManager(IbukiGourd.metadata, "config"), HoconConfigManagerSerializer {
 
 	var SERVER_LANGUAGE by ConfigString("serve_language", "zh_cn")
 

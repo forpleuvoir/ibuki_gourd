@@ -1,6 +1,6 @@
 package com.forpleuvoir.ibukigourd.gui.widget
 
-import com.forpleuvoir.ibukigourd.gui.base.AbstractElement
+import com.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import com.forpleuvoir.ibukigourd.gui.base.mouseHover
 import com.forpleuvoir.ibukigourd.input.Mouse
 import com.forpleuvoir.ibukigourd.util.NextAction

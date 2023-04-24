@@ -8,6 +8,7 @@ import com.forpleuvoir.nebula.event.EventBus
 import com.llamalad7.mixinextras.MixinExtrasBootstrap
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.fabricmc.loader.api.metadata.ModMetadata
 
 object IbukiGourd : ModInitializer {
 
@@ -16,6 +17,8 @@ object IbukiGourd : ModInitializer {
 	const val MOD_ID: String = "ibukigourd"
 
 	const val MOD_NAME: String = "Ibuki Gourd"
+
+	val metadata: ModMetadata get() = loader.getModContainer(MOD_ID).get().metadata
 
 	override fun onInitialize() {
 		MixinExtrasBootstrap.init()

@@ -7,7 +7,7 @@ import com.forpleuvoir.nebula.serialization.Serializable
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
 import com.forpleuvoir.nebula.serialization.extensions.serializeObject
 
-
+@Suppress("DuplicatedCode")
 sealed interface Vector3<T : Number> : Serializable, Deserializable {
 
 	var x: T
@@ -23,14 +23,14 @@ sealed interface Vector3<T : Number> : Serializable, Deserializable {
 				.notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have y") }
 			this.containsKey("z")
 				.notc { throw IllegalArgumentException("serializeObject${serializeElement} is not have z") }
-			x = valueMap(this["x"]!!)
-			y = valueMap(this["y"]!!)
-			z = valueMap(this["z"]!!)
+			x = parseValue(this["x"]!!)
+			y = parseValue(this["y"]!!)
+			z = parseValue(this["z"]!!)
 		}
 
 	}
 
-	fun valueMap(serializeElement: SerializeElement): T
+	fun parseValue(serializeElement: SerializeElement): T
 
 	override fun serialization(): SerializeElement {
 		return serializeObject {

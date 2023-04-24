@@ -13,7 +13,7 @@ class Vector3i(
 	constructor(x: Number, y: Number, z: Number) : this(x.toInt(), y.toInt(), z.toInt())
 
 
-	override fun valueMap(serializeElement: SerializeElement): Int {
+	override fun parseValue(serializeElement: SerializeElement): Int {
 		return serializeElement.asInt
 	}
 
@@ -86,5 +86,24 @@ class Vector3i(
 		this.y %= y
 		this.z %= z
 	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as Vector3i
+
+		if (x != other.x) return false
+		if (y != other.y) return false
+		return z == other.z
+	}
+
+	override fun hashCode(): Int {
+		var result = x
+		result = 31 * result + y
+		result = 31 * result + z
+		return result
+	}
+
 
 }

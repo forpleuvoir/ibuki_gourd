@@ -1,6 +1,6 @@
 package com.forpleuvoir.ibukigourd.gui.screen
 
-import com.forpleuvoir.ibukigourd.gui.base.AbstractElement
+import com.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.Keyboard
 import com.forpleuvoir.ibukigourd.util.NextAction

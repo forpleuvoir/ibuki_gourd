@@ -2,8 +2,8 @@
 
 package com.forpleuvoir.ibukigourd.gui.widget.text
 
-import com.forpleuvoir.ibukigourd.gui.base.AbstractElement
-import com.forpleuvoir.ibukigourd.gui.base.Element
+import com.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
+import com.forpleuvoir.ibukigourd.gui.base.element.Element
 import com.forpleuvoir.ibukigourd.render.base.Alignment
 import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import com.forpleuvoir.ibukigourd.render.base.Rectangle

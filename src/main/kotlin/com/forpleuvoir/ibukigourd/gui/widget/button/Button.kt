@@ -2,13 +2,10 @@
 
 package com.forpleuvoir.ibukigourd.gui.widget.button
 
-import com.forpleuvoir.ibukigourd.gui.base.Element
+import com.forpleuvoir.ibukigourd.gui.base.element.Element
 import com.forpleuvoir.ibukigourd.gui.widget.ClickableElement
-import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_HEIGHT
-import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_BOTTOM
-import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_LEFT
-import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_RIGHT
-import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.BUTTON_PADDING_TOP
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.HEIGHT
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import com.forpleuvoir.ibukigourd.render.renderTexture
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.nebula.common.color.Color
@@ -27,15 +24,15 @@ open class Button(
 	init {
 		transform.width = 16f
 		transform.height = 16f
-		padding(BUTTON_PADDING_LEFT, BUTTON_PADDING_RIGHT, BUTTON_PADDING_TOP, BUTTON_PADDING_BOTTOM)
+		padding(PADDING)
 	}
 
 	override var pressed: Boolean = false
 		set(value) {
 			if (field != value) {
 				if (value)
-					transform.move(y = BUTTON_HEIGHT)
-				else transform.move(y = -BUTTON_HEIGHT)
+					transform.move(y = HEIGHT)
+				else transform.move(y = -HEIGHT)
 			}
 			field = value
 		}

@@ -12,7 +12,7 @@ class Vector3d(
 
 	constructor(x: Number, y: Number, z: Number) : this(x.toDouble(), y.toDouble(), z.toDouble())
 
-	override fun valueMap(serializeElement: SerializeElement): Double {
+	override fun parseValue(serializeElement: SerializeElement): Double {
 		return serializeElement.asDouble
 	}
 
@@ -85,5 +85,24 @@ class Vector3d(
 		this.y %= y
 		this.z %= z
 	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as Vector3d
+
+		if (x != other.x) return false
+		if (y != other.y) return false
+		return z == other.z
+	}
+
+	override fun hashCode(): Int {
+		var result = x.hashCode()
+		result = 31 * result + y.hashCode()
+		result = 31 * result + z.hashCode()
+		return result
+	}
+
 
 }

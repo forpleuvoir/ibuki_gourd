@@ -1,5 +1,6 @@
 package com.forpleuvoir.ibukigourd.render.base.texture
 
+import com.forpleuvoir.ibukigourd.render.base.math.Vector4
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
 import com.forpleuvoir.nebula.serialization.base.SerializeObject
 import com.forpleuvoir.nebula.serialization.extensions.getOr
@@ -15,6 +16,10 @@ data class Corner(
 		right = vertical,
 		top = horizontal,
 		bottom = horizontal
+	)
+
+	constructor(vector4: Vector4<Number>) : this(
+		vector4.x.toInt(), vector4.y.toInt(), vector4.z.toInt(), vector4.w.toInt()
 	)
 
 	constructor(corner: Int) : this(corner, corner, corner, corner)

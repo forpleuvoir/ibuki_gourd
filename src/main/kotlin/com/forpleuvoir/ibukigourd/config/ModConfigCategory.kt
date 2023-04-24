@@ -2,11 +2,10 @@ package com.forpleuvoir.ibukigourd.config
 
 import com.forpleuvoir.ibukigourd.util.logger
 import com.forpleuvoir.nebula.config.ConfigSerializable
-import com.forpleuvoir.nebula.config.impl.LocalConfigManager
+import com.forpleuvoir.nebula.config.impl.ConfigCategoryImpl
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
-import net.fabricmc.loader.api.metadata.ModMetadata
 
-abstract class ModConfigManager(protected val modMetadata: ModMetadata, key: String) : LocalConfigManager(key) {
+open class ModConfigCategory(key: String) : ConfigCategoryImpl(key) {
 
 	private val log = logger()
 

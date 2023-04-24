@@ -30,8 +30,7 @@ fun testScreen() {
 				if (i != 0) {
 					margin(left = 5)
 				}
-				render = { matrixStack, delta ->
-					onRender(matrixStack, delta)
+				if (i == 3) {
 				}
 				val t = literal("按钮$i").style {
 					it.withColor(Colors.BLACK.rgb)

@@ -1,22 +1,21 @@
-package com.forpleuvoir.ibukigourd.gui.base
+package com.forpleuvoir.ibukigourd.gui.base.element
 
 import com.forpleuvoir.ibukigourd.api.Tickable
-import com.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import com.forpleuvoir.ibukigourd.gui.base.Tip
+import com.forpleuvoir.ibukigourd.gui.base.Transform
 import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.Mouse
 import com.forpleuvoir.ibukigourd.render.Drawable
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
 import com.forpleuvoir.ibukigourd.util.NextAction
-import com.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.client.util.math.MatrixStack
 
 @Suppress("unused", "KDocUnresolvedReference")
-interface Element : Drawable, Tickable, Initializable {
+interface Element : ElementContainer, Drawable, Tickable {
 
 	/**
 	 * 基础属性变换
 	 */
-	val transform: Transform
+	override val transform: Transform
 
 	/**
 	 * 是否为激活的元素
@@ -34,57 +33,13 @@ interface Element : Drawable, Tickable, Initializable {
 	 */
 	val fixed: Boolean
 
-	val margin: Margin
-
-	val padding: Padding
-
-	fun margin(margin: Number)
-
-	fun margin(margin: Margin)
-
-	fun margin(left: Number = this.margin.left, right: Number = this.margin.right, top: Number = this.margin.top, bottom: Number = this.margin.bottom)
-
-	fun padding(padding: Number)
-
-	fun padding(padding: Padding)
-
-	fun padding(left: Number = this.padding.left, right: Number = this.padding.right, top: Number = this.padding.top, bottom: Number = this.padding.bottom)
-
-	val layout: Layout
-
-	/**
-	 * 内容矩形
-	 * @param isWorld Boolean
-	 * @return Rectangle
-	 */
-	fun contentRect(isWorld: Boolean): Rectangle
+	var tip: Tip?
 
 	/**
 	 * 渲染优先级 越高渲染层级越高
 	 */
 	override val renderPriority: Int
 		get() = priority
-
-	/**
-	 * 子元素
-	 */
-	val elementTree: List<Element>
-
-	val renderTree: List<Element>
-
-	val handleTree: List<Element>
-
-	fun <T : Element> addElement(element: T): T
-
-	fun preElement(element: Element): Element?
-
-	fun nextElement(element: Element): Element?
-
-	fun elementIndexOf(element: Element): Int
-
-	fun removeElement(element: Element): Boolean
-
-	fun removeElement(index: Int)
 
 
 	/**
@@ -109,10 +64,6 @@ interface Element : Drawable, Tickable, Initializable {
 	 *
 	 */
 	var tick: () -> Unit
-
-	override fun tick() {}
-
-	var init: () -> Unit
 
 	/**
 	 * 渲染元素

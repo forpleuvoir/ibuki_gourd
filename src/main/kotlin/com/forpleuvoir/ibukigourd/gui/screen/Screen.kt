@@ -1,6 +1,6 @@
 package com.forpleuvoir.ibukigourd.gui.screen
 
-import com.forpleuvoir.ibukigourd.gui.base.Element
+import com.forpleuvoir.ibukigourd.gui.base.element.Element
 
 interface Screen : Element {
 

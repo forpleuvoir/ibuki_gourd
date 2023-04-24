@@ -12,7 +12,7 @@ class Vector3f(
 
 	constructor(x: Number, y: Number, z: Number) : this(x.toFloat(), y.toFloat(), z.toFloat())
 
-	override fun valueMap(serializeElement: SerializeElement): Float {
+	override fun parseValue(serializeElement: SerializeElement): Float {
 		return serializeElement.asFloat
 	}
 
@@ -106,5 +106,24 @@ class Vector3f(
 		this.y %= y
 		this.z %= z
 	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as Vector3f
+
+		if (x != other.x) return false
+		if (y != other.y) return false
+		return z == other.z
+	}
+
+	override fun hashCode(): Int {
+		var result = x.hashCode()
+		result = 31 * result + y.hashCode()
+		result = 31 * result + z.hashCode()
+		return result
+	}
+
 
 }

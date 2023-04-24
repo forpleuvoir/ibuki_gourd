@@ -1,30 +1,13 @@
-package com.forpleuvoir.ibukigourd.gui.base
+package com.forpleuvoir.ibukigourd.gui.base.element
 
-import com.forpleuvoir.ibukigourd.gui.base.layout.Layout
-import com.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import com.forpleuvoir.ibukigourd.gui.base.Tip
 import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.Mouse
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
-import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import com.forpleuvoir.ibukigourd.util.NextAction
 import net.minecraft.client.util.math.MatrixStack
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class AbstractElement : Element {
-	override fun init() {
-		for (e in elements) e.init.invoke()
-		layout.arrange(this.elements, margin, padding)?.let {
-			if (!transform.fixedSize) {
-				this.transform.width = it.width
-				this.transform.height = it.height
-			}
-		}
-	}
-
-	override var init: () -> Unit = ::init
-
-	final override val transform = Transform()
+abstract class AbstractElement : Element, AbstractElementContainer() {
 
 	override var active = true
 		set(value) {
@@ -34,88 +17,7 @@ abstract class AbstractElement : Element {
 
 	override var fixed: Boolean = false
 
-	override val layout: Layout
-		get() = LinearLayout(this)
-
-	final override var margin: Margin = Margin()
-		protected set
-
-	final override var padding: Padding = Padding()
-		protected set
-
-	final override fun margin(margin: Number) {
-		this.margin = Margin(margin, margin)
-	}
-
-	final override fun margin(margin: Margin) {
-		this.margin = margin
-	}
-
-	final override fun margin(left: Number, right: Number, top: Number, bottom: Number) {
-		this.margin = Margin(left, right, top, bottom)
-	}
-
-	final override fun padding(padding: Number) {
-		this.padding = Padding(padding, padding)
-	}
-
-	final override fun padding(padding: Padding) {
-		this.padding = padding
-	}
-
-	final override fun padding(left: Number, right: Number, top: Number, bottom: Number) {
-		this.padding = Padding(left, right, top, bottom)
-	}
-
-	override fun contentRect(isWorld: Boolean): Rectangle {
-		val top = if (isWorld) transform.worldTop + padding.top else padding.top
-		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height + padding.bottom
-		val left = if (isWorld) transform.worldLeft + padding.left else padding.left
-		val right = if (isWorld) transform.worldRight - padding.right else transform.width + padding.right
-		return Rectangle(
-			vertex(Vector3f(left, top, if (isWorld) transform.z else transform.worldZ)), right - left, bottom - top
-		)
-	}
-
-	protected val elements = ArrayList<Element>()
-
-	val arrangeElements: List<Element> get() = elements.filter { !it.fixed }
-
-	override val elementTree: List<Element> get() = elements
-
-	override val renderTree get() = elementTree.sortedBy { it.renderPriority }
-
-	override val handleTree get() = elementTree.sortedByDescending { it.priority }
-
-
-	override fun <T : Element> addElement(element: T): T {
-		elements.add(element)
-		element.transform.parent = this.transform
-		return element
-	}
-
-	override fun preElement(element: Element): Element? {
-		val indexOf = elements.indexOf(element)
-		if (indexOf < 1) return null
-		return elements[indexOf - 1]
-	}
-
-	override fun nextElement(element: Element): Element? {
-		val indexOf = elements.indexOf(element)
-		if (indexOf != -1 && indexOf < elements.size - 1) return null
-		return elements[indexOf + 1]
-	}
-
-	override fun elementIndexOf(element: Element): Int = elements.indexOf(element)
-
-	override fun removeElement(element: Element): Boolean {
-		element.transform.parent = null
-		return elements.remove(element)
-	}
-
-	override fun removeElement(index: Int) {
-		elements.removeAt(index).transform.parent = null
-	}
+	override var tip: Tip? = null
 
 	override fun tick() {
 		if (!active) return
