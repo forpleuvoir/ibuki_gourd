@@ -26,6 +26,14 @@ interface UVVertex : Vertex {
 }
 
 fun uvVertex(
+	x: Number,
+	y: Number,
+	z: Number,
+	u: Number,
+	v: Number
+) = UVVertexImpl(x, y, z, u, v)
+
+fun uvVertex(
 	vector3: Vector3f,
 	u: Float,
 	v: Float

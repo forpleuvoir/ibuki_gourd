@@ -15,6 +15,8 @@ interface ElementContainer : Initializable {
 	 */
 	val transform: Transform
 
+	fun arrange()
+
 	/**
 	 * 子元素
 	 */

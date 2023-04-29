@@ -113,21 +113,22 @@ fun VertexConsumer.quadsVertex(matrixStack: MatrixStack, quads: Quadrilateral): 
 
 fun VertexConsumer.color(color: Color): VertexConsumer = this.color(color.argb)
 
+fun VertexConsumer.normal(normal: Vertex): VertexConsumer = this.normal(normal.x, normal.y, normal.z)
+
 /**
  * 渲染多顶点的线
  * @param matrixStack MatrixStack
  * @param lineWidth Number
  * @param colorVertices Array<[ColorVertex]>
  */
-fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg colorVertices: ColorVertex) {
+fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vertex1: Vertex, vertex2: Vertex, normal: Vertex) {
 	setShader(GameRenderer::getRenderTypeLinesProgram)
 	enableBlend()
 	defaultBlendFunc()
 	lineWidth(lineWidth)
 	bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES)
-	for (vertex in colorVertices) {
-		bufferBuilder.vertex(matrixStack, vertex).next()
-	}
+	bufferBuilder.vertex(matrixStack, vertex1).normal(normal).next()
+	bufferBuilder.vertex(matrixStack, vertex2).normal(normal).next()
 	tessellator.draw()
 	lineWidth(1f)
 	disableBlend()
@@ -572,7 +573,7 @@ fun TextRenderer.renderText(
 	text: Text,
 	x: Number,
 	y: Number,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
 	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),

@@ -20,6 +20,14 @@ interface ColorVertex : Vertex {
 }
 
 fun colorVertex(
+	x: Number,
+	y: Number,
+	z: Number,
+	color: Color
+) = ColorVertexImpl(x, y, z, color)
+
+
+fun colorVertex(
 	vector3: Vector3f,
 	color: Color
 ) = ColorVertexImpl(vector3, color)

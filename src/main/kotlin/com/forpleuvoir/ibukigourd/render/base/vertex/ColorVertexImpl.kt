@@ -5,6 +5,8 @@ import com.forpleuvoir.nebula.common.color.Color
 
 class ColorVertexImpl(vector3: Vector3f, override val color: Color) : ColorVertex {
 
+	constructor(x: Number, y: Number, z: Number, color: Color) : this(Vector3f(x, y, z), color)
+
 	override val x: Float = vector3.x
 
 	override val y: Float = vector3.y

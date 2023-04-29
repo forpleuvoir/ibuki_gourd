@@ -29,6 +29,12 @@ object ScreenManager : Tickable {
 		mc.updateWindowTitle()
 	}
 
+	fun open(screenScope: Screen.() -> Unit): Screen {
+		val screen = object : AbstractScreen() {}.apply(screenScope)
+		setScreen(screen)
+		return screen
+	}
+
 	@JvmStatic
 	fun hasScreen(): Boolean = current != null
 

@@ -1,8 +1,9 @@
 package com.forpleuvoir.ibukigourd.gui.base.element
 
 import com.forpleuvoir.ibukigourd.api.Tickable
-import com.forpleuvoir.ibukigourd.gui.base.Tip
 import com.forpleuvoir.ibukigourd.gui.base.Transform
+import com.forpleuvoir.ibukigourd.gui.screen.Screen
+import com.forpleuvoir.ibukigourd.gui.tip.Tip
 import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.Mouse
 import com.forpleuvoir.ibukigourd.render.Drawable
@@ -18,9 +19,19 @@ interface Element : ElementContainer, Drawable, Tickable {
 	override val transform: Transform
 
 	/**
+	 * 父元素
+	 */
+	var parent: Element
+
+	/**
+	 *  当前元素所在的Screen
+	 */
+	val screen: Screen
+
+	/**
 	 * 是否为激活的元素
 	 */
-	var active: Boolean
+	val active: Boolean
 
 	/**
 	 * 处理优先级 越高越优先处理
@@ -78,6 +89,35 @@ interface Element : ElementContainer, Drawable, Tickable {
 	 * @param delta Float 距离上一帧数渲染时间
 	 */
 	override fun onRender(matrixStack: MatrixStack, delta: Float)
+
+	/**
+	 * 渲染背景
+	 * @param matrixStack MatrixStack
+	 * @param delta Float
+	 */
+	var renderBackground: (matrixStack: MatrixStack, delta: Float) -> Unit
+
+	/**
+	 * 渲染背景
+	 * @param matrixStack MatrixStack
+	 * @param delta Float
+	 */
+	fun onRenderBackground(matrixStack: MatrixStack, delta: Float)
+
+	/**
+	 * 渲染覆盖层
+	 * @param matrixStack MatrixStack
+	 * @param delta Float
+	 */
+	var renderOverlay: (matrixStack: MatrixStack, delta: Float) -> Unit
+
+	/**
+	 * 渲染覆盖层
+	 * @param matrixStack MatrixStack
+	 * @param delta Float
+	 */
+	fun onRenderOverlay(matrixStack: MatrixStack, delta: Float)
+
 
 	/**
 	 * 鼠标移动

@@ -4,6 +4,8 @@ import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 
 class UVVertexImpl(vector3: Vector3f, override val u: Float, override val v: Float) : UVVertex {
 
+	constructor(x: Number, y: Number, z: Number, u: Number, v: Number) : this(Vector3f(x, y, z), u.toFloat(), v.toFloat())
+
 	override val x: Float = vector3.x
 
 	override val y: Float = vector3.y
@@ -30,5 +32,28 @@ class UVVertexImpl(vector3: Vector3f, override val u: Float, override val v: Flo
 	override fun uv(u: Float, v: Float): UVVertex {
 		return UVVertexImpl(vector3f(), u, v)
 	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as UVVertexImpl
+
+		if (u != other.u) return false
+		if (v != other.v) return false
+		if (x != other.x) return false
+		if (y != other.y) return false
+		return z == other.z
+	}
+
+	override fun hashCode(): Int {
+		var result = u.hashCode()
+		result = 31 * result + v.hashCode()
+		result = 31 * result + x.hashCode()
+		result = 31 * result + y.hashCode()
+		result = 31 * result + z.hashCode()
+		return result
+	}
+
 
 }

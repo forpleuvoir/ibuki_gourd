@@ -11,6 +11,8 @@ class UVColorVertexImpl(
 	override val color: Color = Colors.WHITE
 ) : UVColorVertex {
 
+	constructor(x: Number, y: Number, z: Number, u: Number, v: Number, color: Color = Colors.WHITE) : this(Vector3f(x, y, z), u.toFloat(), v.toFloat(), color)
+
 	override val x: Float = vector3.x
 
 	override val y: Float = vector3.y
@@ -47,5 +49,30 @@ class UVColorVertexImpl(
 	override fun color(color: Color): UVColorVertex {
 		return UVColorVertexImpl(vector3f(), u, v, color)
 	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as UVColorVertexImpl
+
+		if (u != other.u) return false
+		if (v != other.v) return false
+		if (color != other.color) return false
+		if (x != other.x) return false
+		if (y != other.y) return false
+		return z == other.z
+	}
+
+	override fun hashCode(): Int {
+		var result = u.hashCode()
+		result = 31 * result + v.hashCode()
+		result = 31 * result + color.hashCode()
+		result = 31 * result + x.hashCode()
+		result = 31 * result + y.hashCode()
+		result = 31 * result + z.hashCode()
+		return result
+	}
+
 
 }

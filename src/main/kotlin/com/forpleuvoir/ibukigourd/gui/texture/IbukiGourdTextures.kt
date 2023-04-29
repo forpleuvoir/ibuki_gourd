@@ -21,20 +21,18 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 
 	private val log = logger()
 
-	val TEXTURE_INFO_RESOURCES = resources("texture/gui/ibukigourd_widget.json")
+	private val TEXTURE_INFO_RESOURCES = resources("texture/gui/ibukigourd_widget.json")
 
-	val TEXTURE_RESOURCES = resources("texture/gui/ibukigourd_widget.png")
+	private val TEXTURE_RESOURCES = resources("texture/gui/ibukigourd_widget.png")
 
-	val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
+	private val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
 
 	@Subscriber
 	fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
-			.registerReloadListener(this)
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(this)
 	}
 
 	override fun getFabricId(): Identifier = resources("widget")
-
 
 	override fun reload(manager: ResourceManager) {
 		log.info("widget textures loading...")
@@ -85,5 +83,19 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 	var BUTTON_DISABLED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 48, TEXTURE_INFO)
 		private set
 
+	var TIP: WidgetTexture = WidgetTexture(Corner(4), 48, 32, 64, 48, TEXTURE_INFO)
+		private set
+
+	var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(4), 73, 41, 80, 48, TEXTURE_INFO)
+		private set
+
+	var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(4), 64, 41, 71, 48, TEXTURE_INFO)
+		private set
+
+	var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(4), 73, 32, 80, 39, TEXTURE_INFO)
+		private set
+
+	var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(4), 64, 32, 71, 39, TEXTURE_INFO)
+		private set
 }
 

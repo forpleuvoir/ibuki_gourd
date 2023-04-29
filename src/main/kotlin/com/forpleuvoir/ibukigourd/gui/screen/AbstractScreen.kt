@@ -1,6 +1,10 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.forpleuvoir.ibukigourd.gui.screen
 
 import com.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
+import com.forpleuvoir.ibukigourd.gui.base.element.Element
+import com.forpleuvoir.ibukigourd.gui.tip.Tip
 import com.forpleuvoir.ibukigourd.input.KeyCode
 import com.forpleuvoir.ibukigourd.input.Keyboard
 import com.forpleuvoir.ibukigourd.util.NextAction
@@ -12,12 +16,20 @@ abstract class AbstractScreen(
 	height: Int = mc.window.scaledHeight
 ) : AbstractElement(), Screen {
 
+	override val screen: Screen get() = this
+
+	override var parent: Element
+		get() = this
+		set(@Suppress("UNUSED_PARAMETER") value) {}
+
 	init {
-		this.transform.fixedSize = true
+		this.transform.fixedWidth = true
+		this.transform.fixedHeight = true
 		this.transform.width = width.toFloat()
 		this.transform.height = height.toFloat()
 	}
 
+	override val tipList: MutableSet<Tip> = HashSet()
 
 	override var parentScreen: Screen? = null
 
@@ -28,14 +40,14 @@ abstract class AbstractScreen(
 	override var close: () -> Unit = ::onClose
 
 	override fun onRender(matrixStack: MatrixStack, delta: Float) {
+		if (!visible) return
 		renderBackground.invoke(matrixStack, delta)
-		super.onRender(matrixStack, delta)
+		for (element in renderTree) element.render(matrixStack, delta)
+		tipList.sortedBy { it.transform.worldZ }.forEach {
+			if (it.visible) it.render.invoke(matrixStack, delta)
+		}
 		renderOverlay.invoke(matrixStack, delta)
 	}
-
-	abstract var renderBackground: (matrixStack: MatrixStack, delta: Float) -> Unit
-
-	abstract var renderOverlay: (matrixStack: MatrixStack, delta: Float) -> Unit
 
 	override fun onClose() {
 		ScreenManager.setScreen(parentScreen)

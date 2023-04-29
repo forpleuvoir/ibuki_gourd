@@ -13,7 +13,7 @@ import com.forpleuvoir.nebula.common.ifc
 /**
  * 变换青春版
  */
-open class Transform(
+class Transform(
 	val position: Vector3f = Vector3f(),
 	/**
 	 * 是否为世界坐标轴
@@ -38,23 +38,61 @@ open class Transform(
 			return pos
 		}
 
-	var fixedSize: Boolean = false
+	var fixedWidth: Boolean = false
+
+	var fixedHeight: Boolean = false
 
 	val asRect: Rectangle get() = Rectangle(VertexImpl(position), width, height)
 
 	val asWorldRect: Rectangle get() = Rectangle(VertexImpl(worldPosition), width, height)
 
-	val x get() = position.x
+	var x
+		get() = position.x
+		set(value) {
+			position.x = value
+		}
 
-	val worldX get() = worldPosition.x
+	var worldX
+		get() = worldPosition.x
+		set(value) {
+			if (isWorldAxis) position.x = value
+			else {
+				val delta = value - worldPosition.x
+				position.x += delta
+			}
+		}
 
-	val y get() = position.y
+	var y
+		get() = position.y
+		set(value) {
+			position.y = value
+		}
 
-	val worldY get() = worldPosition.y
+	var worldY
+		get() = worldPosition.y
+		set(value) {
+			if (isWorldAxis) position.y = value
+			else {
+				val delta = value - worldPosition.y
+				position.y += delta
+			}
+		}
 
-	val z get() = position.z
+	var z
+		get() = position.z
+		set(value) {
+			position.z = value
+		}
 
-	val worldZ get() = worldPosition.z
+	var worldZ
+		get() = worldPosition.z
+		set(value) {
+			if (isWorldAxis) position.z = value
+			else {
+				val delta = value - worldPosition.z
+				position.z += delta
+			}
+		}
 
 	val top: Float get() = y
 
@@ -72,10 +110,13 @@ open class Transform(
 
 	val worldRight: Float get() = worldLeft + width
 
+	val halfWidth: Float get() = width / 2
 
-	val center: Vector3f get() = Vector3f(x + this.width / 2, y + this.height / 2, z)
+	val halfHeight: Float get() = height / 2
 
-	val worldCenter: Vector3f get() = Vector3f(worldX + this.width / 2, worldY + this.height / 2, worldZ)
+	val center: Vector3f get() = Vector3f(x + this.halfWidth, y + this.halfHeight, z)
+
+	val worldCenter: Vector3f get() = Vector3f(worldX + this.halfWidth, worldY + this.halfHeight, worldZ)
 
 
 	/**
@@ -99,7 +140,7 @@ open class Transform(
 		position.set(Vector3f(vector3))
 	}
 
-	fun moveTo(x: Number, y: Number, z: Number) {
+	fun moveTo(x: Number = position.x, y: Number = position.y, z: Number = position.z) {
 		position.set(Vector3f(x, y, z))
 	}
 
@@ -109,11 +150,11 @@ open class Transform(
  * 当鼠标位于此元素[Element]内部时调用
  * @param action [@kotlin.ExtensionFunctionType] Function1<Element, Unit>
  */
-inline fun <T : Transform> T.mouseHover(action: T.() -> Unit) = isMouseOvered(mouseX, mouseY).ifc { action() }
+inline fun Transform.mouseHover(action: Transform.() -> Unit) = isMouseOvered(mouseX, mouseY).ifc { action() }
 
 /**
  * 鼠标是否在此元素内
  * @receiver T
  * @return Boolean
  */
-fun <T : Transform> T.mouseHover(): Boolean = isMouseOvered(mouseX, mouseY)
+fun Transform.mouseHover(): Boolean = isMouseOvered(mouseX, mouseY)

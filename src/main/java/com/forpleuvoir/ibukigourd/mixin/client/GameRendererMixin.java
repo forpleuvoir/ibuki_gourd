@@ -20,7 +20,9 @@ public abstract class GameRendererMixin {
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
 	public void renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
-		ScreenManager.hasScreen(screen -> screen.getRender().invoke(new MatrixStack(), client.getLastFrameDuration()));
+		ScreenManager.hasScreen(screen -> {
+			if (screen.getVisible()) screen.getRender().invoke(new MatrixStack(), client.getLastFrameDuration());
+		});
 	}
 
 

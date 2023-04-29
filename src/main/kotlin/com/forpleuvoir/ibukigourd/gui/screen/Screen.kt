@@ -1,6 +1,7 @@
 package com.forpleuvoir.ibukigourd.gui.screen
 
 import com.forpleuvoir.ibukigourd.gui.base.element.Element
+import com.forpleuvoir.ibukigourd.gui.tip.Tip
 
 interface Screen : Element {
 
@@ -8,6 +9,8 @@ interface Screen : Element {
 	 * 上一级屏幕
 	 */
 	var parentScreen: Screen?
+
+	val tipList: MutableSet<Tip>
 
 	/**
 	 * 打开时是否需要暂停游戏，在服务器中无效

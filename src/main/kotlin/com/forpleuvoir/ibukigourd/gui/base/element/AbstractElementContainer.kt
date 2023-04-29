@@ -8,7 +8,7 @@ import com.forpleuvoir.ibukigourd.render.base.Rectangle
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
-abstract class AbstractElementContainer : ElementContainer {
+abstract class AbstractElementContainer : ElementContainer, Element {
 
 	override fun init() {
 		for (e in elements) e.init.invoke()
@@ -25,11 +25,15 @@ abstract class AbstractElementContainer : ElementContainer {
 			arrange()
 		}
 
-	protected fun arrange() {
+	override fun arrange() {
 		layout.arrange(this.elements, margin, padding)?.let {
-			if (!transform.fixedSize) {
+			if (!transform.fixedWidth) {
 				this.transform.width = it.width
+				parent.arrange()
+			}
+			if (!transform.fixedHeight) {
 				this.transform.height = it.height
+				parent.arrange()
 			}
 		}
 	}
@@ -81,7 +85,7 @@ abstract class AbstractElementContainer : ElementContainer {
 
 	override val elementTree: List<Element> get() = elements
 
-	override val renderTree get() = elementTree.sortedBy { it.renderPriority }
+	override val renderTree get() = elementTree.filter { it != this.tip }.sortedBy { it.renderPriority }
 
 	override val handleTree get() = elementTree.sortedByDescending { it.priority }
 
@@ -89,6 +93,7 @@ abstract class AbstractElementContainer : ElementContainer {
 	override fun <T : Element> addElement(element: T): T {
 		elements.add(element)
 		element.transform.parent = this.transform
+		element.parent = this
 		return element
 	}
 

@@ -26,6 +26,16 @@ interface UVColorVertex : UVVertex, ColorVertex {
 }
 
 fun uvColorVertex(
+	x: Number,
+	y: Number,
+	z: Number,
+	u: Number,
+	v: Number,
+	color: Color = Colors.WHITE
+): UVColorVertex = UVColorVertexImpl(x, y, z, u, v, color)
+
+
+fun uvColorVertex(
 	vector3: Vector3f,
 	u: Float,
 	v: Float,
