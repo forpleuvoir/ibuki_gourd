@@ -2,11 +2,11 @@ package com.forpleuvoir.ibukigourd.render.base.math
 
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
 
-class Vector3d(
+open class Vector3d(
 	override var x: Double = 0.0,
 	override var y: Double = 0.0,
 	override var z: Double = 0.0,
-) : Vector3<Double> {
+) : ImmutableVector3d(), MutableVector3<Double> {
 
 	constructor(vector3: Vector3<out Number>) : this(vector3.x.toDouble(), vector3.y.toDouble(), vector3.z.toDouble())
 
@@ -32,12 +32,32 @@ class Vector3d(
 		return Vector3d(x, y, z)
 	}
 
-	override fun unaryMinus(): Vector3d {
-		return Vector3d(-x, -y, -z)
+	override fun plus(vector3: Vector3<Double>): Vector3d {
+		return this.plus(vector3.x, vector3.y, vector3.z)
+	}
+
+	override fun minus(vector3: Vector3<Double>): Vector3d {
+		return this.minus(vector3.x, vector3.y, vector3.z)
+	}
+
+	override fun times(vector3: Vector3<Double>): Vector3d {
+		return this.times(vector3.x, vector3.y, vector3.z)
+	}
+
+	override fun div(vector3: Vector3<Double>): Vector3d {
+		return this.div(vector3.x, vector3.y, vector3.z)
+	}
+
+	override fun rem(vector3: Vector3<Double>): Vector3d {
+		return this.rem(vector3.x, vector3.y, vector3.z)
 	}
 
 	override fun plus(x: Double, y: Double, z: Double): Vector3d {
 		return Vector3d(this.x + x, this.y + y, this.z + z)
+	}
+
+	override fun unaryPlus(): Vector3d {
+		return Vector3d(+x, +y, +z)
 	}
 
 	override fun plusAssign(x: Double, y: Double, z: Double) {
@@ -50,13 +70,17 @@ class Vector3d(
 		return Vector3d(this.x - x, this.y - y, this.z - z)
 	}
 
+	override fun unaryMinus(): Vector3d {
+		return Vector3d(-x, -y, -z)
+	}
+
 	override fun minusAssign(x: Double, y: Double, z: Double) {
 		this.x -= x
 		this.y -= y
 		this.z -= z
 	}
 
-	override fun times(x: Double, y: Double, z: Double): Vector3<Double> {
+	override fun times(x: Double, y: Double, z: Double): Vector3d {
 		return Vector3d(this.x * x, this.y * y, this.z * z)
 	}
 
@@ -66,7 +90,7 @@ class Vector3d(
 		this.z *= z
 	}
 
-	override fun div(x: Double, y: Double, z: Double): Vector3<Double> {
+	override fun div(x: Double, y: Double, z: Double): Vector3d {
 		return Vector3d(this.x / x, this.y / y, this.z / z)
 	}
 
@@ -76,7 +100,7 @@ class Vector3d(
 		this.z /= z
 	}
 
-	override fun rem(x: Double, y: Double, z: Double): Vector3<Double> {
+	override fun rem(x: Double, y: Double, z: Double): Vector3d {
 		return Vector3d(this.x % x, this.y % y, this.z % z)
 	}
 
@@ -90,7 +114,7 @@ class Vector3d(
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false
 
-		other as Vector3d
+		other as Vector3<*>
 
 		if (x != other.x) return false
 		if (y != other.y) return false
@@ -103,6 +127,5 @@ class Vector3d(
 		result = 31 * result + z.hashCode()
 		return result
 	}
-
 
 }

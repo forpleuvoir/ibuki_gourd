@@ -10,9 +10,9 @@ import com.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.RIGHT_TO_LEFT
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
 import com.forpleuvoir.ibukigourd.render.base.Alignment
+import com.forpleuvoir.ibukigourd.render.base.Arrangement
 import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
-import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import com.forpleuvoir.ibukigourd.render.disableScissor
 import com.forpleuvoir.ibukigourd.render.enableScissor
@@ -36,7 +36,7 @@ open class TextField(
 	var rightToLeft: Boolean = RIGHT_TO_LEFT,
 	var color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
 	var backgroundColor: Color = BACKGROUND_COLOR,
-	val alignment: Alignment = PlanarAlignment.CenterLeft,
+	val alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	private val textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer
 ) : AbstractElement() {
 
@@ -49,7 +49,7 @@ open class TextField(
 		rightToLeft: Boolean = RIGHT_TO_LEFT,
 		color: Color = Color(style.color?.rgb ?: COLOR.argb),
 		backgroundColor: Color = BACKGROUND_COLOR,
-		alignment: Alignment = PlanarAlignment.CenterLeft,
+		alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 		textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer
 	) : this({ literal(text.get()).style { style } }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer)
 
@@ -62,7 +62,7 @@ open class TextField(
 		rightToLeft: Boolean = RIGHT_TO_LEFT,
 		color: Color = Color(style.color?.rgb ?: COLOR.argb),
 		backgroundColor: Color = BACKGROUND_COLOR,
-		alignment: Alignment = PlanarAlignment.CenterLeft,
+		alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 		textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer
 	) : this({ literal(text).style { style } }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer)
 
@@ -74,7 +74,7 @@ open class TextField(
 		rightToLeft: Boolean = RIGHT_TO_LEFT,
 		color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
 		backgroundColor: Color = BACKGROUND_COLOR,
-		alignment: Alignment = PlanarAlignment.CenterLeft,
+		alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 		textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer
 	) : this({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer)
 
@@ -126,11 +126,11 @@ open class TextField(
 		val list = buildList {
 			renderText.forEachIndexed { index, text ->
 				if (renderText.lastIndex != index)
-					add(Rectangle(vertex(Vector3f(0f, 0f, transform.z)), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
-				else add(Rectangle(vertex(Vector3f(0f, 0f, transform.z)), textRenderer.getWidth(text), textRenderer.fontHeight))
+					add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
+				else add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
 			}
 		}
-		alignment.align(contentRect, list).forEachIndexed { index, vector3f ->
+		alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vector3f ->
 			textRenderer.renderText(matrixStack, renderText[index], vector3f.x, vector3f.y, shadow, layerType, rightToLeft, color, backgroundColor)
 		}
 	}
@@ -146,7 +146,7 @@ inline fun Element.textField(
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
 	color: Color = Color(style.color?.rgb ?: COLOR.argb),
 	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: Alignment = PlanarAlignment.CenterLeft,
+	noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer,
 	scope: TextField.() -> Unit = {}
 ): TextField = addElement(TextField(text, style, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer).apply(scope))
@@ -160,7 +160,7 @@ inline fun Element.textField(
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
 	color: Color = Color(style.color?.rgb ?: COLOR.argb),
 	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: Alignment = PlanarAlignment.CenterLeft,
+	noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer,
 	scope: TextField.() -> Unit = {}
 ): TextField = addElement(TextField(text, style, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer).apply(scope))
@@ -173,7 +173,7 @@ inline fun Element.textField(
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
 	color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
 	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: Alignment = PlanarAlignment.CenterLeft,
+	noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer,
 	scope: TextField.() -> Unit = {}
 ): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer).apply(scope))
@@ -186,7 +186,7 @@ inline fun Element.textField(
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
 	color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
 	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: Alignment = PlanarAlignment.CenterLeft,
+	noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = com.forpleuvoir.ibukigourd.util.textRenderer,
 	scope: TextField.() -> Unit = {}
 ): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer).apply(scope))

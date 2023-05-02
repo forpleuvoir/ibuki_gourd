@@ -9,7 +9,7 @@ abstract class Tip : AbstractElement() {
 
 	override var fixed: Boolean = true
 
-	override var layout: Layout = LinearLayout({ this }, PlanarAlignment.CenterLeft)
+	override var layout: Layout = LinearLayout({ this }, alignment = PlanarAlignment::CenterLeft)
 
 	fun postToRenderList() {
 		screen.tipList.add(this)

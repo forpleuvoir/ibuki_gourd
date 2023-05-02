@@ -3,25 +3,39 @@ package com.forpleuvoir.ibukigourd.render.base.vertex
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 
-interface UVVertex : Vertex {
+interface UVVertex : Vector3<Float> {
+
+	override fun x(x: Float): UVVertex
+
+	override fun y(y: Float): UVVertex
+
+	override fun z(z: Float): UVVertex
+
+	override fun xyz(x: Float, y: Float, z: Float): UVVertex
+
+	override fun plus(x: Float, y: Float, z: Float): UVVertex
+
+	override fun unaryPlus(): UVVertex
+
+	override fun minus(x: Float, y: Float, z: Float): UVVertex
+
+	override fun unaryMinus(): UVVertex
+
+	override fun times(x: Float, y: Float, z: Float): UVVertex
+
+	override fun div(x: Float, y: Float, z: Float): UVVertex
+
+	override fun rem(x: Float, y: Float, z: Float): UVVertex
 
 	val u: Float
 
 	val v: Float
 
-	override fun x(x: Number): UVVertex
-
-	override fun y(y: Number): UVVertex
-
-	override fun z(z: Number): UVVertex
-
-	override fun xyz(x: Number, y: Number, z: Number): UVVertex
-
 	fun u(u: Float): UVVertex
 
 	fun v(v: Float): UVVertex
 
-	fun uv(u: Float = this.u, v: Float): UVVertex
+	fun uv(u: Float = this.u, v: Float = this.v): UVVertex
 
 }
 

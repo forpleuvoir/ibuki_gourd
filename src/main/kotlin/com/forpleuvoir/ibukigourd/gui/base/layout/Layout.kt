@@ -3,6 +3,7 @@ package com.forpleuvoir.ibukigourd.gui.base.layout
 import com.forpleuvoir.ibukigourd.gui.base.Margin
 import com.forpleuvoir.ibukigourd.gui.base.element.Element
 import com.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import com.forpleuvoir.ibukigourd.render.base.Size
 
 interface Layout {
 
@@ -15,8 +16,6 @@ interface Layout {
 	 * @param padding Padding
 	 * @return [Size] 排列完元素之后计算出的高度和宽度,如果为空则没有任何元素参与排列
 	 */
-	fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size?
-
-	data class Size(val width: Float, val height: Float)
+	fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>?
 
 }

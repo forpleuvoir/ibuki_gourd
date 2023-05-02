@@ -3,7 +3,8 @@ package com.forpleuvoir.ibukigourd.gui.base.element
 import com.forpleuvoir.ibukigourd.gui.base.Margin
 import com.forpleuvoir.ibukigourd.gui.base.Transform
 import com.forpleuvoir.ibukigourd.gui.base.layout.Layout
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3
+import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import com.forpleuvoir.nebula.common.api.Initializable
 
 interface ElementContainer : Initializable {
@@ -61,6 +62,6 @@ interface ElementContainer : Initializable {
 	 * @param isWorld Boolean
 	 * @return Rectangle
 	 */
-	fun contentRect(isWorld: Boolean): Rectangle
+	fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>>
 
 }

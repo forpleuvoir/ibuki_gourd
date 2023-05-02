@@ -4,8 +4,9 @@ import com.forpleuvoir.ibukigourd.gui.base.Margin
 import com.forpleuvoir.ibukigourd.gui.base.Transform
 import com.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import com.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
-import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3
+import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
 abstract class AbstractElementContainer : ElementContainer, Element {
@@ -68,13 +69,13 @@ abstract class AbstractElementContainer : ElementContainer, Element {
 		this.padding = Margin(left, right, top, bottom)
 	}
 
-	override fun contentRect(isWorld: Boolean): Rectangle {
+	override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
 		val top = if (isWorld) transform.worldTop + padding.top else padding.top
 		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height + padding.bottom
 		val left = if (isWorld) transform.worldLeft + padding.left else padding.left
 		val right = if (isWorld) transform.worldRight - padding.right else transform.width + padding.right
-		return Rectangle(
-			vertex(Vector3f(left, top, if (isWorld) transform.z else transform.worldZ)), right - left, bottom - top
+		return rect(
+			vertex(left, top, if (isWorld) transform.z else transform.worldZ), right - left, bottom - top
 		)
 	}
 

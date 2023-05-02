@@ -4,19 +4,32 @@ package com.forpleuvoir.ibukigourd.render
 
 import com.forpleuvoir.ibukigourd.gui.base.Transform
 import com.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
-import com.forpleuvoir.ibukigourd.render.base.*
-import com.forpleuvoir.ibukigourd.render.base.HorizontalAlignment.Left
+import com.forpleuvoir.ibukigourd.render.base.Alignment
+import com.forpleuvoir.ibukigourd.render.base.Arrangement
+import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import com.forpleuvoir.ibukigourd.render.base.Size
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.rectangle.colorRect
+import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.texture.Corner
 import com.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import com.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
 import com.forpleuvoir.ibukigourd.render.base.texture.UVMapping
-import com.forpleuvoir.ibukigourd.render.base.vertex.*
+import com.forpleuvoir.ibukigourd.render.base.vertex.ColorVertex
+import com.forpleuvoir.ibukigourd.render.base.vertex.ColorVertexImpl
+import com.forpleuvoir.ibukigourd.render.base.vertex.UVVertex
+import com.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
+import com.forpleuvoir.ibukigourd.util.text.Text
 import com.forpleuvoir.ibukigourd.util.text.literal
 import com.forpleuvoir.ibukigourd.util.text.wrapToLines
+import com.forpleuvoir.ibukigourd.util.text.wrapToTextLines
+import com.forpleuvoir.nebula.common.color.ARGBColor
 import com.forpleuvoir.nebula.common.color.Color
 import com.forpleuvoir.nebula.common.color.Colors
+import com.forpleuvoir.nebula.common.color.HSVColor
+import com.forpleuvoir.nebula.common.util.clamp
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
@@ -25,14 +38,17 @@ import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
 import net.minecraft.client.render.LightmapTextureManager.MAX_LIGHT_COORDINATE
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
 import java.util.function.Supplier
 
-val tessellator: Tessellator by lazy { Tessellator.getInstance() }
+val tessellator: Tessellator get() = Tessellator.getInstance()
 
-val bufferBuilder: BufferBuilder by lazy { tessellator.buffer }
+val bufferBuilder: BufferBuilder get() = tessellator.buffer
+
+fun BufferBuilder.draw() {
+	BufferRenderer.drawWithGlobalProgram(this.end())
+}
 
 fun setShader(shaderSupplier: Supplier<ShaderProgram?>) = RenderSystem.setShader(shaderSupplier)
 
@@ -71,22 +87,15 @@ fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
 	RenderSystem.enableScissor(x1.toInt(), y1.toInt(), 0.coerceAtLeast(width1.toInt()), 0.coerceAtLeast(height1.toInt()))
 }
 
-fun enableScissor(transform: Transform) =
-	enableScissor(transform.worldX, transform.worldY, transform.width, transform.height)
+fun enableScissor(rect: Rectangle<Vector3<Float>>) = enableScissor(rect.x, rect.y, rect.width, rect.height)
 
+fun enableScissor(transform: Transform) =
+	enableScissor(transform.asWorldRect)
 
 fun disableScissor() = RenderSystem.disableScissor()
 
-fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vertex): VertexConsumer =
-	vertex.let {
-		vertex(matrix4f, vertex.vector3f())
-		if (it is ColorVertex) color(it.color)
-		if (it is UVVertex) texture(it.u, it.v)
-		this
-	}
-
-fun VertexConsumer.vertex(matrixStack: MatrixStack, vertex: Vertex): VertexConsumer =
-	vertex(matrixStack.peek().positionMatrix, vertex)
+fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vector3<Float>): VertexConsumer =
+	vertex(matrix4f, vertex.x, vertex.y, vertex.z)
 
 fun VertexConsumer.vertex(matrix4f: Matrix4f, x: Number, y: Number, z: Number): VertexConsumer =
 	this.vertex(matrix4f, x.toFloat(), y.toFloat(), z.toFloat())
@@ -94,57 +103,173 @@ fun VertexConsumer.vertex(matrix4f: Matrix4f, x: Number, y: Number, z: Number): 
 fun VertexConsumer.vertex(matrixStack: MatrixStack, x: Number, y: Number, z: Number): VertexConsumer =
 	this.vertex(matrixStack.peek().positionMatrix, x.toFloat(), y.toFloat(), z.toFloat())
 
-fun VertexConsumer.vertex(matrix4f: Matrix4f, vector3: Vector3<out Number>): VertexConsumer =
-	this.vertex(matrix4f, vector3.x.toFloat(), vector3.y.toFloat(), vector3.z.toFloat())
+fun VertexConsumer.vertex(matrixStack: MatrixStack, vector3: Vector3<Float>): VertexConsumer =
+	this.vertex(matrixStack.peek().positionMatrix, vector3)
 
-fun VertexConsumer.vertex(matrixStack: MatrixStack, vector3: Vector3<out Number>): VertexConsumer =
-	this.vertex(matrixStack.peek().positionMatrix, vector3.x.toFloat(), vector3.y.toFloat(), vector3.z.toFloat())
+fun VertexConsumer.color(color: ARGBColor): VertexConsumer = this.color(color.argb)
 
-fun VertexConsumer.quadsVertex(matrix4f: Matrix4f, quads: Quadrilateral): VertexConsumer {
-	vertex(matrix4f, quads.vertex1).next()
-	vertex(matrix4f, quads.vertex2).next()
-	vertex(matrix4f, quads.vertex3).next()
-	vertex(matrix4f, quads.vertex4).next()
-	return this
-}
-
-fun VertexConsumer.quadsVertex(matrixStack: MatrixStack, quads: Quadrilateral): VertexConsumer =
-	this.quadsVertex(matrixStack.peek().positionMatrix, quads)
-
-fun VertexConsumer.color(color: Color): VertexConsumer = this.color(color.argb)
-
-fun VertexConsumer.normal(normal: Vertex): VertexConsumer = this.normal(normal.x, normal.y, normal.z)
+fun VertexConsumer.normal(normal: Vector3<Float>): VertexConsumer = this.normal(normal.x, normal.y, normal.z)
 
 /**
- * 渲染多顶点的线
+ * 渲染线段
  * @param matrixStack MatrixStack
  * @param lineWidth Number
- * @param colorVertices Array<[ColorVertex]>
+ * @param vertex1 ColorVertex
+ * @param vertex2 ColorVertex
  */
-fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vertex1: Vertex, vertex2: Vertex, normal: Vertex) {
+fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vertex1: ColorVertex, vertex2: ColorVertex, normal: Vector3<Float>) {
 	setShader(GameRenderer::getRenderTypeLinesProgram)
 	enableBlend()
 	defaultBlendFunc()
 	lineWidth(lineWidth)
-	bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES)
-	bufferBuilder.vertex(matrixStack, vertex1).normal(normal).next()
-	bufferBuilder.vertex(matrixStack, vertex2).normal(normal).next()
-	tessellator.draw()
+	bufferBuilder.begin(VertexFormat.DrawMode.LINE_STRIP, VertexFormats.LINES)
+	bufferBuilder.vertex(matrixStack, vertex1).color(vertex1.color).normal(normal).next()
+	bufferBuilder.vertex(matrixStack, vertex2).color(vertex2.color).normal(normal).next()
+	bufferBuilder.draw()
 	lineWidth(1f)
 	disableBlend()
 }
 
 /**
- * 渲染四边形
+ * 渲染线段
  * @param matrixStack MatrixStack
- * @param quads Quadrilateral
+ * @param lineWidth Number
+ * @param vertexes [List]<[ColorVertex]>
  */
-fun renderQuads(matrixStack: MatrixStack, quads: Quadrilateral) {
+fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg vertexes: ColorVertex) {
+	setShader(GameRenderer::getPositionColorProgram)
+	enableBlend()
+	defaultBlendFunc()
+	lineWidth(lineWidth)
+	bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION_COLOR)
+	for (vertex in vertexes) {
+		bufferBuilder.vertex(matrixStack, vertex).color(vertex.color).next()
+	}
+	bufferBuilder.draw()
+	lineWidth(1f)
+	disableBlend()
+}
+
+fun renderHueGradientRect(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	precision: Int,
+	hueRange: ClosedFloatingPointRange<Float> = 0f..360f,
+	saturation: Float = 1f,
+	value: Float = 1f,
+	alpha: Float = 1f
+) {
+	val slice = hueRange.endInclusive / precision
+	val width = rect.width / precision
+	var hue = hueRange.start
+	var x = rect.x
+	for (i in 0 until precision) {
+		val colorStart = HSVColor(hue.clamp(hueRange), saturation, value, alpha, false)
+		val colorEnd = HSVColor((hue + slice).clamp(hueRange), saturation, value, alpha, false)
+		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+		hue = (hue + slice).clamp(hueRange)
+		x += width
+	}
+}
+
+fun renderSaturationGradientRect(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	precision: Int,
+	saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
+	hue: Float = 360f,
+	value: Float = 1f,
+	alpha: Float = 1f
+) {
+	val slice = saturationRange.endInclusive / precision
+	val width = rect.width / precision
+	var saturation = saturationRange.start
+	var x = rect.x
+	for (i in 0 until precision) {
+		val colorStart = HSVColor(hue, saturation.clamp(saturationRange), value, alpha, false)
+		val colorEnd = HSVColor(hue, (saturation + slice).clamp(saturationRange), value, 1f, false)
+		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+		saturation = (saturation + slice).clamp(saturationRange)
+		x += width
+	}
+}
+
+fun renderValueGradientRect(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	precision: Int,
+	valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+	hue: Float = 360f,
+	saturation: Float = 1f,
+	alpha: Float = 1f
+) {
+	val slice = valueRange.endInclusive / precision
+	val width = rect.width / precision
+	var value = valueRange.start
+	var x = rect.x
+	for (i in 0 until precision) {
+		val colorStart = HSVColor(hue, saturation, value.clamp(valueRange), alpha, false)
+		val colorEnd = HSVColor(hue, saturation, (value + slice).clamp(valueRange), 1f, false)
+		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+		value = (value + slice).clamp(valueRange)
+		x += width
+	}
+}
+
+fun renderAlphaGradientRect(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	precision: Int,
+	alphaRange: ClosedFloatingPointRange<Float> = 0f..1f,
+	color: ARGBColor
+) {
+	val slice = alphaRange.endInclusive / precision
+	val width = rect.width / precision
+	var alpha = alphaRange.start
+	var x = rect.x
+	for (i in 0 until precision) {
+		val colorStart = Color(color.rgb, false).alpha(alpha.clamp(alphaRange))
+		val colorEnd = Color(color.rgb, false).alpha((alpha + slice).clamp(alphaRange))
+		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+		alpha = (alpha + slice).clamp(alphaRange)
+		x += width
+	}
+}
+
+fun renderSVGradientRect(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
+	valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+	hue: Float = 360f
+) {
+	val saturationStart = saturationRange.start
+	val saturationEnd = saturationRange.endInclusive
+	val valueStart = valueRange.start
+	val valueEnd = valueRange.endInclusive
+	val color1 = HSVColor(hue, saturationStart, valueEnd)
+	val color2 = HSVColor(hue, saturationStart, valueEnd)
+	val color3 = HSVColor(hue, saturationEnd, valueEnd)
+	val color4 = HSVColor(hue, saturationEnd, valueEnd)
+	renderRect(matrixStack, colorRect(rect, color1, color2, color3, color4))
+	val black1 = Colors.BLACK.alpha(valueStart.clamp(0f..1f))
+	val black2 = Colors.BLACK.alpha(valueEnd.clamp(0f..1f))
+	renderRect(matrixStack, colorRect(rect, black1, black2, black2, black1))
+}
+
+/**
+ * 渲染矩形
+ * @param matrixStack MatrixStack
+ * @param rect Rectangle
+ */
+fun renderRect(matrixStack: MatrixStack, rect: Rectangle<ColorVertex>) {
 	enableBlend()
 	setShader(GameRenderer::getPositionColorProgram)
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
-	bufferBuilder.quadsVertex(matrixStack, quads)
-	tessellator.draw()
+	for (vertex in rect.vertexes) {
+		bufferBuilder.vertex(matrixStack, vertex).color(vertex.color).next()
+	}
+	bufferBuilder.draw()
 	disableBlend()
 }
 
@@ -156,14 +281,7 @@ fun renderQuads(matrixStack: MatrixStack, quads: Quadrilateral) {
  * @param height Number
  */
 fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number, height: Number) {
-	setShader(GameRenderer::getPositionColorProgram)
-	enableBlend()
-	defaultBlendFunc()
-	val matrix4f = matrixStack.peek().positionMatrix
-	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
-	bufferBuilder.quadsVertex(matrix4f, Rectangle(colorVertex, width, height))
-	tessellator.draw()
-	disableBlend()
+	renderRect(matrixStack, colorRect(colorVertex, width.toFloat(), height.toFloat()))
 }
 
 /**
@@ -186,14 +304,14 @@ fun renderRect(matrixStack: MatrixStack, transform: Transform, color: Color) =
  */
 fun renderOutline(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number, height: Number, borderWidth: Number = 1) {
 	renderRect(matrixStack, colorVertex, borderWidth, height)
-	renderRect(matrixStack, colorVertex.x(colorVertex.x.toDouble() + width.toFloat() - borderWidth.toFloat()), borderWidth, height)
-	renderRect(matrixStack, colorVertex.x(colorVertex.x.toDouble() + borderWidth.toDouble()), width.toDouble() - 2 * borderWidth.toDouble(), borderWidth)
+	renderRect(matrixStack, colorVertex.x(colorVertex.x + width.toFloat() - borderWidth.toFloat()), borderWidth, height)
+	renderRect(matrixStack, colorVertex.x(colorVertex.x + borderWidth.toFloat()), width.toFloat() - 2 * borderWidth.toFloat(), borderWidth)
 	renderRect(
 		matrixStack, colorVertex.xyz(
-			colorVertex.x.toDouble() + borderWidth.toDouble(),
-			colorVertex.y.toDouble() + height.toDouble() - borderWidth.toDouble(),
+			colorVertex.x + borderWidth.toFloat(),
+			colorVertex.y + height.toFloat() - borderWidth.toFloat(),
 		),
-		width.toDouble() - 2 * borderWidth.toDouble(), borderWidth
+		width.toFloat() - 2 * borderWidth.toFloat(), borderWidth
 	)
 }
 
@@ -232,20 +350,20 @@ fun renderOutlinedBox(
 		renderOutline(
 			matrixStack,
 			colorVertex.xyz(
-				colorVertex.x.toDouble() - borderWidth.toDouble(),
-				colorVertex.y.toDouble() - borderWidth.toDouble()
+				colorVertex.x - borderWidth.toFloat(),
+				colorVertex.y - borderWidth.toFloat()
 			).color(outlineColor),
-			width.toDouble() + borderWidth.toDouble() * 2, height.toDouble() + borderWidth.toDouble() * 2,
+			width.toFloat() + borderWidth.toFloat() * 2, height.toFloat() + borderWidth.toFloat() * 2,
 			borderWidth
 		)
 	} else {
 		renderRect(
 			matrixStack,
 			colorVertex.xyz(
-				colorVertex.x.toDouble() - borderWidth.toDouble(),
-				colorVertex.y.toDouble() - borderWidth.toDouble()
+				colorVertex.x - borderWidth.toFloat(),
+				colorVertex.y - borderWidth.toFloat()
 			),
-			width.toDouble() - 2 * borderWidth.toDouble(), height.toDouble() - 2 * borderWidth.toDouble(),
+			width.toFloat() - 2 * borderWidth.toFloat(), height.toFloat() - 2 * borderWidth.toFloat(),
 		)
 		renderOutline(matrixStack, colorVertex.color(outlineColor), width, height, borderWidth)
 	}
@@ -314,7 +432,7 @@ fun drawTexture(
 		.texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
 	bufferBuilder.vertex(matrix4f, x.toFloat(), y.toFloat(), zOffset.toFloat())
 		.texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
-	tessellator.draw()
+	bufferBuilder.draw()
 }
 
 /**
@@ -329,31 +447,31 @@ fun drawTexture(matrixStack: MatrixStack, vertex1: UVVertex, vertex2: UVVertex, 
 	val matrix4f = matrixStack.peek().positionMatrix
 	setShader(GameRenderer::getPositionTexProgram)
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
-	bufferBuilder.vertex(matrix4f, vertex1.vector3f()).texture(vertex1.u, vertex1.v).next()
-	bufferBuilder.vertex(matrix4f, vertex2.vector3f()).texture(vertex2.u, vertex2.v).next()
-	bufferBuilder.vertex(matrix4f, vertex3.vector3f()).texture(vertex3.u, vertex3.v).next()
-	bufferBuilder.vertex(matrix4f, vertex4.vector3f()).texture(vertex4.u, vertex4.v).next()
-	tessellator.draw()
+	bufferBuilder.vertex(matrix4f, vertex1).texture(vertex1.u, vertex1.v).next()
+	bufferBuilder.vertex(matrix4f, vertex2).texture(vertex2.u, vertex2.v).next()
+	bufferBuilder.vertex(matrix4f, vertex3).texture(vertex3.u, vertex3.v).next()
+	bufferBuilder.vertex(matrix4f, vertex4).texture(vertex4.u, vertex4.v).next()
+	bufferBuilder.draw()
 }
 
 
 /**
  * 绘制纹理
  * @param matrixStack MatrixStack
- * @param quads Quadrilateral
- * @param uvMapping UV
+ * @param rect Rectangle<Vector3<Float>>
+ * @param uvMapping UVMapping
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun drawTexture(matrixStack: MatrixStack, quads: Quadrilateral, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+fun drawTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
 	val matrix4f = matrixStack.peek().positionMatrix
 	setShader(GameRenderer::getPositionTexProgram)
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
-	bufferBuilder.vertex(matrix4f, quads.vertex1).texture(uvMapping.u1.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
-	bufferBuilder.vertex(matrix4f, quads.vertex2).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
-	bufferBuilder.vertex(matrix4f, quads.vertex3).texture(uvMapping.u1.toFloat() / textureHeight, uvMapping.v2.toFloat() / textureHeight).next()
-	bufferBuilder.vertex(matrix4f, quads.vertex4).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v2.toFloat() / textureHeight).next()
-	tessellator.draw()
+	bufferBuilder.vertex(matrix4f, rect.vertexes[0]).texture(uvMapping.u1.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, rect.vertexes[2]).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, rect.vertexes[3]).texture(uvMapping.u1.toFloat() / textureHeight, uvMapping.v2.toFloat() / textureHeight).next()
+	bufferBuilder.vertex(matrix4f, rect.vertexes[4]).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v2.toFloat() / textureHeight).next()
+	bufferBuilder.draw()
 }
 
 /**
@@ -449,7 +567,7 @@ fun draw9Texture(
 	drawTexture(matrixStack, rightX, bottomY, corner.right, corner.bottom, rightU, bottomV, corner.right, corner.bottom, textureWidth, textureHeight, zOffset)
 }
 
-fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
 	draw9Texture(
 		matrixStack,
 		rect.position.x,
@@ -488,7 +606,14 @@ fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: Text
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, cornerSize: Int, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
+fun draw9Texture(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	cornerSize: Int,
+	uvMapping: UVMapping,
+	textureWidth: Int = 256,
+	textureHeight: Int = 256
+) =
 	draw9Texture(matrixStack, rect, TextureUVMapping(Corner(cornerSize), uvMapping), textureWidth, textureHeight)
 
 
@@ -513,7 +638,13 @@ fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int
  * @param textureInfo TextureInfo
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureInfo: TextureInfo, shaderColor: Color = Colors.WHITE) {
+fun renderTexture(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	textureUV: TextureUVMapping,
+	textureInfo: TextureInfo,
+	shaderColor: Color = Colors.WHITE
+) {
 	setShaderTexture(textureInfo.texture)
 	enableBlend()
 	defaultBlendFunc()
@@ -531,7 +662,7 @@ fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureU
  * @param widgetTexture WidgetTexture
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) {
+fun renderTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) {
 	renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 }
 
@@ -576,8 +707,8 @@ fun TextRenderer.renderText(
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
-	backgroundColor: Color = Colors.WHITE.alpha(0),
+	color: Color = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: Color = Colors.BLACK.alpha(0),
 ) {
 	val immediate = VertexConsumerProvider.immediate(bufferBuilder)
 	draw(
@@ -598,19 +729,19 @@ fun TextRenderer.renderText(
  * @param color Color
  * @param backgroundColor Color
  */
-fun TextRenderer.renderAlignmentText(
+inline fun TextRenderer.renderAlignmentText(
 	matrixStack: MatrixStack,
 	text: Text,
-	rect: Rectangle,
-	align: Alignment = PlanarAlignment.Center,
+	rect: Rectangle<Vector3<Float>>,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
-	backgroundColor: Color = Colors.WHITE.alpha(0),
+	color: Color = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: Color = Colors.BLACK.alpha(0),
 ) {
 	val textWidth = getWidth(text)
-	val position = align.align(rect, Rectangle(vertex(Vector3f()), textWidth, fontHeight))
+	val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textWidth, fontHeight))
 	renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
@@ -626,16 +757,16 @@ fun TextRenderer.renderAlignmentText(
  * @param color Color
  * @param backgroundColor Color
  */
-fun TextRenderer.renderAlignmentText(
+inline fun TextRenderer.renderAlignmentText(
 	matrixStack: MatrixStack,
 	text: Text,
 	transform: Transform,
-	align: Alignment = PlanarAlignment.Center,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
-	backgroundColor: Color = Colors.WHITE.alpha(0),
+	color: Color = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: Color = Colors.BLACK.alpha(0),
 ) = renderAlignmentText(matrixStack, text, transform.asWorldRect, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
 
@@ -653,23 +784,23 @@ fun TextRenderer.renderAlignmentText(
  * @param color Color
  * @param backgroundColor Color
  */
-fun TextRenderer.renderStringLines(
+inline fun TextRenderer.renderStringLines(
 	matrixStack: MatrixStack,
 	string: String,
-	rect: Rectangle,
+	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
-	align: HorizontalAlignment = Left,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
-	backgroundColor: Color = Colors.WHITE.alpha(0),
+	color: Color = Colors.BLACK,
+	backgroundColor: Color = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (text in string.wrapToLines(this, rect.width.toInt())) {
 		renderAlignmentText(
 			matrixStack, literal(text),
-			Rectangle(vertex(Vector3f(0, top, 0)), rect.width, this.fontHeight), align,
+			rect(Vector3f(0f, top, 0f), rect.width, this.fontHeight), align,
 			shadow, layerType, rightToLeft, color, backgroundColor
 		)
 		top += this.fontHeight + lineSpacing.toFloat()
@@ -690,23 +821,23 @@ fun TextRenderer.renderStringLines(
  * @param color Color
  * @param backgroundColor Color
  */
-fun TextRenderer.renderStringLines(
+inline fun TextRenderer.renderStringLines(
 	matrixStack: MatrixStack,
 	lines: List<String>,
-	rect: Rectangle,
+	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
-	align: HorizontalAlignment = Left,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.WHITE,
-	backgroundColor: Color = Colors.WHITE.alpha(0),
+	color: Color = Colors.BLACK,
+	backgroundColor: Color = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (text in lines.wrapToLines(this, rect.width.toInt())) {
 		renderAlignmentText(
 			matrixStack, literal(text),
-			Rectangle(vertex(Vector3f(0, top, 0)), rect.width, this.fontHeight), align,
+			rect(Vector3f(0f, top, 0f), rect.width, this.fontHeight), align,
 			shadow, layerType, rightToLeft, color, backgroundColor
 		)
 		top += this.fontHeight + lineSpacing.toFloat()
@@ -727,18 +858,28 @@ fun TextRenderer.renderStringLines(
  * @param color Color
  * @param backgroundColor Color
  */
-fun TextRenderer.renderTextLines(
+inline fun TextRenderer.renderTextLines(
 	matrixStack: MatrixStack,
 	text: Text,
-	rect: Rectangle,
+	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
-	align: HorizontalAlignment = Left,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0xFFFFFF),
-	backgroundColor: Color = Colors.WHITE.alpha(0),
-) = renderStringLines(matrixStack, text.string, rect, lineSpacing, align, shadow, layerType, rightToLeft, color, backgroundColor)
+	color: Color = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: Color = Colors.BLACK.alpha(0),
+) {
+	var top: Float = rect.top
+	for (t in text.wrapToTextLines(this, rect.width.toInt())) {
+		renderAlignmentText(
+			matrixStack, t,
+			rect(Vector3f(0f, top, 0f), rect.width, this.fontHeight), align,
+			shadow, layerType, rightToLeft, color, backgroundColor
+		)
+		top += this.fontHeight + lineSpacing.toFloat()
+	}
+}
 
 
 /**
@@ -755,17 +896,17 @@ fun TextRenderer.renderTextLines(
  * @param color Color
  * @param backgroundColor Color
  */
-fun TextRenderer.renderTextLines(
+inline fun TextRenderer.renderTextLines(
 	matrixStack: MatrixStack,
 	lines: List<Text>,
-	rect: Rectangle,
+	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
-	align: HorizontalAlignment = Left,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = true,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(lines[0].style.color?.rgb ?: 0xFFFFFF),
-	backgroundColor: Color = Colors.WHITE.alpha(0),
+	color: Color = Color(lines[0].style.color?.rgb ?: 0x000000),
+	backgroundColor: Color = Colors.BLACK.alpha(0),
 ) {
 	renderStringLines(
 		matrixStack,

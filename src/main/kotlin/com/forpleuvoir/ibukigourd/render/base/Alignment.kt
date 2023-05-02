@@ -2,11 +2,18 @@
 
 package com.forpleuvoir.ibukigourd.render.base
 
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import com.forpleuvoir.nebula.common.sumOf
 
 interface Alignment {
 
-	val vertical: Boolean
+	/**
+	 * 排列方式
+	 */
+	val arrangement: Arrangement
 
 	/**
 	 * 计算对齐之后的位置信息
@@ -14,202 +21,229 @@ interface Alignment {
 	 * @param rectangles 内部需要被对齐的矩形大小
 	 * @return [Vector3f]对齐之后的位置信息,应该为内部矩形的左上角顶点
 	 */
-	fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f>
+	fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>>
 
-	fun align(parent: Rectangle, rectangle: Rectangle): Vector3f = align(parent, listOf(rectangle))[0]
+	fun align(parent: Rectangle<Vector3<Float>>, rectangle: Rectangle<Vector3<Float>>): Vector3<Float> = align(parent, listOf(rectangle))[0]
 
 }
 
-enum class PlanarAlignment(override val vertical: Boolean = true) : Alignment {
-	TopLeft {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var y = parent.top
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().y(y))
-				y += rectangle.height
+enum class Arrangement {
+
+	Vertical {
+		override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Size<Float> =
+			Size.create(rectangles.maxOf { it.width }, rectangles.sumOf { it.height })
+
+		override fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			return buildList {
+				var y = position.y
+				for (rectangle in rectangles) {
+					add(position.y(y))
+					y += rectangle.height
+				}
 			}
-			return list
 		}
 	},
-	TopCenter {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var y = parent.y
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().xyz(x = parent.center.x - (rectangle.width / 2), y = y))
-				y += rectangle.height
+	Horizontal {
+		override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Size<Float> =
+			Size.create(rectangles.sumOf { it.width }, rectangles.maxOf { it.height })
+
+		override fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			return buildList {
+				var x = position.x
+				for (rectangle in rectangles) {
+					add(position.x(x))
+					x += rectangle.width
+				}
 			}
-			return list
 		}
-	},
-	TopRight {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var y = parent.y
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().xyz(x = parent.right - rectangle.width, y = y))
-				y += rectangle.height
-			}
-			return list
+	};
+
+	inline fun <R> switch(vertical: (Arrangement) -> R, horizontal: (Arrangement) -> R): R {
+		return when (this) {
+			Vertical -> vertical(this)
+			Horizontal -> horizontal(this)
 		}
-	},
-	CenterLeft {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.center.y - (totalHeight / 2)
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().y(y))
-				y += rectangle.height
+	}
+
+	/**
+	 * 排列之后的总大小
+	 * @param rectangles List<Rectangle>
+	 * @return Size<Float>
+	 */
+	abstract fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Size<Float>
+
+	/**
+	 * 计算排列之后的每一个元素的位置
+	 * @param position Vector3<Float>
+	 * @param rectangles List<Rectangle>
+	 */
+	abstract fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>>
+
+	fun calcPosition(
+		position: Vector3<Float>,
+		rectangles: List<Rectangle<Vector3<Float>>>,
+		map: (Vector3<Float>, Rectangle<Vector3<Float>>) -> Vector3<Float>
+	): List<Vector3<Float>> {
+		return buildList {
+			calcPosition(position, rectangles).forEachIndexed { index, pos ->
+				add(map(pos, rectangles[index]))
 			}
-			return list
 		}
-	},
-	Center {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.center.y - (totalHeight / 2)
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().xyz(x = parent.center.x - (rectangle.width / 2), y = y))
-				y += rectangle.height
-			}
-			return list
+	}
+
+}
+
+
+sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement.Vertical) : Alignment {
+	class TopLeft(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			return arrangement.calcPosition(parent.position, rectangles)
 		}
-	},
-	CenterRight {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.center.y - (totalHeight / 2)
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().xyz(x = parent.right - rectangle.width, y = y))
-				y += rectangle.height
-			}
-			return list
-		}
-	},
-	BottomLeft {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.bottom - totalHeight
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().y(y))
-				y += rectangle.height
-			}
-			return list
-		}
-	},
-	BottomCenter {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.bottom - totalHeight
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().xyz(x = parent.center.x - (rectangle.width / 2), y = y))
-				y += rectangle.height
-			}
-			return list
-		}
-	},
-	BottomRight {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.bottom - totalHeight
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().xyz(x = parent.right - rectangle.width, y = y))
-				y += rectangle.height
-			}
+	}
+
+	class TopCenter(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			arrangement.switch({
+				list = arrangement.calcPosition(parent.position, rectangles) { pos, rect ->
+					pos.x(x = parent.center.x - rect.halfWidth)
+				}
+			}, {
+				val contentSize = arrangement.contentSize(rectangles)
+				list = arrangement.calcPosition(parent.position.x(parent.center.x - contentSize.halfWidth), rectangles)
+			})
 			return list
 		}
 	}
-}
 
-enum class HorizontalAlignment(override val vertical: Boolean = false) : Alignment {
-	Left {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var x = parent.left
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().x(x))
-				x += rectangle.width
-			}
+	class TopRight(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			arrangement.switch({
+				list = arrangement.calcPosition(parent.position, rectangles) { pos, rect ->
+					pos.x(x = parent.right - rect.width)
+				}
+			}, {
+				val contentSize = arrangement.contentSize(rectangles)
+				list = arrangement.calcPosition(parent.position.x(parent.right - contentSize.width), rectangles)
+			})
 			return list
 		}
-	},
-	Center {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalWidth = 0f
-			for (rectangle in rectangles) totalWidth += rectangle.width
-			var x = parent.center.x - (totalWidth / 2)
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().x(x))
-				x += rectangle.width
-			}
-			return list
-		}
-	},
-	Right {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalWidth = 0f
-			for (rectangle in rectangles) totalWidth += rectangle.width
-			var x = parent.right - totalWidth
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().x(x))
-				x += rectangle.width
-			}
-			return list
-		}
-	},
-}
+	}
 
-enum class VerticalAlignment(override val vertical: Boolean = true) : Alignment {
-	Top {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var y = parent.top
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().y(y))
-				y += rectangle.height
-			}
+	class CenterLeft(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			val size = arrangement.contentSize(rectangles)
+			val y = parent.center.y - size.halfHeight
+			val x = parent.left
+			val rect = rect(parent.position.xyz(x, y), size)
+			arrangement.switch({
+				list = arrangement.calcPosition(rect.position, rectangles)
+			}, {
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.y(rect.center.y - r.halfHeight)
+				}
+			})
 			return list
 		}
-	},
-	Center {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.center.y - (totalHeight / 2)
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().y(y))
-				y += rectangle.height
-			}
+	}
+
+	class Center(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			val size = arrangement.contentSize(rectangles)
+			val y = parent.center.y - size.halfHeight
+			val x = parent.center.x - size.halfWidth
+			val rect = rect(parent.position.xyz(x, y), size)
+			arrangement.switch({
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.x(rect.center.x - r.halfWidth)
+				}
+			}, {
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.y(rect.center.y - r.halfHeight)
+				}
+			})
 			return list
 		}
-	},
-	Bottom {
-		override fun align(parent: Rectangle, rectangles: List<Rectangle>): List<Vector3f> {
-			val list = ArrayList<Vector3f>(rectangles.size)
-			var totalHeight = 0f
-			for (rectangle in rectangles) totalHeight += rectangle.height
-			var y = parent.bottom - totalHeight
-			for (rectangle in rectangles) {
-				list.add(parent.position.vector3f().y(y))
-				y += rectangle.height
-			}
+	}
+
+	class CenterRight(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			val size = arrangement.contentSize(rectangles)
+			val y = parent.center.y - size.halfHeight
+			val x = parent.right - size.width
+			val rect = rect(parent.position.xyz(x, y), size)
+			arrangement.switch({
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.x(rect.right - r.width)
+				}
+			}, {
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.y(rect.center.y - r.halfHeight)
+				}
+			})
 			return list
 		}
-	},
+	}
+
+	class BottomLeft(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			val size = arrangement.contentSize(rectangles)
+			val y = parent.position.y - size.height
+			val x = parent.right
+			val rect = rect(parent.position.xyz(x, y), size)
+			arrangement.switch({
+				list = arrangement.calcPosition(rect.position, rectangles)
+			}, {
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.y(rect.center.y - r.halfHeight)
+				}
+			})
+			return list
+		}
+	}
+
+	class BottomCenter(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			val size = arrangement.contentSize(rectangles)
+			val y = parent.position.y - size.height
+			val x = parent.center.x - size.halfWidth
+			val rect = rect(parent.position.xyz(x, y), size)
+			arrangement.switch({
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.x(rect.center.x - r.halfWidth)
+				}
+			}, {
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.y(rect.center.y - r.halfHeight)
+				}
+			})
+			return list
+		}
+	}
+
+	class BottomRight(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
+			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
+			val size = arrangement.contentSize(rectangles)
+			val y = parent.position.y - size.height
+			val x = parent.right - size.width
+			val rect = rect(parent.position.xyz(x, y), size)
+			arrangement.switch({
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.x(rect.right - r.width)
+				}
+			}, {
+				list = arrangement.calcPosition(rect.position, rectangles) { pos, r ->
+					pos.y(rect.center.y - r.halfHeight)
+				}
+			})
+			return list
+		}
+	}
 }

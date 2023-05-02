@@ -3,22 +3,35 @@ package com.forpleuvoir.ibukigourd.gui.base.layout
 import com.forpleuvoir.ibukigourd.gui.base.Margin
 import com.forpleuvoir.ibukigourd.gui.base.element.Element
 import com.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import com.forpleuvoir.ibukigourd.render.base.*
+import com.forpleuvoir.ibukigourd.render.base.Alignment
+import com.forpleuvoir.ibukigourd.render.base.Arrangement
+import com.forpleuvoir.ibukigourd.render.base.Arrangement.Vertical
+import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import com.forpleuvoir.ibukigourd.render.base.Size
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
-class LinearLayout(override val elementContainer: () -> ElementContainer, private val alignment: Alignment = PlanarAlignment.Center) : Layout {
+@Suppress("MemberVisibilityCanBePrivate")
+class LinearLayout(
+	override val elementContainer: () -> ElementContainer,
+	val arrangement: Arrangement = Vertical,
+	private val alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
+) : Layout {
 
-	override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Layout.Size? {
+	override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+		val alignment = alignment(arrangement)
 		val alignElements = elements.filter { !it.fixed }
 		if (alignElements.isEmpty()) return null
 
 		val alignRects = alignElements.map {
-			Rectangle(
-				vertex(Vector3f(0f, 0f, it.transform.z)), it.transform.width + it.margin.width, it.transform.height + it.margin.height
+			rect(
+				vertex(0f, 0f, it.transform.z), it.transform.width + it.margin.width, it.transform.height + it.margin.height
 			)
 		}
+
 		val container = elementContainer.invoke()
+		val size = alignment.arrangement.contentSize(alignRects)
 		val contentRect = when {
 			//固定高度和宽度
 			container.transform.fixedWidth && container.transform.fixedHeight -> {
@@ -26,43 +39,22 @@ class LinearLayout(override val elementContainer: () -> ElementContainer, privat
 			}
 			//固定宽度 不固定高度
 			container.transform.fixedWidth && !container.transform.fixedHeight -> {
-				if (alignment.vertical) {
-					var height = 0f
-					alignRects.forEach { height += it.height }
-					Rectangle(container.contentRect(false).position, container.transform.width, height)
-				} else {
-					Rectangle(container.contentRect(false).position, container.transform.width, alignRects.maxHeight)
-				}
+				rect(container.contentRect(false).position, container.transform.width, size.height)
 			}
 			//不固定宽度 固定高度
 			!container.transform.fixedWidth && container.transform.fixedHeight -> {
-				if (alignment.vertical) {
-					Rectangle(container.contentRect(false).position, container.transform.width, container.transform.height)
-				} else {
-					var width = 0f
-					alignRects.forEach { width += it.width }
-					Rectangle(container.contentRect(false).position, width, container.transform.height)
-				}
+				rect(container.contentRect(false).position, size.width, container.transform.height)
 			}
 			//不固定宽度 不固定高度
 			else -> {
-				if (alignment.vertical) {
-					var height = 0f
-					alignRects.forEach { height += it.height }
-					Rectangle(container.contentRect(false).position, alignRects.maxWidth, height)
-				} else {
-					var width = 0f
-					alignRects.forEach { width += it.width }
-					Rectangle(container.contentRect(false).position, width, alignRects.maxHeight)
-				}
+				rect(container.contentRect(false).position, size)
 			}
 		}
 		alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
 			val element = alignElements[index]
-			vector3f += Vector3f(element.margin.left, element.margin.top)
-			element.transform.moveTo(vector3f)
+			element.transform.translateTo(vector3f + Vector3f(element.margin.left, element.margin.top))
 		}
-		return Layout.Size(contentRect.width + padding.width, contentRect.height + padding.height)
+		return Size.create(contentRect.width + padding.width, contentRect.height + padding.height)
 	}
 
 }

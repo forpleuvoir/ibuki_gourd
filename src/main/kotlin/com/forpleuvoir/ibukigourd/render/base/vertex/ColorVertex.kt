@@ -2,20 +2,35 @@ package com.forpleuvoir.ibukigourd.render.base.vertex
 
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import com.forpleuvoir.nebula.common.color.Color
+import com.forpleuvoir.nebula.common.color.ARGBColor
 
-interface ColorVertex : Vertex {
-	override fun x(x: Number): ColorVertex
+interface ColorVertex : Vector3<Float> {
 
-	override fun y(y: Number): ColorVertex
+	override fun x(x: Float): ColorVertex
 
-	override fun z(z: Number): ColorVertex
+	override fun y(y: Float): ColorVertex
 
-	override fun xyz(x: Number, y: Number, z: Number): ColorVertex
+	override fun z(z: Float): ColorVertex
 
-	val color: Color
+	override fun xyz(x: Float, y: Float, z: Float): ColorVertex
 
-	fun color(color: Color): ColorVertex
+	override fun plus(x: Float, y: Float, z: Float): ColorVertex
+
+	override fun unaryPlus(): ColorVertex
+
+	override fun minus(x: Float, y: Float, z: Float): ColorVertex
+
+	override fun unaryMinus(): ColorVertex
+
+	override fun times(x: Float, y: Float, z: Float): ColorVertex
+
+	override fun div(x: Float, y: Float, z: Float): ColorVertex
+
+	override fun rem(x: Float, y: Float, z: Float): ColorVertex
+
+	val color: ARGBColor
+
+	fun color(color: ARGBColor): ColorVertex
 
 }
 
@@ -23,16 +38,10 @@ fun colorVertex(
 	x: Number,
 	y: Number,
 	z: Number,
-	color: Color
+	color: ARGBColor
 ) = ColorVertexImpl(x, y, z, color)
 
-
 fun colorVertex(
-	vector3: Vector3f,
-	color: Color
-) = ColorVertexImpl(vector3, color)
-
-fun colorVertex(
-	vector3: Vector3<Number>,
-	color: Color
+	vector3: Vector3<Float>,
+	color: ARGBColor
 ) = ColorVertexImpl(Vector3f(vector3), color)

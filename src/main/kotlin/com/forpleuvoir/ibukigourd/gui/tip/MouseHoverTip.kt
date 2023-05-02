@@ -15,7 +15,9 @@ import com.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.ARROW_OFFSET
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.DELAY
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.MARGIN
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.PADDING
-import com.forpleuvoir.ibukigourd.render.base.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3
+import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import com.forpleuvoir.ibukigourd.render.renderTexture
 import com.forpleuvoir.ibukigourd.util.mc
@@ -72,7 +74,7 @@ open class MouseHoverTip(
 	/**
 	 * 父元素最新的状态，如果没有变则不需要更新位置
 	 */
-	protected var latestParent: Rectangle = Rectangle(vertex(0, 0, 0), 0, 0)
+	protected var latestParent: Rectangle<Vector3<Float>> = rect(vertex(0, 0, 0), 0, 0)
 
 	protected open var tickCounter: UInt = 0u
 		set(value) {
@@ -108,10 +110,10 @@ open class MouseHoverTip(
 	protected open fun calcPosition() {
 		val parent = this.transform.parent!!
 		when (direction) {
-			Left -> transform.moveTo(-(transform.width + margin.left), -(transform.halfHeight - parent.halfHeight))
-			Right -> transform.moveTo(parent.width + margin.right, -(transform.halfHeight - parent.halfHeight))
-			Top -> transform.moveTo(-(transform.halfWidth - parent.halfWidth), -(transform.height + margin.top))
-			Bottom -> transform.moveTo(-(transform.halfWidth - parent.halfWidth), parent.height + margin.top)
+			Left -> transform.translateTo(-(transform.width + margin.left), -(transform.halfHeight - parent.halfHeight))
+			Right -> transform.translateTo(parent.width + margin.right, -(transform.halfHeight - parent.halfHeight))
+			Top -> transform.translateTo(-(transform.halfWidth - parent.halfWidth), -(transform.height + margin.top))
+			Bottom -> transform.translateTo(-(transform.halfWidth - parent.halfWidth), parent.height + margin.top)
 		}
 		transform.worldY = transform.worldY.clamp(0f, mc.window.scaledHeight - transform.height)
 		transform.worldX = transform.worldX.clamp(0f, mc.window.scaledWidth - transform.width)
@@ -140,7 +142,7 @@ open class MouseHoverTip(
 		renderTexture(matrixStack, this.transform, TIP, backgroundColor)
 		val arrow = when (direction) {
 			Left ->
-				TIP_ARROW_LEFT to Rectangle(
+				TIP_ARROW_LEFT to rect(
 					transform.worldRight - ARROW_OFFSET.left,
 					transform.parent!!.worldCenter.y - MARGIN.left / 2,
 					0f,
@@ -148,7 +150,7 @@ open class MouseHoverTip(
 				)
 
 			Right ->
-				TIP_ARROW_RIGHT to Rectangle(
+				TIP_ARROW_RIGHT to rect(
 					transform.worldLeft - MARGIN.right + ARROW_OFFSET.right,
 					transform.parent!!.worldCenter.y - MARGIN.left / 2,
 					0f,
@@ -156,7 +158,7 @@ open class MouseHoverTip(
 				)
 
 			Top ->
-				TIP_ARROW_TOP to Rectangle(
+				TIP_ARROW_TOP to rect(
 					transform.parent!!.worldCenter.x - MARGIN.top / 2,
 					transform.worldBottom - ARROW_OFFSET.top,
 					0f,
@@ -164,7 +166,7 @@ open class MouseHoverTip(
 				)
 
 			Bottom ->
-				TIP_ARROW_BOTTOM to Rectangle(
+				TIP_ARROW_BOTTOM to rect(
 					transform.parent!!.worldCenter.x - MARGIN.bottom / 2,
 					transform.worldTop - MARGIN.bottom + ARROW_OFFSET.bottom,
 					0f,

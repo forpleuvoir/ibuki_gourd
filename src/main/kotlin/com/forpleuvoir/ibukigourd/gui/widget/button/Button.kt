@@ -2,9 +2,10 @@
 
 package com.forpleuvoir.ibukigourd.gui.widget.button
 
-import com.forpleuvoir.ibukigourd.gui.base.element.Element
+import com.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import com.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.HEIGHT
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import com.forpleuvoir.ibukigourd.render.renderTexture
 import com.forpleuvoir.ibukigourd.util.NextAction
@@ -28,9 +29,9 @@ open class Button(
 
 	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		if (!visible) return
-		val height = status(1f, 0f, 0f, 1f)
+		val height = status(HEIGHT, 0.0, 0.0, HEIGHT)
 		matrixStack.push()
-		matrixStack.translate(0f, height, 0f)
+		matrixStack.translate(0.0, height, 0.0)
 		renderBackground(matrixStack, delta)
 		super.onRender(matrixStack, delta)
 		matrixStack.pop()
@@ -42,7 +43,7 @@ open class Button(
 
 }
 
-fun Element.button(
+fun ElementContainer.button(
 	color: Color = COLOR,
 	onClick: () -> NextAction = { NextAction.Continue },
 	onRelease: () -> NextAction = { NextAction.Continue },
