@@ -193,8 +193,8 @@ sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement
 		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
 			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
 			val size = arrangement.contentSize(rectangles)
-			val y = parent.position.y - size.height
-			val x = parent.right
+			val y = parent.bottom - size.height
+			val x = parent.left
 			val rect = rect(parent.position.xyz(x, y), size)
 			arrangement.switch({
 				list = arrangement.calcPosition(rect.position, rectangles)
@@ -211,7 +211,7 @@ sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement
 		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
 			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
 			val size = arrangement.contentSize(rectangles)
-			val y = parent.position.y - size.height
+			val y = parent.bottom - size.height
 			val x = parent.center.x - size.halfWidth
 			val rect = rect(parent.position.xyz(x, y), size)
 			arrangement.switch({
@@ -231,7 +231,7 @@ sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement
 		override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
 			var list: List<Vector3<Float>> = ArrayList(rectangles.size)
 			val size = arrangement.contentSize(rectangles)
-			val y = parent.position.y - size.height
+			val y = parent.bottom - size.height
 			val x = parent.right - size.width
 			val rect = rect(parent.position.xyz(x, y), size)
 			arrangement.switch({

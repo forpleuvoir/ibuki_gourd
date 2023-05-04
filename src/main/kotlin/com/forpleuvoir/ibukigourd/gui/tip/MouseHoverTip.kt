@@ -10,6 +10,8 @@ import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_BOTTO
 import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_LEFT
 import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_RIGHT
 import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_TOP
+import com.forpleuvoir.ibukigourd.input.KeyCode
+import com.forpleuvoir.ibukigourd.input.Keyboard
 import com.forpleuvoir.ibukigourd.mod.gui.Theme
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.ARROW_OFFSET
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.DELAY
@@ -20,8 +22,9 @@ import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import com.forpleuvoir.ibukigourd.render.renderTexture
+import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.ibukigourd.util.mc
-import com.forpleuvoir.nebula.common.color.Color
+import com.forpleuvoir.nebula.common.color.ARGBColor
 import com.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.util.math.MatrixStack
 
@@ -43,22 +46,22 @@ open class MouseHoverTip(
 	/**
 	 * 父元素
 	 */
-	final override var parent: Element,
+	parent: Element,
+	tipHandler: () -> TipHandler = { parent.screen()!! },
 	/**
 	 * 延迟显示时间
 	 */
 	var displayDelay: UInt = DELAY.toUInt(),
 	padding: Margin = PADDING,
 	margin: Margin = MARGIN,
-	var backgroundColor: Color = Theme.TIP.BACKGROUND_COLOR,
+	var backgroundColor: ARGBColor = Theme.TIP.BACKGROUND_COLOR,
 	/**
 	 * 出现在父元素的位置方向，为空则自动选择合适位置
 	 */
 	var forcedDirection: Direction? = null
-) : Tip() {
+) : Tip({ parent }, tipHandler) {
 
 	init {
-		transform.parent = parent.transform
 		padding(padding)
 		margin(margin)
 	}
@@ -76,21 +79,26 @@ open class MouseHoverTip(
 	 */
 	protected var latestParent: Rectangle<Vector3<Float>> = rect(vertex(0, 0, 0), 0, 0)
 
+	protected var keepDisplay: Boolean = false
+
 	protected open var tickCounter: UInt = 0u
 		set(value) {
 			field = value
-			if (visible) {
-				postToRenderList()
-				if (!Rectangle.equals(latestParent, transform.parent!!.asWorldRect)) {
+			if (tickCounter >= displayDelay) {
+				if (field == displayDelay) {
+					visible = push()
+					if (!visible) field = 0u
+				}
+				if (!Rectangle.equals(latestParent, transform.parent()!!.asWorldRect)) {
 					checkDirection()
 					calcPosition()
-					latestParent = transform.parent!!.asWorldRect
+					latestParent = transform.parent()!!.asWorldRect
 				}
 			}
 		}
 
 	protected open fun checkDirection() {
-		val parent = this.transform.parent!!
+		val parent = this.transform.parent()!!
 		val canPlace: (Direction) -> Boolean = { dir ->
 			when (dir) {
 				Left -> parent.worldLeft - (transform.width + margin.left) > 0
@@ -108,18 +116,18 @@ open class MouseHoverTip(
 	}
 
 	protected open fun calcPosition() {
-		val parent = this.transform.parent!!
+		val parent = this.transform.parent()!!
 		when (direction) {
 			Left -> transform.translateTo(-(transform.width + margin.left), -(transform.halfHeight - parent.halfHeight))
 			Right -> transform.translateTo(parent.width + margin.right, -(transform.halfHeight - parent.halfHeight))
 			Top -> transform.translateTo(-(transform.halfWidth - parent.halfWidth), -(transform.height + margin.top))
 			Bottom -> transform.translateTo(-(transform.halfWidth - parent.halfWidth), parent.height + margin.top)
 		}
-		transform.worldY = transform.worldY.clamp(0f, mc.window.scaledHeight - transform.height)
-		transform.worldX = transform.worldX.clamp(0f, mc.window.scaledWidth - transform.width)
+		transform.worldY = transform.worldY.clamp(0f..mc.window.scaledHeight - transform.height)
+		transform.worldX = transform.worldX.clamp(0f..mc.window.scaledWidth - transform.width)
 	}
 
-	override val visible: Boolean get() = tickCounter >= displayDelay
+	override var visible: Boolean = false
 
 	final override var active: Boolean
 		get() = tickCounter >= displayDelay
@@ -130,11 +138,13 @@ open class MouseHoverTip(
 
 
 	override fun tick() {
-		if (transform.parent!!.mouseHover()) {
+		if (transform.parent()!!.mouseHover()) {
 			tickCounter++
-		} else {
-			tickCounter = 0u
-			removeFromRenderList()
+		} else if (!keepDisplay) {
+			visible = !pop()
+			if (!visible) {
+				tickCounter = 0u
+			}
 		}
 	}
 
@@ -144,7 +154,7 @@ open class MouseHoverTip(
 			Left ->
 				TIP_ARROW_LEFT to rect(
 					transform.worldRight - ARROW_OFFSET.left,
-					transform.parent!!.worldCenter.y - MARGIN.left / 2,
+					transform.parent()!!.worldCenter.y - MARGIN.left / 2,
 					0f,
 					MARGIN.left, MARGIN.left
 				)
@@ -152,14 +162,14 @@ open class MouseHoverTip(
 			Right ->
 				TIP_ARROW_RIGHT to rect(
 					transform.worldLeft - MARGIN.right + ARROW_OFFSET.right,
-					transform.parent!!.worldCenter.y - MARGIN.left / 2,
+					transform.parent()!!.worldCenter.y - MARGIN.left / 2,
 					0f,
 					MARGIN.right, MARGIN.right
 				)
 
 			Top ->
 				TIP_ARROW_TOP to rect(
-					transform.parent!!.worldCenter.x - MARGIN.top / 2,
+					transform.parent()!!.worldCenter.x - MARGIN.top / 2,
 					transform.worldBottom - ARROW_OFFSET.top,
 					0f,
 					MARGIN.top, MARGIN.top
@@ -167,7 +177,7 @@ open class MouseHoverTip(
 
 			Bottom ->
 				TIP_ARROW_BOTTOM to rect(
-					transform.parent!!.worldCenter.x - MARGIN.bottom / 2,
+					transform.parent()!!.worldCenter.x - MARGIN.bottom / 2,
 					transform.worldTop - MARGIN.bottom + ARROW_OFFSET.bottom,
 					0f,
 					MARGIN.bottom, MARGIN.bottom
@@ -176,21 +186,35 @@ open class MouseHoverTip(
 		renderTexture(matrixStack, arrow.second, arrow.first, backgroundColor)
 	}
 
+	override fun onKeyPress(keyCode: KeyCode): NextAction {
+		if (keyCode == Keyboard.LEFT_CONTROL) {
+			keepDisplay = true
+		}
+		return super.onKeyPress(keyCode)
+	}
+
+	override fun onKeyRelease(keyCode: KeyCode): NextAction {
+		if (keyCode == Keyboard.LEFT_CONTROL) {
+			keepDisplay = false
+		}
+		return super.onKeyRelease(keyCode)
+	}
+
 }
 
-inline fun Element.mouseHoverTip(
-	displayDelay: UInt,
-	padding: Margin,
-	margin: Margin,
-	color: Color,
-	forcedDirection: Direction?,
+inline fun Element.tip(
+	displayDelay: UInt = DELAY.toUInt(),
+	padding: Margin = PADDING,
+	margin: Margin = MARGIN,
+	color: ARGBColor = Theme.TIP.BACKGROUND_COLOR,
+	forcedDirection: Direction? = null,
 	scope: MouseHoverTip.() -> Unit
 ): MouseHoverTip {
-	this.tip = MouseHoverTip(this, displayDelay, padding, margin, color, forcedDirection).apply(scope)
+	this.tip = MouseHoverTip(this, { this.screen()!! }, displayDelay, padding, margin, color, forcedDirection).apply(scope)
 	return this.tip as MouseHoverTip
 }
 
-inline fun Element.mouseHoverTip(
+inline fun Element.tip(
 	scope: MouseHoverTip.() -> Unit
 ): MouseHoverTip {
 	this.tip = MouseHoverTip(this).apply(scope)

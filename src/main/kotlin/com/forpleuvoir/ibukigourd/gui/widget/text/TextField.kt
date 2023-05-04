@@ -99,11 +99,11 @@ open class TextField(
 	fun resize() {
 		if (!transform.fixedWidth) {
 			transform.width = renderText.maxWidth(textRenderer).toFloat() + padding.width
-			parent.arrange()
+			parent()?.arrange()
 		}
 		if (!transform.fixedHeight) {
 			transform.height = renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height
-			parent.arrange()
+			parent()?.arrange()
 		}
 
 	}
@@ -113,7 +113,7 @@ open class TextField(
 			resize()
 			changed = false
 		}
-		enableScissor(transform)
+		enableScissor(transform, matrixStack.peek().positionMatrix)
 		renderBackground(matrixStack, delta)
 		renderText(matrixStack, delta)
 		renderOverlay(matrixStack, delta)

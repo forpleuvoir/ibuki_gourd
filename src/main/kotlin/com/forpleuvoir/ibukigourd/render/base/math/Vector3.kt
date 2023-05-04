@@ -70,3 +70,4 @@ interface Vector3<T : Number> : Serializable {
 
 	fun rem(x: T, y: T, z: T): Vector3<T>
 }
+

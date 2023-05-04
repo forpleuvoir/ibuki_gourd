@@ -10,16 +10,16 @@ import net.minecraft.client.util.math.MatrixStack
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement : Element, AbstractElementContainer() {
 
-	override val screen: Screen
+	override val screen: () -> Screen?
 		get() {
-			return if (parent is Screen) {
-				parent as Screen
+			return if (parent() is Screen) {
+				{ parent() as Screen }
 			} else {
-				parent.screen
+				{ parent()?.screen?.invoke() }
 			}
 		}
 
-	override var parent: Element = this
+	override var parent: () -> Element? = { this }
 
 	override var active = true
 

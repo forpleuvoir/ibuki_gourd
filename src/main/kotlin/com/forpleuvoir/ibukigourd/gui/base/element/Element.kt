@@ -21,12 +21,12 @@ interface Element : ElementContainer, Drawable, Tickable {
 	/**
 	 * 父元素
 	 */
-	var parent: Element
+	var parent: () -> Element?
 
 	/**
 	 *  当前元素所在的Screen
 	 */
-	val screen: Screen
+	val screen: () -> Screen?
 
 	/**
 	 * 是否为激活的元素

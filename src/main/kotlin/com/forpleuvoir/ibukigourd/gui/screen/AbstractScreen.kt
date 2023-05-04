@@ -16,11 +16,10 @@ abstract class AbstractScreen(
 	height: Int = mc.window.scaledHeight
 ) : AbstractElement(), Screen {
 
-	override val screen: Screen get() = this
+	override val screen: () -> Screen? get() = { this }
 
-	override var parent: Element
-		get() = this
-		set(@Suppress("UNUSED_PARAMETER") value) {}
+	override var parent: () -> Element? = { null }
+
 
 	init {
 		this.transform.fixedWidth = true
@@ -29,7 +28,20 @@ abstract class AbstractScreen(
 		this.transform.height = height.toFloat()
 	}
 
-	override val tipList: MutableSet<Tip> = HashSet()
+	override val tipList = ArrayList<Tip>()
+
+	override var maxTip: Int = 1
+
+	override fun pushTip(tip: Tip): Boolean {
+		if (tipList.contains(tip)) return false
+		return if (tipList.size < maxTip)
+			tipList.add(tip)
+		else false
+	}
+
+	override fun popTip(tip: Tip): Boolean {
+		return tipList.remove(tip)
+	}
 
 	override var parentScreen: Screen? = null
 
@@ -39,11 +51,18 @@ abstract class AbstractScreen(
 
 	override var close: () -> Unit = ::onClose
 
+	override val handleTree: List<Element>
+		get() = buildList {
+			addAll(tipList.sortedByDescending { it.priority })
+			addAll(super.handleTree)
+		}
+
+
 	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		if (!visible) return
 		renderBackground.invoke(matrixStack, delta)
 		for (element in renderTree) element.render(matrixStack, delta)
-		tipList.sortedBy { it.transform.worldZ }.forEach {
+		tipList.sortedBy { it.renderPriority }.forEach {
 			if (it.visible) it.render.invoke(matrixStack, delta)
 		}
 		renderOverlay.invoke(matrixStack, delta)
@@ -64,9 +83,9 @@ abstract class AbstractScreen(
 	override fun onKeyPress(keyCode: KeyCode): NextAction {
 		if (keyCode == Keyboard.ESCAPE && shouldCloseOnEsc) {
 			close()
-			return NextAction.Continue
+			return NextAction.Cancel
 		}
-		return NextAction.Cancel
+		return super<AbstractElement>.onKeyPress(keyCode)
 	}
 
 

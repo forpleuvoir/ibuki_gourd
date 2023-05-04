@@ -8,6 +8,7 @@ import com.forpleuvoir.ibukigourd.render.base.Alignment
 import com.forpleuvoir.ibukigourd.render.base.Arrangement
 import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import com.forpleuvoir.ibukigourd.render.base.Size
+import com.forpleuvoir.ibukigourd.render.base.math.ImmutableVector3f
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import com.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
@@ -25,10 +26,7 @@ import com.forpleuvoir.ibukigourd.util.text.Text
 import com.forpleuvoir.ibukigourd.util.text.literal
 import com.forpleuvoir.ibukigourd.util.text.wrapToLines
 import com.forpleuvoir.ibukigourd.util.text.wrapToTextLines
-import com.forpleuvoir.nebula.common.color.ARGBColor
-import com.forpleuvoir.nebula.common.color.Color
-import com.forpleuvoir.nebula.common.color.Colors
-import com.forpleuvoir.nebula.common.color.HSVColor
+import com.forpleuvoir.nebula.common.color.*
 import com.forpleuvoir.nebula.common.util.clamp
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
@@ -46,6 +44,14 @@ val tessellator: Tessellator get() = Tessellator.getInstance()
 
 val bufferBuilder: BufferBuilder get() = tessellator.buffer
 
+fun MatrixStack.translate(vector3: Vector3<out Number>) {
+	this.translate(vector3.x.toFloat(), vector3.y.toFloat(), vector3.z.toFloat())
+}
+
+fun Matrix4f.getPosition(): Vector3<Float> {
+	return ImmutableVector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
+}
+
 fun BufferBuilder.draw() {
 	BufferRenderer.drawWithGlobalProgram(this.end())
 }
@@ -58,7 +64,7 @@ fun setShaderTexture(texture: Identifier) = RenderSystem.setShaderTexture(0, tex
 
 fun lineWidth(width: Number) = RenderSystem.lineWidth(width.toFloat())
 
-fun setShaderColor(color: Color) = RenderSystem.setShaderColor(color.redF, color.greenF, color.blueF, color.alphaF)
+fun setShaderColor(color: ARGBColor) = RenderSystem.setShaderColor(color.redF, color.greenF, color.blueF, color.alphaF)
 
 fun enablePolygonOffset() = RenderSystem.enablePolygonOffset()
 
@@ -89,8 +95,12 @@ fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
 
 fun enableScissor(rect: Rectangle<Vector3<Float>>) = enableScissor(rect.x, rect.y, rect.width, rect.height)
 
-fun enableScissor(transform: Transform) =
-	enableScissor(transform.asWorldRect)
+fun enableScissor(rect: Rectangle<Vector3<Float>>, matrix4f: Matrix4f) {
+	val vector3f = matrix4f.getPosition()
+	enableScissor(rect.x + vector3f.x, rect.y + vector3f.y, rect.width, rect.height)
+}
+
+fun enableScissor(transform: Transform, matrix4f: Matrix4f) = enableScissor(transform.asWorldRect, matrix4f)
 
 fun disableScissor() = RenderSystem.disableScissor()
 
@@ -150,95 +160,104 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg vertexes: Col
 	disableBlend()
 }
 
+fun renderGradientRect(
+	matrixStack: MatrixStack,
+	rect: Rectangle<Vector3<Float>>,
+	arrangement: Arrangement = Arrangement.Horizontal,
+	startColor: ARGBColor,
+	endColor: ARGBColor
+) {
+	arrangement.switch({
+		renderRect(matrixStack, colorRect(rect, startColor, endColor, endColor, startColor))
+	}, {
+		renderRect(matrixStack, colorRect(rect, startColor, startColor, endColor, endColor))
+	})
+}
+
 fun renderHueGradientRect(
 	matrixStack: MatrixStack,
 	rect: Rectangle<Vector3<Float>>,
 	precision: Int,
+	arrangement: Arrangement = Arrangement.Horizontal,
+	reverse: Boolean = false,
 	hueRange: ClosedFloatingPointRange<Float> = 0f..360f,
 	saturation: Float = 1f,
 	value: Float = 1f,
 	alpha: Float = 1f
 ) {
-	val slice = hueRange.endInclusive / precision
-	val width = rect.width / precision
-	var hue = hueRange.start
-	var x = rect.x
-	for (i in 0 until precision) {
-		val colorStart = HSVColor(hue.clamp(hueRange), saturation, value, alpha, false)
-		val colorEnd = HSVColor((hue + slice).clamp(hueRange), saturation, value, alpha, false)
-		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
-		hue = (hue + slice).clamp(hueRange)
-		x += width
-	}
+	val hueSlice = hueRange.endInclusive / precision
+	var hue = if (reverse) hueRange.endInclusive else hueRange.start
+	arrangement.switch({
+		val lengthSlice = rect.height / precision
+		var y = rect.y
+		for (i in 0 until precision) {
+			val colorStart = HSVColor(hue, saturation, value, alpha, false)
+			hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
+			val colorEnd = HSVColor(hue, saturation, value, alpha, false)
+			renderRect(matrixStack, colorRect(rect.x, y, rect.z, Size.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
+			y += lengthSlice
+		}
+	}, {
+		val lengthSlice = rect.width / precision
+		var x = rect.x
+		for (i in 0 until precision) {
+			val colorStart = HSVColor(hue, saturation, value, alpha, false)
+			hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
+			val colorEnd = HSVColor(hue, saturation, value, alpha, false)
+			renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+			x += lengthSlice
+		}
+	})
 }
 
 fun renderSaturationGradientRect(
 	matrixStack: MatrixStack,
 	rect: Rectangle<Vector3<Float>>,
-	precision: Int,
+	arrangement: Arrangement = Arrangement.Horizontal,
+	reverse: Boolean = false,
 	saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	hue: Float = 360f,
 	value: Float = 1f,
 	alpha: Float = 1f
 ) {
-	val slice = saturationRange.endInclusive / precision
-	val width = rect.width / precision
-	var saturation = saturationRange.start
-	var x = rect.x
-	for (i in 0 until precision) {
-		val colorStart = HSVColor(hue, saturation.clamp(saturationRange), value, alpha, false)
-		val colorEnd = HSVColor(hue, (saturation + slice).clamp(saturationRange), value, 1f, false)
-		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
-		saturation = (saturation + slice).clamp(saturationRange)
-		x += width
-	}
+	val colorStart = HSVColor(hue, (if (reverse) saturationRange.endInclusive else saturationRange.start).clamp(alphaFRange), value, alpha)
+	val colorEnd = HSVColor(hue, (if (!reverse) saturationRange.endInclusive else saturationRange.start).clamp(alphaFRange), value, alpha)
+	renderGradientRect(matrixStack, rect, arrangement, colorStart, colorEnd)
 }
 
 fun renderValueGradientRect(
 	matrixStack: MatrixStack,
 	rect: Rectangle<Vector3<Float>>,
-	precision: Int,
+	arrangement: Arrangement = Arrangement.Horizontal,
+	reverse: Boolean = false,
 	valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	hue: Float = 360f,
 	saturation: Float = 1f,
 	alpha: Float = 1f
 ) {
-	val slice = valueRange.endInclusive / precision
-	val width = rect.width / precision
-	var value = valueRange.start
-	var x = rect.x
-	for (i in 0 until precision) {
-		val colorStart = HSVColor(hue, saturation, value.clamp(valueRange), alpha, false)
-		val colorEnd = HSVColor(hue, saturation, (value + slice).clamp(valueRange), 1f, false)
-		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
-		value = (value + slice).clamp(valueRange)
-		x += width
-	}
+	val colorStart = HSVColor(hue, saturation, (if (reverse) valueRange.endInclusive else valueRange.start).clamp(alphaFRange), alpha)
+	val colorEnd = HSVColor(hue, saturation, (if (!reverse) valueRange.endInclusive else valueRange.start).clamp(alphaFRange), alpha)
+	renderGradientRect(matrixStack, rect, arrangement, colorStart, colorEnd)
 }
 
 fun renderAlphaGradientRect(
 	matrixStack: MatrixStack,
 	rect: Rectangle<Vector3<Float>>,
-	precision: Int,
+	arrangement: Arrangement = Arrangement.Horizontal,
+	reverse: Boolean = false,
 	alphaRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	color: ARGBColor
 ) {
-	val slice = alphaRange.endInclusive / precision
-	val width = rect.width / precision
-	var alpha = alphaRange.start
-	var x = rect.x
-	for (i in 0 until precision) {
-		val colorStart = Color(color.rgb, false).alpha(alpha.clamp(alphaRange))
-		val colorEnd = Color(color.rgb, false).alpha((alpha + slice).clamp(alphaRange))
-		renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(width, rect.height), colorStart, colorStart, colorEnd, colorEnd))
-		alpha = (alpha + slice).clamp(alphaRange)
-		x += width
-	}
+	val colorStart = Color(color.argb).alpha((if (reverse) alphaRange.endInclusive else alphaRange.start).clamp(alphaFRange))
+	val colorEnd = Color(color.argb).alpha((if (!reverse) alphaRange.endInclusive else alphaRange.start).clamp(alphaFRange))
+	renderGradientRect(matrixStack, rect, arrangement, colorStart, colorEnd)
 }
 
 fun renderSVGradientRect(
 	matrixStack: MatrixStack,
 	rect: Rectangle<Vector3<Float>>,
+	arrangement: Arrangement = Arrangement.Horizontal,
+	reverse: Boolean = false,
 	saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 	hue: Float = 360f
@@ -247,14 +266,17 @@ fun renderSVGradientRect(
 	val saturationEnd = saturationRange.endInclusive
 	val valueStart = valueRange.start
 	val valueEnd = valueRange.endInclusive
-	val color1 = HSVColor(hue, saturationStart, valueEnd)
-	val color2 = HSVColor(hue, saturationStart, valueEnd)
-	val color3 = HSVColor(hue, saturationEnd, valueEnd)
-	val color4 = HSVColor(hue, saturationEnd, valueEnd)
-	renderRect(matrixStack, colorRect(rect, color1, color2, color3, color4))
-	val black1 = Colors.BLACK.alpha(valueStart.clamp(0f..1f))
-	val black2 = Colors.BLACK.alpha(valueEnd.clamp(0f..1f))
-	renderRect(matrixStack, colorRect(rect, black1, black2, black2, black1))
+	val saturationStartColor = HSVColor(hue, if (reverse) saturationEnd else saturationStart, valueEnd)
+	val saturationEndColor = HSVColor(hue, if (!reverse) saturationEnd else saturationStart, valueEnd)
+	val alphaStartColor = Colors.BLACK.alpha((if (reverse) valueEnd else valueStart).clamp(valueRange))
+	val alphaEndColor = Colors.BLACK.alpha((if (!reverse) valueEnd else valueStart).clamp(valueRange))
+	arrangement.switch({
+		renderGradientRect(matrixStack, rect, arrangement, saturationStartColor, saturationEndColor)
+		renderGradientRect(matrixStack, rect, Arrangement.Horizontal, alphaStartColor, alphaEndColor)
+	}, {
+		renderGradientRect(matrixStack, rect, arrangement, saturationStartColor, saturationEndColor)
+		renderGradientRect(matrixStack, rect, Arrangement.Vertical, alphaStartColor, alphaEndColor)
+	})
 }
 
 /**
@@ -268,6 +290,23 @@ fun renderRect(matrixStack: MatrixStack, rect: Rectangle<ColorVertex>) {
 	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
 	for (vertex in rect.vertexes) {
 		bufferBuilder.vertex(matrixStack, vertex).color(vertex.color).next()
+	}
+	bufferBuilder.draw()
+	disableBlend()
+}
+
+/**
+ * 渲染矩形
+ * @param matrixStack MatrixStack
+ * @param rect Rectangle<Vector3<Float>>
+ * @param color ARGBColor
+ */
+fun renderRect(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor) {
+	enableBlend()
+	setShader(GameRenderer::getPositionColorProgram)
+	bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+	for (vertex in rect.vertexes) {
+		bufferBuilder.vertex(matrixStack, vertex).color(color).next()
 	}
 	bufferBuilder.draw()
 	disableBlend()
@@ -290,7 +329,7 @@ fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number
  * @param transform Transform
  * @param color Color
  */
-fun renderRect(matrixStack: MatrixStack, transform: Transform, color: Color) =
+fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor) =
 	renderRect(matrixStack, colorVertex(transform.worldPosition, color), transform.width, transform.height)
 
 
@@ -322,8 +361,18 @@ fun renderOutline(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Num
  * @param color Color
  * @param borderWidth Number
  */
-fun renderOutline(matrixStack: MatrixStack, transform: Transform, color: Color, borderWidth: Number = 1) =
+fun renderOutline(matrixStack: MatrixStack, transform: Transform, color: ARGBColor, borderWidth: Number = 1) =
 	renderOutline(matrixStack, ColorVertexImpl(transform.worldPosition, color), transform.width, transform.height, borderWidth)
+
+/**
+ *  @see renderOutline
+ * @param matrixStack MatrixStack
+ * @param rect Rectangle<Vector3<Float>>
+ * @param color Color
+ * @param borderWidth Number
+ */
+fun renderOutline(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor, borderWidth: Number = 1) =
+	renderOutline(matrixStack, ColorVertexImpl(rect.position, color), rect.width, rect.height, borderWidth)
 
 
 /**
@@ -341,7 +390,7 @@ fun renderOutlinedBox(
 	colorVertex: ColorVertex,
 	width: Number,
 	height: Number,
-	outlineColor: Color,
+	outlineColor: ARGBColor,
 	borderWidth: Number = 1,
 	innerOutline: Boolean = true,
 ) {
@@ -381,8 +430,8 @@ fun renderOutlinedBox(
 fun renderOutlinedBox(
 	matrixStack: MatrixStack,
 	transform: Transform,
-	color: Color,
-	outlineColor: Color,
+	color: ARGBColor,
+	outlineColor: ARGBColor,
 	borderWidth: Number = 1,
 	innerOutline: Boolean = true
 ) {
@@ -643,7 +692,7 @@ fun renderTexture(
 	rect: Rectangle<Vector3<Float>>,
 	textureUV: TextureUVMapping,
 	textureInfo: TextureInfo,
-	shaderColor: Color = Colors.WHITE
+	shaderColor: ARGBColor = Colors.WHITE
 ) {
 	setShaderTexture(textureInfo.texture)
 	enableBlend()
@@ -662,7 +711,7 @@ fun renderTexture(
  * @param widgetTexture WidgetTexture
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) {
+fun renderTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
 	renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 }
 
@@ -673,7 +722,13 @@ fun renderTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, wid
  * @param textureUV GuiTexture
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureInfo: TextureInfo, shaderColor: Color = Colors.WHITE) =
+fun renderTexture(
+	matrixStack: MatrixStack,
+	transform: Transform,
+	textureUV: TextureUVMapping,
+	textureInfo: TextureInfo,
+	shaderColor: ARGBColor = Colors.WHITE
+) =
 	renderTexture(matrixStack, transform.asWorldRect, textureUV, textureInfo, shaderColor)
 
 /**
@@ -683,7 +738,7 @@ fun renderTexture(matrixStack: MatrixStack, transform: Transform, textureUV: Tex
  * @param widgetTexture WidgetTexture
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture: WidgetTexture, shaderColor: Color = Colors.WHITE) =
+fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) =
 	renderTexture(matrixStack, transform.asWorldRect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 
 /**
@@ -696,7 +751,7 @@ fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture:
  * @param shadow Boolean
  * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
- * @param color Color
+ * @param color ARGBColor
  * @param backgroundColor Color
  */
 fun TextRenderer.renderText(
@@ -707,12 +762,12 @@ fun TextRenderer.renderText(
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0x000000),
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	val immediate = VertexConsumerProvider.immediate(bufferBuilder)
 	draw(
-		text.string, x.toFloat(), y.toFloat(), color.argb, shadow, matrixStack.peek().positionMatrix,
+		text.string, x.toFloat(), y.toFloat(), color.rgb, shadow, matrixStack.peek().positionMatrix,
 		immediate, layerType, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft
 	)
 	immediate.draw()
@@ -726,7 +781,7 @@ fun TextRenderer.renderText(
  * @param align Alignment
  * @param shadow Boolean
  * @param rightToLeft Boolean
- * @param color Color
+ * @param color ARGBColor
  * @param backgroundColor Color
  */
 inline fun TextRenderer.renderAlignmentText(
@@ -734,11 +789,11 @@ inline fun TextRenderer.renderAlignmentText(
 	text: Text,
 	rect: Rectangle<Vector3<Float>>,
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0x000000),
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	val textWidth = getWidth(text)
 	val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textWidth, fontHeight))
@@ -754,7 +809,7 @@ inline fun TextRenderer.renderAlignmentText(
  * @param shadow Boolean
  * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
- * @param color Color
+ * @param color ARGBColor
  * @param backgroundColor Color
  */
 inline fun TextRenderer.renderAlignmentText(
@@ -762,11 +817,11 @@ inline fun TextRenderer.renderAlignmentText(
 	text: Text,
 	transform: Transform,
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0x000000),
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) = renderAlignmentText(matrixStack, text, transform.asWorldRect, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
 
@@ -781,8 +836,8 @@ inline fun TextRenderer.renderAlignmentText(
  * @param shadow Boolean
  * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
- * @param color Color
- * @param backgroundColor Color
+ * @param color ARGBColor
+ * @param backgroundColor ARGBColor
  */
 inline fun TextRenderer.renderStringLines(
 	matrixStack: MatrixStack,
@@ -790,11 +845,11 @@ inline fun TextRenderer.renderStringLines(
 	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.BLACK,
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Colors.BLACK,
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (text in string.wrapToLines(this, rect.width.toInt())) {
@@ -818,7 +873,7 @@ inline fun TextRenderer.renderStringLines(
  * @param shadow Boolean
  * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
- * @param color Color
+ * @param color ARGBColor
  * @param backgroundColor Color
  */
 inline fun TextRenderer.renderStringLines(
@@ -827,11 +882,11 @@ inline fun TextRenderer.renderStringLines(
 	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Colors.BLACK,
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Colors.BLACK,
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (text in lines.wrapToLines(this, rect.width.toInt())) {
@@ -855,7 +910,7 @@ inline fun TextRenderer.renderStringLines(
  * @param shadow Boolean
  * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
- * @param color Color
+ * @param color ARGBColor
  * @param backgroundColor Color
  */
 inline fun TextRenderer.renderTextLines(
@@ -864,11 +919,11 @@ inline fun TextRenderer.renderTextLines(
 	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(text.style.color?.rgb ?: 0x000000),
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (t in text.wrapToTextLines(this, rect.width.toInt())) {
@@ -893,7 +948,7 @@ inline fun TextRenderer.renderTextLines(
  * @param shadow Boolean
  * @param layerType [TextLayerType]
  * @param rightToLeft Boolean
- * @param color Color
+ * @param color ARGBColor
  * @param backgroundColor Color
  */
 inline fun TextRenderer.renderTextLines(
@@ -902,11 +957,11 @@ inline fun TextRenderer.renderTextLines(
 	rect: Rectangle<Vector3<Float>>,
 	lineSpacing: Number = 1,
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	shadow: Boolean = true,
+	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = false,
-	color: Color = Color(lines[0].style.color?.rgb ?: 0x000000),
-	backgroundColor: Color = Colors.BLACK.alpha(0),
+	color: ARGBColor = Color(lines[0].style.color?.rgb ?: 0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	renderStringLines(
 		matrixStack,

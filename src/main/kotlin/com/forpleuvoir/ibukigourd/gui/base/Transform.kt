@@ -23,7 +23,7 @@ class Transform(
 	isWorldAxis: Boolean = false,
 	override var width: Float = 0.0f,
 	override var height: Float = 0.0f,
-	var parent: Transform? = null,
+	var parent: () -> Transform? = { null },
 ) : Rectangle<Vector3f> {
 
 	override val vertexes: Array<Vector3f>
@@ -37,14 +37,14 @@ class Transform(
 	var isWorldAxis: Boolean = isWorldAxis
 		set(value) {
 			field = value
-			if (value) parent?.let { position += it.worldPosition }
+			if (value) parent()?.let { position += it.worldPosition }
 		}
 
 	val worldPosition: Vector3f
 		get() {
 			if (isWorldAxis) return position
 			var pos = position
-			parent?.let { pos = it.worldPosition + position }
+			parent()?.let { pos = it.worldPosition + position }
 			return pos
 		}
 
