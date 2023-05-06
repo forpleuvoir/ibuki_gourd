@@ -20,28 +20,28 @@ object InputHandler : Tickable {
 
 	init {
 		isDevEnv {
-			keyBinds.add(KeyBind(KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
+			register(KeyBind(KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
 				testScreen()
-				println("打开屏幕")
+				println("打开测试屏幕")
 			})
-			keyBinds.add(KeyBind(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
+			register(KeyBind(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
 				println("按下了 1")
 			})
-			keyBinds.add(KeyBind(LEFT_CONTROL, KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
+			register(KeyBind(LEFT_CONTROL, KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
 				println("按住了 2")
 			})
-			keyBinds.add(
+			register(
 				KeyBind(LEFT_CONTROL, KP_3, defaultSetting = keyBindSetting(triggerMode = OnLongPress)) {
 					println("长按了 3")
 				})
-			keyBinds.add(
+			register(
 				KeyBind(LEFT_CONTROL, KP_4, defaultSetting = keyBindSetting(triggerMode = OnLongPressed)) {
 					println("长按住了 4")
 				})
-			keyBinds.add(KeyBind(LEFT_CONTROL, KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
+			register(KeyBind(LEFT_CONTROL, KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
 				println("释放了 5")
 			})
-			keyBinds.add(KeyBind(LEFT_CONTROL, KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
+			register(KeyBind(LEFT_CONTROL, KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
 				println("按下或者释放了 6")
 			})
 		}

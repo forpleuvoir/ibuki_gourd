@@ -1,5 +1,6 @@
 package com.forpleuvoir.ibukigourd.gui.base.element
 
+import com.forpleuvoir.ibukigourd.gui.base.mouseHover
 import com.forpleuvoir.ibukigourd.gui.screen.Screen
 import com.forpleuvoir.ibukigourd.gui.tip.Tip
 import com.forpleuvoir.ibukigourd.input.KeyCode
@@ -64,15 +65,16 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
 	override var renderOverlay: (matrixStack: MatrixStack, delta: Float) -> Unit = ::onRenderOverlay
 
-	override fun onMouseMove(mouseX: Number, mouseY: Number) {
+	override fun onMouseMove(mouseX: Float, mouseY: Float) {
 		if (!active) return
 		for (element in handleTree) element.mouseMove(mouseX, mouseY)
 	}
 
-	override var mouseMove: (mouseX: Number, mouseY: Number) -> Unit = ::onMouseMove
+	override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMove
 
-	override fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction {
+	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
+		if (button == Mouse.LEFT && mouseHover()) dragging = true
 		for (element in handleTree) {
 			if (element.mouseClick(mouseX, mouseY, button) == NextAction.Cancel)
 				return NextAction.Cancel
@@ -80,30 +82,33 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 		return NextAction.Continue
 	}
 
-	override var mouseClick: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction = ::onMouseClick
+	override var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction = ::onMouseClick
 
-	override fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction {
+	override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
+		if (button == Mouse.LEFT) dragging = false
 		for (element in handleTree) {
 			if (element.mouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		}
 		return NextAction.Continue
 	}
 
-	override var mouseRelease: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction = ::onMouseRelease
+	override var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction = ::onMouseRelease
 
-	override fun onMouseDragging(mouseX: Number, mouseY: Number, button: Mouse, deltaX: Number, deltaY: Number): NextAction {
-		if (!active) return NextAction.Continue
+	override var dragging: Boolean = false
+
+	override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+		if (!active || !dragging) return NextAction.Continue
 		for (element in handleTree) {
 			if (element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
 		}
 		return NextAction.Continue
 	}
 
-	override var mouseDragging: (mouseX: Number, mouseY: Number, button: Mouse, deltaX: Number, deltaY: Number) -> NextAction =
+	override var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> NextAction =
 		::onMouseDragging
 
-	override fun onMouseScrolling(mouseX: Number, mouseY: Number, amount: Number): NextAction {
+	override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
 		if (!active) return NextAction.Continue
 		for (element in handleTree) {
 			if (element.mouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
@@ -111,7 +116,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 		return NextAction.Continue
 	}
 
-	override var mouseScrolling: (mouseX: Number, mouseY: Number, amount: Number) -> NextAction = ::onMouseScrolling
+	override var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> NextAction = ::onMouseScrolling
 
 	override fun onKeyPress(keyCode: KeyCode): NextAction {
 		if (!active) return NextAction.Continue

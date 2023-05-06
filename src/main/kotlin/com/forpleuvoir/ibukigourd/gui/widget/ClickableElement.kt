@@ -19,7 +19,7 @@ abstract class ClickableElement : AbstractElement() {
 
 	open var onRelease: () -> NextAction = { NextAction.Continue }
 
-	override fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction {
+	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
 		if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		if (button == Mouse.LEFT && transform.mouseHover()) {
@@ -30,7 +30,7 @@ abstract class ClickableElement : AbstractElement() {
 		return NextAction.Continue
 	}
 
-	override fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction {
+	override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
 		if (super.onMouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		if (button == Mouse.LEFT) {

@@ -1,8 +1,9 @@
 package com.forpleuvoir.ibukigourd.gui.screen
 
-import com.forpleuvoir.ibukigourd.gui.base.Direction
-import com.forpleuvoir.ibukigourd.gui.tip.tip
+import com.forpleuvoir.ibukigourd.gui.base.layout.column
+import com.forpleuvoir.ibukigourd.gui.base.layout.row
 import com.forpleuvoir.ibukigourd.gui.widget.button.button
+import com.forpleuvoir.ibukigourd.gui.widget.scroller
 import com.forpleuvoir.ibukigourd.gui.widget.text.textField
 import com.forpleuvoir.ibukigourd.render.*
 import com.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -10,8 +11,11 @@ import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
-import com.forpleuvoir.ibukigourd.util.*
+import com.forpleuvoir.ibukigourd.util.mc
+import com.forpleuvoir.ibukigourd.util.mouseX
+import com.forpleuvoir.ibukigourd.util.mouseY
 import com.forpleuvoir.ibukigourd.util.text.literal
+import com.forpleuvoir.ibukigourd.util.textRenderer
 import com.forpleuvoir.nebula.common.color.Color
 import com.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.util.math.MatrixStack
@@ -33,56 +37,27 @@ fun testScreen() {
 				false,
 				color = Colors.WHITE
 			)
-			renderCrossHairs(matrixStack, rect.center.x, rect.center.y)
+//			renderCrossHairs(matrixStack, rect.center.x, rect.center.y)
 			renderOutline(matrixStack, rect, Colors.RED.opacity(0.5f))
-			renderCrossHairs(matrixStack, mouseX, mouseY)
+//			renderCrossHairs(matrixStack, mouseX, mouseY)
 		}
-		for (i in 0..5) {
-			button(color = Colors.PINK_CUPCAKE) {
-				if (i != 0) {
-					margin(top = 5)
-				}
-				var ro = 0.0f
-				tick = {
-					tick()
-					ro += 0.1f
-					if (ro >= 360) ro = 0f
-				}
-				tip(color = Colors.PINK_CUPCAKE) {
-					if (i <= 3) forcedDirection = Direction.values()[i]
-					var a = 1f
-					mouseScrolling = { _, _, amount ->
-						a += amount.toFloat()
-						NextAction.Continue
-					}
-					textField("多行文本测试。\n这是第二行")
-					textField(Supplier {
-						val sb = StringBuilder()
-						(0..a.toInt()).forEach { i ->
-							sb.append("-\n")
-						}
-						"这是鼠标滚动值${sb}"
-					})
-					button {
-						onClick = {
-							println("TIP里的按钮居然可以点！")
-							NextAction.Cancel
-						}
-						textField("居然是按钮$i,我加长呢")
-					}
-				}
-				var count = 0
-				val text = textField(Supplier { "按钮$i:$count" })
-				onClick = {
-					println("我点击了${text.text().string}")
-					count++
-					NextAction.Cancel
+		row {
+			var amount: Float = 0f
+			button { textField("测试测试") }
+			button { textField(Supplier { String.format("滚动条的值为%.2f", amount) }) }
+			val s = scroller(160f, 10f, { 5f }, { 100f }, { 0.35f }, Arrangement.Horizontal) {
+				amountReceiver = {
+					amount = it
 				}
 			}
+			button { textField(Supplier { String.format("滚动条的值为%.2f", s.amount) }) }
+		}
+		column {
+			button { textField("测试测试") }
+			button { textField("测试2测试") }
+			scroller(160f, 10f, { 5f }, { 100f }, { 0.1f }, Arrangement.Vertical)
 		}
 	}
-	println("当前屏幕:${ScreenManager.current}")
-	println("当前屏幕:${ScreenManager.current!!.elementTree}")
 }
 
 fun renderCrossHairs(matrixStack: MatrixStack, x: Number, y: Number) {

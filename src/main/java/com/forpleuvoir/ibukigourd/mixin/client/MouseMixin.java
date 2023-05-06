@@ -52,7 +52,7 @@ public abstract class MouseMixin {
 				}
 				if (InputHandler.onKeyPress(keyCode) == NextAction.Cancel) ci.cancel();
 				ScreenManager.hasScreen(screen -> {
-					screen.getMouseClick().invoke(MiscKt.getMouseX(), MiscKt.getMouseY(), keyCode);
+					screen.getMouseClick().invoke((float) MiscKt.getMouseX(), (float) MiscKt.getMouseY(), keyCode);
 					ci.cancel();
 				});
 			} else {
@@ -65,7 +65,7 @@ public abstract class MouseMixin {
 				}
 				if (InputHandler.onKeyRelease(keyCode) == NextAction.Cancel) ci.cancel();
 				ScreenManager.hasScreen(screen -> {
-					screen.getMouseRelease().invoke(MiscKt.getMouseX(), MiscKt.getMouseY(), keyCode);
+					screen.getMouseRelease().invoke((float) MiscKt.getMouseX(), (float) MiscKt.getMouseY(), keyCode);
 					ci.cancel();
 				});
 			}
@@ -83,8 +83,7 @@ public abstract class MouseMixin {
 				return;
 			}
 			ScreenManager.hasScreen(screen -> {
-
-				screen.getMouseScrolling().invoke(MiscKt.getMouseX(), MiscKt.getMouseY(), amount);
+				screen.getMouseScrolling().invoke((float) MiscKt.getMouseX(), (float) MiscKt.getMouseY(), (float) amount);
 				ci.cancel();
 			});
 		}
@@ -99,7 +98,7 @@ public abstract class MouseMixin {
 				ci.cancel();
 				return;
 			}
-			ScreenManager.hasScreen(screen -> screen.getMouseMove().invoke(MiscKt.getMouseX(), MiscKt.getMouseY()));
+			ScreenManager.hasScreen(screen -> screen.getMouseMove().invoke((float) MiscKt.getMouseX(), (float) MiscKt.getMouseY()));
 			if (this.activeButton != -1 && this.glfwTime > 0.0) {
 				var keyCode = (com.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(activeButton);
 				var draggingEvent = new MouseEvent.MouseDraggingEvent(keyCode, keyCode.getKeyName(), MiscKt.getMouseX(), MiscKt.getMouseY(), currentEnv());
@@ -110,7 +109,7 @@ public abstract class MouseMixin {
 				}
 				double deltaX = (x - this.x) * (double) this.client.getWindow().getScaledWidth() / (double) this.client.getWindow().getWidth();
 				double deltaY = (y - this.y) * (double) this.client.getWindow().getScaledHeight() / (double) this.client.getWindow().getHeight();
-				ScreenManager.hasScreen(screen -> screen.getMouseDragging().invoke(MiscKt.getMouseX(), MiscKt.getMouseY(), keyCode, deltaX, deltaY));
+				ScreenManager.hasScreen(screen -> screen.getMouseDragging().invoke((float) MiscKt.getMouseX(), (float) MiscKt.getMouseY(), keyCode, (float) deltaX, (float) deltaY));
 			}
 		}
 	}

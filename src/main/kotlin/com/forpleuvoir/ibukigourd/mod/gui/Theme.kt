@@ -6,16 +6,15 @@ import com.forpleuvoir.ibukigourd.config.ModConfig
 import com.forpleuvoir.ibukigourd.config.ModConfigCategory
 import com.forpleuvoir.ibukigourd.config.item.impl.ConfigMargin
 import com.forpleuvoir.ibukigourd.gui.base.Margin
+import com.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
 import com.forpleuvoir.nebula.common.color.Colors
 import com.forpleuvoir.nebula.common.util.minute
 import com.forpleuvoir.nebula.common.util.plus
 import com.forpleuvoir.nebula.common.util.second
 import com.forpleuvoir.nebula.config.impl.AutoSaveConfigManager
 import com.forpleuvoir.nebula.config.impl.HoconConfigManagerSerializer
-import com.forpleuvoir.nebula.config.item.impl.ConfigBoolean
-import com.forpleuvoir.nebula.config.item.impl.ConfigColor
-import com.forpleuvoir.nebula.config.item.impl.ConfigDouble
-import com.forpleuvoir.nebula.config.item.impl.ConfigInt
+import com.forpleuvoir.nebula.config.item.impl.*
+import com.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import java.util.*
 
 @ModConfig("theme")
@@ -37,6 +36,15 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "theme"), HoconConfig
 		val HEIGHT by ConfigDouble("height", 1.0)
 
 		val PADDING by ConfigMargin("padding", Margin(6))
+
+		val TEXTURE by ConfigCycle(
+			"texture",
+			ButtonThemes.values().asList(),
+			ButtonThemes.Button2,
+			{ it.name },
+			{ ButtonThemes.valueOf(it.asString) },
+			{ SerializePrimitive(it.name) }
+		)
 
 	}
 

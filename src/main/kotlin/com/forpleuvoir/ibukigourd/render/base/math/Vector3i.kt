@@ -3,13 +3,36 @@ package com.forpleuvoir.ibukigourd.render.base.math
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
 
 open class Vector3i(
-	override var x: Int = 0,
-	override var y: Int = 0,
-	override var z: Int = 0,
+	x: Int = 0,
+	y: Int = 0,
+	z: Int = 0,
 ) : ImmutableVector3i(x, y, z), MutableVector3<Int> {
 
-	constructor(vector3: Vector3<out Number>) : this(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt())
+	override var x: Int = x
+		set(value) {
+			if (value != x) {
+				changeCallback?.invoke(value, y, z)
+			}
+			field = value
+		}
+	override var y: Int = y
+		set(value) {
+			if (value != y) {
+				changeCallback?.invoke(x, value, z)
+			}
+			field = value
+		}
+	override var z: Int = z
+		set(value) {
+			if (value != z) {
+				changeCallback?.invoke(x, y, value)
+			}
+			field = value
+		}
 
+	override var changeCallback: ((x: Int, y: Int, z: Int) -> Unit)? = null
+
+	constructor(vector3: Vector3<out Number>) : this(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt())
 
 	override fun parseValue(serializeElement: SerializeElement): Int {
 		return serializeElement.asInt

@@ -21,10 +21,30 @@ class Transform(
 	 * 是否为世界坐标轴
 	 */
 	isWorldAxis: Boolean = false,
-	override var width: Float = 0.0f,
-	override var height: Float = 0.0f,
+	width: Float = 0.0f,
+	height: Float = 0.0f,
 	var parent: () -> Transform? = { null },
 ) : Rectangle<Vector3f> {
+
+	override var width: Float = width
+		set(value) {
+			if (value != field) {
+				resizeCallback?.invoke(value, height)
+			}
+			field = value
+		}
+
+	override var height: Float = height
+		set(value) {
+			if (value != field) {
+				resizeCallback?.invoke(width, value)
+			}
+			field = value
+		}
+
+	var resizeCallback: ((width: Float, height: Float) -> Unit)? = null
+
+	var positionChangeCallback: ((x: Float, y: Float, z: Float) -> Unit)? by position::changeCallback
 
 	override val vertexes: Array<Vector3f>
 		get() = arrayOf(

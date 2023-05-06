@@ -12,6 +12,8 @@ interface MutableVector3<T : Number> : Vector3<T>, Deserializable {
 	override var y: T
 	override var z: T
 
+	var changeCallback: ((x: T, y: T, z: T) -> Unit)?
+
 	override fun deserialization(serializeElement: SerializeElement) {
 		if (!serializeElement.isObject) throw IllegalArgumentException("serializeElement${serializeElement} is not SerializeObject")
 		serializeElement.asObject.apply {

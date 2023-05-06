@@ -97,5 +97,21 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 
 	var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(4), 64, 32, 71, 39, TEXTURE_INFO)
 		private set
+
+	var SCROLLER_BAR_IDLE: WidgetTexture = WidgetTexture(Corner(4), 48, 0, 64, 16, TEXTURE_INFO)
+		private set
+
+	var SCROLLER_BAR_HOVERED: WidgetTexture = WidgetTexture(Corner(4), 64, 0, 80, 16, TEXTURE_INFO)
+		private set
+
+	var SCROLLER_BAR_PRESSED: WidgetTexture = WidgetTexture(Corner(4), 48, 0, 64, 16, TEXTURE_INFO)
+		private set
+
+	var SCROLLER_BAR_DISABLED: WidgetTexture = WidgetTexture(Corner(4), 48, 16, 64, 32, TEXTURE_INFO)
+		private set
+
+	var SCROLLER_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 64, 16, 80, 32, TEXTURE_INFO)
+		private set
+
 }
 

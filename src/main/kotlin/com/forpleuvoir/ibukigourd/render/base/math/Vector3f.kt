@@ -3,10 +3,33 @@ package com.forpleuvoir.ibukigourd.render.base.math
 import com.forpleuvoir.nebula.serialization.base.SerializeElement
 
 open class Vector3f(
-	override var x: Float = 0f,
-	override var y: Float = 0f,
-	override var z: Float = 0f,
+	x: Float = 0f,
+	y: Float = 0f,
+	z: Float = 0f,
 ) : ImmutableVector3f(), MutableVector3<Float> {
+	override var x: Float = x
+		set(value) {
+			if (value != x) {
+				changeCallback?.invoke(value, y, z)
+			}
+			field = value
+		}
+	override var y: Float = y
+		set(value) {
+			if (value != y) {
+				changeCallback?.invoke(x, value, z)
+			}
+			field = value
+		}
+	override var z: Float = z
+		set(value) {
+			if (value != z) {
+				changeCallback?.invoke(x, y, value)
+			}
+			field = value
+		}
+
+	override var changeCallback: ((x: Float, y: Float, z: Float) -> Unit)? = null
 
 	constructor(vector3: Vector3<out Number>) : this(vector3.x.toFloat(), vector3.y.toFloat(), vector3.z.toFloat())
 

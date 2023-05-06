@@ -121,94 +121,99 @@ interface Element : ElementContainer, Drawable, Tickable {
 
 	/**
 	 * 鼠标移动
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 */
-	var mouseMove: (mouseX: Number, mouseY: Number) -> Unit
+	var mouseMove: (mouseX: Float, mouseY: Float) -> Unit
 
 	/**
 	 * 鼠标移动
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 */
-	fun onMouseMove(mouseX: Number, mouseY: Number) {}
+	fun onMouseMove(mouseX: Float, mouseY: Float) {}
 
 	/**
 	 * 鼠标点击
 	 * @param button Mouse
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 * @return 是否处理之后的同类操作
 	 */
-	var mouseClick: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
+	var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction
 
 	/**
 	 * 鼠标点击
 	 * @param button Mouse
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 * @return 是否处理之后的同类操作
 	 */
-	fun onMouseClick(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
+	fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Cancel
 
 	/**
 	 * 鼠标释放
 	 * @param button Mouse
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 * @return 是否处理之后的同类操作
 	 */
-	var mouseRelease: (mouseX: Number, mouseY: Number, button: Mouse) -> NextAction
+	var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction
 
 	/**
 	 * 鼠标释放
 	 * @param button Mouse
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 * @return 是否处理之后的同类操作
 	 */
-	fun onMouseRelease(mouseX: Number, mouseY: Number, button: Mouse): NextAction = NextAction.Cancel
+	fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Cancel
+
+	/**
+	 * 鼠标是否为拖拽中
+	 */
+	var dragging: Boolean
 
 	/**
 	 * 鼠标拖动
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 * @param button Mouse
-	 * @param deltaX Number
-	 * @param deltaY Number
+	 * @param deltaX Float
+	 * @param deltaY Float
 	 * @return 是否处理之后的同类操作
 	 */
-	var mouseDragging: (mouseX: Number, mouseY: Number, button: Mouse, deltaX: Number, deltaY: Number) -> NextAction
+	var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> NextAction
 
 	/**
 	 * 鼠标拖动
-	 * @param mouseX Number
-	 * @param mouseY Number
+	 * @param mouseX Float
+	 * @param mouseY Float
 	 * @param button Mouse
-	 * @param deltaX Number
-	 * @param deltaY Number
+	 * @param deltaX Float
+	 * @param deltaY Float
 	 * @return 是否处理之后的同类操作
 	 */
-	fun onMouseDragging(mouseX: Number, mouseY: Number, button: Mouse, deltaX: Number, deltaY: Number): NextAction =
+	fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction =
 		NextAction.Cancel
 
 	/**
 	 * 鼠标滚动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @param amount Number
+	 * @param mouseX Float
+	 * @param mouseY Float
+	 * @param amount Float
 	 * @return 是否处理之后的同类操作
 	 */
-	var mouseScrolling: (mouseX: Number, mouseY: Number, amount: Number) -> NextAction
+	var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> NextAction
 
 	/**
 	 * 鼠标滚动
-	 * @param mouseX Number
-	 * @param mouseY Number
-	 * @param amount Number
+	 * @param mouseX Float
+	 * @param mouseY Float
+	 * @param amount Float
 	 * @return 是否处理之后的同类操作
 	 */
-	fun onMouseScrolling(mouseX: Number, mouseY: Number, amount: Number): NextAction = NextAction.Cancel
+	fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction = NextAction.Cancel
 
 	/**
 	 * 按键按下

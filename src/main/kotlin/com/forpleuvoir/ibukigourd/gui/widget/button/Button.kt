@@ -1,4 +1,4 @@
-@file:Suppress("FunctionName")
+@file:Suppress("FunctionName", "MemberVisibilityCanBePrivate")
 
 package com.forpleuvoir.ibukigourd.gui.widget.button
 
@@ -7,19 +7,18 @@ import com.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.HEIGHT
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
+import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import com.forpleuvoir.ibukigourd.render.renderTexture
 import com.forpleuvoir.ibukigourd.util.NextAction
-import com.forpleuvoir.nebula.common.color.Color
+import com.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.client.util.math.MatrixStack
-import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.BUTTON_DISABLED_2 as DISABLED
-import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.BUTTON_HOVERED_2 as HOVERED
-import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.BUTTON_IDLE_2 as IDLE
-import com.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.BUTTON_PRESSED_2 as PRESSED
 
 open class Button(
-	var color: Color = COLOR,
+	var color: () -> ARGBColor = { COLOR },
 	override var onClick: () -> NextAction = { NextAction.Continue },
-	override var onRelease: () -> NextAction = { NextAction.Continue }
+	override var onRelease: () -> NextAction = { NextAction.Continue },
+	val height: Float = HEIGHT.toFloat(),
+	var theme: ButtonTheme = TEXTURE
 ) : ClickableElement() {
 	init {
 		transform.width = 16f
@@ -29,23 +28,25 @@ open class Button(
 
 	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		if (!visible) return
-		val height = status(HEIGHT, 0.0, 0.0, HEIGHT)
 		matrixStack.push()
-		matrixStack.translate(0.0, height, 0.0)
+		matrixStack.translate(0f, status(height, 0f, 0f, height), 0f)
 		renderBackground(matrixStack, delta)
 		super.onRender(matrixStack, delta)
+		renderOverlay(matrixStack, delta)
 		matrixStack.pop()
 	}
 
 	override fun onRenderBackground(matrixStack: MatrixStack, delta: Float) {
-		renderTexture(matrixStack, this.transform, status(DISABLED, IDLE, HOVERED, PRESSED), color)
+		renderTexture(matrixStack, this.transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
 	}
 
 }
 
 fun ElementContainer.button(
-	color: Color = COLOR,
+	color: () -> ARGBColor = { COLOR },
 	onClick: () -> NextAction = { NextAction.Continue },
 	onRelease: () -> NextAction = { NextAction.Continue },
+	height: Float = HEIGHT.toFloat(),
+	theme: ButtonTheme = TEXTURE,
 	scope: Button.() -> Unit = {}
-): Button = addElement(Button(color, onClick, onRelease).apply(scope))
+): Button = addElement(Button(color, onClick, onRelease, height, theme).apply(scope))
