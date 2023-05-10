@@ -10,27 +10,26 @@ import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import com.forpleuvoir.ibukigourd.render.base.Size
 import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
-import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
 @Suppress("MemberVisibilityCanBePrivate")
 class LinearLayout(
 	override val elementContainer: () -> ElementContainer,
-	val arrangement: Arrangement = Vertical,
-	private val alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
+	private val alignment: Alignment = PlanarAlignment.Center(Vertical)
 ) : Layout {
 
+	constructor(
+		elementContainer: () -> ElementContainer,
+		arrangement: Arrangement = Vertical,
+		alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
+	) : this(elementContainer, alignment(arrangement))
+
 	override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
-		val alignment = alignment(arrangement)
 		val alignElements = elements.filter { !it.fixed }
 		if (alignElements.isEmpty()) return null
 
-		val alignRects = alignElements.map {
-			rect(
-				vertex(0f, 0f, it.transform.z), it.transform.width + it.margin.width, it.transform.height + it.margin.height
-			)
-		}
+		val alignRects = alignRects(alignElements)
 
-		val container = elementContainer.invoke()
+		val container = elementContainer()
 		val size = alignment.arrangement.contentSize(alignRects)
 		val contentRect = when {
 			//固定高度和宽度

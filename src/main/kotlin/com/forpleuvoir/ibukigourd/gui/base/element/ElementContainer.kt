@@ -55,7 +55,7 @@ interface ElementContainer : Initializable {
 
 	fun padding(left: Number = this.padding.left, right: Number = this.padding.right, top: Number = this.padding.top, bottom: Number = this.padding.bottom)
 
-	var layout: Layout
+	val layout: Layout
 
 	/**
 	 * 内容矩形

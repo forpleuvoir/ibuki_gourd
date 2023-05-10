@@ -82,15 +82,16 @@ abstract class AbstractElementContainer : ElementContainer, Element {
 
 	override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
 		val top = if (isWorld) transform.worldTop + padding.top else padding.top
-		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.bottom - padding.bottom
+		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
 		val left = if (isWorld) transform.worldLeft + padding.left else padding.left
-		val right = if (isWorld) transform.worldRight - padding.right else transform.right - padding.right
+		val right = if (isWorld) transform.worldRight - padding.right else transform.width - padding.right
 		return rect(
 			vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
 		)
 	}
 
 	override fun <T : Element> addElement(element: T): T {
+		if (elements.contains(element)) return element
 		elements.add(element)
 		element.transform.parent = { this.transform }
 		element.parent = { this }

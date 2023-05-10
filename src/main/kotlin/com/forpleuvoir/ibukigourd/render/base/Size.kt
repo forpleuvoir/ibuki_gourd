@@ -12,6 +12,12 @@ interface Size<T : Number> {
 
 	companion object {
 
+		val Size<out Number>.string: String
+			get() {
+				return "Size(width : $width,halfWidth : $halfWidth, height : $height, halfHeight : $halfHeight )"
+			}
+
+
 		fun create(width: Float, height: Float): Size<Float> = object : SizeFloat {
 			override val width: Float get() = width
 			override val height: Float get() = height
@@ -42,6 +48,7 @@ interface SizeFloat : Size<Float> {
 	override val halfWidth: Float get() = width / 2
 
 	override val halfHeight: Float get() = height / 2
+
 }
 
 interface SizeDouble : Size<Double> {

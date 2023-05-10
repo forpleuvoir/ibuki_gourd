@@ -40,7 +40,7 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 			manager.getResource(TEXTURE_INFO_RESOURCES).ifPresent { resource ->
 				CharStreams.toString(resource.inputStream.reader())
 					.jsonStringToObject().apply {
-						IbukiGourdTextures.javaClass.declaredFields
+						this.javaClass.declaredFields
 							.asSequence()
 							.filter { field ->
 								field.type.kotlin.isSubclassOf(WidgetTexture::class)
@@ -111,6 +111,9 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 		private set
 
 	var SCROLLER_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 64, 16, 80, 32, TEXTURE_INFO)
+		private set
+
+	var LIST_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 32, 0, 48, 16, TEXTURE_INFO)
 		private set
 
 }

@@ -1,7 +1,6 @@
 package com.forpleuvoir.ibukigourd.gui.screen
 
-import com.forpleuvoir.ibukigourd.gui.base.layout.column
-import com.forpleuvoir.ibukigourd.gui.base.layout.row
+import com.forpleuvoir.ibukigourd.gui.base.layout.list
 import com.forpleuvoir.ibukigourd.gui.widget.button.button
 import com.forpleuvoir.ibukigourd.gui.widget.scroller
 import com.forpleuvoir.ibukigourd.gui.widget.text.textField
@@ -19,7 +18,6 @@ import com.forpleuvoir.ibukigourd.util.textRenderer
 import com.forpleuvoir.nebula.common.color.Color
 import com.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.util.math.MatrixStack
-import java.util.function.Supplier
 
 fun testScreen() {
 	ScreenManager.open {
@@ -41,21 +39,26 @@ fun testScreen() {
 			renderOutline(matrixStack, rect, Colors.RED.opacity(0.5f))
 //			renderCrossHairs(matrixStack, mouseX, mouseY)
 		}
-		row {
-			var amount: Float = 0f
-			button { textField("测试测试") }
-			button { textField(Supplier { String.format("滚动条的值为%.2f", amount) }) }
-			val s = scroller(160f, 10f, { 5f }, { 100f }, { 0.35f }, Arrangement.Horizontal) {
-				amountReceiver = {
-					amount = it
+		list(80f, 120f) {
+			for (i in 0..3) {
+				button { textField("按钮$i") }
+			}
+		}
+		scroller(200f, 8f, { 0f }, { 0f }, { 1f }, Arrangement.Horizontal)
+		list(200f, 40f, Arrangement.Horizontal) {
+			for (i in 0..40) {
+				button {
+					textField("水平按钮$i") {
+						transform.fixedWidth = true
+						transform.fixedHeight = true
+						transform.width = 30f
+						transform.height = textRenderer.fontHeight.toFloat()
+						renderBackground = { matrixStack, delta ->
+							renderRect(matrixStack, transform, Colors.GREEN_PEAS.opacity(0.5f))
+						}
+					}
 				}
 			}
-			button { textField(Supplier { String.format("滚动条的值为%.2f", s.amount) }) }
-		}
-		column {
-			button { textField("测试测试") }
-			button { textField("测试2测试") }
-			scroller(160f, 10f, { 5f }, { 100f }, { 0.1f }, Arrangement.Vertical)
 		}
 	}
 }

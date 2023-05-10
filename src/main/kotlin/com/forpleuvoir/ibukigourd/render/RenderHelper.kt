@@ -28,6 +28,7 @@ import com.forpleuvoir.ibukigourd.util.text.wrapToLines
 import com.forpleuvoir.ibukigourd.util.text.wrapToTextLines
 import com.forpleuvoir.nebula.common.color.*
 import com.forpleuvoir.nebula.common.util.clamp
+import com.google.common.collect.Queues
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
@@ -38,6 +39,7 @@ import net.minecraft.client.render.LightmapTextureManager.MAX_LIGHT_COORDINATE
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
+import java.util.*
 import java.util.function.Supplier
 
 val tessellator: Tessellator get() = Tessellator.getInstance()
@@ -82,6 +84,10 @@ fun enableDepthTest() = RenderSystem.enableDepthTest()
 
 fun disableDepthTest() = RenderSystem.disableDepthTest()
 
+private val scissors: Deque<Rectangle<Vector3<Float>>> = Queues.newArrayDeque()
+
+private val scissorsOffset: Deque<Vector3<Float>> = Queues.newArrayDeque()
+
 fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
 	val window = MinecraftClient.getInstance().window
 	val framebufferHeight = window.framebufferHeight
@@ -93,16 +99,46 @@ fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
 	RenderSystem.enableScissor(x1.toInt(), y1.toInt(), 0.coerceAtLeast(width1.toInt()), 0.coerceAtLeast(height1.toInt()))
 }
 
-fun enableScissor(rect: Rectangle<Vector3<Float>>) = enableScissor(rect.x, rect.y, rect.width, rect.height)
-
-fun enableScissor(rect: Rectangle<Vector3<Float>>, matrix4f: Matrix4f) {
-	val vector3f = matrix4f.getPosition()
-	enableScissor(rect.x + vector3f.x, rect.y + vector3f.y, rect.width, rect.height)
+fun enableScissor(rect: Rectangle<Vector3<Float>>) {
+	enableScissor(rect.position, rect)
 }
 
-fun enableScissor(transform: Transform, matrix4f: Matrix4f) = enableScissor(transform.asWorldRect, matrix4f)
+fun enableScissor(position: Vector3<Float>, size: Size<Float>) {
+	enableScissor(position.x, position.y, size.width, size.height)
+}
 
 fun disableScissor() = RenderSystem.disableScissor()
+
+fun pushScissorOffset(offset: Vector3<Float>) {
+	scissorsOffset.addLast(offset)
+}
+
+fun popScissorOffset() {
+	scissorsOffset.removeLast()
+}
+
+fun pushScissorRect(rect: Rectangle<Vector3<Float>>) {
+	scissors.addLast(rect)
+	disableScissor()
+	//todo 需要计算出当前矩形被裁剪之后的大小位置
+	if (scissorsOffset.size > 0)
+		enableScissor(scissors.last.position + scissorsOffset.last, scissors.last)
+	else
+		enableScissor(scissors.last)
+}
+
+inline fun scissor(rect: Rectangle<Vector3<Float>>, action: () -> Unit) {
+	pushScissorRect(rect)
+	action()
+	popScissorRect()
+}
+
+fun popScissorRect() {
+	scissors.removeLast()
+	disableScissor()
+	if (scissors.size > 0) enableScissor(scissors.last)
+}
+
 
 fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vector3<Float>): VertexConsumer =
 	vertex(matrix4f, vertex.x, vertex.y, vertex.z)

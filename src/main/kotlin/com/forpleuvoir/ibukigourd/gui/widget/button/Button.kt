@@ -8,7 +8,11 @@ import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.HEIGHT
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import com.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
+import com.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import com.forpleuvoir.ibukigourd.render.popScissorOffset
+import com.forpleuvoir.ibukigourd.render.pushScissorOffset
 import com.forpleuvoir.ibukigourd.render.renderTexture
+import com.forpleuvoir.ibukigourd.render.translate
 import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.client.util.math.MatrixStack
@@ -29,10 +33,13 @@ open class Button(
 	override fun onRender(matrixStack: MatrixStack, delta: Float) {
 		if (!visible) return
 		matrixStack.push()
-		matrixStack.translate(0f, status(height, 0f, 0f, height), 0f)
+		val offset = Vector3f(0f, status(height, 0f, 0f, height), 0f)
+		matrixStack.translate(offset)
+		pushScissorOffset(offset)
 		renderBackground(matrixStack, delta)
 		super.onRender(matrixStack, delta)
 		renderOverlay(matrixStack, delta)
+		popScissorOffset()
 		matrixStack.pop()
 	}
 

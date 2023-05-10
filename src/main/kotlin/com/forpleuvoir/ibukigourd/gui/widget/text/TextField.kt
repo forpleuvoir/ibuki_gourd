@@ -14,9 +14,8 @@ import com.forpleuvoir.ibukigourd.render.base.Arrangement
 import com.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import com.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import com.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import com.forpleuvoir.ibukigourd.render.disableScissor
-import com.forpleuvoir.ibukigourd.render.enableScissor
 import com.forpleuvoir.ibukigourd.render.renderText
+import com.forpleuvoir.ibukigourd.render.scissor
 import com.forpleuvoir.ibukigourd.util.text.Text
 import com.forpleuvoir.ibukigourd.util.text.literal
 import com.forpleuvoir.ibukigourd.util.text.maxWidth
@@ -113,11 +112,11 @@ open class TextField(
 			resize()
 			changed = false
 		}
-		enableScissor(transform, matrixStack.peek().positionMatrix)
 		renderBackground(matrixStack, delta)
-		renderText(matrixStack, delta)
+		scissor(transform.asWorldRect) {
+			renderText(matrixStack, delta)
+		}
 		renderOverlay(matrixStack, delta)
-		disableScissor()
 	}
 
 	@Suppress("UNUSED_PARAMETER")

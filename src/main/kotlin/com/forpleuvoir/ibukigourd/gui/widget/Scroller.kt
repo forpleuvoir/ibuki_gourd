@@ -13,13 +13,12 @@ import com.forpleuvoir.ibukigourd.util.NextAction
 import com.forpleuvoir.ibukigourd.util.mouseX
 import com.forpleuvoir.ibukigourd.util.mouseY
 import com.forpleuvoir.nebula.common.color.ARGBColor
-import com.forpleuvoir.nebula.common.color.Color
 import com.forpleuvoir.nebula.common.color.Colors
 import com.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.util.math.MatrixStack
 import kotlin.math.abs
 
-open class ScrollerBar(
+open class Scroller(
 	length: Float,
 	thickness: Float = 10f,
 	var amountStep: () -> Float,
@@ -29,15 +28,18 @@ open class ScrollerBar(
 	 */
 	var barLength: () -> Float,
 	private val arrangement: Arrangement = Arrangement.Vertical,
-	var color: () -> ARGBColor = { Color(138, 198, 209) },
+	var color: () -> ARGBColor = { Colors.WHITE },
 	barColor: () -> ARGBColor = { Colors.WHITE },
 ) : ClickableElement() {
 
 	val bar: Button = button(barColor, height = 0f, theme = ButtonThemes.ScrollerBar) {
 		fixed = true
+		playClickSound = false
 	}
 
 	init {
+		transform.fixedWidth = true
+		transform.fixedHeight = true
 		transform.resizeCallback = { width, height ->
 			arrangement.switch({
 				bar.transform.width = width
@@ -57,13 +59,14 @@ open class ScrollerBar(
 	var amount: Float
 		get() = (totalAmount() * progress).clamp(0f..totalAmount())
 		set(value) {
-			val fixed = value.clamp(0f..totalAmount())
-			amountReceiver?.invoke(fixed)
+			val fixedValue = value.clamp(0f..totalAmount())
+			val barPosition = scrollerLength * if (totalAmount() == 0f) 0f else fixedValue / totalAmount()
 			arrangement.switch({
-				bar.transform.y = scrollerLength * fixed / totalAmount()
+				bar.transform.y = barPosition
 			}, {
-				bar.transform.x = scrollerLength * fixed / totalAmount()
+				bar.transform.x = barPosition
 			})
+			amountReceiver?.invoke(fixedValue)
 		}
 
 	var amountReceiver: ((amount: Float) -> Unit)? = null
@@ -85,7 +88,10 @@ open class ScrollerBar(
 			val fixed = value.clamp(0f..1f)
 			amount = (totalAmount() * fixed).clamp(0f..totalAmount())
 		}
-		get() = (arrangement.switch({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
+		get() {
+			if (scrollerLength == 0f) return 1f
+			return (arrangement.switch({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
+		}
 
 
 	private fun calcBarLength() {
@@ -143,7 +149,7 @@ open class ScrollerBar(
 
 	override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
 		mouseHover {
-			this@ScrollerBar.amount -= amountStep() * amount
+			this@Scroller.amount -= amountStep() * amount
 		}
 		return super.onMouseScrolling(mouseX, mouseY, amount)
 	}
@@ -163,7 +169,7 @@ fun ElementContainer.scroller(
 	totalAmount: () -> Float,
 	barLength: () -> Float,
 	arrangement: Arrangement = Arrangement.Vertical,
-	color: () -> ARGBColor = { Color(138, 198, 209) },
+	color: () -> ARGBColor = { Colors.WHITE },
 	barColor: () -> ARGBColor = { Colors.WHITE },
-	scope: ScrollerBar.() -> Unit = {}
-): ScrollerBar = this.addElement(ScrollerBar(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope))
+	scope: Scroller.() -> Unit = {}
+): Scroller = this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope))
