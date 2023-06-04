@@ -21,19 +21,19 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "com.forpleuvoir.ibukigourd.IbukiGourd"
+        "value": "moe.forpleuvoir.ibukigourd.IbukiGourd"
       }
     ],
     "client": [
       {
         "adapter": "kotlin",
-        "value": "com.forpleuvoir.ibukigourd.IbukiGourdClient"
+        "value": "moe.forpleuvoir.ibukigourd.IbukiGourdClient"
       }
     ],
     "server": [
       {
         "adapter": "kotlin",
-        "value": "com.forpleuvoir.ibukigourd.IbukiGourdServer"
+        "value": "moe.forpleuvoir.ibukigourd.IbukiGourdServer"
       }
     ]
   },
@@ -43,9 +43,9 @@
   "depends": {
     "fabricloader": ">=0.14.0",
     "fabric": "*",
-    "minecraft": "1.19.x",
+    "minecraft": "1.20.x",
     "java": ">=17",
-    "fabric-language-kotlin": ">=1.8.0+kotlin.1.7.0"
+    "fabric-language-kotlin": ">=1.9.4+kotlin.1.8.21"
   },
   "suggests": {
     "another-mod": "modmenu"
@@ -53,7 +53,7 @@
   "custom": {
     "ibukigourd": {
       "package": [
-        "com.forpleuvoir.ibukigourd"
+        "moe.forpleuvoir.ibukigourd"
       ]
     }
   }

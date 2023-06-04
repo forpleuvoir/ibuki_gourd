@@ -6,7 +6,7 @@ plugins {
 	java
 	signing
 	id("fabric-loom") version "0.13-SNAPSHOT"
-	kotlin("jvm") version "1.8.20"
+	kotlin("jvm") version "1.8.21"
 	id("maven-publish")
 }
 
@@ -15,8 +15,8 @@ repositories {
 	mavenLocal()
 	maven { url = uri("https://www.jitpack.io") }
 	maven { url = uri("https://maven.terraformersmc.com/") }
-//	maven { url = uri("https://maven.forpleuvoir.com:11443/releases") }
-	maven { url = uri("https://maven.forpleuvoir.com:11443/snapshots") }
+//	maven { url = uri("https://maven.forpleuvoir.moe/releases") }
+	maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
 }
 
 val time: String = SimpleDateFormat("yyyyMMdd").format(Date())
@@ -53,14 +53,14 @@ dependencies {
 
 	//其他mod依赖
 	modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
-	modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
+	//modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
 	//其他第三方库依赖
-	implementation("com.forpleuvoir.nebula:common:$nebulaVersion")
-	implementation("com.forpleuvoir.nebula:serialization:$nebulaVersion")
-	implementation("com.forpleuvoir.nebula:config:$nebulaVersion")
-	include("com.forpleuvoir.nebula:config:$nebulaVersion:shadow")
-	implementation(include("com.forpleuvoir.nebula:event:$nebulaVersion")!!)
+	implementation("moe.forpleuvoir.nebula:common:$nebulaVersion")
+	implementation("moe.forpleuvoir.nebula:serialization:$nebulaVersion")
+	implementation("moe.forpleuvoir.nebula:config:$nebulaVersion")
+	include("moe.forpleuvoir.nebula:config:$nebulaVersion:shadow")
+	implementation(include("moe.forpleuvoir.nebula:event:$nebulaVersion")!!)
 
 }
 
@@ -118,7 +118,7 @@ publishing {
 	repositories {
 		maven {
 			name = "releases"
-			url = uri("https://maven.forpleuvoir.com/releases")
+			url = uri("https://maven.forpleuvoir.moe/releases")
 			credentials(PasswordCredentials::class)
 			authentication {
 				create<BasicAuthentication>("basic")
@@ -126,7 +126,7 @@ publishing {
 		}
 		maven {
 			name = "snapshots"
-			url = uri("https://maven.forpleuvoir.com/snapshots")
+			url = uri("https://maven.forpleuvoir.moe/snapshots")
 			credentials(PasswordCredentials::class)
 			authentication {
 				create<BasicAuthentication>("basic")
