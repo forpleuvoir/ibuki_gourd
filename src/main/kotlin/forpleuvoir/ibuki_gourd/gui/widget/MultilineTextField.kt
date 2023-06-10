@@ -9,10 +9,10 @@ import forpleuvoir.ibuki_gourd.utils.mText
 import net.minecraft.SharedConstants
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.InputUtil.*
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.StringVisitable
 import net.minecraft.util.Language
 import net.minecraft.util.math.MathHelper
@@ -92,16 +92,16 @@ open class MultilineTextField(
 		this.textChangedListener = textChangedListener
 	}
 
-	override fun render(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		drawBackground(matrixStack, mouseX, mouseY, delta)
-		renderVisibleText(matrixStack)
-		renderCursor(matrixStack)
-		scrollbar.render(matrixStack, mouseX, mouseY, delta)
-		drawSelectionBox(matrixStack, mouseX, mouseY, delta)
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		drawBackground(context, mouseX, mouseY, delta)
+		renderVisibleText(context)
+		renderCursor(context)
+		scrollbar.render(context, mouseX, mouseY, delta)
+		drawSelectionBox(context, mouseX, mouseY, delta)
 	}
 
-	protected open fun drawBackground(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		drawRect(matrixStack, x, y, width, height, backgroundColor)
+	protected open fun drawBackground(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		drawRect(context, x, y, width, height, backgroundColor)
 	}
 
 
@@ -647,27 +647,27 @@ open class MultilineTextField(
 		) else ""
 	}
 
-	private fun drawSelectionBox(matrixStack: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (isFocused()) drawOutline(matrixStack, x, y, width, height, 1, borderColor)
-		else drawOutline(matrixStack, x, y, width, height, 1, borderColor.opacity(0.5))
+	private fun drawSelectionBox(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		if (isFocused()) drawOutline(drawContext, x, y, width, height, 1, borderColor)
+		else drawOutline(drawContext, x, y, width, height, 1, borderColor.opacity(0.5))
 	}
 
-	private fun renderVisibleText(matrixStack: MatrixStack) {
+	private fun renderVisibleText(context: DrawContext) {
 		var renderY = y + margin
 		for (line in visibleLines) {
 			val language = Language.getInstance()
-			fontRenderer.drawWithShadow(
-				matrixStack,
+			context.drawTextWithShadow(
+				fontRenderer,
 				language.reorder(line),
-				(x + margin).toFloat(),
-				renderY.toFloat(),
+				(x + margin),
+				renderY,
 				textColor.rgba
 			)
 			renderY += 9
 		}
 	}
 
-	private fun renderCursor(matrixStack: MatrixStack) {
+	private fun renderCursor(drawContext: DrawContext) {
 		val shouldDisplayCursor = isFocused && cursorCounter / 6 % 2 == 0 && cursorIsValid()
 		if (shouldDisplayCursor) {
 			val line = currentLine
@@ -681,7 +681,7 @@ open class MultilineTextField(
 			val y1 = y + margin
 			val y2 = renderSafeCursorY
 			val renderCursorY = y1 + y2 * 9
-			drawRect(matrixStack, renderCursorX, renderCursorY - 0.5, 1, fontRenderer.fontHeight, cursorColor)
+			drawRect(drawContext, renderCursorX, renderCursorY - 0.5, 1, fontRenderer.fontHeight, cursorColor)
 		}
 	}
 

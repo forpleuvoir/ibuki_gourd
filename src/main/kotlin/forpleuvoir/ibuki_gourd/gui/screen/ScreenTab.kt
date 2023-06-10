@@ -5,7 +5,7 @@ import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetDropList
 import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
 
 
@@ -29,7 +29,7 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 	protected val margin: Int = 2
 	protected var top: Int = topPadding + margin
 
-	private lateinit var matrices: MatrixStack
+	private lateinit var context: DrawContext
 
 	override fun init() {
 		super.init()
@@ -61,19 +61,19 @@ open class ScreenTab(private val tabEntry: IScreenTabEntry) :
 			)
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
-		super.render(matrices, mouseX, mouseY, delta)
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		if (!this::context.isInitialized || this.context != context) this.context = context
+		super.render(context, mouseX, mouseY, delta)
 	}
 
 	protected fun drawTopMessage(message: Text) {
 		if (isCurrent(this))
 			if (textRenderer.getWidth(message) > (textRenderer.getWidth(message) / 2))
-				textRenderer.drawWithShadow(
-					matrices,
+				context.drawTextWithShadow(
+					textRenderer,
 					message,
-					(this.width / 2 - textRenderer.getWidth(message) / 2).toFloat(),
-					titleTopPadding.toFloat(),
+					(this.width / 2 - textRenderer.getWidth(message) / 2),
+					titleTopPadding,
 					Color4f.WHITE.rgba
 				)
 	}

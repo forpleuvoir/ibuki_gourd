@@ -8,11 +8,11 @@ import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
-import net.minecraft.client.util.math.MatrixStack
 import java.util.function.Consumer
 
 /**
@@ -100,10 +100,10 @@ class WidgetIntInput(
 		addDrawableChild(downButton)
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
 		drawOutlinedBox(
-			matrices,
+			context,
 			this.x,
 			this.y,
 			this.width,
@@ -111,7 +111,7 @@ class WidgetIntInput(
 			colorBg = backgroundColor,
 			colorBorder = borderColor
 		)
-		super.render(matrices, mouseX, mouseY, delta)
+		super.render(context, mouseX, mouseY, delta)
 		text.setHoverTexts(text.text)
 	}
 

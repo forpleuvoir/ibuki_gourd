@@ -4,12 +4,12 @@ import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.tooltip.Tooltip
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.widget.ButtonWidget.NarrationSupplier
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
 
@@ -73,9 +73,9 @@ abstract class ButtonBase<T : ButtonWidget>(
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		val hoverCallbacks = !hovered
-		super.render(matrices, mouseX, mouseY, delta)
+		super.render(context, mouseX, mouseY, delta)
 		if (hovered && hoverCallbacks) {
 			onHoverCallback?.invoke(this as T)
 		}
@@ -135,7 +135,7 @@ abstract class ButtonBase<T : ButtonWidget>(
 		this.onButtonPress = onButtonPress
 	}
 
-	fun renderTooltip(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
+	fun renderTooltip(context: DrawContext, mouseX: Int, mouseY: Int) {
 		if (hovered && ScreenBase.isCurrent(parent)) {
 			mc.currentScreen?.let {
 				val height = this.hoverText.size * textRenderer.fontHeight
@@ -143,7 +143,7 @@ abstract class ButtonBase<T : ButtonWidget>(
 				if (it.height - y < height) {
 					y = this.y - height - this.height * 0.7
 				}
-				it.renderTooltip(matrices, hoverText, mouseX, y.toInt())
+				context.drawTooltip(mc.textRenderer, hoverText, mouseX, y.toInt())
 			}
 		}
 	}

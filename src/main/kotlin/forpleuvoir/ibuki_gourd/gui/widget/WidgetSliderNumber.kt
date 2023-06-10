@@ -3,9 +3,9 @@ package forpleuvoir.ibuki_gourd.gui.widget
 import forpleuvoir.ibuki_gourd.gui.common.IPositionElement
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.widget.SliderWidget
 import net.minecraft.client.sound.PositionedSoundInstance
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 import java.util.function.Consumer
@@ -71,10 +71,10 @@ open class WidgetSliderNumber(
 		)
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
 		this.updateMessage()
-		super.render(matrices, mouseX, mouseY, delta)
+		super.render(context, mouseX, mouseY, delta)
 	}
 
 	override fun onRelease(mouseX: Double, mouseY: Double) {

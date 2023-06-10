@@ -6,7 +6,7 @@ import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetList
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.MutableText
 
 
@@ -83,7 +83,7 @@ class WidgetListConfigEntry(val config: IConfigBase, parent: WidgetList<*>, x: I
 	}
 
 
-	override fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun renderEntry(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 
 	}
 

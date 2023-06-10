@@ -4,7 +4,7 @@ import forpleuvoir.ibuki_gourd.config.IConfigResettable
 import forpleuvoir.ibuki_gourd.gui.button.ButtonBase
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.width
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 
 /**
  * 重置按钮
@@ -37,8 +37,8 @@ class ButtonRest(
 		config.resetDefaultValue()
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		super.render(matrices, mouseX, mouseY, delta)
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		super.render(context, mouseX, mouseY, delta)
 		this.active = !config.isDefaultValue
 	}
 }

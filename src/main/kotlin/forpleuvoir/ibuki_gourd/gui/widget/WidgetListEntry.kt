@@ -3,6 +3,7 @@ package forpleuvoir.ibuki_gourd.gui.widget
 
 import forpleuvoir.ibuki_gourd.gui.common.PositionParentWidget
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.mod.IbukiGourdMod.mc
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutline
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.clamp
@@ -10,10 +11,10 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 
 
@@ -82,12 +83,12 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		}
 
 	@Suppress("UNCHECKED_CAST")
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
-		renderBackground(matrices, mouseX, mouseY, delta)
-		if (hovered) renderBorder(matrices, mouseX, mouseY, delta)
-		super.render(matrices, mouseX, mouseY, delta)
-		renderEntry(matrices, mouseX, mouseY, delta)
+		renderBackground(context, mouseX, mouseY, delta)
+		if (hovered) renderBorder(context, mouseX, mouseY, delta)
+		super.render(context, mouseX, mouseY, delta)
+		renderEntry(context, mouseX, mouseY, delta)
 		val hoverCallbacks = !hovered
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height
 		if (hovered && hoverCallbacks) {
@@ -95,7 +96,7 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		}
 		if (hovered) {
 			hoverCallback?.invoke(this as E)
-			renderHoverText(matrices, mouseX, mouseY, delta)
+			renderHoverText(context, mouseX, mouseY, delta)
 		}
 
 	}
@@ -110,16 +111,16 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		this.onHoverCallback = hoverCallback
 	}
 
-	abstract fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float)
+	abstract fun renderEntry(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float)
 
-	protected open fun renderHoverText(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	protected open fun renderHoverText(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (ScreenBase.isCurrent(parent))
-			ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
+			drawContext.drawTooltip(mc.textRenderer, hoverTexts, mouseX, mouseY)
 	}
 
-	protected open fun renderBackground(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	protected open fun renderBackground(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		updateBgOpacity(if (hovered) delta * bgOpacityDelta else -delta * bgOpacityDelta)
-		drawRect(matrices, x, y, width, height, bgColor.apply { alpha = bgOpacity })
+		drawRect(drawContext, x, y, width, height, bgColor.apply { alpha = bgOpacity })
 	}
 
 	protected open fun updateBgOpacity(delta: Float) {
@@ -129,9 +130,9 @@ abstract class WidgetListEntry<E : WidgetListEntry<E>>(
 		}
 	}
 
-	protected open fun renderBorder(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	protected open fun renderBorder(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (ScreenBase.isCurrent(parentWidget.parent))
-			drawOutline(matrices, this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE)
+			drawOutline(drawContext, this.x, this.y, this.width, this.height, borderColor = Color4f.WHITE)
 	}
 
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {

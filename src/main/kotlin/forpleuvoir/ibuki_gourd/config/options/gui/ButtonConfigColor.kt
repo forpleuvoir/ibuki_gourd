@@ -8,7 +8,7 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.mText
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 
 /**
  *
@@ -57,9 +57,9 @@ class ButtonConfigColor(
 		}
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		updateText()
-		super.render(matrices, mouseX, mouseY, delta)
+		super.render(context, mouseX, mouseY, delta)
 	}
 
 	private fun updateText() {
@@ -68,8 +68,8 @@ class ButtonConfigColor(
 		}
 	}
 
-	override fun renderButton(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
-		super.renderButton(matrices, mouseX, mouseY, delta)
+	override fun renderButton(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
+		super.renderButton(context, mouseX, mouseY, delta)
 	}
 
 }

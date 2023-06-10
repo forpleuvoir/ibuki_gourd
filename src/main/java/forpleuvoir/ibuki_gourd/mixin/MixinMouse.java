@@ -34,7 +34,7 @@ public abstract class MixinMouse {
 	@Inject(method = "onMouseButton", at = @At("HEAD"), cancellable = true)
 	public void onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
 		if (window == this.client.getWindow().getHandle()) {
-			KeyEnvironment keyEnv = this.client.currentScreen == null || this.client.currentScreen.passEvents ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
+			KeyEnvironment keyEnv = this.client.currentScreen == null ? KeyEnvironment.IN_GAME : KeyEnvironment.IN_SCREEN;
 			if (action == 1) {
 				var event = new MousePressEvent(button, mods, keyEnv);
 				event.broadcast();

@@ -1,7 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.icon
 
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 
 
 /**
@@ -30,7 +30,7 @@ interface IIcon {
 	val textureHeight: Int
 
 	fun render(
-		matrices: MatrixStack,
+		content: DrawContext,
 		x: Int,
 		y: Int,
 		width: Int,

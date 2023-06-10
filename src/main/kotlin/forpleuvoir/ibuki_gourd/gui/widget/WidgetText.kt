@@ -30,16 +30,16 @@ open class WidgetText(x: Int, y: Int, width: Int, height: Int, text: Text? = nul
 
 	var unFocusedCallback: ((WidgetText) -> Unit)? = null
 
-	override fun setTextFieldFocused(focused: Boolean) {
+	override fun setFocusUnlocked(focused: Boolean) {
 		if (this.isFocused || !focused)
 			unFocusedCallback?.invoke(this)
-		super.setTextFieldFocused(focused)
+		super.setFocusUnlocked(focused)
 	}
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
 		if (!isActive) return false
 		if (InputUtil.GLFW_KEY_ENTER == keyCode || keyCode == InputUtil.GLFW_KEY_KP_ENTER) {
-			setTextFieldFocused(!isFocused)
+			setFocusUnlocked(!isFocused)
 			return true
 		}
 		return super.keyPressed(keyCode, scanCode, modifiers)

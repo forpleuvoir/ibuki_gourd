@@ -4,11 +4,11 @@ import forpleuvoir.ibuki_gourd.gui.common.PositionParentWidget
 import forpleuvoir.ibuki_gourd.gui.icon.ArrowIcon
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import java.util.function.Function
 
@@ -76,7 +76,7 @@ open class WidgetDropList<E>(
 			listWidget.visible = !listWidget.visible
 			listWidget.active = !listWidget.active
 			expand = !expand
-			setInitialFocus(listWidget)
+			focused = listWidget
 			true
 		}
 	}
@@ -111,22 +111,22 @@ open class WidgetDropList<E>(
 		addDrawableChild(listWidget)
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
 		hovered = isMouseOver(mouseX.toDouble(), mouseY.toDouble())
 		drawableChildren().forEach {
 			if (it is WidgetListString) {
-				matrices.translate(0.0, 0.0, zOffset)
-				it.render(matrices, mouseX, mouseY, delta)
-				matrices.translate(0.0, 0.0, -zOffset)
+				context.matrices.translate(0.0, 0.0, zOffset)
+				it.render(context, mouseX, mouseY, delta)
+				context.matrices.translate(0.0, 0.0, -zOffset)
 			} else {
-				it.render(matrices, mouseX, mouseY, delta)
+				it.render(context, mouseX, mouseY, delta)
 			}
 		}
 		if (renderIcon)
 			if (expand) {
 				ArrowIcon.Down.render(
-					matrices,
+					context,
 					this.x + this.width - 15,
 					this.y + (this.itemHeight / 2) - (16 / 2),
 					16,
@@ -135,7 +135,7 @@ open class WidgetDropList<E>(
 				)
 			} else {
 				ArrowIcon.Left.render(
-					matrices,
+					context,
 					this.x + this.width - 12,
 					this.y + (this.itemHeight / 2) - (12 / 2),
 					12,

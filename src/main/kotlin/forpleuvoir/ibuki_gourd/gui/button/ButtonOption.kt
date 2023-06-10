@@ -1,11 +1,7 @@
 package forpleuvoir.ibuki_gourd.gui.button
 
-import com.mojang.blaze3d.systems.RenderSystem
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.math.MathHelper
+import net.minecraft.client.gui.DrawContext
 
 
 /**
@@ -45,8 +41,8 @@ class ButtonOption(
 		this.message = current.text
 	}
 
-	override fun renderButton(matrices: MatrixStack?, mouseX: Int, mouseY: Int, delta: Float) {
-		super.renderButton(matrices, mouseX, mouseY, delta)
+	override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		super.renderButton(context, mouseX, mouseY, delta)
 	}
 
 	fun changCurrent() {
@@ -54,7 +50,7 @@ class ButtonOption(
 		val index = options.indexOf(current)
 		current = if (index < size - 1) {
 			options[index + 1]
-		}else{
+		} else {
 			options[0]
 		}
 		updateMessage()

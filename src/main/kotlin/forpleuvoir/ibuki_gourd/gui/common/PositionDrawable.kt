@@ -3,7 +3,6 @@ package forpleuvoir.ibuki_gourd.gui.common
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import net.minecraft.client.gui.Drawable
-import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.screen.Screen
 
@@ -22,7 +21,7 @@ import net.minecraft.client.gui.screen.Screen
  * @author forpleuvoir
 
  */
-abstract class PositionDrawable(var x: Int, var y: Int, var width: Int, var height: Int) : IPositionElement, Element, Drawable,DrawableHelper() {
+abstract class PositionDrawable(var x: Int, var y: Int, var width: Int, var height: Int) : IPositionElement, Element, Drawable {
 
 	var parent: Screen? = null
 

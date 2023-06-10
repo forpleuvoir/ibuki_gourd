@@ -10,6 +10,7 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.AbstractParentElement
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.Selectable.SelectionType
@@ -17,7 +18,6 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
 import net.minecraft.client.sound.PositionedSoundInstance
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.TranslatableTextContent
 import java.util.function.Predicate
@@ -228,9 +228,9 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	}
 
 
-	protected open fun renderBord(matrices: MatrixStack) {
+	protected open fun renderBord(drawContext: DrawContext) {
 		drawOutline(
-			matrices,
+			drawContext,
 			this.x - 1,
 			this.y - 1,
 			this.width + 2,
@@ -239,9 +239,9 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 		)
 	}
 
-	protected open fun renderBackground(matrices: MatrixStack) {
+	protected open fun renderBackground(drawContext: DrawContext) {
 		drawRect(
-			matrices,
+			drawContext,
 			this.x,
 			this.y,
 			this.width,
@@ -250,7 +250,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 		)
 	}
 
-	protected open fun renderDecorations(matrices: MatrixStack, mouseX: Int, mouseY: Int) {}
+	protected open fun renderDecorations(drawContext: DrawContext, mouseX: Int, mouseY: Int) {}
 
 	protected open fun updateChildren() {
 		for (index in 0 until children().size) {
@@ -268,21 +268,21 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 	}
 
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (visible) {
 			updateChildren()
-			if (renderBackground) renderBackground(matrices)
-			if (renderBord) renderBord(matrices)
+			if (renderBackground) renderBackground(context)
+			if (renderBord) renderBord(context)
 			hoveredEntry =
 				if (isMouseOver(mouseX.toDouble(), mouseY.toDouble())) getEntryAtPosition(
 					mouseX.toDouble(),
 					mouseY.toDouble()
 				) else null
-			scrollbar.render(matrices, mouseX, mouseY, delta)
+			scrollbar.render(context, mouseX, mouseY, delta)
 			children().forEach {
-				it.render(matrices, mouseX, mouseY, delta)
+				it.render(context, mouseX, mouseY, delta)
 			}
-			renderDecorations(matrices, mouseX, mouseY)
+			renderDecorations(context, mouseX, mouseY)
 		}
 	}
 
@@ -364,7 +364,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 		}
 	}
 
-	protected open fun isFocused(): Boolean {
+	override fun isFocused(): Boolean {
 		return false
 	}
 
@@ -395,7 +395,7 @@ abstract class WidgetList<E : WidgetListEntry<*>>(
 			if (i != -1) {
 				builder.put(
 					NarrationPart.POSITION,
-					TranslatableTextContent("narrator.position.list", i + 1, list.size).mText
+					TranslatableTextContent("narrator.position.list", null, arrayOf(i + 1, list.size)).mText
 				)
 			}
 		}

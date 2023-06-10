@@ -2,13 +2,9 @@ package forpleuvoir.ibuki_gourd.gui.common
 
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
-import net.minecraft.client.gui.AbstractParentElement
-import net.minecraft.client.gui.Drawable
-import net.minecraft.client.gui.Element
-import net.minecraft.client.gui.Selectable
+import net.minecraft.client.gui.*
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.widget.ClickableWidget
-import net.minecraft.client.util.math.MatrixStack
 import java.util.function.Predicate
 
 
@@ -46,10 +42,10 @@ abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,
 		parent = ScreenBase.current
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
 		hovered = isMouseOver(mouseX.toDouble(), mouseY.toDouble())
-		drawableChildren().forEach { it.render(matrices, mouseX, mouseY, delta) }
+		drawableChildren().forEach { it.render(context, mouseX, mouseY, delta) }
 	}
 
 	fun clearChildren() {
@@ -74,9 +70,9 @@ abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,
 		this.children.add(drawableElement)
 	}
 
-	override fun changeFocus(lookForwards: Boolean): Boolean {
-		if (!active) return false
-		return super.changeFocus(lookForwards)
+	override fun setFocused(lookForwards: Boolean) {
+		if (!active) return
+		return super.setFocused(lookForwards)
 	}
 
 	override fun charTyped(chr: Char, modifiers: Int): Boolean {

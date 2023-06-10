@@ -4,7 +4,7 @@ import forpleuvoir.ibuki_gourd.gui.icon.IIcon
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawOutline
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 
 
 /**
@@ -36,16 +36,15 @@ class ButtonIcon(
 	onButtonPress: ((ButtonIcon) -> Unit)? = null
 ) : ButtonBase<ButtonIcon>(x, y, width, height, "".text, onButtonPress) {
 
-	override fun renderButton(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		matrices.translate(0.0, 0.0, parent?.zOffset?.times(2.0) ?: 0.0)
-		if (renderBg) super.renderButton(matrices, mouseX, mouseY, delta)
+	override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		if (renderBg) super.renderButton(context, mouseX, mouseY, delta)
 		if (this.isHovered) {
 			if (renderBord)
-				drawOutline(matrices, this.x, this.y, this.width, this.height, 1, Color4f.WHITE)
-			renderTooltip(matrices, mouseX, mouseY)
+				drawOutline(context, this.x, this.y, this.width, this.height, 1, Color4f.WHITE)
+			renderTooltip(context, mouseX, mouseY)
 		}
 		icon.render(
-			matrices,
+			context,
 			this.x + padding,
 			this.y + padding,
 			iconSize - padding * 2,

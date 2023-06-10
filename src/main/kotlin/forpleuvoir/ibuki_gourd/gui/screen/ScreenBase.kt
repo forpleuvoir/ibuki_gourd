@@ -6,11 +6,11 @@ import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import java.util.*
 
@@ -104,9 +104,7 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		}
 	final override var parent: Screen? = null
 
-	init {
-		zOffset = 0
-	}
+
 
 	override fun init() {
 		super.init()
@@ -119,16 +117,15 @@ abstract class ScreenBase(title: Text) : Screen(title), IScreenBase {
 		return this.pauseScreen
 	}
 
-	protected open fun drawBackgroundColor(matrices: MatrixStack) {
-		drawRect(matrices, 0, 0, this.width, this.height, backgroundColor)
+	protected open fun drawBackgroundColor(context: DrawContext) {
+		drawRect(context, 0, 0, this.width, this.height, backgroundColor)
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		matrices.translate(0.0, 0.0, zOffset.toDouble())
-		this.drawBackgroundColor(matrices)
-		super.render(matrices, mouseX, mouseY, delta)
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		this.drawBackgroundColor(context)
+		super.render(context, mouseX, mouseY, delta)
 		for (drawable in lastDrawable) {
-			drawable.render(matrices, mouseX, mouseY, delta)
+			drawable.render(context, mouseX, mouseY, delta)
 		}
 	}
 

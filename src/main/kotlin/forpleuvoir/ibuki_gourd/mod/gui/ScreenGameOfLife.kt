@@ -4,8 +4,8 @@ import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil.drawRect
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.util.InputUtil
-import net.minecraft.client.util.math.MatrixStack
 import java.util.*
 
 /**
@@ -38,8 +38,8 @@ class ScreenGameOfLife(private val cellSize: Int = 5, private val period: Int = 
 	private lateinit var cell: Array<IntArray>
 	private lateinit var temp: Array<IntArray>
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-		super.render(matrices, mouseX, mouseY, delta)
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		super.render(context, mouseX, mouseY, delta)
 		draw()
 	}
 

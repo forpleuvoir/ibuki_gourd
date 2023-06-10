@@ -8,10 +8,9 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
@@ -49,7 +48,6 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 
 	init {
 		this.parent = parent
-		parent?.let { zOffset += parent.zOffset + 5 }
 		titleLabel.apply {
 			shadow = false
 			textColor = titleColor
@@ -93,35 +91,32 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		this.addDrawableChild(closeButton)
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (parent is DialogBase<*>) {
 			if ((parent as DialogBase<*>).dialogWidth > this.dialogWidth && (parent as DialogBase<*>).dialogWidth > this.dialogWidth)
-				parent?.render(matrices, mouseX, mouseY, delta)
+				parent?.render(context, mouseX, mouseY, delta)
 			else {
-				(parent as DialogBase<*>).parent?.render(matrices, mouseX, mouseY, delta)
+				(parent as DialogBase<*>).parent?.render(context, mouseX, mouseY, delta)
 			}
 		} else {
-			parent?.render(matrices, mouseX, mouseY, delta)
+			parent?.render(context, mouseX, mouseY, delta)
 		}
-		renderBackground(matrices)
-		super.render(matrices, mouseX, mouseY, delta)
+		renderBackground(context)
+		super.render(context, mouseX, mouseY, delta)
 	}
 
-	override fun drawBackgroundColor(matrices: MatrixStack) {
+	override fun drawBackgroundColor(context: DrawContext) {
 
 	}
 
-	override fun renderBackground(matrices: MatrixStack, vOffset: Int) {
+	override fun renderBackground(context: DrawContext) {
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram)
-		RenderSystem.setShaderTexture(0, texture)
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f)
 		RenderSystem.enableBlend()
 		RenderSystem.defaultBlendFunc()
 		RenderSystem.enableDepthTest()
-		matrices.translate(0.0, 0.0, zOffset.toDouble())
 
-		DrawableHelper.fill(
-			matrices,
+		context.fill(
 			x + paddingLeft,
 			y + paddingTop,
 			x + this.dialogWidth - paddingRight,
@@ -129,21 +124,21 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			textureColor.rgba
 		)
 		//top left
-		DrawableHelper.drawTexture(matrices, x, y, 4, 4, 0f, 0f, 4, 4, 256, 256)
+		context.drawTexture(texture, x, y, 4, 4, 0f, 0f, 4, 4, 256, 256)
 		//top center
-		DrawableHelper.drawTexture(matrices, x + 4, y, this.dialogWidth - 8, 4, 4f, 0f, 244, 4, 256, 256)
+		context.drawTexture(texture, x + 4, y, this.dialogWidth - 8, 4, 4f, 0f, 244, 4, 256, 256)
 		//top right
-		DrawableHelper.drawTexture(matrices, x + this.dialogWidth - 4, y, 4, 4, 248f, 0f, 4, 4, 256, 256)
+		context.drawTexture(texture, x + this.dialogWidth - 4, y, 4, 4, 248f, 0f, 4, 4, 256, 256)
 		//top left 2
-		DrawableHelper.drawTexture(matrices, x, y + 4, 4, paddingTop - 4, 0f, 4f, 4, 12, 256, 256)
+		context.drawTexture(texture, x, y + 4, 4, paddingTop - 4, 0f, 4f, 4, 12, 256, 256)
 		//top center2
-		DrawableHelper.drawTexture(matrices, x + 4, y + 4, this.dialogWidth - 8, paddingTop - 4, 4f, 4f, 244, 12, 256, 256)
+		context.drawTexture(texture, x + 4, y + 4, this.dialogWidth - 8, paddingTop - 4, 4f, 4f, 244, 12, 256, 256)
 		//top right
-		DrawableHelper.drawTexture(matrices, x + this.dialogWidth - 4, y + 4, 4, paddingTop - 4, 248f, 4f, 4, 12, 256, 256)
+		context.drawTexture(texture, x + this.dialogWidth - 4, y + 4, 4, paddingTop - 4, 248f, 4f, 4, 12, 256, 256)
 
 		//center left
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x,
 			y + paddingTop,
 			3,
@@ -155,8 +150,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256,
 			256
 		)
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + 3,
 			y + paddingTop,
 			paddingLeft - 3 - 1,
@@ -168,8 +163,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256,
 			256
 		)
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + paddingLeft - 1,
 			y + paddingTop,
 			1,
@@ -182,9 +177,9 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256
 		)
 		//center
-		DrawableHelper.drawTexture(
-			matrices,
-			x + paddingLeft -1 ,
+		context.drawTexture(
+			texture,
+			x + paddingLeft - 1,
 			y + paddingTop,
 			this.dialogWidth - (paddingLeft + paddingRight) + 1,
 			1,
@@ -195,8 +190,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256,
 			256
 		)
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + paddingLeft - 1,
 			y + this.dialogHeight - paddingBottom - 1,
 			this.dialogWidth - (paddingLeft + paddingRight) + 1,
@@ -209,8 +204,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256
 		)
 		//center right
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + this.dialogWidth - paddingRight,
 			y + paddingTop,
 			1,
@@ -222,8 +217,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256,
 			256
 		)
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + this.dialogWidth - paddingRight + 1,
 			y + paddingTop,
 			paddingRight - 3 - 1,
@@ -235,8 +230,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256,
 			256
 		)
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + this.dialogWidth - 3,
 			y + paddingTop,
 			3,
@@ -250,10 +245,10 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 		)
 
 		//bottom left 2
-		DrawableHelper.drawTexture(matrices, x, this.y + this.dialogHeight - paddingBottom, 4, paddingBottom - 4, 0f, 132f, 4, 4, 256, 256)
+		context.drawTexture(texture, x, this.y + this.dialogHeight - paddingBottom, 4, paddingBottom - 4, 0f, 132f, 4, 4, 256, 256)
 		//bottom center 2
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + 4,
 			this.y + this.dialogHeight - paddingBottom,
 			this.dialogWidth - 8,
@@ -266,8 +261,8 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256
 		)
 		//bottom right 2
-		DrawableHelper.drawTexture(
-			matrices,
+		context.drawTexture(
+			texture,
 			x + this.dialogWidth - 4,
 			this.y + this.dialogHeight - paddingBottom,
 			4,
@@ -280,11 +275,11 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 			256
 		)
 		//bottom left
-		DrawableHelper.drawTexture(matrices, x, this.y + this.dialogHeight - 4, 4, 4, 0f, 136f, 4, 4, 256, 256)
+		context.drawTexture(texture, x, this.y + this.dialogHeight - 4, 4, 4, 0f, 136f, 4, 4, 256, 256)
 		//bottom center
-		DrawableHelper.drawTexture(matrices, x + 4, this.y + this.dialogHeight - 4, this.dialogWidth - 8, 4, 4f, 136f, 244, 4, 256, 256)
+		context.drawTexture(texture, x + 4, this.y + this.dialogHeight - 4, this.dialogWidth - 8, 4, 4f, 136f, 244, 4, 256, 256)
 		//bottom right
-		DrawableHelper.drawTexture(matrices, x + this.dialogWidth - 4, this.y + this.dialogHeight - 4, 4, 4, 248f, 136f, 4, 4, 256, 256)
+		context.drawTexture(texture, x + this.dialogWidth - 4, this.y + this.dialogHeight - 4, 4, 4, 248f, 136f, 4, 4, 256, 256)
 	}
 
 	override fun resize(client: MinecraftClient?, width: Int, height: Int) {

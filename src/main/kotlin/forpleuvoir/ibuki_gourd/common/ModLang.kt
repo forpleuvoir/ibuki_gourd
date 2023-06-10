@@ -26,7 +26,7 @@ interface ModLang {
 	val modId: String
 
 	fun tText(vararg args: Any?): MutableText {
-		return MutableText.of(TranslatableTextContent("$modId.$key", *args))
+		return MutableText.of(TranslatableTextContent("$modId.$key", null, args))
 	}
 
 	fun tString(vararg args: Any?): String {
@@ -35,7 +35,7 @@ interface ModLang {
 }
 
 fun String.tText(vararg args: Any?): TranslatableTextContent {
-	return TranslatableTextContent(this, *args)
+	return TranslatableTextContent(this, null, args)
 }
 
 val TextContent.text: Text get() = MutableText.of(this)

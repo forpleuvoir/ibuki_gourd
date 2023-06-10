@@ -3,8 +3,8 @@ package forpleuvoir.ibuki_gourd.mod.gui
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.render.RenderUtil
 import forpleuvoir.ibuki_gourd.utils.color.Color4i
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.util.InputUtil.*
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import java.util.*
 
@@ -78,26 +78,31 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
 		when (keyCode) {
-			GLFW_KEY_UP    -> {
+			GLFW_KEY_UP -> {
 				if (direction != 1 && neck.y == head.y)
 					direction = 0
 			}
-			GLFW_KEY_DOWN  -> {
+
+			GLFW_KEY_DOWN -> {
 				if (direction != 0 && neck.y == head.y)
 					direction = 1
 			}
-			GLFW_KEY_LEFT  -> {
+
+			GLFW_KEY_LEFT -> {
 				if (direction != 3 && neck.x == head.x)
 					direction = 2
 			}
+
 			GLFW_KEY_RIGHT -> {
 				if (direction != 2 && neck.x == head.x)
 					direction = 3
 			}
-			GLFW_KEY_P     -> {
+
+			GLFW_KEY_P -> {
 				runnable = !runnable
 			}
-			GLFW_KEY_R     -> {
+
+			GLFW_KEY_R -> {
 				initialize()
 			}
 		}
@@ -106,39 +111,39 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 	}
 
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		renderBord()
-		super.render(matrices, mouseX, mouseY, delta)
-		renderScore(matrices)
+		super.render(context, mouseX, mouseY, delta)
+		renderScore(context)
 		renderFood()
 		renderSnake()
-		if (isGameOver) renderGameOverMessage(matrices)
+		if (isGameOver) renderGameOverMessage(context)
 	}
 
-	private fun renderGameOverMessage(matrices: MatrixStack) {
-		textRenderer.drawWithShadow(matrices, "Game Over", this.width.toFloat() / 2, this.height.toFloat() / 2, Color4i.WHITE.rgba)
-		textRenderer.drawWithShadow(
-			matrices,
+	private fun renderGameOverMessage(context: DrawContext) {
+		context.drawTextWithShadow(textRenderer, "Game Over", this.width / 2, this.height / 2, Color4i.WHITE.rgba)
+		context.drawTextWithShadow(
+			textRenderer,
 			"Press R to restart",
-			this.width.toFloat() / 2,
-			this.height.toFloat() / 2 + textRenderer.fontHeight,
+			this.width / 2,
+			this.height / 2 + textRenderer.fontHeight,
 			Color4i.WHITE.rgba
 		)
 	}
 
-	private fun renderScore(matrices: MatrixStack) {
-		textRenderer.drawWithShadow(
-			matrices,
+	private fun renderScore(context: DrawContext) {
+		context.drawTextWithShadow(
+			textRenderer,
 			Text.of("score:"),
-			titleLeftPadding.toFloat() + textRenderer.getWidth(title) + 10,
-			titleTopPadding.toFloat(),
+			titleLeftPadding + textRenderer.getWidth(title) + 10,
+			titleTopPadding,
 			Color4i.WHITE.rgba
 		)
-		textRenderer.drawWithShadow(
-			matrices,
+		context.drawTextWithShadow(
+			textRenderer,
 			Text.of(score.toString()),
-			titleLeftPadding.toFloat() + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
-			titleTopPadding.toFloat(),
+			titleLeftPadding + textRenderer.getWidth(title) + textRenderer.getWidth("score:") + 10,
+			titleTopPadding,
 			Color4i.WHITE.rgba
 		)
 	}
@@ -193,12 +198,15 @@ class ScreenSnakeGame : ScreenBase(Text.of("Snake")) {
 			0 -> {
 				y -= 1
 			}
+
 			1 -> {
 				y += 1
 			}
+
 			2 -> {
 				x -= 1
 			}
+
 			3 -> {
 				x += 1
 			}

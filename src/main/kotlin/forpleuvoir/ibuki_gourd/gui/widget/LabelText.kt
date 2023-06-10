@@ -10,6 +10,7 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4i
 import forpleuvoir.ibuki_gourd.utils.color.IColor
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Drawable
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.Selectable
@@ -21,7 +22,6 @@ import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.sound.PositionedSoundInstance
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 
@@ -52,7 +52,7 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 	private val textRenderer: TextRenderer get() = MinecraftClient.getInstance().textRenderer
 	private val hoverTexts: ArrayList<Text> by lazy { ArrayList() }
 	var renderHoverText: Boolean = true
-	private lateinit var matrices: MatrixStack
+	private lateinit var drawContext: DrawContext
 	private val renderText: String
 		get() {
 			return if (this.width - this.rightPadding - this.leftPadding >= mc.textRenderer.getWidth(text)) {
@@ -117,22 +117,22 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		this.hoverCallback = hoverCallback
 	}
 
-	override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
-		if (!this::matrices.isInitialized || this.matrices != matrices) this.matrices = matrices
-		renderBox(matrices)
-		renderText(matrices)
+		if (!this::drawContext.isInitialized || this.drawContext != drawContext) this.drawContext = context
+		renderBox(context)
+		renderText(context)
 		if (ScreenBase.isCurrent(parent) && renderHoverText)
 			RenderUtil.isMouseHovered(x, y, width, height, mouseX, mouseY) {
 				hoverCallback?.invoke(this)
-				matrices.translate(0.0, 0.0, 2.0)
-				ScreenBase.current?.renderTooltip(matrices, hoverTexts, mouseX, mouseY)
-				matrices.translate(0.0, 0.0, -2.0)
+				context.matrices.translate(0.0, 0.0, 2.0)
+				context.drawTooltip(mc.textRenderer, hoverTexts, mouseX, mouseY)
+				context.matrices.translate(0.0, 0.0, -2.0)
 			}
 	}
 
-	private fun renderBox(matrices: MatrixStack) {
-		drawOutlinedBox(matrices, x, y, width, height, backgroundColor, bordColor)
+	private fun renderBox(context: DrawContext) {
+		drawOutlinedBox(context, x, y, width, height, backgroundColor, bordColor)
 	}
 
 	fun setHoverTexts(vararg texts: Text) {
@@ -163,7 +163,15 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 		return false
 	}
 
-	private fun renderText(matrices: MatrixStack) {
+	override fun setFocused(focused: Boolean) {
+
+	}
+
+	override fun isFocused(): Boolean {
+		return false
+	}
+
+	private fun renderText(drawContext: DrawContext) {
 		val textX: Int
 		val textY: Int
 		when (align) {
@@ -171,34 +179,42 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 				textX = this.x + leftPadding
 				textY = this.y + topPadding
 			}
+
 			TOP_CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = this.y + topPadding
 			}
+
 			TOP_RIGHT -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y + topPadding
 			}
+
 			CENTER_LEFT -> {
 				textX = this.x + leftPadding
 				textY = centerY - textHeight / 2
 			}
+
 			CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = centerY - textHeight / 2
 			}
+
 			CENTER_RIGHT -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = centerY - textHeight / 2
 			}
+
 			BOTTOM_LEFT -> {
 				textX = this.x + leftPadding
 				textY = this.y - textHeight - bottomPadding
 			}
+
 			BOTTOM_CENTER -> {
 				textX = centerX - textWidth / 2
 				textY = this.y - textHeight - bottomPadding
 			}
+
 			BOTTOM_RIGHT -> {
 				textX = this.x + this.width - textWidth - rightPadding
 				textY = this.y - textHeight - bottomPadding
@@ -211,9 +227,9 @@ class LabelText(var text: Text, var x: Int, var y: Int, var width: Int, var heig
 			textY.toFloat(),
 			textColor.rgba,
 			shadow,
-			matrices.peek().positionMatrix,
+			drawContext.matrices.peek().positionMatrix,
 			immediate,
-			false,
+			TextRenderer.TextLayerType.NORMAL,
 			0,
 			LightmapTextureManager.MAX_LIGHT_COORDINATE,
 			rightToLeft

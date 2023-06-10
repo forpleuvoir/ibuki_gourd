@@ -4,12 +4,13 @@ import com.mojang.blaze3d.platform.GlStateManager.DstFactor
 import com.mojang.blaze3d.platform.GlStateManager.SrcFactor
 import com.mojang.blaze3d.systems.RenderSystem
 import forpleuvoir.ibuki_gourd.utils.color.IColor
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Drawable
-import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.gui.widget.ClickableWidget
-import net.minecraft.client.render.*
+import net.minecraft.client.render.GameRenderer
+import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat.DrawMode
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.render.VertexFormats
 
 
 /**
@@ -28,9 +29,9 @@ import net.minecraft.client.util.math.MatrixStack
  */
 object RenderUtil {
 
-	fun Drawable.drawRect(matrices: MatrixStack, x: Number, y: Number, width: Number, height: Number, color: IColor<out Number>) {
-		DrawableHelper.fill(
-			matrices,
+
+	fun Drawable.drawRect(drawContext: DrawContext, x: Number, y: Number, width: Number, height: Number, color: IColor<out Number>) {
+		drawContext.fill(
 			x.toInt(),
 			y.toInt(),
 			(x.toDouble() + width.toDouble()).toInt(),
@@ -40,18 +41,19 @@ object RenderUtil {
 	}
 
 	fun Drawable.drawOutline(
-		matrices: MatrixStack, x: Number,
+		drawContext: DrawContext,
+		x: Number,
 		y: Number,
 		width: Number,
 		height: Number,
 		borderWidth: Number = 1,
 		borderColor: IColor<out Number>
 	) {
-		drawRect(matrices, x, y, borderWidth, height, borderColor)
-		drawRect(matrices, x.toDouble() + width.toDouble() - borderWidth.toDouble(), y, borderWidth, height, borderColor)
-		drawRect(matrices, x.toDouble() + borderWidth.toDouble(), y, width.toDouble() - 2 * borderWidth.toDouble(), borderWidth, borderColor)
+		drawRect(drawContext, x, y, borderWidth, height, borderColor)
+		drawRect(drawContext, x.toDouble() + width.toDouble() - borderWidth.toDouble(), y, borderWidth, height, borderColor)
+		drawRect(drawContext, x.toDouble() + borderWidth.toDouble(), y, width.toDouble() - 2 * borderWidth.toDouble(), borderWidth, borderColor)
 		drawRect(
-			matrices,
+			drawContext,
 			x.toDouble() + borderWidth.toDouble(),
 			y.toDouble() + height.toDouble() - borderWidth.toDouble(),
 			width.toDouble() - 2 * borderWidth.toDouble(),
@@ -61,7 +63,7 @@ object RenderUtil {
 	}
 
 	fun Drawable.drawOutlinedBox(
-		matrices: MatrixStack,
+		drawContext: DrawContext,
 		x: Number,
 		y: Number,
 		width: Number,
@@ -69,8 +71,8 @@ object RenderUtil {
 		colorBg: IColor<out Number>,
 		colorBorder: IColor<out Number>,
 	) {
-		drawRect(matrices, x, y, width, height, colorBg)
-		drawOutline(matrices, x.toDouble() - 1, y.toDouble() - 1, width.toDouble() + 2, height.toDouble() + 2, borderColor = colorBorder)
+		drawRect(drawContext, x, y, width, height, colorBg)
+		drawOutline(drawContext, x.toDouble() - 1, y.toDouble() - 1, width.toDouble() + 2, height.toDouble() + 2, borderColor = colorBorder)
 	}
 
 	//from malilib
@@ -146,7 +148,6 @@ object RenderUtil {
 		endColor: IColor<out Number>,
 		zLevel: Number = 0.0
 	) {
-		RenderSystem.disableTexture()
 		setupBlend()
 		RenderSystem.setShader { GameRenderer.getPositionColorProgram() }
 		RenderSystem.applyModelViewMatrix()
@@ -159,7 +160,6 @@ object RenderUtil {
 		buffer.vertex(right.toDouble(), bottom.toDouble(), zLevel.toDouble()).color(endColor.rgba).next()
 		tessellator.draw()
 		RenderSystem.disableBlend()
-		RenderSystem.enableTexture()
 	}
 
 	fun setupBlend() {
@@ -179,7 +179,6 @@ object RenderUtil {
 		return isMouseHovered(widget.x, widget.y, widget.width, widget.height, mouseX, mouseY)
 	}
 
-	@Suppress("unchecked_cast")
 	inline fun ClickableWidget.isMouseHovered(mouseX: Number, mouseY: Number, callback: (ClickableWidget) -> Unit) {
 		if (isMouseHovered(this, mouseX, mouseY)) {
 			callback.invoke(this)

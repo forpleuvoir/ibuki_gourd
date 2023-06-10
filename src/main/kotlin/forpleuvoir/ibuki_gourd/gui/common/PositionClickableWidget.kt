@@ -1,5 +1,6 @@
 package forpleuvoir.ibuki_gourd.gui.common
 
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.widget.ClickableWidget
@@ -33,6 +34,10 @@ open class PositionClickableWidget(x: Int, y: Int, width: Int, height: Int, mess
 		this.x = x
 		this.y = y
 		onPositionChanged?.invoke(deltaX, deltaY, x, y)
+	}
+
+	override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+
 	}
 
 	override fun deltaPosition(deltaX: Int, deltaY: Int) {

@@ -2,9 +2,8 @@ package forpleuvoir.ibuki_gourd.gui.icon
 
 import com.mojang.blaze3d.systems.RenderSystem
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
-import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 
 /**
@@ -43,7 +42,7 @@ enum class ArrowIcon(
 	}
 
 	override fun render(
-		matrices: MatrixStack,
+		content: DrawContext,
 		x: Int,
 		y: Int,
 		width: Int,
@@ -53,7 +52,6 @@ enum class ArrowIcon(
 		hoveredColor: Color4f
 	) {
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram)
-		RenderSystem.setShaderTexture(0, TEXTURE)
 		if (hovered) RenderSystem.setShaderColor(
 			hoveredColor.red,
 			hoveredColor.green,
@@ -64,8 +62,8 @@ enum class ArrowIcon(
 		RenderSystem.defaultBlendFunc()
 		RenderSystem.enableDepthTest()
 		if (!hovered)
-			DrawableHelper.drawTexture(
-				matrices,
+			content.drawTexture(
+				TEXTURE,
 				x,
 				y,
 				width,
@@ -77,8 +75,8 @@ enum class ArrowIcon(
 				textureWidth,
 				textureHeight
 			)
-		else DrawableHelper.drawTexture(
-			matrices,
+		else content.drawTexture(
+			TEXTURE,
 			x,
 			y,
 			width,
@@ -91,6 +89,5 @@ enum class ArrowIcon(
 			textureHeight
 		)
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
-		RenderSystem.disableTexture()
 	}
 }

@@ -3,7 +3,7 @@ package forpleuvoir.ibuki_gourd.gui.widget
 import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
 import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 
 
 /**
@@ -40,7 +40,7 @@ class WidgetListStringEntry(val value: String, parent: WidgetList<*>, x: Int, y:
 		}
 	}
 
-	override fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {}
+	override fun renderEntry(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {}
 
 	override fun initPosition() {
 		text.setPosition(this.x, this.y)

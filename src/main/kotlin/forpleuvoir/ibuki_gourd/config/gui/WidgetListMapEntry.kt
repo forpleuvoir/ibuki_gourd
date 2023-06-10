@@ -8,7 +8,7 @@ import forpleuvoir.ibuki_gourd.gui.widget.WidgetListEntry
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetText
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 
 
 /**
@@ -83,7 +83,7 @@ class WidgetListMapEntry(
 		)
 	}
 
-	override fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun renderEntry(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 	}
 
 	override fun tick() {
