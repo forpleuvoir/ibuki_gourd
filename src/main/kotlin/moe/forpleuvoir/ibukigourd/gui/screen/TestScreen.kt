@@ -39,25 +39,15 @@ fun testScreen() {
 			renderOutline(it.matrixStack, rect, Colors.RED.opacity(0.5f))
 //			renderCrossHairs(matrixStack, mouseX, mouseY)
 		}
-//		list(80f, 120f) {
-//			for (i in 0..3) {
-//				button { textField("按钮$i") }
-//			}
-//		}
-		scroller(200f, 8f, { 0f }, { 0f }, { 1f }, Arrangement.Horizontal)
-		list(200f, 40f, Arrangement.Horizontal) {
+		list(80f, 120f) {
+			for (i in 0..3) {
+				button { textField("按钮$i") }
+			}
+		}
+		scroller(200f, 10f, { 0f }, { 0f }, { 1f }, Arrangement.Horizontal)
+		list(0f, 50f, Arrangement.Horizontal) {
 			for (i in 0..10) {
-				button {
-					textField("水平按钮$i") {
-						transform.fixedWidth = true
-						transform.fixedHeight = true
-						transform.width = 30f
-						transform.height = textRenderer.fontHeight.toFloat()
-						renderBackground = {
-							renderRect(it.matrixStack, transform, Colors.GREEN_PEAS.opacity(0.5f))
-						}
-					}
-				}
+				button { textField("水平按钮$i") }
 			}
 		}
 	}

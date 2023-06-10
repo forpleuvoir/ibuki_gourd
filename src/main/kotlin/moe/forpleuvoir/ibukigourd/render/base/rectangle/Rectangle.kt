@@ -63,7 +63,7 @@ interface Rectangle<V : Vector3<Float>> : SizeFloat, Cloneable {
 			if (!this.exist || !target.exist) return NULL
 			val startX = max(this.x, target.x)
 			val startY = max(this.y, target.y)
-			val endX = min(this.endX, target.endY)
+			val endX = min(this.endX, target.endX)
 			val endY = min(this.endY, target.endY)
 			rect(startX, startY, endX, endY).let {
 				return if (it.exist) it else NULL

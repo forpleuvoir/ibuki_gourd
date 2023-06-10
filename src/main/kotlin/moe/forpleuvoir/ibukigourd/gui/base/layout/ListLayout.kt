@@ -26,7 +26,7 @@ class ListLayout(
 	width: Float = 0f,
 	height: Float = 0f,
 	val arrangement: Arrangement = Arrangement.Vertical,
-	private val scrollerThickness: Float = 8f,
+	private val scrollerThickness: Float = 10f,
 ) : AbstractElement() {
 
 	lateinit var scrollerBar: Scroller
@@ -206,6 +206,6 @@ fun ElementContainer.list(
 	width: Float,
 	height: Float,
 	arrangement: Arrangement = Arrangement.Vertical,
-	scrollerThickness: Float = 8f,
+	scrollerThickness: Float = 10f,
 	scope: ListLayout.() -> Unit = {}
 ) = this.addElement(ListLayout(width, height, arrangement, scrollerThickness).apply(scope))

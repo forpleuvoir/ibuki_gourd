@@ -24,7 +24,6 @@ class ScissorStack {
 	}
 
 	fun pop(): Rectangle<Vector3<Float>>? {
-//		check(!stack.isEmpty()) { "Scissor stack underflow" }
 		stack.removeLast()
 		return stack.peekLast()
 	}
@@ -50,7 +49,6 @@ class ScissorStack {
 	}
 
 	fun popOffset(): Vector3<Float>? {
-//		check(!stack.isEmpty()) { "Scissor offset stack underflow" }
 		offsetStack.removeLast()
 		return offsetStack.peekLast()
 	}

@@ -46,14 +46,15 @@ class RenderContext(
 		scissorStack.pushOffset(offset)
 		action()
 		scissorStack.popOffset()
+		setScissor(scissorStack.peek())
 	}
 
 	inline fun scissor(rect: Rectangle<Vector3<Float>>, offset: Vector3<Float>, action: RenderContext.() -> Unit) {
 		scissorStack.pushOffset(offset)
 		enableScissor(rect)
 		action()
-		disableScissor()
 		scissorStack.popOffset()
+		disableScissor()
 	}
 
 }
