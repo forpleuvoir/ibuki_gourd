@@ -39,13 +39,13 @@ fun testScreen() {
 			renderOutline(it.matrixStack, rect, Colors.RED.opacity(0.5f))
 //			renderCrossHairs(matrixStack, mouseX, mouseY)
 		}
-		list(80f, 120f) {
+		list(0f, 120f, showScroller = false) {
 			for (i in 0..3) {
 				button { textField("按钮$i") }
 			}
 		}
 		scroller(200f, 10f, { 0f }, { 0f }, { 1f }, Arrangement.Horizontal)
-		list(0f, 50f, Arrangement.Horizontal) {
+		list(240f, 0f, Arrangement.Horizontal, showScroller = false, showBackground = false, padding = 0f) {
 			for (i in 0..10) {
 				button { textField("水平按钮$i") }
 			}

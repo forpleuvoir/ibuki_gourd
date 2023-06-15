@@ -25,12 +25,17 @@ import moe.forpleuvoir.nebula.common.util.clamp
 class ListLayout(
 	width: Float = 0f,
 	height: Float = 0f,
+	padding: Float = 6f,
+	val showScroller: Boolean = true,
+	val showBackground: Boolean = true,
 	val arrangement: Arrangement = Arrangement.Vertical,
-	private val scrollerThickness: Float = 10f,
+	scrollerThickness: Float = 10f,
 ) : AbstractElement() {
 
 	lateinit var scrollerBar: Scroller
 		private set
+
+	private val scrollerThickness: Float = if (!showScroller) 0f else scrollerThickness
 
 	init {
 		if (width != 0f) {
@@ -41,7 +46,7 @@ class ListLayout(
 			transform.fixedHeight = true
 			transform.height = height
 		}
-		padding(6f)
+		padding(padding)
 	}
 
 	var amount: Float
@@ -59,7 +64,7 @@ class ListLayout(
 	override fun init() {
 		for (e in elements) e.init.invoke()
 		val contentSize = arrangement.contentSize(layout.alignRects(elements))
-		if (!::scrollerBar.isInitialized) {
+		if (!this::scrollerBar.isInitialized) {
 			scrollerBar = scroller(
 				arrangement.switch({ transform.height - padding.height }, { transform.width - padding.width }),
 				scrollerThickness,
@@ -79,6 +84,7 @@ class ListLayout(
 				arrangement
 			) {
 				fixed = true
+				visible = showScroller
 			}
 			scrollerBar.amountReceiver = {
 				arrange()
@@ -87,16 +93,15 @@ class ListLayout(
 		arrange()
 		if (this::scrollerBar.isInitialized) {
 			arrangement.switch({
-				scrollerBar.transform.x = transform.right - scrollerThickness - padding.right / 2
+				scrollerBar.transform.worldX = transform.right - scrollerThickness - padding.right / 2
 				scrollerBar.transform.y = padding.top
 			}, {
-				scrollerBar.transform.y = transform.bottom - scrollerThickness - padding.bottom / 2
+				scrollerBar.transform.worldY = transform.bottom - scrollerThickness - padding.bottom / 2
 				scrollerBar.transform.x = padding.left
 			})
 		}
 		tip?.init?.invoke()
 	}
-
 
 	override var layout: Layout = object : Layout {
 		override val elementContainer: () -> ElementContainer
@@ -143,9 +148,9 @@ class ListLayout(
 				element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
 			}
 			return arrangement.switch({
-				Size.create(contentRect.width + padding.width + scrollerThickness, contentRect.height + padding.height)
+				Size.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height)
 			}, {
-				Size.create(contentRect.width + padding.width, contentRect.height + padding.height + scrollerThickness)
+				Size.create(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
 			})
 		}
 
@@ -197,7 +202,7 @@ class ListLayout(
 	}
 
 	override fun onRenderBackground(renderContext: RenderContext) {
-		renderTexture(renderContext.matrixStack, this.transform, LIST_BACKGROUND)
+		if (showBackground) renderTexture(renderContext.matrixStack, this.transform, LIST_BACKGROUND)
 	}
 
 }
@@ -206,6 +211,9 @@ fun ElementContainer.list(
 	width: Float,
 	height: Float,
 	arrangement: Arrangement = Arrangement.Vertical,
+	padding: Float = 6f,
+	showScroller: Boolean = true,
+	showBackground: Boolean = true,
 	scrollerThickness: Float = 10f,
 	scope: ListLayout.() -> Unit = {}
-) = this.addElement(ListLayout(width, height, arrangement, scrollerThickness).apply(scope))
+) = this.addElement(ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope))

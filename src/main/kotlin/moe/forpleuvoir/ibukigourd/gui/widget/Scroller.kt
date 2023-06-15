@@ -37,6 +37,8 @@ open class Scroller(
 		playClickSound = false
 	}
 
+	override var visible: Boolean = true
+
 	init {
 		transform.fixedWidth = true
 		transform.fixedHeight = true
@@ -104,7 +106,7 @@ open class Scroller(
 
 	override fun tick() {
 		super.tick()
-		if (pressed && mouseHover()) {
+		if (pressed && mouseHover() && visible) {
 			setFromMouse(mouseX.toFloat(), mouseY.toFloat())
 		}
 	}
@@ -130,7 +132,7 @@ open class Scroller(
 	}
 
 	override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-		if (!active || !dragging) return NextAction.Continue
+		if (!active || !dragging || !visible) return NextAction.Continue
 		arrangement.switch({
 			bar.transform.y = (bar.transform.y + deltaY).clamp(barPositionRange)
 		}, {
@@ -141,6 +143,7 @@ open class Scroller(
 	}
 
 	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+		if (!visible) return NextAction.Continue
 		mouseHover {
 			setFromMouse(mouseX, mouseY)
 		}
