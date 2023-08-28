@@ -24,28 +24,33 @@ object ClientModConfigHandler : ModConfigHandler {
 	@Subscriber
 	fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
 		log.info("init client mod config")
-		scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ClientModConfigManager::class) }.forEach { (modMeta, classes) ->
-			classes.forEach {
-				val instance = try {
-					it.createInstance() as ClientModConfigManager
-				} catch (_: IllegalArgumentException) {
-					try {
-						it.objectInstance!! as ClientModConfigManager
-					} catch (e: NullPointerException) {
-						throw NullPointerException("Unable to create instance of ${it.qualifiedName},Must have noArgsConstructor or be objectInstance")
+		scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ClientModConfigManager::class) }
+			.forEach { (modMeta, classes) ->
+				classes.forEach { kClass ->
+
+					val instance = runCatching {
+						// 尝试创建实例
+						kClass.createInstance() as ClientModConfigManager
+					}.recoverCatching {
+						// 如果创建实例失败，尝试获取 objectInstance
+						kClass.objectInstance as ClientModConfigManager
+					}.getOrElse {
+						// 如果两者都失败，抛出异常
+						throw Exception("Unable to create instance of ${kClass.qualifiedName}, must have noArgsConstructor or be objectInstance")
 					}
+
+					val annotation = kClass.findAnnotation<ModConfig>()!!
+					instance.init()
+					log.info("[${modMeta.id} - ${annotation.name}]client config init")
+					runCatching {
+						instance.load()
+					}.onFailure {
+						instance.forceSave()
+						log.error(it)
+					}
+					configManagers["${modMeta.id} - ${annotation.name}"] = instance
 				}
-				val annotation = it.findAnnotation<ModConfig>()!!
-				instance.init()
-				try {
-					instance.load()
-				} catch (e: Exception) {
-					instance.forceSave()
-					log.error(e)
-				}
-				configManagers["${modMeta.id} - ${annotation.name}"] = instance
 			}
-		}
 	}
 
 	@Subscriber

@@ -23,7 +23,7 @@ data class Corner(
 
 		fun deserialization(serializeElement: SerializeElement?, default: Corner): Corner {
 			if (serializeElement == null || serializeElement.isNull) return default
-			return try {
+			return runCatching {
 				if (serializeElement is SerializeObject)
 					serializeElement.let {
 						val left: Int
@@ -49,9 +49,7 @@ data class Corner(
 				else if (serializeElement.isPrimitive)
 					Corner(serializeElement.asInt)
 				else default
-			} catch (_: Exception) {
-				default
-			}
+			}.getOrDefault(default)
 		}
 
 	}

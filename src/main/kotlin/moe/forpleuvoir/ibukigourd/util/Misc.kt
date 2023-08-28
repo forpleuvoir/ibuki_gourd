@@ -92,12 +92,12 @@ fun scanModPackage(predicate: (KClass<*>) -> Boolean = { true }): Map<ModMetadat
 val modPacks: Map<ModMetadata, Set<String>> by lazy {
 	ImmutableMap.builder<ModMetadata, Set<String>>().also { packs ->
 		loader.allMods.forEach {
-			val list = ImmutableSet.builder<String>()
-			it.metadata.customValues["ibukigourd"]?.apply {
+			val set = ImmutableSet.builder<String>()
+			it.metadata.customValues[IbukiGourd.MOD_ID]?.apply {
 				asObject.get("package")?.asArray?.onEach { value ->
-					list.add(value.asString)
+					set.add(value.asString)
 				}
-				packs.put(it.metadata, list.build())
+				packs.put(it.metadata, set.build())
 			}
 		}
 	}.build()
@@ -120,7 +120,7 @@ fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Lis
 /**
  * 判断两个list是否完全匹配
  *
- * list.size == list2.size && list.0 == list2.0
+ * list.size == list2.size && list[0] == list2[0]
  *
  * @receiver List<*>
  * @param list List<*>

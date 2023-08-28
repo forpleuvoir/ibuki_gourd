@@ -41,7 +41,7 @@ interface KeyBindSetting : Serializable, Deserializable, Matchable {
 	 * @param target KeyBindSetting
 	 * @return Boolean
 	 */
-	fun copyOf(target: KeyBindSetting): Boolean
+	fun copyFrom(target: KeyBindSetting): Boolean
 
 }
 

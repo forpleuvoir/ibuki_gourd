@@ -26,8 +26,8 @@ open class ModLogger(clazz: KClass<*>, modName: String) {
 		log.error(msg, throwable)
 	}
 
-	fun error(e: Exception) {
-		log.error(e.message, e)
+	fun error(t: Throwable) {
+		log.error(t.message, t)
 	}
 
 	fun warn(msg: String, vararg params: Any?) {

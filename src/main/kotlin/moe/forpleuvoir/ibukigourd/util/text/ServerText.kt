@@ -26,12 +26,13 @@ class ServerText(
 			}
 			languageCache = language
 			val string = if (fallback != null) language.get(key, fallback!!) else language[key]
-			translations = try {
+			translations = runCatching {
 				val builder = ImmutableList.builder<StringVisitable>()
 				forEachPart(string) { builder.add(it) }
 				builder.build()
-			} catch (translationException: TranslationException) {
-				ImmutableList.of(StringVisitable.plain(string))
+			}.getOrElse {
+				if (it is TranslationException) ImmutableList.of(StringVisitable.plain(string))
+				else throw it
 			}
 		}
 

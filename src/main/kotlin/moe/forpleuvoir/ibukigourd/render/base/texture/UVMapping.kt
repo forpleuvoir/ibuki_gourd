@@ -18,7 +18,7 @@ open class UVMapping(
 		fun deserialization(serializeElement: SerializeElement?, default: UVMapping): UVMapping {
 			if (serializeElement == null || !serializeElement.isObject) return default
 			serializeElement.asObject.apply {
-				return try {
+				return runCatching {
 					val u1: Int
 					val u2: Int
 					if (containsKey("u") && containsKey("u_size")) {
@@ -44,9 +44,7 @@ open class UVMapping(
 						v2 = getOr("v2", default.v2).toInt()
 					}
 					UVMapping(u1, v1, u2, v2)
-				} catch (_: Exception) {
-					default
-				}
+				}.getOrDefault(default)
 			}
 		}
 	}

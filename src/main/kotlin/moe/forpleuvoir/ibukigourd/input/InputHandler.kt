@@ -21,36 +21,44 @@ object InputHandler : Tickable {
 
 	init {
 		isDevEnv {
-			register(KeyBind(KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
+			register(KP_1) {
 				testScreen()
 				println("打开测试屏幕")
-			})
-			register(KeyBind(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
+			}
+			register(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
 				println("按下了 1")
-			})
-			register(KeyBind(LEFT_CONTROL, KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
+			}
+			register(LEFT_CONTROL, KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
 				println("按住了 2")
-			})
-			register(
-				KeyBind(LEFT_CONTROL, KP_3, defaultSetting = keyBindSetting(triggerMode = OnLongPress)) {
-					println("长按了 3")
-				})
-			register(
-				KeyBind(LEFT_CONTROL, KP_4, defaultSetting = keyBindSetting(triggerMode = OnLongPressed)) {
-					println("长按住了 4")
-				})
-			register(KeyBind(LEFT_CONTROL, KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
+			}
+			register(LEFT_CONTROL, KP_3, defaultSetting = keyBindSetting(triggerMode = OnLongPress)) {
+				println("长按了 3")
+			}
+			register(LEFT_CONTROL, KP_4, defaultSetting = keyBindSetting(triggerMode = OnLongPressed)) {
+				println("长按住了 4")
+			}
+			register(LEFT_CONTROL, KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
 				println("释放了 5")
-			})
-			register(KeyBind(LEFT_CONTROL, KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
+			}
+			register(LEFT_CONTROL, KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
 				println("按下或者释放了 6")
-			})
+			}
 		}
 	}
 
-	fun register(keyBind: KeyBind) {
+	fun register(keyBind: KeyBind): KeyBind {
 		keyBinds.add(keyBind)
+		return keyBind
 	}
+
+	fun register(
+		vararg keyCodes: KeyCode,
+		defaultSetting: KeyBindSetting = keyBindSetting(),
+		action: KeyBind.() -> Unit = {}
+	): KeyBind {
+		return register(KeyBind(keyCodes = keyCodes, defaultSetting, action))
+	}
+
 
 	fun unregister(keyBind: KeyBind) {
 		keyBinds.remove(keyBind)

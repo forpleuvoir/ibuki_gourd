@@ -37,7 +37,7 @@ class KeyBind(
 
 	private val defaultKeys: MutableList<KeyCode> = keyCodes.toMutableList()
 
-	val setting: KeyBindSetting = keyBindSetting().apply { copyOf(defaultSetting) }
+	val setting: KeyBindSetting = keyBindSetting().apply { copyFrom(defaultSetting) }
 
 	val keys: MutableList<KeyCode> = ArrayList(defaultKeys)
 
@@ -188,7 +188,7 @@ class KeyBind(
 	override fun isDefault(): Boolean = defaultKeys.exactMatch(keys) && setting == defaultSetting
 
 	override fun restDefault() {
-		setting.copyOf(defaultSetting)
+		setting.copyFrom(defaultSetting)
 		setKey(*defaultKeys.toTypedArray())
 	}
 
@@ -198,7 +198,7 @@ class KeyBind(
 	}
 
 	fun copyOf(target: KeyBind): Boolean {
-		var valueChange = setting.copyOf(target.setting)
+		var valueChange = setting.copyFrom(target.setting)
 		if (this.setKey(*target.keys.toTypedArray())) valueChange = true
 		if (action != target.action) {
 			action = target.action
@@ -215,19 +215,17 @@ class KeyBind(
 	}
 
 	override fun deserialization(serializeElement: SerializeElement) {
-		try {
+		runCatching {
 			val obj = serializeElement.asObject
 			keys.clear()
-			obj["keys"]!!.asArray.forEach {
-				keys.add(KeyCode.fromCode(InputUtil.fromTranslationKey(it.asString).code))
-			}
+			obj["keys"]!!.asArray.forEach { keys.add(KeyCode.fromCode(InputUtil.fromTranslationKey(it.asString).code)) }
 			setting.deserialization(obj["setting"]!!)
 			onChange(this)
-		} catch (e: Exception) {
+		}.onFailure {
 			keys.clear()
 			keys.addAll(defaultKeys.toSet())
-			setting.copyOf(defaultSetting)
-			log.error(e)
+			setting.copyFrom(defaultSetting)
+			log.error(it)
 		}
 	}
 }

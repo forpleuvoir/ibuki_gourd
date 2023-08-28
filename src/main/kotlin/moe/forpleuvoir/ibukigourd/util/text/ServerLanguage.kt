@@ -83,10 +83,10 @@ object ServerLanguage : Language() {
 						manager.allNamespaces.forEach { nameSpace ->
 							manager.findResources("server_language") { it.path.endsWith(".json") }
 								.forEach { (identifier, resource) ->
-									try {
+									runCatching {
 										appendFrom(identifier.path, resource)
-									} catch (e: Exception) {
-										log.error("Skipped language file: {}:{} ({})", nameSpace, name, e)
+									}.onFailure {
+										log.error("Skipped language file: {}:{} ({})", nameSpace, name, it)
 									}
 								}
 						}
@@ -103,16 +103,13 @@ object ServerLanguage : Language() {
 
 	private fun appendFrom(languageName: String, resource: Resource) {
 		val path = languageName.replace(".json", "").replace("server_lang/", "")
-		try {
+		runCatching {
 			resource.inputStream.use {
-				val json =
-					gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
+				val json = gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
 				val languagePair = LanguagePair(path, json.getOr("rightToLft", false))
 				val map = HashMap<String, String>()
 				json.entrySet().forEach { entry ->
-					map[entry.key] =
-						UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key))
-							.replaceAll("%$1s")
+					map[entry.key] = UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key)).replaceAll("%$1s")
 				}
 				if (this.map.containsKey(languagePair)) {
 					this.map[languagePair]!!.putAll(map)
@@ -160,11 +157,7 @@ object ServerLanguage : Language() {
 	}
 
 	private fun shapeArabic(string: String): String? {
-		return try {
-			ArabicShaping(8).shape(string)
-		} catch (exception: java.lang.Exception) {
-			string
-		}
+		return runCatching { ArabicShaping(8).shape(string) }.getOrDefault(string)
 	}
 
 }

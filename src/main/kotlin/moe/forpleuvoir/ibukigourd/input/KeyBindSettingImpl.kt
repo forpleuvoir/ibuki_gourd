@@ -39,7 +39,7 @@ class KeyBindSettingImpl(
 	}
 
 	override fun deserialization(serializeElement: SerializeElement) {
-		try {
+		runCatching {
 			val obj = serializeElement.asObject
 			environment = environment.fromKey(obj["key_environment"]!!.asString)
 			nextAction = NextAction.valueOf(obj["next_action"]!!.asString)
@@ -47,9 +47,7 @@ class KeyBindSettingImpl(
 			triggerMode = KeyTriggerMode.fromKey(obj["trigger_mode"]!!.asString)
 			triggerPeriod = obj["trigger_period"]!!.asLong
 			longPressTime = obj["long_press_time"]!!.asLong
-		} catch (e: Exception) {
-			log.error(e)
-		}
+		}.onFailure { log.error(it) }
 	}
 
 	override fun matched(regex: Regex): Boolean {
@@ -84,7 +82,7 @@ class KeyBindSettingImpl(
 		return result
 	}
 
-	override fun copyOf(target: KeyBindSetting): Boolean {
+	override fun copyFrom(target: KeyBindSetting): Boolean {
 		var valueChange = false
 		if (this.environment != target.environment) {
 			this.environment = target.environment

@@ -36,7 +36,7 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 
 	override fun reload(manager: ResourceManager) {
 		log.info("widget textures loading...")
-		try {
+		runCatching {
 			manager.getResource(TEXTURE_INFO_RESOURCES).ifPresent { resource ->
 				CharStreams.toString(resource.inputStream.reader())
 					.jsonStringToObject().apply {

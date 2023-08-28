@@ -41,24 +41,27 @@ object ServerModConfigHandler : ModConfigHandler {
 		log.info("init server mod config...")
 		init()
 		scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ServerModConfigManager::class) }.forEach { (modMeta, classes) ->
-			classes.forEach {
-				val instance = try {
-					it.createInstance() as ServerModConfigManager
-				} catch (_: IllegalArgumentException) {
-					try {
-						it.objectInstance!! as ServerModConfigManager
-					} catch (e: NullPointerException) {
-						throw NullPointerException("Unable to create instance of ${it.qualifiedName},Must have noArgsConstructor or be objectInstance")
-					}
+			classes.forEach { kClass ->
+
+				val instance = runCatching {
+					// 尝试创建实例
+					kClass.createInstance() as ServerModConfigManager
+				}.recoverCatching {
+					// 如果创建实例失败，尝试获取 objectInstance
+					kClass.objectInstance as ServerModConfigManager
+				}.getOrElse {
+					// 如果两者都失败，抛出异常
+					throw Exception("Unable to create instance of ${kClass.qualifiedName}, must have noArgsConstructor or be objectInstance")
 				}
-				val annotation = it.findAnnotation<ModConfig>()!!
+
+				val annotation = kClass.findAnnotation<ModConfig>()!!
 				instance.init(event.server)
 				log.info("[${modMeta.id} - ${annotation.name}]server config init")
-				try {
+				runCatching {
 					instance.load()
-				} catch (e: Exception) {
+				}.onFailure {
 					instance.forceSave()
-					log.error(e)
+					log.error(it)
 				}
 				configManagers["${modMeta.id} - ${annotation.name}"] = instance
 			}

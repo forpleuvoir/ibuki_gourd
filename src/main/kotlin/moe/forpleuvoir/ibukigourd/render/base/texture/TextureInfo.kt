@@ -17,11 +17,7 @@ data class TextureInfo(
 				return TextureInfo(
 					getOr("width", default.width).toInt(),
 					getOr("height", default.height).toInt(),
-					try {
-						resources(this["texture"]!!.asString)
-					} catch (_: Exception) {
-						default.texture
-					}
+					runCatching { resources(this["texture"]!!.asString) }.getOrDefault(default.texture)
 				)
 			}
 		}
