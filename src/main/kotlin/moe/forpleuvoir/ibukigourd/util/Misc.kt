@@ -36,20 +36,29 @@ fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpac
 
 internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
 
-fun chatMessage(message: net.minecraft.text.Text) {
-	mc.inGameHud.chatHud.addMessage(message)
+fun MinecraftClient.sendMessage(message: String) {
+	this.player?.networkHandler?.let {
+		if (message.startsWith("/"))
+			it.sendChatCommand(message)
+		else
+			it.sendChatMessage(message)
+	}
 }
 
-fun chatMessage(message: String) {
+fun MinecraftClient.chatMessage(message: net.minecraft.text.Text) {
+	inGameHud.chatHud.addMessage(message)
+}
+
+fun MinecraftClient.chatMessage(message: String) {
 	chatMessage(literal(message))
 }
 
-fun overlayMessage(message: net.minecraft.text.Text, tinted: Boolean = false) {
-	mc.inGameHud.setOverlayMessage(message, tinted)
+fun MinecraftClient.overlayMessage(message: net.minecraft.text.Text, tinted: Boolean = false) {
+	this.inGameHud.setOverlayMessage(message, tinted)
 }
 
-fun overlayMessage(message: String, tinted: Boolean = false) {
-	mc.inGameHud.setOverlayMessage(literal(message), tinted)
+fun MinecraftClient.overlayMessage(message: String, tinted: Boolean = false) {
+	this.inGameHud.setOverlayMessage(literal(message), tinted)
 }
 
 fun Any.logger(modName: String): ModLogger {
@@ -97,13 +106,12 @@ val modPacks: Map<ModMetadata, Set<String>> by lazy {
 fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): List<KClass<*>> {
 	val list = ArrayList<KClass<*>>()
 	ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack).forEach {
-		try {
+		runCatching {
 			val clazz = Class.forName(it.name).kotlin
 			clazz.java.declaredClasses.forEach { innerClass ->
 				if (predicate(innerClass.kotlin)) list.add(innerClass.kotlin)
 			}
 			if (predicate(clazz)) list.add(clazz)
-		} catch (_: Exception) {
 		}
 	}
 	return list

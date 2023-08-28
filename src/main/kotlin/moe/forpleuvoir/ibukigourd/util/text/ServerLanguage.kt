@@ -120,8 +120,9 @@ object ServerLanguage : Language() {
 					this.map[languagePair] = map
 				}
 			}
-		} catch (e: IOException) {
-			log.error("Failed to load translations for {} from pack {}", path, resource.resourcePackName, e)
+		}.onFailure {
+			if (it is IOException) log.error("Failed to load translations for {} from pack {}", path, resource.resourcePackName, it)
+			else throw it
 		}
 	}
 

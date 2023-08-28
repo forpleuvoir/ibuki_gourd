@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.screen.testScreen
 import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
 import moe.forpleuvoir.ibukigourd.input.Keyboard.*
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.exactMatch
 import moe.forpleuvoir.ibukigourd.util.isDevEnv
 
 object InputHandler : Tickable {
@@ -101,5 +102,12 @@ object InputHandler : Tickable {
 		return NextAction.Continue
 	}
 
+	fun hasKeyPressed(keyCode: KeyCode): Boolean {
+		return currentPressKeyCode.contains(keyCode)
+	}
+
+	fun hasKeyPressed(vararg keyCode: KeyCode): Boolean {
+		return currentPressKeyCode.exactMatch(keyCode.toList())
+	}
 
 }

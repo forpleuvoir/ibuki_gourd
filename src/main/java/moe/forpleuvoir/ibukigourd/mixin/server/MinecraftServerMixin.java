@@ -55,7 +55,9 @@ public class MinecraftServerMixin {
 	}
 
 	@Inject(method = "shutdown", at = @At("TAIL"))
-	private void afterShutdownServer(CallbackInfo info) {EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStoppedEvent((MinecraftServer) (Object) this));}
+	private void afterShutdownServer(CallbackInfo info) {
+		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStoppedEvent((MinecraftServer) (Object) this));
+	}
 
 	@Inject(method = "save", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getOverworld()Lnet/minecraft/server/world/ServerWorld;", shift = At.Shift.AFTER))
 	private void saveEverything(boolean bl, boolean bl2, boolean bl3, CallbackInfoReturnable<Boolean> cir) {

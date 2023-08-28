@@ -34,6 +34,16 @@ interface Element : ElementContainer, Drawable, Tickable {
 	val active: Boolean
 
 	/**
+	 * 是否为聚焦中的元素
+	 */
+	val focused: Boolean
+
+	/**
+	 * 是否为可聚焦元素
+	 */
+	val focusable: Boolean
+
+	/**
 	 * 处理优先级 越高越优先处理
 	 */
 	val priority: Int

@@ -53,10 +53,7 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 							}
 					}
 			}
-		} catch (e: Exception) {
-			log.error("widget textures load fail", e)
-		}
-
+		}.onFailure { log.error("widget textures load fail", it) }
 	}
 
 	var BUTTON_IDLE_1: WidgetTexture = WidgetTexture(Corner(4), 0, 0, 16, 16, TEXTURE_INFO)

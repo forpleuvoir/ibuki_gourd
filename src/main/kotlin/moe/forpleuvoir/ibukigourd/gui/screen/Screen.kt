@@ -11,6 +11,11 @@ interface Screen : Element, TipHandler {
 	var parentScreen: Screen?
 
 	/**
+	 * 当前选中的元素
+	 */
+	var focusedElement: Element?
+
+	/**
 	 * 打开时是否需要暂停游戏，在服务器中无效
 	 */
 	val pauseGame: Boolean

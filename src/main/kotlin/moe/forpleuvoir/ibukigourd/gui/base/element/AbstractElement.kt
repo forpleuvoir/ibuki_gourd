@@ -26,6 +26,17 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
 	override var fixed: Boolean = false
 
+	override val focused: Boolean
+		get() {
+			if (focusable)
+				screen()?.let {
+					return it.focusedElement == this
+				}
+			return false
+		}
+
+	override val focusable: Boolean = false
+
 	override var tip: Tip? = null
 		set(value) {
 			if (value != null) {
@@ -74,7 +85,10 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
 	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
 		if (!active) return NextAction.Continue
-		if (button == Mouse.LEFT && mouseHover()) dragging = true
+		if (button == Mouse.LEFT && mouseHover()) {
+			dragging = true
+			if (focusable) screen()?.let { it.focusedElement = this }
+		}
 		for (element in handleTree) {
 			if (element.mouseClick(mouseX, mouseY, button) == NextAction.Cancel)
 				return NextAction.Cancel

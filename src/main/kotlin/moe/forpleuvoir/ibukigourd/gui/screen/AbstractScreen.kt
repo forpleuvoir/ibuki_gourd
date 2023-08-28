@@ -45,6 +45,8 @@ abstract class AbstractScreen(
 
 	override var parentScreen: Screen? = null
 
+	override var focusedElement: Element? = null
+
 	override var pauseGame: Boolean = false
 
 	override var shouldCloseOnEsc: Boolean = true
