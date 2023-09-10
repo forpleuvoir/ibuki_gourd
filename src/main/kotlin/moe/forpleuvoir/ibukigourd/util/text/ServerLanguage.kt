@@ -12,8 +12,8 @@ import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.resources
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
-import moe.forpleuvoir.nebula.serialization.json.getOr
-import moe.forpleuvoir.nebula.serialization.json.gson
+import moe.forpleuvoir.nebula.serialization.gson.getOr
+import moe.forpleuvoir.nebula.serialization.gson.gson
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener
 import net.minecraft.resource.Resource

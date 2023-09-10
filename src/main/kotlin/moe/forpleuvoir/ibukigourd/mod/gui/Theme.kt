@@ -11,14 +11,14 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.minute
 import moe.forpleuvoir.nebula.common.util.plus
 import moe.forpleuvoir.nebula.common.util.second
-import moe.forpleuvoir.nebula.config.impl.AutoSaveConfigManager
-import moe.forpleuvoir.nebula.config.impl.HoconConfigManagerSerializer
 import moe.forpleuvoir.nebula.config.item.impl.*
+import moe.forpleuvoir.nebula.config.manager.AutoSaveConfigManager
+import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import java.util.*
 
 @ModConfig("theme")
-object Theme : ClientModConfigManager(IbukiGourd.metadata, "theme"), HoconConfigManagerSerializer, AutoSaveConfigManager {
+object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}_theme"), JsonConfigManagerPersistence, AutoSaveConfigManager {
 
 	override val period: Long = 5.minute
 
@@ -39,7 +39,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "theme"), HoconConfig
 
 		val TEXTURE by ConfigCycle(
 			"texture",
-			ButtonThemes.values().asList(),
+			ButtonThemes.entries,
 			ButtonThemes.Button2,
 			{ it.name },
 			{ ButtonThemes.valueOf(it.asString) },

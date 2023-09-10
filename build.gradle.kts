@@ -5,8 +5,8 @@ import java.util.*
 plugins {
 	java
 	signing
-	id("fabric-loom") version "0.13-SNAPSHOT"
-	kotlin("jvm") version "1.8.21"
+	id("fabric-loom") version "1.3-SNAPSHOT"
+	kotlin("jvm") version "1.9.10"
 	id("maven-publish")
 }
 
@@ -46,7 +46,7 @@ dependencies {
 	modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 
-	implementation(include("com.github.LlamaLad7:MixinExtras:$mixinExtrasVersion") {
+	api(include("com.github.LlamaLad7:MixinExtras:$mixinExtrasVersion") {
 		exclude("com.github.LlamaLad7.MixinExtras", "mixinextras-forge")
 	})
 	annotationProcessor("com.github.LlamaLad7:MixinExtras:$mixinExtrasVersion")
@@ -55,12 +55,10 @@ dependencies {
 	modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
 	//modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
+	//nebula
+	api(include("moe.forpleuvoir:nebula:$nebulaVersion")!!)
+
 	//其他第三方库依赖
-	implementation("moe.forpleuvoir.nebula:common:$nebulaVersion")
-	implementation("moe.forpleuvoir.nebula:serialization:$nebulaVersion")
-	implementation("moe.forpleuvoir.nebula:config:$nebulaVersion")
-	include("moe.forpleuvoir.nebula:config:$nebulaVersion:shadow")
-	implementation(include("moe.forpleuvoir.nebula:event:$nebulaVersion")!!)
 
 }
 

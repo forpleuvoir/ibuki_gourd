@@ -55,7 +55,7 @@ object ClientModConfigHandler : ModConfigHandler {
 
 	@Subscriber
 	fun stop(event: ClientLifecycleEvent.ClientStopEvent) {
-		log.info("save client savable...")
+		log.info("client mod config saving...")
 		save()
 	}
 

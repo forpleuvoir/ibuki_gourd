@@ -71,7 +71,7 @@ object ServerModConfigHandler : ModConfigHandler {
 	@Subscriber
 	@Suppress("unused")
 	fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
-		log.info("save server mod config...")
+		log.info("server mod config saving...")
 		save()
 	}
 

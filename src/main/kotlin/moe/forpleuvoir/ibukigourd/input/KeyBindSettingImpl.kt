@@ -2,9 +2,10 @@ package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.logger
+import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import moe.forpleuvoir.nebula.serialization.json.toJsonStr
+import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAsJson
 
 class KeyBindSettingImpl(
 	override var environment: KeyEnvironment = KeyEnvironment.InGame,
@@ -50,9 +51,10 @@ class KeyBindSettingImpl(
 		}.onFailure { log.error(it) }
 	}
 
+	@OptIn(ExperimentalApi::class)
 	override fun matched(regex: Regex): Boolean {
 		return regex.run {
-			containsMatchIn(serialization().toJsonStr())
+			containsMatchIn(serialization().dumpAsJson(true))
 		}
 	}
 

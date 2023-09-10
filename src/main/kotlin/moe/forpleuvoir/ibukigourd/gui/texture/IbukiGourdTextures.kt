@@ -6,9 +6,10 @@ import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.resources
+import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
-import moe.forpleuvoir.nebula.serialization.json.jsonStringToObject
+import moe.forpleuvoir.nebula.serialization.json.JsonParser
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener
 import net.minecraft.resource.ResourceManager
@@ -34,24 +35,24 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 
 	override fun getFabricId(): Identifier = resources("widget")
 
+	@OptIn(ExperimentalApi::class)
 	override fun reload(manager: ResourceManager) {
 		log.info("widget textures loading...")
 		runCatching {
 			manager.getResource(TEXTURE_INFO_RESOURCES).ifPresent { resource ->
-				CharStreams.toString(resource.inputStream.reader())
-					.jsonStringToObject().apply {
-						this.javaClass.declaredFields
-							.asSequence()
-							.filter { field ->
-								field.type.kotlin.isSubclassOf(WidgetTexture::class)
-							}.forEach { widgetTexture ->
-								widgetTexture.isAccessible = true
-								val name = widgetTexture.name
-								val oldValue = widgetTexture.get(IbukiGourdTextures) as WidgetTexture
-								val newValue = WidgetTexture.deserialization(this[name], oldValue)
-								if (oldValue != newValue) widgetTexture.set(IbukiGourdTextures, newValue)
-							}
-					}
+				JsonParser.parse(CharStreams.toString(resource.inputStream.reader())).asObject.apply {
+					this.javaClass.declaredFields
+						.asSequence()
+						.filter { field ->
+							field.type.kotlin.isSubclassOf(WidgetTexture::class)
+						}.forEach { widgetTexture ->
+							widgetTexture.isAccessible = true
+							val name = widgetTexture.name
+							val oldValue = widgetTexture.get(IbukiGourdTextures) as WidgetTexture
+							val newValue = WidgetTexture.deserialization(this[name], oldValue)
+							if (oldValue != newValue) widgetTexture.set(IbukiGourdTextures, newValue)
+						}
+				}
 			}
 		}.onFailure { log.error("widget textures load fail", it) }
 	}
