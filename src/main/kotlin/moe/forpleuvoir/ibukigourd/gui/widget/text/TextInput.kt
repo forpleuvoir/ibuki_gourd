@@ -4,6 +4,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -18,6 +20,7 @@ import net.minecraft.text.Style
 import net.minecraft.util.Util
 import kotlin.math.abs
 
+@Suppress("MemberVisibilityCanBePrivate", "Unused")
 class TextInput(private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer) : ClickableElement() {
 
 	override val focusable: Boolean = true
@@ -225,9 +228,7 @@ class TextInput(private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigo
 	}
 
 	override fun onKeyPress(keyCode: KeyCode): NextAction {
-		if (!this.isActive) {
-			return NextAction.Continue
-		}
+		if (!this.isActive) return NextAction.Continue
 		selecting = Screen.hasShiftDown()
 		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
 			setCursorToEnd()
@@ -305,4 +306,34 @@ class TextInput(private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigo
 		get() {
 			return visible && focused && editable
 		}
+
+	override fun onCharTyped(chr: Char): NextAction {
+		if (!isActive) return NextAction.Continue
+		if (SharedConstants.isValidChar(chr)) {
+			if (editable) {
+				write(chr.toString())
+			}
+			return NextAction.Cancel
+		}
+		return NextAction.Continue
+	}
+
+	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+		val i = (mouseX - this.transform.x).toInt()
+		val rect = contentRect(true)
+		val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), rect.width.toInt())
+		cursor = textRenderer.trimToWidth(string, i).length + firstCharacterIndex
+		return NextAction.Cancel
+	}
+
+	override fun onRender(renderContext: RenderContext) {
+		if (!isActive) return
+		val rect = contentRect(true)
+		val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), rect.width.toInt())
+		val cursorX = textRenderer.trimToWidth(string.substring(0, cursor - firstCharacterIndex), rect.width.toInt()).length
+		val cursorY = textRenderer.fontHeight
+		val cursorWidth = textRenderer.trimToWidth(" ", 1)
+		super.onRender(renderContext)
+	}
+
 }

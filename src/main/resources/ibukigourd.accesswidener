@@ -3,6 +3,10 @@ extendable method net/minecraft/text/MutableText <init> (Lnet/minecraft/text/Tex
 accessible method net/minecraft/text/Style <init> (Lnet/minecraft/text/TextColor;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/text/ClickEvent;Lnet/minecraft/text/HoverEvent;Ljava/lang/String;Lnet/minecraft/util/Identifier;)V
 extendable method net/minecraft/text/TranslatableTextContent updateTranslations ()V
 extendable method net/minecraft/text/TranslatableTextContent forEachPart (Ljava/lang/String;Ljava/util/function/Consumer;)V
+accessible method net/minecraft/client/font/TextRenderer tweakTransparency (I)I
+accessible method net/minecraft/client/font/TextRenderer drawLayer (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)F
+accessible method net/minecraft/client/font/TextRenderer drawLayer (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)F
+accessible method net/minecraft/client/font/TextRenderer drawInternal (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I
 accessible field net/minecraft/text/TranslatableTextContent languageCache Lnet/minecraft/util/Language;
 accessible field net/minecraft/text/TranslatableTextContent translations Ljava/util/List;
 accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;

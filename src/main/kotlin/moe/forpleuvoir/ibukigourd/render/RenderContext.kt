@@ -6,8 +6,11 @@ import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.math.MatrixStack
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-
+@OptIn(ExperimentalContracts::class)
 class RenderContext(
 	val client: MinecraftClient = mc,
 	val matrixStack: MatrixStack = MatrixStack(),
@@ -15,7 +18,9 @@ class RenderContext(
 	val tickDelta: Float
 ) {
 
+
 	inline fun matrixStack(action: RenderContext.() -> Unit) {
+		contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
 		matrixStack.push()
 		action()
 		matrixStack.pop()
@@ -37,12 +42,14 @@ class RenderContext(
 	}
 
 	inline fun scissor(rect: Rectangle<Vector3<Float>>, action: RenderContext.() -> Unit) {
+		contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
 		enableScissor(rect)
 		action()
 		disableScissor()
 	}
 
 	inline fun scissorOffset(offset: Vector3<Float>, action: RenderContext.() -> Unit) {
+		contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
 		scissorStack.pushOffset(offset)
 		action()
 		scissorStack.popOffset()
@@ -50,6 +57,7 @@ class RenderContext(
 	}
 
 	inline fun scissor(rect: Rectangle<Vector3<Float>>, offset: Vector3<Float>, action: RenderContext.() -> Unit) {
+		contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
 		scissorStack.pushOffset(offset)
 		enableScissor(rect)
 		action()

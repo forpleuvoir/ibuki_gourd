@@ -16,9 +16,9 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 
 open class Button(
+	public override var onClick: () -> NextAction = { NextAction.Continue },
+	public override var onRelease: () -> NextAction = { NextAction.Continue },
 	var color: () -> ARGBColor = { COLOR },
-	override var onClick: () -> NextAction = { NextAction.Continue },
-	override var onRelease: () -> NextAction = { NextAction.Continue },
 	val height: Float = HEIGHT.toFloat(),
 	var theme: ButtonTheme = TEXTURE
 ) : ClickableElement() {
@@ -27,6 +27,18 @@ open class Button(
 		transform.height = 16f
 		padding(PADDING)
 	}
+
+	var click: () -> Unit
+		set(value) {
+			onClick = {
+				value()
+				NextAction.Cancel
+			}
+		}
+		@Deprecated("do not call")
+		get() {
+			throw UnsupportedOperationException("")
+		}
 
 	override fun onRender(renderContext: RenderContext) {
 		if (!visible) return
@@ -48,10 +60,10 @@ open class Button(
 }
 
 fun ElementContainer.button(
-	color: () -> ARGBColor = { COLOR },
 	onClick: () -> NextAction = { NextAction.Continue },
 	onRelease: () -> NextAction = { NextAction.Continue },
+	color: () -> ARGBColor = { COLOR },
 	height: Float = HEIGHT.toFloat(),
 	theme: ButtonTheme = TEXTURE,
 	scope: Button.() -> Unit = {}
-): Button = addElement(Button(color, onClick, onRelease, height, theme).apply(scope))
+): Button = addElement(Button(onClick, onRelease, color, height, theme).apply(scope))

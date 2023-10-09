@@ -24,7 +24,6 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertexImpl
 import moe.forpleuvoir.ibukigourd.render.base.vertex.UVVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.ibukigourd.util.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.*
@@ -35,7 +34,9 @@ import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
 import net.minecraft.client.render.LightmapTextureManager.MAX_LIGHT_COORDINATE
+import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.text.OrderedText
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
 import java.util.function.Supplier
@@ -751,7 +752,6 @@ fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture:
  * @param y Number
  * @param shadow Boolean
  * @param layerType [TextLayerType]
- * @param rightToLeft Boolean
  * @param color ARGBColor
  * @param backgroundColor Color
  */
@@ -762,26 +762,117 @@ fun TextRenderer.renderText(
 	y: Number,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	VertexConsumerProvider.immediate(bufferBuilder).let {
-		draw(text.string, x.toFloat(), y.toFloat(), color.rgb, shadow, matrixStack.peek().positionMatrix, it, layerType, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft)
-		it.draw()
-	}
+	this.draw(
+		ReorderingUtil.reorder(text, rightToLeft),
+		x.toFloat(),
+		y.toFloat(),
+		color.argb,
+		shadow,
+		matrixStack.peek().positionMatrix,
+		VertexConsumerProvider.immediate(bufferBuilder),
+		layerType,
+		backgroundColor.argb,
+		MAX_LIGHT_COORDINATE
+	)
+	bufferBuilder.draw()
+}
+
+fun TextRenderer.renderText(
+	matrixStack: MatrixStack,
+	text: OrderedText,
+	x: Number,
+	y: Number,
+	shadow: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
+	color: ARGBColor = Color(0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+) {
+	this.draw(
+		text,
+		x.toFloat(),
+		y.toFloat(),
+		color.argb,
+		shadow,
+		matrixStack.peek().positionMatrix,
+		VertexConsumerProvider.immediate(bufferBuilder),
+		layerType,
+		backgroundColor.argb,
+		MAX_LIGHT_COORDINATE,
+	)
+	bufferBuilder.draw()
+}
+
+fun TextRenderer.renderText(
+	matrixStack: MatrixStack,
+	text: String,
+	x: Number,
+	y: Number,
+	shadow: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
+	rightToLeft: Boolean = this.isRightToLeft,
+	color: ARGBColor = Color(0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+) {
+	this.draw(
+		text,
+		x.toFloat(),
+		y.toFloat(),
+		color.argb,
+		shadow,
+		matrixStack.peek().positionMatrix,
+		VertexConsumerProvider.immediate(bufferBuilder),
+		layerType,
+		backgroundColor.argb,
+		MAX_LIGHT_COORDINATE,
+		rightToLeft
+	)
+	bufferBuilder.draw()
 }
 
 /**
  * 渲染对齐文本
+ * @receiver TextRenderer
  * @param matrixStack MatrixStack
- * @param text Text
- * @param rect Rectangle
- * @param align Alignment
+ * @param text String
+ * @param rect Rectangle<Vector3<Float>>
+ * @param align (Arrangement) -> Alignment
  * @param shadow Boolean
+ * @param layerType TextRenderer.TextLayerType
  * @param rightToLeft Boolean
  * @param color ARGBColor
- * @param backgroundColor Color
+ * @param backgroundColor ARGBColor
+ */
+inline fun TextRenderer.renderAlignmentText(
+	matrixStack: MatrixStack,
+	text: String,
+	rect: Rectangle<Vector3<Float>>,
+	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+	shadow: Boolean = false,
+	layerType: TextLayerType = TextLayerType.NORMAL,
+	rightToLeft: Boolean = this.isRightToLeft,
+	color: ARGBColor = Color(0x000000),
+	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+) {
+	val textWidth = getWidth(text)
+	val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textWidth, fontHeight))
+	renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
+}
+
+/**
+ * 渲染对齐文本
+ * @receiver TextRenderer
+ * @param matrixStack MatrixStack
+ * @param text Text
+ * @param rect Rectangle<Vector3<Float>>
+ * @param align (Arrangement) -> Alignment
+ * @param shadow Boolean
+ * @param layerType TextRenderer.TextLayerType
+ * @param color ARGBColor
+ * @param backgroundColor ARGBColor
  */
 inline fun TextRenderer.renderAlignmentText(
 	matrixStack: MatrixStack,
@@ -790,7 +881,7 @@ inline fun TextRenderer.renderAlignmentText(
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
@@ -807,7 +898,6 @@ inline fun TextRenderer.renderAlignmentText(
  * @param align Alignment
  * @param shadow Boolean
  * @param layerType [TextLayerType]
- * @param rightToLeft Boolean
  * @param color ARGBColor
  * @param backgroundColor Color
  */
@@ -818,7 +908,7 @@ inline fun TextRenderer.renderAlignmentText(
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) = renderAlignmentText(matrixStack, text, transform.asWorldRect, align, shadow, layerType, rightToLeft, color, backgroundColor)
@@ -829,11 +919,11 @@ inline fun TextRenderer.renderAlignmentText(
  * @receiver TextRenderer
  * @param matrixStack MatrixStack
  * @param string String
- * @param rect Rectangle
+ * @param rect Rectangle<Vector3<Float>>
  * @param lineSpacing Number
- * @param align HorizontalAlignment
+ * @param align (Arrangement) -> Alignment
  * @param shadow Boolean
- * @param layerType [TextLayerType]
+ * @param layerType TextRenderer.TextLayerType
  * @param rightToLeft Boolean
  * @param color ARGBColor
  * @param backgroundColor ARGBColor
@@ -846,14 +936,14 @@ inline fun TextRenderer.renderStringLines(
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Colors.BLACK,
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (text in string.wrapToLines(this, rect.width.toInt())) {
 		renderAlignmentText(
-			matrixStack, literal(text),
+			matrixStack, text,
 			rect(Vector3f(0f, top, 0f), rect.width, this.fontHeight), align,
 			shadow, layerType, rightToLeft, color, backgroundColor
 		)
@@ -883,14 +973,14 @@ inline fun TextRenderer.renderStringLines(
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Colors.BLACK,
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (text in lines.wrapToLines(this, rect.width.toInt())) {
 		renderAlignmentText(
-			matrixStack, literal(text),
+			matrixStack, text,
 			rect(Vector3f(0f, top, 0f), rect.width, this.fontHeight), align,
 			shadow, layerType, rightToLeft, color, backgroundColor
 		)
@@ -920,14 +1010,14 @@ inline fun TextRenderer.renderTextLines(
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	var top: Float = rect.top
 	for (t in text.wrapToTextLines(this, rect.width.toInt())) {
 		renderAlignmentText(
-			matrixStack, t,
+			matrixStack, text,
 			rect(Vector3f(0f, top, 0f), rect.width, this.fontHeight), align,
 			shadow, layerType, rightToLeft, color, backgroundColor
 		)
@@ -958,7 +1048,7 @@ inline fun TextRenderer.renderTextLines(
 	align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
-	rightToLeft: Boolean = false,
+	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(lines[0].style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {

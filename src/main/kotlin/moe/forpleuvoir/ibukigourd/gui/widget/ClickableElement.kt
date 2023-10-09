@@ -15,9 +15,9 @@ abstract class ClickableElement : AbstractElement() {
 	 */
 	open var pressed: Boolean = false
 
-	open var onClick: () -> NextAction = { NextAction.Continue }
+	protected open val onClick: () -> NextAction = { NextAction.Continue }
 
-	open var onRelease: () -> NextAction = { NextAction.Continue }
+	protected open val onRelease: () -> NextAction = { NextAction.Continue }
 
 	var playClickSound: Boolean = true
 
