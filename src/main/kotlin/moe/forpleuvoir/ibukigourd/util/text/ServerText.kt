@@ -12,7 +12,7 @@ class ServerText(
 	style: Style = Style.EMPTY,
 ) : Text(content, list, style) {
 
-	constructor(key: String, fallback: String? = null, vararg args: Any) : this(ServerTranslatableContents(key, null, *args))
+	constructor(key: String, fallback: String? = null, vararg args: Any) : this(ServerTranslatableContents(key, fallback, *args))
 
 	constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
 

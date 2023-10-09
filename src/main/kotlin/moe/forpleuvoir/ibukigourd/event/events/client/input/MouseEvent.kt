@@ -25,9 +25,7 @@ class MouseEvent {
 		@JvmField
 		val env: KeyEnvironment = currentEnv(),
 	) : CancellableEvent {
-
 		override var canceled: Boolean = false
-
 	}
 
 	class MouseScrollEvent(

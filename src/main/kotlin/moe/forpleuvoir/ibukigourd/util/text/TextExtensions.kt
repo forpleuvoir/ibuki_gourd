@@ -13,97 +13,90 @@ fun translatable(key: String): Text = Text.translatable(key)
 fun serverText(key: String, fallback: String? = null, vararg args: Any): ServerText = ServerText(key, fallback, *args)
 
 fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRender): Int {
-	var temp = 0
-	for (s in this) {
-		if (temp < textRenderer.getWidth(s))
-			temp = textRenderer.getWidth(s)
-	}
-	return temp
+    var temp = 0
+    for (s in this) {
+        if (temp < textRenderer.getWidth(s))
+            temp = textRenderer.getWidth(s)
+    }
+    return temp
 }
 
 @JvmName("maxTextWidth")
 fun Collection<Text>.maxWidth(textRenderer: TextRenderer = tRender): Int {
-	var temp = 0
-	for (t in this) {
-		if (temp < textRenderer.getWidth(t))
-			temp = textRenderer.getWidth(t)
-	}
-	return temp
+    var temp = 0
+    for (t in this) {
+        if (temp < textRenderer.getWidth(t))
+            temp = textRenderer.getWidth(t)
+    }
+    return temp
 }
 
 fun String.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<String> {
-	val texts: LinkedList<String> = LinkedList()
-	var temp = StringBuilder()
-	for (element in this) {
-		run {
-			if (element != '\n') {
-				if (width <= 0) return@run
-				if (textRenderer.getWidth(temp.toString() + element) <= width) return@run
-			}
-			texts.add(temp.toString())
-			temp = StringBuilder()
-		}
-		if (element != '\n') {
-			temp.append(element)
-		}
-	}
-	texts.add(temp.toString())
-	return texts
+    val texts: LinkedList<String> = LinkedList()
+    var temp = StringBuilder()
+    for (element in this) {
+        run {
+            if (element != '\n') {
+                if (width <= 0) return@run
+                if (textRenderer.getWidth(temp.toString() + element) <= width) return@run
+            }
+            texts.add(temp.toString())
+            temp = StringBuilder()
+        }
+        if (element != '\n') {
+            temp.append(element)
+        }
+    }
+    texts.add(temp.toString())
+    return texts
 }
 
 fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<String> {
-	val texts: LinkedList<String> = LinkedList()
-	for (text in this) {
-		texts.addAll(text.wrapToLines(textRenderer, width))
-	}
-	return texts
+    return buildList {
+        for (text in this@wrapToLines) {
+            addAll(text.wrapToLines(textRenderer, width))
+        }
+    }
 }
 
-fun Text.wrapToTextLines(
-	textRenderer: TextRenderer = tRender,
-	width: Int = 0
-): List<Text> {
-	val texts: LinkedList<Text> = LinkedList()
-	this.string.wrapToLines(textRenderer, width).forEach { texts.add(literal(it)) }
-	return texts
+fun Text.wrapToTextLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<Text> {
+    return this.plainText
+            .wrapToLines(textRenderer, width)
+            .map { literal(it).style { this.style } }
 }
 
-fun Collection<Text>.wrapToTextLines(
-	textRenderer: TextRenderer = tRender,
-	width: Int = 0
-): List<Text> {
-	val texts: LinkedList<Text> = LinkedList()
-	for (text in this) {
-		texts.addAll(text.wrapToTextLines(textRenderer, width))
-	}
-	return texts
+fun Collection<Text>.wrapToTextLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<Text> {
+    return buildList {
+        for (text in this@wrapToTextLines) {
+            addAll(text.wrapToTextLines(textRenderer, width))
+        }
+    }
 }
 
 fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRender, width: Int = 0): String {
-	val sb = StringBuilder()
-	this.forEachIndexed { index, text ->
-		val wrapToLines = text.wrapToLines(textRenderer, width)
-		wrapToLines.forEachIndexed { i, t ->
-			sb.append(t)
-			if (i != wrapToLines.size - 1) sb.append("\n")
-		}
-		if (index != this.size - 1) sb.append("\n")
-	}
-	return sb.toString()
+    return buildString {
+        this@wrapToSingle.forEachIndexed { index, text ->
+            text.wrapToLines(textRenderer, width).let {
+                it.forEachIndexed { i, t ->
+                    append(t)
+                    if (i != it.size - 1) append("\n")
+                }
+            }
+            if (index != this@wrapToSingle.size - 1) append("\n")
+        }
+    }
 }
 
-fun List<Text>.wrapToSingleText(
-	textRenderer: TextRenderer = tRender,
-	width: Int = 0
-): Text {
-	val sb = StringBuilder()
-	this.forEachIndexed { index, text ->
-		val wrapToLines = text.wrapToTextLines(textRenderer, width)
-		wrapToLines.forEachIndexed { i, t ->
-			sb.append(t.string)
-			if (i != wrapToLines.size - 1) sb.append("\n")
-		}
-		if (index != this.size - 1) sb.append("\n")
-	}
-	return literal(sb.toString())
+fun List<Text>.wrapToSingleText(textRenderer: TextRenderer = tRender, width: Int = 0): Text {
+    return literal(buildString {
+        this@wrapToSingleText.forEachIndexed { index, text ->
+            text.wrapToTextLines(textRenderer, width).let {
+                it.forEachIndexed { i, t ->
+                    append(t.string)
+                    if (i != it.size - 1) append("\n")
+                }
+            }
+            if (index != this@wrapToSingleText.size - 1) append("\n")
+        }
+    })
 }

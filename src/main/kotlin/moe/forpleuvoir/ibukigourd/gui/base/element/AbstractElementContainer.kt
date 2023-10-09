@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
-abstract class AbstractElementContainer : ElementContainer, Element {
+abstract class AbstractElementContainer : Element {
 
 
 	override var init: () -> Unit = ::init

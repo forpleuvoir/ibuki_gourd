@@ -766,12 +766,10 @@ fun TextRenderer.renderText(
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	val immediate = VertexConsumerProvider.immediate(bufferBuilder)
-	draw(
-		text.string, x.toFloat(), y.toFloat(), color.rgb, shadow, matrixStack.peek().positionMatrix,
-		immediate, layerType, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft
-	)
-	immediate.draw()
+	VertexConsumerProvider.immediate(bufferBuilder).let {
+		draw(text.string, x.toFloat(), y.toFloat(), color.rgb, shadow, matrixStack.peek().positionMatrix, it, layerType, backgroundColor.argb, MAX_LIGHT_COORDINATE, rightToLeft)
+		it.draw()
+	}
 }
 
 /**
