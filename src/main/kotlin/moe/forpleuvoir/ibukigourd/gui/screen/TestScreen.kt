@@ -35,6 +35,15 @@ fun testScreen() {
 				false,
 				color = Colors.WHITE
 			)
+			textRenderer.renderAlignmentText(
+				it.matrixStack,
+				"测试镜像",
+				rect,
+				align = PlanarAlignment::BottomRight,
+				false,
+				rightToLeft = true,
+				color = Colors.WHITE
+			)
 //			renderCrossHairs(matrixStack, rect.center.x, rect.center.y)
 			renderOutline(it.matrixStack, rect, Colors.RED.opacity(0.5f))
 //			renderCrossHairs(matrixStack, mouseX, mouseY)
@@ -44,11 +53,11 @@ fun testScreen() {
 				if (i % 2 == 0)
 					button { textField({ "按钮$i" }) }
 				else
-					button { textField("按钮$i", rightToLeft = true) }
+					button { textField("按钮$i 啊", rightToLeft = true) }
 			}
 		}
 		scroller(200f, 10f, { 0f }, { 0f }, { 1f }, Arrangement.Horizontal)
-		list(240f, 0f, Arrangement.Horizontal, showScroller = false, showBackground = false, padding = 0f) {
+		list(240f, 0f, Arrangement.Horizontal, showScroller = true, showBackground = true) {
 			for (i in 0..10) {
 				button { textField("水平按钮$i") }
 			}
