@@ -114,5 +114,8 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 	var LIST_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 32, 0, 48, 16, TEXTURE_INFO)
 		private set
 
+	var TEXT_INPUT: WidgetTexture = WidgetTexture(Corner(4), 32, 0, 48, 16, TEXTURE_INFO)
+		private set
+
 }
 

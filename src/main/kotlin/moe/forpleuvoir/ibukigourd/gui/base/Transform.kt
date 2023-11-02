@@ -1,4 +1,5 @@
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
+@file:OptIn(ExperimentalContracts::class)
 
 package moe.forpleuvoir.ibukigourd.gui.base
 
@@ -11,6 +12,9 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.util.mouseX
 import moe.forpleuvoir.ibukigourd.util.mouseY
 import moe.forpleuvoir.nebula.common.ifc
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * 变换青春版
@@ -178,13 +182,23 @@ class Transform(
  * 当鼠标位于此元素[Transform]内部时调用
  * @param action [@kotlin.ExtensionFunctionType] Function1<Element, Unit>
  */
-inline fun Transform.mouseHover(action: Transform.() -> Unit) = isMouseOvered(mouseX, mouseY).ifc { action() }
+inline fun Transform.mouseHover(action: Transform.() -> Unit) {
+	contract {
+		callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+	}
+	isMouseOvered(mouseX, mouseY).ifc { action() }
+}
 
 /**
  * 当鼠标位于此元素内部时调用
  * @param action [@kotlin.ExtensionFunctionType] Function1<Element, Unit>
  */
-inline fun Element.mouseHover(action: Element.() -> Unit) = transform.isMouseOvered(mouseX, mouseY).ifc { action() }
+inline fun Element.mouseHover(action: Element.() -> Unit) {
+	contract {
+		callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+	}
+	transform.isMouseOvered(mouseX, mouseY).ifc { action() }
+}
 
 /**
  * 鼠标是否在此元素内

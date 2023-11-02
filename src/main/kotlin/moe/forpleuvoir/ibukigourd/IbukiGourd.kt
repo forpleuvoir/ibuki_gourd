@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd
 
-import com.llamalad7.mixinextras.MixinExtrasBootstrap
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerCommandRegisterEvent
 import moe.forpleuvoir.ibukigourd.util.loader
@@ -21,7 +20,6 @@ object IbukiGourd : ModInitializer {
 	val metadata: ModMetadata get() = loader.getModContainer(MOD_ID).get().metadata
 
 	override fun onInitialize() {
-		MixinExtrasBootstrap.init()
 		loader.getModContainer(MOD_ID).ifPresent {
 			EventBus.broadcast(ModInitializerEvent(it.metadata))
 		}

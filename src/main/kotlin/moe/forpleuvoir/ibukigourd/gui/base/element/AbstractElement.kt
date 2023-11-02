@@ -89,6 +89,11 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 			dragging = true
 			if (focusable) screen()?.let { it.focusedElement = this }
 		}
+		if (!mouseHover()) {
+			screen()?.let {
+				if (it.focusedElement == this) it.focusedElement = null
+			}
+		}
 		for (element in handleTree) {
 			if (element.mouseClick(mouseX, mouseY, button) == NextAction.Cancel)
 				return NextAction.Cancel

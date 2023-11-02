@@ -1,4 +1,5 @@
 @file:Suppress("unused")
+@file:OptIn(ExperimentalContracts::class)
 
 package moe.forpleuvoir.ibukigourd.util
 
@@ -16,7 +17,8 @@ import net.minecraft.client.texture.TextureManager
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.util.Identifier
-import java.util.function.Function
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
@@ -75,7 +77,11 @@ val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
 
+
 inline fun isDevEnv(action: () -> Unit) {
+	contract {
+		callsInPlace(action, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+	}
     if (isDevEnv) action()
 }
 
