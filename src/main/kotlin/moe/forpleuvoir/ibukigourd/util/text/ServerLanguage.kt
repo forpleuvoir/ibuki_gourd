@@ -4,7 +4,6 @@ import com.google.common.collect.Lists
 import com.google.gson.JsonObject
 import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.text.ArabicShaping
-import com.ibm.icu.text.ArabicShapingException
 import com.ibm.icu.text.Bidi
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent

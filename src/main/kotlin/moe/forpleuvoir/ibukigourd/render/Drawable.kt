@@ -19,8 +19,7 @@ interface Drawable {
 
 	/**
 	 * 渲染
-	 * @param renderContext MatrixStack
-	 * @param delta Float
+	 * @param renderContext [RenderContext]
 	 */
 	fun onRender(renderContext: RenderContext)
 

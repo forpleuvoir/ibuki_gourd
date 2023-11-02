@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.config
 
+import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -58,9 +59,13 @@ object ServerModConfigHandler : ModConfigHandler {
 				instance.init(event.server)
 				log.info("[${modMeta.id} - ${annotation.name}]server config init")
 				runCatching {
-					instance.load()
+					runBlocking {
+						instance.load()
+					}
 				}.onFailure {
-					instance.forceSave()
+					runBlocking {
+						instance.forceSave()
+					}
 					log.error(it)
 				}
 				configManagers["${modMeta.id} - ${annotation.name}"] = instance
@@ -72,7 +77,9 @@ object ServerModConfigHandler : ModConfigHandler {
 	@Suppress("unused")
 	fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
 		log.info("server mod config saving...")
-		save()
+		runBlocking {
+			save()
+		}
 	}
 
 	@Subscriber

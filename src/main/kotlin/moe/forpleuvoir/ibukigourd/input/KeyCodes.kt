@@ -30,7 +30,7 @@ interface KeyCode {
 
         @JvmStatic
         val UNKNOWN: KeyCode = object : KeyCode {
-            override val code: Int = 0
+            override val code: Int = -1
             override val translationKey: String
                 get() = "key.keyboard.unknown"
         }

@@ -4,7 +4,7 @@ interface ModConfigHandler {
 
 	val managers: Iterable<ModConfigManager>
 
-	fun save() {
+	suspend fun save() {
 		managers.forEach { it.save() }
 	}
 
@@ -12,7 +12,7 @@ interface ModConfigHandler {
 		managers.forEach { it.saveAsync() }
 	}
 
-	fun load() {
+	suspend fun load() {
 		managers.forEach { it.load() }
 	}
 

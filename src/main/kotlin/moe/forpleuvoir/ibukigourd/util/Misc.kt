@@ -13,8 +13,10 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.sound.SoundManager
 import net.minecraft.client.texture.TextureManager
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.util.Identifier
+import java.util.function.Function
 import kotlin.reflect.KClass
 
 val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
@@ -37,84 +39,96 @@ fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpac
 internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
 
 fun MinecraftClient.sendMessage(message: String) {
-	this.player?.networkHandler?.let {
-		if (message.startsWith("/"))
-			it.sendChatCommand(message)
-		else
-			it.sendChatMessage(message)
-	}
+    this.player?.networkHandler?.let {
+        if (message.startsWith("/"))
+            it.sendChatCommand(message)
+        else
+            it.sendChatMessage(message)
+    }
 }
 
 fun MinecraftClient.chatMessage(message: net.minecraft.text.Text) {
-	inGameHud.chatHud.addMessage(message)
+    inGameHud.chatHud.addMessage(message)
 }
 
 fun MinecraftClient.chatMessage(message: String) {
-	chatMessage(literal(message))
+    chatMessage(literal(message))
 }
 
 fun MinecraftClient.overlayMessage(message: net.minecraft.text.Text, tinted: Boolean = false) {
-	this.inGameHud.setOverlayMessage(message, tinted)
+    this.inGameHud.setOverlayMessage(message, tinted)
 }
 
 fun MinecraftClient.overlayMessage(message: String, tinted: Boolean = false) {
-	this.inGameHud.setOverlayMessage(literal(message), tinted)
+    this.inGameHud.setOverlayMessage(literal(message), tinted)
 }
 
 fun Any.logger(modName: String): ModLogger {
-	return ModLogger(this::class, modName)
+    return ModLogger(this::class, modName)
 }
 
 internal fun Any.logger(): ModLogger {
-	return ModLogger(this::class, IbukiGourd.MOD_NAME)
+    return ModLogger(this::class, IbukiGourd.MOD_NAME)
 }
 
 val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
 
-fun isDevEnv(action: () -> Unit) {
-	if (isDevEnv) action()
+inline fun isDevEnv(action: () -> Unit) {
+    if (isDevEnv) action()
 }
 
+fun MatrixStack.rest() {
+    if (!isEmpty) {
+        this.pop()
+        rest()
+    }
+}
+
+@JvmName("measureTime")
+fun javaMeasureTime(action: Runnable) =
+    kotlin.time.measureTime(action::run).let { it.toString() to it.inWholeNanoseconds }
+
+
 fun scanModPackage(predicate: (KClass<*>) -> Boolean = { true }): Map<ModMetadata, Set<KClass<*>>> {
-	val builder = ImmutableMap.builder<ModMetadata, Set<KClass<*>>>()
-	modPacks.forEach { (metadata, packs) ->
-		val set = ImmutableSet.builder<KClass<*>>()
-		packs.forEach {
-			set.addAll(scanPackage(it, predicate))
-		}
-		builder.put(metadata, set.build())
-	}
-	return builder.build()
+    val builder = ImmutableMap.builder<ModMetadata, Set<KClass<*>>>()
+    modPacks.forEach { (metadata, packs) ->
+        val set = ImmutableSet.builder<KClass<*>>()
+        packs.forEach {
+            set.addAll(scanPackage(it, predicate))
+        }
+        builder.put(metadata, set.build())
+    }
+    return builder.build()
 }
 
 val modPacks: Map<ModMetadata, Set<String>> by lazy {
-	ImmutableMap.builder<ModMetadata, Set<String>>().also { packs ->
-		loader.allMods.forEach {
-			val set = ImmutableSet.builder<String>()
-			it.metadata.customValues[IbukiGourd.MOD_ID]?.apply {
-				asObject.get("package")?.asArray?.onEach { value ->
-					set.add(value.asString)
-				}
-				packs.put(it.metadata, set.build())
-			}
-		}
-	}.build()
+    ImmutableMap.builder<ModMetadata, Set<String>>().also { packs ->
+        loader.allMods.forEach {
+            val set = ImmutableSet.builder<String>()
+            it.metadata.customValues[IbukiGourd.MOD_ID]?.apply {
+                asObject.get("package")?.asArray?.onEach { value ->
+                    set.add(value.asString)
+                }
+                packs.put(it.metadata, set.build())
+            }
+        }
+    }.build()
 }
 
 fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): List<KClass<*>> {
-	val list = ArrayList<KClass<*>>()
-	ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack).forEach {
-		runCatching {
-			val clazz = Class.forName(it.name).kotlin
-			clazz.java.declaredClasses.forEach { innerClass ->
-				if (predicate(innerClass.kotlin)) list.add(innerClass.kotlin)
-			}
-			if (predicate(clazz)) list.add(clazz)
-		}
-	}
-	return list
+    val list = ArrayList<KClass<*>>()
+    ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack).forEach {
+        runCatching {
+            val clazz = Class.forName(it.name).kotlin
+            clazz.java.declaredClasses.forEach { innerClass ->
+                if (predicate(innerClass.kotlin)) list.add(innerClass.kotlin)
+            }
+            if (predicate(clazz)) list.add(clazz)
+        }
+    }
+    return list
 }
 
 /**
@@ -127,14 +141,14 @@ fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Lis
  * @return Boolean
  */
 fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -> a == b }): Boolean {
-	return if (this.size == list.size) {
-		var isEquals = true
-		this.forEachIndexed loop@{ index, obj ->
-			if (!contrast(list[index]!!, obj)) {
-				isEquals = false
-				return@loop
-			}
-		}
-		isEquals
-	} else false
+    return if (this.size == list.size) {
+        var isEquals = true
+        this.forEachIndexed loop@{ index, obj ->
+            if (!contrast(list[index]!!, obj)) {
+                isEquals = false
+                return@loop
+            }
+        }
+        isEquals
+    } else false
 }

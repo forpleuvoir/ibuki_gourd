@@ -32,7 +32,7 @@ enum class KeyEnvironment(val key: String) {
 	}
 
 	val allOption: List<KeyEnvironment>
-		get() = values().toList()
+		get() = entries
 
 }
 

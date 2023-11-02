@@ -62,7 +62,7 @@ dependencies {
 
 }
 
-tasks.apply {
+tasks {
 
 	processResources {
 		inputs.property("version", version)

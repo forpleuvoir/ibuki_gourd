@@ -24,8 +24,6 @@ import moe.forpleuvoir.ibukigourd.util.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.Style
-import org.jetbrains.annotations.Contract
-import java.util.function.Supplier
 import kotlin.experimental.ExperimentalTypeInference
 
 

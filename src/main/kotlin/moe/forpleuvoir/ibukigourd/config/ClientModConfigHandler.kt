@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.config
 
+import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.scanModPackage
@@ -43,9 +44,13 @@ object ClientModConfigHandler : ModConfigHandler {
 					instance.init()
 					log.info("[${modMeta.id} - ${annotation.name}]client config init")
 					runCatching {
-						instance.load()
+						runBlocking {
+							instance.load()
+						}
 					}.onFailure {
-						instance.forceSave()
+						runBlocking {
+							instance.forceSave()
+						}
 						log.error(it)
 					}
 					configManagers["${modMeta.id} - ${annotation.name}"] = instance
@@ -56,7 +61,9 @@ object ClientModConfigHandler : ModConfigHandler {
 	@Subscriber
 	fun stop(event: ClientLifecycleEvent.ClientStopEvent) {
 		log.info("client mod config saving...")
-		save()
+		runBlocking {
+			save()
+		}
 	}
 
 }

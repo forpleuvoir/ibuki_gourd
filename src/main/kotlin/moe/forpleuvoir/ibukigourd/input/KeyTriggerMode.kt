@@ -32,7 +32,7 @@ enum class KeyTriggerMode(val key: String) {
 
 	companion object {
 		fun fromKey(key: String): KeyTriggerMode {
-			KeyTriggerMode.values().forEach {
+			entries.forEach {
 				if (it.key == key) return it
 			}
 			return OnRelease

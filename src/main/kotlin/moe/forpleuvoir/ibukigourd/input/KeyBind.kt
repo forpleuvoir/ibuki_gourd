@@ -7,7 +7,6 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.exactMatch
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.common.api.Notifiable
 import moe.forpleuvoir.nebula.common.api.Resettable
@@ -23,7 +22,7 @@ import java.util.*
 import java.util.function.Consumer
 
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 @Environment(EnvType.CLIENT)
 class KeyBind(
     vararg keyCodes: KeyCode,

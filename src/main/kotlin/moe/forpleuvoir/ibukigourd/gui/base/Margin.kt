@@ -48,7 +48,7 @@ data class Margin(
 				serializeElement.asArray.apply {
 					if (this.size == 2) {
 						return Margin(this[0].asNumber, this[1].asNumber)
-					} else if (this.size == +4) {
+					} else if (this.size == 4) {
 						return Margin(this[0].asFloat, this[1].asFloat, this[2].asFloat, this[3].asFloat)
 					}
 				}
