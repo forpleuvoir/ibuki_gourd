@@ -81,6 +81,7 @@ abstract class AbstractElementContainer : Element {
 	}
 
 	override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+		//TODO("耗时方法，待优化")
 		val top = if (isWorld) transform.worldTop + padding.top else padding.top
 		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
 		val left = if (isWorld) transform.worldLeft + padding.left else padding.left
@@ -111,6 +112,7 @@ abstract class AbstractElementContainer : Element {
 	}
 
 	override fun elementIndexOf(element: Element): Int = elements.indexOf(element)
+
 	override fun removeElement(element: Element): Boolean {
 		element.transform.parent = { null }
 		element.parent = { null }

@@ -443,6 +443,53 @@ fun renderOutlinedBox(
     )
 }
 
+fun batchDraw(
+    bufferBuilder: BufferBuilder,
+    matrix4f: Matrix4f,
+    shaderSupplier: () -> ShaderProgram?,
+    drawMode: VertexFormat.DrawMode,
+    format: VertexFormat,
+    drawAction: BatchDrawScope.() -> Unit
+) {
+    setShader(shaderSupplier)
+    bufferBuilder.begin(drawMode, format)
+    BatchDrawScope.bufferBuilder = bufferBuilder
+    BatchDrawScope.matrix4f = matrix4f
+    drawAction(BatchDrawScope)
+    bufferBuilder.draw()
+}
+
+object BatchDrawScope {
+
+    internal var bufferBuilder: BufferBuilder? = null
+
+    internal var matrix4f: Matrix4f? = null
+
+    fun drawTexture(
+        x: Number,
+        y: Number,
+        width: Number,
+        height: Number,
+        u: Int,
+        v: Int,
+        uSize: Int,
+        vSize: Int,
+        textureWidth: Int = 256,
+        textureHeight: Int = 256,
+        zOffset: Number = 0
+    ) {
+        bufferBuilder!!.vertex(matrix4f, x.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
+                .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+        bufferBuilder!!.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
+                .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+        bufferBuilder!!.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat(), zOffset.toFloat())
+                .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
+        bufferBuilder!!.vertex(matrix4f, x.toFloat(), y.toFloat(), zOffset.toFloat())
+                .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
+    }
+}
+
+
 /**
  * 绘制纹理
  * @param matrixStack MatrixStack
@@ -567,6 +614,7 @@ fun draw9Texture(
     textureHeight: Int = 256,
     zOffset: Number = 0
 ) {
+
     if (corner.left == 0 && corner.right == 0 && corner.top == 0 && corner.bottom == 0)
         drawTexture(matrixStack, x, y, width, height, u, v, uSize, vSize, textureWidth, textureHeight, zOffset)
 
@@ -598,24 +646,28 @@ fun draw9Texture(
     val rightX = x.toDouble() + (width.toDouble() - corner.right)
     val centerY = y.toDouble() + corner.top
     val bottomY = y.toDouble() + (height.toDouble() - corner.bottom)
-    //top left
-    drawTexture(matrixStack, x, y, corner.left, corner.top, u, v, corner.left, corner.top, textureWidth, textureHeight, zOffset)
-    //top center
-    drawTexture(matrixStack, centerX, y, cw, corner.top, centerU, v, crw, corner.top, textureWidth, textureHeight, zOffset)
-    //top right
-    drawTexture(matrixStack, rightX, y, corner.right, corner.top, rightU, v, corner.right, corner.top, textureWidth, textureHeight, zOffset)
-    //center left
-    drawTexture(matrixStack, x, centerY, corner.left, ch, u, centerV, corner.left, crh, textureWidth, textureHeight, zOffset)
-    //center
-    drawTexture(matrixStack, centerX, centerY, cw, ch, centerU, centerV, crw, crh, textureWidth, textureHeight, zOffset)
-    //center right
-    drawTexture(matrixStack, rightX, centerY, corner.right, ch, rightU, centerV, corner.right, crh, textureWidth, textureHeight, zOffset)
-    //bottom left
-    drawTexture(matrixStack, x, bottomY, corner.left, corner.bottom, u, bottomV, corner.left, corner.bottom, textureWidth, textureHeight, zOffset)
-    //bottom center
-    drawTexture(matrixStack, centerX, bottomY, cw, corner.bottom, centerU, bottomV, crw, corner.bottom, textureWidth, textureHeight, zOffset)
-    //bottom right
-    drawTexture(matrixStack, rightX, bottomY, corner.right, corner.bottom, rightU, bottomV, corner.right, corner.bottom, textureWidth, textureHeight, zOffset)
+    val matrix4f = matrixStack.peek().positionMatrix
+
+    batchDraw(bufferBuilder, matrix4f, GameRenderer::getPositionTexProgram, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE) {
+        //top left
+        drawTexture(x, y, corner.left, corner.top, u, v, corner.left, corner.top, textureWidth, textureHeight, zOffset)
+        //top center
+        drawTexture(centerX, y, cw, corner.top, centerU, v, crw, corner.top, textureWidth, textureHeight, zOffset)
+        //top right
+        drawTexture(rightX, y, corner.right, corner.top, rightU, v, corner.right, corner.top, textureWidth, textureHeight, zOffset)
+        //center left
+        drawTexture(x, centerY, corner.left, ch, u, centerV, corner.left, crh, textureWidth, textureHeight, zOffset)
+        //center
+        drawTexture(centerX, centerY, cw, ch, centerU, centerV, crw, crh, textureWidth, textureHeight, zOffset)
+        //center right
+        drawTexture(rightX, centerY, corner.right, ch, rightU, centerV, corner.right, crh, textureWidth, textureHeight, zOffset)
+        //bottom left
+        drawTexture(x, bottomY, corner.left, corner.bottom, u, bottomV, corner.left, corner.bottom, textureWidth, textureHeight, zOffset)
+        //bottom center
+        drawTexture(centerX, bottomY, cw, corner.bottom, centerU, bottomV, crw, corner.bottom, textureWidth, textureHeight, zOffset)
+        //bottom right
+        drawTexture(rightX, bottomY, corner.right, corner.bottom, rightU, bottomV, corner.right, corner.bottom, textureWidth, textureHeight, zOffset)
+    }
 }
 
 fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
@@ -861,8 +913,7 @@ inline fun TextRenderer.renderAlignmentText(
     color: ARGBColor = Color(0x000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    val textWidth = getWidth(text)
-    val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textWidth, fontHeight))
+    val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
     renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
@@ -889,8 +940,7 @@ inline fun TextRenderer.renderAlignmentText(
     color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    val textWidth = getWidth(text)
-    val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textWidth, fontHeight))
+    val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
     renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
