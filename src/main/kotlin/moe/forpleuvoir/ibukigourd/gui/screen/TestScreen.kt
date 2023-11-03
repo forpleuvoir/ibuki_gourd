@@ -5,12 +5,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textInput
-import moe.forpleuvoir.ibukigourd.render.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
+import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.mouseX
 import moe.forpleuvoir.ibukigourd.util.mouseY
@@ -19,7 +19,6 @@ import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.util.math.MatrixStack
-import org.spongepowered.asm.mixin.Unique
 
 var FRAME_TIME = 0.0
 

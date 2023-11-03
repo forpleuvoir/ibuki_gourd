@@ -16,7 +16,7 @@ import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.renderText
+import moe.forpleuvoir.ibukigourd.render.helper.renderText
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.ibukigourd.util.text.maxWidth

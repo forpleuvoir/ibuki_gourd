@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.render.base.Arrangement.Vertical
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle.Companion.inRect
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 
 /**

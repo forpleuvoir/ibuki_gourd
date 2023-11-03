@@ -16,10 +16,9 @@ import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle.Companion.inRect
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.renderTexture
+import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.util.clamp
 
@@ -148,7 +147,8 @@ class ListLayout(
 				)
 				element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
 				//TODO("导致所有元素全部消失，待修复")
-				element.visible = element.transform.asWorldRect.inRect(contentRect, false)
+				val a = element.transform.inRect(contentRect, false)
+				element.visible = a
 			}
 			return arrangement.switch({
 				Size.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height)

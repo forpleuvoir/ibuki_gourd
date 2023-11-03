@@ -10,11 +10,10 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.renderTexture
-import moe.forpleuvoir.ibukigourd.render.translate
+import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
+import moe.forpleuvoir.ibukigourd.render.helper.translate
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import kotlin.time.measureTime
 
 open class Button(
     public override var onClick: () -> NextAction = { NextAction.Continue },

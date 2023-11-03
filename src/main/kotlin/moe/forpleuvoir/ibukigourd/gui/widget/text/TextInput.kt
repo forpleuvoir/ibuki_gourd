@@ -13,9 +13,9 @@ import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.colorRect
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.renderAlignmentText
-import moe.forpleuvoir.ibukigourd.render.renderRect
-import moe.forpleuvoir.ibukigourd.render.renderTexture
+import moe.forpleuvoir.ibukigourd.render.helper.renderAlignmentText
+import moe.forpleuvoir.ibukigourd.render.helper.renderRect
+import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -33,7 +33,6 @@ import net.minecraft.text.Style
 import net.minecraft.util.Util
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.time.measureTime
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 class TextInput(private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer) : ClickableElement() {
