@@ -20,11 +20,11 @@ import net.minecraft.client.util.math.MatrixStack
 import org.joml.Matrix4f
 
 fun batchDraw(
-	bufferBuilder: BufferBuilder,
 	matrix4f: Matrix4f,
 	shaderSupplier: () -> ShaderProgram?,
 	drawMode: VertexFormat.DrawMode,
 	format: VertexFormat,
+	bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
 	drawAction: BatchDrawScope.() -> Unit
 ) {
 	setShader(shaderSupplier)
@@ -33,6 +33,8 @@ fun batchDraw(
 	BatchDrawScope.matrix4f = matrix4f
 	drawAction(BatchDrawScope)
 	bufferBuilder.draw()
+	BatchDrawScope.bufferBuilder = null
+	BatchDrawScope.matrix4f = null
 }
 
 object BatchDrawScope {
@@ -224,7 +226,7 @@ fun draw9Texture(
 	val bottomY = y.toDouble() + (height.toDouble() - corner.bottom)
 	val matrix4f = matrixStack.peek().positionMatrix
 
-	batchDraw(bufferBuilder, matrix4f, GameRenderer::getPositionTexProgram, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE) {
+	batchDraw(matrix4f, GameRenderer::getPositionTexProgram, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE) {
 		//top left
 		drawTexture(x, y, corner.left, corner.top, u, v, corner.left, corner.top, textureWidth, textureHeight, zOffset)
 		//top center

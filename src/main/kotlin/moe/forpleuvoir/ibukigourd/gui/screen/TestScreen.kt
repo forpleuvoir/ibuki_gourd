@@ -67,22 +67,24 @@ fun testScreen() {
         renderOverlay = {
             val rect = contentRect(false)
 
-            textRenderer.renderAlignmentText(
-                it.matrixStack,
-                literal("x:%.2f, y:%.2f".format(mouseX, mouseY)),
-                rect,
-                align = PlanarAlignment::BottomLeft,
-                false,
-                color = Colors.WHITE
-            )
-            textRenderer.renderAlignmentText(
-                it.matrixStack,
-                "%.2fms".format(FRAME_TIME/1000000),
-                rect,
-                align = PlanarAlignment::TopRight,
-                false,
-                color = Colors.WHITE
-            )
+            textRenderer.batchRenderText(it.matrixStack.peek().positionMatrix) {
+                renderAlignmentText(
+                    literal("x:%.2f, y:%.2f".format(mouseX, mouseY)),
+                    rect,
+                    align = PlanarAlignment::BottomLeft,
+                    false,
+                    color = Colors.WHITE
+                )
+                renderAlignmentText(
+                    "%.2fms".format(FRAME_TIME / 1000000),
+                    rect,
+                    align = PlanarAlignment::TopRight,
+                    false,
+                    color = Colors.WHITE
+                )
+            }
+
+
 //			renderCrossHairs(matrixStack, rect.center.x, rect.center.y)
             renderOutline(it.matrixStack, rect, Colors.RED.opacity(0.5f))
 //			renderCrossHairs(matrixStack, mouseX, mouseY)
