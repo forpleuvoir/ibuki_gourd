@@ -53,17 +53,17 @@ abstract class AbstractScreen(
 
 	override var close: () -> Unit = ::onClose
 
-	override val handleTree: List<Element>
+	override val handleElements: List<Element>
 		get() = buildList {
 			addAll(tipList.sortedByDescending { it.priority })
-			addAll(super.handleTree)
+			addAll(super.handleElements)
 		}
 
 
 	override fun onRender(renderContext: RenderContext) {
 		if (!visible) return
 		renderBackground.invoke(renderContext)
-		for (element in renderTree) element.render(renderContext)
+		for (element in renderElements) element.render(renderContext)
 		tipList.sortedBy { it.renderPriority }.forEach {
 			if (it.visible) it.render.invoke(renderContext)
 		}
@@ -77,7 +77,7 @@ abstract class AbstractScreen(
 	override fun onResize(width: Int, height: Int) {
 		this.transform.width = width.toFloat()
 		this.transform.height = height.toFloat()
-		layout.arrange(this.elements, this.margin, this.padding)
+		layout.arrange(this.subElements, this.margin, this.padding)
 	}
 
 	override var resize: (width: Int, height: Int) -> Unit = ::onResize

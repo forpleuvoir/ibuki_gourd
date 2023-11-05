@@ -41,7 +41,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override val focusable: Boolean = false
 
-    override var tip: Tip? = null
+    final override var tip: Tip? = null
         set(value) {
             if (value != null) {
                 this.addElement(value)
@@ -57,7 +57,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun tick() {
         if (!active) return
-        for (element in handleTree) element.tick.invoke()
+        for (element in handleElements) element.tick.invoke()
         tip?.tick?.invoke()
     }
 
@@ -66,7 +66,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
         renderBackground.invoke(renderContext)
-        for (element in renderTree) element.render(renderContext)
+        for (element in renderElements) element.render(renderContext)
         renderOverlay.invoke(renderContext)
     }
 
@@ -82,7 +82,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onMouseMove(mouseX: Float, mouseY: Float) {
         if (!active) return
-        for (element in handleTree) element.mouseMove(mouseX, mouseY)
+        for (element in handleElements) element.mouseMove(mouseX, mouseY)
     }
 
     override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMove
@@ -104,7 +104,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
                 }
             }
         }
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.mouseClick(mouseX, mouseY, button) == NextAction.Cancel)
                 return NextAction.Cancel
         }
@@ -116,7 +116,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (!active) return NextAction.Continue
         if (button == Mouse.LEFT) dragging = false
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.mouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
         }
         return NextAction.Continue
@@ -128,7 +128,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging) return NextAction.Continue
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
         }
         return NextAction.Continue
@@ -139,7 +139,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!active) return NextAction.Continue
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.mouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
         }
         return NextAction.Continue
@@ -149,7 +149,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onKeyPress(keyCode: KeyCode): NextAction {
         if (!active) return NextAction.Continue
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.keyPress(keyCode) == NextAction.Cancel) return NextAction.Cancel
         }
         return NextAction.Continue
@@ -159,7 +159,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onKeyRelease(keyCode: KeyCode): NextAction {
         if (!active) return NextAction.Continue
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.keyRelease(keyCode) == NextAction.Cancel) return NextAction.Cancel
         }
         return NextAction.Continue
@@ -169,7 +169,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onCharTyped(chr: Char): NextAction {
         if (!active) return NextAction.Continue
-        for (element in handleTree) {
+        for (element in handleElements) {
             if (element.charTyped(chr) == NextAction.Cancel) return NextAction.Cancel
         }
         return NextAction.Continue

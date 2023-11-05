@@ -21,11 +21,13 @@ interface ElementContainer : Initializable {
 	/**
 	 * 子元素
 	 */
-	val elementTree: List<Element>
+	val elements: List<Element>
 
-	val renderTree: List<Element>
+	val renderElements: List<Element>
 
-	val handleTree: List<Element>
+	val fixedElements: List<Element>
+
+	val handleElements: List<Element>
 
 	fun <T : Element> addElement(element: T): T
 

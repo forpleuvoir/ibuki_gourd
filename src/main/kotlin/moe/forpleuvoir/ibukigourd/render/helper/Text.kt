@@ -24,21 +24,20 @@ import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.OrderedText
-import org.joml.Matrix4f
 
 
 fun TextRenderer.batchRenderText(
-	matrix4f: Matrix4f,
+	matrixStack: MatrixStack,
 	bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
 	scope: BatchTextRenderScope.() -> Unit
 ) {
 	BatchTextRenderScope.apply {
-		this.matrix4f = matrix4f
+		this.matrixStack = matrixStack
 		this.vertexConsumer = VertexConsumerProvider.immediate(bufferBuilder)
 		this.textRenderer = this@batchRenderText
 		scope.invoke(this)
 		vertexConsumer!!.draw()
-		this.matrix4f = null
+		this.matrixStack = null
 		this.vertexConsumer = null
 		this.textRenderer = null
 	}
@@ -47,7 +46,7 @@ fun TextRenderer.batchRenderText(
 
 object BatchTextRenderScope {
 
-	internal var matrix4f: Matrix4f? = null
+	internal var matrixStack: MatrixStack? = null
 
 	internal var vertexConsumer: VertexConsumerProvider.Immediate? = null
 
@@ -57,72 +56,88 @@ object BatchTextRenderScope {
 		text: Text,
 		x: Number,
 		y: Number,
+		z: Number,
 		shadow: Boolean = false,
 		layerType: TextLayerType = TextLayerType.NORMAL,
 		rightToLeft: Boolean = textRenderer!!.isRightToLeft,
 		color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 	) {
-		textRenderer!!.draw(
-			ReorderingUtil.reorder(text, rightToLeft),
-			x.toFloat(),
-			y.toFloat(),
-			color.argb,
-			shadow,
-			matrix4f,
-			vertexConsumer,
-			layerType,
-			backgroundColor.argb,
-			MAX_LIGHT_COORDINATE
-		)
+		matrixStack!!.let {
+			it.push()
+			it.translate(0f, 0f, z.toFloat())
+			textRenderer!!.draw(
+				ReorderingUtil.reorder(text, rightToLeft),
+				x.toFloat(),
+				y.toFloat(),
+				color.argb,
+				shadow,
+				it.peek().positionMatrix,
+				vertexConsumer,
+				layerType,
+				backgroundColor.argb,
+				MAX_LIGHT_COORDINATE
+			)
+		}
 	}
 
 	fun renderText(
 		text: OrderedText,
 		x: Number,
 		y: Number,
+		z: Number,
 		shadow: Boolean = false,
 		layerType: TextLayerType = TextLayerType.NORMAL,
 		color: ARGBColor = Color(0x000000),
 		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 	) {
-		textRenderer!!.draw(
-			text,
-			x.toFloat(),
-			y.toFloat(),
-			color.argb,
-			shadow,
-			matrix4f,
-			vertexConsumer,
-			layerType,
-			backgroundColor.argb,
-			MAX_LIGHT_COORDINATE,
-		)
+		matrixStack!!.let {
+			it.push()
+			it.translate(0f, 0f, z.toFloat())
+			textRenderer!!.draw(
+				text,
+				x.toFloat(),
+				y.toFloat(),
+				color.argb,
+				shadow,
+				it.peek().positionMatrix,
+				vertexConsumer,
+				layerType,
+				backgroundColor.argb,
+				MAX_LIGHT_COORDINATE,
+			)
+		}
 	}
 
 	fun renderText(
 		text: String,
 		x: Number,
 		y: Number,
+		z: Number,
 		shadow: Boolean = false,
 		layerType: TextLayerType = TextLayerType.NORMAL,
 		rightToLeft: Boolean = textRenderer!!.isRightToLeft,
 		color: ARGBColor = Color(0x000000),
 		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 	) {
-		textRenderer!!.draw(
-			text,
-			x.toFloat(),
-			y.toFloat(),
-			color.argb,
-			shadow,
-			matrix4f,
-			vertexConsumer,
-			layerType,
-			backgroundColor.argb,
-			MAX_LIGHT_COORDINATE,
-			rightToLeft
-		)
+		matrixStack!!.let {
+			it.push()
+			it.translate(0f, 0f, z.toFloat())
+			textRenderer!!.draw(
+				text,
+				x.toFloat(),
+				y.toFloat(),
+				color.argb,
+				shadow,
+				it.peek().positionMatrix,
+				vertexConsumer,
+				layerType,
+				backgroundColor.argb,
+				MAX_LIGHT_COORDINATE,
+				rightToLeft
+			)
+			it.pop()
+		}
 	}
 
 	/**
@@ -148,7 +163,7 @@ object BatchTextRenderScope {
 		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 	) {
 		val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
-		renderText(text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
+		renderText(text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
 	}
 
 	/**
@@ -173,7 +188,7 @@ object BatchTextRenderScope {
 		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 	) {
 		val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
-		renderText(text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
+		renderText(text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
 	}
 
 	/**
@@ -197,6 +212,61 @@ object BatchTextRenderScope {
 		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 	) = renderAlignmentText(text, transform.asWorldRect, align, shadow, layerType, rightToLeft, color, backgroundColor)
 
+	fun renderStringLines(
+		string: String,
+		rect: Rectangle<Vector3<Float>>,
+		lineSpacing: Number = 1,
+		align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+		shadow: Boolean = false,
+		layerType: TextLayerType = TextLayerType.NORMAL,
+		rightToLeft: Boolean = textRenderer!!.isRightToLeft,
+		color: ARGBColor = Colors.BLACK,
+		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+	) {
+		var top: Float = rect.top
+		for (text in string.wrapToLines(textRenderer!!, rect.width.toInt())) {
+			renderAlignmentText(
+				text, rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+				shadow, layerType, rightToLeft, color, backgroundColor
+			)
+			top += textRenderer!!.fontHeight + lineSpacing.toFloat()
+		}
+	}
+
+
+	/**
+	 * 绘制多行字符串文本
+	 * @receiver TextRenderer
+	 * @param lines List<String>
+	 * @param rect Rectangle
+	 * @param lineSpacing Number
+	 * @param align HorizontalAlignment
+	 * @param shadow Boolean
+	 * @param layerType [TextLayerType]
+	 * @param rightToLeft Boolean
+	 * @param color ARGBColor
+	 * @param backgroundColor Color
+	 */
+	fun renderStringLines(
+		lines: List<String>,
+		rect: Rectangle<Vector3<Float>>,
+		lineSpacing: Number = 1,
+		align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+		shadow: Boolean = false,
+		layerType: TextLayerType = TextLayerType.NORMAL,
+		rightToLeft: Boolean = textRenderer!!.isRightToLeft,
+		color: ARGBColor = Colors.BLACK,
+		backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+	) {
+		var top: Float = rect.top
+		for (text in lines) {
+			renderAlignmentText(
+				text, rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+				shadow, layerType, rightToLeft, color, backgroundColor
+			)
+			top += textRenderer!!.fontHeight + lineSpacing.toFloat()
+		}
+	}
 }
 
 /**
@@ -216,27 +286,31 @@ fun TextRenderer.renderText(
 	text: Text,
 	x: Number,
 	y: Number,
+	z: Number,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	VertexConsumerProvider.immediate(bufferBuilder).also {
-		this.draw(
-			ReorderingUtil.reorder(text, rightToLeft),
-			x.toFloat(),
-			y.toFloat(),
-			color.argb,
-			shadow,
-			matrixStack.peek().positionMatrix,
-			it,
-			layerType,
-			backgroundColor.argb,
-			MAX_LIGHT_COORDINATE
-		)
-	}.draw()
-
+	matrixStack.let {
+		it.push()
+		it.translate(0f, 0f, z.toFloat())
+		VertexConsumerProvider.immediate(bufferBuilder).also { v ->
+			this.draw(
+				ReorderingUtil.reorder(text, rightToLeft),
+				x.toFloat(),
+				y.toFloat(),
+				color.argb,
+				shadow,
+				it.peek().positionMatrix,
+				v,
+				layerType,
+				backgroundColor.argb,
+				MAX_LIGHT_COORDINATE
+			)
+		}.draw()
+	}
 }
 
 fun TextRenderer.renderText(
@@ -244,25 +318,30 @@ fun TextRenderer.renderText(
 	text: OrderedText,
 	x: Number,
 	y: Number,
+	z: Number,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	color: ARGBColor = Color(0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	VertexConsumerProvider.immediate(bufferBuilder).also {
-		this.draw(
-			text,
-			x.toFloat(),
-			y.toFloat(),
-			color.argb,
-			shadow,
-			matrixStack.peek().positionMatrix,
-			it,
-			layerType,
-			backgroundColor.argb,
-			MAX_LIGHT_COORDINATE,
-		)
-	}.draw()
+	matrixStack.let {
+		it.push()
+		it.translate(0f, 0f, z.toFloat())
+		VertexConsumerProvider.immediate(bufferBuilder).also { v ->
+			this.draw(
+				text,
+				x.toFloat(),
+				y.toFloat(),
+				color.argb,
+				shadow,
+				it.peek().positionMatrix,
+				v,
+				layerType,
+				backgroundColor.argb,
+				MAX_LIGHT_COORDINATE,
+			)
+		}.draw()
+	}
 }
 
 fun TextRenderer.renderText(
@@ -270,27 +349,32 @@ fun TextRenderer.renderText(
 	text: String,
 	x: Number,
 	y: Number,
+	z: Number,
 	shadow: Boolean = false,
 	layerType: TextLayerType = TextLayerType.NORMAL,
 	rightToLeft: Boolean = this.isRightToLeft,
 	color: ARGBColor = Color(0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	VertexConsumerProvider.immediate(bufferBuilder).also {
-		this.draw(
-			text,
-			x.toFloat(),
-			y.toFloat(),
-			color.argb,
-			shadow,
-			matrixStack.peek().positionMatrix,
-			it,
-			layerType,
-			backgroundColor.argb,
-			MAX_LIGHT_COORDINATE,
-			rightToLeft
-		)
-	}.draw()
+	matrixStack!!.let {
+		it.push()
+		it.translate(0f, 0f, z.toFloat())
+		VertexConsumerProvider.immediate(bufferBuilder).also { v ->
+			this.draw(
+				text,
+				x.toFloat(),
+				y.toFloat(),
+				color.argb,
+				shadow,
+				it.peek().positionMatrix,
+				v,
+				layerType,
+				backgroundColor.argb,
+				MAX_LIGHT_COORDINATE,
+				rightToLeft
+			)
+		}.draw()
+	}
 }
 
 /**
@@ -318,7 +402,7 @@ inline fun TextRenderer.renderAlignmentText(
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
-	renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
+	renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
 /**
@@ -345,7 +429,7 @@ inline fun TextRenderer.renderAlignmentText(
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
 	val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
-	renderText(matrixStack, text, position.x, position.y, shadow, layerType, rightToLeft, color, backgroundColor)
+	renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
 /**
@@ -398,11 +482,11 @@ fun TextRenderer.renderStringLines(
 	color: ARGBColor = Colors.BLACK,
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	batchRenderText(matrixStack.peek().positionMatrix) {
+	batchRenderText(matrixStack) {
 		var top: Float = rect.top
 		for (text in string.wrapToLines(textRenderer!!, rect.width.toInt())) {
 			renderAlignmentText(
-				text, rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+				text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
 				shadow, layerType, rightToLeft, color, backgroundColor
 			)
 			top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -436,11 +520,11 @@ fun TextRenderer.renderStringLines(
 	color: ARGBColor = Colors.BLACK,
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	batchRenderText(matrixStack.peek().positionMatrix) {
+	batchRenderText(matrixStack) {
 		var top: Float = rect.top
 		for (text in lines.wrapToLines(textRenderer!!, rect.width.toInt())) {
 			renderAlignmentText(
-				text, rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+				text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
 				shadow, layerType, rightToLeft, color, backgroundColor
 			)
 			top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -474,12 +558,12 @@ fun TextRenderer.renderTextLines(
 	color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	batchRenderText(matrixStack.peek().positionMatrix) {
+	batchRenderText(matrixStack) {
 		var top: Float = rect.top
 		for (t in text.wrapToTextLines(textRenderer!!, rect.width.toInt())) {
 			renderAlignmentText(
 				matrixStack, text,
-				rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+				rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
 				shadow, layerType, rightToLeft, color, backgroundColor
 			)
 			top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -516,7 +600,7 @@ fun TextRenderer.renderTextLines(
 ) {
 	renderStringLines(
 		matrixStack,
-		ArrayList<String>().apply { lines.forEach { add(it.string) } },
+		lines.map { it.plainText },
 		rect, lineSpacing,
 		align, shadow, layerType, rightToLeft, color, backgroundColor,
 	)

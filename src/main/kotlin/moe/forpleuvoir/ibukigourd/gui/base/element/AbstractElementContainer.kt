@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
 abstract class AbstractElementContainer : Element {
 
-
 	override var init: () -> Unit = ::init
 
 	final override val transform = Transform()
@@ -28,23 +27,25 @@ abstract class AbstractElementContainer : Element {
 	final override var padding: Margin = Margin()
 		protected set
 
-	protected val elements = ArrayList<Element>()
+	protected val subElements = ArrayList<Element>()
 
-	val arrangeElements: List<Element> get() = elements.filter { !it.fixed }
+	val arrangeElements: List<Element> get() = subElements.filter { !it.fixed }
 
-	override val elementTree: List<Element> get() = elements.filter { it != this.tip }
+	override val elements: List<Element> get() = subElements.filter { it != this.tip }
 
-	override val renderTree get() = elementTree.sortedBy { it.renderPriority }
+	override val renderElements get() = subElements.filter { it != this.tip }.sortedBy { it.renderPriority }
 
-	override val handleTree get() = elementTree.sortedByDescending { it.priority }
+	override val fixedElements get() = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
+
+	override val handleElements get() = subElements.filter { it != this.tip }.sortedByDescending { it.priority }
 
 	override fun init() {
-		for (e in elements) e.init.invoke()
+		for (e in subElements) e.init.invoke()
 		arrange()
 	}
 
 	override fun arrange() {
-		layout.arrange(this.elements, margin, padding)?.let {
+		layout.arrange(this.subElements, margin, padding)?.let {
 			if (!transform.fixedWidth) {
 				this.transform.width = it.width
 				parent()?.arrange()
@@ -92,35 +93,35 @@ abstract class AbstractElementContainer : Element {
 	}
 
 	override fun <T : Element> addElement(element: T): T {
-		if (elements.contains(element)) return element
-		elements.add(element)
+		if (subElements.contains(element)) return element
+		subElements.add(element)
 		element.transform.parent = { this.transform }
 		element.parent = { this }
 		return element
 	}
 
 	override fun preElement(element: Element): Element? {
-		val indexOf = elements.indexOf(element)
+		val indexOf = subElements.indexOf(element)
 		if (indexOf < 1) return null
-		return elements[indexOf - 1]
+		return subElements[indexOf - 1]
 	}
 
 	override fun nextElement(element: Element): Element? {
-		val indexOf = elements.indexOf(element)
-		if (indexOf != -1 && indexOf < elements.size - 1) return null
-		return elements[indexOf + 1]
+		val indexOf = subElements.indexOf(element)
+		if (indexOf != -1 && indexOf < subElements.size - 1) return null
+		return subElements[indexOf + 1]
 	}
 
-	override fun elementIndexOf(element: Element): Int = elements.indexOf(element)
+	override fun elementIndexOf(element: Element): Int = subElements.indexOf(element)
 
 	override fun removeElement(element: Element): Boolean {
 		element.transform.parent = { null }
 		element.parent = { null }
-		return elements.remove(element)
+		return subElements.remove(element)
 	}
 
 	override fun removeElement(index: Int) {
-		elements.removeAt(index).apply {
+		subElements.removeAt(index).apply {
 			transform.parent = { null }
 			parent = { null }
 		}

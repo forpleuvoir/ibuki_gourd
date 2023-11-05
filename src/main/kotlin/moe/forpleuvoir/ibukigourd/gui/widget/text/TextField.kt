@@ -29,64 +29,36 @@ import kotlin.experimental.ExperimentalTypeInference
 
 open class TextField(
 	val text: () -> Text,
-	val spacing: Float = SPACING.toFloat(),
+	val spacing: Float = SPACING,
 	var shadow: Boolean = SHADOW,
 	var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
 	var rightToLeft: Boolean = RIGHT_TO_LEFT,
 	var color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
 	var backgroundColor: Color = BACKGROUND_COLOR,
 	val alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
+	private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+	width: Float? = null,
+	height: Float? = null,
 ) : AbstractElement() {
 
-	constructor(
-		text: () -> String,
-		style: Style = Style.EMPTY,
-		spacing: Float = SPACING.toFloat(),
-		shadow: Boolean = SHADOW,
-		layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-		rightToLeft: Boolean = RIGHT_TO_LEFT,
-		color: Color = Color(style.color?.rgb ?: COLOR.argb),
-		backgroundColor: Color = BACKGROUND_COLOR,
-		alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-		textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-	) : this({ literal(text()).style { style } }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer)
+	init {
+		transform.width = width?.also { transform.fixedWidth = true } ?: 16f
+		transform.height = height?.also { transform.fixedHeight = true } ?: 16f
+	}
 
-	constructor(
-		text: String,
-		style: Style = Style.EMPTY,
-		spacing: Float = SPACING.toFloat(),
-		shadow: Boolean = SHADOW,
-		layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-		rightToLeft: Boolean = RIGHT_TO_LEFT,
-		color: Color = Color(style.color?.rgb ?: COLOR.argb),
-		backgroundColor: Color = BACKGROUND_COLOR,
-		alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-		textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-	) : this({ literal(text).style { style } }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer)
-
-	constructor(
-		text: Text,
-		spacing: Float = SPACING.toFloat(),
-		shadow: Boolean = SHADOW,
-		layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-		rightToLeft: Boolean = RIGHT_TO_LEFT,
-		color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
-		backgroundColor: Color = BACKGROUND_COLOR,
-		alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-		textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-	) : this({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer)
-
-	var latestText: Pair<Int, Int> = textRenderer.getWidth(text()) to renderText.size
+	/**
+	 * 最新的文本
+	 */
+	protected var latestText: Text = text()
 
 	var changed: Boolean = false
 
 	protected val renderText: List<Text>
 		get() {
 			val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth) transform.width.toInt() else 0)
-			if (latestText != textRenderer.getWidth(text()) to text.size) {
+			if (latestText != text()) {
 				changed = true
-				latestText = textRenderer.getWidth(text()) to text.size
+				latestText = text()
 			}
 			return text
 		}
@@ -130,9 +102,9 @@ open class TextField(
 				else add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
 			}
 		}
-		textRenderer.batchRenderText(renderContext.matrixStack.peek().positionMatrix) {
+		textRenderer.batchRenderText(renderContext.matrixStack) {
 			alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vector3f ->
-				renderText(renderText[index], vector3f.x, vector3f.y, shadow, layerType, rightToLeft, color, backgroundColor)
+				renderText(renderText[index], vector3f.x, vector3f.y, vector3f.z, shadow, layerType, rightToLeft, color, backgroundColor)
 			}
 		}
 
@@ -140,11 +112,73 @@ open class TextField(
 
 }
 
+/**
+ * @receiver Element
+ * @param text String 文本
+ * @param style Style 样式
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
+fun Element.textField(
+	text: String,
+	style: Style = Style.EMPTY,
+	spacing: Float = SPACING,
+	shadow: Boolean = SHADOW,
+	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+	rightToLeft: Boolean = RIGHT_TO_LEFT,
+	color: Color = Color(style.color?.rgb ?: COLOR.argb),
+	backgroundColor: Color = BACKGROUND_COLOR,
+	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+	width: Float? = null,
+	height: Float? = null,
+): TextField =
+	addElement(
+		TextField(
+			{ literal(text).style { style } },
+			spacing,
+			shadow,
+			layerType,
+			rightToLeft,
+			color,
+			backgroundColor,
+			alignment,
+			textRenderer,
+			width,
+			height
+		)
+	)
+
+/**
+ * @receiver Element
+ * @param text () -> String 文本
+ * @param style Style 样式
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
 @OverloadResolutionByLambdaReturnType
 fun Element.textField(
 	text: () -> String,
 	style: Style = Style.EMPTY,
-	spacing: Float = SPACING.toFloat(),
+	spacing: Float = SPACING,
 	shadow: Boolean = SHADOW,
 	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
@@ -152,25 +186,44 @@ fun Element.textField(
 	backgroundColor: Color = BACKGROUND_COLOR,
 	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-): TextField = addElement(TextField(text, style, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer))
+	width: Float? = null,
+	height: Float? = null,
+): TextField =
+	addElement(
+		TextField(
+			{ literal(text()).style { style } },
+			spacing,
+			shadow,
+			layerType,
+			rightToLeft,
+			color,
+			backgroundColor,
+			alignment,
+			textRenderer,
+			width,
+			height
+		)
+	)
 
-fun Element.textField(
-	text: String,
-	style: Style = Style.EMPTY,
-	spacing: Float = SPACING.toFloat(),
-	shadow: Boolean = SHADOW,
-	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-	rightToLeft: Boolean = RIGHT_TO_LEFT,
-	color: Color = Color(style.color?.rgb ?: COLOR.argb),
-	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-): TextField = addElement(TextField(text, style, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer))
-
+/**
+ * @receiver Element
+ * @param text () -> Text 文本
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
 @OverloadResolutionByLambdaReturnType
 fun Element.textField(
 	text: () -> Text,
-	spacing: Float = SPACING.toFloat(),
+	spacing: Float = SPACING,
 	shadow: Boolean = SHADOW,
 	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
@@ -178,11 +231,28 @@ fun Element.textField(
 	backgroundColor: Color = BACKGROUND_COLOR,
 	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer))
+	width: Float? = null,
+	height: Float? = null,
+): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
 
+/**
+ * @receiver Element
+ * @param text Text 文本
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
 fun Element.textField(
 	text: Text,
-	spacing: Float = SPACING.toFloat(),
+	spacing: Float = SPACING,
 	shadow: Boolean = SHADOW,
 	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
 	rightToLeft: Boolean = RIGHT_TO_LEFT,
@@ -190,4 +260,6 @@ fun Element.textField(
 	backgroundColor: Color = BACKGROUND_COLOR,
 	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
 	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer))
+	width: Float? = null,
+	height: Float? = null,
+): TextField = addElement(TextField({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))

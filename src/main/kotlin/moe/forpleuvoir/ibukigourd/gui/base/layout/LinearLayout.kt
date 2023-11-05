@@ -58,7 +58,7 @@ class LinearLayout(
         alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
             val element = alignElements[index]
             element.transform.translateTo(vector3f + Vector3f(element.margin.left, element.margin.top))
-            element.visible = element.transform.asWorldRect.inRect(contentRect, false)
+            element.visible = element.transform.inRect(contentRect, false)
         }
         return Size.create(contentRect.width + padding.width, contentRect.height + padding.height)
     }

@@ -16,37 +16,60 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    @Shadow
-    @Final
-    MinecraftClient client;
+	@Unique
+	private static final RenderContext context = new RenderContext(MinecraftClient.getInstance(), new MatrixStack(), new ScissorStack());
+	@Unique
+	private static final Deque<Long> list = new ArrayDeque<>();
+	@Unique
+	private static Long tickDeltaCounter = 0L;
+	@Unique
+	private static int temp = 0;
+	@Shadow
+	@Final
+	MinecraftClient client;
 
-    @Unique
-    private static final RenderContext context = new RenderContext(MinecraftClient.getInstance(), new MatrixStack(), new ScissorStack());
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
+	public void renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+		if (MiscKt.isDevEnv()) {
+			ScreenManager.hasScreen(screen -> {
+				var delta = MiscKt.measureTime(() -> {
+					if (screen.getVisible()) {
+						screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
+					}
+				}).getSecond();
 
-    @Unique
-    private static final List<Long> list = new ArrayList<>();
+				tickDeltaCounter += delta;
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
-    public void renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
-        var a = MiscKt.measureTime(() -> {
-            ScreenManager.hasScreen(screen -> {
-                if (screen.getVisible()) {
-                    screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
-                }
-            });
-        });
-        list.add(a.getSecond());
-        if (list.size() >= 100) {
-            TestScreenKt.setFRAME_TIME(list.stream().mapToLong((it) -> it).average().getAsDouble());
-            list.clear();
-        }
-    }
+				if (list.size() > 500) {
+					list.pop();
+				}
+				list.addLast(delta);
+
+				if (tickDeltaCounter / 250_000_000 > temp) {
+					temp++;
+					var frt = list.stream().mapToLong((it) -> it).average().orElseGet(() -> 0.0);
+					TestScreenKt.setFRT(frt);
+					TestScreenKt.setFPS((int) (1000_000_000 / frt));
+				}
+				if (tickDeltaCounter >= 1000_000_000) {
+					tickDeltaCounter = 0L;
+					temp = 1;
+				}
+			});
+		} else {
+			ScreenManager.hasScreen(screen -> {
+				if (screen.getVisible()) {
+					screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
+				}
+			});
+		}
+	}
 
 
 }

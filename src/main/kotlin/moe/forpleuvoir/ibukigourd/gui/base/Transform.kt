@@ -195,7 +195,7 @@ inline fun Transform.mouseHover(action: Transform.() -> Unit) {
  */
 inline fun Element.mouseHover(action: Element.() -> Unit) {
 	contract {
-		callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+		callsInPlace(action, InvocationKind.AT_MOST_ONCE)
 	}
 	transform.isMouseOvered(mouseX, mouseY).ifc { action() }
 }

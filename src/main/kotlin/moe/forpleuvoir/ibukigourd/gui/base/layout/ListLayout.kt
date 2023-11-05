@@ -23,9 +23,9 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.util.clamp
 
 class ListLayout(
-	width: Float = 0f,
-	height: Float = 0f,
-	padding: Float = 6f,
+	width: Float? = 0f,
+	height: Float? = 0f,
+	padding: Margin? = Margin(6),
 	val showScroller: Boolean = true,
 	val showBackground: Boolean = true,
 	val arrangement: Arrangement = Arrangement.Vertical,
@@ -38,15 +38,9 @@ class ListLayout(
 	private val scrollerThickness: Float = if (!showScroller) 0f else scrollerThickness
 
 	init {
-		if (width != 0f) {
-			transform.fixedWidth = true
-			transform.width = width
-		}
-		if (height != 0f) {
-			transform.fixedHeight = true
-			transform.height = height
-		}
-		padding(padding)
+		transform.width = width?.also { transform.fixedWidth = true } ?: 0f
+		transform.height = height?.also { transform.fixedHeight = true } ?: 0f
+		padding?.let { padding(it) }
 	}
 
 	var amount: Float
@@ -62,13 +56,13 @@ class ListLayout(
 		}
 
 	override fun init() {
-		for (e in elements) e.init.invoke()
-		val contentSize = arrangement.contentSize(layout.alignRects(elements))
+		for (e in subElements) e.init.invoke()
+		val contentSize = arrangement.contentSize(layout.alignRects(subElements))
 		if (!this::scrollerBar.isInitialized) {
 			scrollerBar = scroller(
 				arrangement.switch({ transform.height - padding.height }, { transform.width - padding.width }),
 				scrollerThickness,
-				{ (layout.alignRects(elements).minOf { r -> arrangement.switch({ r.height }, { r.width }) } / 2f) },
+				{ (layout.alignRects(subElements).minOf { r -> arrangement.switch({ r.height }, { r.width }) } / 2f) },
 				{
 					arrangement.switch(
 						{ contentSize.height - contentRect(false).height },
@@ -146,9 +140,7 @@ class ListLayout(
 					{ Vector3f(-amount, 0f, 0f) }
 				)
 				element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
-				//TODO("导致所有元素全部消失，待修复")
-				val a = element.transform.inRect(contentRect, false)
-				element.visible = a
+				element.visible = element.transform.inRect(contentRect, false)
 			}
 			return arrangement.switch({
 				Size.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height)
@@ -198,8 +190,9 @@ class ListLayout(
 		if (!visible) return
 		renderBackground.invoke(renderContext)
 		renderContext.scissor(super.contentRect(true)) {
-			renderTree.filter { it != scrollerBar }.forEach { it.render(renderContext) }
+			renderElements.filter { it != scrollerBar || !it.fixed }.forEach { it.render(renderContext) }
 		}
+		fixedElements.forEach { it.render(renderContext) }
 		scrollerBar.render(renderContext)
 		renderOverlay.invoke(renderContext)
 	}
@@ -211,10 +204,10 @@ class ListLayout(
 }
 
 fun ElementContainer.list(
-	width: Float,
-	height: Float,
+	width: Float?,
+	height: Float?,
 	arrangement: Arrangement = Arrangement.Vertical,
-	padding: Float = 6f,
+	padding: Margin? = Margin(6),
 	showScroller: Boolean = true,
 	showBackground: Boolean = true,
 	scrollerThickness: Float = 10f,
