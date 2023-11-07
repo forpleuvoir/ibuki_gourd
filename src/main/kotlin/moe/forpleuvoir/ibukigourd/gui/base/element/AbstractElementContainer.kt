@@ -11,119 +11,119 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 
 abstract class AbstractElementContainer : Element {
 
-	override var init: () -> Unit = ::init
+    override var init: () -> Unit = ::init
 
-	final override val transform = Transform()
+    final override val transform = Transform()
 
-	override var layout: Layout = LinearLayout({ this })
-		set(value) {
-			field = value
-			arrange()
-		}
+    override var layout: Layout = LinearLayout({ this })
+        set(value) {
+            field = value
+            arrange()
+        }
 
-	final override var margin: Margin = Margin()
-		protected set
+    final override var margin: Margin = Margin()
+        protected set
 
-	final override var padding: Margin = Margin()
-		protected set
+    final override var padding: Margin = Margin()
+        protected set
 
-	protected val subElements = ArrayList<Element>()
+    protected val subElements = ArrayList<Element>()
 
-	val arrangeElements: List<Element> get() = subElements.filter { !it.fixed }
+    val arrangeElements: List<Element> get() = subElements.filter { !it.fixed }
 
-	override val elements: List<Element> get() = subElements.filter { it != this.tip }
+    override val elements: List<Element> get() = subElements.filter { it != this.tip }
 
-	override val renderElements get() = subElements.filter { it != this.tip }.sortedBy { it.renderPriority }
+    override val renderElements get() = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
 
-	override val fixedElements get() = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
+    override val fixedElements get() = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
 
-	override val handleElements get() = subElements.filter { it != this.tip }.sortedByDescending { it.priority }
+    override val handleElements get() = subElements.filter { it != this.tip && it.active }.sortedByDescending { it.priority }
 
-	override fun init() {
-		for (e in subElements) e.init.invoke()
-		arrange()
-	}
+    override fun init() {
+        for (e in subElements) e.init.invoke()
+        arrange()
+    }
 
-	override fun arrange() {
-		layout.arrange(this.subElements, margin, padding)?.let {
-			if (!transform.fixedWidth) {
-				this.transform.width = it.width
-				parent()?.arrange()
-			}
-			if (!transform.fixedHeight) {
-				this.transform.height = it.height
-				parent()?.arrange()
-			}
-		}
-	}
+    override fun arrange() {
+        layout.arrange(this.subElements, margin, padding)?.let {
+            if (!transform.fixedWidth) {
+                this.transform.width = it.width
+                parent()?.arrange()
+            }
+            if (!transform.fixedHeight) {
+                this.transform.height = it.height
+                parent()?.arrange()
+            }
+        }
+    }
 
-	final override fun margin(margin: Number) {
-		this.margin = Margin(margin, margin)
-	}
+    final override fun margin(margin: Number) {
+        this.margin = Margin(margin, margin)
+    }
 
-	final override fun margin(margin: Margin) {
-		this.margin = margin
-	}
+    final override fun margin(margin: Margin) {
+        this.margin = margin
+    }
 
-	final override fun margin(left: Number, right: Number, top: Number, bottom: Number) {
-		this.margin = Margin(left, right, top, bottom)
-	}
+    final override fun margin(left: Number, right: Number, top: Number, bottom: Number) {
+        this.margin = Margin(left, right, top, bottom)
+    }
 
-	final override fun padding(padding: Number) {
-		this.padding = Margin(padding, padding)
-	}
+    final override fun padding(padding: Number) {
+        this.padding = Margin(padding, padding)
+    }
 
-	final override fun padding(padding: Margin) {
-		this.padding = padding
-	}
+    final override fun padding(padding: Margin) {
+        this.padding = padding
+    }
 
-	final override fun padding(left: Number, right: Number, top: Number, bottom: Number) {
-		this.padding = Margin(left, right, top, bottom)
-	}
+    final override fun padding(left: Number, right: Number, top: Number, bottom: Number) {
+        this.padding = Margin(left, right, top, bottom)
+    }
 
-	override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
-		//TODO("耗时方法，待优化")
-		val top = if (isWorld) transform.worldTop + padding.top else padding.top
-		val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
-		val left = if (isWorld) transform.worldLeft + padding.left else padding.left
-		val right = if (isWorld) transform.worldRight - padding.right else transform.width - padding.right
-		return rect(
-			vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
-		)
-	}
+    override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+        //TODO("耗时方法，待优化")
+        val top = if (isWorld) transform.worldTop + padding.top else padding.top
+        val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
+        val left = if (isWorld) transform.worldLeft + padding.left else padding.left
+        val right = if (isWorld) transform.worldRight - padding.right else transform.width - padding.right
+        return rect(
+            vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
+        )
+    }
 
-	override fun <T : Element> addElement(element: T): T {
-		if (subElements.contains(element)) return element
-		subElements.add(element)
-		element.transform.parent = { this.transform }
-		element.parent = { this }
-		return element
-	}
+    override fun <T : Element> addElement(element: T): T {
+        if (subElements.contains(element)) return element
+        subElements.add(element)
+        element.transform.parent = { this.transform }
+        element.parent = { this }
+        return element
+    }
 
-	override fun preElement(element: Element): Element? {
-		val indexOf = subElements.indexOf(element)
-		if (indexOf < 1) return null
-		return subElements[indexOf - 1]
-	}
+    override fun preElement(element: Element): Element? {
+        val indexOf = subElements.indexOf(element)
+        if (indexOf < 1) return null
+        return subElements[indexOf - 1]
+    }
 
-	override fun nextElement(element: Element): Element? {
-		val indexOf = subElements.indexOf(element)
-		if (indexOf != -1 && indexOf < subElements.size - 1) return null
-		return subElements[indexOf + 1]
-	}
+    override fun nextElement(element: Element): Element? {
+        val indexOf = subElements.indexOf(element)
+        if (indexOf != -1 && indexOf < subElements.size - 1) return null
+        return subElements[indexOf + 1]
+    }
 
-	override fun elementIndexOf(element: Element): Int = subElements.indexOf(element)
+    override fun elementIndexOf(element: Element): Int = subElements.indexOf(element)
 
-	override fun removeElement(element: Element): Boolean {
-		element.transform.parent = { null }
-		element.parent = { null }
-		return subElements.remove(element)
-	}
+    override fun removeElement(element: Element): Boolean {
+        element.transform.parent = { null }
+        element.parent = { null }
+        return subElements.remove(element)
+    }
 
-	override fun removeElement(index: Int) {
-		subElements.removeAt(index).apply {
-			transform.parent = { null }
-			parent = { null }
-		}
-	}
+    override fun removeElement(index: Int) {
+        subElements.removeAt(index).apply {
+            transform.parent = { null }
+            parent = { null }
+        }
+    }
 }

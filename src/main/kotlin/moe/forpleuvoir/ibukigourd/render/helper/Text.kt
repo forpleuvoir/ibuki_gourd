@@ -78,6 +78,7 @@ object BatchTextRenderScope {
 				backgroundColor.argb,
 				MAX_LIGHT_COORDINATE
 			)
+			it.pop()
 		}
 	}
 
@@ -106,6 +107,7 @@ object BatchTextRenderScope {
 				backgroundColor.argb,
 				MAX_LIGHT_COORDINATE,
 			)
+			it.pop()
 		}
 	}
 
@@ -310,6 +312,7 @@ fun TextRenderer.renderText(
 				MAX_LIGHT_COORDINATE
 			)
 		}.draw()
+		it.pop()
 	}
 }
 
@@ -341,6 +344,7 @@ fun TextRenderer.renderText(
 				MAX_LIGHT_COORDINATE,
 			)
 		}.draw()
+		it.pop()
 	}
 }
 
@@ -356,7 +360,7 @@ fun TextRenderer.renderText(
 	color: ARGBColor = Color(0x000000),
 	backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-	matrixStack!!.let {
+	matrixStack.let {
 		it.push()
 		it.translate(0f, 0f, z.toFloat())
 		VertexConsumerProvider.immediate(bufferBuilder).also { v ->
@@ -374,6 +378,7 @@ fun TextRenderer.renderText(
 				rightToLeft
 			)
 		}.draw()
+		it.pop()
 	}
 }
 

@@ -32,7 +32,7 @@ open class Scroller(
 	barColor: () -> ARGBColor = { Colors.WHITE },
 ) : ClickableElement() {
 
-	val bar: Button = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
+	protected open val bar: Button = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
 		fixed = true
 		playClickSound = false
 	}
