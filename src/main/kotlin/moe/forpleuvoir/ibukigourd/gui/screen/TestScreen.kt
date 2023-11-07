@@ -29,10 +29,10 @@ fun testScreen() {
 		}
 		padding(4)
 
-		val input = textInput(150f, margin = Margin(bottom = 5f)) {
+		textInput(150f, margin = Margin(bottom = 5f)) {
 			hintText = literal("测试测试")
 		}
-		textBox(120f, 120f) {
+		val input = textBox(120f, 120f) {
 			hintText = literal("多行文本输入框测试")
 			transform.z = 10f
 		}.fixed<TextBox>(5f, transform.halfHeight - 60f)
@@ -59,15 +59,7 @@ fun testScreen() {
 		}
 
 		textField(
-			{
-				literal(
-					"firstIndex:${input.firstCharacterIndex}\nstart:${input.selectionStart},end:${input.selectionEnd} \nsuggest:${
-						input.suggestion?.invoke(
-							input.text
-						)
-					}"
-				)
-			},
+			{ literal("cursor:${input.cursor}\nselection:${input.selectionEnd},\nselectedText:${input.selectedText}") },
 			color = Colors.WHITE
 		).fixed<TextField>(5f, 5f)
 

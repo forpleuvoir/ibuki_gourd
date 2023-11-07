@@ -53,6 +53,17 @@ interface Rectangle<V : Vector3<Float>> : SizeFloat, Cloneable {
 		}
 	}
 
+	fun inThis(x: Float, y: Float): Boolean {
+		return if (this.exist)
+			x in this.top..this.bottom && y in this.left..this.right
+		else false
+	}
+
+	/**
+	 * 判断两个矩形是否相交
+	 * @param target Rectangle 目标矩形
+	 * @return Boolean 相交返回交集矩形，否则返回不存在的矩形[NULL]
+	 */
 	infix fun intersection(target: Rectangle<Vector3<Float>>): Rectangle<Vector3<Float>> {
 		if (!this.exist || !target.exist) return NULL
 		val startX = max(this.x, target.x)

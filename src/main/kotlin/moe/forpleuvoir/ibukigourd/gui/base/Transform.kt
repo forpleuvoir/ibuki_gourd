@@ -201,6 +201,19 @@ inline fun Element.mouseHover(action: Element.() -> Unit) {
 }
 
 /**
+ * 当鼠标位于此元素内容矩阵[Element.contentRect]"true"时调用
+ * @receiver Element
+ * @param action Element.() -> Unit
+ */
+inline fun Element.mouseHoverContent(action: Element.() -> Unit) {
+	contract {
+		callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+	}
+	this.mouseHoverContent().ifc { action() }
+}
+
+
+/**
  * 鼠标是否在此元素内
  * @receiver T
  * @return Boolean
@@ -213,3 +226,9 @@ fun Transform.mouseHover(): Boolean = isMouseOvered(mouseX, mouseY)
  * @return Boolean
  */
 fun Element.mouseHover(): Boolean = transform.isMouseOvered(mouseX, mouseY)
+
+fun Element.mouseHoverContent(): Boolean {
+	val contentRect = contentRect(true)
+	return mouseX in contentRect.left..contentRect.right && mouseY in contentRect.top..contentRect.bottom
+}
+

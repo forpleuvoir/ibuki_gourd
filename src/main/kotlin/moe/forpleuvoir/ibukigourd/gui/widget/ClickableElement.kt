@@ -22,7 +22,6 @@ abstract class ClickableElement : AbstractElement() {
 	var playClickSound: Boolean = true
 
 	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-		if (!active) return NextAction.Continue
 		if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		if (button == Mouse.LEFT && transform.mouseHover()) {
 			if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
@@ -33,7 +32,6 @@ abstract class ClickableElement : AbstractElement() {
 	}
 
 	override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-		if (!active) return NextAction.Continue
 		if (super.onMouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		if (button == Mouse.LEFT) {
 			pressed = false
