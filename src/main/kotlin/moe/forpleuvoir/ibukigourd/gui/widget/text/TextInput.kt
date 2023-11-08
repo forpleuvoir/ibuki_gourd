@@ -37,7 +37,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
-class TextInput(
+open class TextInput(
 	width: Float,
 	height: Float,
 	padding: Margin = Theme.TEXT_INPUT.PADDING,
@@ -66,6 +66,11 @@ class TextInput(
 				onTextChanged(field)
 			}
 		}
+
+
+	val history: HistoryRecord = HistoryRecord()
+
+	var maxRecord: Int by history::maxRecord
 
 	var hintText: Text? = null
 
@@ -116,7 +121,7 @@ class TextInput(
 			onTextChanged(text)
 		}
 
-	var maxLength = 32
+	var maxLength = 255
 		set(value) {
 			field = value
 			if (text.length > value) {
@@ -154,7 +159,7 @@ class TextInput(
 			return text.substring(start, end)
 		}
 
-	fun write(text: String) {
+	fun write(text: String, historyOpt: Boolean = false) {
 		var string2: String
 		var string: String
 		var l: Int
@@ -169,6 +174,8 @@ class TextInput(
 			return
 		}
 		this.text = string2
+		if (this.text != history.lastUndo && !historyOpt)
+			history.pushUndo(text)
 		this.selectionStart = i + l
 		this.selectionEnd = selectionStart
 		this.onTextChanged(this.text)
@@ -220,30 +227,38 @@ class TextInput(
 		return getWordSkipPosition(wordOffset, cursor)
 	}
 
-	private fun getWordSkipPosition(wordOffset: Int, cursorPosition: Int, skipOverSpaces: Boolean = true): Int {
-		var i = cursorPosition
-		val bl = wordOffset < 0
-		val j = abs(wordOffset)
-		for (k in 0 until j) {
-			if (bl) {
-				while (skipOverSpaces && i > 0 && text[i - 1] == ' ') {
-					--i
+	private fun getWordSkipPosition(wordOffset: Int, cursorPosition: Int, skipOverSpaces: Boolean = false): Int {
+		var resultCursor = cursorPosition
+		val leftOffset = wordOffset < 0
+		val offset = abs(wordOffset)
+		repeat(offset) {
+			if (leftOffset) {
+				if (!skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
+					--resultCursor
+					return@repeat
 				}
-				while (i > 0 && text[i - 1] != ' ') {
-					--i
+				while (skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
+					--resultCursor
 				}
-				continue
+				while (resultCursor > 0 && text[resultCursor - 1] != ' ') {
+					--resultCursor
+				}
+				return@repeat
 			}
-			val l = text.length
-			if (text.indexOf(32.toChar(), i).also { i = it } == -1) {
-				i = l
-				continue
+			val length = text.length
+			if (!skipOverSpaces && resultCursor < text.length && text[resultCursor] == ' ') {
+				++resultCursor
+				return@repeat
 			}
-			while (skipOverSpaces && i < l && text[i] == ' ') {
-				++i
+			if (text.indexOf(32.toChar(), resultCursor).also { resultCursor = it } == -1) {
+				resultCursor = length
+				return@repeat
+			}
+			while (skipOverSpaces && resultCursor < length && text[resultCursor] == ' ') {
+				++resultCursor
 			}
 		}
-		return i
+		return resultCursor
 	}
 
 	fun moveCursor(offset: Int) {
@@ -285,6 +300,18 @@ class TextInput(
 			if (editable) {
 				write("")
 			}
+			return NextAction.Cancel
+		}
+		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
+			setCursorToEnd()
+			this.selectionEnd = 0
+			write(history.undo(text), true)
+			return NextAction.Cancel
+		}
+		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
+			setCursorToEnd()
+			this.selectionEnd = 0
+			write(history.redo(text), true)
 			return NextAction.Cancel
 		}
 		when (keyCode) {
@@ -393,9 +420,13 @@ class TextInput(
 			val rect = contentRect(true)
 			val height = textRenderer.fontHeight.toFloat()
 			val y = rect.top + (rect.height - height) / 2f - 0.75f
+			val offset = textRenderer.getWidth(text.substring(firstCharacterIndex, cursor))
+			if (cursor == text.length) {
+				renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset, y + height - 1.25f), 5f, 1f), cursorColor)
+				return
+			}
 			if (cursor - firstCharacterIndex > 0) {
-				val width = textRenderer.getWidth(text.substring(firstCharacterIndex, cursor))
-				renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + width - 0.85f, y), Size.create(1f, height)), cursorColor)
+				renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset - 0.85f, y), 1f, height), cursorColor)
 			} else {
 				renderRect(renderContext.matrixStack, rect(rect.position.y(y), Size.create(1f, height)), cursorColor)
 			}
