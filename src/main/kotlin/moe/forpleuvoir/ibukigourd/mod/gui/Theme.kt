@@ -52,11 +52,11 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
 
 		val CURSOR_COLOR by ConfigColor("cursor_color", Colors.BLACK)
 
-		val BACKGROUND_COLOR by ConfigColor("background_color", Colors.WHITE)
+		val BACKGROUND_SHADER_COLOR by ConfigColor("background_shader_color", Colors.WHITE)
 
-		val TEXT_EDITABLE_COLOR by ConfigColor("text_editable_color", Color(0x303030))
+		val TEXT_COLOR by ConfigColor("text_color", Color(0x303030))
 
-		val TEXT_UNEDITABLE_COLOR by ConfigColor("text_uneditable_color", Color(0x707070))
+		val HINT_COLOR by ConfigColor("hint_color", Color(0x707070))
 
 	}
 

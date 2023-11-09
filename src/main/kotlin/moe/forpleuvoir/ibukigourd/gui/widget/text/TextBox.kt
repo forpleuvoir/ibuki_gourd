@@ -29,7 +29,6 @@ import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.wrapToLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.ternary
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.SharedConstants
@@ -51,9 +50,9 @@ class TextBox(
 	margin: Margin? = null,
 	maxLength: Int = Int.MAX_VALUE,
 	scrollerThickness: Float = 10f,
-	var editableColor: ARGBColor = Theme.TEXT_INPUT.TEXT_EDITABLE_COLOR,
-	var uneditableColor: ARGBColor = Theme.TEXT_INPUT.TEXT_UNEDITABLE_COLOR,
-	var backgroundColor: ARGBColor = Theme.TEXT_INPUT.BACKGROUND_COLOR,
+	var textColor: ARGBColor = Theme.TEXT_INPUT.TEXT_COLOR,
+	var hintColor: ARGBColor = Theme.TEXT_INPUT.HINT_COLOR,
+	var bgShaderColor: ARGBColor = Theme.TEXT_INPUT.BACKGROUND_SHADER_COLOR,
 	var selectedColor: ARGBColor = Theme.TEXT_INPUT.SELECTED_COLOR,
 	var cursorColor: ARGBColor = Theme.TEXT_INPUT.CURSOR_COLOR,
 	private val spacing: Float = 1f,
@@ -190,11 +189,12 @@ class TextBox(
 			onChange()
 		}
 
+	var cursor: Int = 0
+
+	val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
+
 	val selectedText: String
 		get() = this.selection.getText(this.text)
-
-
-	var cursor: Int = 0
 
 	var selectionEnd: Int = 0
 
@@ -274,6 +274,7 @@ class TextBox(
 
 	override fun tick() {
 		super.tick()
+		history.tick()
 		if (focused) {
 			++focusedTicks
 		} else {
@@ -283,7 +284,7 @@ class TextBox(
 
 
 	@Suppress("DuplicatedCode")
-	private fun replaceSelection(string: String) {
+	private fun replaceSelection(string: String, historyOpt: Boolean = false) {
 		if (string.isEmpty() && !this.hasSelection) {
 			return
 		}
@@ -292,6 +293,8 @@ class TextBox(
 		text = StringBuilder(text).replace(substring.beginIndex, substring.endIndex, string2).toString()
 		cursor = substring.beginIndex + string2.length
 		selectionEnd = cursor
+		if (!historyOpt)
+			history.textChange(this.text, cursor)
 		onChange()
 	}
 
@@ -363,10 +366,6 @@ class TextBox(
 		text.wrapToLines(textRenderer, contentRect(true).width.toInt()) { start, end ->
 			lines.add(Substring(start, end))
 		}
-//		textRenderer.textHandler
-//			.wrapLines(text, contentRect(true).width.toInt(), Style.EMPTY, false) { _, start: Int, end: Int ->
-//				lines.add(Substring(start, end))
-//			}
 		if (text[text.length - 1] == '\n') {
 			lines.add(Substring(text.length, text.length))
 		}
@@ -402,6 +401,7 @@ class TextBox(
 	}
 
 	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+		//TODO 待修复： 点击时光标位置不正确
 		if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
 		if (!scrollerBar.mouseHover())
 			mouseHoverContent {
@@ -434,32 +434,57 @@ class TextBox(
 
 	override fun onKeyPress(keyCode: KeyCode): NextAction {
 		if (!focused) return NextAction.Continue
-
 		selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+		//全选
 		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
 			cursor = text.length
 			selectionEnd = 0
 			return NextAction.Cancel
 		}
+		//复制选中
 		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
 			mc.keyboard.clipboard = this.selectedText
 			return NextAction.Cancel
 		}
+		//粘贴
 		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
 			replaceSelection(mc.keyboard.clipboard)
 			return NextAction.Cancel
 		}
+		//剪切选中
 		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
 			mc.keyboard.clipboard = this.selectedText
 			replaceSelection("")
 			return NextAction.Cancel
 		}
+		//另起一行
 		if (InputHandler.hasKeyPressed(Keyboard.RIGHT_SHIFT, Keyboard.ENTER)) {
 			this.moveCursor(ABSOLUTE, this.currentLine.endIndex)
 			replaceSelection("\n")
 			return NextAction.Cancel
 		}
+		//撤回
+		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
+			cursor = text.length
+			selectionEnd = 0
+			history.undo(text, cursor).let {
+				replaceSelection(it.text, true)
+				cursor = it.cursor
+			}
+			return NextAction.Cancel
+		}
+		//重做
+		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
+			cursor = text.length
+			selectionEnd = 0
+			history.redo(text, cursor).let {
+				replaceSelection(it.text, true)
+				cursor = it.cursor
+			}
+			return NextAction.Cancel
+		}
 		when (keyCode) {
+			//光标左移
 			Keyboard.LEFT -> {
 				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					val substring: Substring = this.previousWordAtCursor
@@ -469,7 +494,7 @@ class TextBox(
 				}
 				return NextAction.Cancel
 			}
-
+			//光标右移
 			Keyboard.RIGHT -> {
 				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					val substring: Substring = this.nextWordAtCursor
@@ -479,38 +504,38 @@ class TextBox(
 				}
 				return NextAction.Cancel
 			}
-
+			//光标上移
 			Keyboard.UP -> {
 				if (!InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					moveCursorLine(-1)
 				}
 				return NextAction.Cancel
 			}
-
+			//光标下移
 			Keyboard.DOWN -> {
 				if (!InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					moveCursorLine(1)
 				}
 				return NextAction.Cancel
 			}
-
+			//上一页
 			Keyboard.PAGE_UP -> {
 				this.moveCursor(ABSOLUTE, 0)
 				return NextAction.Cancel
 			}
-
+			//下一页
 			Keyboard.PAGE_DOWN -> {
 				this.moveCursor(END, 0)
 				return NextAction.Cancel
 			}
-
+			//光标移动到行首,如果按下了ctrl则移动到文本开头
 			Keyboard.HOME -> {
 				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					this.moveCursor(ABSOLUTE, 0)
 				} else NextAction.Cancel
 				return NextAction.Cancel
 			}
-
+			//光标移动到行尾,如果按下了ctrl则移动到文本结尾
 			Keyboard.END -> {
 				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					this.moveCursor(END, 0)
@@ -519,7 +544,7 @@ class TextBox(
 				}
 				return NextAction.Cancel
 			}
-
+			//删除选中,如果没有选中则删除光标前的一个字符,如果按下了ctrl则删除光标前的一个单词
 			Keyboard.BACKSPACE -> {
 				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					val substring: Substring = this.previousWordAtCursor
@@ -529,7 +554,7 @@ class TextBox(
 				}
 				return NextAction.Cancel
 			}
-
+			//删除选中,如果没有选中则删除光标后的一个字符,如果按下了ctrl则删除光标后的一个单词
 			Keyboard.DELETE -> {
 				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
 					val substring: Substring = this.nextWordAtCursor
@@ -539,7 +564,7 @@ class TextBox(
 				}
 				return NextAction.Cancel
 			}
-
+			//删除选中,如果没有选中则删除光标前的一个单词
 			Keyboard.ENTER, Keyboard.KP_ENTER -> {
 				replaceSelection("\n")
 				return NextAction.Cancel
@@ -572,7 +597,7 @@ class TextBox(
 	}
 
 	override fun onRenderBackground(renderContext: RenderContext) {
-		renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), Colors.WHITE)
+		renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
 	}
 
 	//绘制选择高亮
@@ -586,7 +611,7 @@ class TextBox(
 		//渲染提示文本
 		if (text.isEmpty() && !focused) {
 			if (hintText != null) {
-				textRenderer.renderTextLines(renderContext.matrixStack, hintText!!, contentRect, spacing, PlanarAlignment::TopLeft, color = uneditableColor)
+				textRenderer.renderTextLines(renderContext.matrixStack, hintText!!, contentRect, spacing, PlanarAlignment::TopLeft, color = hintColor)
 			}
 			return
 		}
@@ -596,7 +621,7 @@ class TextBox(
 				var y = contentRect.top - amount
 				lines.forEach {
 					if (y in contentRect.top - fontHeight..contentRect.bottom)
-						renderText(text.substring(it.beginIndex, it.endIndex), contentRect.left, y, contentRect.z, color = editableColor)
+						renderText(text.substring(it.beginIndex, it.endIndex), contentRect.left, y, contentRect.z, color = textColor)
 					y += fontHeight + spacing
 				}
 			}
@@ -639,9 +664,9 @@ fun ElementContainer.textBox(
 	margin: Margin? = null,
 	maxLength: Int = Int.MAX_VALUE,
 	scrollerThickness: Float = 10f,
-	editableColor: ARGBColor = Theme.TEXT_INPUT.TEXT_EDITABLE_COLOR,
-	uneditableColor: ARGBColor = Theme.TEXT_INPUT.TEXT_UNEDITABLE_COLOR,
-	backgroundColor: ARGBColor = Theme.TEXT_INPUT.BACKGROUND_COLOR,
+	editableColor: ARGBColor = Theme.TEXT_INPUT.TEXT_COLOR,
+	uneditableColor: ARGBColor = Theme.TEXT_INPUT.HINT_COLOR,
+	backgroundColor: ARGBColor = Theme.TEXT_INPUT.BACKGROUND_SHADER_COLOR,
 	selectedColor: ARGBColor = Theme.TEXT_INPUT.SELECTED_COLOR,
 	cursorColor: ARGBColor = Theme.TEXT_INPUT.CURSOR_COLOR,
 	spacing: Float = 1f,
