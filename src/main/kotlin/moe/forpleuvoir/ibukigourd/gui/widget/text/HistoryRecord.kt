@@ -1,48 +1,88 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
-class HistoryRecord(var maxRecord: Int = 50) {
+import moe.forpleuvoir.ibukigourd.api.Tickable
 
-	/**
-	 * 撤回列表
-	 */
-	private val undoList: ArrayDeque<String> = ArrayDeque()
+class HistoryRecord(var maxRecord: Int = 50, var currentRecord: Record) : Tickable {
 
-	/**
-	 * 重做列表
-	 */
-	private val redoList: ArrayDeque<String> = ArrayDeque()
+    data class Record(val text: String, val cursor: Int)
 
-	val lastUndo: String? get() = if (undoList.isNotEmpty()) undoList.last() else null
+    /**
+     * 撤回列表
+     */
+    private val undoStack: ArrayDeque<Record> = ArrayDeque()
 
-	val lastRedo: String? get() = if (redoList.isNotEmpty()) redoList.last() else null
+    /**
+     * 重做列表
+     */
+    private val redoStack: ArrayDeque<Record> = ArrayDeque()
 
-	fun pushUndo(text: String) {
-		if (undoList.size >= maxRecord)
-			undoList.removeFirst()
-		undoList.addLast(text)
-	}
+    private val pushDelay: Int = 10
 
-	fun pushRedo(text: String) {
-		if (redoList.size >= maxRecord)
-			redoList.removeFirst()
-		redoList.addLast(text)
-	}
+    private var tickCount: Int = 0
 
-	fun undo(text: String): String {
-		var result = text
-		if (undoList.isNotEmpty()) {
-			pushRedo(text)
-			result = undoList.removeLast()
-		}
-		return result
-	}
+    val undoes: Iterable<Record> get() = undoStack
 
-	fun redo(text: String): String {
-		var result = text
-		if (redoList.isNotEmpty()) {
-			pushUndo(text)
-			result = redoList.removeLast()
-		}
-		return result
-	}
+    val redoes: Iterable<Record> get() = redoStack
+
+    val lastUndo: String? get() = if (undoStack.isNotEmpty()) undoStack.last().text else null
+
+    val lastRedo: String? get() = if (redoStack.isNotEmpty()) redoStack.last().text else null
+
+    fun textChange(text: String, cursor: Int) {
+        val bl = tickCount == 0
+        if (bl) tickCount = pushDelay
+
+        //收到之后立马保存一个，如果还未到时间则持续更新最后的undo
+        TODO()
+
+        if (!bl) tickCount = pushDelay
+    }
+
+    fun pushUndo(text: String, cursor: Int) {
+        if (undoStack.size >= maxRecord)
+            undoStack.removeFirst()
+        undoStack.addLast(Record(text, cursor))
+    }
+
+    fun pushUndo(record: Record) {
+        if (undoStack.size >= maxRecord)
+            undoStack.removeFirst()
+        undoStack.addLast(record)
+    }
+
+    fun pushRedo(text: String, cursor: Int) {
+        if (redoStack.size >= maxRecord)
+            redoStack.removeFirst()
+        redoStack.addLast(Record(text, cursor))
+    }
+
+    fun pushRedo(record: Record) {
+        if (redoStack.size >= maxRecord)
+            redoStack.removeFirst()
+        redoStack.addLast(record)
+    }
+
+    fun undo(text: String, cursor: Int): Record {
+        var result = Record(text, cursor)
+        if (undoStack.isNotEmpty()) {
+            pushRedo(text, cursor)
+            result = undoStack.removeLast()
+        }
+        return result
+    }
+
+    fun redo(text: String, cursor: Int): Record {
+        var result = Record(text, cursor)
+        if (redoStack.isNotEmpty()) {
+            pushUndo(text, cursor)
+            result = redoStack.removeLast()
+        }
+        return result
+    }
+
+    override fun tick() {
+        if (tickCount > 0) {
+            tickCount--
+        }
+    }
 }

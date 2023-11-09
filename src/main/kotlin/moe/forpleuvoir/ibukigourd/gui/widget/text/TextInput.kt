@@ -33,457 +33,477 @@ import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.SharedConstants
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.util.Util
+import java.util.Optional
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 open class TextInput(
-	width: Float,
-	height: Float,
-	padding: Margin = Theme.TEXT_INPUT.PADDING,
-	margin: Margin? = null,
-	var editableColor: ARGBColor = TEXT_EDITABLE_COLOR,
-	var uneditableColor: ARGBColor = TEXT_UNEDITABLE_COLOR,
-	var backgroundColor: ARGBColor = BACKGROUND_COLOR,
-	var selectedColor: ARGBColor = SELECTED_COLOR,
-	var cursorColor: ARGBColor = CURSOR_COLOR,
-	private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
+    width: Float,
+    height: Float,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    var editableColor: ARGBColor = TEXT_EDITABLE_COLOR,
+    var uneditableColor: ARGBColor = TEXT_UNEDITABLE_COLOR,
+    var backgroundColor: ARGBColor = BACKGROUND_COLOR,
+    var selectedColor: ARGBColor = SELECTED_COLOR,
+    var cursorColor: ARGBColor = CURSOR_COLOR,
+    private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
 ) : ClickableElement() {
 
-	override val focusable: Boolean = true
+    override val focusable: Boolean = true
 
-	init {
-		transform.width = width.also { transform.fixedWidth = true }
-		transform.height = height.also { transform.fixedHeight = true }
-		padding(padding)
-		margin?.let(::margin)
-	}
+    init {
+        transform.width = width.also { transform.fixedWidth = true }
+        transform.height = height.also { transform.fixedHeight = true }
+        padding(padding)
+        margin?.let(::margin)
+    }
 
-	var text: String = ""
-		set(value) {
-			if (value != field) {
-				field = value
-				onTextChanged(field)
-			}
-		}
-
-
-	val history: HistoryRecord = HistoryRecord()
-
-	var maxRecord: Int by history::maxRecord
-
-	var hintText: Text? = null
-
-	var suggestion: ((text: String) -> String)? = null
-
-	var onTextChanged: (text: String) -> Unit = {}
-
-	var textPredicate: (text: String) -> Boolean = { true }
-
-	/**
-	 * The index of the leftmost character that is rendered on a screen.
-	 */
-	var firstCharacterIndex: Int = 0
-
-	var selectionStart: Int = 0
-		set(value) {
-			field = value.clamp(0, text.length)
-		}
-
-	var selectionEnd: Int = 0
-		set(value) {
-			val textLength = text.length
-			field = value.clamp(0, textLength)
-			if (firstCharacterIndex > textLength) {
-				firstCharacterIndex = textLength
-			}
-			val width: Int = this.contentRect(true).width.toInt()
-			val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), width)
-			val k = string.length + firstCharacterIndex
-			if (field == firstCharacterIndex) {
-				firstCharacterIndex -= textRenderer.trimToWidth(text, width, true).length
-			}
-			if (field > k) {
-				firstCharacterIndex += field - k
-			} else if (field <= firstCharacterIndex) {
-				firstCharacterIndex -= firstCharacterIndex - field
-			}
-			firstCharacterIndex = firstCharacterIndex.clamp(0, textLength)
-		}
-
-	var cursor: Int
-		get() = selectionStart
-		set(value) {
-			selectionStart = value
-			if (!selecting) {
-				selectionEnd = selectionStart
-			}
-			onTextChanged(text)
-		}
-
-	var maxLength = 255
-		set(value) {
-			field = value
-			if (text.length > value) {
-				text = text.substring(0, value)
-				this.onTextChanged(text)
-			}
-		}
-
-	var editable = true
-
-	private var selecting = false
-
-	override var onFocusedChanged: ((Boolean) -> Unit)? = {
-		if (!it) {
-			selectionStart = 0
-			selectionEnd = 0
-		}
-	}
-
-	private var focusedTicks = 0
-
-	override fun tick() {
-		super.tick()
-		if (focused) {
-			++focusedTicks
-		} else {
-			focusedTicks = 0
-		}
-	}
-
-	val selectedText: String
-		get() {
-			val start = selectionStart.coerceAtMost(selectionEnd)
-			val end = selectionStart.coerceAtLeast(selectionEnd)
-			return text.substring(start, end)
-		}
-
-	fun write(text: String, historyOpt: Boolean = false) {
-		var string2: String
-		var string: String
-		var l: Int
-		val i = selectionStart.coerceAtMost(selectionEnd)
-		val j = selectionStart.coerceAtLeast(selectionEnd)
-		val k = maxLength - this.text.length - (i - j)
-		if (k < SharedConstants.stripInvalidChars(text).also { string = it }.length.also { l = it }) {
-			string = string.substring(0, k)
-			l = k
-		}
-		if (!textPredicate(StringBuilder(this.text).replace(i, j, string).toString().also { string2 = it })) {
-			return
-		}
-		this.text = string2
-		if (this.text != history.lastUndo && !historyOpt)
-			history.pushUndo(text)
-		this.selectionStart = i + l
-		this.selectionEnd = selectionStart
-		this.onTextChanged(this.text)
-	}
+    var text: String = ""
+        set(value) {
+            if (value != field) {
+                field = value
+                onTextChanged(field)
+            }
+        }
 
 
-	fun erase(offset: Int) {
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-			this.eraseWords(offset)
-		} else {
-			this.eraseCharacters(offset)
-		}
-	}
+    val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
 
-	fun eraseWords(wordOffset: Int) {
-		if (text.isEmpty()) {
-			return
-		}
-		if (selectionEnd != selectionStart) {
-			write("")
-			return
-		}
-		this.eraseCharacters(this.getWordSkipPosition(wordOffset) - selectionStart)
-	}
+    var maxRecord: Int by history::maxRecord
 
-	fun eraseCharacters(characterOffset: Int) {
-		var k: Int
-		if (text.isEmpty()) {
-			return
-		}
-		if (selectionEnd != selectionStart) {
-			write("")
-			return
-		}
-		val i: Int = this.getCursorPosWithOffset(characterOffset)
-		val j = i.coerceAtMost(selectionStart)
-		if (j == i.coerceAtLeast(selectionStart).also { k = it }) {
-			return
-		}
-		val string = StringBuilder(text).delete(j, k).toString()
-		if (!textPredicate(string)) {
-			return
-		}
-		text = string
-		cursor = j
-	}
+    var hintText: Text? = null
 
-	private fun getWordSkipPosition(wordOffset: Int): Int {
-		return getWordSkipPosition(wordOffset, cursor)
-	}
+    var suggestion: ((text: String) -> String)? = null
 
-	private fun getWordSkipPosition(wordOffset: Int, cursorPosition: Int, skipOverSpaces: Boolean = false): Int {
-		var resultCursor = cursorPosition
-		val leftOffset = wordOffset < 0
-		val offset = abs(wordOffset)
-		repeat(offset) {
-			if (leftOffset) {
-				if (!skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
-					--resultCursor
-					return@repeat
-				}
-				while (skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
-					--resultCursor
-				}
-				while (resultCursor > 0 && text[resultCursor - 1] != ' ') {
-					--resultCursor
-				}
-				return@repeat
-			}
-			val length = text.length
-			if (!skipOverSpaces && resultCursor < text.length && text[resultCursor] == ' ') {
-				++resultCursor
-				return@repeat
-			}
-			if (text.indexOf(32.toChar(), resultCursor).also { resultCursor = it } == -1) {
-				resultCursor = length
-				return@repeat
-			}
-			while (skipOverSpaces && resultCursor < length && text[resultCursor] == ' ') {
-				++resultCursor
-			}
-		}
-		return resultCursor
-	}
+    var onTextChanged: (text: String) -> Unit = {}
 
-	fun moveCursor(offset: Int) {
-		cursor = getCursorPosWithOffset(offset)
-	}
+    var textPredicate: (text: String) -> Boolean = { true }
 
-	private fun getCursorPosWithOffset(offset: Int): Int {
-		return Util.moveCursor(text, selectionStart, offset)
-	}
+    /**
+     * The index of the leftmost character that is rendered on a screen.
+     */
+    var firstCharacterIndex: Int = 0
 
-	fun setCursorToStart() {
-		cursor = 0
-	}
+    var selectionStart: Int = 0
+        set(value) {
+            field = value.clamp(0, text.length)
+        }
 
-	fun setCursorToEnd() {
-		cursor = text.length
-	}
+    var selectionEnd: Int = 0
+        set(value) {
+            val textLength = text.length
+            field = value.clamp(0, textLength)
+            if (firstCharacterIndex > textLength) {
+                firstCharacterIndex = textLength
+            }
+            val width: Int = this.contentRect(true).width.toInt()
+            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), width)
+            val k = string.length + firstCharacterIndex
+            if (field == firstCharacterIndex) {
+                firstCharacterIndex -= textRenderer.trimToWidth(text, width, true).length
+            }
+            if (field > k) {
+                firstCharacterIndex += field - k
+            } else if (field <= firstCharacterIndex) {
+                firstCharacterIndex -= firstCharacterIndex - field
+            }
+            firstCharacterIndex = firstCharacterIndex.clamp(0, textLength)
+        }
 
-	override fun onKeyPress(keyCode: KeyCode): NextAction {
-		if (!this.isActive) return NextAction.Continue
-		selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
-			setCursorToEnd()
-			this.selectionEnd = 0
-			return NextAction.Cancel
-		}
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
-			mc.keyboard.clipboard = this.selectedText
-			return NextAction.Cancel
-		}
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
-			if (editable) {
-				write(mc.keyboard.clipboard)
-			}
-			return NextAction.Cancel
-		}
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
-			mc.keyboard.clipboard = this.selectedText
-			if (editable) {
-				write("")
-			}
-			return NextAction.Cancel
-		}
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
-			setCursorToEnd()
-			this.selectionEnd = 0
-			write(history.undo(text), true)
-			return NextAction.Cancel
-		}
-		if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
-			setCursorToEnd()
-			this.selectionEnd = 0
-			write(history.redo(text), true)
-			return NextAction.Cancel
-		}
-		when (keyCode) {
-			Keyboard.TAB -> {
-				if (suggestion?.invoke(text)?.isNotEmpty() == true) {
-					write(suggestion!!.invoke(text))
-				} else {
-					write("    ")
-				}
-			}
+    var cursor: Int
+        get() = selectionStart
+        set(value) {
+            selectionStart = value
+            if (!selecting) {
+                selectionEnd = selectionStart
+            }
+            onTextChanged(text)
+        }
 
-			Keyboard.LEFT -> {
-				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-					cursor = this.getWordSkipPosition(-1)
-				} else {
-					moveCursor(-1)
-				}
-				return NextAction.Cancel
-			}
+    var maxLength = 255
+        set(value) {
+            field = value
+            if (text.length > value) {
+                text = text.substring(0, value)
+                this.onTextChanged(text)
+            }
+        }
 
-			Keyboard.RIGHT -> {
-				if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-					cursor = this.getWordSkipPosition(1)
-				} else {
-					moveCursor(1)
-				}
-				return NextAction.Cancel
-			}
+    var editable = true
 
-			Keyboard.BACKSPACE -> {
-				if (editable) {
-					selecting = false
-					erase(-1)
-					selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
-				}
-				return NextAction.Cancel
-			}
+    private var selecting = false
 
-			Keyboard.DELETE -> {
-				if (editable) {
-					selecting = false
-					erase(1)
-					selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
-				}
-				return NextAction.Cancel
-			}
+    override var onFocusedChanged: ((Boolean) -> Unit)? = {
+        if (!it) {
+            selectionStart = 0
+            selectionEnd = 0
+        }
+    }
 
-			Keyboard.HOME -> {
-				setCursorToStart()
-				return NextAction.Cancel
-			}
+    private var focusedTicks = 0
 
-			Keyboard.END -> {
-				setCursorToEnd()
-				return NextAction.Cancel
-			}
-		}
-		return NextAction.Continue
-	}
+    override fun tick() {
+        super.tick()
+        history.tick()
+        if (focused) {
+            ++focusedTicks
+            val record = HistoryRecord.Record(this.text, this.cursor)
+//            if (focusedTicks % 20 == 0 && record != history.currentRecord) {
+//                history.pushUndo(history.currentRecord)
+//                history.currentRecord = record
+//                println("保存了${record}")
+//            }
+        } else {
+            focusedTicks = 0
+        }
+    }
 
-	override fun onKeyRelease(keyCode: KeyCode): NextAction {
-		selecting = if (keyCode == Keyboard.LEFT_SHIFT) false else selecting
-		return super.onKeyRelease(keyCode)
-	}
+    val selectedText: String
+        get() {
+            val start = selectionStart.coerceAtMost(selectionEnd)
+            val end = selectionStart.coerceAtLeast(selectionEnd)
+            return text.substring(start, end)
+        }
+
+    fun write(text: String, historyOpt: Boolean = false) {
+        var string2: String
+        var string: String
+        var l: Int
+        val i = selectionStart.coerceAtMost(selectionEnd)
+        val j = selectionStart.coerceAtLeast(selectionEnd)
+        val k = maxLength - this.text.length - (i - j)
+        if (k < SharedConstants.stripInvalidChars(text).also { string = it }.length.also { l = it }) {
+            string = string.substring(0, k)
+            l = k
+        }
+        if (!textPredicate(StringBuilder(this.text).replace(i, j, string).toString().also { string2 = it })) {
+            return
+        }
+        this.text = string2
+        this.selectionStart = i + l
+        this.selectionEnd = selectionStart
+        this.onTextChanged(this.text)
+        if (!historyOpt)
+            history.textChange(this.text, cursor)
+    }
 
 
-	val isActive: Boolean
-		get() {
-			return visible && focused && editable
-		}
+    fun erase(offset: Int) {
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+            this.eraseWords(offset)
+        } else {
+            this.eraseCharacters(offset)
+        }
+    }
 
-	override fun onCharTyped(chr: Char): NextAction {
-		if (!isActive) return NextAction.Continue
-		if (SharedConstants.isValidChar(chr)) {
-			if (editable) {
-				write(chr.toString())
-			}
-			return NextAction.Cancel
-		}
-		return NextAction.Continue
-	}
+    fun eraseWords(wordOffset: Int) {
+        if (text.isEmpty()) {
+            return
+        }
+        if (selectionEnd != selectionStart) {
+            write("")
+            return
+        }
+        this.eraseCharacters(this.getWordSkipPosition(wordOffset) - selectionStart)
+    }
 
-	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-		mouseHover {
-			val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
-			cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x).toInt()).length + firstCharacterIndex
-		}
-		return super.onMouseClick(mouseX, mouseY, button)
-	}
+    fun eraseCharacters(characterOffset: Int) {
+        var k: Int
+        if (text.isEmpty()) {
+            return
+        }
+        if (selectionEnd != selectionStart) {
+            write("")
+            return
+        }
+        val i: Int = this.getCursorPosWithOffset(characterOffset)
+        val j = i.coerceAtMost(selectionStart)
+        if (j == i.coerceAtLeast(selectionStart).also { k = it }) {
+            return
+        }
+        val string = StringBuilder(text).delete(j, k).toString()
+        if (!textPredicate(string)) {
+            return
+        }
+        text = string
+        history.textChange(this.text, cursor)
+        cursor = j
+    }
 
-	override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
-		if (!isActive) return super.onMouseScrolling(mouseX, mouseY, amount)
-		mouseHover {
-			moveCursor((amount < 0f).ternary(1, -1))
-			return NextAction.Cancel
-		}
-		return NextAction.Continue
-	}
+    private fun getWordSkipPosition(wordOffset: Int): Int {
+        return getWordSkipPosition(wordOffset, cursor)
+    }
 
-	override fun onRenderBackground(renderContext: RenderContext) {
-		renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), backgroundColor)
-	}
+    private fun getWordSkipPosition(wordOffset: Int, cursorPosition: Int, skipOverSpaces: Boolean = false): Int {
+        var resultCursor = cursorPosition
+        val leftOffset = wordOffset < 0
+        val offset = abs(wordOffset)
+        repeat(offset) {
+            if (leftOffset) {
+                if (!skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
+                    --resultCursor
+                    return@repeat
+                }
+                while (skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
+                    --resultCursor
+                }
+                while (resultCursor > 0 && text[resultCursor - 1] != ' ') {
+                    --resultCursor
+                }
+                return@repeat
+            }
+            val length = text.length
+            if (!skipOverSpaces && resultCursor < text.length && text[resultCursor] == ' ') {
+                ++resultCursor
+                return@repeat
+            }
+            if (text.indexOf(32.toChar(), resultCursor).also { resultCursor = it } == -1) {
+                resultCursor = length
+                return@repeat
+            }
+            while (skipOverSpaces && resultCursor < length && text[resultCursor] == ' ') {
+                ++resultCursor
+            }
+        }
+        return resultCursor
+    }
 
-	fun renderCursor(renderContext: RenderContext) {
-		if (focusedTicks % 15 >= 5 && focused) {
-			val rect = contentRect(true)
-			val height = textRenderer.fontHeight.toFloat()
-			val y = rect.top + (rect.height - height) / 2f - 0.75f
-			val offset = textRenderer.getWidth(text.substring(firstCharacterIndex, cursor))
-			if (cursor == text.length) {
-				renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset, y + height - 1.25f), 5f, 1f), cursorColor)
-				return
-			}
-			if (cursor - firstCharacterIndex > 0) {
-				renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset - 0.85f, y), 1f, height), cursorColor)
-			} else {
-				renderRect(renderContext.matrixStack, rect(rect.position.y(y), Size.create(1f, height)), cursorColor)
-			}
-		}
-	}
+    fun moveCursor(offset: Int) {
+        cursor = getCursorPosWithOffset(offset)
+    }
 
-	fun renderText(renderContext: RenderContext) {
-		val contentRect = contentRect(true)
-		textRenderer.batchRenderText(renderContext.matrixStack) {
-			//"渲染提示文本"
-			if (text.isEmpty() && hintText != null && !focused) {
-				renderAlignmentText(hintText!!, contentRect, color = uneditableColor)
-			}
-			//"渲染文本本体"
-			val renderText = textRenderer!!.trimToWidth(text.substring(firstCharacterIndex), contentRect.width.toInt())
-			renderText.isNotEmpty().ifc {
-				val textColor = editable.ternary(editableColor, uneditableColor)
-				renderAlignmentText(renderText, contentRect, color = textColor)
-			}
-			//"渲染文本建议"
-			suggestion?.invoke(text)?.let {
-				if (focused && cursor == text.length) {
-					val renderTextWidth = textRenderer!!.getWidth(renderText).toFloat()
-					val rect = rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
-					renderAlignmentText(it, rect)
-				}
-			}
-		}
+    private fun getCursorPosWithOffset(offset: Int): Int {
+        return Util.moveCursor(text, selectionStart, offset)
+    }
 
-		//"渲染选中的文本高亮"
-		if (selectedText.isNotEmpty() || focused) {
-			val (startIndex, endIndex) = (selectionStart - firstCharacterIndex).coerceAtLeast(0) to
-					(selectionEnd - firstCharacterIndex).coerceAtLeast(0)
-			val start = contentRect.left + if (startIndex > 0)
-				textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
-			else 0f
-			val end = contentRect.left + if (endIndex > 0)
-				textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
-			else 0f
-			val width = (start - end).absoluteValue
-			val rect = if (selectionEnd > selectionStart) {
-				rect(contentRect.position.x(start), Size.create(width, contentRect.height))
-			} else {
-				rect(contentRect.position.x(end), Size.create(width, contentRect.height))
-			}
-			renderRect(renderContext.matrixStack, rect, selectedColor)
-		}
-	}
+    fun setCursorToStart() {
+        cursor = 0
+    }
 
-	override fun onRender(renderContext: RenderContext) {
-		if (!isActive && !visible) return
-		renderBackground(renderContext)
-		renderContext.scissor(contentRect(true)) {
-			renderText(renderContext)
-			renderCursor(renderContext)
-		}
-	}
+    fun setCursorToEnd() {
+        cursor = text.length
+    }
+
+    override fun onKeyPress(keyCode: KeyCode): NextAction {
+        if (!this.isActive) return NextAction.Continue
+        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
+            setCursorToEnd()
+            this.selectionEnd = 0
+            return NextAction.Cancel
+        }
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
+            mc.keyboard.clipboard = this.selectedText
+            return NextAction.Cancel
+        }
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
+            if (editable) {
+                write(mc.keyboard.clipboard)
+            }
+            return NextAction.Cancel
+        }
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
+            mc.keyboard.clipboard = this.selectedText
+            if (editable) {
+                write("")
+            }
+            return NextAction.Cancel
+        }
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
+            setCursorToEnd()
+            this.selectionEnd = 0
+            history.undo(text, cursor).let {
+                write(it.text, true)
+                cursor = it.cursor
+            }
+            return NextAction.Cancel
+        }
+        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
+            setCursorToEnd()
+            this.selectionEnd = 0
+            history.redo(text, cursor).let {
+                write(it.text, true)
+                cursor = it.cursor
+            }
+            return NextAction.Cancel
+        }
+        when (keyCode) {
+            Keyboard.TAB       -> {
+                if (suggestion != null) {
+                    suggestion!!(text).let {
+                        if (it.isNotEmpty()) {
+                            write(it)
+                            return NextAction.Cancel
+                        }
+                    }
+                    write("    ")
+                }
+                return NextAction.Cancel
+            }
+
+            Keyboard.LEFT      -> {
+                if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    cursor = this.getWordSkipPosition(-1)
+                } else {
+                    moveCursor(-1)
+                }
+                return NextAction.Cancel
+            }
+
+            Keyboard.RIGHT     -> {
+                if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    cursor = this.getWordSkipPosition(1)
+                } else {
+                    moveCursor(1)
+                }
+                return NextAction.Cancel
+            }
+
+            Keyboard.BACKSPACE -> {
+                if (editable) {
+                    selecting = false
+                    erase(-1)
+                    selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+                }
+                return NextAction.Cancel
+            }
+
+            Keyboard.DELETE    -> {
+                if (editable) {
+                    selecting = false
+                    erase(1)
+                    selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+                }
+                return NextAction.Cancel
+            }
+
+            Keyboard.HOME      -> {
+                setCursorToStart()
+                return NextAction.Cancel
+            }
+
+            Keyboard.END       -> {
+                setCursorToEnd()
+                return NextAction.Cancel
+            }
+        }
+        return NextAction.Continue
+    }
+
+    override fun onKeyRelease(keyCode: KeyCode): NextAction {
+        selecting = if (keyCode == Keyboard.LEFT_SHIFT) false else selecting
+        return super.onKeyRelease(keyCode)
+    }
+
+
+    val isActive: Boolean
+        get() {
+            return visible && focused && editable
+        }
+
+    override fun onCharTyped(chr: Char): NextAction {
+        if (!isActive) return NextAction.Continue
+        if (SharedConstants.isValidChar(chr)) {
+            if (editable) {
+                write(chr.toString())
+            }
+            return NextAction.Cancel
+        }
+        return NextAction.Continue
+    }
+
+    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+        mouseHover {
+            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
+            cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x).toInt()).length + firstCharacterIndex
+        }
+        return super.onMouseClick(mouseX, mouseY, button)
+    }
+
+    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+        if (!isActive) return super.onMouseScrolling(mouseX, mouseY, amount)
+        mouseHover {
+            moveCursor((amount < 0f).ternary(1, -1))
+            return NextAction.Cancel
+        }
+        return NextAction.Continue
+    }
+
+    override fun onRenderBackground(renderContext: RenderContext) {
+        renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), backgroundColor)
+    }
+
+    fun renderCursor(renderContext: RenderContext) {
+        if (focusedTicks % 15 >= 5 && focused) {
+            val rect = contentRect(true)
+            val height = textRenderer.fontHeight.toFloat()
+            val y = rect.top + (rect.height - height) / 2f - 0.75f
+            val offset = textRenderer.getWidth(text.substring(firstCharacterIndex, cursor))
+            if (cursor == text.length) {
+                renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset, y + height - 1.25f), 5f, 1f), cursorColor)
+                return
+            }
+            if (cursor - firstCharacterIndex > 0) {
+                renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset - 0.85f, y), 1f, height), cursorColor)
+            } else {
+                renderRect(renderContext.matrixStack, rect(rect.position.y(y), Size.create(1f, height)), cursorColor)
+            }
+        }
+    }
+
+    fun renderText(renderContext: RenderContext) {
+        val contentRect = contentRect(true)
+        textRenderer.batchRenderText(renderContext.matrixStack) {
+            //"渲染提示文本"
+            if (text.isEmpty() && hintText != null && !focused) {
+                renderAlignmentText(hintText!!, contentRect, color = uneditableColor)
+            }
+            //"渲染文本本体"
+            val renderText = textRenderer!!.trimToWidth(text.substring(firstCharacterIndex), contentRect.width.toInt())
+            renderText.isNotEmpty().ifc {
+                val textColor = editable.ternary(editableColor, uneditableColor)
+                renderAlignmentText(renderText, contentRect, color = textColor)
+            }
+            //"渲染文本建议"
+            suggestion?.invoke(text)?.let {
+                if (focused && cursor == text.length) {
+                    val renderTextWidth = textRenderer!!.getWidth(renderText).toFloat()
+                    val rect = rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
+                    renderAlignmentText(it, rect)
+                }
+            }
+        }
+
+        //"渲染选中的文本高亮"
+        if (selectedText.isNotEmpty() || focused) {
+            val (startIndex, endIndex) = (selectionStart - firstCharacterIndex).coerceAtLeast(0) to
+                    (selectionEnd - firstCharacterIndex).coerceAtLeast(0)
+            val start = contentRect.left + if (startIndex > 0)
+                textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
+            else 0f
+            val end = contentRect.left + if (endIndex > 0)
+                textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
+            else 0f
+            val width = (start - end).absoluteValue
+            val rect = if (selectionEnd > selectionStart) {
+                rect(contentRect.position.x(start), Size.create(width, contentRect.height))
+            } else {
+                rect(contentRect.position.x(end), Size.create(width, contentRect.height))
+            }
+            renderRect(renderContext.matrixStack, rect, selectedColor)
+        }
+    }
+
+    override fun onRender(renderContext: RenderContext) {
+        if (!isActive && !visible) return
+        renderBackground(renderContext)
+        renderContext.scissor(contentRect(true)) {
+            renderText(renderContext)
+            renderCursor(renderContext)
+        }
+    }
 
 }
 
@@ -498,9 +518,9 @@ open class TextInput(
  * @return TextInput
  */
 fun ElementContainer.textInput(
-	width: Float,
-	height: Float = 22f,
-	padding: Margin = Theme.TEXT_INPUT.PADDING,
-	margin: Margin? = null,
-	scope: TextInput.() -> Unit = {}
+    width: Float,
+    height: Float = 22f,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: TextInput.() -> Unit = {}
 ): TextInput = this.addElement(TextInput(width, height, padding, margin).apply(scope))
