@@ -18,7 +18,6 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -28,7 +27,6 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.wrapToLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.ternary
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.SharedConstants
@@ -166,7 +164,7 @@ class TextBox(
     private fun currentLineIndex(cursor: Int): Int {
         for (i in lines.indices) {
             val substring: Substring = lines[i]
-            if (cursor in substring) continue
+            if (cursor !in substring) continue
             return i
         }
         return -1
@@ -413,7 +411,6 @@ class TextBox(
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        //TODO 待修复： 点击时光标位置不正确
         if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
         if (!scrollerBar.mouseHover())
             mouseHoverContent {
@@ -646,7 +643,36 @@ class TextBox(
             val startY = contentRect.top + currentLineIndex(start) * (fontHeight + spacing) - amount
             val endY = contentRect.top + currentLineIndex(end) * (fontHeight + spacing) - amount
             val mindY = (startY + (fontHeight + spacing)).let { if (it == endY) 0f else it }
-            //TODO 渲染
+            if (startY == endY) {
+                renderRect(
+                    renderContext.matrixStack,
+                    rect(contentRect.left + startXOffset, startY, contentRect.z, textRenderer.getWidth(selection.getText(this.text)), fontHeight + spacing),
+                    selectedColor
+                )
+            } else if (mindY == 0f) {
+                rectBatchDraw(renderContext.matrixStack) {
+                    renderRect(
+                        rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
+                        selectedColor
+                    )
+                    renderRect(
+                        rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight + spacing), selectedColor
+                    )
+                }
+            } else {
+                rectBatchDraw(renderContext.matrixStack) {
+                    renderRect(
+                        rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
+                        selectedColor
+                    )
+                    renderRect(
+                        rect(contentRect.left, mindY, contentRect.z, contentRect.width, endY - startY - (fontHeight + spacing)), selectedColor
+                    )
+                    renderRect(
+                        rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight + spacing), selectedColor
+                    )
+                }
+            }
 
         }
     }

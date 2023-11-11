@@ -11,13 +11,15 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.*
 import moe.forpleuvoir.nebula.config.manager.AutoSaveConfigManager
+import moe.forpleuvoir.nebula.config.persistence.ConfigManagerPersistence
 import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @ModConfig("theme")
-object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}_theme"), JsonConfigManagerPersistence, AutoSaveConfigManager {
+object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}_theme"), ConfigManagerPersistence by JsonConfigManagerPersistence,
+               AutoSaveConfigManager {
 
 	override val initialDelay: Duration = 30.seconds
 
