@@ -6,13 +6,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 
-abstract class Tip(parent: () -> Element, private val tipHandler: () -> TipHandler) : AbstractElement() {
+abstract class Tip(final override var parent: () -> Element, private val tipHandler: () -> TipHandler) : AbstractElement() {
 
 	init {
 		transform.parent = { parent().transform }
 	}
-
-	final override var parent: () -> Element? = parent
 
 	override var fixed: Boolean = true
 

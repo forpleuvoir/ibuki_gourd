@@ -48,11 +48,11 @@ abstract class AbstractElementContainer : Element {
         layout.arrange(this.subElements, margin, padding)?.let {
             if (!transform.fixedWidth) {
                 this.transform.width = it.width
-                parent()?.arrange()
+                parent().arrange()
             }
             if (!transform.fixedHeight) {
                 this.transform.height = it.height
-                parent()?.arrange()
+                parent().arrange()
             }
         }
     }
@@ -116,14 +116,14 @@ abstract class AbstractElementContainer : Element {
 
     override fun removeElement(element: Element): Boolean {
         element.transform.parent = { null }
-        element.parent = { null }
+        element.parent = { Element.EMPTY }
         return subElements.remove(element)
     }
 
     override fun removeElement(index: Int) {
         subElements.removeAt(index).apply {
             transform.parent = { null }
-            parent = { null }
+            parent = { Element.EMPTY }
         }
     }
 }

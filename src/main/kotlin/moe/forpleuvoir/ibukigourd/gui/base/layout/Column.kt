@@ -5,6 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 class Column(alignment: (Arrangement) -> Alignment = PlanarAlignment::Center) : AbstractElement() {
 
@@ -15,5 +17,11 @@ class Column(alignment: (Arrangement) -> Alignment = PlanarAlignment::Center) : 
 
 }
 
-fun ElementContainer.column(alignment: (Arrangement) -> Alignment = PlanarAlignment::Center, scope: Column.() -> Unit): Column =
-	addElement(Column(alignment).apply(scope))
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.column(alignment: (Arrangement) -> Alignment = PlanarAlignment::Center, scope: Column.() -> Unit): Column {
+    contract {
+        callsInPlace(scope, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+    }
+    return addElement(Column(alignment).apply(scope))
+}

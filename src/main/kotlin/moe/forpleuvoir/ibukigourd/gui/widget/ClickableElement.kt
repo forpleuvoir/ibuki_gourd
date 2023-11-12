@@ -23,7 +23,7 @@ abstract class ClickableElement : AbstractElement() {
 
 	override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
 		if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
-		if (button == Mouse.LEFT && transform.mouseHover()) {
+		if (button == Mouse.LEFT && mouseHover()) {
 			if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
 			pressed = true
 			return onClick()
@@ -44,7 +44,7 @@ abstract class ClickableElement : AbstractElement() {
 	protected fun <T> status(disabled: T, idle: T, hovered: T, pressed: T): T {
 		return if (active) {
 			if (this.pressed) pressed
-			else if (transform.mouseHover()) hovered
+			else if (mouseHover()) hovered
 			else idle
 		} else disabled
 	}

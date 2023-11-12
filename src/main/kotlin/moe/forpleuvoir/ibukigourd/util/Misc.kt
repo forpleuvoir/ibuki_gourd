@@ -31,11 +31,6 @@ val textureManager: TextureManager by lazy { mc.textureManager }
 
 val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager as ReloadableResourceManagerImpl }
 
-val mouseX: Double get() = mc.mouse.x * mc.window.scaledWidth.toDouble() / mc.window.width.toDouble()
-
-val mouseY: Double get() = mc.mouse.y * mc.window.scaledHeight.toDouble() / mc.window.height.toDouble()
-
-
 fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpace, path)
 
 internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)

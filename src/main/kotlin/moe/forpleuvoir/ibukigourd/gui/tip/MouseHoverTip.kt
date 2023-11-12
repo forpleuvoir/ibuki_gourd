@@ -47,7 +47,7 @@ open class MouseHoverTip(
 	 * 父元素
 	 */
 	parent: Element,
-	tipHandler: () -> TipHandler = { parent.screen()!! },
+    tipHandler: () -> TipHandler = { parent.screen() },
 	/**
 	 * 延迟显示时间
 	 */
@@ -138,7 +138,7 @@ open class MouseHoverTip(
 
 
 	override fun tick() {
-		if (transform.parent()!!.mouseHover()) {
+        if (parent().mouseHover()) {
 			tickCounter++
 		} else if (!keepDisplay) {
 			visible = !pop()
@@ -210,7 +210,7 @@ inline fun Element.tip(
 	forcedDirection: Direction? = null,
 	scope: MouseHoverTip.() -> Unit
 ): MouseHoverTip {
-	this.tip = MouseHoverTip(this, { this.screen()!! }, displayDelay, padding, margin, color, forcedDirection).apply(scope)
+    this.tip = MouseHoverTip(this, { this.screen() }, displayDelay, padding, margin, color, forcedDirection).apply(scope)
 	return this.tip as MouseHoverTip
 }
 

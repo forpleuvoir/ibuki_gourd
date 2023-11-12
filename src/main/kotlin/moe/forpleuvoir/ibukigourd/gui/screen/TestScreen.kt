@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.layout.list
+import moe.forpleuvoir.ibukigourd.gui.base.layout.row
+import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -11,9 +13,8 @@ import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.mouseX
-import moe.forpleuvoir.ibukigourd.util.mouseY
 import moe.forpleuvoir.ibukigourd.util.text.literal
+import moe.forpleuvoir.ibukigourd.util.text.withColor
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -32,28 +33,39 @@ fun testScreen() {
         textInput(150f, margin = Margin(bottom = 5f)) {
             hintText = literal("测试测试")
         }
-        val input = textBox(120f, 120f) {
-            hintText = literal("多行文本输入框测试")
-            transform.z = 10f
-        }.fixed<TextBox>(5f, transform.halfHeight - 60f)
-
-        list(null, 120f) {
-            for (i in 0..50) {
-                if (i % 2 == 0)
-                    button {
-                        textField({ "按钮$i" })
-                        margin(top = 2, bottom = 2)
-                    }
-                else
-                    button { textField("按钮$i 啊", rightToLeft = true) }
-            }
+        var input: TextBox
+        row {
             margin(bottom = 6f)
+            input = textBox(120f, 120f, padding = Margin(10f, 10f, 5f, 5f)) {
+                hintText = literal("多行文本输入框测试")
+                transform.z = 10f
+                margin(right = 5f)
+            }
+            list(null, 120f) {
+                for (i in 0..50) {
+                    if (i % 2 == 0)
+                        button {
+                            textField({ "按钮$i" })
+                            margin(top = 2, bottom = 2)
+                        }
+                    else
+                        button { textField("按钮$i 啊", rightToLeft = true) }
+                }
+            }
         }
+
         list(240f, null, Arrangement.Horizontal, showScroller = true, showBackground = true) {
             for (i in 0..10) {
                 button {
                     textField("水平按钮$i")
                     margin(left = 5f, right = 5f)
+                    if (i == 5) {
+                        tip {
+                            textField(literal("我是提示!$i").style {
+                                it.withColor(Colors.RED)
+                            })
+                        }
+                    }
                 }
             }
         }
@@ -68,7 +80,7 @@ fun testScreen() {
 
             textRenderer.batchRenderText(it.matrixStack) {
                 renderAlignmentText(
-                    literal("x:%.2f, y:%.2f".format(mouseX, mouseY)),
+                    literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
                     rect,
                     align = PlanarAlignment::BottomLeft,
                     color = Colors.WHITE

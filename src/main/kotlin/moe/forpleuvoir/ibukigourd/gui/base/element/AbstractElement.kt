@@ -11,18 +11,18 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement : Element, AbstractElementContainer() {
 
-    override val screen: () -> Screen?
+    override val screen: () -> Screen
         get() {
             return if (parent() is Screen) {
                 { parent() as Screen }
             } else {
-                { parent()?.screen?.invoke() }
+                { parent().screen.invoke() }
             }
         }
 
     override var visible: Boolean = true
 
-    override var parent: () -> Element? = { this }
+    override var parent: () -> Element = { this }
 
     override var active = true
 
@@ -31,9 +31,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override val focused: Boolean
         get() {
             if (focusable)
-                screen()?.let {
-                    return it.focusedElement == this
-                }
+                return screen().focusedElement == this
             return false
         }
 
@@ -72,17 +70,32 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override var render: (renderContext: RenderContext) -> Unit = ::onRender
 
-    override fun onRenderBackground(renderContext: RenderContext) {}
+    override fun onRenderBackground(renderContext: RenderContext) = Unit
 
     override var renderBackground: (renderContext: RenderContext) -> Unit = ::onRenderBackground
 
-    override fun onRenderOverlay(renderContext: RenderContext) {}
+    override fun onRenderOverlay(renderContext: RenderContext) = Unit
 
     override var renderOverlay: (renderContext: RenderContext) -> Unit = ::onRenderOverlay
+
+    override val mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveIn
+    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
+
+    override val mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveOut
+
+    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
     override fun onMouseMove(mouseX: Float, mouseY: Float) {
         if (!active) return
         for (element in handleElements) element.mouseMove(mouseX, mouseY)
+        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+        screen().let {
+            if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
+                mouseMoveIn(mouseX, mouseY)
+            } else if (mouseHover(it.preMousePosition) && !mouseHover(it.mousePosition)) {
+                mouseMoveOut(mouseX, mouseY)
+            }
+        }
     }
 
     override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMove
@@ -91,13 +104,13 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
         if (!active) return NextAction.Continue
         if (button == Mouse.LEFT && mouseHover()) {
             dragging = true
-            if (focusable) screen()?.let {
-                it.focusedElement = this
+            if (focusable) {
+                screen().focusedElement = this
                 onFocusedChanged?.invoke(true)
             }
         }
         if (!mouseHover()) {
-            screen()?.let {
+            screen().let {
                 if (it.focusedElement == this) {
                     it.focusedElement = null
                     onFocusedChanged?.invoke(false)

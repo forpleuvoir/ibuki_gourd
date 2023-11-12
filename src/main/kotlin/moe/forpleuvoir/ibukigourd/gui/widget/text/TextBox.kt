@@ -9,10 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TEXT_SELECTED_I
 import moe.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
-import moe.forpleuvoir.ibukigourd.input.InputHandler
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -223,13 +220,13 @@ class TextBox(
 
     var onCursorChanged: () -> Unit = {
         var amount = this.amount
-        val substring: Substring = getLine((amount / fontHeight).toInt())
+        val substring: Substring = getLine((amount / (fontHeight + spacing)).toInt())
         if (this.cursor <= substring.beginIndex) {
-            amount = (this.currentLineIndex + spacing) * fontHeight - spacing
+            amount = this.currentLineIndex * (spacing + fontHeight) - spacing
         } else {
             val substring2: Substring = this.getLine(((amount + this.height) / fontHeight).toInt() - 1)
             if (this.cursor > substring2.endIndex) {
-                amount = (this.currentLineIndex + spacing) * fontHeight - spacing - this.height + fontHeight + this.padding.height
+                amount = this.currentLineIndex * (spacing + fontHeight) - spacing - this.height + fontHeight + this.padding.height
             }
         }
         this.amount = amount
@@ -355,9 +352,9 @@ class TextBox(
     }
 
     private fun moveCursor(mouseX: Float, mouseY: Float) {
-        val x = floor(mouseX - this.transform.worldX - padding.left).toInt()
+        val x = floor(mouseX - this.transform.worldX - padding.left + 3f).toInt()
         val y = floor((mouseY - this.transform.worldY - padding.top + amount) / (fontHeight + spacing)).toInt()
-        val substring: Substring = lines[y.clamp(0, lines.size - 1).coerceAtLeast(0)]
+        val substring: Substring = lines[y.clamp(0, lines.size - 1)]
         val amount = textRenderer.trimToWidth(text.substring(substring.beginIndex, substring.endIndex), x).length
         this.moveCursor(ABSOLUTE, substring.beginIndex + amount)
     }
@@ -410,6 +407,27 @@ class TextBox(
         return rect(vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top)
     }
 
+    override fun onMouseMove(mouseX: Float, mouseY: Float) {
+        if (!active) return
+        for (element in handleElements) element.mouseMove(mouseX, mouseY)
+        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+        screen().let {
+            if (!mouseHoverContent(it.preMousePosition) && mouseHoverContent(it.mousePosition)) {
+                mouseMoveIn(mouseX, mouseY)
+            } else if (mouseHoverContent(it.preMousePosition) && !mouseHoverContent(it.mousePosition)) {
+                mouseMoveOut(mouseX, mouseY)
+            }
+        }
+    }
+
+    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
+        MouseCursor.current = MouseCursor.Cursor.IBEAM_CURSOR
+    }
+
+    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) {
+        MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
+    }
+
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
         if (!scrollerBar.mouseHover())
@@ -432,7 +450,8 @@ class TextBox(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
-        mouseHover {
+        if (scrollerBar.dragging) return NextAction.Continue
+        mouseHoverContent {
             selecting = true
             moveCursor(mouseX, mouseY)
             selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)

@@ -21,6 +21,9 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.util.clamp
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 class ListLayout(
 	width: Float? = 0f,
@@ -87,10 +90,10 @@ class ListLayout(
 		arrange()
 		if (this::scrollerBar.isInitialized) {
 			arrangement.switch({
-				scrollerBar.transform.worldX = transform.right - scrollerThickness - padding.right / 2
+                                   scrollerBar.transform.worldX = transform.worldRight - scrollerThickness - padding.right / 2
 				scrollerBar.transform.y = padding.top
 			}, {
-				scrollerBar.transform.worldY = transform.bottom - scrollerThickness - padding.bottom / 2
+                                   scrollerBar.transform.worldY = transform.worldBottom - scrollerThickness - padding.bottom / 2
 				scrollerBar.transform.x = padding.left
 			})
 		}
@@ -203,6 +206,7 @@ class ListLayout(
 
 }
 
+@OptIn(ExperimentalContracts::class)
 fun ElementContainer.list(
 	width: Float?,
 	height: Float?,
@@ -212,4 +216,9 @@ fun ElementContainer.list(
 	showBackground: Boolean = true,
 	scrollerThickness: Float = 10f,
 	scope: ListLayout.() -> Unit = {}
-) = this.addElement(ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope))
+): ListLayout {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return this.addElement(ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope))
+}

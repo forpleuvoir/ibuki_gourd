@@ -77,7 +77,7 @@ open class TextField(
 			transform.height = renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height
 			changed = true
 		}
-		if (changed) parent()?.arrange()
+        if (changed) parent().arrange()
 
 	}
 

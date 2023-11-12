@@ -42,20 +42,6 @@ interface KeyCode {
 
 }
 
-enum class Mouse(override val code: Int) : KeyCode {
-    LEFT(0),
-    RIGHT(1),
-    MIDDLE(2),
-    BUTTON_4(3),
-    BUTTON_5(4),
-    BUTTON_6(5),
-    BUTTON_7(6),
-    BUTTON_8(7);
-
-    override val translationKey: String
-        get() = InputUtil.Type.MOUSE.createFromCode(code).translationKey
-}
-
 enum class Keyboard(override val code: Int) : KeyCode {
     KEY_0(48),
     KEY_1(49),

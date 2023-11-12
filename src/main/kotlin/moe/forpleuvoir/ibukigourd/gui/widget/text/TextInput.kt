@@ -3,13 +3,11 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TEXT_INPUT
 import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TEXT_SELECTED_INPUT
 import moe.forpleuvoir.ibukigourd.gui.widget.ClickableElement
-import moe.forpleuvoir.ibukigourd.input.InputHandler
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.BACKGROUND_SHADER_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.CURSOR_COLOR
@@ -400,10 +398,31 @@ open class TextInput(
         return NextAction.Continue
     }
 
+    override fun onMouseMove(mouseX: Float, mouseY: Float) {
+        if (!active) return
+        for (element in handleElements) element.mouseMove(mouseX, mouseY)
+        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+        screen().let {
+            if (!mouseHoverContent(it.preMousePosition) && mouseHoverContent(it.mousePosition)) {
+                mouseMoveIn(mouseX, mouseY)
+            } else if (mouseHoverContent(it.preMousePosition) && !mouseHoverContent(it.mousePosition)) {
+                mouseMoveOut(mouseX, mouseY)
+            }
+        }
+    }
+
+    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
+        MouseCursor.current = MouseCursor.Cursor.IBEAM_CURSOR
+    }
+
+    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) {
+        MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
+    }
+
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         mouseHover {
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
-            cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x).toInt()).length + firstCharacterIndex
+            cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x - padding.left + 3f).toInt()).length + firstCharacterIndex
         }
         return super.onMouseClick(mouseX, mouseY, button)
     }
