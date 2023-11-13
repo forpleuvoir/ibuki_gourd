@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.numberScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
@@ -33,7 +34,7 @@ fun testScreen() {
         textInput(150f, margin = Margin(bottom = 5f)) {
             hintText = literal("测试测试")
         }
-        numberTextInput(150f,margin= Margin(bottom = 5f)){
+        numberTextInput(150f, margin = Margin(bottom = 5f)) {
             hintText = literal("只能输入数字")
         }
         var input: TextBox
@@ -55,8 +56,9 @@ fun testScreen() {
                         button { textField("按钮$i 啊", rightToLeft = true) }
                 }
             }
+            numberScroller(0, -10..10, { it.toInt() }, {}, length = 100f)
         }
-
+        numberScroller(0.0, -20.0..20.0, { it }, {}, { literal("%.2f".format(it)) }, 100f, arrangement = Arrangement.Horizontal)
         list(240f, null, Arrangement.Horizontal, showScroller = true, showBackground = true) {
             for (i in 0..10) {
                 button {

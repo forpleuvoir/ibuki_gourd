@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.Direction
+import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.SCROLLER_BACKGROUND
@@ -7,11 +9,14 @@ import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.text.Text
+import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -131,7 +136,8 @@ open class Scroller(
                 } else {
                     bar.transform.y = (bar.transform.y - amountStep().coerceAtMost(abs(a))).clamp(barPositionRange)
                 }
-            }, {
+            },
+            {
                 val a = mouseX - bar.transform.worldX
                 if (a > 0) {
                     bar.transform.x = (bar.transform.x + amountStep().coerceAtMost(abs(a))).clamp(barPositionRange)
@@ -144,7 +150,7 @@ open class Scroller(
     }
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-        if (!active || !dragging || !visible) return NextAction.Continue
+        if (!active || !dragging || !visible || !bar.dragging) return NextAction.Continue
         arrangement.switch(
             {
                 bar.transform.y = (bar.transform.y + deltaY).clamp(barPositionRange)
@@ -230,7 +236,9 @@ fun ElementContainer.scroller(
 fun <T> ElementContainer.numberScroller(
     initValue: T,
     range: ClosedRange<T>,
-    valueReceiver: (Float) -> Unit,
+    valueMapper: (Double) -> T,
+    valueReceiver: (T) -> Unit,
+    valueRender: (T) -> Text = { literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
     arrangement: Arrangement = Arrangement.Vertical,
@@ -258,14 +266,37 @@ fun <T> ElementContainer.numberScroller(
             thickness,
             { range.endInclusive.minus(range.start).toFloat() * 0.05f },
             { range.endInclusive.minus(range.start).toFloat() },
-            { 8 / length },
+            { 10 / length },
             arrangement, color, barColor
         ).apply {
             scope()
             amount = initValue.toFloat()
-            amountReceiver = valueReceiver
-            bar.tip {
-
+            bar.tip(
+                displayDelay = 1u,
+                optionalDirections = arrangement.switch(
+                    {
+                        listOf(Direction.Left, Direction.Right)
+                    },
+                    {
+                        listOf(Direction.Top, Direction.Bottom)
+                    },
+                ),
+                margin = Margin(4)
+            ) {
+                textField({ valueRender(valueMapper(amount + range.start.toDouble())) })
+                tick = {
+                    if (this@apply.mouseHover() || bar.dragging) {
+                        tickCounter++
+                    } else if (!keepDisplay && visible && active) {
+                        visible = !pop()
+                        if (!visible) {
+                            tickCounter = 0u
+                        }
+                    }
+                }
+            }
+            amountReceiver = {
+                valueReceiver(valueMapper(it + range.start.toDouble()))
             }
         }
     )

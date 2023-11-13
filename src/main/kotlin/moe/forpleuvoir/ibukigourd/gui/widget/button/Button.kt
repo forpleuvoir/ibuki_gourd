@@ -59,7 +59,7 @@ open class Button(
     }
 
     override fun onRenderBackground(renderContext: RenderContext) {
-        renderTexture(renderContext.matrixStack, this.transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
+        renderTexture(renderContext.matrixStack, transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
     }
 
 }

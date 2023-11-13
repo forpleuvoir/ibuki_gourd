@@ -22,6 +22,10 @@ class RenderContext(
     var tickDelta: Float = 0f
         private set
 
+    val positionMatrix by matrixStack.peek()::positionMatrix
+
+    val normalMatrix by matrixStack.peek()::normalMatrix
+
     fun nextFrame(tickDelta: Float): RenderContext {
         this.tickDelta = tickDelta
         matrixStack.rest()

@@ -1,4 +1,4 @@
-@file:Suppress("DuplicatedCode")
+@file:Suppress("DuplicatedCode", "unused")
 
 package moe.forpleuvoir.ibukigourd.render.helper
 
@@ -21,13 +21,18 @@ import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import org.joml.Matrix4f
 
-fun textureBatchRender(
+fun textureBatchDraw(
+    shaderSupplier: () -> ShaderProgram?,
+    drawMode: VertexFormat.DrawMode,
+    format: VertexFormat,
     bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
     drawAction: BatchDrawScope.() -> Unit
 ) {
+    setShader(shaderSupplier)
+    bufferBuilder.begin(drawMode, format)
     BatchDrawScope.bufferBuilder = bufferBuilder
     drawAction(BatchDrawScope)
-    bufferBuilder.draw()
+    BatchDrawScope.bufferBuilder!!.draw()
     BatchDrawScope.bufferBuilder = null
 }
 
@@ -36,6 +41,29 @@ object BatchDrawScope {
     var bufferBuilder: BufferBuilder? = null
         internal set
 
+    fun drawTexture(
+        matrix4f: Matrix4f,
+        x: Number,
+        y: Number,
+        width: Number,
+        height: Number,
+        u: Int,
+        v: Int,
+        uSize: Int,
+        vSize: Int,
+        textureWidth: Int = 256,
+        textureHeight: Int = 256,
+        zOffset: Number = 0
+    ) {
+        bufferBuilder!!.vertex(matrix4f, x.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
+                .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+        bufferBuilder!!.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
+                .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+        bufferBuilder!!.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat(), zOffset.toFloat())
+                .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
+        bufferBuilder!!.vertex(matrix4f, x.toFloat(), y.toFloat(), zOffset.toFloat())
+                .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
+    }
 
 }
 
@@ -165,8 +193,10 @@ fun draw9Texture(
     zOffset: Number = 0
 ) {
 
-    if (corner.left == 0 && corner.right == 0 && corner.top == 0 && corner.bottom == 0)
+    if (corner == Corner.EMPTY) {
         drawTexture(matrixStack, x, y, width, height, u, v, uSize, vSize, textureWidth, textureHeight, zOffset)
+        return
+    }
 
     /**
      * centerWidth
@@ -198,7 +228,7 @@ fun draw9Texture(
     val bottomY = y.toDouble() + (height.toDouble() - corner.bottom)
     val matrix4f = matrixStack.peek().positionMatrix
 
-    textureBatchRender(GameRenderer::getPositionTexProgram, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE) {
+    textureBatchDraw(GameRenderer::getPositionTexProgram, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE) {
         //top left
         drawTexture(matrix4f, x, y, corner.left, corner.top, u, v, corner.left, corner.top, textureWidth, textureHeight, zOffset)
         //top center
@@ -336,7 +366,7 @@ fun renderTexture(
     renderTexture(matrixStack, transform.asWorldRect, textureUV, textureInfo, shaderColor)
 
 /**
- * 渲染纹理
+ * 渲染材质
  * @param matrixStack MatrixStack
  * @param transform Transform
  * @param widgetTexture WidgetTexture
