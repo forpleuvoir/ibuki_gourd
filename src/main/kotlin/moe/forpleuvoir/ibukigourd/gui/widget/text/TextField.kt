@@ -16,7 +16,7 @@ import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.helper.batchRenderText
+import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.ibukigourd.util.text.maxWidth
@@ -102,9 +102,9 @@ open class TextField(
 				else add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
 			}
 		}
-		textRenderer.batchRenderText(renderContext.matrixStack) {
+		textRenderer.batchRender {
 			alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vector3f ->
-				renderText(renderText[index], vector3f.x, vector3f.y, vector3f.z, shadow, layerType, rightToLeft, color, backgroundColor)
+				renderText(renderContext.matrixStack,renderText[index], vector3f.x, vector3f.y, vector3f.z, shadow, layerType, rightToLeft, color, backgroundColor)
 			}
 		}
 

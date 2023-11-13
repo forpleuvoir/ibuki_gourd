@@ -22,11 +22,15 @@ import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.helper.textureBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.util.clamp
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * 只有鼠标悬浮在元素上才会显示的Tip
@@ -149,6 +153,9 @@ open class MouseHoverTip(
 	}
 
 	override fun onRenderBackground(renderContext: RenderContext) {
+		textureBatchRender(renderContext){
+
+		}
 		renderTexture(renderContext.matrixStack, this.transform, TIP, backgroundColor)
 		val arrow = when (direction) {
 			Left ->
@@ -202,6 +209,7 @@ open class MouseHoverTip(
 
 }
 
+@OptIn(ExperimentalContracts::class)
 inline fun Element.tip(
 	displayDelay: UInt = DELAY.toUInt(),
 	padding: Margin = PADDING,
@@ -210,13 +218,20 @@ inline fun Element.tip(
 	forcedDirection: Direction? = null,
 	scope: MouseHoverTip.() -> Unit
 ): MouseHoverTip {
+	contract {
+		callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+	}
     this.tip = MouseHoverTip(this, { this.screen() }, displayDelay, padding, margin, color, forcedDirection).apply(scope)
 	return this.tip as MouseHoverTip
 }
 
+@OptIn(ExperimentalContracts::class)
 inline fun Element.tip(
 	scope: MouseHoverTip.() -> Unit
 ): MouseHoverTip {
+	contract {
+		callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+	}
 	this.tip = MouseHoverTip(this).apply(scope)
 	return this.tip as MouseHoverTip
 }

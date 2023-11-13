@@ -644,11 +644,11 @@ class TextBox(
         }
         //渲染文本本体
         if (text.isNotEmpty())
-            textRenderer.batchRenderText(renderContext.matrixStack) {
+            textRenderer.batchRender {
                 var y = contentRect.top - amount
                 lines.forEach {
                     if (y in contentRect.top - fontHeight..contentRect.bottom)
-                        renderText(text.substring(it.beginIndex, it.endIndex), contentRect.left, y, contentRect.z, color = textColor)
+                        renderText(renderContext.matrixStack, text.substring(it.beginIndex, it.endIndex), contentRect.left, y, contentRect.z, color = textColor)
                     y += fontHeight + spacing
                 }
             }
@@ -668,25 +668,30 @@ class TextBox(
                     selectedColor
                 )
             } else if (mindY == 0f) {
-                rectBatchDraw(renderContext.matrixStack) {
+                rectBatchRender {
                     renderRect(
+                        renderContext.matrixStack,
                         rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
                         selectedColor
                     )
                     renderRect(
+                        renderContext.matrixStack,
                         rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight + spacing), selectedColor
                     )
                 }
             } else {
-                rectBatchDraw(renderContext.matrixStack) {
+                rectBatchRender {
                     renderRect(
+                        renderContext.matrixStack,
                         rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
                         selectedColor
                     )
                     renderRect(
+                        renderContext.matrixStack,
                         rect(contentRect.left, mindY, contentRect.z, contentRect.width, endY - startY - (fontHeight + spacing)), selectedColor
                     )
                     renderRect(
+                        renderContext.matrixStack,
                         rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight + spacing), selectedColor
                     )
                 }

@@ -18,7 +18,7 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.helper.batchRenderText
+import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
@@ -31,6 +31,9 @@ import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.SharedConstants
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.util.Util
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -61,12 +64,11 @@ open class TextInput(
 
     var text: String = ""
         set(value) {
-            if (value != field) {
+            if (value != field && textPredicate(value)) {
                 field = value
                 onTextChanged(field)
             }
         }
-
 
     val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
 
@@ -470,22 +472,22 @@ open class TextInput(
 
     fun renderText(renderContext: RenderContext) {
         val contentRect = contentRect(true)
-        textRenderer.batchRenderText(renderContext.matrixStack) {
+        textRenderer.batchRender {
             //"渲染提示文本"
             if (text.isEmpty() && hintText != null && !focused) {
-                renderAlignmentText(hintText!!, contentRect, color = hintColor)
+                renderAlignmentText(renderContext.matrixStack, hintText!!, contentRect, color = hintColor)
             }
             //"渲染文本本体"
             val renderText = textRenderer!!.trimToWidth(text.substring(firstCharacterIndex), contentRect.width.toInt())
             renderText.isNotEmpty().ifc {
-                renderAlignmentText(renderText, contentRect, color = textColor)
+                renderAlignmentText(renderContext.matrixStack, renderText, contentRect, color = textColor)
             }
             //"渲染文本建议"
             suggestion?.invoke(text)?.let {
                 if (focused && cursor == text.length) {
                     val renderTextWidth = textRenderer!!.getWidth(renderText).toFloat()
                     val rect = rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
-                    renderAlignmentText(it, rect)
+                    renderAlignmentText(renderContext.matrixStack, it, rect)
                 }
             }
         }
@@ -533,10 +535,43 @@ open class TextInput(
  * @param scope TextInput.() -> Unit
  * @return TextInput
  */
+@OptIn(ExperimentalContracts::class)
 fun ElementContainer.textInput(
     width: Float,
     height: Float = 22f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
-): TextInput = this.addElement(TextInput(width, height, padding, margin).apply(scope))
+): TextInput {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return this.addElement(TextInput(width, height, padding, margin).apply(scope))
+}
+
+/**
+ * 在当前容器中添加一个[TextInput]
+ * @receiver ElementContainer
+ * @param width Float 宽度
+ * @param height Float 高度
+ * @param padding Margin 内部边距
+ * @param margin Margin? 外部边距 null -> 无外部边距
+ * @param scope TextInput.() -> Unit
+ * @return TextInput
+ */
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.numberTextInput(
+    width: Float,
+    height: Float = 22f,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: TextInput.() -> Unit = {}
+): TextInput {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return this.addElement(TextInput(width, height, padding, margin).apply {
+        scope()
+        textPredicate = { it.toIntOrNull() != null }
+    })
+}

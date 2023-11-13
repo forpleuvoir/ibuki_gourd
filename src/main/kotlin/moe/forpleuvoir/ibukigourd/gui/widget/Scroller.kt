@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.SCROLLER_BACKGROUND
+import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
@@ -14,6 +15,9 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.math.abs
 
 open class Scroller(
@@ -30,7 +34,7 @@ open class Scroller(
     barColor: () -> ARGBColor = { Colors.WHITE },
 ) : ClickableElement() {
 
-    protected open val bar: Button = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
+    val bar: Button = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
         fixed = true
         playClickSound = false
     }
@@ -175,6 +179,21 @@ open class Scroller(
 
 }
 
+/**
+ * 在当前容器中添加一个[Scroller]
+ * @receiver ElementContainer
+ * @param length Float 滚动条长度
+ * @param thickness Float 滚动条厚度
+ * @param amountStep () -> Float 滚动步长 每次滚动鼠标时移动的距离
+ * @param totalAmount () -> Float 滚动条总长度
+ * @param barLength () -> Float 滚动条所占总长度的百分比 Range(0f..1f)
+ * @param arrangement Arrangement 排列方式
+ * @param color () -> ARGBColor 滚动条背景着色器颜色
+ * @param barColor () -> ARGBColor  滚动条着色器颜色
+ * @param scope Scroller.() -> Unit
+ * @return Scroller
+ */
+@OptIn(ExperimentalContracts::class)
 fun ElementContainer.scroller(
     length: Float,
     thickness: Float = 10f,
@@ -185,4 +204,69 @@ fun ElementContainer.scroller(
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
-): Scroller = this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope))
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope))
+}
+
+/**
+ * 在当前容器中添加一个[Scroller]
+ * @param T Number
+ * @receiver ElementContainer
+ * @param initValue T 初始值
+ * @param range ClosedRange<T> 值范围
+ * @param valueReceiver (Float) -> Unit 值接收器给的是[Float]类型,需要自己转换为需要的类型
+ * @param length Float 滚动条长度
+ * @param thickness Float 滚动条厚度
+ * @param arrangement Arrangement 排列方式
+ * @param color () -> ARGBColor 滚动条背景着色器颜色
+ * @param barColor () -> ARGBColor 滚动条着色器颜色
+ * @param scope Scroller.() -> Unit 滚动条作用域
+ * @return Scroller
+ */
+@OptIn(ExperimentalContracts::class)
+fun <T> ElementContainer.numberScroller(
+    initValue: T,
+    range: ClosedRange<T>,
+    valueReceiver: (Float) -> Unit,
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller where T : Number, T : Comparable<T> {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    fun T.minus(target: T): Number {
+        return when (this) {
+            is Int    -> this - target.toInt()
+            is Short  -> this - target.toShort()
+            is Long   -> this - target.toLong()
+            is Float  -> this - target.toFloat()
+            is Double -> this - target.toDouble()
+            is Byte   -> this - target.toByte()
+            else      -> throw IllegalArgumentException("Unsupported type")
+        }
+    }
+    return this.addElement(
+        Scroller(
+            length,
+            thickness,
+            { range.endInclusive.minus(range.start).toFloat() * 0.05f },
+            { range.endInclusive.minus(range.start).toFloat() },
+            { 8 / length },
+            arrangement, color, barColor
+        ).apply {
+            scope()
+            amount = initValue.toFloat()
+            amountReceiver = valueReceiver
+            bar.tip {
+
+            }
+        }
+    )
+}

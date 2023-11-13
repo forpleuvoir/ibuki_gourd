@@ -33,6 +33,9 @@ fun testScreen() {
         textInput(150f, margin = Margin(bottom = 5f)) {
             hintText = literal("测试测试")
         }
+        numberTextInput(150f,margin= Margin(bottom = 5f)){
+            hintText = literal("只能输入数字")
+        }
         var input: TextBox
         row {
             margin(bottom = 6f)
@@ -78,14 +81,16 @@ fun testScreen() {
         renderOverlay = {
             val rect = contentRect(false)
 
-            textRenderer.batchRenderText(it.matrixStack) {
+            textRenderer.batchRender {
                 renderAlignmentText(
+                    it.matrixStack,
                     literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
                     rect,
                     align = PlanarAlignment::BottomLeft,
                     color = Colors.WHITE
                 )
                 renderStringLines(
+                    it.matrixStack,
                     "frt:%.2fms\nfps:${FPS}".format(FRT / 1000000),
                     rect,
                     align = PlanarAlignment::TopRight,

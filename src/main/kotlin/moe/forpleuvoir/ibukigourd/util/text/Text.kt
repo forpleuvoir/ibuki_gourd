@@ -7,6 +7,9 @@ import net.minecraft.text.*
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.util.function.UnaryOperator
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 open class Text(
     content: TextContent,
@@ -64,7 +67,11 @@ open class Text(
         return super.setStyle(style) as moe.forpleuvoir.ibukigourd.util.text.Text
     }
 
+    @OptIn(ExperimentalContracts::class)
     inline fun style(style: (Style) -> Style): moe.forpleuvoir.ibukigourd.util.text.Text {
+        contract {
+            callsInPlace(style, InvocationKind.EXACTLY_ONCE)
+        }
         this.style = style(this.style)
         return this
     }

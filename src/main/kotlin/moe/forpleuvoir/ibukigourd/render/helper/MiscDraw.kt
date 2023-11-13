@@ -11,13 +11,11 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertexImpl
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.nebula.common.color.*
 import moe.forpleuvoir.nebula.common.util.clamp
-import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
-import org.joml.Matrix4f
 
 /**
  * 渲染线段
@@ -68,8 +66,7 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg vertexes: Col
  * @param bufferBuilder BufferBuilder
  * @param drawAction BatchDrawScope.() -> Unit
  */
-fun rectBatchDraw(
-    matrixStack: MatrixStack,
+fun rectBatchRender(
     bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
     drawAction: RectBatchDrawScope.() -> Unit
 ) {
@@ -77,28 +74,25 @@ fun rectBatchDraw(
     setShader(GameRenderer::getPositionColorProgram)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
     RectBatchDrawScope.bufferBuilder = bufferBuilder
-    RectBatchDrawScope.matrixStack = matrixStack
     drawAction(RectBatchDrawScope)
     bufferBuilder.draw()
     disableBlend()
     RectBatchDrawScope.bufferBuilder = null
-    RectBatchDrawScope.matrixStack = null
 }
 
 object RectBatchDrawScope {
 
-    internal var bufferBuilder: BufferBuilder? = null
-
-    internal var matrixStack: MatrixStack? = null
+    var bufferBuilder: BufferBuilder? = null
+        internal set
 
     /**
      * 渲染矩形
      * @param matrixStack MatrixStack
      * @param rect Rectangle
      */
-    fun renderRect(rect: Rectangle<ColorVertex>) {
+    fun renderRect(matrixStack: MatrixStack, rect: Rectangle<ColorVertex>) {
         for (vertex in rect.vertexes) {
-            bufferBuilder!!.vertex(matrixStack!!, vertex).color(vertex.color).next()
+            bufferBuilder!!.vertex(matrixStack, vertex).color(vertex.color).next()
         }
     }
 
@@ -108,9 +102,9 @@ object RectBatchDrawScope {
      * @param rect Rectangle<Vector3<Float>>
      * @param color ARGBColor
      */
-    fun renderRect(rect: Rectangle<Vector3<Float>>, color: ARGBColor) {
+    fun renderRect(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor) {
         for (vertex in rect.vertexes) {
-            bufferBuilder!!.vertex(matrixStack!!, vertex).color(color).next()
+            bufferBuilder!!.vertex(matrixStack, vertex).color(color).next()
         }
     }
 
@@ -121,8 +115,8 @@ object RectBatchDrawScope {
      * @param width Number
      * @param height Number
      */
-    fun renderRect(colorVertex: ColorVertex, width: Number, height: Number) {
-        renderRect(colorRect(colorVertex, width.toFloat(), height.toFloat()))
+    fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number, height: Number) {
+        renderRect(matrixStack, colorRect(colorVertex, width.toFloat(), height.toFloat()))
     }
 
     /**
@@ -131,8 +125,8 @@ object RectBatchDrawScope {
      * @param transform Transform
      * @param color Color
      */
-    fun renderRect(transform: Transform, color: ARGBColor) =
-        renderRect(colorVertex(transform.worldPosition, color), transform.width, transform.height)
+    fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor) =
+        renderRect(matrixStack, colorVertex(transform.worldPosition, color), transform.width, transform.height)
 
 }
 
@@ -177,7 +171,7 @@ fun renderHueGradientRect(
 ) {
     val hueSlice = hueRange.endInclusive / precision
     var hue = if (reverse) hueRange.endInclusive else hueRange.start
-    rectBatchDraw(matrixStack) {
+    rectBatchRender {
         arrangement.switch(
             {
                 val lengthSlice = rect.height / precision
@@ -186,7 +180,7 @@ fun renderHueGradientRect(
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(colorRect(rect.x, y, rect.z, Size.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
+                    renderRect(matrixStack, colorRect(rect.x, y, rect.z, Size.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
                     y += lengthSlice
                 }
 
@@ -197,7 +191,7 @@ fun renderHueGradientRect(
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(colorRect(x, rect.y, rect.z, Size.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+                    renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
                     x += lengthSlice
                 }
             }

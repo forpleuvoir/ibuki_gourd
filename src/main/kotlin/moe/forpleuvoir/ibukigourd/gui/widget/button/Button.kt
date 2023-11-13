@@ -16,48 +16,51 @@ import moe.forpleuvoir.ibukigourd.render.helper.translate
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import org.jetbrains.annotations.Contract
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 
 open class Button(
-	public override var onClick: () -> NextAction = { NextAction.Continue },
-	public override var onRelease: () -> NextAction = { NextAction.Continue },
-	var color: () -> ARGBColor = { COLOR },
-	val pressOffset: Float = PRESS_OFFSET,
-	var theme: ButtonTheme = TEXTURE,
-	width: Float? = null,
-	height: Float? = null,
-	padding: Margin = PADDING,
-	margin: Margin? = null,
+    public override var onClick: () -> NextAction = { NextAction.Continue },
+    public override var onRelease: () -> NextAction = { NextAction.Continue },
+    var color: () -> ARGBColor = { COLOR },
+    val pressOffset: Float = PRESS_OFFSET,
+    var theme: ButtonTheme = TEXTURE,
+    width: Float? = null,
+    height: Float? = null,
+    padding: Margin = PADDING,
+    margin: Margin? = null,
 ) : ClickableElement() {
-	init {
-		transform.width = width?.also { transform.fixedWidth = true } ?: 20f
-		transform.height = height?.also { transform.fixedHeight = true } ?: 20f
-		padding(padding)
-		margin?.let(::margin)
-	}
+    init {
+        transform.width = width?.also { transform.fixedWidth = true } ?: 20f
+        transform.height = height?.also { transform.fixedHeight = true } ?: 20f
+        padding(padding)
+        margin?.let(::margin)
+    }
 
-	fun click(action: () -> Unit) {
-		onClick = {
-			action()
-			NextAction.Cancel
-		}
-	}
+    fun click(action: () -> Unit) {
+        onClick = {
+            action()
+            NextAction.Cancel
+        }
+    }
 
-	override fun onRender(renderContext: RenderContext) {
-		val offset = Vector3f(0f, status(pressOffset, 0f, 0f, pressOffset), 0f)
-		renderContext.scissorOffset(offset) {
-			matrixStack {
-				matrixStack.translate(offset)
-				renderBackground(this)
-				super.onRender(this)
-				renderOverlay(this)
-			}
-		}
-	}
+    override fun onRender(renderContext: RenderContext) {
+        val offset = Vector3f(0f, status(pressOffset, 0f, 0f, pressOffset), 0f)
+        renderContext.scissorOffset(offset) {
+            matrixStack {
+                matrixStack.translate(offset)
+                renderBackground(this)
+                super.onRender(this)
+                renderOverlay(this)
+            }
+        }
+    }
 
-	override fun onRenderBackground(renderContext: RenderContext) {
-		renderTexture(renderContext.matrixStack, this.transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
-	}
+    override fun onRenderBackground(renderContext: RenderContext) {
+        renderTexture(renderContext.matrixStack, this.transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
+    }
 
 }
 
@@ -76,16 +79,22 @@ open class Button(
  * @param scope Button.() -> Unit 按钮作用域
  * @return Button
  */
+@OptIn(ExperimentalContracts::class)
 @Contract("_ ->this")
 fun ElementContainer.button(
-	onClick: () -> NextAction = { NextAction.Continue },
-	onRelease: () -> NextAction = { NextAction.Continue },
-	color: () -> ARGBColor = { COLOR },
-	pressOffset: Float = PRESS_OFFSET,
-	theme: ButtonTheme = TEXTURE,
-	width: Float? = null,
-	height: Float? = null,
-	padding: Margin = PADDING,
-	margin: Margin? = null,
-	scope: Button.() -> Unit = {}
-): Button = addElement(Button(onClick, onRelease, color, pressOffset, theme, width, height, padding, margin).apply(scope))
+    onClick: () -> NextAction = { NextAction.Continue },
+    onRelease: () -> NextAction = { NextAction.Continue },
+    color: () -> ARGBColor = { COLOR },
+    pressOffset: Float = PRESS_OFFSET,
+    theme: ButtonTheme = TEXTURE,
+    width: Float? = null,
+    height: Float? = null,
+    padding: Margin = PADDING,
+    margin: Margin? = null,
+    scope: Button.() -> Unit = {}
+): Button {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return addElement(Button(onClick, onRelease, color, pressOffset, theme, width, height, padding, margin).apply(scope))
+}
