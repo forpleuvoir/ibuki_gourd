@@ -33,6 +33,8 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.util.Util
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 open class TextInput(
@@ -149,9 +151,7 @@ open class TextInput(
 
     val selectedText: String
         get() {
-            val start = selectionStart.coerceAtMost(selectionEnd)
-            val end = selectionStart.coerceAtLeast(selectionEnd)
-            return text.substring(start, end)
+            return text.substring(min(selectionStart, selectionEnd), max(selectionStart, selectionEnd))
         }
 
     fun write(text: String, historyOpt: Boolean = false) {
@@ -436,6 +436,16 @@ open class TextInput(
         return NextAction.Continue
     }
 
+    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+        if (!active || !dragging) return NextAction.Continue
+        if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
+        selecting = true
+        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
+        cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x - padding.left + 3f).toInt()).length + firstCharacterIndex
+        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+        return NextAction.Cancel
+    }
+
     override fun onRenderBackground(renderContext: RenderContext) {
         renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
     }
@@ -445,7 +455,7 @@ open class TextInput(
             val rect = contentRect(true)
             val height = textRenderer.fontHeight.toFloat()
             val y = rect.top + (rect.height - height) / 2f - 0.75f
-            val offset = textRenderer.getWidth(text.substring(firstCharacterIndex, cursor))
+            val offset = textRenderer.getWidth(text.substring(min(firstCharacterIndex, cursor), max(firstCharacterIndex, cursor)))
             if (cursor == text.length) {
                 renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset, y + height - 1.25f), 5f, 1f), cursorColor)
                 return

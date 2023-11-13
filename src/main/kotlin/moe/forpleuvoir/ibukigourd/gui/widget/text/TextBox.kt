@@ -31,6 +31,7 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.input.CursorMovement
 import net.minecraft.client.input.CursorMovement.*
 import net.minecraft.util.StringHelper
+import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -220,12 +221,13 @@ class TextBox(
 
     var onCursorChanged: () -> Unit = {
         var amount = this.amount
-        val substring: Substring = getLine((amount / (fontHeight + spacing)).toInt())
-        if (this.cursor <= substring.beginIndex) {
+
+        val firstLine: Substring = getLine((ceil(amount / (fontHeight + spacing))).toInt())
+        if (this.cursor <= firstLine.beginIndex) {
             amount = this.currentLineIndex * (spacing + fontHeight) - spacing
         } else {
-            val substring2: Substring = this.getLine(((amount + this.height) / fontHeight).toInt() - 1)
-            if (this.cursor > substring2.endIndex) {
+            val endLine: Substring = getLine((floor(amount + this.height) / (fontHeight + spacing)).toInt() - 1)
+            if (this.cursor > endLine.endIndex) {
                 amount = this.currentLineIndex * (spacing + fontHeight) - spacing - this.height + fontHeight + this.padding.height
             }
         }
@@ -408,7 +410,6 @@ class TextBox(
     }
 
     override fun onMouseMove(mouseX: Float, mouseY: Float) {
-        if (!active) return
         for (element in handleElements) element.mouseMove(mouseX, mouseY)
         //上一帧不在元素内,这一帧在 触发 mouseMoveIn
         screen().let {
@@ -449,15 +450,13 @@ class TextBox(
     }
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+        if (!active || !dragging) return NextAction.Continue
         if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
         if (scrollerBar.dragging) return NextAction.Continue
-        mouseHoverContent {
-            selecting = true
-            moveCursor(mouseX, mouseY)
-            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
-            return NextAction.Cancel
-        }
-        return NextAction.Continue
+        selecting = true
+        moveCursor(mouseX, mouseY)
+        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+        return NextAction.Cancel
     }
 
     override fun onKeyPress(keyCode: KeyCode): NextAction {
