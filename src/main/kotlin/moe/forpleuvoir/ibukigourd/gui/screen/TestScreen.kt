@@ -5,10 +5,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
+import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.numberScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
@@ -56,13 +61,15 @@ fun testScreen() {
                         button { textField("按钮$i 啊", rightToLeft = true) }
                 }
             }
-            numberScroller(0, -10..10, { it.toInt() }, {}, length = 100f)
+            intScroller(0, -10..10, {}, length = 100f)
         }
-        numberScroller(0.0, -20.0..20.0, { it }, {}, { literal("%.2f".format(it)) }, 100f, arrangement = Arrangement.Horizontal)
+        doubleScroller(0.0, -20.0..20.0, { }, length = 100f, arrangement = Arrangement.Horizontal)
         list(240f, null, Arrangement.Horizontal, showScroller = true, showBackground = true) {
             for (i in 0..10) {
                 button {
-                    textField("水平按钮$i")
+                    if (i % 2 == 0)
+                        icon(IconTextures.RIGHT, Size.create(12f, 12f), Colors.BLACK).margin(bottom = -4f, top = -4f)
+                    textField("水平按钮$i").margin(top = 1f)
                     margin(left = 5f, right = 5f)
                     if (i == 5) {
                         tip {

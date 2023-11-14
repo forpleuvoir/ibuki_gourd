@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.SCROLLER_BACKGROUND
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SCROLLER_BACKGROUND
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
@@ -223,7 +223,9 @@ fun ElementContainer.scroller(
  * @receiver ElementContainer
  * @param initValue T 初始值
  * @param range ClosedRange<T> 值范围
- * @param valueReceiver (Float) -> Unit 值接收器给的是[Float]类型,需要自己转换为需要的类型
+ * @param valueMapper (Double) -> T 值映射器
+ * @param valueReceiver (T) -> Unit 值接收器
+ * @param valueRender (T) -> Text 值渲染器
  * @param length Float 滚动条长度
  * @param thickness Float 滚动条厚度
  * @param arrangement Arrangement 排列方式
@@ -300,4 +302,61 @@ fun <T> ElementContainer.numberScroller(
             }
         }
     )
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.intScroller(
+    initValue: Int,
+    range: ClosedRange<Int>,
+    valueReceiver: (Int) -> Unit,
+    valueRender: (Int) -> Text = { literal(it.toString()) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return numberScroller(initValue, range, { it.toInt() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.floatScroller(
+    initValue: Float,
+    range: ClosedRange<Float>,
+    valueReceiver: (Float) -> Unit,
+    valueRender: (Float) -> Text = { literal("%.2f".format(it)) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return numberScroller(initValue, range, { it.toFloat() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.doubleScroller(
+    initValue: Double,
+    range: ClosedRange<Double>,
+    valueReceiver: (Double) -> Unit,
+    valueRender: (Double) -> Text = { literal("%.2f".format(it)) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return numberScroller(initValue, range, { it }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
 }

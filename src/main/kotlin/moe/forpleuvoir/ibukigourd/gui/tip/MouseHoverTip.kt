@@ -5,11 +5,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_BOTTOM
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_LEFT
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_RIGHT
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TIP_ARROW_TOP
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_BOTTOM
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_LEFT
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_RIGHT
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_TOP
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme

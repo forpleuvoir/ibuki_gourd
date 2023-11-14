@@ -4,8 +4,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TEXT_INPUT
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.TEXT_SELECTED_INPUT
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_INPUT
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_SELECTED_INPUT
 import moe.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller

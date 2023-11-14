@@ -4,12 +4,15 @@ package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PRESS_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.RenderContext
+import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.translate
@@ -32,6 +35,13 @@ open class Button(
     padding: Margin = PADDING,
     margin: Margin? = null,
 ) : ClickableElement() {
+
+    override var layout: Layout = LinearLayout({ this }, Arrangement.Horizontal)
+        set(value) {
+            field = value
+            arrange()
+        }
+
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 20f
         transform.height = height?.also { transform.fixedHeight = true } ?: 20f

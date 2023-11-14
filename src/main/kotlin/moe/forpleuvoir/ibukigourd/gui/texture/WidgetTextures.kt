@@ -18,7 +18,7 @@ import net.minecraft.util.Identifier
 import kotlin.reflect.full.isSubclassOf
 
 @EventSubscriber
-object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
+object WidgetTextures : SimpleSynchronousResourceReloadListener {
 
 	private val log = logger()
 
@@ -48,9 +48,9 @@ object IbukiGourdTextures : SimpleSynchronousResourceReloadListener {
 						}.forEach { widgetTexture ->
 							widgetTexture.isAccessible = true
 							val name = widgetTexture.name
-							val oldValue = widgetTexture.get(IbukiGourdTextures) as WidgetTexture
+							val oldValue = widgetTexture.get(WidgetTextures) as WidgetTexture
 							val newValue = WidgetTexture.deserialization(this[name], oldValue)
-							if (oldValue != newValue) widgetTexture.set(IbukiGourdTextures, newValue)
+							if (oldValue != newValue) widgetTexture.set(WidgetTextures, newValue)
 						}
 				}
 			}

@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
-import moe.forpleuvoir.ibukigourd.gui.texture.IbukiGourdTextures.LIST_BACKGROUND
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.LIST_BACKGROUND
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.Mouse
