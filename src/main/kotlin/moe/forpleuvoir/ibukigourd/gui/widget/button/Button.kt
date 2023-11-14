@@ -25,8 +25,8 @@ import kotlin.contracts.contract
 
 
 open class Button(
-    public override var onClick: () -> NextAction = { NextAction.Continue },
-    public override var onRelease: () -> NextAction = { NextAction.Continue },
+    public override var onClick: () -> NextAction = { NextAction.Cancel },
+    public override var onRelease: () -> NextAction = { NextAction.Cancel },
     var color: () -> ARGBColor = { COLOR },
     val pressOffset: Float = PRESS_OFFSET,
     var theme: ButtonTheme = TEXTURE,
@@ -92,8 +92,8 @@ open class Button(
 @OptIn(ExperimentalContracts::class)
 @Contract("_ ->this")
 fun ElementContainer.button(
-    onClick: () -> NextAction = { NextAction.Continue },
-    onRelease: () -> NextAction = { NextAction.Continue },
+    onClick: () -> NextAction = { NextAction.Cancel },
+    onRelease: () -> NextAction = { NextAction.Cancel },
     color: () -> ARGBColor = { COLOR },
     pressOffset: Float = PRESS_OFFSET,
     theme: ButtonTheme = TEXTURE,

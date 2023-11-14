@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
-import moe.forpleuvoir.ibukigourd.gui.widget.numberScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
@@ -39,9 +38,8 @@ fun testScreen() {
         textInput(150f, margin = Margin(bottom = 5f)) {
             hintText = literal("测试测试")
         }
-        numberTextInput(150f, margin = Margin(bottom = 5f)) {
-            hintText = literal("只能输入数字")
-        }
+        doubleTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入浮点") }
+        intTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入整数") }
         var input: TextBox
         row {
             margin(bottom = 6f)
@@ -73,9 +71,11 @@ fun testScreen() {
                     margin(left = 5f, right = 5f)
                     if (i == 5) {
                         tip {
-                            textField(literal("我是提示!$i").style {
-                                it.withColor(Colors.RED)
-                            })
+                            button {
+                                textField(literal("我是提示!$i").style {
+                                    it.withColor(Colors.RED)
+                                })
+                            }
                         }
                     }
                 }

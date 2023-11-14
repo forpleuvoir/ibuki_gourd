@@ -110,7 +110,6 @@ class TextBox(
             ) {
                 fixed = true
                 visible = showScroller
-                playClickSound = false
             }
             scrollerBar.transform.worldX = this.transform.worldRight - scrollerThickness - (this.padding.right / 2).coerceAtLeast(4f)
             scrollerBar.transform.y = this.padding.top

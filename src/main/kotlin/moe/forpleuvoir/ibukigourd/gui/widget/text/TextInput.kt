@@ -551,16 +551,21 @@ fun ElementContainer.textInput(
 
 /**
  * 在当前容器中添加一个[TextInput]
+ * @param T Number
  * @receiver ElementContainer
- * @param width Float 宽度
- * @param height Float 高度
- * @param padding Margin 内部边距
- * @param margin Margin? 外部边距 null -> 无外部边距
+ * @param valueReceiver (T) -> Unit
+ * @param valueMapper (String) -> T
+ * @param width Float
+ * @param height Float
+ * @param padding Margin
+ * @param margin Margin?
  * @param scope TextInput.() -> Unit
  * @return TextInput
  */
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.numberTextInput(
+fun <T : Number> ElementContainer.numberTextInput(
+    valueReceiver: (T) -> Unit,
+    valueMapper: (String) -> T,
     width: Float,
     height: Float = 22f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
@@ -572,6 +577,59 @@ fun ElementContainer.numberTextInput(
     }
     return this.addElement(TextInput(width, height, padding, margin).apply {
         scope()
-        textPredicate = { it.toIntOrNull() != null }
+        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) }
+        onTextChanged = { valueReceiver(valueMapper(it)) }
     })
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.intTextInput(
+    valueReceiver: (Int) -> Unit,
+    valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
+    width: Float,
+    height: Float = 22f,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: TextInput.() -> Unit = {}
+): TextInput {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return this.addElement(TextInput(width, height, padding, margin).apply {
+        scope()
+        textPredicate = { Regex("-?\\d+").matches(it) || it.isEmpty() }
+        onTextChanged = { valueReceiver(valueMapper(it)) }
+    })
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.floatTextInput(
+    valueReceiver: (Float) -> Unit,
+    valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
+    width: Float,
+    height: Float = 22f,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: TextInput.() -> Unit = {}
+): TextInput {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return numberTextInput(valueReceiver, valueMapper, width, height, padding, margin, scope)
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.doubleTextInput(
+    valueReceiver: (Double) -> Unit,
+    valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
+    width: Float,
+    height: Float = 22f,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: TextInput.() -> Unit = {}
+): TextInput {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return numberTextInput(valueReceiver, valueMapper, width, height, padding, margin, scope)
 }

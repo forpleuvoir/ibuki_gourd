@@ -41,7 +41,6 @@ open class Scroller(
 
     val bar: Button = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
         fixed = true
-        playClickSound = false
     }
 
     override var visible: Boolean = true
