@@ -89,6 +89,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
         if (!active) return
         for (element in handleElements) element.mouseMove(mouseX, mouseY)
         //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+        if (!visible) return
         screen().let {
             if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
                 mouseMoveIn(mouseX, mouseY)

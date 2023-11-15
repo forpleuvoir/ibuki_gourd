@@ -21,10 +21,10 @@ abstract class AbstractElementContainer : Element {
             arrange()
         }
 
-    final override var margin: Margin = Margin()
+    override var margin: Margin = Margin()
         protected set
 
-    final override var padding: Margin = Margin()
+    override var padding: Margin = Margin()
         protected set
 
     protected val subElements = ArrayList<Element>()

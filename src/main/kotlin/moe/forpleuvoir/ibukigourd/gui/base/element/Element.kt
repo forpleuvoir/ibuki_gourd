@@ -23,7 +23,7 @@ interface Element : ElementContainer, Drawable, Tickable {
             override var visible: Boolean = false
             override var parent: () -> Element = { this }
             override val screen: () -> Screen = { Screen.EMPTY }
-            override val active: Boolean = false
+            override var active: Boolean = false
             override val focused: Boolean = false
             override val onFocusedChanged: ((Boolean) -> Unit) = { }
             override val focusable: Boolean = false
@@ -132,7 +132,7 @@ interface Element : ElementContainer, Drawable, Tickable {
     /**
      * 是否为激活的元素
      */
-    val active: Boolean
+    var active: Boolean
 
     /**
      * 是否为聚焦中的元素

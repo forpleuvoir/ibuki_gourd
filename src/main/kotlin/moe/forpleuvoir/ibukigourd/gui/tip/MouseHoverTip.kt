@@ -144,7 +144,7 @@ open class MouseHoverTip(
 
 
     override fun tick() {
-        if (parent().mouseHover()) {
+        if (parent().mouseHover() && parent().visible) {
             tickCounter++
         } else if (!keepDisplay && visible && active) {
             visible = !pop()

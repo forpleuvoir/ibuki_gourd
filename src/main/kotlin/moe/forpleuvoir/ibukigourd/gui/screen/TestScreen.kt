@@ -5,7 +5,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
+import moe.forpleuvoir.ibukigourd.gui.widget.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
@@ -39,7 +41,19 @@ fun testScreen() {
             hintText = literal("测试测试")
         }
         doubleTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入浮点") }
-        intTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入整数") }
+        row {
+            intTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入整数") }
+            dropMenu {
+                head {
+                    textField("测试下拉菜单")
+                }
+                repeat(5) {
+                    flatButton {
+                        textField("下拉菜单选项$it")
+                    }
+                }
+            }
+        }
         var input: TextBox
         row {
             margin(bottom = 6f)
@@ -71,7 +85,7 @@ fun testScreen() {
                     margin(left = 5f, right = 5f)
                     if (i == 5) {
                         tip {
-                            button {
+                            flatButton {
                                 textField(literal("我是提示!$i").style {
                                     it.withColor(Colors.RED)
                                 })

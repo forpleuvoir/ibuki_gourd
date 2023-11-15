@@ -14,10 +14,13 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.translate
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.Colors
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -107,4 +110,51 @@ fun ElementContainer.button(
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
     return addElement(Button(onClick, onRelease, color, pressOffset, theme, width, height, padding, margin).apply(scope))
+}
+
+/**
+ * 在当前容器中添加一个没有背景的[Button]
+ * @receiver ElementContainer
+ * @param onClick () -> NextAction
+ * @param onRelease () -> NextAction
+ * @param color () -> ARGBColor
+ * @param hoverColor () -> ARGBColor
+ * @param pressColor () -> ARGBColor
+ * @param disableColor () -> ARGBColor
+ * @param width Float?
+ * @param height Float?
+ * @param padding Margin
+ * @param margin Margin?
+ * @param scope Button.() -> Unit
+ * @return Button
+ */
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.flatButton(
+    onClick: () -> NextAction = { NextAction.Cancel },
+    onRelease: () -> NextAction = { NextAction.Cancel },
+    color: () -> ARGBColor = { Color(0x000000).alpha(0) },
+    hoverColor: () -> ARGBColor = { Color(0x00A4FF).alpha(75) },
+    pressColor: () -> ARGBColor = { Color(0x00B5FF).alpha(150) },
+    disableColor: () -> ARGBColor = { Colors.GRAY.alpha(75) },
+    width: Float? = null,
+    height: Float? = null,
+    padding: Margin = Margin(3),
+    margin: Margin? = null,
+    scope: Button.() -> Unit = {}
+): Button {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return addElement(object : Button(onClick, onRelease, color, 0f, TEXTURE, width, height, padding, margin) {
+
+        override fun onRenderBackground(renderContext: RenderContext) {
+            renderRect(renderContext.matrixStack, transform, status(disableColor(), this.color(), hoverColor(), pressColor()))
+        }
+
+        override fun onRender(renderContext: RenderContext) {
+            renderBackground(renderContext)
+            super.onRender(renderContext)
+            renderOverlay(renderContext)
+        }
+    }.apply(scope))
 }
