@@ -11,7 +11,7 @@ class DropMenu(
     height: Float? = null,
     padding: Margin = Theme.BUTTON.PADDING,
     margin: Margin? = null,
-) : ClickableElement() {
+) : ExpandableElement() {
 
     override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical)
         @Deprecated("Do not set the layout value of DropMenu") set(@Suppress("UNUSED_PARAMETER") value) {
