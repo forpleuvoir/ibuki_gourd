@@ -5,9 +5,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
-import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
@@ -28,12 +30,13 @@ open class DropMenu(
     margin: Margin? = null,
 ) : ExpandableElement() {
 
-    val arrowTexture: WidgetTexture
-        get() = if (expend) {
-            WidgetTextures.DROP_MENU_ARROW_UP
-        } else {
-            WidgetTextures.DROP_MENU_ARROW_DOWN
+    val arrow: Button = flatButton(hoverColor = { Colors.BLACK.alpha(0) }, pressColor = { Colors.BLACK.alpha(0) }) {
+        fixed = true
+        icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
+        click {
+            expend = true
         }
+    }
 
     override var onExpand: (() -> Unit)? = {
         tip!!.visible = true
@@ -49,16 +52,35 @@ open class DropMenu(
         padding(padding)
         margin?.let(::margin)
         tip = object : Tip({ this }, { this.screen() }) {
+
+            val arrow: Button = flatButton(hoverColor = { Colors.BLACK.alpha(0) }, pressColor = { Colors.BLACK.alpha(0) }) {
+                fixed = true
+                icon(WidgetTextures.DROP_MENU_ARROW_UP)
+                click {
+                    expend = false
+                }
+            }
+
             init {
                 transform.parent = { this@DropMenu.transform }
                 padding(2, 2, 2, 2)
                 spacing = 1f
+                this@DropMenu.arrow.transform.positionChangeCallback = { x, y, _ ->
+                    arrow.transform.x = x
+                    arrow.transform.y = y
+                }
+            }
+
+            override fun init() {
+                super.init()
+
             }
 
             override fun arrange() {
                 layout.arrange(this.subElements, this.margin, this.padding)?.let {
                     if (!transform.fixedWidth) {
-                        this.transform.width = it.width + renderElements.firstOrNull().let { e -> e?.transform?.height ?: 0f }
+                        this.transform.width = it.width
+                        this.transform.width += this.padding.width + arrow.transform.width
                         parent().arrange()
                     }
                     if (!transform.fixedHeight) {
@@ -79,14 +101,26 @@ open class DropMenu(
                     }
                 }
 
+            override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+                if (!expend) return NextAction.Continue
+                if (super.onMouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+                if (mouseHover()) return NextAction.Cancel
+                return NextAction.Continue
+            }
+
             override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+                if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
                 if (!mouseHover() && expend) {
                     expend = false
                 }
-                return super.onMouseClick(mouseX, mouseY, button)
+                if (mouseHover()) {
+                    return NextAction.Cancel
+                }
+                return NextAction.Continue
             }
 
             override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+                if (!expend) return NextAction.Continue
                 if (super.onMouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
                 if (mouseHover()) return NextAction.Cancel
                 return NextAction.Continue
@@ -106,20 +140,33 @@ open class DropMenu(
             override fun onRenderOverlay(renderContext: RenderContext) {
                 val padding1 = this.padding
                 rectBatchRender {
-                    val maxWidth = renderElements.maxOf { it.transform.width }
-                    for ((index, element) in renderElements.withIndex()) {
-                        if (index != renderElements.lastIndex)
-                            renderRect(
-                                renderContext.matrixStack,
-                                rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, 1f),
-                                Colors.GRAY.alpha(0.2f)
-                            )
+                    renderElements.filter { it != arrow }.let { list ->
+                        val maxWidth = list.maxOf { it.transform.width }
+                        for ((index, element) in list.withIndex()) {
+                            if (index != list.lastIndex)
+                                renderRect(
+                                    renderContext.matrixStack,
+                                    rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, 1f),
+                                    Colors.GRAY.alpha(0.2f)
+                                )
+                        }
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(transform.worldLeft + maxWidth + padding1.left, transform.worldTop + padding1.top, transform.worldZ, 1f, transform.height - padding1.height),
+                            Colors.GRAY.alpha(0.2f)
+                        )
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(
+                                transform.worldLeft + maxWidth + padding1.left + 1,
+                                transform.worldTop + this@DropMenu.transform.height - this@DropMenu.padding.bottom / 2,
+                                transform.worldZ,
+                                arrow.transform.width + padding.right,
+                                1f
+                            ),
+                            Colors.GRAY.alpha(0.2f)
+                        )
                     }
-                    renderRect(
-                        renderContext.matrixStack,
-                        rect(transform.worldLeft + maxWidth + padding1.left, transform.worldTop + padding1.top, transform.worldZ, 1f, transform.height - padding1.height),
-                        Colors.GRAY.alpha(0.2f)
-                    )
                 }
             }
 
@@ -130,6 +177,12 @@ open class DropMenu(
         }
     }
 
+    override fun init() {
+        super.init()
+        arrow.transform.x = transform.width - arrow.transform.width - padding.right
+        arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
+    }
+
     fun items(scope: ElementContainer.() -> Unit) {
         tip!!.scope()
     }
@@ -137,7 +190,7 @@ open class DropMenu(
     override fun arrange() {
         layout.arrange(this.subElements, margin, padding)?.let {
             if (!transform.fixedWidth) {
-                this.transform.width = it.width.coerceAtLeast(tip!!.transform.width)
+                this.transform.width = (it.width + padding.width + arrow.transform.width).coerceAtLeast(tip!!.transform.width)
                 parent().arrange()
             }
             if (!transform.fixedHeight) {
@@ -158,13 +211,13 @@ open class DropMenu(
     }
 
     override fun onRenderOverlay(renderContext: RenderContext) {
-        val texture = arrowTexture
-        val x = transform.worldRight - transform.halfHeight - texture.uSize / 2
-        val y = transform.worldTop + transform.halfHeight - texture.vSize / 2
-        val rect = rect(x, y, transform.z, texture.uSize, texture.vSize)
-        renderContext.postRender(priority + 1) {
-            renderTexture(matrixStack, rect, texture)
-        }
+//        val texture = arrowTexture
+//        val x = transform.worldRight - transform.halfHeight - texture.uSize / 2
+//        val y = transform.worldTop + transform.halfHeight - texture.vSize / 2
+//        val rect = rect(x, y, transform.z, texture.uSize, texture.vSize)
+//        renderContext.postRender(priority + 1) {
+//            renderTexture(matrixStack, rect, texture)
+//        }
     }
 
 

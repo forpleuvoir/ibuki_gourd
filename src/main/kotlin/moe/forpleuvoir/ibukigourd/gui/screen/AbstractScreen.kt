@@ -76,13 +76,13 @@ abstract class AbstractScreen(
         override val y: Float get() = preMouseY
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float) {
-        if (!active) return
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (!active) return NextAction.Cancel
         preMouseX = this.mouseX
         preMouseY = this.mouseY
         this.mouseX = mouseX
         this.mouseY = mouseY
-        super<AbstractElement>.onMouseMove(mouseX, mouseY)
+        return super<AbstractElement>.onMouseMove(mouseX, mouseY)
     }
 
 

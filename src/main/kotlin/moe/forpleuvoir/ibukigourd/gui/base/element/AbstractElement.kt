@@ -87,11 +87,13 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float) {
-        if (!active) return
-        for (element in handleElements) element.mouseMove(mouseX, mouseY)
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (!active) return NextAction.Continue
+        for (element in handleElements) {
+            if (element.mouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+        }
+        if (!visible) return NextAction.Continue
         //上一帧不在元素内,这一帧在 触发 mouseMoveIn
-        if (!visible) return
         screen().let {
             if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
                 mouseMoveIn(mouseX, mouseY)
@@ -99,9 +101,10 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
                 mouseMoveOut(mouseX, mouseY)
             }
         }
+        return NextAction.Continue
     }
 
-    override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMove
+    override var mouseMove: (mouseX: Float, mouseY: Float) -> NextAction = ::onMouseMove
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (!active) return NextAction.Continue

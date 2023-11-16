@@ -50,7 +50,7 @@ interface Element : ElementContainer, Drawable, Tickable {
 
             override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
-            override var mouseMove: (Float, Float) -> Unit = { _: Float, _: Float -> }
+            override var mouseMove: (Float, Float) -> NextAction = { _: Float, _: Float -> NextAction.Cancel }
 
             override var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction = { _: Float, _: Float, _: Mouse -> NextAction.Cancel }
 
@@ -266,14 +266,14 @@ interface Element : ElementContainer, Drawable, Tickable {
      * @param mouseX Float
      * @param mouseY Float
      */
-    var mouseMove: (mouseX: Float, mouseY: Float) -> Unit
+    var mouseMove: (mouseX: Float, mouseY: Float) -> NextAction
 
     /**
      * 鼠标移动
      * @param mouseX Float
      * @param mouseY Float
      */
-    fun onMouseMove(mouseX: Float, mouseY: Float) {}
+    fun onMouseMove(mouseX: Float, mouseY: Float): NextAction = NextAction.Cancel
 
     /**
      * 鼠标点击

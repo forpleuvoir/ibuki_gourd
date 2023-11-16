@@ -28,87 +28,90 @@ import kotlin.experimental.ExperimentalTypeInference
 
 
 open class TextField(
-	val text: () -> Text,
-	override var spacing: Float = SPACING,
-	var shadow: Boolean = SHADOW,
-	var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-	var rightToLeft: Boolean = RIGHT_TO_LEFT,
-	var color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
-	var backgroundColor: Color = BACKGROUND_COLOR,
-	val alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-	width: Float? = null,
-	height: Float? = null,
+    val text: () -> Text,
+    override var spacing: Float = SPACING,
+    var shadow: Boolean = SHADOW,
+    var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    var rightToLeft: Boolean = RIGHT_TO_LEFT,
+    var color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
+    var backgroundColor: Color = BACKGROUND_COLOR,
+    val alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
 ) : AbstractElement() {
 
-	init {
-		transform.width = width?.also { transform.fixedWidth = true } ?: 16f
-		transform.height = height?.also { transform.fixedHeight = true } ?: 16f
-	}
+    init {
+        transform.width = width?.also { transform.fixedWidth = true } ?: 16f
+        transform.height = height?.also { transform.fixedHeight = true } ?: 16f
+    }
 
-	/**
-	 * 最新的文本
-	 */
-	protected var latestText: Text = text()
+    /**
+     * 最新的文本
+     */
+    protected var latestText: Text = text()
 
-	var changed: Boolean = false
+    var changed: Boolean = false
 
-	protected val renderText: List<Text>
-		get() {
-			val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth) transform.width.toInt() else 0)
-			if (latestText != text()) {
-				changed = true
-				latestText = text()
-			}
-			return text
-		}
+    protected val renderText: List<Text>
+        get() {
+            val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth) transform.width.toInt() else 0)
+            if (latestText != text()) {
+                changed = true
+                latestText = text()
+            }
+            return text
+        }
 
-	override fun init() {
-		resize()
-	}
+    override fun init() {
+        resize()
+    }
 
-	fun resize() {
-		var changed = false
-		if (!transform.fixedWidth) {
-			transform.width = renderText.maxWidth(textRenderer).toFloat() + padding.width
-			changed = true
-		}
-		if (!transform.fixedHeight) {
-			transform.height = renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height
-			changed = true
-		}
+    fun resize() {
+        var changed = false
+        if (!transform.fixedWidth) {
+            transform.width = renderText.maxWidth(textRenderer).toFloat() + padding.width
+            changed = true
+        }
+        if (!transform.fixedHeight) {
+            transform.height = renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height
+            changed = true
+        }
         if (changed) parent().arrange()
 
-	}
+    }
 
-	override fun onRender(renderContext: RenderContext) {
-		if (changed) {
-			resize()
-			changed = false
-		}
-		renderBackground(renderContext)
-		renderContext.scissor(transform.asWorldRect) {
-			renderText(renderContext)
-		}
-		renderOverlay(renderContext)
-	}
+    override fun onRender(renderContext: RenderContext) {
+        if (changed) {
+            resize()
+            changed = false
+        }
+        renderBackground(renderContext)
+        renderContext.scissor(transform.asWorldRect) {
+            renderText(renderContext)
+        }
+        renderOverlay(renderContext)
+    }
 
-	protected fun renderText(renderContext: RenderContext) {
-		val contentRect = contentRect(true)
-		val renderText = renderText
-		val list = buildList {
-			renderText.forEachIndexed { index, text ->
-				if (renderText.lastIndex != index) add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
-				else add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
-			}
-		}
-		textRenderer.batchRender {
-			alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vector3f ->
-				renderText(renderContext.matrixStack,renderText[index], vector3f.x, vector3f.y, vector3f.z, shadow, layerType, rightToLeft, color, backgroundColor)
-			}
-		}
+    protected fun renderText(renderContext: RenderContext) {
+        val contentRect = contentRect(true)
+        val renderText = renderText
+        val list = buildList {
+            renderText.forEachIndexed { index, text ->
+                if (renderText.lastIndex != index) add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
+                else add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
+            }
+        }
+        renderContext.matrixStack {
+            matrixStack.translate(0.0f, 0.4f, 0f)
+            textRenderer.batchRender {
+                alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vector3f ->
+                    renderText(renderContext.matrixStack, renderText[index], vector3f.x, vector3f.y, vector3f.z, shadow, layerType, rightToLeft, color, backgroundColor)
+                }
+            }
+        }
 
-	}
+    }
 
 }
 
@@ -129,34 +132,34 @@ open class TextField(
  * @return TextField
  */
 fun Element.text(
-	text: String,
-	style: Style = Style.EMPTY,
-	spacing: Float = SPACING,
-	shadow: Boolean = SHADOW,
-	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-	rightToLeft: Boolean = RIGHT_TO_LEFT,
-	color: Color = Color(style.color?.rgb ?: COLOR.argb),
-	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-	width: Float? = null,
-	height: Float? = null,
+    text: String,
+    style: Style = Style.EMPTY,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
 ): TextField =
-	addElement(
-		TextField(
-			{ literal(text).style { style } },
-			spacing,
-			shadow,
-			layerType,
-			rightToLeft,
-			color,
-			backgroundColor,
-			alignment,
-			textRenderer,
-			width,
-			height
-		)
-	)
+    addElement(
+        TextField(
+            { literal(text).style { style } },
+            spacing,
+            shadow,
+            layerType,
+            rightToLeft,
+            color,
+            backgroundColor,
+            alignment,
+            textRenderer,
+            width,
+            height
+        )
+    )
 
 /**
  * @receiver Element
@@ -176,34 +179,34 @@ fun Element.text(
  */
 @OverloadResolutionByLambdaReturnType
 fun Element.text(
-	text: () -> String,
-	style: Style = Style.EMPTY,
-	spacing: Float = SPACING,
-	shadow: Boolean = SHADOW,
-	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-	rightToLeft: Boolean = RIGHT_TO_LEFT,
-	color: Color = Color(style.color?.rgb ?: COLOR.argb),
-	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-	width: Float? = null,
-	height: Float? = null,
+    text: () -> String,
+    style: Style = Style.EMPTY,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
 ): TextField =
-	addElement(
-		TextField(
-			{ literal(text()).style { style } },
-			spacing,
-			shadow,
-			layerType,
-			rightToLeft,
-			color,
-			backgroundColor,
-			alignment,
-			textRenderer,
-			width,
-			height
-		)
-	)
+    addElement(
+        TextField(
+            { literal(text()).style { style } },
+            spacing,
+            shadow,
+            layerType,
+            rightToLeft,
+            color,
+            backgroundColor,
+            alignment,
+            textRenderer,
+            width,
+            height
+        )
+    )
 
 /**
  * @receiver Element
@@ -222,17 +225,17 @@ fun Element.text(
  */
 @OverloadResolutionByLambdaReturnType
 fun Element.text(
-	text: () -> Text,
-	spacing: Float = SPACING,
-	shadow: Boolean = SHADOW,
-	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-	rightToLeft: Boolean = RIGHT_TO_LEFT,
-	color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
-	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-	width: Float? = null,
-	height: Float? = null,
+    text: () -> Text,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
 ): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
 
 /**
@@ -251,15 +254,15 @@ fun Element.text(
  * @return TextField
  */
 fun Element.text(
-	text: Text,
-	spacing: Float = SPACING,
-	shadow: Boolean = SHADOW,
-	layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-	rightToLeft: Boolean = RIGHT_TO_LEFT,
-	color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
-	backgroundColor: Color = BACKGROUND_COLOR,
-	alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
-	textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-	width: Float? = null,
-	height: Float? = null,
+    text: Text,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
 ): TextField = addElement(TextField({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))

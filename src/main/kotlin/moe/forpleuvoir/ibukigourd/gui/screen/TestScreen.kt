@@ -53,7 +53,13 @@ fun testScreen() {
             dropMenu {
                 text("下拉菜单")
                 items {
-                    repeat(20) {
+                    repeat(12) {
+                        if (it == 5)
+                            textInput(150f) {
+                                hintText = literal("测试测试")
+                            }
+                        if (it == 6)
+                            button { text("塞点乱七八糟的") }
                         flatButton {
                             text("下拉菜单选项$it")
                         }
@@ -70,11 +76,11 @@ fun testScreen() {
                 margin(right = 5f)
             }
             list(height = 120f) {
+                spacing = 3f
                 repeat(50) { i ->
                     if (i % 2 == 0)
                         button {
                             text({ "按钮$i" })
-                            margin(top = 2, bottom = 2)
                         }
                     else
                         button { text("按钮$i 啊", rightToLeft = true) }
@@ -84,12 +90,12 @@ fun testScreen() {
         }
         doubleScroller(0.0, -20.0..20.0, { }, length = 100f, arrangement = Arrangement.Horizontal)
         list(240f, null, Arrangement.Horizontal, showScroller = true, showBackground = true) {
+            spacing = 5f
             for (i in 0..10) {
                 button {
                     if (i % 2 == 0)
                         icon(IconTextures.RIGHT, Size.create(12f, 12f), Colors.BLACK).margin(bottom = -4f, top = -4f)
-                    text("水平按钮$i").margin(top = 1f)
-                    margin(left = 5f, right = 5f)
+                    text("水平按钮$i")
                     if (i == 5) {
                         tip {
                             flatButton {
@@ -103,10 +109,10 @@ fun testScreen() {
             }
         }
 
-        text(
-            { literal("cursor:${input.cursor}\nselection:${input.selectionEnd}\namount:${input.amount}\ntotalHeight:${input.textContentHeight}\nselectedText:${input.selectedText}") },
-            color = Colors.WHITE
-        ).fixed(5f, 5f)
+//        text(
+//            { literal("cursor:${input.cursor}\nselection:${input.selectionEnd}\namount:${input.amount}\ntotalHeight:${input.textContentHeight}\nselectedText:${input.selectedText}") },
+//            color = Colors.WHITE
+//        ).fixed(5f, 5f)
 
         renderOverlay = {
             val rect = contentRect(false)

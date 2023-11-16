@@ -408,9 +408,12 @@ class TextBox(
         return rect(vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top)
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float) {
-        for (element in handleElements) element.mouseMove(mouseX, mouseY)
-        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (!active) return NextAction.Continue
+        for (element in handleElements) {
+            if (element.mouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+        }
+        if (!visible) return NextAction.Continue
         screen().let {
             if (!mouseHoverContent(it.preMousePosition) && mouseHoverContent(it.mousePosition)) {
                 mouseMoveIn(mouseX, mouseY)
@@ -418,6 +421,7 @@ class TextBox(
                 mouseMoveOut(mouseX, mouseY)
             }
         }
+        return NextAction.Continue
     }
 
     override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
@@ -429,13 +433,12 @@ class TextBox(
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
-        if (!scrollerBar.mouseHover())
-            mouseHoverContent {
-                selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
-                moveCursor(mouseX, mouseY)
-                return NextAction.Cancel
-            }
+        super.onMouseClick(mouseX, mouseY, button)
+        if (!scrollerBar.mouseHover() && mouseHoverContent() && button == Mouse.LEFT) {
+            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+            moveCursor(mouseX, mouseY)
+            return NextAction.Cancel
+        }
         return NextAction.Continue
     }
 

@@ -14,6 +14,34 @@ import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.icon(
+    texture: () -> WidgetTexture,
+    size: () -> Size<Float> = { Size.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
+    shaderColor: ARGBColor = Colors.WHITE,
+    scope: AbstractElement.() -> Unit = {}
+): AbstractElement {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return addElement(object : AbstractElement() {
+        init {
+            transform.height = size().height
+            transform.width = size().width
+            transform.resizeCallback = { _: Float, _: Float ->
+                parent().arrange()
+            }
+        }
+
+
+        override fun onRenderBackground(renderContext: RenderContext) {
+            transform.height = size().height
+            transform.width = size().width
+            renderTexture(renderContext.matrixStack, transform, texture(), shaderColor)
+        }
+    }.apply(scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.icon(
     texture: WidgetTexture,
     size: Size<Float> = Size.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
     shaderColor: ARGBColor = Colors.WHITE,

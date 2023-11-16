@@ -400,10 +400,12 @@ open class TextInput(
         return NextAction.Continue
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float) {
-        if (!active) return
-        for (element in handleElements) element.mouseMove(mouseX, mouseY)
-        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (!active) return NextAction.Continue
+        for (element in handleElements) {
+            if (element.mouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+        }
+        if (!visible) return NextAction.Continue
         screen().let {
             if (!mouseHoverContent(it.preMousePosition) && mouseHoverContent(it.mousePosition)) {
                 mouseMoveIn(mouseX, mouseY)
@@ -411,6 +413,7 @@ open class TextInput(
                 mouseMoveOut(mouseX, mouseY)
             }
         }
+        return NextAction.Continue
     }
 
     override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
@@ -422,9 +425,9 @@ open class TextInput(
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        mouseHover {
+        if (mouseHover() && button == Mouse.LEFT) {
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
-            cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x - padding.left + 3f).toInt()).length + firstCharacterIndex
+            cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex
         }
         return super.onMouseClick(mouseX, mouseY, button)
     }
@@ -443,7 +446,7 @@ open class TextInput(
         if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
         selecting = true
         val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
-        cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.x - padding.left + 3f).toInt()).length + firstCharacterIndex
+        cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
         return NextAction.Cancel
     }
@@ -472,22 +475,25 @@ open class TextInput(
 
     fun renderText(renderContext: RenderContext) {
         val contentRect = contentRect(true)
-        textRenderer.batchRender {
-            //"渲染提示文本"
-            if (text.isEmpty() && hintText != null && !focused) {
-                renderAlignmentText(renderContext.matrixStack, hintText!!, contentRect, color = hintColor)
-            }
-            //"渲染文本本体"
-            val renderText = textRenderer!!.trimToWidth(text.substring(firstCharacterIndex), contentRect.width.toInt())
-            renderText.isNotEmpty().ifc {
-                renderAlignmentText(renderContext.matrixStack, renderText, contentRect, color = textColor)
-            }
-            //"渲染文本建议"
-            suggestion?.invoke(text)?.let {
-                if (focused && cursor == text.length) {
-                    val renderTextWidth = textRenderer!!.getWidth(renderText).toFloat()
-                    val rect = rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
-                    renderAlignmentText(renderContext.matrixStack, it, rect)
+        renderContext.matrixStack {
+            matrixStack.translate(0.0f, 0.4f, 0f)
+            textRenderer.batchRender {
+                //"渲染提示文本"
+                if (text.isEmpty() && hintText != null && !focused) {
+                    renderAlignmentText(renderContext.matrixStack, hintText!!, contentRect, color = hintColor)
+                }
+                //"渲染文本本体"
+                val renderText = textRenderer!!.trimToWidth(text.substring(firstCharacterIndex), contentRect.width.toInt())
+                renderText.isNotEmpty().ifc {
+                    renderAlignmentText(renderContext.matrixStack, renderText, contentRect, color = textColor)
+                }
+                //"渲染文本建议"
+                suggestion?.invoke(text)?.let {
+                    if (focused && cursor == text.length) {
+                        val renderTextWidth = textRenderer!!.getWidth(renderText).toFloat()
+                        val rect = rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
+                        renderAlignmentText(renderContext.matrixStack, it, rect)
+                    }
                 }
             }
         }
@@ -538,7 +544,7 @@ open class TextInput(
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.textInput(
     width: Float,
-    height: Float = 22f,
+    height: Float = 20f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
@@ -567,7 +573,7 @@ fun <T : Number> ElementContainer.numberTextInput(
     valueReceiver: (T) -> Unit,
     valueMapper: (String) -> T,
     width: Float,
-    height: Float = 22f,
+    height: Float = 20f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
@@ -587,7 +593,7 @@ fun ElementContainer.intTextInput(
     valueReceiver: (Int) -> Unit,
     valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
     width: Float,
-    height: Float = 22f,
+    height: Float = 20f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
@@ -607,7 +613,7 @@ fun ElementContainer.floatTextInput(
     valueReceiver: (Float) -> Unit,
     valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
     width: Float,
-    height: Float = 22f,
+    height: Float = 20f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
@@ -623,7 +629,7 @@ fun ElementContainer.doubleTextInput(
     valueReceiver: (Double) -> Unit,
     valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
     width: Float,
-    height: Float = 22f,
+    height: Float = 20f,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
