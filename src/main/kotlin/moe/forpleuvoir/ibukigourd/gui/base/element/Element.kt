@@ -27,6 +27,7 @@ interface Element : ElementContainer, Drawable, Tickable {
             override val focused: Boolean = false
             override val onFocusedChanged: ((Boolean) -> Unit) = { }
             override val focusable: Boolean = false
+            override var priority: Int = 0
             override var fixed: Boolean = false
             override var tip: Tip? = null
             override var tick: () -> Unit = {}
@@ -67,6 +68,7 @@ interface Element : ElementContainer, Drawable, Tickable {
 
             override var charTyped: (chr: Char) -> NextAction = { NextAction.Cancel }
             override var init: () -> Unit = {}
+            override var spacing: Float = 0f
 
             override fun arrange() {}
 
@@ -149,8 +151,7 @@ interface Element : ElementContainer, Drawable, Tickable {
     /**
      * 处理优先级 越高越优先处理
      */
-    val priority: Int
-        get() = transform.position.z.toInt()
+    var priority: Int
 
     /**
      * 固定元素，不会受到布局排列方法 [moe.forpleuvoir.ibukigourd.gui.base.layout.Layout.arrange] 的位置调整
@@ -165,12 +166,10 @@ interface Element : ElementContainer, Drawable, Tickable {
     override val renderPriority: Int
         get() = priority
 
-    @Suppress("UNCHECKED_CAST")
-    fun <E : Element> fixed(x: Float, y: Float): E {
+    fun fixed(x: Float, y: Float) {
         fixed = true
         transform.x = x
         transform.y = y
-        return this as E
     }
 
     /**

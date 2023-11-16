@@ -21,6 +21,12 @@ abstract class AbstractElementContainer : Element {
             arrange()
         }
 
+    override var spacing: Float =0f
+        set(value) {
+            layout.spacing=value
+            field = value
+        }
+
     override var margin: Margin = Margin()
         protected set
 
@@ -97,6 +103,7 @@ abstract class AbstractElementContainer : Element {
         subElements.add(element)
         element.transform.parent = { this.transform }
         element.parent = { this }
+        element.priority = this.priority + 1
         return element
     }
 

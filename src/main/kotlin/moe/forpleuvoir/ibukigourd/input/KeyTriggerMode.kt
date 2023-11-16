@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.translatable
+import moe.forpleuvoir.ibukigourd.util.text.trans
 
 enum class KeyTriggerMode(val key: String) {
 
@@ -24,10 +24,10 @@ enum class KeyTriggerMode(val key: String) {
 	BOTH("both");
 
 	val displayName: Text
-		get() = translatable("ibuki_gourd.key_bind.trigger_mode.${key}")
+		get() = trans("ibuki_gourd.key_bind.trigger_mode.${key}")
 
 	val description: Text
-		get() = translatable("ibuki_gourd.key_bind.trigger_mode.${key}.description")
+		get() = trans("ibuki_gourd.key_bind.trigger_mode.${key}.description")
 
 
 	companion object {

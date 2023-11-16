@@ -41,6 +41,7 @@ public abstract class GameRendererMixin {
 				var delta = MiscKt.measureTime(() -> {
 					if (screen.getVisible()) {
 						screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
+						context.render();
 					}
 				}).getSecond();
 
@@ -66,6 +67,7 @@ public abstract class GameRendererMixin {
 			ScreenManager.hasScreen(screen -> {
 				if (screen.getVisible()) {
 					screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
+					context.render();
 				}
 			});
 		}

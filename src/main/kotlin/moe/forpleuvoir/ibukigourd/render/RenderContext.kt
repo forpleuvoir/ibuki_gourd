@@ -26,7 +26,25 @@ class RenderContext(
 
     val normalMatrix by matrixStack.peek()::normalMatrix
 
+    private val renderList: MutableList<Pair<Int, RenderContext.() -> Unit>> = mutableListOf()
+
+    private var rendering: Boolean = false
+
+    fun postRender(renderPriority: Int, render: RenderContext.() -> Unit) {
+        if (rendering) return
+        renderList.add(renderPriority to render)
+    }
+
+    fun render() {
+        rendering = true
+        renderList.sortedBy { it.first }.forEach { (_, render) ->
+            render.invoke(this)
+        }
+        rendering = false
+    }
+
     fun nextFrame(tickDelta: Float): RenderContext {
+        renderList.clear()
         this.tickDelta = tickDelta
         matrixStack.rest()
         scissorStack.rest()

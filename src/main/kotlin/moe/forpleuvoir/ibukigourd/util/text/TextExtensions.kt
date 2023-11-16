@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.util.textRenderer as tRender
 
 fun literal(content: String = ""): Text = Text.literal(content)
 
-fun translatable(key: String): Text = Text.translatable(key)
+fun trans(key: String): Text = Text.translatable(key)
 
 fun serverText(key: String, fallback: String? = null, vararg args: Any): ServerText = ServerText(key, fallback, *args)
 

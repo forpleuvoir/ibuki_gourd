@@ -29,7 +29,7 @@ import kotlin.experimental.ExperimentalTypeInference
 
 open class TextField(
 	val text: () -> Text,
-	val spacing: Float = SPACING,
+	override var spacing: Float = SPACING,
 	var shadow: Boolean = SHADOW,
 	var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
 	var rightToLeft: Boolean = RIGHT_TO_LEFT,
@@ -128,7 +128,7 @@ open class TextField(
  * @param height Float? 高度 null -> auto,!null - value
  * @return TextField
  */
-fun Element.textField(
+fun Element.text(
 	text: String,
 	style: Style = Style.EMPTY,
 	spacing: Float = SPACING,
@@ -175,7 +175,7 @@ fun Element.textField(
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
-fun Element.textField(
+fun Element.text(
 	text: () -> String,
 	style: Style = Style.EMPTY,
 	spacing: Float = SPACING,
@@ -221,7 +221,7 @@ fun Element.textField(
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
-fun Element.textField(
+fun Element.text(
 	text: () -> Text,
 	spacing: Float = SPACING,
 	shadow: Boolean = SHADOW,
@@ -250,7 +250,7 @@ fun Element.textField(
  * @param height Float? 高度 null -> auto,!null - value
  * @return TextField
  */
-fun Element.textField(
+fun Element.text(
 	text: Text,
 	spacing: Float = SPACING,
 	shadow: Boolean = SHADOW,

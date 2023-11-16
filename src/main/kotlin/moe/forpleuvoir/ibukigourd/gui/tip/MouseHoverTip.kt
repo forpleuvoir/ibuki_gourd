@@ -136,7 +136,7 @@ open class MouseHoverTip(
     override var visible: Boolean = false
 
     final override var active: Boolean
-        get() = tickCounter >= displayDelay
+        get() = tickCounter >= displayDelay && parent().visible
         @Deprecated("Do not set the active value of Tip")
         set(@Suppress("UNUSED_PARAMETER") value) {
             throw NotImplementedError("Do not set the active value of Tip")
@@ -146,7 +146,7 @@ open class MouseHoverTip(
     override fun tick() {
         if (parent().mouseHover() && parent().visible) {
             tickCounter++
-        } else if (!keepDisplay && visible && active) {
+        } else if (!keepDisplay || !parent().visible) {
             visible = !pop()
             if (!visible) {
                 tickCounter = 0u

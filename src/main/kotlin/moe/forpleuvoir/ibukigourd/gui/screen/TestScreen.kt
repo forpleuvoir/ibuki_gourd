@@ -37,19 +37,26 @@ fun testScreen() {
         }
         padding(4)
 
-        textInput(150f, margin = Margin(bottom = 5f)) {
-            hintText = literal("测试测试")
+        row {
+            textInput(150f) {
+                hintText = literal("测试测试")
+            }
+            button {
+                text("测试按钮")
+            }
+            margin(bottom = 5f)
         }
         doubleTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入浮点") }
         row {
-            intTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入整数") }
+            margin(bottom = 5f)
+            intTextInput({ }, width = 150f) { hintText = literal("只能输入整数") }
             dropMenu {
-                head {
-                    textField("测试下拉菜单")
-                }
-                repeat(5) {
-                    flatButton {
-                        textField("下拉菜单选项$it")
+                text("下拉菜单")
+                items {
+                    repeat(20) {
+                        flatButton {
+                            text("下拉菜单选项$it")
+                        }
                     }
                 }
             }
@@ -62,15 +69,15 @@ fun testScreen() {
                 transform.z = 10f
                 margin(right = 5f)
             }
-            list(null, 120f) {
-                for (i in 0..50) {
+            list(height = 120f) {
+                repeat(50) { i ->
                     if (i % 2 == 0)
                         button {
-                            textField({ "按钮$i" })
+                            text({ "按钮$i" })
                             margin(top = 2, bottom = 2)
                         }
                     else
-                        button { textField("按钮$i 啊", rightToLeft = true) }
+                        button { text("按钮$i 啊", rightToLeft = true) }
                 }
             }
             intScroller(0, -10..10, {}, length = 100f)
@@ -81,12 +88,12 @@ fun testScreen() {
                 button {
                     if (i % 2 == 0)
                         icon(IconTextures.RIGHT, Size.create(12f, 12f), Colors.BLACK).margin(bottom = -4f, top = -4f)
-                    textField("水平按钮$i").margin(top = 1f)
+                    text("水平按钮$i").margin(top = 1f)
                     margin(left = 5f, right = 5f)
                     if (i == 5) {
                         tip {
                             flatButton {
-                                textField(literal("我是提示!$i").style {
+                                text(literal("我是提示!$i").style {
                                     it.withColor(Colors.RED)
                                 })
                             }
@@ -96,10 +103,10 @@ fun testScreen() {
             }
         }
 
-        textField(
+        text(
             { literal("cursor:${input.cursor}\nselection:${input.selectionEnd}\namount:${input.amount}\ntotalHeight:${input.textContentHeight}\nselectedText:${input.selectedText}") },
             color = Colors.WHITE
-        ).fixed<TextField>(5f, 5f)
+        ).fixed(5f, 5f)
 
         renderOverlay = {
             val rect = contentRect(false)

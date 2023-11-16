@@ -26,8 +26,8 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 class ListLayout(
-    width: Float? = 0f,
-    height: Float? = 0f,
+    width: Float? = null,
+    height: Float? = null,
     padding: Margin? = Margin(6),
     val showScroller: Boolean = true,
     val showBackground: Boolean = true,
@@ -60,12 +60,12 @@ class ListLayout(
 
     override fun init() {
         for (e in subElements) e.init.invoke()
-        val contentSize = arrangement.contentSize(layout.alignRects(subElements))
+        val contentSize = arrangement.contentSize(layout.alignRects(subElements, arrangement))
         if (!this::scrollerBar.isInitialized) {
             scrollerBar = scroller(
                 arrangement.switch({ transform.height - padding.height }, { transform.width - padding.width }),
                 scrollerThickness,
-                { (layout.alignRects(subElements).minOf { r -> arrangement.switch({ r.height }, { r.width }) } / 2f) },
+                { (layout.alignRects(subElements, arrangement).minOf { r -> arrangement.switch({ r.height }, { r.width }) } / 2f) },
                 {
                     arrangement.switch(
                         { contentSize.height - contentRect(false).height },
@@ -103,6 +103,9 @@ class ListLayout(
     }
 
     override var layout: Layout = object : Layout {
+
+        override var spacing: Float = 0f
+
         override val elementContainer: () -> ElementContainer
             get() = { this@ListLayout }
 
@@ -110,7 +113,7 @@ class ListLayout(
             val alignElements = elements.filter { !it.fixed }
             if (alignElements.isEmpty()) return null
 
-            val alignRects = alignRects(alignElements)
+            val alignRects = alignRects(alignElements, arrangement)
 
             val alignment = arrangement.switch(
                 {
@@ -214,8 +217,8 @@ class ListLayout(
 
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.list(
-    width: Float?,
-    height: Float?,
+    width: Float? = null,
+    height: Float? = null,
     arrangement: Arrangement = Arrangement.Vertical,
     padding: Margin? = Margin(6),
     showScroller: Boolean = true,

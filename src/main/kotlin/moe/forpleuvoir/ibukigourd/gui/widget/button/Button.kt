@@ -133,12 +133,12 @@ fun ElementContainer.flatButton(
     onClick: () -> NextAction = { NextAction.Cancel },
     onRelease: () -> NextAction = { NextAction.Cancel },
     color: () -> ARGBColor = { Color(0x000000).alpha(0) },
-    hoverColor: () -> ARGBColor = { Color(0x00A4FF).alpha(75) },
-    pressColor: () -> ARGBColor = { Color(0x00B5FF).alpha(150) },
+    hoverColor: () -> ARGBColor = { Color(0x00A4FF).alpha(20) },
+    pressColor: () -> ARGBColor = { Color(0x00B5FF).alpha(55) },
     disableColor: () -> ARGBColor = { Colors.GRAY.alpha(75) },
     width: Float? = null,
     height: Float? = null,
-    padding: Margin = Margin(3),
+    padding: Margin = Margin(2),
     margin: Margin? = null,
     scope: Button.() -> Unit = {}
 ): Button {

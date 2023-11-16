@@ -23,6 +23,8 @@ class LinearLayout(
     private val alignment: Alignment = PlanarAlignment.Center(Vertical)
 ) : Layout {
 
+    override var spacing: Float = 0f
+
     constructor(
         elementContainer: () -> ElementContainer,
         arrangement: Arrangement = Vertical,
@@ -33,7 +35,7 @@ class LinearLayout(
         val alignElements = elements.filter { !it.fixed }
         if (alignElements.isEmpty()) return null
 
-        val alignRects = alignRects(alignElements)
+        val alignRects = alignRects(alignElements, alignment.arrangement)
 
         val container = elementContainer()
         val size = alignment.arrangement.contentSize(alignRects)

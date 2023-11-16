@@ -51,7 +51,7 @@ class TextBox(
     var bgShaderColor: ARGBColor = Theme.TEXT_INPUT.BACKGROUND_SHADER_COLOR,
     var selectedColor: ARGBColor = Theme.TEXT_INPUT.SELECTED_COLOR,
     var cursorColor: ARGBColor = Theme.TEXT_INPUT.CURSOR_COLOR,
-    private val spacing: Float = 1f,
+    override var spacing: Float = 1f,
     private val showScroller: Boolean = true,
     private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
 ) : ClickableElement() {

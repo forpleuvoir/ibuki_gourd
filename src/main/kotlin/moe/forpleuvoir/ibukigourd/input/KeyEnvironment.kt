@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.input
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.translatable
+import moe.forpleuvoir.ibukigourd.util.text.trans
 
 enum class KeyEnvironment(val key: String) {
 	InGame("in_game"),
@@ -11,10 +11,10 @@ enum class KeyEnvironment(val key: String) {
 	Both("both");
 
 	val displayName: Text
-		get() = translatable("ibuki_gourd.key_bind.environment.${key}")
+		get() = trans("ibuki_gourd.key_bind.environment.${key}")
 
 	val description: Text
-		get() = translatable("ibuki_gourd.key_bind.environment.${key}.description")
+		get() = trans("ibuki_gourd.key_bind.environment.${key}.description")
 
 	fun envMatch(): Boolean {
 		if (this == Both) return true

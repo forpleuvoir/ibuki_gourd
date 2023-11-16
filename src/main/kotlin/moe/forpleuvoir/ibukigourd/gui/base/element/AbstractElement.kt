@@ -28,6 +28,8 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override var fixed: Boolean = false
 
+    override var priority: Int = 0
+
     override val focused: Boolean
         get() {
             if (focusable)
@@ -41,9 +43,9 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     final override var tip: Tip? = null
         set(value) {
-            if (value != null) {
+            if (value != null)
                 this.addElement(value)
-            } else if (field != null)
+            else if (field != null)
                 this.removeElement(field!!)
             field = value
         }

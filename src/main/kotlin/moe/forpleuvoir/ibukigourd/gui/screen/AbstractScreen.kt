@@ -31,7 +31,7 @@ abstract class AbstractScreen(
 
     override val tipList = ArrayList<Tip>()
 
-    override var maxTip: Int = 1
+    override var maxTip: Int = 5
 
     override fun pushTip(tip: Tip): Boolean {
         if (tipList.contains(tip)) return false

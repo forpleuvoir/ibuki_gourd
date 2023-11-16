@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
-import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
+import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -284,7 +284,7 @@ fun <T> ElementContainer.numberScroller(
                 ),
                 margin = Margin(4)
             ) {
-                textField({ valueRender(valueMapper(amount + range.start.toDouble())) })
+                text({ valueRender(valueMapper(amount + range.start.toDouble())) })
                 tick = {
                     if (this@apply.mouseHover() || bar.dragging) {
                         tickCounter++
