@@ -16,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
+import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -65,28 +66,22 @@ open class DropMenu(
                 transform.parent = { this@DropMenu.transform }
                 padding(2, 2, 2, 2)
                 spacing = 1f
-                this@DropMenu.arrow.transform.positionChangeCallback = { x, y, _ ->
-                    arrow.transform.x = x
-                    arrow.transform.y = y
-                }
-            }
-
-            override fun init() {
-                super.init()
 
             }
 
             override fun arrange() {
                 layout.arrange(this.subElements, this.margin, this.padding)?.let {
-                    if (!transform.fixedWidth) {
-                        this.transform.width = it.width
-                        this.transform.width += this.padding.width + arrow.transform.width
-                        parent().arrange()
-                    }
                     if (!transform.fixedHeight) {
                         this.transform.height = it.height
-                        parent().arrange()
                     }
+                    if (!transform.fixedWidth) {
+                        val h = this.renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + this.padding.height } ?: 0f
+                        this.transform.width = it.width + h
+
+                        arrow.transform.y = h / 2 - arrow.transform.halfHeight
+                        arrow.transform.x = transform.width - h / 2 - arrow.transform.halfWidth -1.5f
+                    }
+                    if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
                 }
             }
 
@@ -155,13 +150,14 @@ open class DropMenu(
                             rect(transform.worldLeft + maxWidth + padding1.left, transform.worldTop + padding1.top, transform.worldZ, 1f, transform.height - padding1.height),
                             Colors.GRAY.alpha(0.2f)
                         )
+                        val h = renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + padding1.height } ?: 0f
                         renderRect(
                             renderContext.matrixStack,
                             rect(
                                 transform.worldLeft + maxWidth + padding1.left + 1,
-                                transform.worldTop + this@DropMenu.transform.height - this@DropMenu.padding.bottom / 2,
+                                transform.worldTop + h,
                                 transform.worldZ,
-                                arrow.transform.width + padding.right,
+                                arrow.transform.y * 2,
                                 1f
                             ),
                             Colors.GRAY.alpha(0.2f)
@@ -177,26 +173,21 @@ open class DropMenu(
         }
     }
 
-    override fun init() {
-        super.init()
-        arrow.transform.x = transform.width - arrow.transform.width - padding.right
-        arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
-    }
-
     fun items(scope: ElementContainer.() -> Unit) {
         tip!!.scope()
     }
 
     override fun arrange() {
         layout.arrange(this.subElements, margin, padding)?.let {
-            if (!transform.fixedWidth) {
-                this.transform.width = (it.width + padding.width + arrow.transform.width).coerceAtLeast(tip!!.transform.width)
-                parent().arrange()
-            }
             if (!transform.fixedHeight) {
                 this.transform.height = it.height
-                parent().arrange()
             }
+            if (!transform.fixedWidth) {
+                this.transform.width = (it.width + (transform.halfHeight - arrow.transform.halfHeight) * 2).coerceAtLeast(tip!!.transform.width)
+                arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
+                arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+            }
+            if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
     }
 
@@ -211,18 +202,23 @@ open class DropMenu(
     }
 
     override fun onRenderOverlay(renderContext: RenderContext) {
-//        val texture = arrowTexture
-//        val x = transform.worldRight - transform.halfHeight - texture.uSize / 2
-//        val y = transform.worldTop + transform.halfHeight - texture.vSize / 2
-//        val rect = rect(x, y, transform.z, texture.uSize, texture.vSize)
-//        renderContext.postRender(priority + 1) {
-//            renderTexture(matrixStack, rect, texture)
-//        }
+        renderRect(
+            renderContext.matrixStack,
+            rect(
+                arrow.transform.worldX - arrow.transform.y + 2.75f,
+                transform.worldTop + padding.top / 2,
+                transform.worldZ,
+                1f,
+                transform.height - padding.height / 2
+            ),
+            Colors.GRAY.alpha(0.2f)
+        )
     }
 
 
     override fun onRender(renderContext: RenderContext) {
-        if (!expend) renderBackground.invoke(renderContext)
+        if (expend) return
+        renderBackground.invoke(renderContext)
         for (element in renderElements) element.render(renderContext)
         renderOverlay.invoke(renderContext)
     }

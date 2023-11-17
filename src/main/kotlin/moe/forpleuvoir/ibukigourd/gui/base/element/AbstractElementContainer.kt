@@ -54,12 +54,11 @@ abstract class AbstractElementContainer : Element {
         layout.arrange(this.subElements, margin, padding)?.let {
             if (!transform.fixedWidth) {
                 this.transform.width = it.width
-                parent().arrange()
             }
             if (!transform.fixedHeight) {
                 this.transform.height = it.height
-                parent().arrange()
             }
+            if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
     }
 
