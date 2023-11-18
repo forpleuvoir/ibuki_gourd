@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.reflect.ClassPath
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.util.text.literal
+import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Colors
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
 import net.minecraft.client.MinecraftClient
@@ -34,6 +36,12 @@ val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager 
 fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpace, path)
 
 internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
+
+val ARGBColor?.isNull: Boolean
+    get() = this == null || this.alpha == 0
+
+val ARGBColor?.get: ARGBColor
+    get() = this ?: Colors.BLACK.alpha(0)
 
 fun MinecraftClient.sendMessage(message: String) {
     this.player?.networkHandler?.let {
@@ -74,9 +82,9 @@ val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
 
 
 inline fun isDevEnv(action: () -> Unit) {
-	contract {
-		callsInPlace(action, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
-	}
+    contract {
+        callsInPlace(action, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+    }
     if (isDevEnv) action()
 }
 

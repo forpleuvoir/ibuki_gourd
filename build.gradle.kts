@@ -5,7 +5,7 @@ import java.util.*
 plugins {
 	java
 	signing
-	id("fabric-loom") version "1.3-SNAPSHOT"
+    id("fabric-loom") version "1.4-SNAPSHOT"
 	kotlin("jvm") version "1.9.20"
 	id("maven-publish")
 }

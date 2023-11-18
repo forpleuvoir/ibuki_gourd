@@ -58,4 +58,12 @@ abstract class ClickableElement : AbstractElement() {
         } else disabled
     }
 
+    protected fun <R> status(disabled: () -> R, idle: () -> R, hovered: () -> R, pressed: () -> R): R {
+        return if (active) {
+            if (this.pressed) pressed()
+            else if (mouseHover()) hovered()
+            else idle()
+        } else disabled()
+    }
+
 }

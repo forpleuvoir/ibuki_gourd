@@ -132,10 +132,10 @@ fun ElementContainer.button(
 fun ElementContainer.flatButton(
     onClick: () -> NextAction = { NextAction.Cancel },
     onRelease: () -> NextAction = { NextAction.Cancel },
-    color: () -> ARGBColor = { Color(0x000000).alpha(0) },
-    hoverColor: () -> ARGBColor = { Color(0x00A4FF).alpha(20) },
-    pressColor: () -> ARGBColor = { Color(0x00B5FF).alpha(55) },
-    disableColor: () -> ARGBColor = { Colors.GRAY.alpha(75) },
+    color: () -> ARGBColor? = { null },
+    hoverColor: () -> ARGBColor? = { null },
+    pressColor: () -> ARGBColor? = { null },
+    disableColor: () -> ARGBColor? = { Colors.BLACK.alpha(75) },
     width: Float? = null,
     height: Float? = null,
     padding: Margin = Margin(2),
@@ -145,10 +145,12 @@ fun ElementContainer.flatButton(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(object : Button(onClick, onRelease, color, 0f, TEXTURE, width, height, padding, margin) {
+    return addElement(object : Button(onClick, onRelease, { Color(0x000000) }, 0f, TEXTURE, width, height, padding, margin) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            renderRect(renderContext.matrixStack, transform, status(disableColor(), this.color(), hoverColor(), pressColor()))
+            status(disableColor(), color(), hoverColor(), pressColor())?.let {
+                renderRect(renderContext.matrixStack, transform, it)
+            }
         }
 
         override fun onRender(renderContext: RenderContext) {

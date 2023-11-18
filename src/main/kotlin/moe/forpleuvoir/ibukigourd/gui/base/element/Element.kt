@@ -88,6 +88,7 @@ interface Element : ElementContainer, Drawable, Tickable {
             override fun removeElement(element: Element): Boolean = false
 
             override fun removeElement(index: Int) = Unit
+            override fun clearElements(predicate: (Element) -> Boolean) = Unit
 
             override val margin: Margin = Margin()
             override val padding: Margin = Margin()

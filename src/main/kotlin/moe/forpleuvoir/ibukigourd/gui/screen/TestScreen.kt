@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.dropMenu
+import moe.forpleuvoir.ibukigourd.gui.widget.dropSelector
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
@@ -25,6 +26,7 @@ import moe.forpleuvoir.ibukigourd.util.text.withColor
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.notifiableList
 import net.minecraft.client.util.math.MatrixStack
 
 var FRT = 0.0
@@ -36,32 +38,42 @@ fun testScreen() {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
         }
         padding(4)
-
+        val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜")
         row {
-            textInput(150f) {
+            val text = textInput(150f) {
                 hintText = literal("测试测试")
             }
+
+            dropSelector(options = list, onSelectionChange = {
+                println("选择了$it")
+                text.text = it
+            })
+            margin(bottom = 5f)
+        }
+        row {
+            var currentText = ""
+            textInput(width = 150f) {
+                hintText = literal("只能输入浮点")
+                onTextChanged = {
+                    currentText = it
+                }
+            }
             button {
+                click {
+                    list.add(currentText)
+                }
                 text("测试按钮")
             }
             margin(bottom = 5f)
         }
-        doubleTextInput({ }, width = 150f, margin = Margin(bottom = 5f)) { hintText = literal("只能输入浮点") }
         row {
             margin(bottom = 5f)
             intTextInput({ }, width = 150f) { hintText = literal("只能输入整数") }
             dropMenu {
-                text("下拉\n菜单\naaa")
+                text("下拉菜单")
                 items {
                     repeat(12) {
-                        if (it == 5)
-                            textInput(120f) {
-                                hintText = literal("测试测试")
-                            }
-                        if (it == 6)
-                            button { text("塞点乱七八糟的") }
                         flatButton {
-                            if (it == 0) padding(9)
                             text("下拉菜单选项$it")
                         }
                     }

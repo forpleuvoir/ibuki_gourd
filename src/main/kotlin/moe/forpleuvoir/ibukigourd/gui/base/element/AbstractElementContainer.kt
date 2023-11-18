@@ -21,9 +21,9 @@ abstract class AbstractElementContainer : Element {
             arrange()
         }
 
-    override var spacing: Float =0f
+    override var spacing: Float = 0f
         set(value) {
-            layout.spacing=value
+            layout.spacing = value
             field = value
         }
 
@@ -44,6 +44,10 @@ abstract class AbstractElementContainer : Element {
     override val fixedElements get() = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
 
     override val handleElements get() = subElements.filter { it != this.tip && it.active }.sortedByDescending { it.priority }
+
+    override fun clearElements(predicate: (Element) -> Boolean) {
+        subElements.removeAll(predicate)
+    }
 
     override fun init() {
         for (e in subElements) e.init.invoke()

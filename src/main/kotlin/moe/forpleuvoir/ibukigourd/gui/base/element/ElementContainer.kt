@@ -43,6 +43,8 @@ interface ElementContainer : Initializable {
 
     fun removeElement(index: Int)
 
+    fun clearElements(predicate: (Element) -> Boolean)
+
     val margin: Margin
 
     val padding: Margin

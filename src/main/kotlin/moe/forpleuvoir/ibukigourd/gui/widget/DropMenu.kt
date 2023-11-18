@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
+import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
@@ -19,7 +20,11 @@ import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.textRenderer
+import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.NotifiableArrayList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -29,9 +34,10 @@ open class DropMenu(
     height: Float? = null,
     padding: Margin = Theme.BUTTON.PADDING,
     margin: Margin? = null,
+    var selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) }
 ) : ExpandableElement() {
 
-    val arrow: Button = flatButton(hoverColor = { Colors.BLACK.alpha(0) }, pressColor = { Colors.BLACK.alpha(0) }) {
+    val arrow: Button = flatButton {
         fixed = true
         icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
         click {
@@ -54,7 +60,7 @@ open class DropMenu(
         margin?.let(::margin)
         tip = object : Tip({ this }, { this.screen() }) {
 
-            val arrow: Button = flatButton(hoverColor = { Colors.BLACK.alpha(0) }, pressColor = { Colors.BLACK.alpha(0) }) {
+            val arrow: Button = flatButton {
                 fixed = true
                 icon(WidgetTextures.DROP_MENU_ARROW_UP)
                 click {
@@ -75,11 +81,12 @@ open class DropMenu(
                         this.transform.height = it.height
                     }
                     if (!transform.fixedWidth) {
-                        val h = this.renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + this.padding.height } ?: 0f
+                        val h = this.renderElements.firstOrNull { e -> !e.fixed }?.transform?.height ?: 0f
                         this.transform.width = it.width + h
 
-                        arrow.transform.y = h / 2 - arrow.transform.halfHeight
-                        arrow.transform.x = transform.width - h / 2 - arrow.transform.halfWidth -1.5f
+                        arrow.transform.y = (h + padding.top) / 2 - arrow.transform.halfHeight
+                        arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+
                     }
                     if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
                 }
@@ -136,30 +143,34 @@ open class DropMenu(
                 val padding1 = this.padding
                 rectBatchRender {
                     renderElements.filter { it != arrow }.let { list ->
-                        val maxWidth = list.maxOf { it.transform.width }
+                        val h = renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + padding1.height } ?: 0f
                         for ((index, element) in list.withIndex()) {
-                            if (index != list.lastIndex)
+                            selectedColor?.let {
+                                if (element.mouseHover())
+                                    renderRect(
+                                        renderContext.matrixStack,
+                                        rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, transform.width - h - spacing, element.transform.height),
+                                        it()
+                                    )
+                            }
+                            if (index != list.lastIndex) {
                                 renderRect(
                                     renderContext.matrixStack,
-                                    rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, 1f),
+                                    rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, transform.width - h - spacing, spacing),
                                     Colors.GRAY.alpha(0.2f)
                                 )
+                                if (index == 0) {
+                                    renderRect(
+                                        renderContext.matrixStack,
+                                        rect(transform.worldRight - h + padding1.left / 2 + spacing, element.transform.worldBottom, transform.worldZ, h - padding1.width, spacing),
+                                        Colors.GRAY.alpha(0.2f)
+                                    )
+                                }
+                            }
                         }
                         renderRect(
                             renderContext.matrixStack,
-                            rect(transform.worldLeft + maxWidth + padding1.left, transform.worldTop + padding1.top, transform.worldZ, 1f, transform.height - padding1.height),
-                            Colors.GRAY.alpha(0.2f)
-                        )
-                        val h = renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + padding1.height } ?: 0f
-                        renderRect(
-                            renderContext.matrixStack,
-                            rect(
-                                transform.worldLeft + maxWidth + padding1.left + 1,
-                                transform.worldTop + h,
-                                transform.worldZ,
-                                arrow.transform.y * 2,
-                                1f
-                            ),
+                            rect(transform.worldRight - h + spacing, transform.worldTop + padding1.top, transform.worldZ, spacing, transform.height - padding1.height),
                             Colors.GRAY.alpha(0.2f)
                         )
                     }
@@ -205,10 +216,10 @@ open class DropMenu(
         renderRect(
             renderContext.matrixStack,
             rect(
-                arrow.transform.worldX - arrow.transform.y + 2.75f,
+                arrow.transform.worldX - (arrow.transform.y + arrow.transform.halfHeight) + arrow.transform.halfWidth + tip!!.spacing,
                 transform.worldTop + padding.top / 2,
                 transform.worldZ,
-                1f,
+                tip!!.spacing,
                 transform.height - padding.height / 2
             ),
             Colors.GRAY.alpha(0.2f)
@@ -231,10 +242,67 @@ fun ElementContainer.dropMenu(
     height: Float? = null,
     padding: Margin = Margin(4),
     margin: Margin? = null,
+    selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}
 ): DropMenu {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(DropMenu(width, height, padding, margin).apply(scope))
+    return this.addElement(DropMenu(width, height, padding, margin, selectedColor).apply(scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ElementContainer.dropSelector(
+    width: Float? = null,
+    height: Float? = null,
+    options: NotifiableArrayList<String>,
+    current: String = options.first(),
+    onSelectionChange: (String) -> Unit,
+    padding: Margin = Margin(4),
+    margin: Margin? = null,
+    selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
+    scope: DropMenu.() -> Unit = {}
+): DropMenu {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return this.addElement(DropMenu(width, height, padding, margin, selectedColor).apply {
+        var currentItem = current
+        text({ currentItem })
+        if (options.isNotEmpty() && options[0] != currentItem) {
+            options.disableNotify {
+                options.remove(currentItem)
+            }
+            options.add(0, currentItem)
+        }
+        fun ElementContainer.initOptions() {
+            val max = options.maxOf { textRenderer.getWidth(it) }
+            options.forEach {
+                flatButton(padding = Margin(2)) {
+                    text(it, width = max + 4f)
+                    click {
+                        currentItem = it
+                        onSelectionChange.invoke(it)
+                        if (options.isNotEmpty() && options[0] != currentItem) {
+                            options.disableNotify {
+                                options.remove(it)
+                            }
+                            options.add(0, it)
+                        }
+                        this@apply.expend = false
+                    }
+                }
+            }
+        }
+        items {
+            options.subscribe {
+                this.clearElements { !it.fixed }
+                initOptions()
+                this.init()
+                this.arrange()
+            }
+            this.initOptions()
+        }
+        scope()
+    })
 }
