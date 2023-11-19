@@ -72,7 +72,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
 
 		val SHADOW by ConfigBoolean("shadow", false)
 
-		val RIGHT_TO_LEFT by ConfigBoolean("rightToLeft", false)
+		val RIGHT_TO_LEFT by ConfigBoolean("right_to_left", false)
 
 	}
 

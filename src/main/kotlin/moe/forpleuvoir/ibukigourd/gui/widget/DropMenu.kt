@@ -72,7 +72,6 @@ open class DropMenu(
                 transform.parent = { this@DropMenu.transform }
                 padding(2, 2, 2, 2)
                 spacing = 1f
-
             }
 
             override fun arrange() {
@@ -84,7 +83,7 @@ open class DropMenu(
                         val h = this.renderElements.firstOrNull { e -> !e.fixed }?.transform?.height ?: 0f
                         this.transform.width = it.width + h
 
-                        arrow.transform.y = (h + padding.top) / 2 - arrow.transform.halfHeight
+                        arrow.transform.y = (h + 4f) / 2 - arrow.transform.halfHeight
                         arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
 
                     }
@@ -217,10 +216,10 @@ open class DropMenu(
             renderContext.matrixStack,
             rect(
                 arrow.transform.worldX - (arrow.transform.y + arrow.transform.halfHeight) + arrow.transform.halfWidth + tip!!.spacing,
-                transform.worldTop + padding.top / 2,
+                transform.worldTop + 2f,
                 transform.worldZ,
                 tip!!.spacing,
-                transform.height - padding.height / 2
+                transform.height - 4f
             ),
             Colors.GRAY.alpha(0.2f)
         )
@@ -258,7 +257,7 @@ fun ElementContainer.dropSelector(
     options: NotifiableArrayList<String>,
     current: String = options.first(),
     onSelectionChange: (String) -> Unit,
-    padding: Margin = Margin(4),
+    padding: Margin = Margin(6),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}
@@ -278,8 +277,8 @@ fun ElementContainer.dropSelector(
         fun ElementContainer.initOptions() {
             val max = options.maxOf { textRenderer.getWidth(it) }
             options.forEach {
-                flatButton(padding = Margin(2)) {
-                    text(it, width = max + 4f)
+                flatButton(padding = Margin(4)) {
+                    text(it, width = max + 8f)
                     click {
                         currentItem = it
                         onSelectionChange.invoke(it)

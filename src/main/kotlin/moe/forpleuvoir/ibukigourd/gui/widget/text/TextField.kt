@@ -53,6 +53,10 @@ open class TextField(
 
     var changed: Boolean = false
 
+    var scrollable: Boolean = true
+
+    var scrollerSpeed: Float = 1.0f
+
     protected val renderText: List<Text>
         get() {
             val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth) transform.width.toInt() else 0)
@@ -70,11 +74,11 @@ open class TextField(
     fun resize() {
         var changed = false
         if (!transform.fixedWidth) {
-            transform.width = renderText.maxWidth(textRenderer).toFloat() + padding.width
+            transform.width = (renderText.maxWidth(textRenderer).toFloat() + padding.width).coerceAtLeast(1f)
             changed = true
         }
         if (!transform.fixedHeight) {
-            transform.height = renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height
+            transform.height = (renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height).coerceAtLeast(1f)
             changed = true
         }
         if (changed) parent().arrange()

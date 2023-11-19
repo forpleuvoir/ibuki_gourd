@@ -47,7 +47,7 @@ public abstract class MinecraftClientMixin {
 		ScreenManager.hasScreen(screen -> screen.getResize().invoke(this.window.getScaledWidth(), this.window.getScaledHeight()));
 	}
 
-	@Inject(method = "openPauseMenu", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "openGameMenu", at = @At(value = "HEAD"), cancellable = true)
 	public void openPauseMenu(CallbackInfo ci) {
 		if (ScreenManager.hasScreen()) ci.cancel();
 	}

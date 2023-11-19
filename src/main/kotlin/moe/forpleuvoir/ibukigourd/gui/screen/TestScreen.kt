@@ -51,18 +51,16 @@ fun testScreen() {
             margin(bottom = 5f)
         }
         row {
-            var currentText = ""
+            var currentText = "啊啊"
             textInput(width = 150f) {
+                text = currentText
                 hintText = literal("只能输入浮点")
                 onTextChanged = {
                     currentText = it
                 }
             }
             button {
-                click {
-                    list.add(currentText)
-                }
-                text("测试按钮")
+                text({ currentText })
             }
             margin(bottom = 5f)
         }
