@@ -132,5 +132,11 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var DROP_MENU_ARROW_DOWN = WidgetTexture(Corner(0), 153, 0, 160, 4, TEXTURE_INFO)
         private set
 
+    var CHECK_BOX_TRUE = WidgetTexture(Corner(0), 162, 2, 174, 14, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_FALSE = WidgetTexture(Corner(0), 178, 2, 190, 14, TEXTURE_INFO)
+        private set
+
 }
 

@@ -120,10 +120,12 @@ fun testScreen() {
             }
         }
 
-//        text(
-//            { literal("cursor:${input.cursor}\nselection:${input.selectionEnd}\namount:${input.amount}\ntotalHeight:${input.textContentHeight}\nselectedText:${input.selectedText}") },
-//            color = Colors.WHITE
-//        ).fixed(5f, 5f)
+        text(
+            { literal( "超长文本滚动测试\n超长文本滚动测试111111111\n超长文本滚动测试2222222222\n超长文本滚动测试33333333333".trimIndent()) },
+            color = Colors.WHITE,
+            width = 80f,
+            height = 20f
+        ).fixed(5f, 5f)
 
         renderOverlay = {
             val rect = contentRect(false)

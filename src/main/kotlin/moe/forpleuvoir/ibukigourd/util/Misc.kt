@@ -95,6 +95,31 @@ fun MatrixStack.rest() {
     }
 }
 
+
+val Float.decimalPlaces: Int
+    get() {
+        val decimalString = this.toString()
+        val dotIndex = decimalString.indexOf('.')
+
+        return if (dotIndex == -1) {
+            0 // 没有小数点，返回0
+        } else {
+            decimalString.length - dotIndex - 1
+        }
+    }
+
+val Double.decimalPlaces: Int
+    get() {
+        val decimalString = this.toString()
+        val dotIndex = decimalString.indexOf('.')
+
+        return if (dotIndex == -1) {
+            0 // 没有小数点，返回0
+        } else {
+            decimalString.length - dotIndex - 1
+        }
+    }
+
 @JvmName("measureTime")
 fun javaMeasureTime(action: Runnable) =
     kotlin.time.measureTime(action::run).let { it.toString() to it.inWholeNanoseconds }

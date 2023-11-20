@@ -22,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.ibukigourd.util.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.Style
 import kotlin.experimental.ExperimentalTypeInference
@@ -41,22 +42,31 @@ open class TextField(
     height: Float? = null,
 ) : AbstractElement() {
 
-    init {
-        transform.width = width?.also { transform.fixedWidth = true } ?: 16f
-        transform.height = height?.also { transform.fixedHeight = true } ?: 16f
-    }
-
     /**
      * 最新的文本
      */
     protected var latestText: Text = text()
-
     var changed: Boolean = false
-
     var scrollable: Boolean = true
 
-    var scrollerSpeed: Float = 1.0f
+    /**
+     * 每一tick X轴移动的距离
+     */
+    var xScrollerSpeed: Float = 0.5f
+    var xScrollerForward: MutableList<Float> = mutableListOf()
 
+    /**
+     * 每一tick Y轴移动的距离
+     */
+    var yScrollerSpeed: Float = 0.5f
+    var yScrollerForward: Float = 1f
+    protected val textXOffset: MutableList<Float> = mutableListOf()
+    protected val currentXOffset: MutableList<Float> = mutableListOf()
+    protected var textYOffset: Float = 0f
+    protected var currentYOffset: Float = 0f
+        set(value) {
+            field = value.clamp(0f, textYOffset)
+        }
     protected val renderText: List<Text>
         get() {
             val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth) transform.width.toInt() else 0)
@@ -67,6 +77,28 @@ open class TextField(
             return text
         }
 
+    init {
+        transform.width = width?.also {
+            transform.fixedWidth = true
+            currentXOffset.clear()
+            xScrollerForward.clear()
+            textXOffset.apply {
+                clear()
+                for ((index, text) in renderText.withIndex()) {
+                    this.add(index, (textRenderer.getWidth(text).toFloat() - transform.width).coerceAtLeast(0f))
+                    currentXOffset.add(index, 0f)
+                    xScrollerForward.add(index, 1f)
+                }
+            }
+        } ?: 16f
+        transform.height = height?.also {
+            transform.fixedHeight = true
+            currentYOffset = 0f
+            yScrollerForward = 1f
+            textYOffset = (renderText.size * (textRenderer.fontHeight + spacing) - spacing - transform.height).coerceAtLeast(0f)
+        } ?: 16f
+    }
+
     override fun init() {
         resize()
     }
@@ -76,10 +108,25 @@ open class TextField(
         if (!transform.fixedWidth) {
             transform.width = (renderText.maxWidth(textRenderer).toFloat() + padding.width).coerceAtLeast(1f)
             changed = true
+        } else {
+            currentXOffset.clear()
+            xScrollerForward.clear()
+            textXOffset.apply {
+                clear()
+                for ((index, text) in renderText.withIndex()) {
+                    this.add(index, (textRenderer.getWidth(text).toFloat() - transform.width).coerceAtLeast(0f))
+                    currentXOffset.add(index, 0f)
+                    xScrollerForward.add(index, 1f)
+                }
+            }
         }
         if (!transform.fixedHeight) {
             transform.height = (renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height).coerceAtLeast(1f)
             changed = true
+        } else {
+            currentYOffset = 0f
+            yScrollerForward = 1f
+            textYOffset = (renderText.size * (textRenderer.fontHeight + spacing) - spacing - transform.height).coerceAtLeast(0f)
         }
         if (changed) parent().arrange()
 
@@ -100,17 +147,46 @@ open class TextField(
     protected fun renderText(renderContext: RenderContext) {
         val contentRect = contentRect(true)
         val renderText = renderText
+
         val list = buildList {
             renderText.forEachIndexed { index, text ->
-                if (renderText.lastIndex != index) add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
-                else add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
+                if (renderText.lastIndex != index)
+                    add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
+                else
+                    add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
             }
         }
+
+        currentYOffset += renderContext.tickDelta * yScrollerSpeed * yScrollerForward
+        if (currentYOffset == textYOffset) yScrollerForward = -1f
+        if (currentYOffset == 0f) yScrollerForward = 1f
+
+        var firstYOffset = 0f
         renderContext.matrixStack {
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
-                alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vector3f ->
-                    renderText(renderContext.matrixStack, renderText[index], vector3f.x, vector3f.y, vector3f.z, shadow, layerType, rightToLeft, color, backgroundColor)
+                alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+
+                    if (index == 0) firstYOffset = vec.y - transform.worldTop
+
+                    if (index in currentXOffset.indices) {
+                        currentXOffset[index] += (renderContext.tickDelta * xScrollerSpeed * xScrollerForward[index]).clamp(0f, textXOffset[index])
+                        if (currentXOffset[index] == textXOffset[index]) xScrollerForward[index] = -1f
+                        if (currentXOffset[index] == 0f) xScrollerForward[index] = 1f
+                    }
+
+                    renderText(
+                        renderContext.matrixStack,
+                        renderText[index],
+                        vec.x - (currentXOffset.getOrNull(index) ?: 0f),
+                        vec.y - currentYOffset - if (scrollable) firstYOffset else 0f,
+                        vec.z,
+                        shadow,
+                        layerType,
+                        rightToLeft,
+                        color,
+                        backgroundColor
+                    )
                 }
             }
         }

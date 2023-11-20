@@ -77,6 +77,9 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
     var SAVE = WidgetTexture(Corner(0), 16, 16, 32, 32, TEXTURE_INFO)
         private set
 
+    var DELETE = WidgetTexture(Corner(0), 16, 32, 32, 48, TEXTURE_INFO)
+        private set
+
     var PLUS = WidgetTexture(Corner(0), 32, 16, 48, 32, TEXTURE_INFO)
         private set
 
@@ -103,5 +106,12 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
 
     var DOWN = WidgetTexture(Corner(0), 160, 16, 176, 32, TEXTURE_INFO)
         private set
+
+    var BACK = WidgetTexture(Corner(0), 176, 16, 192, 32, TEXTURE_INFO)
+        private set
+
+    var FILTER = WidgetTexture(Corner(0), 192, 16, 208, 32, TEXTURE_INFO)
+        private set
+
 
 }
