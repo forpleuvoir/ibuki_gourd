@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
@@ -91,7 +92,7 @@ interface Element : ElementContainer, Drawable, Tickable {
             override fun clearElements(predicate: (Element) -> Boolean) = Unit
 
             override val margin: Margin = Margin()
-            override val padding: Margin = Margin()
+            override val padding: Padding = Padding()
 
             override fun margin(margin: Number) = Unit
 
@@ -101,7 +102,7 @@ interface Element : ElementContainer, Drawable, Tickable {
 
             override fun padding(padding: Number) = Unit
 
-            override fun padding(padding: Margin) = Unit
+            override fun padding(padding: Padding) = Unit
 
             override fun padding(left: Number, right: Number, top: Number, bottom: Number) = Unit
             override val layout: Layout

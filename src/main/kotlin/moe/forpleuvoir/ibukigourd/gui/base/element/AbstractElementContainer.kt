@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
@@ -30,7 +31,7 @@ abstract class AbstractElementContainer : Element {
     override var margin: Margin = Margin()
         protected set
 
-    override var padding: Margin = Margin()
+    override var padding: Padding = Margin()
         protected set
 
     protected val subElements = ArrayList<Element>()
@@ -82,12 +83,12 @@ abstract class AbstractElementContainer : Element {
         this.padding = Margin(padding, padding)
     }
 
-    final override fun padding(padding: Margin) {
+    final override fun padding(padding: Padding) {
         this.padding = padding
     }
 
     final override fun padding(left: Number, right: Number, top: Number, bottom: Number) {
-        this.padding = Margin(left, right, top, bottom)
+        this.padding = Padding(left, right, top, bottom)
     }
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {

@@ -14,6 +14,8 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.math.bezier.CubicEasing
+import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Easing
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
@@ -69,7 +71,7 @@ open class TextField(
         }
     protected val renderText: List<Text>
         get() {
-            val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth) transform.width.toInt() else 0)
+            val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth && !scrollable) transform.width.toInt() else 0)
             if (latestText != text()) {
                 changed = true
                 latestText = text()
@@ -161,25 +163,30 @@ open class TextField(
         if (currentYOffset == textYOffset) yScrollerForward = -1f
         if (currentYOffset == 0f) yScrollerForward = 1f
 
-        var firstYOffset = 0f
+        var originYOffset = 0f
         renderContext.matrixStack {
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
                 alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
 
-                    if (index == 0) firstYOffset = vec.y - transform.worldTop
+                    if (index == 0) originYOffset = vec.y - transform.worldTop
 
-                    if (index in currentXOffset.indices) {
+                    if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
                         currentXOffset[index] += (renderContext.tickDelta * xScrollerSpeed * xScrollerForward[index]).clamp(0f, textXOffset[index])
                         if (currentXOffset[index] == textXOffset[index]) xScrollerForward[index] = -1f
                         if (currentXOffset[index] == 0f) xScrollerForward[index] = 1f
                     }
+                    val originXOffset = vec.x - transform.worldLeft
 
+                    val yEasing = (Easing.easeInOut(CubicEasing, currentYOffset / textYOffset) * textYOffset).let { if (it.isNaN()) 0f else it }
+                    val xEasing =
+                        (currentXOffset.getOrNull(index)?.let { Easing.easeInOut(CubicEasing, it / textXOffset[index]) * textXOffset[index] } ?: 0f)
+                                .let { if (it.isNaN()) 0f else it }
                     renderText(
                         renderContext.matrixStack,
                         renderText[index],
-                        vec.x - (currentXOffset.getOrNull(index) ?: 0f),
-                        vec.y - currentYOffset - if (scrollable) firstYOffset else 0f,
+                        vec.x - xEasing - if (scrollable) originXOffset else 0f,
+                        vec.y - yEasing - if (scrollable) originYOffset else 0f,
                         vec.z,
                         shadow,
                         layerType,

@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
@@ -47,7 +48,7 @@ interface ElementContainer : Initializable {
 
     val margin: Margin
 
-    val padding: Margin
+    val padding: Padding
 
     fun margin(margin: Number)
 
@@ -57,7 +58,7 @@ interface ElementContainer : Initializable {
 
     fun padding(padding: Number)
 
-    fun padding(padding: Margin)
+    fun padding(padding: Padding)
 
     fun padding(left: Number = this.padding.left, right: Number = this.padding.right, top: Number = this.padding.top, bottom: Number = this.padding.bottom)
 
