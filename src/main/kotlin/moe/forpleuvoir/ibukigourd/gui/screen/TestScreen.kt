@@ -60,7 +60,7 @@ fun testScreen() {
                 }
             }
             button {
-                text({ currentText })
+                text({ currentText }, width = 40f)
             }
             margin(bottom = 5f)
         }
@@ -120,12 +120,12 @@ fun testScreen() {
             }
         }
 
-        text(
-            { literal( "超长文本滚动测试\n超长文本滚动测试111111111\n超长文本滚动测试2222222222\n超长文本滚动测试33333333333".trimIndent()) },
-            color = Colors.WHITE,
+//        text(
+//            { literal( "超长文本滚动测试\n超长文本滚动测试111111111\n超长文本滚动测试22222222222\n超长文本滚动测试333333333333".trimIndent()) },
+//            color = Colors.WHITE,
 //            width = 80f,
-            height = 20f
-        ).fixed(5f, 5f)
+////            height = 20f
+//        ).fixed(5f, 5f)
 
         renderOverlay = {
             val rect = contentRect(false)

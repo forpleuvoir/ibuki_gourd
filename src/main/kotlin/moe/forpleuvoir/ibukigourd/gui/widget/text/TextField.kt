@@ -15,7 +15,9 @@ import moe.forpleuvoir.ibukigourd.render.base.Alignment
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.CubicEasing
+import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Easing
+import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
@@ -50,6 +52,8 @@ open class TextField(
     protected var latestText: Text = text()
     var changed: Boolean = false
     var scrollable: Boolean = true
+
+    var scrollerEasing: Ease = SineEasing::easeInOut
 
     /**
      * 每一tick X轴移动的距离
@@ -161,39 +165,57 @@ open class TextField(
 
         currentYOffset += renderContext.tickDelta * yScrollerSpeed * yScrollerForward
         if (currentYOffset == textYOffset) yScrollerForward = -1f
-        if (currentYOffset == 0f) yScrollerForward = 1f
+        if (currentYOffset <= 0f) yScrollerForward = 1f
 
         var originYOffset = 0f
+
         renderContext.matrixStack {
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
-                alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                if (scrollable) {
+                    alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
 
-                    if (index == 0) originYOffset = vec.y - transform.worldTop
+                        if (index == 0) originYOffset = vec.y - transform.worldTop
 
-                    if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
-                        currentXOffset[index] += (renderContext.tickDelta * xScrollerSpeed * xScrollerForward[index]).clamp(0f, textXOffset[index])
-                        if (currentXOffset[index] == textXOffset[index]) xScrollerForward[index] = -1f
-                        if (currentXOffset[index] == 0f) xScrollerForward[index] = 1f
+                        if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
+                            currentXOffset[index] = (currentXOffset[index] + renderContext.tickDelta * xScrollerSpeed * xScrollerForward[index]).clamp(0f, textXOffset[index])
+                            if (currentXOffset[index] >= textXOffset[index]) xScrollerForward[index] = -1f
+                            if (currentXOffset[index] <= 0f) xScrollerForward[index] = 1f
+                        }
+                        val originXOffset = vec.x - transform.worldLeft
+
+                        val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset).let { if (it.isNaN()) 0f else it }
+                        val xEasing =
+                            (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
+                                    .let { if (it.isNaN()) 0f else it }
+                        renderText(
+                            renderContext.matrixStack,
+                            renderText[index],
+                            vec.x - xEasing - originXOffset,
+                            vec.y - yEasing - originYOffset,
+                            vec.z,
+                            shadow,
+                            layerType,
+                            rightToLeft,
+                            color,
+                            backgroundColor
+                        )
                     }
-                    val originXOffset = vec.x - transform.worldLeft
-
-                    val yEasing = (Easing.easeInOut(CubicEasing, currentYOffset / textYOffset) * textYOffset).let { if (it.isNaN()) 0f else it }
-                    val xEasing =
-                        (currentXOffset.getOrNull(index)?.let { Easing.easeInOut(CubicEasing, it / textXOffset[index]) * textXOffset[index] } ?: 0f)
-                                .let { if (it.isNaN()) 0f else it }
-                    renderText(
-                        renderContext.matrixStack,
-                        renderText[index],
-                        vec.x - xEasing - if (scrollable) originXOffset else 0f,
-                        vec.y - yEasing - if (scrollable) originYOffset else 0f,
-                        vec.z,
-                        shadow,
-                        layerType,
-                        rightToLeft,
-                        color,
-                        backgroundColor
-                    )
+                } else {
+                    alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                        renderText(
+                            renderContext.matrixStack,
+                            renderText[index],
+                            vec.x,
+                            vec.y,
+                            vec.z,
+                            shadow,
+                            layerType,
+                            rightToLeft,
+                            color,
+                            backgroundColor
+                        )
+                    }
                 }
             }
         }

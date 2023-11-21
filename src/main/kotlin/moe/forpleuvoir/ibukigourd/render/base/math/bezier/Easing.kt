@@ -3,12 +3,25 @@ package moe.forpleuvoir.ibukigourd.render.base.math.bezier
 import org.jetbrains.annotations.Contract
 
 /**
+ * 缓动映射函数
+ */
+typealias Ease = (Float) -> Float
+
+/**
  * https://easings.net/zh-cn
  */
 interface Easing {
 
     @Suppress("NOTHING_TO_INLINE")
     companion object {
+
+        val LINEAR: Easing = object : Easing {
+            override fun easeIn(t: Float): Float = t
+
+            override fun easeOut(t: Float): Float = t
+
+            override fun easeInOut(t: Float): Float = t
+        }
 
         /**
          * 缓入函数
