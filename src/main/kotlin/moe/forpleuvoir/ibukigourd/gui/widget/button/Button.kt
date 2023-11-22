@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.translate
+import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.reflect.KProperty
 
 
 open class Button(
@@ -110,6 +112,30 @@ fun ElementContainer.button(
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
     return addElement(Button(onClick, onRelease, color, pressOffset, theme, width, height, padding, margin).apply(scope))
+}
+
+@Contract("_ ->this")
+fun ElementContainer.checkBox(
+    status: DelegatedValue<Boolean> = DelegatedValue(false),
+    onChanged: (Boolean) -> Unit = {},
+    color: () -> ARGBColor = { COLOR },
+    theme: ButtonTheme = TEXTURE,
+    width: Float? = null,
+    height: Float? = null,
+    padding: Margin = PADDING,
+    margin: Margin? = null
+): Button {
+    return addElement(object : Button({
+        status.setValue(!status.getValue())
+        onChanged(status.getValue())
+        NextAction.Cancel
+    }, { NextAction.Cancel }, color, 0f, theme, width, height, padding, margin) {
+
+        override fun onRenderBackground(renderContext: RenderContext) {
+            renderTexture(renderContext.matrixStack, transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), this.color())
+        }
+
+    })
 }
 
 /**

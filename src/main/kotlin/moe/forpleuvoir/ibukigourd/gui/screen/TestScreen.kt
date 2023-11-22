@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.checkBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.dropMenu
@@ -20,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
+import moe.forpleuvoir.ibukigourd.util.delegate
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.ibukigourd.util.text.withColor
@@ -62,6 +64,9 @@ fun testScreen() {
             button {
                 text({ currentText }, width = 40f)
             }
+            val _status = delegate(true)
+            var status by _status
+            checkBox(_status)
             margin(bottom = 5f)
         }
         row {
