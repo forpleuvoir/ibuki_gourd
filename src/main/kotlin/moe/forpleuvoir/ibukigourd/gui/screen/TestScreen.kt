@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.checkBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.switchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.dropSelector
@@ -45,7 +46,6 @@ fun testScreen() {
             val text = textInput(150f) {
                 hintText = literal("测试测试")
             }
-
             dropSelector(options = list, onSelectionChange = {
                 println("选择了$it")
                 text.text = it
@@ -53,6 +53,9 @@ fun testScreen() {
             margin(bottom = 5f)
         }
         row {
+            spacing = 5f
+            val a = delegate(true)
+            var status by a
             var currentText = "啊啊"
             textInput(width = 150f) {
                 text = currentText
@@ -62,11 +65,13 @@ fun testScreen() {
                 }
             }
             button {
-                text({ currentText }, width = 40f)
+                text({ status.toString() }, width = 40f)
+                click {
+                    status = !status
+                }
             }
-            val _status = delegate(true)
-            var status by _status
-            checkBox(_status)
+            checkBox(a)
+            switchButton(a)
             margin(bottom = 5f)
         }
         row {
@@ -105,7 +110,7 @@ fun testScreen() {
             intScroller(0, -10..10, {}, length = 100f)
         }
         doubleScroller(0.0, -20.0..20.0, { }, length = 100f, arrangement = Arrangement.Horizontal)
-        list(240f, null, Arrangement.Horizontal, showScroller = true, showBackground = true) {
+        list(240f, null, Arrangement.Horizontal, showScroller = false, showBackground = true) {
             spacing = 5f
             repeat(10) { i ->
                 button {

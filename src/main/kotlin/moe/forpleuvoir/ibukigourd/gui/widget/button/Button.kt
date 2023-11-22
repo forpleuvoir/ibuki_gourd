@@ -6,6 +6,16 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_IDLE
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_TRUE_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_TRUE_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_TRUE_IDLE
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_TRUE_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SWITCH_BUTTON_OFF_BACKGROUND
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SWITCH_BUTTON_ON_BACKGROUND
 import moe.forpleuvoir.ibukigourd.gui.widget.ClickableElement
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
@@ -14,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.translate
@@ -22,11 +33,11 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.ternary
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.reflect.KProperty
 
 
 open class Button(
@@ -37,7 +48,7 @@ open class Button(
     var theme: ButtonTheme = TEXTURE,
     width: Float? = null,
     height: Float? = null,
-    padding: Margin = PADDING,
+    padding: Margin? = PADDING,
     margin: Margin? = null,
 ) : ClickableElement() {
 
@@ -50,7 +61,7 @@ open class Button(
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 20f
         transform.height = height?.also { transform.fixedHeight = true } ?: 20f
-        padding(padding)
+        padding?.let(::padding)
         margin?.let(::margin)
     }
 
@@ -116,23 +127,52 @@ fun ElementContainer.button(
 
 @Contract("_ ->this")
 fun ElementContainer.checkBox(
-    status: DelegatedValue<Boolean> = DelegatedValue(false),
+    statusDelegate: DelegatedValue<Boolean> = DelegatedValue(false),
     onChanged: (Boolean) -> Unit = {},
     color: () -> ARGBColor = { COLOR },
-    theme: ButtonTheme = TEXTURE,
-    width: Float? = null,
-    height: Float? = null,
-    padding: Margin = PADDING,
-    margin: Margin? = null
+    width: Float? = 12f,
+    height: Float? = 12f,
 ): Button {
+    var status by statusDelegate
     return addElement(object : Button({
-        status.setValue(!status.getValue())
-        onChanged(status.getValue())
+        status = !status
+        onChanged(status)
         NextAction.Cancel
-    }, { NextAction.Cancel }, color, 0f, theme, width, height, padding, margin) {
+    }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            renderTexture(renderContext.matrixStack, transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), this.color())
+            status.ternary(
+                status(CHECK_BOX_TRUE_DISABLED, CHECK_BOX_TRUE_IDLE, CHECK_BOX_TRUE_HOVERED, CHECK_BOX_TRUE_PRESSED),
+                status(CHECK_BOX_FALSE_DISABLED, CHECK_BOX_FALSE_IDLE, CHECK_BOX_FALSE_HOVERED, CHECK_BOX_FALSE_PRESSED)
+            ).let { renderTexture(renderContext.matrixStack, transform, it, this.color()) }
+        }
+
+    })
+}
+
+@Contract("_ ->this")
+fun ElementContainer.switchButton(
+    statusDelegate: DelegatedValue<Boolean> = DelegatedValue(false),
+    onChanged: (Boolean) -> Unit = {},
+    width: Float? = 32f,
+    height: Float? = 16f,
+): Button {
+    var status by statusDelegate
+    return addElement(object : Button({
+        status = !status
+        onChanged(status)
+        NextAction.Cancel
+    }, { NextAction.Cancel }, { COLOR }, 0f, TEXTURE, width, height, null, null) {
+
+        override fun onRenderBackground(renderContext: RenderContext) {
+            renderTexture(renderContext.matrixStack, transform, status.ternary(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), this.color())
+            renderTexture(
+                renderContext.matrixStack, rect(
+                    transform.worldPosition.x(transform.worldPosition.x + status.ternary(transform.width / 2, 0f)),
+                    transform.width / 2,
+                    transform.height
+                ), status(theme.disabled, theme.idle, theme.hovered, theme.pressed), this.color()
+            )
         }
 
     })

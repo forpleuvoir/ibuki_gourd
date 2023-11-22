@@ -132,10 +132,34 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var DROP_MENU_ARROW_DOWN = WidgetTexture(Corner(0), 153, 0, 160, 4, TEXTURE_INFO)
         private set
 
-    var CHECK_BOX_TRUE = WidgetTexture(Corner(0), 162, 2, 174, 14, TEXTURE_INFO)
+    var CHECK_BOX_TRUE_IDLE = WidgetTexture(Corner(0), 162, 2, 174, 14, TEXTURE_INFO)
         private set
 
-    var CHECK_BOX_FALSE = WidgetTexture(Corner(0), 178, 2, 190, 14, TEXTURE_INFO)
+    var CHECK_BOX_TRUE_HOVERED = WidgetTexture(Corner(0), 162, 18, 174, 30, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_TRUE_PRESSED = WidgetTexture(Corner(0), 162, 34, 174, 46, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_TRUE_DISABLED = WidgetTexture(Corner(0), 162, 34, 174, 46, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_FALSE_IDLE = WidgetTexture(Corner(0), 178, 2, 190, 14, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_FALSE_HOVERED = WidgetTexture(Corner(0), 178, 18, 190, 30, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_FALSE_PRESSED = WidgetTexture(Corner(0), 178, 34, 190, 46, TEXTURE_INFO)
+        private set
+
+    var CHECK_BOX_FALSE_DISABLED = WidgetTexture(Corner(0), 178, 34, 190, 46, TEXTURE_INFO)
+        private set
+
+    var SWITCH_BUTTON_ON_BACKGROUND = WidgetTexture(Corner(4), 192, 16, 208, 32, TEXTURE_INFO)
+        private set
+
+    var SWITCH_BUTTON_OFF_BACKGROUND = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
         private set
 
 }
