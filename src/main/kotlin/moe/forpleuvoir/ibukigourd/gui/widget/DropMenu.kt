@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
@@ -32,7 +33,7 @@ import kotlin.contracts.contract
 open class DropMenu(
     width: Float? = null,
     height: Float? = null,
-    padding: Margin = Theme.BUTTON.PADDING,
+    padding: Padding? = Theme.BUTTON.PADDING,
     margin: Margin? = null,
     var selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) }
 ) : ExpandableElement() {
@@ -56,7 +57,7 @@ open class DropMenu(
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 20f
         transform.height = height?.also { transform.fixedHeight = true } ?: 20f
-        padding(padding)
+        padding?.let(::padding)
         margin?.let(::margin)
         tip = object : Tip({ this }, { this.screen() }) {
 
@@ -239,7 +240,7 @@ open class DropMenu(
 fun ElementContainer.dropMenu(
     width: Float? = null,
     height: Float? = null,
-    padding: Margin = Margin(4),
+    padding: Padding? = Padding(4),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}
@@ -257,7 +258,7 @@ fun ElementContainer.dropSelector(
     options: NotifiableArrayList<String>,
     current: String = options.first(),
     onSelectionChange: (String) -> Unit,
-    padding: Margin = Margin(6),
+    padding: Padding? = Padding(6),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}
