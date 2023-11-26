@@ -37,6 +37,7 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(this)
     }
 
+    @Suppress("DuplicatedCode")
     @OptIn(ExperimentalApi::class)
     override fun reload(manager: ResourceManager) {
         log.info("icon textures loading...")
@@ -59,7 +60,7 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
         }.onFailure { log.error("icon textures load fail", it) }
     }
 
-    override fun getFabricId(): Identifier = resources("widget")
+    override fun getFabricId(): Identifier = resources("icon")
 
 
     var SEARCH = WidgetTexture(Corner(0), 0, 0, 16, 16, TEXTURE_INFO)

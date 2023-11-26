@@ -35,6 +35,7 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
 
     override fun getFabricId(): Identifier = resources("widget")
 
+    @Suppress("DuplicatedCode")
     @OptIn(ExperimentalApi::class)
     override fun reload(manager: ResourceManager) {
         log.info("widget textures loading...")
@@ -84,16 +85,16 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var TIP: WidgetTexture = WidgetTexture(Corner(4), 48, 32, 64, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(4), 73, 41, 80, 48, TEXTURE_INFO)
+    var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(0), 73, 41, 80, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(4), 64, 41, 71, 48, TEXTURE_INFO)
+    var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(0), 64, 41, 71, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(4), 73, 32, 80, 39, TEXTURE_INFO)
+    var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(0), 73, 32, 80, 39, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(4), 64, 32, 71, 39, TEXTURE_INFO)
+    var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(0), 64, 32, 71, 39, TEXTURE_INFO)
         private set
 
     var SCROLLER_BAR_IDLE: WidgetTexture = WidgetTexture(Corner(4), 48, 0, 64, 16, TEXTURE_INFO)

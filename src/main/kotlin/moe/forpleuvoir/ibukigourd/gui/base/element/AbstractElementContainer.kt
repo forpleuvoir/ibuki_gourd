@@ -23,10 +23,12 @@ abstract class AbstractElementContainer : Element {
         }
 
     override var spacing: Float = 0f
+        get() = layout.spacing
         set(value) {
             layout.spacing = value
             field = value
         }
+
 
     override var margin: Margin = Margin()
         protected set

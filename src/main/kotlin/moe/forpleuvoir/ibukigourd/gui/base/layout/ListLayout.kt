@@ -43,7 +43,7 @@ class ListLayout(
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 0f
         transform.height = height?.also { transform.fixedHeight = true } ?: 0f
-        padding?.let { padding(it) }
+        padding?.let(::padding)
     }
 
     var amount: Float

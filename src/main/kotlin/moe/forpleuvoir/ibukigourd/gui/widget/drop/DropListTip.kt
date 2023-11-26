@@ -1,11 +1,13 @@
-package moe.forpleuvoir.ibukigourd.gui.tip
+package moe.forpleuvoir.ibukigourd.gui.widget.drop
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
@@ -21,19 +23,19 @@ import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
 
-class DropTip(
-    parent: Element,
-    tipHandler: () -> TipHandler = { parent.screen() },
-    width: Float? = null,
-    height: Float? = null,
-    padding: Margin? = Margin(6),
+class DropListTip(
+    val dropMenu: DropMenu,
+    private val maxHeight: Float? = null,
+    padding: Margin? = Padding(2),
     val showScroller: Boolean = true,
-    scrollerThickness: Float = 10f,
-) : Tip({ parent }, tipHandler) {
+    scrollerThickness: Float = dropMenu.transform.height - 7f
+) : Tip({ dropMenu }, { dropMenu.screen() }) {
 
     lateinit var scrollerBar: Scroller
         private set
@@ -42,7 +44,7 @@ class DropTip(
         fixed = true
         icon(WidgetTextures.DROP_MENU_ARROW_UP)
         click {
-            this.visible = false
+            dropMenu.expend = false
         }
     }
 
@@ -60,9 +62,9 @@ class DropTip(
     private val scrollerThickness: Float = if (!showScroller) 0f else scrollerThickness
 
     init {
-        transform.width = width?.also { transform.fixedWidth = true } ?: 0f
-        transform.height = height?.also { transform.fixedHeight = true } ?: 0f
-        padding?.let { padding(it) }
+        transform.height = maxHeight?.also { transform.fixedHeight = true } ?: 0f
+        transform.parent = { dropMenu.transform }
+        padding?.let(::padding)
     }
 
     var amount: Float
@@ -82,7 +84,7 @@ class DropTip(
         val contentSize = Arrangement.Vertical.contentSize(layout.alignRects(subElements, Arrangement.Vertical))
         if (!this::scrollerBar.isInitialized) {
             scrollerBar = scroller(
-                transform.height - padding.height,
+                transform.height - parent().transform.height - spacing,
                 scrollerThickness,
                 { (layout.alignRects(subElements, Arrangement.Vertical).minOf { it.height } / 2f) },
                 { (contentSize.height - contentRect(false).height).coerceAtLeast(0f) },
@@ -98,18 +100,35 @@ class DropTip(
         }
         arrange()
         if (this::scrollerBar.isInitialized) {
-            scrollerBar.transform.worldX = transform.worldRight - scrollerThickness - padding.right / 2
-            scrollerBar.transform.y = padding.top + arrow.transform.height
+            scrollerBar.transform.x = arrow.transform.x + arrow.transform.halfWidth - arrow.transform.y - 2f
+            scrollerBar.transform.y = parent().transform.height - padding.top + spacing
         }
         tip?.init?.invoke()
     }
 
+    override fun arrange() {
+        layout.arrange(this.subElements, this.margin, this.padding)?.let {
+            if (!transform.fixedHeight) {
+                this.transform.height = it.height
+            }
+            if (!transform.fixedWidth) {
+                val h = this.renderElements.firstOrNull { e -> !e.fixed }?.transform?.height ?: 0f
+                this.transform.width = it.width + h
+
+                arrow.transform.y = (h + 4f) / 2 - arrow.transform.halfHeight
+                arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+
+            }
+            if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
+        }
+    }
+
     override var layout: Layout = object : Layout {
 
-        override var spacing: Float = 0f
+        override var spacing: Float = 1f
 
         override val elementContainer: () -> ElementContainer
-            get() = { this@DropTip }
+            get() = { this@DropListTip }
 
         override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
             val alignElements = elements.filter { !it.fixed }
@@ -124,7 +143,7 @@ class DropTip(
             val size = Arrangement.Vertical.contentSize(alignRects)
             val contentRect = when {
                 //固定高度和宽度
-                container.transform.fixedWidth && container.transform.fixedHeight  -> {
+                container.transform.fixedWidth && container.transform.fixedHeight -> {
                     container.contentRect(false)
                 }
                 //固定宽度 不固定高度
@@ -136,7 +155,7 @@ class DropTip(
                     rect(container.contentRect(false).position, size.width, container.transform.height)
                 }
                 //不固定宽度 不固定高度
-                else                                                               -> {
+                else                                                              -> {
                     rect(container.contentRect(false).position, size)
                 }
             }
@@ -146,7 +165,7 @@ class DropTip(
                 element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
-            return Size.create(contentRect.width + padding.width + this@DropTip.scrollerThickness, contentRect.height + padding.height)
+            return Size.create(contentRect.width + padding.width + this@DropListTip.scrollerThickness, contentRect.height + padding.height)
         }
 
     }
@@ -172,34 +191,107 @@ class DropTip(
         )
     }
 
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (!dropMenu.expend) return NextAction.Continue
+        if (super.onMouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+        if (mouseHover()) return NextAction.Cancel
+        return NextAction.Continue
+    }
+
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (!mouseHover()) return NextAction.Continue
-        return super.onMouseClick(mouseX, mouseY, button)
+        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+        if (!mouseHover() && dropMenu.expend) {
+            dropMenu.expend = false
+        }
+        if (mouseHover()) {
+            return NextAction.Cancel
+        }
+        return NextAction.Continue
     }
 
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+        if (!dropMenu.expend) return NextAction.Continue
+        if (super.onMouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
         mouseHover {
             if (!scrollerBar.mouseHover()) {
                 scrollerBar.amount -= scrollerBar.amountStep() * amount
             }
+            return NextAction.Cancel
         }
-        return super.onMouseScrolling(mouseX, mouseY, amount)
+        return NextAction.Continue
     }
 
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
-        renderBackground.invoke(renderContext)
-        renderContext.scissor(super.contentRect(true)) {
-            renderElements.filter { it != scrollerBar || !it.fixed }.forEach { it.render(renderContext) }
+        renderContext.postRender {
+            renderBackground.invoke(renderContext)
+            renderContext.scissor(super.contentRect(true)) {
+                renderElements.filter { it != scrollerBar || !it.fixed }.forEach { it.render(renderContext) }
+            }
+            fixedElements.forEach { it.render(renderContext) }
+            scrollerBar.render(renderContext)
+            renderContext.scissor(super.contentRect(true)) {
+                renderOverlay.invoke(renderContext)
+            }
         }
-        fixedElements.forEach { it.render(renderContext) }
-        scrollerBar.render(renderContext)
-        renderOverlay.invoke(renderContext)
     }
 
     override fun onRenderBackground(renderContext: RenderContext) {
         renderTexture(renderContext.matrixStack, transform, WidgetTextures.DROP_MENU_EXPEND_BACKGROUND)
     }
 
+    override fun onRenderOverlay(renderContext: RenderContext) {
+        rectBatchRender {
+            renderElements.filter { it != arrow && it != scrollerBar }.let { list ->
+                val h = renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + padding.height } ?: 0f
+                renderRect(
+                    renderContext.matrixStack,
+                    rect(
+                        transform.worldRight - h + padding.left / 2 + spacing,
+                        parent().transform.worldBottom - spacing,
+                        transform.worldZ,
+                        h - padding.width,
+                        spacing
+                    ),
+                    Colors.GRAY.alpha(0.2f)
+                )
+                for ((index, element) in list.withIndex()) {
+                    //选中颜色
+                    dropMenu.selectedColor?.let {
+                        if (element.mouseHover())
+                            renderRect(
+                                renderContext.matrixStack,
+                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, transform.width - h - spacing, element.transform.height),
+                                it()
+                            )
+                    }
+                    if (index != list.lastIndex) {
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, transform.width - h - spacing, spacing),
+                            Colors.GRAY.alpha(0.2f)
+                        )
+                    }
+                }
+                //绘制竖线
+                renderRect(
+                    renderContext.matrixStack,
+                    rect(transform.worldRight - h + spacing, transform.worldTop + padding.top, transform.worldZ, spacing, transform.height - padding.height),
+                    Colors.GRAY.alpha(0.2f)
+                )
+            }
+        }
+    }
 
+}
+
+fun DropMenu.itemList(
+    maxHeight: Float? = null,
+    padding: Margin? = Padding(2),
+    showScroller: Boolean = true,
+    scrollerThickness: Float = this.transform.height - 7f,
+    scope: ElementContainer.() -> Unit
+) {
+    this.tip = DropListTip(this, maxHeight, padding, showScroller, scrollerThickness)
+    this.tip!!.scope()
 }

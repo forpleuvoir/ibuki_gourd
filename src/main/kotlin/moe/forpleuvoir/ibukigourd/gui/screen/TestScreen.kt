@@ -9,8 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.checkBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.switchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
-import moe.forpleuvoir.ibukigourd.gui.widget.dropMenu
-import moe.forpleuvoir.ibukigourd.gui.widget.dropSelector
+import moe.forpleuvoir.ibukigourd.gui.widget.drop.dropMenu
+import moe.forpleuvoir.ibukigourd.gui.widget.drop.dropSelector
+import moe.forpleuvoir.ibukigourd.gui.widget.drop.itemList
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
@@ -41,7 +42,7 @@ fun testScreen() {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
         }
         padding(4)
-        val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜")
+        val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜", "日富美的裤袜", "普娜拉的裤袜")
         row {
             val text = textInput(150f) {
                 hintText = literal("测试测试")
@@ -79,9 +80,9 @@ fun testScreen() {
             intTextInput({ }, width = 150f) { hintText = literal("只能输入整数") }
             dropMenu {
                 text("下拉菜单")
-                items {
+                itemList(maxHeight = 80f) {
                     repeat(12) {
-                        flatButton {
+                        flatButton(hoverColor = { Colors.ORANGE.alpha(0) }) {
                             text("下拉菜单选项$it")
                         }
                     }
