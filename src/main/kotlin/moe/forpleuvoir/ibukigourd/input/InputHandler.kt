@@ -22,27 +22,14 @@ object InputHandler : Tickable {
 	init {
 		isDevEnv {
 			register(KP_1) {
-				testScreen()
-				println("打开测试屏幕")
+				testScreen(1)
+				println("打开测试屏幕1")
 			}
-			register(LEFT_CONTROL, KP_1, defaultSetting = keyBindSetting(triggerMode = OnPress)) {
-				println("按下了 1")
+			register(KP_2) {
+				testScreen(2)
+				println("打开测试屏幕2")
 			}
-			register(LEFT_CONTROL, KP_2, defaultSetting = keyBindSetting(triggerMode = OnPressed)) {
-				println("按住了 2")
-			}
-			register(LEFT_CONTROL, KP_3, defaultSetting = keyBindSetting(triggerMode = OnLongPress)) {
-				println("长按了 3")
-			}
-			register(LEFT_CONTROL, KP_4, defaultSetting = keyBindSetting(triggerMode = OnLongPressed)) {
-				println("长按住了 4")
-			}
-			register(LEFT_CONTROL, KP_5, defaultSetting = keyBindSetting(triggerMode = OnRelease)) {
-				println("释放了 5")
-			}
-			register(LEFT_CONTROL, KP_6, defaultSetting = keyBindSetting(triggerMode = BOTH)) {
-				println("按下或者释放了 6")
-			}
+
 		}
 	}
 

@@ -30,12 +30,19 @@ object ScreenManager : Tickable {
 	}
 
 	fun open(screenScope: Screen.() -> Unit): Screen {
-		return object : AbstractScreen() {}.apply {
+		return screen {
 			screenScope(this)
 			this.parentScreen = current
 			setScreen(this)
 		}
 	}
+
+	fun open(screen:Screen): Screen {
+		screen.parentScreen = current
+		setScreen(screen)
+		return screen
+	}
+
 
 	@JvmStatic
 	fun hasScreen(): Boolean = current != null

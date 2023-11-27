@@ -29,12 +29,13 @@ import kotlin.contracts.contract
 open class DropMenu(
     width: Float? = null,
     height: Float? = null,
-    padding: Padding? = Theme.BUTTON.PADDING,
+    padding: Padding? = Padding(6),
     margin: Margin? = null,
     var selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) }
 ) : ExpandableElement() {
 
     val arrow: Button = flatButton {
+        //TODO 大小铺满区域
         fixed = true
         icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
         click {
@@ -109,7 +110,7 @@ open class DropMenu(
 fun ElementContainer.dropMenu(
     width: Float? = null,
     height: Float? = null,
-    padding: Padding? = Padding(4),
+    padding: Padding? = Padding(6),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}

@@ -36,8 +36,23 @@ import net.minecraft.client.util.math.MatrixStack
 var FRT = 0.0
 var FPS = 0L
 
-fun testScreen() {
-    ScreenManager.open {
+fun testScreen(index: Int) {
+    when (index) {
+        1    -> testScreen1
+        2    -> testScreen2
+        else -> testScreen1
+    }.let {
+        ScreenManager.open(it)
+    }
+}
+
+val testScreen2: Screen
+    get() = screen {
+
+    }
+
+val testScreen1: Screen
+    get() = screen {
         renderBackground = {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
         }
@@ -55,8 +70,8 @@ fun testScreen() {
         }
         row {
             spacing = 5f
-            val a = delegate(true)
-            var status by a
+            val statusDelegate = delegate(true)
+            var status by statusDelegate
             var currentText = "啊啊"
             textInput(width = 150f) {
                 text = currentText
@@ -66,13 +81,13 @@ fun testScreen() {
                 }
             }
             button {
-                text({ status.toString() }, width = 40f)
+                text({ if (status) literal("开").style { it.withColor(Colors.GREEN) } else literal("关").style { it.withColor(Colors.RED) } }, width = 40f)
                 click {
                     status = !status
                 }
             }
-            checkBox(a)
-            switchButton(a)
+            checkBox(statusDelegate)
+            switchButton(statusDelegate)
             margin(bottom = 5f)
         }
         row {
@@ -80,9 +95,9 @@ fun testScreen() {
             intTextInput({ }, width = 150f) { hintText = literal("只能输入整数") }
             dropMenu {
                 text("下拉菜单")
-                itemList(maxHeight = 80f) {
-                    repeat(12) {
-                        flatButton(hoverColor = { Colors.ORANGE.alpha(0) }) {
+                itemList(maxHeight = 160f) {
+                    repeat(20) {
+                        flatButton {
                             text("下拉菜单选项$it")
                         }
                     }
@@ -131,13 +146,6 @@ fun testScreen() {
             }
         }
 
-//        text(
-//            { literal( "超长文本滚动测试\n超长文本滚动测试111111111\n超长文本滚动测试22222222222\n超长文本滚动测试333333333333".trimIndent()) },
-//            color = Colors.WHITE,
-//            width = 80f,
-////            height = 20f
-//        ).fixed(5f, 5f)
-
         renderOverlay = {
             val rect = contentRect(false)
 
@@ -158,13 +166,12 @@ fun testScreen() {
                 )
             }
 
-
 //			renderCrossHairs(matrixStack, rect.center.x, rect.center.y)
             renderOutline(it.matrixStack, rect, Colors.RED.opacity(0.5f))
 //			renderCrossHairs(matrixStack, mouseX, mouseY)
         }
     }
-}
+
 
 fun renderCrossHairs(matrixStack: MatrixStack, x: Number, y: Number) {
     renderLine(

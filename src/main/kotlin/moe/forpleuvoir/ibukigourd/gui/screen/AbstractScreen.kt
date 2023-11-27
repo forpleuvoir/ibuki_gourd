@@ -117,5 +117,10 @@ abstract class AbstractScreen(
         return super<AbstractElement>.onKeyPress(keyCode)
     }
 
+}
 
+fun screen(screenScope: Screen.() -> Unit):Screen{
+    return object : AbstractScreen() {}.apply {
+        screenScope(this)
+    }
 }
