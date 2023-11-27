@@ -3,6 +3,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
@@ -72,6 +73,13 @@ open class Button(
         }
     }
 
+    fun release(action: () -> Unit) {
+        onRelease = {
+            action()
+            NextAction.Cancel
+        }
+    }
+
     override fun onRender(renderContext: RenderContext) {
         val offset = Vector3f(0f, status(pressOffset, 0f, 0f, pressOffset), 0f)
         renderContext.scissorOffset(offset) {
@@ -115,7 +123,7 @@ fun ElementContainer.button(
     theme: ButtonTheme = TEXTURE,
     width: Float? = null,
     height: Float? = null,
-    padding: Margin = PADDING,
+    padding: Padding = PADDING,
     margin: Margin? = null,
     scope: Button.() -> Unit = {}
 ): Button {
@@ -204,7 +212,7 @@ fun ElementContainer.flatButton(
     disableColor: () -> ARGBColor? = { Colors.BLACK.alpha(75) },
     width: Float? = null,
     height: Float? = null,
-    padding: Margin = Margin(2),
+    padding: Padding? = Padding(2),
     margin: Margin? = null,
     scope: Button.() -> Unit = {}
 ): Button {

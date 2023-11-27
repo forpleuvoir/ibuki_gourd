@@ -17,8 +17,10 @@ import moe.forpleuvoir.nebula.common.color.Colors
 
 class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.screen() }) {
 
-    val arrow: Button = flatButton {
+    val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
         fixed = true
+        transform.fixedWidth = true
+        transform.fixedHeight = true
         icon(WidgetTextures.DROP_MENU_ARROW_UP)
         click {
             dropMenu.expend = false
@@ -37,15 +39,18 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
                 this.transform.height = it.height
             }
             if (!transform.fixedWidth) {
-                val h = this.renderElements.firstOrNull { e -> !e.fixed }?.transform?.height ?: 0f
-                this.transform.width = it.width + h
+                this.transform.width = it.width - padding.width + dropMenu.transform.height - dropMenu.padding.height + spacing
 
-                arrow.transform.y = (h + 4f) / 2 - arrow.transform.halfHeight
-                arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+                arrow.transform.width = dropMenu.arrow.transform.width
+                arrow.transform.height = dropMenu.arrow.transform.height
+
+                arrow.transform.y = dropMenu.arrow.transform.y
+                arrow.transform.x = dropMenu.arrow.transform.x
 
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
+        arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
     }
 
     override var visible: Boolean = false
@@ -99,34 +104,43 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
         val padding1 = this.padding
         rectBatchRender {
             renderElements.filter { it != arrow }.let { list ->
-                val h = renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + padding1.height } ?: 0f
                 for ((index, element) in list.withIndex()) {
+                    //选择颜色
                     dropMenu.selectedColor?.let {
                         if (element.mouseHover())
                             renderRect(
                                 renderContext.matrixStack,
-                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, transform.width - h - spacing, element.transform.height),
+                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, element.transform.width, element.transform.height),
                                 it()
                             )
                     }
                     if (index != list.lastIndex) {
+                        //元素下的横线
                         renderRect(
                             renderContext.matrixStack,
-                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, transform.width - h - spacing, spacing),
+                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, element.transform.width, spacing),
                             Colors.GRAY.alpha(0.2f)
                         )
                         if (index == 0) {
+                            //第一条横线延伸到箭头按钮下
                             renderRect(
                                 renderContext.matrixStack,
-                                rect(transform.worldRight - h + padding1.left / 2 + spacing, element.transform.worldBottom, transform.worldZ, h - padding1.width, spacing),
+                                rect(
+                                    arrow.transform.worldX,
+                                    element.transform.worldBottom,
+                                    transform.worldZ,
+                                    arrow.transform.width,
+                                    spacing
+                                ),
                                 Colors.GRAY.alpha(0.2f)
                             )
                         }
                     }
                 }
+                //竖线
                 renderRect(
                     renderContext.matrixStack,
-                    rect(transform.worldRight - h + spacing, transform.worldTop + padding1.top, transform.worldZ, spacing, transform.height - padding1.height),
+                    rect(arrow.transform.worldX - spacing, transform.worldTop + padding1.top, transform.worldZ, spacing, transform.height - padding1.height),
                     Colors.GRAY.alpha(0.2f)
                 )
             }

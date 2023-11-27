@@ -40,8 +40,10 @@ class DropListTip(
     lateinit var scrollerBar: Scroller
         private set
 
-    val arrow: Button = flatButton {
+    val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
         fixed = true
+        transform.fixedWidth = true
+        transform.fixedHeight = true
         icon(WidgetTextures.DROP_MENU_ARROW_UP)
         click {
             dropMenu.expend = false
@@ -115,15 +117,18 @@ class DropListTip(
                 }
             }
             if (!transform.fixedWidth) {
-                val h = this.renderElements.firstOrNull { e -> !e.fixed }?.transform?.height ?: 0f
-                this.transform.width = size.width + h
+                this.transform.width = size.width + dropMenu.transform.height
 
-                arrow.transform.y = (h + 4f) / 2 - arrow.transform.halfHeight
-                arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+                arrow.transform.width = dropMenu.arrow.transform.width
+                arrow.transform.height = dropMenu.arrow.transform.height
+
+                arrow.transform.y = dropMenu.arrow.transform.y
+                arrow.transform.x = dropMenu.arrow.transform.x
 
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
+        arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
     }
 
     override var layout: Layout = object : Layout {

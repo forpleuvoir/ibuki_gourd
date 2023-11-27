@@ -14,9 +14,7 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.math.bezier.CubicEasing
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Ease
-import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Easing
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -182,12 +180,12 @@ open class TextField(
                             if (currentXOffset[index] >= textXOffset[index]) xScrollerForward[index] = -1f
                             if (currentXOffset[index] <= 0f) xScrollerForward[index] = 1f
                         }
-                        val originXOffset = vec.x - transform.worldLeft
+                        val originXOffset = if (textXOffset.getOrElse(index) { 0f } != 0f) vec.x - transform.worldLeft else 0f
 
                         val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset).let { if (it.isNaN()) 0f else it }
                         val xEasing =
                             (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
-                                    .let { if (it.isNaN()) 0f else it }
+                                .let { if (it.isNaN()) 0f else it }
                         renderText(
                             renderContext.matrixStack,
                             renderText[index],

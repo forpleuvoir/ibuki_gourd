@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
+import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.checkBox
@@ -62,10 +63,13 @@ val testScreen1: Screen
             val text = textInput(150f) {
                 hintText = literal("测试测试")
             }
-            dropSelector(options = list, onSelectionChange = {
+            dropSelector(width = 60f, options = list, onSelectionChange = {
                 println("选择了$it")
                 text.text = it
             })
+            flatButton(hoverColor = { Colors.RED.alpha(100) }, width = 22f, height = 22f) {
+                icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
+            }
             margin(bottom = 5f)
         }
         row {
@@ -81,8 +85,12 @@ val testScreen1: Screen
                 }
             }
             button {
-                text({ if (status) literal("开").style { it.withColor(Colors.GREEN) } else literal("关").style { it.withColor(Colors.RED) } }, width = 40f)
-                click {
+                text(
+                    { if (status) literal("开").style { it.withColor(Colors.GREEN) } else literal("关").style { it.withColor(Colors.RED) } },
+                    width = 40f,
+                    alignment = PlanarAlignment::Center,
+                )
+                release {
                     status = !status
                 }
             }
@@ -135,11 +143,9 @@ val testScreen1: Screen
                     text("水平按钮$i")
                     if (i == 5) {
                         tip {
-                            flatButton {
-                                text(literal("我是提示!$i").style {
-                                    it.withColor(Colors.RED)
-                                })
-                            }
+                            text(literal("我是提示!$i").style {
+                                it.withColor(Colors.RED)
+                            })
                         }
                     }
                 }

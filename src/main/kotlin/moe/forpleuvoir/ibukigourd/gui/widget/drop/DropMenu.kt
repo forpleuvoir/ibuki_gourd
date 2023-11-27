@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
-import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
@@ -34,8 +33,9 @@ open class DropMenu(
     var selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) }
 ) : ExpandableElement() {
 
-    val arrow: Button = flatButton {
-        //TODO 大小铺满区域
+    val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
+        transform.fixedWidth = true
+        transform.fixedHeight = true
         fixed = true
         icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
         click {
@@ -65,11 +65,14 @@ open class DropMenu(
             }
             if (!transform.fixedWidth) {
                 this.transform.width = (it.width + (transform.halfHeight - arrow.transform.halfHeight) * 2).coerceAtLeast(tip!!.transform.width)
-                arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
-                arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
+        arrow.transform.width = this.transform.height - 4f
+        arrow.transform.height = this.transform.height - 4f
+        arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
+        arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+        arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
     }
 
     override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical)
@@ -124,11 +127,11 @@ fun ElementContainer.dropMenu(
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.dropSelector(
     width: Float? = null,
-    height: Float? = null,
+    height: Float? = 20f,
     options: NotifiableArrayList<String>,
     current: String = options.first(),
     onSelectionChange: (String) -> Unit,
-    padding: Padding? = Padding(6),
+    padding: Padding? = Padding(left = 6f),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}
@@ -138,7 +141,7 @@ fun ElementContainer.dropSelector(
     }
     return this.addElement(DropMenu(width, height, padding, margin, selectedColor).apply {
         var currentItem = current
-        text({ currentItem })
+        text({ currentItem }, width = width?.let { it - this.transform.height })
         if (options.isNotEmpty() && options[0] != currentItem) {
             options.disableNotify {
                 options.remove(currentItem)
@@ -148,7 +151,19 @@ fun ElementContainer.dropSelector(
         fun ElementContainer.initOptions() {
             val max = options.maxOf { textRenderer.getWidth(it) }
             options.forEach {
-                flatButton(padding = Margin(4)) {
+                flatButton(
+                    padding = padding?.let {
+                        val p = this@apply.tip!!.padding
+                        Padding(
+                            (it.left - p.left).coerceAtLeast(0f),
+                            (it.right - p.right).coerceAtLeast(0f),
+                            (it.top - p.top).coerceAtLeast(0f),
+                            (it.bottom - p.bottom).coerceAtLeast(0f)
+                        )
+                    },
+                    height = height?.let { it - this@apply.tip!!.padding.height },
+                    width = width?.let { it - this.transform.height }
+                ) {
                     text(it, width = max.toFloat())
                     click {
                         currentItem = it
