@@ -2,8 +2,8 @@ package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.screen.testScreen
-import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
-import moe.forpleuvoir.ibukigourd.input.Keyboard.*
+import moe.forpleuvoir.ibukigourd.input.Keyboard.KP_1
+import moe.forpleuvoir.ibukigourd.input.Keyboard.KP_2
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.exactMatch
 import moe.forpleuvoir.ibukigourd.util.isDevEnv
@@ -21,11 +21,11 @@ object InputHandler : Tickable {
 
     init {
         isDevEnv {
-            register(KP_1, defaultSetting = keyBindSetting(environment = KeyEnvironment.Both)) {
+            register(KP_1) {
                 testScreen(1)
                 println("打开测试屏幕1")
             }
-            register(KP_2, defaultSetting = keyBindSetting(environment = KeyEnvironment.Both)) {
+            register(KP_2) {
                 testScreen(2)
                 println("打开测试屏幕2")
             }

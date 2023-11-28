@@ -5,6 +5,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.BACKGROUND_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.RIGHT_TO_LEFT
@@ -49,7 +50,16 @@ open class TextField(
      */
     protected var latestText: Text = text()
     var changed: Boolean = false
+
+    /**
+     * 是否启用文本滚动
+     */
     var scrollable: Boolean = true
+
+    /**
+     * 鼠标悬浮时启用滚动,只有当[scrollable]为true时有效
+     */
+    var hoverScroller: Boolean = false
 
     var scrollerEasing: Ease = SineEasing::easeInOut
 
@@ -57,6 +67,7 @@ open class TextField(
      * 每一tick X轴移动的距离
      */
     var xScrollerSpeed: Float = 0.5f
+
     var xScrollerForward: MutableList<Float> = mutableListOf()
 
     /**
@@ -170,7 +181,7 @@ open class TextField(
         renderContext.matrixStack {
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
-                if (scrollable) {
+                if (scrollable && if (hoverScroller) mouseHover() else true) {
                     alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
 
                         if (index == 0) originYOffset = vec.y - transform.worldTop
@@ -182,21 +193,16 @@ open class TextField(
                         }
                         val originXOffset = if (textXOffset.getOrElse(index) { 0f } != 0f) vec.x - transform.worldLeft else 0f
 
-                        val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset).let { if (it.isNaN()) 0f else it }
-                        val xEasing =
-                            (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
-                                .let { if (it.isNaN()) 0f else it }
+                        val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset)
+                            .let { if (it.isNaN()) 0f else it }
+
+                        val xEasing = (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
+                            .let { if (it.isNaN()) 0f else it }
+
                         renderText(
-                            renderContext.matrixStack,
-                            renderText[index],
-                            vec.x - xEasing - originXOffset,
-                            vec.y - yEasing - originYOffset,
-                            vec.z,
-                            shadow,
-                            layerType,
-                            rightToLeft,
-                            color,
-                            backgroundColor
+                            renderContext.matrixStack, renderText[index],
+                            vec.x - xEasing - originXOffset, vec.y - yEasing - originYOffset, vec.z,
+                            shadow, layerType, rightToLeft, color, backgroundColor
                         )
                     }
                 } else {
@@ -204,14 +210,7 @@ open class TextField(
                         renderText(
                             renderContext.matrixStack,
                             renderText[index],
-                            vec.x,
-                            vec.y,
-                            vec.z,
-                            shadow,
-                            layerType,
-                            rightToLeft,
-                            color,
-                            backgroundColor
+                            vec.x, vec.y, vec.z, shadow, layerType, rightToLeft, color, backgroundColor
                         )
                     }
                 }

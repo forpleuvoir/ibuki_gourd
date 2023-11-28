@@ -102,7 +102,7 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
         val padding1 = this.padding
         rectBatchRender {
             renderElements.filter { it != arrow }.let { list ->
-                val maxWidth  = if(dropMenu.transform.fixedWidth) dropMenu.transform.width else list.maxOf { it.transform.width }
+                val maxWidth = list.maxOf { it.transform.width }
                 //箭头下的线
                 renderRect(
                     renderContext.matrixStack,

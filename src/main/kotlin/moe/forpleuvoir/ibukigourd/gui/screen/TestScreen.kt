@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
-import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.checkBox
@@ -61,8 +60,10 @@ val testScreen1: Screen
             renderRect(it.matrixStack, rect(vertex(6f, this.transform.halfHeight, 0f), 60f, 20f), Colors.RED.opacity(0.5f))
         }
         padding(4)
+        spacing = 5f
         val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜", "日富美的裤袜", "普娜拉的裤袜")
         row {
+            spacing = 5f
             val text = textInput(150f) {
                 hintText = literal("测试测试")
             }
@@ -74,34 +75,12 @@ val testScreen1: Screen
                 text("下拉菜单")
                 items {
                     repeat(20) {
-                        flatButton {
+                        flatButton(height = 16f) {
                             text("下拉菜单选项$it")
                         }
                     }
                 }
             }
-            flatButton(height = 20f, hoverColor = {Colors.GREEN.alpha(50)}) {
-                text("测试按钮").apply {
-                    renderBackground={
-                        onRenderBackground(it)
-                        renderRect(it.matrixStack,transform,Colors.RED.alpha(50))
-                    }
-                }
-            }
-            button(height = 20f) {
-                text("测试按钮").apply {
-                    renderBackground={
-                        onRenderBackground(it)
-                        renderRect(it.matrixStack,transform,Colors.RED.alpha(50))
-                    }
-                }
-                icon(IconTextures.RIGHT)
-                renderBackground={
-                    onRenderBackground(it)
-                    renderRect(it.matrixStack,contentRect(true),Colors.GREEN.alpha(50))
-                }
-            }
-            margin(bottom = 5f)
         }
         row {
             spacing = 5f
@@ -127,11 +106,15 @@ val testScreen1: Screen
             }
             checkBox(statusDelegate)
             switchButton(statusDelegate)
-            margin(bottom = 5f)
         }
         row {
-            margin(bottom = 5f)
-            intTextInput({ }, width = 150f) { hintText = literal("只能输入整数") }
+            spacing = 5f
+            val intDelegate = delegate(0)
+            val intValue by intDelegate
+            intTextInput(intDelegate) { hintText = literal("只能输入整数") }
+            button {
+                text({ intValue.toString() })
+            }
             dropMenu {
                 text("下拉菜单")
                 itemList(maxHeight = 160f) {
@@ -143,13 +126,21 @@ val testScreen1: Screen
                 }
             }
         }
+        row {
+            spacing = 5f
+            val floatDelegate = delegate(0f)
+            val floatValue by floatDelegate
+            floatTextInput(floatDelegate) { hintText = literal("只能输入浮点数") }
+            button {
+                text({ floatValue.toString() })
+            }
+        }
         var input: TextBox
         row {
-            margin(bottom = 6f)
+            spacing = 5f
             input = textBox(120f, 120f, padding = Margin(10f, 10f, 5f, 5f)) {
                 hintText = literal("多行文本输入框测试")
                 transform.z = 10f
-                margin(right = 5f)
             }
             list(height = 120f) {
                 spacing = 3f

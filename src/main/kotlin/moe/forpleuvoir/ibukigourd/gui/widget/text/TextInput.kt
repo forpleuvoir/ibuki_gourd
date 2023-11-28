@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
@@ -41,9 +42,9 @@ import kotlin.math.min
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 open class TextInput(
-    width: Float,
-    height: Float,
-    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    width: Float = 60f,
+    height: Float = 20f,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     var textColor: ARGBColor = TEXT_COLOR,
     var hintColor: ARGBColor = HINT_COLOR,
@@ -58,7 +59,7 @@ open class TextInput(
     init {
         transform.width = width.also { transform.fixedWidth = true }
         transform.height = height.also { transform.fixedHeight = true }
-        padding(padding)
+        padding?.let(::padding)
         margin?.let(::margin)
     }
 
@@ -543,9 +544,9 @@ open class TextInput(
  */
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.textInput(
-    width: Float,
+    width: Float = 60f,
     height: Float = 20f,
-    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: TextInput.() -> Unit = {}
 ): TextInput {
@@ -555,87 +556,3 @@ fun ElementContainer.textInput(
     return this.addElement(TextInput(width, height, padding, margin).apply(scope))
 }
 
-/**
- * 在当前容器中添加一个[TextInput]
- * @param T Number
- * @receiver ElementContainer
- * @param valueReceiver (T) -> Unit
- * @param valueMapper (String) -> T
- * @param width Float
- * @param height Float
- * @param padding Margin
- * @param margin Margin?
- * @param scope TextInput.() -> Unit
- * @return TextInput
- */
-@OptIn(ExperimentalContracts::class)
-fun <T : Number> ElementContainer.numberTextInput(
-    valueReceiver: (T) -> Unit,
-    valueMapper: (String) -> T,
-    width: Float,
-    height: Float = 20f,
-    padding: Margin = Theme.TEXT_INPUT.PADDING,
-    margin: Margin? = null,
-    scope: TextInput.() -> Unit = {}
-): TextInput {
-    contract {
-        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
-    }
-    return this.addElement(TextInput(width, height, padding, margin).apply {
-        scope()
-        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) }
-        onTextChanged = { valueReceiver(valueMapper(it)) }
-    })
-}
-
-@OptIn(ExperimentalContracts::class)
-fun ElementContainer.intTextInput(
-    valueReceiver: (Int) -> Unit,
-    valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
-    width: Float,
-    height: Float = 20f,
-    padding: Margin = Theme.TEXT_INPUT.PADDING,
-    margin: Margin? = null,
-    scope: TextInput.() -> Unit = {}
-): TextInput {
-    contract {
-        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
-    }
-    return this.addElement(TextInput(width, height, padding, margin).apply {
-        scope()
-        textPredicate = { Regex("-?\\d+").matches(it) || it.isEmpty() }
-        onTextChanged = { valueReceiver(valueMapper(it)) }
-    })
-}
-
-@OptIn(ExperimentalContracts::class)
-fun ElementContainer.floatTextInput(
-    valueReceiver: (Float) -> Unit,
-    valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
-    width: Float,
-    height: Float = 20f,
-    padding: Margin = Theme.TEXT_INPUT.PADDING,
-    margin: Margin? = null,
-    scope: TextInput.() -> Unit = {}
-): TextInput {
-    contract {
-        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
-    }
-    return numberTextInput(valueReceiver, valueMapper, width, height, padding, margin, scope)
-}
-
-@OptIn(ExperimentalContracts::class)
-fun ElementContainer.doubleTextInput(
-    valueReceiver: (Double) -> Unit,
-    valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
-    width: Float,
-    height: Float = 20f,
-    padding: Margin = Theme.TEXT_INPUT.PADDING,
-    margin: Margin? = null,
-    scope: TextInput.() -> Unit = {}
-): TextInput {
-    contract {
-        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
-    }
-    return numberTextInput(valueReceiver, valueMapper, width, height, padding, margin, scope)
-}
