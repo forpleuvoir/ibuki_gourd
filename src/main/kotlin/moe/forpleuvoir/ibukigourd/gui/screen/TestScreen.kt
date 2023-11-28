@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.drop.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.drop.dropSelector
 import moe.forpleuvoir.ibukigourd.gui.widget.drop.itemList
+import moe.forpleuvoir.ibukigourd.gui.widget.drop.items
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
@@ -23,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.util.delegate
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -56,6 +58,7 @@ val testScreen1: Screen
     get() = screen {
         renderBackground = {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
+            renderRect(it.matrixStack, rect(vertex(6f, this.transform.halfHeight, 0f), 60f, 20f), Colors.RED.opacity(0.5f))
         }
         padding(4)
         val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜", "日富美的裤袜", "普娜拉的裤袜")
@@ -63,12 +66,40 @@ val testScreen1: Screen
             val text = textInput(150f) {
                 hintText = literal("测试测试")
             }
-            dropSelector(width = 60f, options = list, onSelectionChange = {
+            dropSelector(options = list, onSelectionChange = {
                 println("选择了$it")
                 text.text = it
             })
-            flatButton(hoverColor = { Colors.RED.alpha(100) }, width = 22f, height = 22f) {
-                icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
+            dropMenu {
+                text("下拉菜单")
+                items {
+                    repeat(20) {
+                        flatButton {
+                            text("下拉菜单选项$it")
+                        }
+                    }
+                }
+            }
+            flatButton(height = 20f, hoverColor = {Colors.GREEN.alpha(50)}) {
+                text("测试按钮").apply {
+                    renderBackground={
+                        onRenderBackground(it)
+                        renderRect(it.matrixStack,transform,Colors.RED.alpha(50))
+                    }
+                }
+            }
+            button(height = 20f) {
+                text("测试按钮").apply {
+                    renderBackground={
+                        onRenderBackground(it)
+                        renderRect(it.matrixStack,transform,Colors.RED.alpha(50))
+                    }
+                }
+                icon(IconTextures.RIGHT)
+                renderBackground={
+                    onRenderBackground(it)
+                    renderRect(it.matrixStack,contentRect(true),Colors.GREEN.alpha(50))
+                }
             }
             margin(bottom = 5f)
         }
@@ -105,7 +136,7 @@ val testScreen1: Screen
                 text("下拉菜单")
                 itemList(maxHeight = 160f) {
                     repeat(20) {
-                        flatButton {
+                        flatButton(height = 16f) {
                             text("下拉菜单选项$it")
                         }
                     }

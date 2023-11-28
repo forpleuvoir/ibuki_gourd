@@ -24,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
+import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -34,8 +35,60 @@ class DropListTip(
     private val maxHeight: Float? = null,
     padding: Margin? = Padding(2),
     val showScroller: Boolean = true,
-    scrollerThickness: Float = dropMenu.transform.height - 7f
+    scrollerThickness: Float? = null
 ) : Tip({ dropMenu }, { dropMenu.screen() }) {
+
+    override var layout: Layout = object : Layout {
+
+        override var spacing: Float = 1f
+
+        override val elementContainer: () -> ElementContainer
+            get() = { this@DropListTip }
+
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+            val alignElements = elements.filter { !it.fixed }
+            if (alignElements.isEmpty()) return null
+
+            val alignRects = alignRects(alignElements, Arrangement.Vertical)
+
+            val alignment = PlanarAlignment.TopLeft(Arrangement.Vertical)
+
+
+            val container = elementContainer()
+            val containerContentRect =container.contentRect(false)
+
+            val size = Arrangement.Vertical.contentSize(alignRects)
+            val contentRect = when {
+                //固定高度和宽度
+                container.transform.fixedWidth && container.transform.fixedHeight  -> {
+                    containerContentRect
+                }
+                //固定宽度 不固定高度
+                container.transform.fixedWidth && !container.transform.fixedHeight -> {
+                    rect(containerContentRect.position, containerContentRect.width, size.height)
+                }
+                //不固定宽度 固定高度
+                !container.transform.fixedWidth && container.transform.fixedHeight -> {
+                    rect(containerContentRect.position, size.width, containerContentRect.height)
+                }
+                //不固定宽度 不固定高度
+                else                                                               -> {
+                    rect(containerContentRect.position, size)
+                }
+            }
+            alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
+                val element = alignElements[index]
+                val v = vector3f + (Vector3f(0f, -amount, 0f))
+                element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
+                element.visible = element.transform.inRect(contentRect, false)
+            }
+            return Size.create(contentRect.width + padding.width, contentRect.height + padding.height)
+        }
+
+    }
+        @Deprecated("Do not set the layout value of DropTip") set(@Suppress("UNUSED_PARAMETER") value) {
+            throw NotImplementedError("Do not set the layout value of DropTip")
+        }
 
     lateinit var scrollerBar: Scroller
         private set
@@ -61,12 +114,13 @@ class DropListTip(
             }
         }
 
-    private val scrollerThickness: Float = if (!showScroller) 0f else scrollerThickness
-
     init {
         transform.parent = { dropMenu.transform }
         padding?.let(::padding)
     }
+
+    private val scrollerThickness: Float = if (!showScroller) 0f else scrollerThickness ?: (dropMenu.arrow.transform.width - this.padding.width)
+
 
     var amount: Float
         get() {
@@ -101,8 +155,8 @@ class DropListTip(
         }
         arrange()
         if (this::scrollerBar.isInitialized) {
-            scrollerBar.transform.x = arrow.transform.x + arrow.transform.halfWidth - arrow.transform.y - 2f
-            scrollerBar.transform.y = parent().transform.height - padding.top + spacing
+            scrollerBar.transform.x = arrow.transform.x + arrow.transform.halfWidth - scrollerBar.transform.halfWidth
+            scrollerBar.transform.y = arrow.transform.bottom + spacing
         }
         tip?.init?.invoke()
     }
@@ -117,69 +171,19 @@ class DropListTip(
                 }
             }
             if (!transform.fixedWidth) {
-                this.transform.width = size.width + dropMenu.transform.height
-
-                arrow.transform.width = dropMenu.arrow.transform.width
-                arrow.transform.height = dropMenu.arrow.transform.height
-
-                arrow.transform.y = dropMenu.arrow.transform.y
-                arrow.transform.x = dropMenu.arrow.transform.x
-
+                this.transform.width = size.width + dropMenu.arrow.transform.width + spacing
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
+        arrow.transform.width = dropMenu.arrow.transform.width
+        arrow.transform.height = dropMenu.arrow.transform.height
+
+        arrow.transform.y = dropMenu.arrow.transform.y
+        arrow.transform.x = dropMenu.arrow.transform.x
+
         arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
     }
 
-    override var layout: Layout = object : Layout {
-
-        override var spacing: Float = 1f
-
-        override val elementContainer: () -> ElementContainer
-            get() = { this@DropListTip }
-
-        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
-            val alignElements = elements.filter { !it.fixed }
-            if (alignElements.isEmpty()) return null
-
-            val alignRects = alignRects(alignElements, Arrangement.Vertical)
-
-            val alignment = PlanarAlignment.TopLeft(Arrangement.Vertical)
-
-
-            val container = elementContainer()
-            val size = Arrangement.Vertical.contentSize(alignRects)
-            val contentRect = when {
-                //固定高度和宽度
-                container.transform.fixedWidth && container.transform.fixedHeight  -> {
-                    container.contentRect(false)
-                }
-                //固定宽度 不固定高度
-                container.transform.fixedWidth && !container.transform.fixedHeight -> {
-                    rect(container.contentRect(false).position, container.transform.width, size.height)
-                }
-                //不固定宽度 固定高度
-                !container.transform.fixedWidth && container.transform.fixedHeight -> {
-                    rect(container.contentRect(false).position, size.width, container.transform.height)
-                }
-                //不固定宽度 不固定高度
-                else                                                               -> {
-                    rect(container.contentRect(false).position, size)
-                }
-            }
-            alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
-                val element = alignElements[index]
-                val v = vector3f + (Vector3f(0f, -amount, 0f))
-                element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
-                element.visible = element.transform.inRect(contentRect, false)
-            }
-            return Size.create(contentRect.width + padding.width, contentRect.height + padding.height)
-        }
-
-    }
-        @Deprecated("Do not set the layout value of DropTip") set(@Suppress("UNUSED_PARAMETER") value) {
-            throw NotImplementedError("Do not set the layout value of DropTip")
-        }
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
@@ -251,14 +255,15 @@ class DropListTip(
     override fun onRenderOverlay(renderContext: RenderContext) {
         rectBatchRender {
             renderElements.filter { it != arrow && it != scrollerBar }.let { list ->
-                val h = renderElements.firstOrNull { e -> !e.fixed }?.let { e -> e.transform.height + padding.height } ?: 0f
+                val maxWidth = if (dropMenu.transform.fixedWidth) dropMenu.transform.width else list.maxOf { it.transform.width }
+                //箭头下的横线
                 renderRect(
                     renderContext.matrixStack,
                     rect(
-                        transform.worldRight - h + padding.left / 2 + spacing,
-                        parent().transform.worldBottom - spacing - 1f,
+                        arrow.transform.worldX,
+                        arrow.transform.worldBottom,
                         transform.worldZ,
-                        h - padding.width,
+                        arrow.transform.width,
                         spacing
                     ),
                     Colors.GRAY.alpha(0.2f)
@@ -269,14 +274,15 @@ class DropListTip(
                         if (element.mouseHover())
                             renderRect(
                                 renderContext.matrixStack,
-                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, transform.width - h - spacing, element.transform.height),
+                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, maxWidth, element.transform.height),
                                 it()
                             )
                     }
+                    //元素下的横线
                     if (index != list.lastIndex) {
                         renderRect(
                             renderContext.matrixStack,
-                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, transform.width - h - spacing, spacing),
+                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, spacing),
                             Colors.GRAY.alpha(0.2f)
                         )
                     }
@@ -284,7 +290,7 @@ class DropListTip(
                 //绘制竖线
                 renderRect(
                     renderContext.matrixStack,
-                    rect(transform.worldRight - h + spacing, transform.worldTop + padding.top, transform.worldZ, spacing, transform.height - padding.height),
+                    rect(arrow.transform.worldX - spacing, transform.worldTop + padding.top, transform.worldZ, spacing, transform.height - padding.height),
                     Colors.GRAY.alpha(0.2f)
                 )
             }
@@ -297,7 +303,7 @@ fun DropMenu.itemList(
     maxHeight: Float? = null,
     padding: Margin? = Padding(2),
     showScroller: Boolean = true,
-    scrollerThickness: Float = this.transform.height - 7f,
+    scrollerThickness: Float? = null,
     scope: ElementContainer.() -> Unit
 ) {
     this.tip = DropListTip(this, maxHeight, padding, showScroller, scrollerThickness)

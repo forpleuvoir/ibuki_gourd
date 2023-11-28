@@ -124,23 +124,25 @@ class ListLayout(
             )
 
             val container = elementContainer()
+            val containerContentRect =container.contentRect(false)
+
             val size = arrangement.contentSize(alignRects)
             val contentRect = when {
                 //固定高度和宽度
                 container.transform.fixedWidth && container.transform.fixedHeight -> {
-                    container.contentRect(false)
+                    containerContentRect
                 }
                 //固定宽度 不固定高度
                 container.transform.fixedWidth && !container.transform.fixedHeight -> {
-                    rect(container.contentRect(false).position, container.transform.width, size.height)
+                    rect(containerContentRect.position, containerContentRect.width, size.height)
                 }
                 //不固定宽度 固定高度
                 !container.transform.fixedWidth && container.transform.fixedHeight -> {
-                    rect(container.contentRect(false).position, size.width, container.transform.height)
+                    rect(containerContentRect.position, size.width, containerContentRect.height)
                 }
                 //不固定宽度 不固定高度
                 else -> {
-                    rect(container.contentRect(false).position, size)
+                    rect(containerContentRect.position, size)
                 }
             }
             alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->

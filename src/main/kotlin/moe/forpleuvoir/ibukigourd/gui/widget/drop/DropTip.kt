@@ -39,17 +39,15 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
                 this.transform.height = it.height
             }
             if (!transform.fixedWidth) {
-                this.transform.width = it.width - padding.width + dropMenu.transform.height - dropMenu.padding.height + spacing
-
-                arrow.transform.width = dropMenu.arrow.transform.width
-                arrow.transform.height = dropMenu.arrow.transform.height
-
-                arrow.transform.y = dropMenu.arrow.transform.y
-                arrow.transform.x = dropMenu.arrow.transform.x
-
+                this.transform.width = it.width + dropMenu.arrow.transform.width + spacing
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
+        arrow.transform.width = dropMenu.arrow.transform.width
+        arrow.transform.height = dropMenu.arrow.transform.height
+
+        arrow.transform.y = dropMenu.arrow.transform.y
+        arrow.transform.x = dropMenu.arrow.transform.x
         arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
     }
 
@@ -104,13 +102,26 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
         val padding1 = this.padding
         rectBatchRender {
             renderElements.filter { it != arrow }.let { list ->
+                val maxWidth  = if(dropMenu.transform.fixedWidth) dropMenu.transform.width else list.maxOf { it.transform.width }
+                //箭头下的线
+                renderRect(
+                    renderContext.matrixStack,
+                    rect(
+                        arrow.transform.worldX,
+                        arrow.transform.worldBottom,
+                        transform.worldZ,
+                        arrow.transform.width,
+                        spacing
+                    ),
+                    Colors.GRAY.alpha(0.2f)
+                )
                 for ((index, element) in list.withIndex()) {
                     //选择颜色
                     dropMenu.selectedColor?.let {
                         if (element.mouseHover())
                             renderRect(
                                 renderContext.matrixStack,
-                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, element.transform.width, element.transform.height),
+                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, maxWidth, element.transform.height),
                                 it()
                             )
                     }
@@ -118,23 +129,9 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
                         //元素下的横线
                         renderRect(
                             renderContext.matrixStack,
-                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, element.transform.width, spacing),
+                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, spacing),
                             Colors.GRAY.alpha(0.2f)
                         )
-                        if (index == 0) {
-                            //第一条横线延伸到箭头按钮下
-                            renderRect(
-                                renderContext.matrixStack,
-                                rect(
-                                    arrow.transform.worldX,
-                                    element.transform.worldBottom,
-                                    transform.worldZ,
-                                    arrow.transform.width,
-                                    spacing
-                                ),
-                                Colors.GRAY.alpha(0.2f)
-                            )
-                        }
                     }
                 }
                 //竖线

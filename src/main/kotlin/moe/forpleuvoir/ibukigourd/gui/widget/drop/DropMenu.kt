@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
@@ -24,6 +25,8 @@ import moe.forpleuvoir.nebula.common.util.NotifiableArrayList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.math.max
+import kotlin.math.min
 
 open class DropMenu(
     width: Float? = null,
@@ -32,6 +35,7 @@ open class DropMenu(
     margin: Margin? = null,
     var selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) }
 ) : ExpandableElement() {
+
 
     val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
         transform.fixedWidth = true
@@ -42,14 +46,16 @@ open class DropMenu(
             expend = true
         }
     }
-
     override var onExpand: (() -> Unit)? = {
         tip!!.visible = true
     }
-
     override var onCollapse: (() -> Unit)? = {
         tip!!.visible = false
     }
+    override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical, PlanarAlignment::CenterLeft)
+        @Deprecated("Do not set the layout value of DropMenu") set(@Suppress("UNUSED_PARAMETER") value) {
+            throw NotImplementedError("Do not set the layout value of DropMenu")
+        }
 
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 20f
@@ -59,27 +65,30 @@ open class DropMenu(
     }
 
     override fun arrange() {
+        if (transform.fixedWidth) {
+            tip!!.transform.fixedWidth = true
+            tip!!.transform.width = transform.width
+        } else {
+            tip!!.transform.fixedWidth = false
+        }
+
         layout.arrange(this.subElements, margin, padding)?.let {
             if (!transform.fixedHeight) {
                 this.transform.height = it.height
             }
             if (!transform.fixedWidth) {
-                this.transform.width = (it.width + (transform.halfHeight - arrow.transform.halfHeight) * 2).coerceAtLeast(tip!!.transform.width)
+                this.transform.width = tip!!.transform.width
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
         }
+
         arrow.transform.width = this.transform.height - 4f
         arrow.transform.height = this.transform.height - 4f
         arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
         arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
+
         arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
     }
-
-    override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical)
-        @Deprecated("Do not set the layout value of DropMenu") set(@Suppress("UNUSED_PARAMETER") value) {
-            throw NotImplementedError("Do not set the layout value of DropMenu")
-        }
-
 
     override fun onRenderBackground(renderContext: RenderContext) {
         renderTexture(renderContext.matrixStack, transform, WidgetTextures.DROP_MENU_BACKGROUND)
@@ -99,7 +108,6 @@ open class DropMenu(
         )
     }
 
-
     override fun onRender(renderContext: RenderContext) {
         if (expend) return
         renderBackground.invoke(renderContext)
@@ -112,8 +120,8 @@ open class DropMenu(
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.dropMenu(
     width: Float? = null,
-    height: Float? = null,
-    padding: Padding? = Padding(6),
+    height: Float? = 20f,
+    padding: Padding? = Padding(left = 6f),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scope: DropMenu.() -> Unit = {}
@@ -141,7 +149,7 @@ fun ElementContainer.dropSelector(
     }
     return this.addElement(DropMenu(width, height, padding, margin, selectedColor).apply {
         var currentItem = current
-        text({ currentItem }, width = width?.let { it - this.transform.height })
+        text({ currentItem }, width = width?.let { it - this.transform.height - this.padding.width })
         if (options.isNotEmpty() && options[0] != currentItem) {
             options.disableNotify {
                 options.remove(currentItem)
@@ -152,7 +160,7 @@ fun ElementContainer.dropSelector(
             val max = options.maxOf { textRenderer.getWidth(it) }
             options.forEach {
                 flatButton(
-                    padding = padding?.let {
+                    padding = this@apply.padding.let {
                         val p = this@apply.tip!!.padding
                         Padding(
                             (it.left - p.left).coerceAtLeast(0f),
@@ -162,9 +170,9 @@ fun ElementContainer.dropSelector(
                         )
                     },
                     height = height?.let { it - this@apply.tip!!.padding.height },
-                    width = width?.let { it - this.transform.height }
+                    width = null
                 ) {
-                    text(it, width = max.toFloat())
+                    text(it, width = width?.let { it - this.transform.height - this@apply.padding.width - this.padding.width + this@initOptions.spacing } ?: max.toFloat())
                     click {
                         currentItem = it
                         onSelectionChange.invoke(it)
