@@ -25,7 +25,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-class ListLayout(
+open class ListLayout(
     width: Float? = null,
     height: Float? = null,
     padding: Margin? = Margin(6),
