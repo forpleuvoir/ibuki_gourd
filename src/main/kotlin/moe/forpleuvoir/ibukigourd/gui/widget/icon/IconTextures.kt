@@ -45,16 +45,16 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
             manager.getResource(TEXTURE_INFO_RESOURCES).ifPresent { resource ->
                 JsonParser.parse(CharStreams.toString(resource.inputStream.reader())).asObject.apply {
                     this.javaClass.declaredFields
-                            .asSequence()
-                            .filter { field ->
-                                field.type.kotlin.isSubclassOf(WidgetTexture::class)
-                            }.forEach { widgetTexture ->
-                                widgetTexture.isAccessible = true
-                                val name = widgetTexture.name
-                                val oldValue = widgetTexture.get(WidgetTextures) as WidgetTexture
-                                val newValue = WidgetTexture.deserialization(this[name], oldValue)
-                                if (oldValue != newValue) widgetTexture.set(WidgetTextures, newValue)
-                            }
+                        .asSequence()
+                        .filter { field ->
+                            field.type.kotlin.isSubclassOf(WidgetTexture::class)
+                        }.forEach { widgetTexture ->
+                            widgetTexture.isAccessible = true
+                            val name = widgetTexture.name
+                            val oldValue = widgetTexture.get(WidgetTextures) as WidgetTexture
+                            val newValue = WidgetTexture.deserialization(this[name], oldValue)
+                            if (oldValue != newValue) widgetTexture.set(WidgetTextures, newValue)
+                        }
                 }
             }
         }.onFailure { log.error("icon textures load fail", it) }

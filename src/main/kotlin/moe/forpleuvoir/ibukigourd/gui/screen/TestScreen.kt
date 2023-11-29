@@ -111,9 +111,9 @@ val testScreen1: Screen
             spacing = 5f
             val intDelegate = delegate(0)
             val intValue by intDelegate
-            intTextInput(intDelegate) { hintText = literal("只能输入整数") }
+            intInput(intDelegate) { hintText = literal("只能输入整数") }
             button {
-                text({ intValue.toString() })
+                text({ intValue.toString() }, width = 40f)
             }
             dropMenu {
                 text("下拉菜单")
@@ -130,9 +130,10 @@ val testScreen1: Screen
             spacing = 5f
             val floatDelegate = delegate(0f)
             val floatValue by floatDelegate
-            floatTextInput(floatDelegate) { hintText = literal("只能输入浮点数") }
+            floatInput(floatDelegate) { hintText = literal("只能输入浮点数") }
+            doubleInput { hintText = literal("只能输入双精度浮点数") }
             button {
-                text({ floatValue.toString() })
+                text({ floatValue.toString() }, width = 40f)
             }
         }
         var input: TextBox

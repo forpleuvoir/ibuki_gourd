@@ -124,7 +124,7 @@ class ListLayout(
             )
 
             val container = elementContainer()
-            val containerContentRect =container.contentRect(false)
+            val containerContentRect = container.contentRect(false)
 
             val size = arrangement.contentSize(alignRects)
             val contentRect = when {

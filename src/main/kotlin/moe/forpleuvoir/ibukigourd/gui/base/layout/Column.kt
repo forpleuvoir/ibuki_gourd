@@ -10,10 +10,10 @@ import kotlin.contracts.contract
 
 class Column(alignment: (Arrangement) -> Alignment = PlanarAlignment::Center) : AbstractElement() {
 
-	override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical, alignment)
-		@Deprecated("Do not set the layout value of Row") set(@Suppress("UNUSED_PARAMETER") value) {
-			throw NotImplementedError("Do not set the layout value of Row")
-		}
+    override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical, alignment)
+        @Deprecated("Do not set the layout value of Row") set(@Suppress("UNUSED_PARAMETER") value) {
+            throw NotImplementedError("Do not set the layout value of Row")
+        }
 
 }
 

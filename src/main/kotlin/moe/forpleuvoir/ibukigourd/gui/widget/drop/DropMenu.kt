@@ -25,8 +25,6 @@ import moe.forpleuvoir.nebula.common.util.NotifiableArrayList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.math.max
-import kotlin.math.min
 
 open class DropMenu(
     width: Float? = null,
@@ -37,7 +35,7 @@ open class DropMenu(
 ) : ExpandableElement() {
 
 
-    val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
+    val arrow: Button = flatButton {
         transform.fixedWidth = true
         transform.fixedHeight = true
         fixed = true

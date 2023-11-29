@@ -39,7 +39,7 @@ open class TextField(
     var rightToLeft: Boolean = RIGHT_TO_LEFT,
     var color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     var backgroundColor: Color = BACKGROUND_COLOR,
-    val alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    val alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
     private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -54,7 +54,7 @@ open class TextField(
     /**
      * 是否启用文本滚动
      */
-    var scrollable: Boolean = true
+    var scrollable: Boolean = width != null || height != null
 
     /**
      * 鼠标悬浮时启用滚动,只有当[scrollable]为true时有效
@@ -246,7 +246,7 @@ fun Element.text(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -293,7 +293,7 @@ fun Element.text(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -338,7 +338,7 @@ fun Element.text(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -367,7 +367,7 @@ fun Element.text(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,

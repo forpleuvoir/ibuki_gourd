@@ -119,7 +119,7 @@ abstract class AbstractScreen(
 
 }
 
-fun screen(screenScope: Screen.() -> Unit):Screen{
+fun screen(screenScope: Screen.() -> Unit): Screen {
     return object : AbstractScreen() {}.apply {
         screenScope(this)
     }

@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_INPUT
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_SELECTED_INPUT
@@ -155,8 +154,8 @@ open class TextInput(
     val selectedText: String
         get() {
             return text.substring(
-                min(selectionStart, selectionEnd).coerceAtMost(text.lastIndex).coerceAtLeast(0),
-                max(selectionStart, selectionEnd).coerceAtMost(text.lastIndex).coerceAtLeast(0)
+                min(selectionStart, selectionEnd).coerceAtMost(text.length).coerceAtLeast(0),
+                max(selectionStart, selectionEnd).coerceAtMost(text.length).coerceAtLeast(0)
             )
         }
 
@@ -177,7 +176,6 @@ open class TextInput(
         this.text = string2
         this.selectionStart = i + l
         this.selectionEnd = selectionStart
-        this.onTextChanged(this.text)
         if (!historyOpt)
             history.textChange(this.text, cursor)
     }
@@ -429,7 +427,7 @@ open class TextInput(
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (mouseHover() && button == Mouse.LEFT) {
+        if (mouseHoverContent() && button == Mouse.LEFT) {
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
             cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex
         }
@@ -438,7 +436,7 @@ open class TextInput(
 
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!isActive) return super.onMouseScrolling(mouseX, mouseY, amount)
-        mouseHover {
+        mouseHoverContent() {
             moveCursor((amount < 0f).ternary(1, -1))
             return NextAction.Cancel
         }
@@ -466,8 +464,8 @@ open class TextInput(
             val y = rect.top + (rect.height - height) / 2f - 0.75f
             val offset = textRenderer.getWidth(
                 text.substring(
-                    min(firstCharacterIndex, cursor).coerceAtMost(text.lastIndex).coerceAtLeast(0),
-                    max(firstCharacterIndex, cursor).coerceAtMost(text.lastIndex).coerceAtLeast(0)
+                    min(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0),
+                    max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
                 )
             )
             if (cursor == text.length) {

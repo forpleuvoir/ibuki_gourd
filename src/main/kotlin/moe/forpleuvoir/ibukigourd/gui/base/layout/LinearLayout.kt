@@ -38,7 +38,7 @@ class LinearLayout(
         val alignRects = alignRects(alignElements, alignment.arrangement)
 
         val container = elementContainer()
-        val containerContentRect =container.contentRect(false)
+        val containerContentRect = container.contentRect(false)
         val size = alignment.arrangement.contentSize(alignRects)
         val contentRect = when {
             //固定高度和宽度

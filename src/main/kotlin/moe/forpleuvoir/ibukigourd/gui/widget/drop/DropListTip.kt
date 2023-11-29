@@ -24,7 +24,6 @@ import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
-import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -55,7 +54,7 @@ class DropListTip(
 
 
             val container = elementContainer()
-            val containerContentRect =container.contentRect(false)
+            val containerContentRect = container.contentRect(false)
 
             val size = Arrangement.Vertical.contentSize(alignRects)
             val contentRect = when {
@@ -93,7 +92,7 @@ class DropListTip(
     lateinit var scrollerBar: Scroller
         private set
 
-    val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
+    val arrow: Button = flatButton {
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true

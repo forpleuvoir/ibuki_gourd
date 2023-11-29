@@ -11,10 +11,10 @@ import kotlin.contracts.contract
 
 class Row(alignment: (Arrangement) -> Alignment = PlanarAlignment::Center) : AbstractElement() {
 
-	override var layout: Layout = LinearLayout({ this }, Arrangement.Horizontal, alignment)
-		@Deprecated("Do not set the layout value of Row") set(@Suppress("UNUSED_PARAMETER") value) {
-			throw NotImplementedError("Do not set the layout value of Row")
-		}
+    override var layout: Layout = LinearLayout({ this }, Arrangement.Horizontal, alignment)
+        @Deprecated("Do not set the layout value of Row") set(@Suppress("UNUSED_PARAMETER") value) {
+            throw NotImplementedError("Do not set the layout value of Row")
+        }
 
 }
 

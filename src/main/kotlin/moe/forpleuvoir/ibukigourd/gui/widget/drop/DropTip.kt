@@ -17,7 +17,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 
 class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.screen() }) {
 
-    val arrow: Button = flatButton(hoverColor = { Colors.RED.alpha(100) }) {
+    val arrow: Button = flatButton {
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true

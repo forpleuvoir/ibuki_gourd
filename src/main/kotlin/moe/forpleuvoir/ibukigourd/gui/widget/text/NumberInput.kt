@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
@@ -20,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.font.TextRenderer
 import kotlin.contracts.ExperimentalContracts
@@ -29,7 +30,6 @@ import kotlin.contracts.contract
 typealias Plus<T> = T.(T) -> T
 
 typealias Minus<T> = T.(T) -> T
-
 
 class NumberInput<T>(
     private val valueDelegate: DelegatedValue<T>,
@@ -52,28 +52,29 @@ class NumberInput<T>(
 
     data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
 
-    var value: T
-        get() {
-            return valueMapper(text)
-        }
-        set(value) {
-            text = value.toString()
-        }
 
-    init {
-        valueDelegate.onSetValue = {
-            if (it != value) this.value = it
-            it
-        }
+    private var preventRecursion = true
 
-        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) }
-        onTextChanged = {
-            valueReceiver(valueMapper(it))
-            valueDelegate.setValue(valueMapper(it))
+    @OptIn(ExperimentalContracts::class)
+    private inline fun preventRecursion(action: () -> Unit) {
+        contract {
+            callsInPlace(action, InvocationKind.EXACTLY_ONCE)
         }
+        preventRecursion = false
+        action()
+        preventRecursion = true
     }
 
-    val plus = flatButton(hoverColor = { Colors.RED.alpha(50) }) {
+    var value: T = valueDelegate.getValue()
+        set(value) {
+            if (field == value) return
+            field = value
+            selectionStart = 0
+            selectionEnd = text.length
+            if (preventRecursion) write(value.toString(), false)
+        }
+
+    val plus = flatButton(hoverColor = { Color(0XFFDBDBDB.toInt()) }, pressColor = { Colors.GRAY.alpha(0.2f) }) {
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true
@@ -89,7 +90,7 @@ class NumberInput<T>(
         }
     }
 
-    val minus = flatButton(hoverColor = { Colors.RED.alpha(50) }) {
+    val minus = flatButton(hoverColor = { Color(0XFFDBDBDB.toInt()) }, pressColor = { Colors.GRAY.alpha(0.2f) }) {
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true
@@ -105,13 +106,32 @@ class NumberInput<T>(
         }
     }
 
+    init {
+        value = valueDelegate.getValue()
+        preventRecursion {
+            text = value.toString()
+        }
+        valueDelegate.onSetValue = {
+            if (it != value) this.value = it
+            it
+        }
+        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) }
+        onTextChanged = {
+            preventRecursion {
+                valueDelegate.setValue(valueMapper(it))
+                if (it.isEmpty()) text = "0"
+            }
+            valueReceiver(value)
+        }
+    }
+
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!isActive) {
             for (element in handleElements) {
                 if (element.mouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
             }
         }
-        mouseHover {
+        mouseHoverContent {
             value = if (amount > 0) value.plusAction(valueStep.mouseScroller)
             else value.minusAction(valueStep.mouseScroller)
             return NextAction.Cancel
@@ -178,7 +198,7 @@ class NumberInput<T>(
  * @return TextInput
  */
 @OptIn(ExperimentalContracts::class)
-fun <T> ElementContainer.numberTextInput(
+fun <T> ElementContainer.numberInput(
     valueDelegate: DelegatedValue<T>,
     valueReceiver: (T) -> Unit = {},
     valueMapper: (String) -> T,
@@ -198,7 +218,7 @@ fun <T> ElementContainer.numberTextInput(
 }
 
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.intTextInput(
+fun ElementContainer.intInput(
     valueDelegate: DelegatedValue<Int> = DelegatedValue(0),
     valueReceiver: (Int) -> Unit = {},
     valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
@@ -220,12 +240,12 @@ fun ElementContainer.intTextInput(
 }
 
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.floatTextInput(
+fun ElementContainer.floatInput(
     valueDelegate: DelegatedValue<Float> = DelegatedValue(0f),
     valueReceiver: (Float) -> Unit = {},
     valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
     valueStep: NumberInput.ValueStep<Float> = NumberInput.ValueStep(1f, 5f, 10f, 15f, 1f),
-    range: ClosedRange<Float> = Float.MIN_VALUE..Float.MAX_VALUE,
+    range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -235,18 +255,22 @@ fun ElementContainer.floatTextInput(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberTextInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
-        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) && runCatching { it.toFloat() in range }.getOrElse { false } }
+    return numberInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
+        textPredicate = {
+            val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
+            Regex("-?\\d+(\\.\\d+)?").matches(str)
+            && runCatching { str.toFloat() in range }.getOrElse { false }
+        }
     }
 }
 
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.doubleTextInput(
+fun ElementContainer.doubleInput(
     valueDelegate: DelegatedValue<Double> = DelegatedValue(0.0),
     valueReceiver: (Double) -> Unit = {},
     valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
     valueStep: NumberInput.ValueStep<Double> = NumberInput.ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
-    range: ClosedRange<Double> = Double.MIN_VALUE..Double.MAX_VALUE,
+    range: ClosedRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -256,7 +280,11 @@ fun ElementContainer.doubleTextInput(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberTextInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
-        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) && runCatching { it.toDouble() in range }.getOrElse { false } }
+    return numberInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
+        textPredicate = {
+            val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
+            Regex("-?\\d+(\\.\\d+)?").matches(str)
+            && runCatching { str.toDouble() in range }.getOrElse { false }
+        }
     }
 }
