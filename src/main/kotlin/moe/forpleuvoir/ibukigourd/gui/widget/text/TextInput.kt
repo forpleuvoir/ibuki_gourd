@@ -154,7 +154,10 @@ open class TextInput(
 
     val selectedText: String
         get() {
-            return text.substring(min(selectionStart, selectionEnd), max(selectionStart, selectionEnd))
+            return text.substring(
+                min(selectionStart, selectionEnd).coerceAtMost(text.lastIndex).coerceAtLeast(0),
+                max(selectionStart, selectionEnd).coerceAtMost(text.lastIndex).coerceAtLeast(0)
+            )
         }
 
     fun write(text: String, historyOpt: Boolean = false) {
@@ -461,7 +464,12 @@ open class TextInput(
             val rect = contentRect(true)
             val height = textRenderer.fontHeight.toFloat()
             val y = rect.top + (rect.height - height) / 2f - 0.75f
-            val offset = textRenderer.getWidth(text.substring(min(firstCharacterIndex, cursor), max(firstCharacterIndex, cursor)))
+            val offset = textRenderer.getWidth(
+                text.substring(
+                    min(firstCharacterIndex, cursor).coerceAtMost(text.lastIndex).coerceAtLeast(0),
+                    max(firstCharacterIndex, cursor).coerceAtMost(text.lastIndex).coerceAtLeast(0)
+                )
+            )
             if (cursor == text.length) {
                 renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset, y + height - 1.25f), 5f, 1f), cursorColor)
                 return

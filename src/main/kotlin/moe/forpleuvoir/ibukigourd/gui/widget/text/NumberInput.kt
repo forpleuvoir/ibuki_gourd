@@ -3,9 +3,12 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
+import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
@@ -15,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
+import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.font.TextRenderer
@@ -26,12 +30,14 @@ typealias Plus<T> = T.(T) -> T
 
 typealias Minus<T> = T.(T) -> T
 
-class NumberInput<T : Number>(
+
+class NumberInput<T>(
     private val valueDelegate: DelegatedValue<T>,
     private val valueMapper: (String) -> T,
     private val valueReceiver: (T) -> Unit = {},
     private val plusAction: Plus<T>,
     private val minusAction: Minus<T>,
+    private val valueStep: ValueStep<T>,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -42,7 +48,9 @@ class NumberInput<T : Number>(
     selectedColor: ARGBColor = Theme.TEXT_INPUT.SELECTED_COLOR,
     cursorColor: ARGBColor = Theme.TEXT_INPUT.CURSOR_COLOR,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-) : TextInput(width, height, padding, margin, textColor, hintColor, bgShaderColor, selectedColor, cursorColor, textRenderer) {
+) : TextInput(width, height, padding, margin, textColor, hintColor, bgShaderColor, selectedColor, cursorColor, textRenderer) where T : Comparable<T>, T : Number {
+
+    data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
 
     var value: T
         get() {
@@ -72,7 +80,12 @@ class NumberInput<T : Number>(
         icon(IconTextures.PLUS, Size.create(8f, 8f), Colors.BLACK)
 
         click {
-            text = value.plusAction()
+            value = when {
+                InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> value.plusAction(valueStep.shift)
+                InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> value.plusAction(valueStep.ctrl)
+                InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> value.plusAction(valueStep.alt)
+                else                                              -> value.plusAction(valueStep.click)
+            }
         }
     }
 
@@ -83,8 +96,27 @@ class NumberInput<T : Number>(
         icon(IconTextures.MINUS, Size.create(8f, 8f), Colors.BLACK)
 
         click {
-
+            value = when {
+                InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> value.minusAction(valueStep.shift)
+                InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> value.minusAction(valueStep.ctrl)
+                InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> value.minusAction(valueStep.alt)
+                else                                              -> value.minusAction(valueStep.click)
+            }
         }
+    }
+
+    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+        if (!isActive) {
+            for (element in handleElements) {
+                if (element.mouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
+            }
+        }
+        mouseHover {
+            value = if (amount > 0) value.plusAction(valueStep.mouseScroller)
+            else value.minusAction(valueStep.mouseScroller)
+            return NextAction.Cancel
+        }
+        return NextAction.Continue
     }
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
@@ -146,22 +178,23 @@ class NumberInput<T : Number>(
  * @return TextInput
  */
 @OptIn(ExperimentalContracts::class)
-fun <T : Number> ElementContainer.numberTextInput(
+fun <T> ElementContainer.numberTextInput(
     valueDelegate: DelegatedValue<T>,
     valueReceiver: (T) -> Unit = {},
     valueMapper: (String) -> T,
     plusAction: Plus<T>,
     minusAction: Minus<T>,
+    valueStep: NumberInput.ValueStep<T>,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
     scope: NumberInput<T>.() -> Unit = {}
-): NumberInput<T> {
+): NumberInput<T> where T : Comparable<T>, T : Number {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(NumberInput(valueDelegate, valueMapper, valueReceiver, plusAction, minusAction, width, height, padding, margin).apply(scope))
+    return this.addElement(NumberInput(valueDelegate, valueMapper, valueReceiver, plusAction, minusAction, valueStep, width, height, padding, margin).apply(scope))
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -169,6 +202,8 @@ fun ElementContainer.intTextInput(
     valueDelegate: DelegatedValue<Int> = DelegatedValue(0),
     valueReceiver: (Int) -> Unit = {},
     valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
+    valueStep: NumberInput.ValueStep<Int> = NumberInput.ValueStep(1, 5, 10, 15, 1),
+    range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -178,9 +213,9 @@ fun ElementContainer.intTextInput(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(NumberInput(valueDelegate, valueMapper, valueReceiver, { this + it }, { this - it }, width, height, padding, margin).apply {
+    return this.addElement(NumberInput(valueDelegate, valueMapper, valueReceiver, { this + it }, { this - it }, valueStep, width, height, padding, margin).apply {
         scope()
-        textPredicate = { Regex("-?\\d+").matches(it) || it.isEmpty() }
+        textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toInt() in range }.getOrElse { false }) || it.isEmpty() }
     })
 }
 
@@ -189,6 +224,8 @@ fun ElementContainer.floatTextInput(
     valueDelegate: DelegatedValue<Float> = DelegatedValue(0f),
     valueReceiver: (Float) -> Unit = {},
     valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
+    valueStep: NumberInput.ValueStep<Float> = NumberInput.ValueStep(1f, 5f, 10f, 15f, 1f),
+    range: ClosedRange<Float> = Float.MIN_VALUE..Float.MAX_VALUE,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -198,7 +235,9 @@ fun ElementContainer.floatTextInput(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberTextInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, width, height, padding, margin, scope)
+    return numberTextInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
+        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) && runCatching { it.toFloat() in range }.getOrElse { false } }
+    }
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -206,6 +245,8 @@ fun ElementContainer.doubleTextInput(
     valueDelegate: DelegatedValue<Double> = DelegatedValue(0.0),
     valueReceiver: (Double) -> Unit = {},
     valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
+    valueStep: NumberInput.ValueStep<Double> = NumberInput.ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
+    range: ClosedRange<Double> = Double.MIN_VALUE..Double.MAX_VALUE,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -215,5 +256,7 @@ fun ElementContainer.doubleTextInput(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberTextInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, width, height, padding, margin, scope)
+    return numberTextInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
+        textPredicate = { Regex("-?\\d+(\\.\\d+)?").matches(if (it.endsWith('.') || it.isEmpty()) "${it}0" else it) && runCatching { it.toDouble() in range }.getOrElse { false } }
+    }
 }
