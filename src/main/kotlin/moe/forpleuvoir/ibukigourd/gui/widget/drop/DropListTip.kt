@@ -204,16 +204,18 @@ class DropListTip(
 
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
+        if (!mouseHover()) return NextAction.Continue
         if (super.onMouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
         if (!mouseHover() && dropMenu.expend) {
             dropMenu.expend = false
         }
+        if (!mouseHover()) return NextAction.Continue
+        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
         if (mouseHover()) {
             return NextAction.Cancel
         }

@@ -186,6 +186,11 @@ open class ListLayout(
         )
     }
 
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (!mouseHover()) return NextAction.Continue
+        return super.onMouseMove(mouseX, mouseY)
+    }
+
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (!mouseHover()) return NextAction.Continue
         return super.onMouseClick(mouseX, mouseY, button)

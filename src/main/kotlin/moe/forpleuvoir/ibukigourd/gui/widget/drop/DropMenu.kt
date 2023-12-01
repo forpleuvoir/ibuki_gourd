@@ -170,7 +170,11 @@ fun ElementContainer.dropSelector(
                     height = height?.let { it - this@apply.tip!!.padding.height },
                     width = null
                 ) {
-                    text(it, width = width?.let { it - this.transform.height - this@apply.padding.width - this.padding.width + this@initOptions.spacing } ?: max.toFloat())
+                    text(
+                        it,
+                        width = width?.let { it - this.transform.height - this@apply.padding.width - this.padding.width + this@initOptions.spacing } ?: max.toFloat(),
+                        alignment = PlanarAlignment::CenterLeft
+                    )
                     click {
                         currentItem = it
                         onSelectionChange.invoke(it)

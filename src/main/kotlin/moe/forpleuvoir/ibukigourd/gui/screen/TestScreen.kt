@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.layout.draggableList
 import moe.forpleuvoir.ibukigourd.gui.base.layout.list
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
 import moe.forpleuvoir.ibukigourd.gui.tip.tip
@@ -50,6 +51,17 @@ fun testScreen(index: Int) {
 
 val testScreen2: Screen
     get() = screen {
+        renderBackground = {
+            renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
+            renderOutline(it.matrixStack, contentRect(false), Colors.RED.opacity(0.5f))
+        }
+        draggableList(height = 120f) {
+            repeat(10) {
+                row(80f) {
+                    button { text("测试一下$it") }
+                }
+            }
+        }
 
     }
 
