@@ -95,7 +95,11 @@ fun MatrixStack.rest() {
     }
 }
 
-
+/**
+ * Returns the number of decimal places in a Float value.
+ *
+ * @return The number of decimal places.
+ */
 val Float.decimalPlaces: Int
     get() {
         val decimalString = this.toString()
@@ -108,6 +112,13 @@ val Float.decimalPlaces: Int
         }
     }
 
+/**
+ * Calculates the number of decimal places in a Double.
+ *
+ * @return The number of decimal places in the Double.
+ * If the Double has no decimal part, returns 0.
+ *
+ */
 val Double.decimalPlaces: Int
     get() {
         val decimalString = this.toString()
@@ -185,4 +196,8 @@ fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -
         }
         isEquals
     } else false
+}
+
+fun <T> MutableList<T>.moveElement(fromIndex: Int, toIndex: Int) {
+    this.add(toIndex, this.removeAt(fromIndex))
 }

@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import kotlin.contracts.ExperimentalContracts
@@ -32,15 +33,29 @@ class DraggableList(
 
     var draggingElement: Element? = null
         private set(value) {
-            field = value
             if (value == null) {
                 draggingCounter = 0
+                field?.transform?.translate(-draggingOffset)
+            } else {
+                draggingElementOldPosition = value.transform.position
+
             }
+            field = value
         }
+
+    private var draggingElementOldPosition: Vector3<out Float>? = null
+
+    var draggingOffset: Vector3<out Float> = vertex(5f, -5f, 0f)
 
     var draggingDelay: Int = 10
 
     private var draggingCounter: Int = 0
+        private set(value) {
+            field = value
+            if (draggingCounter == draggingDelay) {
+                draggingElement?.transform?.translate(draggingOffset)
+            }
+        }
 
     override fun tick() {
         super.tick()
@@ -65,7 +80,6 @@ class DraggableList(
         if (super.onMouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
         if (draggingElement != null) {
             //TODO 交换位置
-
             draggingElement = null
         }
         return super.onMouseRelease(mouseX, mouseY, button)
@@ -73,10 +87,17 @@ class DraggableList(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
-        draggingElement?.transform?.translate(this.arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
+        if (draggingCounter == draggingDelay) {
+            draggingElement?.transform?.translate(this.arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
+
+        }
         return NextAction.Continue
     }
 
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+        if (draggingCounter != draggingDelay) draggingCounter = 0
+        return super.onMouseMove(mouseX, mouseY)
+    }
 
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return

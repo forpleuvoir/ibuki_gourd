@@ -138,11 +138,8 @@ fun renderGradientRect(
     endColor: ARGBColor
 ) {
     arrangement.switch(
-        {
-            renderRect(matrixStack, colorRect(rect, startColor, endColor, endColor, startColor))
-        }, {
-            renderRect(matrixStack, colorRect(rect, startColor, startColor, endColor, endColor))
-        }
+        renderRect(matrixStack, colorRect(rect, startColor, endColor, endColor, startColor)),
+        renderRect(matrixStack, colorRect(rect, startColor, startColor, endColor, endColor))
     )
 }
 

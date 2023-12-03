@@ -65,17 +65,17 @@ open class ListLayout(
             scrollerBar = scroller(
                 arrangement.switch({ transform.height - padding.height }, { transform.width - padding.width }),
                 scrollerThickness,
-                { (layout.alignRects(subElements, arrangement).minOf { r -> arrangement.switch({ r.height }, { r.width }) } / 2f) },
+                { (layout.alignRects(subElements, arrangement).minOf { r -> arrangement.switch(r.height, r.width) } / 2f) },
                 {
                     arrangement.switch(
-                        { contentSize.height - contentRect(false).height },
-                        { contentSize.width - contentRect(false).width }
+                        contentSize.height - contentRect(false).height,
+                        contentSize.width - contentRect(false).width
                     ).coerceAtLeast(0f)
                 },
                 {
                     arrangement.switch(
-                        { contentRect(false).height / contentSize.height },
-                        { contentRect(false).width / contentSize.width }
+                        contentRect(false).height / contentSize.height,
+                        contentRect(false).width / contentSize.width
                     ).clamp(0f..1f)
                 },
                 arrangement
@@ -115,13 +115,7 @@ open class ListLayout(
 
             val alignRects = alignRects(alignElements, arrangement)
 
-            val alignment = arrangement.switch(
-                {
-                    PlanarAlignment.TopLeft(arrangement)
-                }, {
-                    PlanarAlignment.CenterLeft(arrangement)
-                }
-            )
+            val alignment = arrangement.switch(PlanarAlignment.TopLeft(arrangement), PlanarAlignment.CenterLeft(arrangement))
 
             val container = elementContainer()
             val containerContentRect = container.contentRect(false)
@@ -147,19 +141,13 @@ open class ListLayout(
             }
             alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
                 val element = alignElements[index]
-                val v = vector3f + arrangement.switch(
-                    { Vector3f(0f, -amount, 0f) },
-                    { Vector3f(-amount, 0f, 0f) }
-                )
+                val v = vector3f + arrangement.switch(Vector3f(0f, -amount, 0f), Vector3f(-amount, 0f, 0f))
                 element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
             return arrangement.switch(
-                {
-                    Size.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height)
-                }, {
-                    Size.create(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
-                }
+                Size.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height),
+                Size.create(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
             )
         }
 
@@ -172,14 +160,14 @@ open class ListLayout(
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
 
         val bottom =
-            if (isWorld) transform.worldBottom - padding.bottom + arrangement.switch({ 0f }, { -scrollerThickness })
-            else transform.height - padding.bottom + arrangement.switch({ 0f }, { -scrollerThickness })
+            if (isWorld) transform.worldBottom - padding.bottom + arrangement.switch(0f, -scrollerThickness)
+            else transform.height - padding.bottom + arrangement.switch(0f, -scrollerThickness)
 
         val left = if (isWorld) transform.worldLeft + padding.left else padding.left
 
         val right =
-            if (isWorld) transform.worldRight - padding.right + arrangement.switch({ -scrollerThickness }, { 0f })
-            else transform.width - padding.right + arrangement.switch({ -scrollerThickness }, { 0f })
+            if (isWorld) transform.worldRight - padding.right + arrangement.switch(-scrollerThickness, 0f)
+            else transform.width - padding.right + arrangement.switch(-scrollerThickness, 0f)
 
         return rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top

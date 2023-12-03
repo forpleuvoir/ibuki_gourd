@@ -85,11 +85,8 @@ open class Scroller(
 
     open val scrollerLength: Float
         get() = arrangement.switch(
-            {
-                this.transform.height - (barLength() * this.transform.height)
-            }, {
-                this.transform.width - (barLength() * this.transform.width)
-            }
+            this.transform.height - (barLength() * this.transform.height),
+            this.transform.width - (barLength() * this.transform.width)
         )
 
     val barPositionRange: ClosedFloatingPointRange<Float> get() = 0f..scrollerLength
@@ -275,12 +272,8 @@ fun <T> ElementContainer.numberScroller(
             bar.tip(
                 displayDelay = 1u,
                 optionalDirections = arrangement.switch(
-                    {
-                        listOf(Direction.Left, Direction.Right)
-                    },
-                    {
-                        listOf(Direction.Top, Direction.Bottom)
-                    },
+                    listOf(Direction.Left, Direction.Right),
+                    listOf(Direction.Top, Direction.Bottom)
                 ),
                 margin = Margin(4)
             ) {
