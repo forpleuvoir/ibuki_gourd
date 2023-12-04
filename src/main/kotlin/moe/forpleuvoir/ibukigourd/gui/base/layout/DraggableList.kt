@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
+import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
@@ -10,7 +11,10 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.helper.blend
+import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -38,7 +42,6 @@ class DraggableList(
                 field?.transform?.translate(-draggingOffset)
             } else {
                 draggingElementOldPosition = value.transform.position
-
             }
             field = value
         }
@@ -106,7 +109,12 @@ class DraggableList(
             renderElements.filter { it != scrollerBar || !it.fixed || it != draggingElement }.forEach { it.render(renderContext) }
         }
         fixedElements.forEach { it.render(renderContext) }
-        draggingElement?.render?.invoke(renderContext)
+        draggingElement?.let {
+            it.render(renderContext)
+            blend(GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA) {
+                renderRect(renderContext.matrixStack, it.transform, Colors.GRAY.opacity(0.1f))
+            }
+        }
         scrollerBar.render(renderContext)
         renderOverlay.invoke(renderContext)
     }

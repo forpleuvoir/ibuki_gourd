@@ -233,7 +233,7 @@ object BatchTextRenderScope {
         for (text in string.wrapToLines(textRenderer!!, rect.width.toInt())) {
             renderAlignmentText(
                 matrixStack,
-                text, rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+                text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -270,7 +270,7 @@ object BatchTextRenderScope {
         for (text in lines) {
             renderAlignmentText(
                 matrixStack,
-                text, rect(Vector3f(0f, top, 0f), rect.width, textRenderer!!.fontHeight), align,
+                text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()

@@ -51,9 +51,27 @@ fun testScreen(index: Int) {
 
 val testScreen2: Screen
     get() = screen {
+        padding(10)
         renderBackground = {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
             renderOutline(it.matrixStack, contentRect(false), Colors.RED.opacity(0.5f))
+            val rect = contentRect(true)
+            textRenderer.batchRender {
+                renderAlignmentText(
+                    it.matrixStack,
+                    literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
+                    rect,
+                    align = PlanarAlignment::BottomLeft,
+                    color = Colors.WHITE
+                )
+                renderStringLines(
+                    it.matrixStack,
+                    "frt:%.2fms\nfps:${FPS}".format(FRT / 1000000),
+                    rect,
+                    align = PlanarAlignment::TopRight,
+                    color = Colors.WHITE,
+                )
+            }
         }
         draggableList(height = 120f) {
             repeat(10) {

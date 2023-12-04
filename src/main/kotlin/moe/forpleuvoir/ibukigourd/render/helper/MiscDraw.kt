@@ -6,9 +6,11 @@ import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.rectangle.colorRect
+import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertexImpl
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.nebula.common.color.*
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.render.BufferBuilder
@@ -361,6 +363,24 @@ fun renderRect(matrixStack: MatrixStack, colorVertex: ColorVertex, width: Number
 fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor) =
     renderRect(matrixStack, colorVertex(transform.worldPosition, color), transform.width, transform.height)
 
+/**
+ * 虽然是圆角,但是是像素风的圆角
+ * @param matrixStack MatrixStack
+ * @param rect Rectangle<out Vector3<Float>>
+ * @param color ARGBColor
+ * @param round Float
+ */
+fun renderRoundRect(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor, round: Int, pixelSize: Float = 1f) {
+    rectBatchRender {
+        for (i in 1..round) {
+            renderRect(matrixStack, rect(rect.position + vertex(i * pixelSize, (i - 1) * pixelSize, 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+        }
+        renderRect(matrixStack, rect(rect.position + vertex(0f, round * pixelSize, 0f), rect.width, rect.height - (round * pixelSize) * 2), color)
+        for (i in 1..round) {
+            renderRect(matrixStack, rect(rect.position + vertex(-(round * pixelSize), rect.height - (i * pixelSize), 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+        }
+    }
+}
 
 /**
  * 渲染边框线条
