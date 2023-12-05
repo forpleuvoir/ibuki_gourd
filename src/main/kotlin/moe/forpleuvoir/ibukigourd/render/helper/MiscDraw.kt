@@ -18,6 +18,7 @@ import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
+import kotlin.math.atan2
 
 /**
  * 渲染线段
@@ -371,15 +372,18 @@ fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor)
  * @param round Float
  */
 fun renderRoundRect(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor, round: Int, pixelSize: Float = 1f) {
-    rectBatchRender {
-        for (i in 1..round) {
-            renderRect(matrixStack, rect(rect.position + vertex(i * pixelSize, (i - 1) * pixelSize, 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+    if (round > 0)
+        rectBatchRender {
+            val a = pixelSize * round
+            for (i in round downTo 1) {
+                renderRect(matrixStack, rect(rect.position + vertex(i * pixelSize, a - (i - 1) * pixelSize, 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+            }
+            renderRect(matrixStack, rect(rect.position + vertex(0f, round * pixelSize, 0f), rect.width, rect.height - (round * pixelSize) * 2), color)
+            for (i in 1..round) {
+                renderRect(matrixStack, rect(rect.position + vertex(i * pixelSize, (i - 1) * pixelSize, 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+            }
         }
-        renderRect(matrixStack, rect(rect.position + vertex(0f, round * pixelSize, 0f), rect.width, rect.height - (round * pixelSize) * 2), color)
-        for (i in 1..round) {
-            renderRect(matrixStack, rect(rect.position + vertex(-(round * pixelSize), rect.height - (i * pixelSize), 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
-        }
-    }
+    else renderRect(matrixStack, rect, color)
 }
 
 /**
@@ -488,4 +492,102 @@ fun renderOutlinedBox(
         matrixStack, ColorVertexImpl(transform.worldPosition, color), transform.width, transform.height,
         outlineColor, borderWidth, innerOutline,
     )
+}
+
+data class Point(val x: Int, val y: Int)
+
+fun drawCircle(x0: Int, y0: Int, radius: Int): Set<Point> {
+    val points = mutableSetOf<Point>()
+    var x = radius
+    var y = 0
+    var decisionOver2 = 1 - x
+
+    while (y <= x) {
+        points.add(Point(x + x0, y + y0)) // Octant 1
+        points.add(Point(y + x0, x + y0)) // Octant 2
+        points.add(Point(-x + x0, y + y0)) // Octant 4
+        points.add(Point(-y + x0, x + y0)) // Octant 3
+        points.add(Point(-x + x0, -y + y0)) // Octant 5
+        points.add(Point(-y + x0, -x + y0)) // Octant 6
+        points.add(Point(x + x0, -y + y0)) // Octant 7
+        points.add(Point(y + x0, -x + y0)) // Octant 8
+        y++
+        decisionOver2 += if (decisionOver2 <= 0) {
+            2 * y + 1
+        } else {
+            x--
+            2 * (y - x) + 1
+        }
+    }
+    return points
+}
+
+fun drawQuarterCircle(x0: Int, y0: Int, radius: Int): Set<Point> {
+    val points = mutableSetOf<Point>()
+    var x = radius
+    var y = 0
+    var decisionOver2 = 1 - x
+
+    while (y <= x) {
+        if (y in 0..x) {
+            points.add(Point(x + x0, y + y0)) // Octant 1
+            points.add(Point(y + x0, x + y0)) // Octant 2
+        }
+        y++
+        decisionOver2 += if (decisionOver2 <= 0) {
+            2 * y + 1
+        } else {
+            x--
+            2 * (y - x) + 1
+        }
+    }
+    return points
+}
+
+fun drawCircleInAngleRange(x0: Int, y0: Int, radius: Int, startAngle: Double, endAngle: Double): Set<Point> {
+    val points = mutableSetOf<Point>()
+    var x = radius
+    var y = 0
+    var decisionOver2 = 1 - x
+
+    var start = startAngle
+    var end = endAngle
+
+    if (start > end) {
+        val temp = start
+        start = end
+        end = temp
+    }
+
+    while (y <= x) {
+        val pointsToAdd = listOf(
+            Point(x + x0, y + y0), // Octant 1
+            Point(y + x0, x + y0), // Octant 2
+            Point(-x + x0, y + y0), // Octant 4
+            Point(-y + x0, x + y0), // Octant 3
+            Point(-x + x0, -y + y0), // Octant 5
+            Point(-y + x0, -x + y0), // Octant 6
+            Point(x + x0, -y + y0), // Octant 7
+            Point(y + x0, -x + y0)  // Octant 8
+        )
+
+        for (point in pointsToAdd) {
+            var angle = Math.toDegrees(atan2((point.y - y0).toDouble(), (point.x - x0).toDouble()))
+            if (angle < 0) {
+                angle += 360
+            }
+            if (angle in start..end) {
+                points.add(point)
+            }
+        }
+
+        y++
+        decisionOver2 += if (decisionOver2 <= 0) {
+            2 * y + 1
+        } else {
+            x--
+            2 * (y - x) + 1
+        }
+    }
+    return points
 }
