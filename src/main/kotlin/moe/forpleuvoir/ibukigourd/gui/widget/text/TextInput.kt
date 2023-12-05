@@ -17,7 +17,7 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.TEXT_COLOR
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture

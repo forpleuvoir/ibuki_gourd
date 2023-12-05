@@ -17,7 +17,7 @@ import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.util.text.Text

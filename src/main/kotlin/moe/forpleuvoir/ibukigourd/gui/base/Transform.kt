@@ -7,8 +7,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.nebula.common.ifc
 import kotlin.contracts.ExperimentalContracts

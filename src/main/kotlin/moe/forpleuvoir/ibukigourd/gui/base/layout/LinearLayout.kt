@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.render.base.Arrangement.Vertical
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 
 /**
  * 线性布局实现

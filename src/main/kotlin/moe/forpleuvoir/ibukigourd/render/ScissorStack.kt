@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.render
 
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle.Companion.intersection
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle.Companion.intersection
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import java.util.*
 
 class ScissorStack {

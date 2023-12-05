@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.blend
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
+import moe.forpleuvoir.ibukigourd.render.helper.renderRoundRect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.contracts.ExperimentalContracts
@@ -112,7 +113,7 @@ class DraggableList(
         draggingElement?.let {
             it.render(renderContext)
             blend(GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA) {
-                renderRect(renderContext.matrixStack, it.transform, Colors.GRAY.opacity(0.1f))
+                renderRoundRect(renderContext.matrixStack, it.transform.asWorldRect, Colors.RED.opacity(0.7f), 4)
             }
         }
         scrollerBar.render(renderContext)

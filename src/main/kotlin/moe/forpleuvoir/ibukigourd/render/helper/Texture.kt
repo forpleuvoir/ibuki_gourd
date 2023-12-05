@@ -5,7 +5,7 @@ package moe.forpleuvoir.ibukigourd.render.helper
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping

@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.Drawable
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.util.NextAction
 
 @Suppress("unused", "KDocUnresolvedReference")

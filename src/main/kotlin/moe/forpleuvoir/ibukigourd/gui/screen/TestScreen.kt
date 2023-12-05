@@ -22,7 +22,7 @@ import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
@@ -45,6 +45,8 @@ fun testScreen(index: Int) {
         2    -> testScreen2
         else -> testScreen1
     }.let {
+        FRT = 0.0
+        FPS = 0L
         ScreenManager.open(it)
     }
 }

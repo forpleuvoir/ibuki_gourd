@@ -6,7 +6,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import moe.forpleuvoir.ibukigourd.render.base.math.ImmutableVector3f
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.ShaderProgram

@@ -4,13 +4,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.colorRect
-import moe.forpleuvoir.ibukigourd.render.base.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertexImpl
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.graphics.pointsInCircleRange
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.colorRect
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.nebula.common.color.*
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.render.BufferBuilder
@@ -18,7 +19,8 @@ import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
-import kotlin.math.atan2
+import kotlin.math.abs
+import kotlin.math.min
 
 /**
  * 渲染线段
@@ -131,8 +133,53 @@ object RectBatchDrawScope {
     fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor) =
         renderRect(matrixStack, colorVertex(transform.worldPosition, color), transform.width, transform.height)
 
+    /**
+     * Renders a round rectangle with the specified parameters.
+     *
+     * @param matrixStack The MatrixStack used for rendering.
+     * @param rect The rectangle representing the dimensions and position of the round rectangle.
+     * @param color The color of the round rectangle in ARGB format.
+     * @param round The radius of the round corners of the rectangle.
+     * @param pixelSize The size in pixels of each unit in the coordinate system. Default value is 1.0 pixel.
+     */
+    fun renderRoundRect(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor, round: Int, pixelSize: Float = 1f) {
+        if (round > 0) {
+            renderRect(matrixStack, rect(rect.position + vertex(0f, (round + 1) * pixelSize, 0f), rect.width, rect.height - ((round + 1) * pixelSize) * 2), color)
+            renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)]?.let {
+                it.forEach { (position, size) -> renderRect(matrixStack, rect(rect.position + position, size), color) }
+                return
+            }
+            val yPoints = mutableMapOf<Int, Int>()
+            val xPoints = mutableMapOf<Int, Pair<Int, Int>>()
+            pointsInCircleRange(round, round, round, 180.0..270.0).forEach { point ->
+                yPoints[point.y] = yPoints[point.y]?.let { min(it, point.x) } ?: point.x
+                xPoints[point.x] = xPoints[point.x]?.let { min(it.first, point.y) to it.second + 1 } ?: (point.y to 1)
+            }
+            buildSet {
+                yPoints.map { (_, x) -> x to xPoints[x] }.toSet().forEach { (x, y) ->
+                    add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
+                    add(
+                        vertex(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize, 0f)
+                                to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
+                    )
+                }
+                renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)] = this
+                if (size > renderRoundRectCacheSize) renderRoundRectCache.remove(renderRoundRectCache.keys.first())
+            }.forEach { (position, size) -> renderRect(matrixStack, rect(rect.position + position, size), color) }
+        } else renderRect(matrixStack, rect, color)
+    }
+
 }
 
+/**
+ * Renders a gradient rectangle onto the given matrix stack.
+ *
+ * @param matrixStack The matrix stack to render onto.
+ * @param rect The rectangle to render.
+ * @param arrangement The arrangement of gradient colors. Default value is Arrangement.Horizontal.
+ * @param startColor The starting color of the gradient in ARGB format.
+ * @param endColor The ending color of the gradient in ARGB format.
+ */
 fun renderGradientRect(
     matrixStack: MatrixStack,
     rect: Rectangle<Vector3<Float>>,
@@ -365,26 +412,54 @@ fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor)
     renderRect(matrixStack, colorVertex(transform.worldPosition, color), transform.width, transform.height)
 
 /**
- * 虽然是圆角,但是是像素风的圆角
- * @param matrixStack MatrixStack
- * @param rect Rectangle<out Vector3<Float>>
- * @param color ARGBColor
- * @param round Float
+ * Renders a round rectangle with the specified parameters.
+ *
+ * @param matrixStack The MatrixStack used for rendering.
+ * @param rect The rectangle representing the dimensions and position of the round rectangle.
+ * @param color The color of the round rectangle in ARGB format.
+ * @param round The radius of the round corners of the rectangle.
+ * @param pixelSize The size in pixels of each unit in the coordinate system. Default value is 1.0 pixel.
  */
 fun renderRoundRect(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, color: ARGBColor, round: Int, pixelSize: Float = 1f) {
     if (round > 0)
         rectBatchRender {
-            val a = pixelSize * round
-            for (i in round downTo 1) {
-                renderRect(matrixStack, rect(rect.position + vertex(i * pixelSize, a - (i - 1) * pixelSize, 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+            renderRect(matrixStack, rect(rect.position + vertex(0f, (round + 1) * pixelSize, 0f), rect.width, rect.height - ((round + 1) * pixelSize) * 2), color)
+            renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)]?.let {
+                it.forEach { (position, size) -> renderRect(matrixStack, rect(rect.position + position, size), color) }
+                return@rectBatchRender
             }
-            renderRect(matrixStack, rect(rect.position + vertex(0f, round * pixelSize, 0f), rect.width, rect.height - (round * pixelSize) * 2), color)
-            for (i in 1..round) {
-                renderRect(matrixStack, rect(rect.position + vertex(i * pixelSize, (i - 1) * pixelSize, 0f), rect.width - (i * pixelSize) * 2, pixelSize), color)
+            val yPoints = mutableMapOf<Int, Int>()
+            val xPoints = mutableMapOf<Int, Pair<Int, Int>>()
+            pointsInCircleRange(round, round, round, 180.0..270.0).forEach { point ->
+                yPoints[point.y] = yPoints[point.y]?.let { min(it, point.x) } ?: point.x
+                xPoints[point.x] = xPoints[point.x]?.let { min(it.first, point.y) to it.second + 1 } ?: (point.y to 1)
             }
+            buildSet {
+                yPoints.map { (_, x) -> x to xPoints[x] }
+                    .toSet().forEach { (x, y) ->
+                        add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
+                        add(
+                            vertex(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize, 0f)
+                                    to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
+                        )
+                    }
+                renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)] = this
+                if (size > renderRoundRectCacheSize) renderRoundRectCache.remove(renderRoundRectCache.keys.first())
+            }.forEach { (position, size) -> renderRect(matrixStack, rect(rect.position + position, size), color) }
         }
     else renderRect(matrixStack, rect, color)
 }
+
+private data class RenderRoundRect(
+    val round: Int,
+    val pixelSize: Float,
+    val width: Float,
+    val height: Float
+)
+
+private const val renderRoundRectCacheSize = 50
+
+private val renderRoundRectCache get() = mutableMapOf<RenderRoundRect, Set<Pair<Vector3<Float>, Size<Float>>>>()
 
 /**
  * 渲染边框线条
@@ -472,13 +547,14 @@ fun renderOutlinedBox(
 }
 
 /**
- * @see renderOutlinedBox
- * @param matrixStack MatrixStack
- * @param transform Transform
- * @param color Color
- * @param outlineColor Color
- * @param borderWidth Number
- * @param innerOutline Boolean
+ * Renders an outlined box using the specified parameters.
+ *
+ * @param matrixStack The MatrixStack to apply transformations.
+ * @param transform The Transform representing the position and size of the box.
+ * @param color The color of the inner box in ARGB format.
+ * @param outlineColor The color of the outline in ARGB format.
+ * @param borderWidth The width of the outline.
+ * @param innerOutline Indicates whether the outline is rendered inside the box.
  */
 fun renderOutlinedBox(
     matrixStack: MatrixStack,
@@ -492,102 +568,4 @@ fun renderOutlinedBox(
         matrixStack, ColorVertexImpl(transform.worldPosition, color), transform.width, transform.height,
         outlineColor, borderWidth, innerOutline,
     )
-}
-
-data class Point(val x: Int, val y: Int)
-
-fun drawCircle(x0: Int, y0: Int, radius: Int): Set<Point> {
-    val points = mutableSetOf<Point>()
-    var x = radius
-    var y = 0
-    var decisionOver2 = 1 - x
-
-    while (y <= x) {
-        points.add(Point(x + x0, y + y0)) // Octant 1
-        points.add(Point(y + x0, x + y0)) // Octant 2
-        points.add(Point(-x + x0, y + y0)) // Octant 4
-        points.add(Point(-y + x0, x + y0)) // Octant 3
-        points.add(Point(-x + x0, -y + y0)) // Octant 5
-        points.add(Point(-y + x0, -x + y0)) // Octant 6
-        points.add(Point(x + x0, -y + y0)) // Octant 7
-        points.add(Point(y + x0, -x + y0)) // Octant 8
-        y++
-        decisionOver2 += if (decisionOver2 <= 0) {
-            2 * y + 1
-        } else {
-            x--
-            2 * (y - x) + 1
-        }
-    }
-    return points
-}
-
-fun drawQuarterCircle(x0: Int, y0: Int, radius: Int): Set<Point> {
-    val points = mutableSetOf<Point>()
-    var x = radius
-    var y = 0
-    var decisionOver2 = 1 - x
-
-    while (y <= x) {
-        if (y in 0..x) {
-            points.add(Point(x + x0, y + y0)) // Octant 1
-            points.add(Point(y + x0, x + y0)) // Octant 2
-        }
-        y++
-        decisionOver2 += if (decisionOver2 <= 0) {
-            2 * y + 1
-        } else {
-            x--
-            2 * (y - x) + 1
-        }
-    }
-    return points
-}
-
-fun drawCircleInAngleRange(x0: Int, y0: Int, radius: Int, startAngle: Double, endAngle: Double): Set<Point> {
-    val points = mutableSetOf<Point>()
-    var x = radius
-    var y = 0
-    var decisionOver2 = 1 - x
-
-    var start = startAngle
-    var end = endAngle
-
-    if (start > end) {
-        val temp = start
-        start = end
-        end = temp
-    }
-
-    while (y <= x) {
-        val pointsToAdd = listOf(
-            Point(x + x0, y + y0), // Octant 1
-            Point(y + x0, x + y0), // Octant 2
-            Point(-x + x0, y + y0), // Octant 4
-            Point(-y + x0, x + y0), // Octant 3
-            Point(-x + x0, -y + y0), // Octant 5
-            Point(-y + x0, -x + y0), // Octant 6
-            Point(x + x0, -y + y0), // Octant 7
-            Point(y + x0, -x + y0)  // Octant 8
-        )
-
-        for (point in pointsToAdd) {
-            var angle = Math.toDegrees(atan2((point.y - y0).toDouble(), (point.x - x0).toDouble()))
-            if (angle < 0) {
-                angle += 360
-            }
-            if (angle in start..end) {
-                points.add(point)
-            }
-        }
-
-        y++
-        decisionOver2 += if (decisionOver2 <= 0) {
-            2 * y + 1
-        } else {
-            x--
-            2 * (y - x) + 1
-        }
-    }
-    return points
 }

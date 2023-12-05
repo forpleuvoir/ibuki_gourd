@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.render.base.rectangle
+package moe.forpleuvoir.ibukigourd.render.graphics.rectangle
 
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.SizeFloat
