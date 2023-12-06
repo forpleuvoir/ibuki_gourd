@@ -21,12 +21,12 @@ open class Text(
 
         @JvmStatic
         fun literal(content: String): moe.forpleuvoir.ibukigourd.util.text.Text {
-            return Text(LiteralTextContent(content))
+            return Text(PlainTextContent.Literal(content))
         }
 
         @JvmStatic
         fun empty(): moe.forpleuvoir.ibukigourd.util.text.Text {
-            return Text(LiteralTextContent(""))
+            return Text(PlainTextContent.Literal(""))
         }
 
         @JvmStatic

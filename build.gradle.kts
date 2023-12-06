@@ -29,7 +29,6 @@ val fabricApiVersion: String = properties["fabric_api_version"].toString()
 val fabricKotlinVersion: String = properties["fabric_kotlin_version"].toString()
 val modMenuVersion: String = properties["mod_menu_version"].toString()
 
-val mixinExtrasVersion: String = properties["mixin_extras_version"].toString()
 val nebulaVersion: String = properties["nebula_version"].toString()
 
 version = properties["mod_version"].toString()
@@ -48,13 +47,8 @@ dependencies {
 
 	modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
 
-	api(include("com.github.LlamaLad7:MixinExtras:$mixinExtrasVersion") {
-		exclude("com.github.LlamaLad7.MixinExtras", "mixinextras-forge")
-	})
-	annotationProcessor("com.github.LlamaLad7:MixinExtras:$mixinExtrasVersion")
-
 	//其他mod依赖
-	//modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
+	modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
 	//nebula
 	api("moe.forpleuvoir:nebula:$nebulaVersion")
