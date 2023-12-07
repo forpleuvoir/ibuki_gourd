@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
@@ -21,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
+import moe.forpleuvoir.ibukigourd.render.helper.useColorLogicOp
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -506,24 +508,26 @@ open class TextInput(
         }
 
         //"渲染选中的文本高亮"
-        if (selectedText.isNotEmpty() && focused) {
-            val (startIndex, endIndex) = (selectionStart - firstCharacterIndex).coerceAtLeast(0) to
-                    (selectionEnd - firstCharacterIndex).coerceAtLeast(0)
-            val start = contentRect.left +
-                        if (startIndex > 0)
-                            textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
-                        else 0f
-            val end = contentRect.left +
-                      if (endIndex > 0)
-                          textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
-                      else 0f
-            val width = (start - end).absoluteValue
-            val rect = if (selectionEnd > selectionStart) {
-                rect(contentRect.position.x(start), Size.create(width, contentRect.height))
-            } else {
-                rect(contentRect.position.x(end), Size.create(width, contentRect.height))
+        useColorLogicOp(GlStateManager.LogicOp.OR_REVERSE) {
+            if (selectedText.isNotEmpty() && focused) {
+                val (startIndex, endIndex) = (selectionStart - firstCharacterIndex).coerceAtLeast(0) to
+                        (selectionEnd - firstCharacterIndex).coerceAtLeast(0)
+                val start = contentRect.left +
+                            if (startIndex > 0)
+                                textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
+                            else 0f
+                val end = contentRect.left +
+                          if (endIndex > 0)
+                              textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
+                          else 0f
+                val width = (start - end).absoluteValue
+                val rect = if (selectionEnd > selectionStart) {
+                    rect(contentRect.position.x(start), Size.create(width, contentRect.height))
+                } else {
+                    rect(contentRect.position.x(end), Size.create(width, contentRect.height))
+                }
+                renderRect(renderContext.matrixStack, rect, selectedColor)
             }
-            renderRect(renderContext.matrixStack, rect, selectedColor)
         }
     }
 

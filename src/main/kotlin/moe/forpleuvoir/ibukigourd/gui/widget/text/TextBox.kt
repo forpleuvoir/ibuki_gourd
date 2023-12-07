@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
@@ -15,9 +17,9 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -30,6 +32,7 @@ import net.minecraft.SharedConstants
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.input.CursorMovement
 import net.minecraft.client.input.CursorMovement.*
+import net.minecraft.client.render.GameRenderer
 import net.minecraft.util.StringHelper
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -663,42 +666,43 @@ class TextBox(
             val startY = contentRect.top + currentLineIndex(start) * (fontHeight + spacing) - amount
             val endY = contentRect.top + currentLineIndex(end) * (fontHeight + spacing) - amount
             val mindY = (startY + (fontHeight + spacing)).let { if (it == endY) 0f else it }
-            if (startY == endY) {
-                renderRect(
-                    renderContext.matrixStack,
-                    rect(contentRect.left + startXOffset, startY, contentRect.z, textRenderer.getWidth(selection.getText(this.text)), fontHeight + spacing),
-                    selectedColor
-                )
-            } else if (mindY == 0f) {
-                rectBatchRender {
+            useColorLogicOp(GlStateManager.LogicOp.OR_REVERSE) {
+                if (startY == endY) {
                     renderRect(
                         renderContext.matrixStack,
-                        rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
-                        selectedColor
+                        rect(contentRect.left + startXOffset, startY, contentRect.z, textRenderer.getWidth(selection.getText(this.text)), fontHeight),
+                        selectedColor, GameRenderer::getRenderTypeGuiTextHighlightProgram
                     )
-                    renderRect(
-                        renderContext.matrixStack,
-                        rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight + spacing), selectedColor
-                    )
-                }
-            } else {
-                rectBatchRender {
-                    renderRect(
-                        renderContext.matrixStack,
-                        rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
-                        selectedColor
-                    )
-                    renderRect(
-                        renderContext.matrixStack,
-                        rect(contentRect.left, mindY, contentRect.z, contentRect.width, endY - startY - (fontHeight + spacing)), selectedColor
-                    )
-                    renderRect(
-                        renderContext.matrixStack,
-                        rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight + spacing), selectedColor
-                    )
+                } else if (mindY == 0f) {
+                    rectBatchRender {
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
+                            selectedColor
+                        )
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight ), selectedColor
+                        )
+                    }
+                } else {
+                    rectBatchRender {
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
+                            selectedColor
+                        )
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(contentRect.left, mindY, contentRect.z, contentRect.width, endY - startY - (fontHeight + spacing)), selectedColor
+                        )
+                        renderRect(
+                            renderContext.matrixStack,
+                            rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight), selectedColor
+                        )
+                    }
                 }
             }
-
         }
     }
 

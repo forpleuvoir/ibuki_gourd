@@ -2,6 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.render.helper
 
+import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import moe.forpleuvoir.ibukigourd.render.base.math.ImmutableVector3f
@@ -18,6 +19,9 @@ import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
 import java.util.function.Supplier
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 val tessellator: Tessellator get() = Tessellator.getInstance()
 
@@ -49,11 +53,24 @@ inline fun lineWidth(width: Number) = RenderSystem.lineWidth(width.toFloat())
 
 inline fun setShaderColor(color: ARGBColor) = RenderSystem.setShaderColor(color.redF, color.greenF, color.blueF, color.alphaF)
 
+inline fun polygonMode(face: Int, mode: Int) = RenderSystem.polygonMode(face, mode)
+
 inline fun enablePolygonOffset() = RenderSystem.enablePolygonOffset()
 
 inline fun polygonOffset(factor: Number, units: Number) = RenderSystem.polygonOffset(factor.toFloat(), units.toFloat())
 
 inline fun disablePolygonOffset() = RenderSystem.disablePolygonOffset()
+
+@OptIn(ExperimentalContracts::class)
+inline fun usePolygonOffset(factor: Number, units: Number, action: () -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
+    enablePolygonOffset()
+    polygonOffset(factor, units)
+    action()
+    disablePolygonOffset()
+}
 
 inline fun enableBlend() = RenderSystem.enableBlend()
 
@@ -61,23 +78,105 @@ inline fun blendFunc(srcFactor: GlStateManager.SrcFactor, dstFactor: GlStateMana
 
 inline fun blendFunc(srcFactor: Int, dstFactor: Int) = RenderSystem.blendFunc(srcFactor, dstFactor)
 
+inline fun blendFuncSeparate(
+    srcFactor: GlStateManager.SrcFactor,
+    dstFactor: GlStateManager.DstFactor,
+    srcAlpha: GlStateManager.SrcFactor,
+    dstAlpha: GlStateManager.DstFactor
+) =
+    RenderSystem.blendFuncSeparate(srcFactor, dstFactor, srcAlpha, dstAlpha)
+
+inline fun blendEquation(mode: GLFuncMode) = RenderSystem.blendEquation(mode.value)
+
+/**
+ * ADD: （默认）源颜色和目标颜色将被相加。（Cf = (Cs * Sf) + (Cd * Df)）
+ *
+ * SUBTRACT: 源颜色将从目标颜色中减去。（Cf = (Cd * Df) - (Cs * Sf)）
+ *
+ * REVERSE_SUBTRACT: 目标颜色将从源颜色中减去。（Cf = (Cs * Sf) - (Cd * Df)）
+ *
+ * MIN：计算出源颜色和目标颜色每个通道颜色中的较小值。这将导致较暗的结果。
+ *
+ * MAX:计算出源颜色和目标颜色每个通道颜色中的较大值。这将导致较亮的结果。
+ *
+ * 其中，“Cf”是最终颜色，“Cs”代表源颜色，“Cd”代表目标颜色，而“Sf”和“Df”则是通过glBlendFunc或glBlendFuncSeparate设置的所谓混合因子。原始的混合方程使用这些颜色和因子来决定每个颜色通道的新值。
+ *
+ * @param value Int
+ * @constructor
+ */
+enum class GLFuncMode(val value: Int) {
+    ADD(GlConst.GL_FUNC_ADD),
+    SUBTRACT(GlConst.GL_FUNC_SUBTRACT),
+    REVERSE_SUBTRACT(GlConst.GL_FUNC_REVERSE_SUBTRACT),
+    MIN(GlConst.GL_MIN),
+    MAX(GlConst.GL_MAX)
+}
+
 inline fun defaultBlendFunc() = RenderSystem.defaultBlendFunc()
 
 inline fun disableBlend() = RenderSystem.disableBlend()
 
-inline fun blend(srcFactor: GlStateManager.SrcFactor, dstFactor: GlStateManager.DstFactor, action: () -> Unit) {
+@OptIn(ExperimentalContracts::class)
+inline fun useBlend(srcFactor: GlStateManager.SrcFactor, dstFactor: GlStateManager.DstFactor, mode: GLFuncMode = GLFuncMode.ADD, action: () -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
     enableBlend()
+    blendEquation(mode)
     blendFunc(srcFactor, dstFactor)
     action()
+    blendEquation(GLFuncMode.ADD)
     disableBlend()
     defaultBlendFunc()
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun useBlendSeparate(
+    srcFactor: GlStateManager.SrcFactor,
+    dstFactor: GlStateManager.DstFactor,
+    srcAlpha: GlStateManager.SrcFactor,
+    dstAlpha: GlStateManager.DstFactor,
+    mode: GLFuncMode = GLFuncMode.ADD,
+    action: () -> Unit
+) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
+    enableBlend()
+    blendEquation(mode)
+    blendFuncSeparate(srcFactor, dstFactor, srcAlpha, dstAlpha)
+    action()
+    disableBlend()
+    blendEquation(GLFuncMode.ADD)
+    defaultBlendFunc()
+}
+
+inline fun enableColorLogicOp() = RenderSystem.enableColorLogicOp()
+
+inline fun disableColorLogicOp() = RenderSystem.disableColorLogicOp()
+
+inline fun logicOp(op: GlStateManager.LogicOp) = RenderSystem.logicOp(op)
+
+@OptIn(ExperimentalContracts::class)
+inline fun useColorLogicOp(op: GlStateManager.LogicOp, action: () -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
+    enableColorLogicOp()
+    logicOp(op)
+    action()
+    disableColorLogicOp()
 }
 
 inline fun enableDepthTest() = RenderSystem.enableDepthTest()
 
 inline fun disableDepthTest() = RenderSystem.disableDepthTest()
 
-inline fun depthTest(action: () -> Unit){
+@OptIn(ExperimentalContracts::class)
+inline fun useDepthTest(action: () -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
     enableDepthTest()
     action()
     disableDepthTest()

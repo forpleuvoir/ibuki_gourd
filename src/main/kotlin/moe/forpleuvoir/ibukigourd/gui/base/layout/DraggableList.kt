@@ -11,8 +11,8 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.helper.blend
 import moe.forpleuvoir.ibukigourd.render.helper.renderRoundRect
+import moe.forpleuvoir.ibukigourd.render.helper.useBlend
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Color
 import kotlin.contracts.ExperimentalContracts
@@ -109,13 +109,13 @@ class DraggableList(
             renderElements.filter { it != scrollerBar || !it.fixed || it != draggingElement }.forEach { it.render(renderContext) }
         }
         fixedElements.forEach { it.render(renderContext) }
+        scrollerBar.render(renderContext)
         draggingElement?.let {
             it.render(renderContext)
-            blend(GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA) {
-                renderRoundRect(renderContext.matrixStack, it.transform.asWorldRect, Color(0xFF8CECFF.toInt()).opacity(0.1F), 2)
+            useBlend(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA) {
+                renderRoundRect(renderContext.matrixStack, it.transform.asWorldRect, Color(0x7F8CECFF), 2)
             }
         }
-        scrollerBar.render(renderContext)
         renderOverlay.invoke(renderContext)
     }
 

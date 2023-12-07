@@ -50,7 +50,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
 
 		val PADDING by ConfigMargin("padding", Margin(6))
 
-		val SELECTED_COLOR by ConfigColor("selected_color", Color(0x00556f).alpha(0.45f))
+		val SELECTED_COLOR by ConfigColor("selected_color", Color(0x007F8F).alpha(0.45f))
 
 		val CURSOR_COLOR by ConfigColor("cursor_color", Colors.BLACK)
 
