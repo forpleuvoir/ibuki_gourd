@@ -15,6 +15,7 @@ abstract class ClickableElement : AbstractElement() {
      * 是否被按下
      */
     open var pressed: Boolean = false
+        protected set
 
     protected open val onClick: () -> NextAction = { NextAction.Cancel }
 

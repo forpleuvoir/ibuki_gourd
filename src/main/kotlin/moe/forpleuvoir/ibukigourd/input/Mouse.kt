@@ -22,8 +22,6 @@ val MinecraftClient.mousePosition: MousePosition
 interface MousePosition {
     val x: Float
     val y: Float
-
-
 }
 
 

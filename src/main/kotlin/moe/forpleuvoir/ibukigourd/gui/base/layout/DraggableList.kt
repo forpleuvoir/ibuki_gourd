@@ -1,11 +1,9 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
 import com.mojang.blaze3d.platform.GlStateManager
-import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.*
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
-import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -35,6 +33,64 @@ class DraggableList(
 
     var elementOrderSwap: (oldIndex: Int, newIndex: Int) -> Unit = { _, _ -> }
 
+    private val idleState: State = object : State {
+
+        override fun onTick() {
+            if (pressed) {
+                stateMachineManager.currentState = pressedState
+            }
+        }
+    }
+
+    private val draggingState: State = object : State {
+        override fun onEnter() {
+            draggingElement = elements.find { it.mouseHover() }
+            draggingElement?.transform?.translate(draggingOffset)
+        }
+
+        override fun onExit() {
+            draggingElement?.transform?.translate(-draggingOffset)
+            draggingElement = null
+        }
+
+        override fun onTick() {
+            if (!pressed) {
+                stateMachineManager.currentState = idleState
+            }
+        }
+
+        override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
+            draggingElement?.transform?.translate(deltaX, deltaY, 0f)
+        }
+
+    }
+
+    private val pressedState: State = object : State {
+
+        override fun onTick() {
+            if (screen().mousePosition != screen().preMousePosition) {
+                draggingCounter = 0
+            }
+            if (draggingCounter == draggingDelay) {
+                stateMachineManager.currentState = draggingState
+            }
+            draggingCounter++
+        }
+
+    }
+
+    /**
+     * State Machine Manager
+     * @param draggableList DraggableList
+     * @constructor
+     */
+    private val stateMachineManager = StateMachineManager(idleState)
+
+
+    val state by stateMachineManager::currentState
+
+    private var pressed: Boolean = false
+
     var draggingElement: Element? = null
         private set(value) {
             if (value == null) {
@@ -55,21 +111,27 @@ class DraggableList(
     private var draggingCounter: Int = 0
         private set(value) {
             field = value
-            if (draggingCounter == draggingDelay) {
-                draggingElement?.transform?.translate(draggingOffset)
-            }
+
         }
 
     override fun tick() {
         super.tick()
-        if (draggingElement != null && draggingCounter < draggingDelay) {
-            draggingCounter++
+        stateMachineManager.onTick()
+    }
+
+
+    fun swapElements(mouseX: Float, mouseY: Float) {
+        if (draggingElement != null) {
+            //TODO 交换位置
+            draggingElement = null
         }
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+
         if (button == Mouse.LEFT && mouseHoverContent()) {
+            pressed = true
             renderElements.find { it.mouseHover() }?.let {
                 draggingElement = it
                 return NextAction.Cancel
@@ -81,24 +143,21 @@ class DraggableList(
 
     override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (super.onMouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
-        if (draggingElement != null) {
-            //TODO 交换位置
-            draggingElement = null
+        if (button == Mouse.LEFT && pressed) {
+            pressed = false
         }
+        swapElements(mouseX, mouseY)
         return super.onMouseRelease(mouseX, mouseY, button)
     }
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
-        if (draggingCounter == draggingDelay) {
-            draggingElement?.transform?.translate(this.arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
-
-        }
         return NextAction.Continue
     }
 
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
-        if (draggingCounter != draggingDelay) draggingCounter = 0
+        if (super.onMouseMove(mouseX, mouseY).value) return NextAction.Cancel
+        stateMachineManager.currentState.onMouseMove(mouseX, mouseY)
         return super.onMouseMove(mouseX, mouseY)
     }
 

@@ -487,13 +487,15 @@ fun renderValueGradientRect(
 }
 
 /**
- * 绘制透明度渐变矩形
- * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
- * @param arrangement Arrangement
- * @param reverse Boolean
- * @param alphaRange ClosedFloatingPointRange<Float>
- * @param color ARGBColor
+ * Renders a rectangular shape with a gradient of alpha values.
+ *
+ * @param matrixStack The matrix stack used for rendering.
+ * @param rect The rectangle representing the shape to be rendered.
+ * @param arrangement The arrangement of the gradient. Default is [Arrangement.Horizontal].
+ * @param reverse Whether to reverse the gradient. Default is false.
+ * @param alphaRange The range of alpha values for the gradient. Default is 0f to 1f.
+ * @param color The base color of the shape.
+ * @param shaderSupplier The supplier function for the shader program to be used for rendering. Default is [GameRenderer.getPositionColorProgram].
  */
 fun renderAlphaGradientRect(
     matrixStack: MatrixStack,
@@ -529,14 +531,10 @@ fun renderSVGradientRect(
     hue: Float = 360f,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram
 ) {
-    val saturationStart = saturationRange.start
-    val saturationEnd = saturationRange.endInclusive
-    val valueStart = valueRange.start
-    val valueEnd = valueRange.endInclusive
-    val saturationStartColor = HSVColor(hue, if (reverse) saturationEnd else saturationStart, valueEnd)
-    val saturationEndColor = HSVColor(hue, if (!reverse) saturationEnd else saturationStart, valueEnd)
-    val alphaStartColor = Colors.BLACK.alpha((if (reverse) valueEnd else valueStart).clamp(valueRange))
-    val alphaEndColor = Colors.BLACK.alpha((if (!reverse) valueEnd else valueStart).clamp(valueRange))
+    val saturationStartColor = HSVColor(hue, if (reverse) saturationRange.endInclusive else saturationRange.start, valueRange.endInclusive)
+    val saturationEndColor = HSVColor(hue, if (!reverse) saturationRange.endInclusive else saturationRange.start, valueRange.endInclusive)
+    val alphaStartColor = Colors.BLACK.alpha((if (reverse) valueRange.endInclusive else valueRange.start).clamp(valueRange))
+    val alphaEndColor = Colors.BLACK.alpha((if (!reverse) valueRange.endInclusive else valueRange.start).clamp(valueRange))
     rectBatchRender(shaderSupplier = shaderSupplier) {
         arrangement.switch(
             {

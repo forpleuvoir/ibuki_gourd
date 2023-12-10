@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.util
 
-enum class NextAction {
-	Continue,
-	Cancel
+enum class NextAction(val value: Boolean) {
+    Continue(false),
+    Cancel(true)
 }
