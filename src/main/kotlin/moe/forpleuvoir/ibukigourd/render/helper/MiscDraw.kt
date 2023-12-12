@@ -67,18 +67,18 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg vertexes: Col
  * @param drawMode VertexFormat.DrawMode
  * @param format VertexFormat
  * @param bufferBuilder BufferBuilder
- * @param drawAction BatchDrawScope.() -> Unit
+ * @param block BatchDrawScope.() -> Unit
  */
 fun rectBatchRender(
     bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram,
-    drawAction: RectBatchDrawScope.() -> Unit
+    block: RectBatchDrawScope.() -> Unit
 ) {
     enableBlend()
     setShader(shaderSupplier)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
     RectBatchDrawScope.vertexConsumer = bufferBuilder
-    drawAction(RectBatchDrawScope)
+    block(RectBatchDrawScope)
     bufferBuilder.draw()
     disableBlend()
     RectBatchDrawScope.vertexConsumer = null

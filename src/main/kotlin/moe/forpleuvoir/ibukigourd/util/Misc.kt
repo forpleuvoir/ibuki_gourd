@@ -81,11 +81,11 @@ val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
 
 
-inline fun isDevEnv(action: () -> Unit) {
+inline fun isDevEnv(block: () -> Unit) {
     contract {
-        callsInPlace(action, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
     }
-    if (isDevEnv) action()
+    if (isDevEnv) block()
 }
 
 fun MatrixStack.rest() {
@@ -132,8 +132,8 @@ val Double.decimalPlaces: Int
     }
 
 @JvmName("measureTime")
-fun javaMeasureTime(action: Runnable) =
-    kotlin.time.measureTime(action::run).let { it.toString() to it.inWholeNanoseconds }
+fun javaMeasureTime(block: Runnable) =
+    kotlin.time.measureTime(block::run).let { it.toString() to it.inWholeNanoseconds }
 
 
 fun scanModPackage(predicate: (KClass<*>) -> Boolean = { true }): Map<ModMetadata, Set<KClass<*>>> {

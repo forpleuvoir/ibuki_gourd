@@ -19,9 +19,9 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.MARGIN
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.PADDING
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc

@@ -13,9 +13,9 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
@@ -56,12 +56,12 @@ class NumberInput<T>(
     private var preventRecursion = true
 
     @OptIn(ExperimentalContracts::class)
-    private inline fun preventRecursion(action: () -> Unit) {
+    private inline fun preventRecursion(block: () -> Unit) {
         contract {
-            callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
         preventRecursion = false
-        action()
+        block()
         preventRecursion = true
     }
 

@@ -73,9 +73,9 @@ open class Button(
         }
     }
 
-    fun release(action: () -> Unit) {
+    fun release(block: () -> Unit) {
         onRelease = {
-            action()
+            block()
             NextAction.Cancel
         }
     }

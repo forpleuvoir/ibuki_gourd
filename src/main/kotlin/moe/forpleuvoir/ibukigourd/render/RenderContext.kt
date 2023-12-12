@@ -51,10 +51,10 @@ class RenderContext(
         return this
     }
 
-    inline fun matrixStack(action: RenderContext.() -> Unit) {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    inline fun matrixStack(block: RenderContext.() -> Unit) {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         matrixStack.push()
-        action()
+        block()
         matrixStack.pop()
     }
 
@@ -73,26 +73,26 @@ class RenderContext(
         setScissor(scissorStack.peek())
     }
 
-    inline fun scissor(rect: Rectangle<Vector3<Float>>, action: RenderContext.() -> Unit) {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    inline fun scissor(rect: Rectangle<Vector3<Float>>, block: RenderContext.() -> Unit) {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         enableScissor(rect)
-        action()
+        block()
         disableScissor()
     }
 
-    inline fun scissorOffset(offset: Vector3<Float>, action: RenderContext.() -> Unit) {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    inline fun scissorOffset(offset: Vector3<Float>, block: RenderContext.() -> Unit) {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         scissorStack.pushOffset(offset)
-        action()
+        block()
         scissorStack.popOffset()
         setScissor(scissorStack.peek())
     }
 
-    inline fun scissor(rect: Rectangle<Vector3<Float>>, offset: Vector3<Float>, action: RenderContext.() -> Unit) {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    inline fun scissor(rect: Rectangle<Vector3<Float>>, offset: Vector3<Float>, block: RenderContext.() -> Unit) {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         scissorStack.pushOffset(offset)
         enableScissor(rect)
-        action()
+        block()
         scissorStack.popOffset()
         disableScissor()
     }

@@ -5,12 +5,12 @@ package moe.forpleuvoir.ibukigourd.render.helper
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.render.base.texture.UVMapping
 import moe.forpleuvoir.ibukigourd.render.base.vertex.UVVertex
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gl.ShaderProgram
@@ -26,12 +26,12 @@ fun textureBatchDraw(
     drawMode: VertexFormat.DrawMode,
     format: VertexFormat,
     bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
-    drawAction: BatchDrawScope.() -> Unit
+    block: BatchDrawScope.() -> Unit
 ) {
     setShader(shaderSupplier)
     bufferBuilder.begin(drawMode, format)
     BatchDrawScope.bufferBuilder = bufferBuilder
-    drawAction(BatchDrawScope)
+    block(BatchDrawScope)
     BatchDrawScope.bufferBuilder!!.draw()
     BatchDrawScope.bufferBuilder = null
 }

@@ -128,21 +128,17 @@ class DraggableList(
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
-
+        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
         if (button == Mouse.LEFT && mouseHoverContent()) {
             pressed = true
-            renderElements.find { it.mouseHover() }?.let {
-                draggingElement = it
-                return NextAction.Cancel
-            }
+            return NextAction.Cancel
         }
         return NextAction.Continue
     }
 
 
     override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (super.onMouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseRelease(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
         if (button == Mouse.LEFT && pressed) {
             pressed = false
         }
@@ -151,13 +147,14 @@ class DraggableList(
     }
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-        if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
+        stateMachineManager.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY)
         return NextAction.Continue
     }
 
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
-        if (super.onMouseMove(mouseX, mouseY).value) return NextAction.Cancel
-        stateMachineManager.currentState.onMouseMove(mouseX, mouseY)
+        super.onMouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
+        stateMachineManager.onMouseMove(mouseX, mouseY)
         return super.onMouseMove(mouseX, mouseY)
     }
 

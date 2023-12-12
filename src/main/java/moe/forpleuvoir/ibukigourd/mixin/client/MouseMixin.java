@@ -5,7 +5,6 @@ import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.input.KeyCode;
 import moe.forpleuvoir.ibukigourd.input.MouseKt;
-import moe.forpleuvoir.ibukigourd.util.NextAction;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
@@ -50,7 +49,7 @@ public abstract class MouseMixin {
                     ci.cancel();
                     return;
                 }
-                if (InputHandler.onKeyPress(keyCode) == NextAction.Cancel) ci.cancel();
+                if (InputHandler.onKeyPress(keyCode)) ci.cancel();
                 ScreenManager.hasScreen(screen -> {
                     var position = MouseKt.getMousePosition(this.client);
                     screen.getMouseClick().invoke(position.getX(), position.getY(), keyCode);
@@ -64,7 +63,7 @@ public abstract class MouseMixin {
                     ci.cancel();
                     return;
                 }
-                if (InputHandler.onKeyRelease(keyCode) == NextAction.Cancel) ci.cancel();
+                if (InputHandler.onKeyRelease(keyCode)) ci.cancel();
                 ScreenManager.hasScreen(screen -> {
                     var position = MouseKt.getMousePosition(this.client);
                     screen.getMouseRelease().invoke(position.getX(), position.getY(), keyCode);

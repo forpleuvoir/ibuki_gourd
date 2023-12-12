@@ -7,9 +7,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.nebula.common.ifc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -190,52 +190,52 @@ class Transform(
  * @receiver Transform
  * @param mouseX Number
  * @param mouseY Number
- * @param action Transform.() -> Unit
+ * @param block Transform.() -> Unit
  */
-inline fun Transform.mouseHover(mouseX: Number, mouseY: Number, action: Transform.() -> Unit) {
+inline fun Transform.mouseHover(mouseX: Number, mouseY: Number, block: Transform.() -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
-    isMouseOvered(mouseX, mouseY).ifc { action() }
+    isMouseOvered(mouseX, mouseY).ifc { block() }
 }
 
 /**
  * 当鼠标位于此元素[Transform]内部时调用
  * @receiver Transform
  * @param mousePosition MousePosition
- * @param action Transform.() -> Unit
+ * @param block Transform.() -> Unit
  */
-inline fun Transform.mouseHover(mousePosition: MousePosition, action: Transform.() -> Unit) {
+inline fun Transform.mouseHover(mousePosition: MousePosition, block: Transform.() -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
-    isMouseOvered(mousePosition).ifc { action() }
+    isMouseOvered(mousePosition).ifc { block() }
 }
 
 
 /**
  * 当鼠标位于此元素内部时调用
- * @param action [@kotlin.ExtensionFunctionType] Function1<Element, Unit>
+ * @param block [@kotlin.ExtensionFunctionType] Function1<Element, Unit>
  */
-inline fun Element.mouseHover(action: Element.() -> Unit) {
+inline fun Element.mouseHover(block: Element.() -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
     screen().let {
-        transform.isMouseOvered(it.mousePosition.x, it.mousePosition.y).ifc { action() }
+        transform.isMouseOvered(it.mousePosition.x, it.mousePosition.y).ifc { block() }
     }
 }
 
 /**
  * 当鼠标位于此元素内容矩阵[Element.contentRect]"true"时调用
  * @receiver Element
- * @param action Element.() -> Unit
+ * @param block Element.() -> Unit
  */
-inline fun Element.mouseHoverContent(action: Element.() -> Unit) {
+inline fun Element.mouseHoverContent(block: Element.() -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
-    this.mouseHoverContent().ifc { action() }
+    this.mouseHoverContent().ifc { block() }
 }
 
 /**

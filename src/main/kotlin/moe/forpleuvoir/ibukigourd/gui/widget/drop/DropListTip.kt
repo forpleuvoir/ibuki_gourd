@@ -20,9 +20,9 @@ import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
@@ -205,7 +205,7 @@ class DropListTip(
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
         if (!mouseHover()) return NextAction.Continue
-        if (super.onMouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }
@@ -215,7 +215,7 @@ class DropListTip(
             dropMenu.expend = false
         }
         if (!mouseHover()) return NextAction.Continue
-        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
         if (mouseHover()) {
             return NextAction.Cancel
         }
@@ -224,7 +224,7 @@ class DropListTip(
 
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
-        if (super.onMouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseScrolling(mouseX, mouseY, amount).ifCancel { return NextAction.Cancel }
         mouseHover {
             if (!scrollerBar.mouseHover()) {
                 scrollerBar.amount -= scrollerBar.amountStep() * amount

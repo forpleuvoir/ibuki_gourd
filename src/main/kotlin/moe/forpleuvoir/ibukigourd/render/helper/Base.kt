@@ -62,13 +62,13 @@ inline fun polygonOffset(factor: Number, units: Number) = RenderSystem.polygonOf
 inline fun disablePolygonOffset() = RenderSystem.disablePolygonOffset()
 
 @OptIn(ExperimentalContracts::class)
-inline fun usePolygonOffset(factor: Number, units: Number, action: () -> Unit) {
+inline fun usePolygonOffset(factor: Number, units: Number, block: () -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
     enablePolygonOffset()
     polygonOffset(factor, units)
-    action()
+    block()
     disablePolygonOffset()
 }
 
@@ -117,14 +117,14 @@ inline fun defaultBlendFunc() = RenderSystem.defaultBlendFunc()
 inline fun disableBlend() = RenderSystem.disableBlend()
 
 @OptIn(ExperimentalContracts::class)
-inline fun useBlend(srcFactor: GlStateManager.SrcFactor, dstFactor: GlStateManager.DstFactor, mode: GLFuncMode = GLFuncMode.ADD, action: () -> Unit) {
+inline fun useBlend(srcFactor: GlStateManager.SrcFactor, dstFactor: GlStateManager.DstFactor, mode: GLFuncMode = GLFuncMode.ADD, block: () -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
     enableBlend()
     blendEquation(mode)
     blendFunc(srcFactor, dstFactor)
-    action()
+    block()
     blendEquation(GLFuncMode.ADD)
     disableBlend()
     defaultBlendFunc()
@@ -137,15 +137,15 @@ inline fun useBlendSeparate(
     srcAlpha: GlStateManager.SrcFactor,
     dstAlpha: GlStateManager.DstFactor,
     mode: GLFuncMode = GLFuncMode.ADD,
-    action: () -> Unit
+    block: () -> Unit
 ) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
     enableBlend()
     blendEquation(mode)
     blendFuncSeparate(srcFactor, dstFactor, srcAlpha, dstAlpha)
-    action()
+    block()
     disableBlend()
     blendEquation(GLFuncMode.ADD)
     defaultBlendFunc()
@@ -158,13 +158,13 @@ inline fun disableColorLogicOp() = RenderSystem.disableColorLogicOp()
 inline fun logicOp(op: GlStateManager.LogicOp) = RenderSystem.logicOp(op)
 
 @OptIn(ExperimentalContracts::class)
-inline fun useColorLogicOp(op: GlStateManager.LogicOp, action: () -> Unit) {
+inline fun useColorLogicOp(op: GlStateManager.LogicOp, block: () -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
     enableColorLogicOp()
     logicOp(op)
-    action()
+    block()
     disableColorLogicOp()
 }
 
@@ -173,12 +173,12 @@ inline fun enableDepthTest() = RenderSystem.enableDepthTest()
 inline fun disableDepthTest() = RenderSystem.disableDepthTest()
 
 @OptIn(ExperimentalContracts::class)
-inline fun useDepthTest(action: () -> Unit) {
+inline fun useDepthTest(block: () -> Unit) {
     contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
     enableDepthTest()
-    action()
+    block()
     disableDepthTest()
 }
 

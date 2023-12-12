@@ -64,13 +64,13 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
 
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
-        if (super.onMouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (super.onMouseClick(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
         if (!mouseHover() && dropMenu.expend) {
             dropMenu.expend = false
         }
@@ -82,7 +82,7 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
 
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
-        if (super.onMouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseScrolling(mouseX, mouseY, amount).ifCancel { return NextAction.Cancel }
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }

@@ -90,7 +90,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.mouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+            element.mouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
         }
         if (!visible) return NextAction.Continue
         //上一帧不在元素内,这一帧在 触发 mouseMoveIn
@@ -124,8 +124,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
             }
         }
         for (element in handleElements) {
-            if (element.mouseClick(mouseX, mouseY, button) == NextAction.Cancel)
-                return NextAction.Cancel
+            element.mouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }
@@ -136,7 +135,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
         if (!active) return NextAction.Continue
         if (button == Mouse.LEFT) dragging = false
         for (element in handleElements) {
-            if (element.mouseRelease(mouseX, mouseY, button) == NextAction.Cancel) return NextAction.Cancel
+            element.mouseRelease(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }
@@ -148,7 +147,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging) return NextAction.Continue
         for (element in handleElements) {
-            if (element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
+            element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }
@@ -159,7 +158,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.mouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
+            element.mouseScrolling(mouseX, mouseY, amount).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }
@@ -169,7 +168,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onKeyPress(keyCode: KeyCode): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.keyPress(keyCode) == NextAction.Cancel) return NextAction.Cancel
+            element.keyPress(keyCode).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }
@@ -179,7 +178,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onKeyRelease(keyCode: KeyCode): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.keyRelease(keyCode) == NextAction.Cancel) return NextAction.Cancel
+            element.keyRelease(keyCode).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }
@@ -189,7 +188,7 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
     override fun onCharTyped(chr: Char): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.charTyped(chr) == NextAction.Cancel) return NextAction.Cancel
+            element.charTyped(chr).ifCancel { return NextAction.Cancel }
         }
         return NextAction.Continue
     }

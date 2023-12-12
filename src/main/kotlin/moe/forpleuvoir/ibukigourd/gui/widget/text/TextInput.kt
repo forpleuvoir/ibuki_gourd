@@ -407,7 +407,7 @@ open class TextInput(
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.mouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+            element.mouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
         }
         if (!visible) return NextAction.Continue
         screen().let {
@@ -447,7 +447,7 @@ open class TextInput(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging) return NextAction.Continue
-        if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
         selecting = true
         val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
         cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex

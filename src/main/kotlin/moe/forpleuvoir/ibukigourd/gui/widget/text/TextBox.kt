@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
@@ -414,7 +413,7 @@ class TextBox(
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
-            if (element.mouseMove(mouseX, mouseY) == NextAction.Cancel) return NextAction.Cancel
+            element.mouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
         }
         if (!visible) return NextAction.Continue
         screen().let {
@@ -456,7 +455,7 @@ class TextBox(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging) return NextAction.Continue
-        if (super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) == NextAction.Cancel) return NextAction.Cancel
+        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) .ifCancel { return NextAction.Cancel }
         if (scrollerBar.dragging) return NextAction.Continue
         selecting = true
         moveCursor(mouseX, mouseY)

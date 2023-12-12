@@ -48,8 +48,8 @@ object ScreenManager : Tickable {
     fun hasScreen(): Boolean = current != null
 
     @JvmStatic
-    fun hasScreen(action: Consumer<Screen>) {
-        current?.let { action.accept(it) }
+    fun hasScreen(block: Consumer<Screen>) {
+        current?.let { block.accept(it) }
     }
 
     override fun tick() {
