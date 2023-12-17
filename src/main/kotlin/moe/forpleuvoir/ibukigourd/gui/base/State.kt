@@ -27,8 +27,12 @@ open class StateMachineManager(initialState: State) {
         currentState.onTick()
     }
 
-    fun onMouseMove(x: Float, y: Float) = currentState::onMouseMove
+    fun onMouseMove(x: Float, y: Float) {
+        currentState.onMouseMove(x, y)
+    }
 
-    fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) = currentState::onMouseDragging
+    fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
+        currentState.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY)
+    }
 
 }

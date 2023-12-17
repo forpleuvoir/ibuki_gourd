@@ -58,7 +58,7 @@ abstract class AbstractElementContainer : Element {
     }
 
     override fun arrange() {
-        layout.arrange(this.subElements, margin, padding)?.let {
+        layout.arrange(this.arrangeElements, margin, padding)?.let {
             if (!transform.fixedWidth) {
                 this.transform.width = it.width
             }

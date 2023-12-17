@@ -173,13 +173,13 @@ fun ElementContainer.switchButton(
     }, { NextAction.Cancel }, { COLOR }, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            renderTexture(renderContext.matrixStack, transform, status.ternary(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), this.color())
+            renderTexture(renderContext.matrixStack, transform, status.ternary(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
             renderTexture(
                 renderContext.matrixStack, rect(
                     transform.worldPosition.x(transform.worldPosition.x + status.ternary(transform.width / 2, 0f)),
                     transform.width / 2,
                     transform.height
-                ), status(theme.disabled, theme.idle, theme.hovered, theme.pressed), this.color()
+                ), status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color()
             )
         }
 

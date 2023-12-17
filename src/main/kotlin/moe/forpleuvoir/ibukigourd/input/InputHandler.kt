@@ -64,6 +64,7 @@ object InputHandler : Tickable {
     }
 
     @JvmStatic
+    @JvmName("onKeyPress")
     fun onKeyPress(keyCode: KeyCode): NextAction {
         if (!currentPressKeyCode.contains(keyCode)) {
             //changed
@@ -81,6 +82,7 @@ object InputHandler : Tickable {
     }
 
     @JvmStatic
+    @JvmName("onKeyRelease")
     fun onKeyRelease(keyCode: KeyCode): NextAction {
         if (currentPressKeyCode.contains(keyCode)) {
             //changed

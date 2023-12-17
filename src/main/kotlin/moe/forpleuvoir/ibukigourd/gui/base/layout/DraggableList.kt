@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.*
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.render.helper.renderRoundRect
 import moe.forpleuvoir.ibukigourd.render.helper.useBlend
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Color
+import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -31,7 +32,9 @@ class DraggableList(
     scrollerThickness: Float = 10f,
 ) : ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness) {
 
-    var elementOrderSwap: (oldIndex: Int, newIndex: Int) -> Unit = { _, _ -> }
+    var elementSwap: (oldIndex: Int, newIndex: Int) -> Unit = { _, _ -> }
+
+    var targetIndex: Int = -1
 
     private val idleState: State = object : State {
 
@@ -46,11 +49,18 @@ class DraggableList(
         override fun onEnter() {
             draggingElement = elements.find { it.mouseHover() }
             draggingElement?.transform?.translate(draggingOffset)
+            targetIndex = subElements.indexOf(draggingElement)
         }
 
         override fun onExit() {
-            draggingElement?.transform?.translate(-draggingOffset)
-            draggingElement = null
+            if (targetIndex != -1 && targetIndex != subElements.indexOf(draggingElement)) {
+                Collections.swap(subElements, targetIndex, subElements.indexOf(draggingElement))
+                elementSwap(targetIndex, subElements.indexOf(draggingElement))
+                arrange()
+            } else {
+                draggingElement?.transform?.translate(-draggingOffset)
+                draggingElement = null
+            }
         }
 
         override fun onTick() {
@@ -60,7 +70,7 @@ class DraggableList(
         }
 
         override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
-            draggingElement?.transform?.translate(deltaX, deltaY, 0f)
+            draggingElement?.transform?.translate(arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
         }
 
     }
@@ -68,7 +78,10 @@ class DraggableList(
     private val pressedState: State = object : State {
 
         override fun onTick() {
-            if (screen().mousePosition != screen().preMousePosition) {
+            if (!pressed) {
+                stateMachineManager.currentState = idleState
+            }
+            if (screen().preMousePosition notEquals screen().mousePosition) {
                 draggingCounter = 0
             }
             if (draggingCounter == draggingDelay) {

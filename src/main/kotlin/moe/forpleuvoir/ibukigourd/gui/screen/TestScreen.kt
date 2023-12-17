@@ -82,6 +82,13 @@ val testScreen2: Screen
                 }
             }
         }
+        draggableList(width = 240f, arrangement = Arrangement.Horizontal) {
+            repeat(10) {
+                row(80f) {
+                    button { text("测试一下$it") }
+                }
+            }
+        }
 
     }
 

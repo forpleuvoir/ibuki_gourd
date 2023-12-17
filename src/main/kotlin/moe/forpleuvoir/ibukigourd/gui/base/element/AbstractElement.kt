@@ -57,6 +57,18 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override fun tick() {
         if (!active) return
+        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
+        screen().let {
+            if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
+                it.mousePosition.let { position ->
+                    mouseMoveIn(position.x, position.y)
+                }
+            } else if (mouseHover(it.preMousePosition) && !mouseHover(it.mousePosition)) {
+                it.mousePosition.let { position ->
+                    mouseMoveOut(position.x, position.y)
+                }
+            }
+        }
         for (element in handleElements) element.tick.invoke()
         tip?.tick?.invoke()
     }

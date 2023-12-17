@@ -5,10 +5,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.input.MousePosition
+import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -74,6 +71,14 @@ abstract class AbstractScreen(
     override val preMousePosition = object : MousePosition {
         override val x: Float get() = preMouseX
         override val y: Float get() = preMouseY
+    }
+
+    override fun tick() {
+        preMouseX = this.mouseX
+        preMouseY = this.mouseY
+        this.mouseX = mc.mouseX
+        this.mouseY = mc.mouseY
+        super.tick()
     }
 
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {

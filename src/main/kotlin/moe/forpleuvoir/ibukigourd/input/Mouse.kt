@@ -24,6 +24,14 @@ interface MousePosition {
     val y: Float
 }
 
+fun MousePosition.equals(x: Float, y: Float): Boolean = this.x == x && this.y == y
+
+infix fun MousePosition.equals(mousePosition: MousePosition): Boolean = this.x == mousePosition.x && this.y == mousePosition.y
+
+infix fun MousePosition.notEquals(mousePosition: MousePosition): Boolean = !(this equals mousePosition)
+
+val MousePosition.asString: String get() = "($x, $y)"
+
 
 enum class Mouse(override val code: Int) : KeyCode {
     LEFT(0),
