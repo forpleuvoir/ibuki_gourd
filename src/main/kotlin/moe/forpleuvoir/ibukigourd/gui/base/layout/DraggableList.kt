@@ -4,7 +4,8 @@ import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.*
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.input.*
+import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.notEquals
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
@@ -61,6 +62,7 @@ class DraggableList(
                 draggingElement?.transform?.translate(-draggingOffset)
                 draggingElement = null
             }
+            targetIndex = -1
         }
 
         override fun onTick() {
@@ -71,6 +73,11 @@ class DraggableList(
 
         override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
             draggingElement?.transform?.translate(arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
+            arrangeElements.filter { it != draggingElement }.find {
+                TODO("鼠标位置附近最近的两个元素,如果在元素内则选择当前元素的前后")
+            }?.let {
+                elementIndexOf(it)
+            }
         }
 
     }
@@ -92,13 +99,8 @@ class DraggableList(
 
     }
 
-    /**
-     * State Machine Manager
-     * @param draggableList DraggableList
-     * @constructor
-     */
+    // 管理 DraggableList 的各种状态的状态机管理器，默认状态为 [idleState]
     private val stateMachineManager = StateMachineManager(idleState)
-
 
     val state by stateMachineManager::currentState
 
@@ -179,13 +181,17 @@ class DraggableList(
         }
         fixedElements.forEach { it.render(renderContext) }
         scrollerBar.render(renderContext)
-        draggingElement?.let {
+        draggingElement?.let { renderDraggingElement(renderContext, it) }
+        renderOverlay.invoke(renderContext)
+    }
+
+    fun renderDraggingElement(renderContext: RenderContext, element: Element) {
+        element.let {
             it.render(renderContext)
             useBlend(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA) {
                 renderRoundRect(renderContext.matrixStack, it.transform.asWorldRect, Color(0x7F8CECFF), 2)
             }
         }
-        renderOverlay.invoke(renderContext)
     }
 
 }
