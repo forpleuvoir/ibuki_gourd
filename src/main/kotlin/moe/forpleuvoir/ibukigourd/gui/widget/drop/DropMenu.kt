@@ -140,6 +140,7 @@ fun ElementContainer.dropSelector(
     padding: Padding? = Padding(left = 6f),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
+    scrollable: Boolean = false,
     scope: DropMenu.() -> Unit = {}
 ): DropMenu {
     contract {
@@ -189,7 +190,17 @@ fun ElementContainer.dropSelector(
                 }
             }
         }
-        items {
+        if (scrollable)
+            itemList {
+                options.subscribe {
+                    this.clearElements { !it.fixed }
+                    initOptions()
+                    this.init()
+                    this.arrange()
+                }
+                this.initOptions()
+            }
+        else items {
             options.subscribe {
                 this.clearElements { !it.fixed }
                 initOptions()

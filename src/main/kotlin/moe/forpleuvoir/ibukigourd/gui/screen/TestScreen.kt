@@ -76,6 +76,7 @@ val testScreen2: Screen
             }
         }
         draggableList(height = 120f) {
+            spacing = 4f
             repeat(10) {
                 row(80f) {
                     button { text("测试一下$it") }
@@ -109,7 +110,7 @@ val testScreen1: Screen
             dropSelector(options = list, onSelectionChange = {
                 println("选择了$it")
                 text.text = it
-            })
+            }, scrollable = true)
             dropMenu {
                 text("下拉菜单")
                 items {

@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.translate
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.Tick
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -39,7 +40,6 @@ import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-
 
 open class Button(
     public override var onClick: () -> NextAction = { NextAction.Cancel },
@@ -66,6 +66,11 @@ open class Button(
         margin?.let(::margin)
     }
 
+    fun longClick(time: Tick, action: () -> Unit) {
+        longClickTime = time
+        longClick = action
+    }
+
     fun click(action: () -> Unit) {
         onClick = {
             action()
@@ -73,9 +78,9 @@ open class Button(
         }
     }
 
-    fun release(block: () -> Unit) {
+    fun release(action: () -> Unit) {
         onRelease = {
-            block()
+            action()
             NextAction.Cancel
         }
     }

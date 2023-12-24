@@ -130,11 +130,12 @@ class NumberInput<T>(
             for (element in handleElements) {
                 if (element.mouseScrolling(mouseX, mouseY, amount) == NextAction.Cancel) return NextAction.Cancel
             }
-        }
-        mouseHoverContent {
-            value = if (amount > 0) value.plusAction(valueStep.mouseScroller)
-            else value.minusAction(valueStep.mouseScroller)
-            return NextAction.Cancel
+        } else {
+            mouseHoverContent {
+                value = if (amount > 0) value.plusAction(valueStep.mouseScroller)
+                else value.minusAction(valueStep.mouseScroller)
+                return NextAction.Cancel
+            }
         }
         return NextAction.Continue
     }

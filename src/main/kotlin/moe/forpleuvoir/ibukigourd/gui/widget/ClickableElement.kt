@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.Tick
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
@@ -17,11 +18,30 @@ abstract class ClickableElement : AbstractElement() {
     open var pressed: Boolean = false
         protected set
 
+    open var pressTickCounter: Tick = 0
+        protected set
+
+    open var longClickTime: Tick = 20
+
+    protected open var longClick: () -> Unit = {}
+
     protected open val onClick: () -> NextAction = { NextAction.Cancel }
 
     protected open val onRelease: () -> NextAction = { NextAction.Cancel }
 
     var playClickSound: Boolean = true
+
+    override fun tick() {
+        if (pressed) {
+            pressTickCounter++
+            if (longClickTime == pressTickCounter) {
+                longClick()
+            }
+        } else if (pressTickCounter != 0L) {
+            pressTickCounter = 0
+        }
+        super.tick()
+    }
 
     override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
         MouseCursor.current = MouseCursor.Cursor.POINTING_HAND_CURSOR

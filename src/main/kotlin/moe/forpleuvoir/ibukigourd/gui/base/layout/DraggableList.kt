@@ -15,12 +15,12 @@ import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderRoundRect
 import moe.forpleuvoir.ibukigourd.render.helper.useBlend
 import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.math.abs
 
 /**
  * 应该为下一级元素可被拖动
@@ -49,6 +49,7 @@ class DraggableList(
         }
     }
 
+    //TODO("鼠标滚动时拖拽中的元素也要跟着移动")
     private val draggingState: State = object : State {
         override fun onEnter() {
             draggingElement = elements.find { it.mouseHover() }
@@ -58,8 +59,7 @@ class DraggableList(
 
         override fun onExit() {
             if (targetIndex != -1 && targetIndex != subElements.indexOf(draggingElement)) {
-                subElements.removeAt(subElements.indexOf(draggingElement))
-                subElements.add(targetIndex, draggingElement!!)
+                subElements.moveElement(subElements.indexOf(draggingElement), targetIndex)
                 elementSwap(targetIndex, subElements.indexOf(draggingElement))
             }
             arrange()
@@ -75,37 +75,56 @@ class DraggableList(
 
         override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
             draggingElement?.transform?.translate(arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
-            // TODO("鼠标位置附近最近的两个元素,如果在元素内则选择当前元素的前后")
+            val x = mouseX + deltaX
+            val y = mouseY + deltaY
+            val draggingIndex = elementIndexOf(draggingElement!!)
             arrangeElements.filter { it != draggingElement }.minByOrNull { element ->
                 arrangement.switch({
-                    if (element.transform.worldTop < mouseY) {
-                        abs(element.transform.worldBottom - mouseY)
-                    } else {
-                        abs(element.transform.worldTop - mouseY)
+                    //在元素内
+                    if (y in element.transform.worldTop..element.transform.worldBottom) {
+                        0f
+                    } else if (y < element.transform.worldTop) {//在元素上
+                        element.transform.worldTop - y
+                    } else {//在元素下
+                        y - element.transform.worldBottom
                     }
                 }, {
-                    if (element.transform.worldLeft < mouseX) {
-                        abs(element.transform.worldRight - mouseX)
-                    } else {
-                        abs(element.transform.worldLeft - mouseX)
+                    //在元素内
+                    if (x in element.transform.worldLeft..element.transform.worldRight) {
+                        0f
+                    } else if (x < element.transform.worldLeft) {//在元素上
+                        element.transform.worldLeft - x
+                    } else {//在元素下
+                        x - element.transform.worldRight
                     }
                 })
             }?.let { element ->
-                val index = elementIndexOf(element)
+                var index = elementIndexOf(element)
+                if (index < draggingIndex) {
+                    index = (index + 1).coerceAtLeast(0)
+                }
                 targetIndex = arrangement.switch({
-                    if (element.transform.worldTop < mouseY) {
-                        index + 1
-                    } else {
+                    //在元素内
+                    if (y in element.transform.worldTop..element.transform.worldBottom) {
+                        if (y < element.transform.worldCenter.y) index - 1
+                        else index
+                    } else if (y < element.transform.worldTop) {//在元素上
+                        index - 1
+                    } else {//在元素下
                         index
                     }
                 }, {
-                    if (element.transform.worldLeft < mouseX) {
-                        index + 1
-                    } else {
+                    //在元素内
+                    if (x in element.transform.worldLeft..element.transform.worldRight) {
+                        if (x < element.transform.worldCenter.x) index - 1
+                        else index
+                    } else if (x < element.transform.worldLeft) {//在元素上
+                        index - 1
+                    } else {//在元素下
                         index
                     }
                 })
-                if (index == elementIndexOf(draggingElement!!)) targetIndex = -1
+                if (targetIndex == elementIndexOf(draggingElement!!)) targetIndex = -1
             }
         }
 
@@ -153,14 +172,6 @@ class DraggableList(
     override fun tick() {
         super.tick()
         stateMachineManager.onTick()
-    }
-
-
-    fun swapElements(mouseX: Float, mouseY: Float) {
-        if (draggingElement != null) {
-            //TODO 交换位置
-            draggingElement = null
-        }
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
@@ -222,10 +233,32 @@ class DraggableList(
     fun renderTargetIndex(renderContext: RenderContext, targetIndex: Int) {
         if (targetIndex == -1 || targetIndex == elementIndexOf(draggingElement!!)) return
         val element = subElements[targetIndex]
+        val thickness = spacing.coerceAtLeast(1f)
+        //TODO("颜色待修改")
         arrangement.switch({
-            renderRect(renderContext.matrixStack, rect(element.transform.worldPosition + vertex(0f, -1f, 0f), element.transform.width, 1f), Colors.BLACK)
+            if (targetIndex > elementIndexOf(draggingElement!!)) {
+                vertex(0f, element.transform.height, 0f)
+            } else {
+                vertex(0f, -thickness, 0f)
+            }.let {
+                renderRect(
+                    renderContext.matrixStack,
+                    rect(element.transform.worldPosition + it, draggingElement!!.transform.width, thickness),
+                    Colors.BLACK
+                )
+            }
         }, {
-            renderRect(renderContext.matrixStack, rect(element.transform.worldPosition + vertex(-1f, 0f, 0f), 1f, element.transform.height), Colors.BLACK)
+            if (targetIndex > elementIndexOf(draggingElement!!)) {
+                vertex(element.transform.width, 0f, 0f)
+            } else {
+                vertex(-thickness, -1f, 0f)
+            }.let {
+                renderRect(
+                    renderContext.matrixStack,
+                    rect(element.transform.worldPosition + it, thickness, draggingElement!!.transform.height),
+                    Colors.BLACK
+                )
+            }
         })
     }
 

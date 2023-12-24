@@ -235,7 +235,11 @@ class TextBox(
         this.amount = amount
     }
 
-    val selection: Substring
+    var selection: Substring
+        set(value) {
+            selectionEnd = max(value.endIndex, value.beginIndex)
+            cursor = min(value.endIndex, value.beginIndex)
+        }
         get() = Substring(
             min(selectionEnd, cursor),
             max(selectionEnd, cursor)
@@ -455,7 +459,7 @@ class TextBox(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging) return NextAction.Continue
-        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY) .ifCancel { return NextAction.Cancel }
+        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
         if (scrollerBar.dragging) return NextAction.Continue
         selecting = true
         moveCursor(mouseX, mouseY)
@@ -484,6 +488,12 @@ class TextBox(
         }
         //剪切选中
         if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
+            if (this.selectedText.isEmpty()) {
+                this.selection = currentLine
+                if (this.text[currentLine.beginIndex - 1] == '\n') {
+                    this.cursor = currentLine.beginIndex - 1
+                }
+            }
             mc.keyboard.clipboard = this.selectedText
             replaceSelection("")
             return NextAction.Cancel
@@ -515,6 +525,14 @@ class TextBox(
             return NextAction.Cancel
         }
         when (keyCode) {
+            //输入制表符或者四个空格
+            Keyboard.TAB -> {
+                if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL))
+                    replaceSelection("\t")
+                else
+                    replaceSelection("    ")
+                return NextAction.Cancel
+            }
             //光标左移
             Keyboard.LEFT                     -> {
                 if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
@@ -681,7 +699,7 @@ class TextBox(
                         )
                         renderRect(
                             renderContext.matrixStack,
-                            rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight ), selectedColor
+                            rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight), selectedColor
                         )
                     }
                 } else {

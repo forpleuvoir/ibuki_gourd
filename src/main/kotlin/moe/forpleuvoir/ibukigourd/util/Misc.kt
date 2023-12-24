@@ -33,6 +33,8 @@ val textureManager: TextureManager by lazy { mc.textureManager }
 
 val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager as ReloadableResourceManagerImpl }
 
+typealias Tick = Long
+
 fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpace, path)
 
 internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
@@ -199,5 +201,7 @@ fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -
 }
 
 fun <T> MutableList<T>.moveElement(fromIndex: Int, toIndex: Int) {
-    this.add(toIndex, this.removeAt(fromIndex))
+    if (fromIndex == toIndex) return
+    val movingElement = this.removeAt(fromIndex)
+    this.add(toIndex, movingElement)
 }

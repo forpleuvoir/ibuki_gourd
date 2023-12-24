@@ -3,6 +3,8 @@ package moe.forpleuvoir.ibukigourd.gui.base
 import moe.forpleuvoir.ibukigourd.input.Mouse
 
 interface State {
+    //TODO("待添加所有动作的方法")
+
     fun onEnter() = Unit
 
     fun onExit() = Unit
