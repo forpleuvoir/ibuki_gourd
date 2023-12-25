@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -16,7 +15,7 @@ import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.util.NextAction
 
 @Suppress("unused", "KDocUnresolvedReference")
-interface Element : ElementContainer, Drawable, Tickable {
+interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler {
 
     companion object {
         val EMPTY: Element = object : Element {
@@ -43,11 +42,11 @@ interface Element : ElementContainer, Drawable, Tickable {
             override var renderOverlay: (renderContext: RenderContext) -> Unit = {}
 
             override fun onRenderOverlay(renderContext: RenderContext) = Unit
-            override val mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = { _: Float, _: Float -> }
+            override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = { _: Float, _: Float -> }
 
             override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
 
-            override val mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = { _: Float, _: Float -> }
+            override var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = { _: Float, _: Float -> }
 
             override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
@@ -175,29 +174,6 @@ interface Element : ElementContainer, Drawable, Tickable {
     }
 
     /**
-     *
-     * 以下方法和对应作为对象的高阶函数
-     *
-     * 应该是高阶函数作为被系统内部调用的方法
-     *
-     * 普通方法由子类实现
-     *
-     * 如果在DSL场景需要给对应方法添加代码，只需要给对应的高阶函数重新赋值
-     *
-     * 子类重写方法,调用者调用高阶函数
-     *
-     * 例:
-     *
-     * render={matrixStack,delta ->
-     *
-     *     onRender(matrixStack,delta)
-     *     code
-     * }
-     *
-     */
-    var tick: () -> Unit
-
-    /**
      * 渲染元素
      * @param matrixStack MatrixStack
      * @param delta Float 距离上一帧数渲染时间
@@ -240,42 +216,11 @@ interface Element : ElementContainer, Drawable, Tickable {
     fun onRenderOverlay(renderContext: RenderContext)
 
     /**
-     * 当鼠标移动到元素内时
-     */
-    val mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit
-
-    /**
-     * 当鼠标移动到元素内时
-     * @param mouseX Float
-     * @param mouseY Float
-     */
-    fun onMouseMoveIn(mouseX: Float, mouseY: Float)
-
-    /**
-     * 当鼠标移动到元素外时
-     */
-    val mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit
-
-    /**
-     * 当鼠标移动到元素外时
-     * @param mouseX Float
-     * @param mouseY Float
-     */
-    fun onMouseMoveOut(mouseX: Float, mouseY: Float)
-
-    /**
      * 鼠标移动
      * @param mouseX Float
      * @param mouseY Float
      */
-    var mouseMove: (mouseX: Float, mouseY: Float) -> NextAction
-
-    /**
-     * 鼠标移动
-     * @param mouseX Float
-     * @param mouseY Float
-     */
-    fun onMouseMove(mouseX: Float, mouseY: Float): NextAction = NextAction.Cancel
+    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction = NextAction.Cancel
 
     /**
      * 鼠标点击
@@ -284,16 +229,7 @@ interface Element : ElementContainer, Drawable, Tickable {
      * @param mouseY Float
      * @return 是否处理之后的同类操作
      */
-    var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction
-
-    /**
-     * 鼠标点击
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
-     * @return 是否处理之后的同类操作
-     */
-    fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Cancel
+    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Cancel
 
     /**
      * 鼠标释放
@@ -302,16 +238,7 @@ interface Element : ElementContainer, Drawable, Tickable {
      * @param mouseY Float
      * @return 是否处理之后的同类操作
      */
-    var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction
-
-    /**
-     * 鼠标释放
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
-     * @return 是否处理之后的同类操作
-     */
-    fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Cancel
+    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Cancel
 
     /**
      * 鼠标是否为拖拽中
@@ -327,18 +254,7 @@ interface Element : ElementContainer, Drawable, Tickable {
      * @param deltaY Float
      * @return 是否处理之后的同类操作
      */
-    var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> NextAction
-
-    /**
-     * 鼠标拖动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param button Mouse
-     * @param deltaX Float
-     * @param deltaY Float
-     * @return 是否处理之后的同类操作
-     */
-    fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction =
+    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction =
         NextAction.Cancel
 
     /**
@@ -348,56 +264,26 @@ interface Element : ElementContainer, Drawable, Tickable {
      * @param amount Float
      * @return 是否处理之后的同类操作
      */
-    var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> NextAction
-
-    /**
-     * 鼠标滚动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param amount Float
-     * @return 是否处理之后的同类操作
-     */
-    fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction = NextAction.Cancel
+    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction = NextAction.Cancel
 
     /**
      * 按键按下
      * @param keyCode KeyCode
      * @return 是否处理之后的同类操作
      */
-    var keyPress: (keyCode: KeyCode) -> NextAction
-
-    /**
-     * 按键按下
-     * @param keyCode KeyCode
-     * @return 是否处理之后的同类操作
-     */
-    fun onKeyPress(keyCode: KeyCode): NextAction = NextAction.Cancel
+    override fun onKeyPress(keyCode: KeyCode): NextAction = NextAction.Cancel
 
     /**
      * 按键释放
      * @param keyCode KeyCode
      * @return 是否处理之后的同类操作
      */
-    var keyRelease: (keyCode: KeyCode) -> NextAction
-
-    /**
-     * 按键释放
-     * @param keyCode KeyCode
-     * @return 是否处理之后的同类操作
-     */
-    fun onKeyRelease(keyCode: KeyCode): NextAction = NextAction.Cancel
+    override fun onKeyRelease(keyCode: KeyCode): NextAction = NextAction.Cancel
 
     /**
      * 字符输入
      * @param chr Char
      * @return 是否处理之后的同类操作
      */
-    var charTyped: (chr: Char) -> NextAction
-
-    /**
-     * 字符输入
-     * @param chr Char
-     * @return 是否处理之后的同类操作
-     */
-    fun onCharTyped(chr: Char): NextAction = NextAction.Cancel
+    override fun onCharTyped(chr: Char): NextAction = NextAction.Cancel
 }

@@ -102,6 +102,10 @@ open class ListLayout(
         tip?.init?.invoke()
     }
 
+    open var onElementTranslate: (Element, Vector3<Float>) -> Unit = { e, v ->
+        e.transform.translateTo(v)
+    }
+
     override var layout: Layout = object : Layout {
 
         override var spacing: Float = 0f
@@ -142,7 +146,8 @@ open class ListLayout(
             alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
                 val element = alignElements[index]
                 val v = vector3f + arrangement.switch(Vector3f(0f, -amount, 0f), Vector3f(-amount, 0f, 0f))
-                element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
+                onElementTranslate(element, v + Vector3f(element.margin.left, element.margin.top))
+//                element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
             return arrangement.switch(

@@ -649,7 +649,6 @@ class TextBox(
         renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
     }
 
-    //绘制选择高亮
     override fun onRenderOverlay(renderContext: RenderContext) {
         renderContext.scissor(contentRect(true), ::renderCursor)
     }

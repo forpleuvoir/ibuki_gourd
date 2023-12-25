@@ -1,10 +1,15 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
 import com.mojang.blaze3d.platform.GlStateManager
-import moe.forpleuvoir.ibukigourd.gui.base.*
+import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.base.state.AbstractState
+import moe.forpleuvoir.ibukigourd.gui.base.state.State
+import moe.forpleuvoir.ibukigourd.gui.base.state.StateMachineManager
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.input.notEquals
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -40,17 +45,21 @@ class DraggableList(
 
     var targetIndex: Int = -1
 
-    private val idleState: State = object : State {
+    override var onElementTranslate: (Element, Vector3<Float>) -> Unit = { e, v ->
+        if (e != draggingElement) e.transform.translateTo(v)
+    }
 
-        override fun onTick() {
-            if (pressed) {
+    private val idleState: State = object : AbstractState("idle_state") {
+
+        override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+            if (button == Mouse.LEFT && mouseHover()) {
                 stateMachineManager.currentState = pressedState
             }
+            return NextAction.Continue
         }
     }
 
-    //TODO("鼠标滚动时拖拽中的元素也要跟着移动")
-    private val draggingState: State = object : State {
+    private val draggingState: State = object : AbstractState("dragging_state") {
         override fun onEnter() {
             draggingElement = elements.find { it.mouseHover() }
             draggingElement?.transform?.translate(draggingOffset)
@@ -62,18 +71,17 @@ class DraggableList(
                 subElements.moveElement(subElements.indexOf(draggingElement), targetIndex)
                 elementSwap(targetIndex, subElements.indexOf(draggingElement))
             }
-            arrange()
             draggingElement = null
             targetIndex = -1
+            arrange()
         }
 
-        override fun onTick() {
-            if (!pressed) {
-                stateMachineManager.currentState = idleState
-            }
+        override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+            stateMachineManager.currentState = idleState
+            return NextAction.Continue
         }
 
-        override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
+        override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
             draggingElement?.transform?.translate(arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
             val x = mouseX + deltaX
             val y = mouseY + deltaY
@@ -126,23 +134,39 @@ class DraggableList(
                 })
                 if (targetIndex == elementIndexOf(draggingElement!!)) targetIndex = -1
             }
+            return NextAction.Continue
         }
 
     }
 
-    private val pressedState: State = object : State {
+    private val pressedState: State = object : AbstractState("pressed_state") {
 
-        override fun onTick() {
-            if (!pressed) {
-                stateMachineManager.currentState = idleState
+        private lateinit var enterMousePosition: MousePosition
+
+        override fun onEnter() {
+            enterMousePosition = object : MousePosition {
+                override val x: Float = screen().mousePosition.x
+                override val y: Float = screen().mousePosition.y
             }
-            if (screen().preMousePosition notEquals screen().mousePosition) {
+        }
+
+        override fun onExit() {
+            draggingCounter = 0
+        }
+
+        override fun tick() {
+            draggingCounter++
+            if (enterMousePosition notEquals screen().mousePosition) {
                 draggingCounter = 0
             }
             if (draggingCounter == draggingDelay) {
                 stateMachineManager.currentState = draggingState
             }
-            draggingCounter++
+        }
+
+        override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+            stateMachineManager.currentState = idleState
+            return NextAction.Continue
         }
 
     }
@@ -150,47 +174,33 @@ class DraggableList(
     // 管理 DraggableList 的各种状态的状态机管理器，默认状态为 [idleState]
     private val stateMachineManager = StateMachineManager(idleState)
 
-    val state by stateMachineManager::currentState
-
-    private var pressed: Boolean = false
+    val state: State by stateMachineManager::currentState
 
     var draggingElement: Element? = null
         private set
 
-    private var draggingElementOldPosition: Vector3<out Float>? = null
 
     var draggingOffset: Vector3<out Float> = vertex(5f, -5f, 0f)
 
     var draggingDelay: Int = 10
 
-    private var draggingCounter: Int = 0
-        private set(value) {
-            field = value
-
-        }
+    var draggingCounter: Int = 0
+        private set
 
     override fun tick() {
         super.tick()
-        stateMachineManager.onTick()
+        stateMachineManager.tick()
     }
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
-        if (button == Mouse.LEFT && mouseHoverContent()) {
-            pressed = true
-            return NextAction.Cancel
-        }
-        return NextAction.Continue
+        return stateMachineManager.onMouseClick(mouseX, mouseY, button)
     }
 
 
     override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         super.onMouseRelease(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
-        if (button == Mouse.LEFT && pressed) {
-            pressed = false
-        }
-//        swapElements(mouseX, mouseY)
-        return super.onMouseRelease(mouseX, mouseY, button)
+        return stateMachineManager.onMouseRelease(mouseX, mouseY, button)
     }
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
@@ -205,19 +215,26 @@ class DraggableList(
         return super.onMouseMove(mouseX, mouseY)
     }
 
+    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+        stateMachineManager.onMouseScrolling(mouseX, mouseY, amount)
+        return super.onMouseScrolling(mouseX, mouseY, amount)
+    }
+
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
         renderBackground.invoke(renderContext)
-        renderContext.scissor(super.contentRect(true)) {
+        val rect = super.contentRect(true)
+        renderContext.scissor(rect) {
             renderElements.filter { it != scrollerBar || !it.fixed || it != draggingElement }.forEach { it.render(renderContext) }
         }
         fixedElements.forEach { it.render(renderContext) }
         scrollerBar.render(renderContext)
         draggingElement?.let {
             renderDraggingElement(renderContext, it)
-            renderTargetIndex(renderContext, targetIndex)
+            renderContext.scissor(rect) {
+                renderTargetIndex(renderContext, targetIndex)
+            }
         }
-
         renderOverlay.invoke(renderContext)
     }
 
@@ -234,7 +251,7 @@ class DraggableList(
         if (targetIndex == -1 || targetIndex == elementIndexOf(draggingElement!!)) return
         val element = subElements[targetIndex]
         val thickness = spacing.coerceAtLeast(1f)
-        //TODO("颜色待修改")
+        val color =  Color(0x7F8CECFF)
         arrangement.switch({
             if (targetIndex > elementIndexOf(draggingElement!!)) {
                 vertex(0f, element.transform.height, 0f)
@@ -244,7 +261,7 @@ class DraggableList(
                 renderRect(
                     renderContext.matrixStack,
                     rect(element.transform.worldPosition + it, draggingElement!!.transform.width, thickness),
-                    Colors.BLACK
+                    color
                 )
             }
         }, {
@@ -256,7 +273,7 @@ class DraggableList(
                 renderRect(
                     renderContext.matrixStack,
                     rect(element.transform.worldPosition + it, thickness, draggingElement!!.transform.height),
-                    Colors.BLACK
+                    color
                 )
             }
         })

@@ -54,11 +54,33 @@ fun testScreen(index: Int) {
 val testScreen2: Screen
     get() = screen {
         padding(10)
+        val dl1 = draggableList(height = 120f) {
+            spacing = 4f
+            repeat(10) {
+                row(80f) {
+                    button { text("测试一下$it") }
+                }
+            }
+        }
+        val dl2 = draggableList(width = 240f, arrangement = Arrangement.Horizontal) {
+            repeat(10) {
+                row(80f) {
+                    button { text("测试一下$it") }
+                }
+            }
+        }
         renderBackground = {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
             renderOutline(it.matrixStack, contentRect(false), Colors.RED.opacity(0.5f))
             val rect = contentRect(true)
             textRenderer.batchRender {
+                renderStringLines(
+                    it.matrixStack,
+                    "1.state: ${dl1.state.name} ,counter : ${dl1.draggingCounter}\n2.state: ${dl2.state.name} ,counter : ${dl2.draggingCounter}",
+                    rect,
+                    align = PlanarAlignment::TopLeft,
+                    color = Colors.WHITE
+                )
                 renderAlignmentText(
                     it.matrixStack,
                     literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
@@ -75,22 +97,6 @@ val testScreen2: Screen
                 )
             }
         }
-        draggableList(height = 120f) {
-            spacing = 4f
-            repeat(10) {
-                row(80f) {
-                    button { text("测试一下$it") }
-                }
-            }
-        }
-        draggableList(width = 240f, arrangement = Arrangement.Horizontal) {
-            repeat(10) {
-                row(80f) {
-                    button { text("测试一下$it") }
-                }
-            }
-        }
-
     }
 
 val testScreen1: Screen

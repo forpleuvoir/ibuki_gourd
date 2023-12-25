@@ -92,10 +92,10 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
 
     override var renderOverlay: (renderContext: RenderContext) -> Unit = ::onRenderOverlay
 
-    override val mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveIn
+    override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveIn
     override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
 
-    override val mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveOut
+    override var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveOut
 
     override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
