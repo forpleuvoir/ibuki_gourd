@@ -18,6 +18,19 @@ class Column(
     alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
 ) : AbstractElement() {
 
+    init {
+        width?.let {
+            transform.fixedWidth = true
+            transform.width = it
+        }
+        height?.let {
+            transform.fixedHeight = true
+            transform.height = it
+        }
+        padding?.let(::padding)
+        margin?.let(::margin)
+    }
+
     override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical, alignment)
         @Deprecated("Do not set the layout value of Row") set(@Suppress("UNUSED_PARAMETER") value) {
             throw NotImplementedError("Do not set the layout value of Row")
@@ -27,14 +40,19 @@ class Column(
 
 
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.column(
+inline fun ElementContainer.column(
     width: Float? = null,
     height: Float? = null,
-    padding: Padding? = null,
-    margin: Margin? = null, alignment: (Arrangement) -> Alignment = PlanarAlignment::Center, scope: Column.() -> Unit
+    padding: Padding? = Padding(2),
+    margin: Margin? = null,
+    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    scope: Column.() -> Unit
 ): Column {
     contract {
         callsInPlace(scope, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Column(width, height, padding, margin, alignment).apply(scope))
+    return addElement(Column(width, height, padding, margin, alignment).apply {
+        spacing = 2f
+        scope()
+    })
 }

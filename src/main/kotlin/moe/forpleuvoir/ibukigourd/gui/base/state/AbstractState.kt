@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.util.NextAction
 
-abstract class AbstractState(override val name: String) : State {
+abstract class AbstractState(override val name: String = "nameless") : State {
 
     override fun onEnter() = Unit
 

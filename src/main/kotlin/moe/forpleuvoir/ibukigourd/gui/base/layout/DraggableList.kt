@@ -22,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.render.helper.useBlend
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -41,7 +40,7 @@ class DraggableList(
     scrollerThickness: Float = 10f,
 ) : ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness) {
 
-    var elementSwap: (oldIndex: Int, newIndex: Int) -> Unit = { _, _ -> }
+    var elementSwap: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> }
 
     var targetIndex: Int = -1
 

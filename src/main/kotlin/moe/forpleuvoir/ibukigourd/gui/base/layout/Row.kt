@@ -40,15 +40,19 @@ class Row(
 }
 
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.row(
+inline fun ElementContainer.row(
     width: Float? = null,
     height: Float? = null,
-    padding: Padding? = null,
+    padding: Padding? = Padding(2),
     margin: Margin? = null,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center, scope: Row.() -> Unit
+    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    scope: Row.() -> Unit
 ): Row {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Row(width, height, padding, margin, alignment).apply(scope))
+    return addElement(Row(width, height, padding, margin, alignment).apply {
+        spacing = 2f
+        scope()
+    })
 }

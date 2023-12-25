@@ -38,7 +38,7 @@ abstract class AbstractElementContainer : Element {
 
     protected val subElements = ArrayList<Element>()
 
-    val arrangeElements: List<Element> get() = subElements.filter { !it.fixed }
+    open val arrangeElements: List<Element> get() = subElements.filter { !it.fixed }
 
     override val elements: List<Element> get() = subElements.filter { it != this.tip }
 

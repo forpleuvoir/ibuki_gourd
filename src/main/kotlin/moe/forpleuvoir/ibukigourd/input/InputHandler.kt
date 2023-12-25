@@ -23,13 +23,10 @@ object InputHandler : Tickable {
         isDevEnv {
             register(KP_1) {
                 testScreen(1)
-                println("打开测试屏幕1")
             }
             register(KP_2) {
                 testScreen(2)
-                println("打开测试屏幕2")
             }
-
         }
     }
 

@@ -11,8 +11,8 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 
 abstract class AbstractScreen(
-    width: Int = mc.window.scaledWidth,
-    height: Int = mc.window.scaledHeight
+    width: Float = mc.window.scaledWidth.toFloat(),
+    height: Float = mc.window.scaledHeight.toFloat()
 ) : AbstractElement(), Screen {
 
     override val screen: () -> Screen get() = { this }
@@ -22,8 +22,8 @@ abstract class AbstractScreen(
     init {
         this.transform.fixedWidth = true
         this.transform.fixedHeight = true
-        this.transform.width = width.toFloat()
-        this.transform.height = height.toFloat()
+        this.transform.width = width
+        this.transform.height = height
     }
 
     override val tipList = ArrayList<Tip>()
