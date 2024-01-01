@@ -33,6 +33,8 @@ import net.minecraft.client.input.CursorMovement
 import net.minecraft.client.input.CursorMovement.*
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.util.StringHelper
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -41,7 +43,7 @@ import kotlin.math.min
 /**
  * 多行文本输入框
  */
-class TextBox(
+class TextBoxWidget(
     width: Float,
     height: Float,
     padding: Margin = Theme.TEXT_INPUT.PADDING,
@@ -737,6 +739,7 @@ class TextBox(
 
 }
 
+@OptIn(ExperimentalContracts::class)
 fun ElementContainer.textBox(
     width: Float,
     height: Float,
@@ -752,9 +755,54 @@ fun ElementContainer.textBox(
     spacing: Float = 1f,
     showScroller: Boolean = true,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    scope: TextBox.() -> Unit = {}
-): TextBox = addElement(
-    TextBox(
+    scope: TextBoxWidget.() -> Unit = {}
+): TextBoxWidget {
+    contract {
+        callsInPlace(scope, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+    }
+    return addElement(
+        TextBox(
+            width,
+            height,
+            padding,
+            margin,
+            maxLength,
+            scrollerThickness,
+            editableColor,
+            uneditableColor,
+            backgroundColor,
+            selectedColor,
+            cursorColor,
+            spacing,
+            showScroller,
+            textRenderer,
+            scope
+        )
+    )
+}
+
+@OptIn(ExperimentalContracts::class)
+fun TextBox(
+    width: Float,
+    height: Float,
+    padding: Margin = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    maxLength: Int = Int.MAX_VALUE,
+    scrollerThickness: Float = 10f,
+    editableColor: ARGBColor = Theme.TEXT_INPUT.TEXT_COLOR,
+    uneditableColor: ARGBColor = Theme.TEXT_INPUT.HINT_COLOR,
+    backgroundColor: ARGBColor = Theme.TEXT_INPUT.BACKGROUND_SHADER_COLOR,
+    selectedColor: ARGBColor = Theme.TEXT_INPUT.SELECTED_COLOR,
+    cursorColor: ARGBColor = Theme.TEXT_INPUT.CURSOR_COLOR,
+    spacing: Float = 1f,
+    showScroller: Boolean = true,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    scope: TextBoxWidget.() -> Unit = {}
+): TextBoxWidget {
+    contract {
+        callsInPlace(scope, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+    }
+    return TextBoxWidget(
         width,
         height,
         padding,
@@ -770,4 +818,4 @@ fun ElementContainer.textBox(
         showScroller,
         textRenderer
     ).apply(scope)
-)
+}

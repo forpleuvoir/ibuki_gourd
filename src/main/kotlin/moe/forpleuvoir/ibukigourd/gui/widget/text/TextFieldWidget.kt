@@ -4,7 +4,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
-import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.BACKGROUND_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.COLOR
@@ -30,8 +30,7 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.Style
 import kotlin.experimental.ExperimentalTypeInference
 
-
-open class TextField(
+open class TextFieldWidget(
     val text: () -> Text,
     override var spacing: Float = SPACING,
     var shadow: Boolean = SHADOW,
@@ -237,7 +236,7 @@ open class TextField(
  * @param height Float? 高度 null -> auto,!null - value
  * @return TextField
  */
-fun Element.text(
+fun ElementContainer.textField(
     text: String,
     style: Style = Style.EMPTY,
     spacing: Float = SPACING,
@@ -250,9 +249,9 @@ fun Element.text(
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
-): TextField =
+): TextFieldWidget =
     addElement(
-        TextField(
+        TextFieldWidget(
             { literal(text).style { style } },
             spacing,
             shadow,
@@ -268,7 +267,51 @@ fun Element.text(
     )
 
 /**
- * @receiver Element
+ * @param text String 文本
+ * @param style Style 样式
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
+fun TextField(
+    text: String,
+    style: Style = Style.EMPTY,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
+): TextFieldWidget =
+    TextFieldWidget(
+        { literal(text).style { style } },
+        spacing,
+        shadow,
+        layerType,
+        rightToLeft,
+        color,
+        backgroundColor,
+        alignment,
+        textRenderer,
+        width,
+        height
+    )
+
+
+/**
+ * @receiver ElementContainer
  * @param text () -> String 文本
  * @param style Style 样式
  * @param spacing Float 行间距
@@ -284,7 +327,7 @@ fun Element.text(
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
-fun Element.text(
+fun ElementContainer.textField(
     text: () -> String,
     style: Style = Style.EMPTY,
     spacing: Float = SPACING,
@@ -297,9 +340,9 @@ fun Element.text(
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
-): TextField =
+): TextFieldWidget =
     addElement(
-        TextField(
+        TextFieldWidget(
             { literal(text()).style { style } },
             spacing,
             shadow,
@@ -315,7 +358,52 @@ fun Element.text(
     )
 
 /**
- * @receiver Element
+ * @param text () -> String 文本
+ * @param style Style 样式
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
+@OverloadResolutionByLambdaReturnType
+fun TextField(
+    text: () -> String,
+    style: Style = Style.EMPTY,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
+): TextFieldWidget =
+    TextFieldWidget(
+        { literal(text()).style { style } },
+        spacing,
+        shadow,
+        layerType,
+        rightToLeft,
+        color,
+        backgroundColor,
+        alignment,
+        textRenderer,
+        width,
+        height
+    )
+
+
+/**
+ * @receiver ElementContainer
  * @param text () -> Text 文本
  * @param spacing Float 行间距
  * @param shadow Boolean 是否有阴影
@@ -330,7 +418,7 @@ fun Element.text(
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
-fun Element.text(
+fun ElementContainer.textField(
     text: () -> Text,
     spacing: Float = SPACING,
     shadow: Boolean = SHADOW,
@@ -342,10 +430,39 @@ fun Element.text(
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
-): TextField = addElement(TextField(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
+): TextFieldWidget = addElement(TextFieldWidget(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
 
 /**
- * @receiver Element
+ * @param text () -> Text 文本
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
+@OverloadResolutionByLambdaReturnType
+fun TextField(
+    text: () -> Text,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
+): TextFieldWidget = TextFieldWidget(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height)
+
+/**
+ * @receiver ElementContainer
  * @param text Text 文本
  * @param spacing Float 行间距
  * @param shadow Boolean 是否有阴影
@@ -359,7 +476,7 @@ fun Element.text(
  * @param height Float? 高度 null -> auto,!null - value
  * @return TextField
  */
-fun Element.text(
+fun ElementContainer.textField(
     text: Text,
     spacing: Float = SPACING,
     shadow: Boolean = SHADOW,
@@ -371,4 +488,32 @@ fun Element.text(
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
-): TextField = addElement(TextField({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
+): TextFieldWidget = addElement(TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
+
+/**
+ * @param text Text 文本
+ * @param spacing Float 行间距
+ * @param shadow Boolean 是否有阴影
+ * @param layerType TextRenderer.TextLayerType 渲染层
+ * @param rightToLeft Boolean 是否从右到左
+ * @param color Color 文本颜色
+ * @param backgroundColor Color 背景颜色
+ * @param alignment (Arrangement) -> Alignment 对齐方式
+ * @param textRenderer TextRenderer 文本渲染器
+ * @param width Float? 宽度 null -> auto,!null - value
+ * @param height Float? 高度 null -> auto,!null - value
+ * @return TextField
+ */
+fun TextField(
+    text: Text,
+    spacing: Float = SPACING,
+    shadow: Boolean = SHADOW,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = RIGHT_TO_LEFT,
+    color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
+    backgroundColor: Color = BACKGROUND_COLOR,
+    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+    width: Float? = null,
+    height: Float? = null,
+): TextFieldWidget = TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height)

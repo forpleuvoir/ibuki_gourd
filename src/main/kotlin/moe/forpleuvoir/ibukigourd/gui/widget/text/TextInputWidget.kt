@@ -42,7 +42,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
-open class TextInput(
+open class TextInputWidget(
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
@@ -543,7 +543,7 @@ open class TextInput(
 }
 
 /**
- * 在当前容器中添加一个[TextInput]
+ * 在当前容器中添加一个[TextInputWidget]
  * @receiver ElementContainer
  * @param width Float 宽度
  * @param height Float 高度
@@ -558,11 +558,33 @@ fun ElementContainer.textInput(
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
-    scope: TextInput.() -> Unit = {}
-): TextInput {
+    scope: TextInputWidget.() -> Unit = {}
+): TextInputWidget {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(TextInput(width, height, padding, margin).apply(scope))
+    return this.addElement(moe.forpleuvoir.ibukigourd.gui.widget.text.TextInput(width, height, padding, margin, scope))
+}
+
+/**
+ * @param width Float 宽度
+ * @param height Float 高度
+ * @param padding Margin 内部边距
+ * @param margin Margin? 外部边距 null -> 无外部边距
+ * @param scope TextInput.() -> Unit
+ * @return TextInput
+ */
+@OptIn(ExperimentalContracts::class)
+fun TextInput(
+    width: Float = 60f,
+    height: Float = 20f,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: TextInputWidget.() -> Unit = {}
+): TextInputWidget {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return TextInputWidget(width, height, padding, margin).apply(scope)
 }
 

@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.input.Mouse
@@ -15,9 +15,9 @@ import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
 
-class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.screen() }) {
+class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMenu.screen() }) {
 
-    val arrow: Button = flatButton {
+    val arrow: ButtonWidget = flatButton {
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true
@@ -150,7 +150,7 @@ class DropTip(private val dropMenu: DropMenu) : Tip({ dropMenu }, { dropMenu.scr
 
 }
 
-fun DropMenu.items(scope: ElementContainer.() -> Unit) {
+fun DropMenuWidget.items(scope: ElementContainer.() -> Unit) {
     this.tip = DropTip(this)
     this.tip!!.scope()
 }

@@ -210,7 +210,7 @@ open class MouseHoverTip(
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun Element.tip(
+inline fun Element.hoverTip(
     displayDelay: UInt = DELAY.toUInt(),
     padding: Margin = PADDING,
     margin: Margin = MARGIN,
@@ -226,7 +226,7 @@ inline fun Element.tip(
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun Element.tip(
+inline fun Element.hoverTip(
     scope: MouseHoverTip.() -> Unit
 ): MouseHoverTip {
     contract {

@@ -11,6 +11,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+@OptIn(ExperimentalContracts::class)
 open class Text(
     content: TextContent,
     siblings: List<Text> = emptyList(),
@@ -30,8 +31,9 @@ open class Text(
         }
 
         @JvmStatic
-        fun translatable(key: String): moe.forpleuvoir.ibukigourd.util.text.Text {
-            return Text(TranslatableTextContent(key, null, emptyArray()))
+        @JvmOverloads
+        fun translatable(key: String, fallback: String? = null, vararg args: Any): moe.forpleuvoir.ibukigourd.util.text.Text {
+            return Text(TranslatableTextContent(key, fallback, args))
         }
 
         @JvmStatic
@@ -53,12 +55,15 @@ open class Text(
         return this
     }
 
-    fun appendTranslate(text: String): moe.forpleuvoir.ibukigourd.util.text.Text {
-        siblings.add(translatable(text))
+    fun appendTranslate(key: String, fallback: String? = null, vararg args: Any): moe.forpleuvoir.ibukigourd.util.text.Text {
+        siblings.add(translatable(key, fallback, *args))
         return this
     }
 
     inline fun append(text: () -> Text): moe.forpleuvoir.ibukigourd.util.text.Text {
+        contract {
+            callsInPlace(text, InvocationKind.EXACTLY_ONCE)
+        }
         siblings.add(text())
         return this
     }
@@ -67,7 +72,7 @@ open class Text(
         return super.setStyle(style) as moe.forpleuvoir.ibukigourd.util.text.Text
     }
 
-    @OptIn(ExperimentalContracts::class)
+
     inline fun style(style: (Style) -> Style): moe.forpleuvoir.ibukigourd.util.text.Text {
         contract {
             callsInPlace(style, InvocationKind.EXACTLY_ONCE)

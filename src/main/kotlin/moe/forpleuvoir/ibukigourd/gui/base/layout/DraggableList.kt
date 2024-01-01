@@ -250,7 +250,7 @@ class DraggableList(
         if (targetIndex == -1 || targetIndex == elementIndexOf(draggingElement!!)) return
         val element = subElements[targetIndex]
         val thickness = spacing.coerceAtLeast(1f)
-        val color =  Color(0x7F8CECFF)
+        val color = Color(0x7F8CECFF)
         arrangement.switch({
             if (targetIndex > elementIndexOf(draggingElement!!)) {
                 vertex(0f, element.transform.height, 0f)
@@ -295,5 +295,22 @@ fun ElementContainer.draggableList(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(DraggableList(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope))
+    return this.addElement(DraggableList(width, height, arrangement, padding, showScroller, showBackground, scrollerThickness, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun DraggableList(
+    width: Float? = null,
+    height: Float? = null,
+    arrangement: Arrangement = Arrangement.Vertical,
+    padding: Margin? = Margin(6),
+    showScroller: Boolean = true,
+    showBackground: Boolean = true,
+    scrollerThickness: Float = 10f,
+    scope: ListLayout.() -> Unit = {}
+): DraggableList {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return DraggableList(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope)
 }

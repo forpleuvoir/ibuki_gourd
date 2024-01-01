@@ -216,7 +216,7 @@ open class ListLayout(
 }
 
 @OptIn(ExperimentalContracts::class)
-fun ElementContainer.list(
+fun ElementContainer.listLayout(
     width: Float? = null,
     height: Float? = null,
     arrangement: Arrangement = Arrangement.Vertical,
@@ -229,5 +229,22 @@ fun ElementContainer.list(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope))
+    return this.addElement(ListLayout(width, height, arrangement, padding, showScroller, showBackground, scrollerThickness, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun ListLayout(
+    width: Float? = null,
+    height: Float? = null,
+    arrangement: Arrangement = Arrangement.Vertical,
+    padding: Margin? = Margin(6),
+    showScroller: Boolean = true,
+    showBackground: Boolean = true,
+    scrollerThickness: Float = 10f,
+    scope: ListLayout.() -> Unit = {}
+): ListLayout {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope)
 }

@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.nebula.common.ternary
 
-class HistoryRecord(val maxStackSize: Int = 50, var currentRecord: Record) : Tickable {
+class HistoryRecord(private val maxStackSize: Int = 50, var currentRecord: Record) : Tickable {
 
     data class Record(val text: String, val cursor: Int)
 
@@ -83,19 +83,19 @@ class HistoryRecord(val maxStackSize: Int = 50, var currentRecord: Record) : Tic
         }
     }
 
-    fun pushUndo(text: String, cursor: Int) {
+    private fun pushUndo(text: String, cursor: Int) {
         if (undoStack.size >= maxStackSize)
             undoStack.removeFirst()
         undoStack.addLast(Record(text, cursor))
     }
 
-    fun pushUndo(record: Record) {
+    private fun pushUndo(record: Record) {
         if (undoStack.size >= maxStackSize)
             undoStack.removeFirst()
         undoStack.addLast(record)
     }
 
-    fun pushRedo(text: String, cursor: Int) {
+    private fun pushRedo(text: String, cursor: Int) {
         if (redoStack.size >= maxStackSize)
             redoStack.removeFirst()
         redoStack.addLast(Record(text, cursor))

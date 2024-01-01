@@ -5,24 +5,27 @@ package moe.forpleuvoir.ibukigourd.util.text
 import moe.forpleuvoir.nebula.common.ternary
 import net.minecraft.client.font.TextRenderer
 import java.util.*
-import moe.forpleuvoir.ibukigourd.util.textRenderer as tRender
+import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
 
+@JvmOverloads
 fun literal(content: String = ""): Text = Text.literal(content)
 
-fun trans(key: String): Text = Text.translatable(key)
+@JvmOverloads
+fun trans(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
 
+@JvmOverloads
 fun serverText(key: String, fallback: String? = null, vararg args: Any): ServerText = ServerText(key, fallback, *args)
 
-fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRender): Int {
+fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }
 }
 
 @JvmName("maxTextWidth")
-fun Collection<Text>.maxWidth(textRenderer: TextRenderer = tRender): Int {
+fun Collection<Text>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }
 }
 
-fun String.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<String> {
+fun String.wrapToLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<String> {
     val texts: LinkedList<String> = LinkedList()
     var temp = StringBuilder()
     for (element in this) {
@@ -42,7 +45,7 @@ fun String.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0): Li
     return texts
 }
 
-fun String.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0, lineWrapping: (start: Int, end: Int) -> Unit): List<String> {
+fun String.wrapToLines(textRenderer: TextRenderer = tRenderer, width: Int = 0, lineWrapping: (start: Int, end: Int) -> Unit): List<String> {
     val texts: LinkedList<String> = LinkedList()
     var start = 0
     var end: Int
@@ -70,7 +73,7 @@ fun String.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0, lin
     return texts
 }
 
-fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<String> {
+fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<String> {
     return buildList {
         for (text in this@wrapToLines) {
             addAll(text.wrapToLines(textRenderer, width))
@@ -78,13 +81,13 @@ fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRender, width: 
     }
 }
 
-fun Text.wrapToTextLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<Text> {
+fun Text.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<Text> {
     return this.plainText
-            .wrapToLines(textRenderer, width)
-            .map { literal(it).style { this.style } }
+        .wrapToLines(textRenderer, width)
+        .map { literal(it).style { this.style } }
 }
 
-fun Collection<Text>.wrapToTextLines(textRenderer: TextRenderer = tRender, width: Int = 0): List<Text> {
+fun Collection<Text>.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<Text> {
     return buildList {
         for (text in this@wrapToTextLines) {
             addAll(text.wrapToTextLines(textRenderer, width))
@@ -92,7 +95,7 @@ fun Collection<Text>.wrapToTextLines(textRenderer: TextRenderer = tRender, width
     }
 }
 
-fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRender, width: Int = 0): String {
+fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRenderer, width: Int = 0): String {
     return buildString {
         this@wrapToSingle.forEachIndexed { index, text ->
             text.wrapToLines(textRenderer, width).let {
@@ -106,7 +109,7 @@ fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRender, width: Int =
     }
 }
 
-fun List<Text>.wrapToSingleText(textRenderer: TextRenderer = tRender, width: Int = 0): Text {
+fun List<Text>.wrapToSingleText(textRenderer: TextRenderer = tRenderer, width: Int = 0): Text {
     return literal(buildString {
         this@wrapToSingleText.forEachIndexed { index, text ->
             text.wrapToTextLines(textRenderer, width).let {

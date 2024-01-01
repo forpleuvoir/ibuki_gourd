@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-class Column(
+class ColumnLayout(
     width: Float? = null,
     height: Float? = null,
     padding: Padding? = null,
@@ -45,14 +45,31 @@ inline fun ElementContainer.column(
     height: Float? = null,
     padding: Padding? = Padding(2),
     margin: Margin? = null,
+    spacing: Float = 2f,
     noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
-    scope: Column.() -> Unit
-): Column {
+    scope: ColumnLayout.() -> Unit
+): ColumnLayout {
     contract {
         callsInPlace(scope, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Column(width, height, padding, margin, alignment).apply {
-        spacing = 2f
+    return addElement(Column(width, height, padding, margin, spacing, alignment, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun Column(
+    width: Float? = null,
+    height: Float? = null,
+    padding: Padding? = Padding(2),
+    margin: Margin? = null,
+    spacing: Float = 2f,
+    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    scope: ColumnLayout.() -> Unit
+): ColumnLayout {
+    contract {
+        callsInPlace(scope, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+    }
+    return ColumnLayout(width, height, padding, margin, alignment).apply {
+        this.spacing = spacing
         scope()
-    })
+    }
 }

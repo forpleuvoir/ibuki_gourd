@@ -27,6 +27,9 @@ object InputHandler : Tickable {
             register(KP_2) {
                 testScreen(2)
             }
+            register(Keyboard.KP_3) {
+                testScreen(3)
+            }
         }
     }
 

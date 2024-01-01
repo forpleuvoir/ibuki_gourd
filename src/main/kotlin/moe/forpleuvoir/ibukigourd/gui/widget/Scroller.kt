@@ -5,11 +5,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SCROLLER_BACKGROUND
-import moe.forpleuvoir.ibukigourd.gui.tip.tip
-import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.tip.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
+import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
-import moe.forpleuvoir.ibukigourd.gui.widget.text.text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
@@ -39,7 +39,7 @@ open class Scroller(
     barColor: () -> ARGBColor = { Colors.WHITE },
 ) : ClickableElement() {
 
-    val bar: Button = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
+    val bar: ButtonWidget = button(color = barColor, pressOffset = 0f, theme = ButtonThemes.ScrollerBar) {
         fixed = true
     }
 
@@ -210,7 +210,37 @@ fun ElementContainer.scroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope))
+    return this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor, scope))
+}
+
+/**
+ * @param length Float 滚动条长度
+ * @param thickness Float 滚动条厚度
+ * @param amountStep () -> Float 滚动步长 每次滚动鼠标时移动的距离
+ * @param totalAmount () -> Float 滚动条总长度
+ * @param barLength () -> Float 滚动条所占总长度的百分比 Range(0f..1f)
+ * @param arrangement Arrangement 排列方式
+ * @param color () -> ARGBColor 滚动条背景着色器颜色
+ * @param barColor () -> ARGBColor  滚动条着色器颜色
+ * @param scope Scroller.() -> Unit
+ * @return Scroller
+ */
+@OptIn(ExperimentalContracts::class)
+fun Scroller(
+    length: Float,
+    thickness: Float = 10f,
+    amountStep: () -> Float,
+    totalAmount: () -> Float,
+    barLength: () -> Float,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope)
 }
 
 /**
@@ -247,6 +277,55 @@ fun <T> ElementContainer.numberScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
+    return this.addElement(
+        NumberScroller(
+            initValue,
+            range,
+            valueMapper,
+            valueReceiver,
+            valueRender,
+            length,
+            thickness,
+            arrangement,
+            color,
+            barColor,
+            scope
+        )
+    )
+}
+
+/**
+ * @param T Number
+ * @param initValue T 初始值
+ * @param range ClosedRange<T> 值范围
+ * @param valueMapper (Double) -> T 值映射器
+ * @param valueReceiver (T) -> Unit 值接收器
+ * @param valueRender (T) -> Text 值渲染器
+ * @param length Float 滚动条长度
+ * @param thickness Float 滚动条厚度
+ * @param arrangement Arrangement 排列方式
+ * @param color () -> ARGBColor 滚动条背景着色器颜色
+ * @param barColor () -> ARGBColor 滚动条着色器颜色
+ * @param scope Scroller.() -> Unit 滚动条作用域
+ * @return Scroller
+ */
+@OptIn(ExperimentalContracts::class)
+fun <T> NumberScroller(
+    initValue: T,
+    range: ClosedRange<T>,
+    valueMapper: (Double) -> T,
+    valueReceiver: (T) -> Unit,
+    valueRender: (T) -> Text = { literal(it.toString()) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller where T : Number, T : Comparable<T> {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
     fun T.minus(target: T): Number {
         return when (this) {
             is Int    -> this - target.toInt()
@@ -258,42 +337,40 @@ fun <T> ElementContainer.numberScroller(
             else      -> throw IllegalArgumentException("Unsupported type")
         }
     }
-    return this.addElement(
-        Scroller(
-            length,
-            thickness,
-            { range.endInclusive.minus(range.start).toFloat() * 0.05f },
-            { range.endInclusive.minus(range.start).toFloat() },
-            { 10 / length },
-            arrangement, color, barColor
-        ).apply {
-            scope()
-            amount = initValue.toFloat()
-            bar.tip(
-                displayDelay = 1u,
-                optionalDirections = arrangement.switch(
-                    listOf(Direction.Left, Direction.Right),
-                    listOf(Direction.Top, Direction.Bottom)
-                ),
-                margin = Margin(4)
-            ) {
-                text({ valueRender(valueMapper(amount + range.start.toDouble())) })
-                tick = {
-                    if (this@apply.mouseHover() || bar.dragging) {
-                        tickCounter++
-                    } else if (!keepDisplay && visible && active) {
-                        visible = !pop()
-                        if (!visible) {
-                            tickCounter = 0u
-                        }
+    return Scroller(
+        length,
+        thickness,
+        { range.endInclusive.minus(range.start).toFloat() * 0.05f },
+        { range.endInclusive.minus(range.start).toFloat() },
+        { 10 / length },
+        arrangement, color, barColor
+    ).apply {
+        scope()
+        amount = initValue.toFloat()
+        bar.hoverTip(
+            displayDelay = 1u,
+            optionalDirections = arrangement.switch(
+                listOf(Direction.Left, Direction.Right),
+                listOf(Direction.Top, Direction.Bottom)
+            ),
+            margin = Margin(4)
+        ) {
+            textField({ valueRender(valueMapper(amount + range.start.toDouble())) })
+            tick = {
+                if (this@apply.mouseHover() || bar.dragging) {
+                    tickCounter++
+                } else if (!keepDisplay && visible && active) {
+                    visible = !pop()
+                    if (!visible) {
+                        tickCounter = 0u
                     }
                 }
             }
-            amountReceiver = {
-                valueReceiver(valueMapper(it + range.start.toDouble()))
-            }
         }
-    )
+        amountReceiver = {
+            valueReceiver(valueMapper(it + range.start.toDouble()))
+        }
+    }
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -312,7 +389,26 @@ fun ElementContainer.intScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberScroller(initValue, range, { it.toInt() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+    return addElement(IntScroller(initValue, range, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun IntScroller(
+    initValue: Int,
+    range: ClosedRange<Int>,
+    valueReceiver: (Int) -> Unit,
+    valueRender: (Int) -> Text = { literal(it.toString()) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return NumberScroller(initValue, range, { it.toInt() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -331,7 +427,26 @@ fun ElementContainer.floatScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberScroller(initValue, range, { it.toFloat() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+    return addElement(FloatScroller(initValue, range, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun FloatScroller(
+    initValue: Float,
+    range: ClosedRange<Float>,
+    valueReceiver: (Float) -> Unit,
+    valueRender: (Float) -> Text = { literal("%.2f".format(it)) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return NumberScroller(initValue, range, { it.toFloat() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -350,5 +465,24 @@ fun ElementContainer.doubleScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberScroller(initValue, range, { it }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+    return addElement(DoubleScroller(initValue, range, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun DoubleScroller(
+    initValue: Double,
+    range: ClosedRange<Double>,
+    valueReceiver: (Double) -> Unit,
+    valueRender: (Double) -> Text = { literal("%.2f".format(it)) },
+    length: Float,
+    thickness: Float = 10f,
+    arrangement: Arrangement = Arrangement.Vertical,
+    color: () -> ARGBColor = { Colors.WHITE },
+    barColor: () -> ARGBColor = { Colors.WHITE },
+    scope: Scroller.() -> Unit = {}
+): Scroller {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return NumberScroller(initValue, range, { it }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
 }

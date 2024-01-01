@@ -7,10 +7,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.ExpandableElement
-import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
-import moe.forpleuvoir.ibukigourd.gui.widget.text.text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
@@ -26,7 +26,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-open class DropMenu(
+open class DropMenuWidget(
     width: Float? = null,
     height: Float? = null,
     padding: Padding? = Padding(6),
@@ -35,7 +35,7 @@ open class DropMenu(
 ) : ExpandableElement() {
 
 
-    val arrow: Button = flatButton {
+    val arrow: ButtonWidget = flatButton {
         transform.fixedWidth = true
         transform.fixedHeight = true
         fixed = true
@@ -122,12 +122,27 @@ fun ElementContainer.dropMenu(
     padding: Padding? = Padding(left = 6f),
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
-    scope: DropMenu.() -> Unit = {}
-): DropMenu {
+    scope: DropMenuWidget.() -> Unit = {}
+): DropMenuWidget {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
     return this.addElement(DropMenu(width, height, padding, margin, selectedColor).apply(scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun DropMenu(
+    width: Float? = null,
+    height: Float? = 20f,
+    padding: Padding? = Padding(left = 6f),
+    margin: Margin? = null,
+    selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
+    scope: DropMenuWidget.() -> Unit = {}
+): DropMenuWidget {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return DropMenuWidget(width, height, padding, margin, selectedColor).apply(scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -141,14 +156,33 @@ fun ElementContainer.dropSelector(
     margin: Margin? = null,
     selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
     scrollable: Boolean = false,
-    scope: DropMenu.() -> Unit = {}
-): DropMenu {
+    scope: DropMenuWidget.() -> Unit = {}
+): DropMenuWidget {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(DropMenu(width, height, padding, margin, selectedColor).apply {
+    return this.addElement(DropSelector(width, height, options, current, onSelectionChange, padding, margin, selectedColor, scrollable, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun DropSelector(
+    width: Float? = null,
+    height: Float? = 20f,
+    options: NotifiableArrayList<String>,
+    current: String = options.first(),
+    onSelectionChange: (String) -> Unit,
+    padding: Padding? = Padding(left = 6f),
+    margin: Margin? = null,
+    selectedColor: (() -> ARGBColor)? = { Color(0x00A4FF).alpha(75) },
+    scrollable: Boolean = false,
+    scope: DropMenuWidget.() -> Unit = {}
+): DropMenuWidget {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return DropMenuWidget(width, height, padding, margin, selectedColor).apply {
         var currentItem = current
-        text({ currentItem }, width = width?.let { it - this.transform.height - this.padding.width })
+        textField({ currentItem }, width = width?.let { it - this.transform.height - this.padding.width })
         if (options.isNotEmpty() && options[0] != currentItem) {
             options.disableNotify {
                 options.remove(currentItem)
@@ -171,7 +205,7 @@ fun ElementContainer.dropSelector(
                     height = height?.let { it - this@apply.tip!!.padding.height },
                     width = null
                 ) {
-                    text(
+                    textField(
                         it,
                         width = width?.let { it - this.transform.height - this@apply.padding.width - this.padding.width + this@initOptions.spacing } ?: max.toFloat(),
                         alignment = PlanarAlignment::CenterLeft
@@ -210,5 +244,5 @@ fun ElementContainer.dropSelector(
             this.initOptions()
         }
         scope()
-    })
+    }
 }

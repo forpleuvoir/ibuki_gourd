@@ -22,7 +22,20 @@ fun ElementContainer.icon(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(object : AbstractElement() {
+    return addElement(Icon(texture, size, shaderColor, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Icon(
+    texture: () -> WidgetTexture,
+    size: () -> Size<Float> = { Size.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
+    shaderColor: ARGBColor = Colors.WHITE,
+    scope: AbstractElement.() -> Unit = {}
+): AbstractElement {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return object : AbstractElement() {
         init {
             transform.height = size().height
             transform.width = size().width
@@ -37,7 +50,7 @@ fun ElementContainer.icon(
             transform.width = size().width
             renderTexture(renderContext.matrixStack, transform, texture(), shaderColor)
         }
-    }.apply(scope))
+    }.apply(scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -50,7 +63,20 @@ fun ElementContainer.icon(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(object : AbstractElement() {
+    return addElement(Icon(texture, size, shaderColor, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Icon(
+    texture: WidgetTexture,
+    size: Size<Float> = Size.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
+    shaderColor: ARGBColor = Colors.WHITE,
+    scope: AbstractElement.() -> Unit = {}
+): AbstractElement {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return object : AbstractElement() {
         init {
             transform.height = size.height
             transform.width = size.width
@@ -59,5 +85,5 @@ fun ElementContainer.icon(
         override fun onRenderBackground(renderContext: RenderContext) {
             renderTexture(renderContext.matrixStack, transform, texture, shaderColor)
         }
-    }.apply(scope))
+    }.apply(scope)
 }

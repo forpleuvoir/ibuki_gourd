@@ -11,7 +11,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-class Row(
+class RowLayout(
     width: Float? = null,
     height: Float? = null,
     padding: Padding? = null,
@@ -45,14 +45,31 @@ inline fun ElementContainer.row(
     height: Float? = null,
     padding: Padding? = Padding(2),
     margin: Margin? = null,
+    spacing: Float = 2f,
     noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
-    scope: Row.() -> Unit
-): Row {
+    scope: RowLayout.() -> Unit
+): RowLayout {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Row(width, height, padding, margin, alignment).apply {
-        spacing = 2f
+    return addElement(Row(width, height, padding, margin, spacing, alignment, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun Row(
+    width: Float? = null,
+    height: Float? = null,
+    padding: Padding? = Padding(2),
+    margin: Margin? = null,
+    spacing: Float = 2f,
+    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    scope: RowLayout.() -> Unit
+): RowLayout {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return RowLayout(width, height, padding, margin, alignment).apply {
+        this.spacing = spacing
         scope()
-    })
+    }
 }

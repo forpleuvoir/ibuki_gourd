@@ -31,7 +31,7 @@ typealias Plus<T> = T.(T) -> T
 
 typealias Minus<T> = T.(T) -> T
 
-class NumberInput<T>(
+class NumberInputWidget<T>(
     private val valueDelegate: DelegatedValue<T>,
     private val valueMapper: (String) -> T,
     private val valueReceiver: (T) -> Unit = {},
@@ -48,7 +48,7 @@ class NumberInput<T>(
     selectedColor: ARGBColor = Theme.TEXT_INPUT.SELECTED_COLOR,
     cursorColor: ARGBColor = Theme.TEXT_INPUT.CURSOR_COLOR,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-) : TextInput(width, height, padding, margin, textColor, hintColor, bgShaderColor, selectedColor, cursorColor, textRenderer) where T : Comparable<T>, T : Number {
+) : TextInputWidget(width, height, padding, margin, textColor, hintColor, bgShaderColor, selectedColor, cursorColor, textRenderer) where T : Comparable<T>, T : Number {
 
     data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
 
@@ -157,7 +157,7 @@ class NumberInput<T>(
         plus.transform.height = (transform.height - 8f) / 2
         plus.transform.width = (transform.height - 8f)
         plus.transform.x = transform.width - plus.transform.width - 4f
-        plus.transform.y = transform.top + 4f
+        plus.transform.y = 4f
         plus.layout.arrange(plus.elements, plus.margin, plus.padding)
 
         minus.transform.height = plus.transform.height
@@ -186,7 +186,7 @@ class NumberInput<T>(
 }
 
 /**
- * 在当前容器中添加一个[NumberInput]
+ * 在当前容器中添加一个[NumberInputWidget]
  * @param T Number
  * @receiver ElementContainer
  * @param valueReceiver (T) -> Unit
@@ -205,17 +205,62 @@ fun <T> ElementContainer.numberInput(
     valueMapper: (String) -> T,
     plusAction: Plus<T>,
     minusAction: Minus<T>,
-    valueStep: NumberInput.ValueStep<T>,
+    valueStep: NumberInputWidget.ValueStep<T>,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
-    scope: NumberInput<T>.() -> Unit = {}
-): NumberInput<T> where T : Comparable<T>, T : Number {
+    scope: NumberInputWidget<T>.() -> Unit = {}
+): NumberInputWidget<T> where T : Comparable<T>, T : Number {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(NumberInput(valueDelegate, valueMapper, valueReceiver, plusAction, minusAction, valueStep, width, height, padding, margin).apply(scope))
+    return this.addElement(
+        NumberInput(
+            valueDelegate,
+            valueReceiver,
+            valueMapper,
+            plusAction,
+            minusAction,
+            valueStep,
+            width,
+            height,
+            padding,
+            margin,
+            scope
+        )
+    )
+}
+
+/**
+ * @param T Number
+ * @param valueReceiver (T) -> Unit
+ * @param valueMapper (String) -> T
+ * @param width Float
+ * @param height Float
+ * @param padding Margin
+ * @param margin Margin?
+ * @param scope TextInput.() -> Unit
+ * @return TextInput
+ */
+@OptIn(ExperimentalContracts::class)
+fun <T> NumberInput(
+    valueDelegate: DelegatedValue<T>,
+    valueReceiver: (T) -> Unit = {},
+    valueMapper: (String) -> T,
+    plusAction: Plus<T>,
+    minusAction: Minus<T>,
+    valueStep: NumberInputWidget.ValueStep<T>,
+    width: Float = 60f,
+    height: Float = 20f,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: NumberInputWidget<T>.() -> Unit = {}
+): NumberInputWidget<T> where T : Comparable<T>, T : Number {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return NumberInputWidget(valueDelegate, valueMapper, valueReceiver, plusAction, minusAction, valueStep, width, height, padding, margin).apply(scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -223,18 +268,37 @@ fun ElementContainer.intInput(
     valueDelegate: DelegatedValue<Int> = DelegatedValue(0),
     valueReceiver: (Int) -> Unit = {},
     valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
-    valueStep: NumberInput.ValueStep<Int> = NumberInput.ValueStep(1, 5, 10, 15, 1),
+    valueStep: NumberInputWidget.ValueStep<Int> = NumberInputWidget.ValueStep(1, 5, 10, 15, 1),
     range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
-    scope: NumberInput<Int>.() -> Unit = {}
-): NumberInput<Int> {
+    scope: NumberInputWidget<Int>.() -> Unit = {}
+): NumberInputWidget<Int> {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(NumberInput(valueDelegate, valueMapper, valueReceiver, { this + it }, { this - it }, valueStep, width, height, padding, margin).apply {
+    return this.addElement(IntInput(valueDelegate, valueReceiver, valueMapper, valueStep, range, width, height, padding, margin, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun IntInput(
+    valueDelegate: DelegatedValue<Int> = DelegatedValue(0),
+    valueReceiver: (Int) -> Unit = {},
+    valueMapper: (String) -> Int = { runCatching { it.toInt() }.getOrDefault(0) },
+    valueStep: NumberInputWidget.ValueStep<Int> = NumberInputWidget.ValueStep(1, 5, 10, 15, 1),
+    range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
+    width: Float = 60f,
+    height: Float = 20f,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: NumberInputWidget<Int>.() -> Unit = {}
+): NumberInputWidget<Int> {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return (NumberInputWidget(valueDelegate, valueMapper, valueReceiver, { this + it }, { this - it }, valueStep, width, height, padding, margin).apply {
         scope()
         textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toInt() in range }.getOrElse { false }) || it.isEmpty() }
     })
@@ -245,18 +309,37 @@ fun ElementContainer.floatInput(
     valueDelegate: DelegatedValue<Float> = DelegatedValue(0f),
     valueReceiver: (Float) -> Unit = {},
     valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
-    valueStep: NumberInput.ValueStep<Float> = NumberInput.ValueStep(1f, 5f, 10f, 15f, 1f),
+    valueStep: NumberInputWidget.ValueStep<Float> = NumberInputWidget.ValueStep(1f, 5f, 10f, 15f, 1f),
     range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
-    scope: NumberInput<Float>.() -> Unit = {}
-): NumberInput<Float> {
+    scope: NumberInputWidget<Float>.() -> Unit = {}
+): NumberInputWidget<Float> {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
+    return addElement(FloatInput(valueDelegate, valueReceiver, valueMapper, valueStep, range, width, height, padding, margin, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun FloatInput(
+    valueDelegate: DelegatedValue<Float> = DelegatedValue(0f),
+    valueReceiver: (Float) -> Unit = {},
+    valueMapper: (String) -> Float = { runCatching { it.toFloat() }.getOrDefault(0f) },
+    valueStep: NumberInputWidget.ValueStep<Float> = NumberInputWidget.ValueStep(1f, 5f, 10f, 15f, 1f),
+    range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
+    width: Float = 60f,
+    height: Float = 20f,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: NumberInputWidget<Float>.() -> Unit = {}
+): NumberInputWidget<Float> {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return NumberInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
         textPredicate = {
             val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
             Regex("-?\\d+(\\.\\d+)?").matches(str)
@@ -270,18 +353,37 @@ fun ElementContainer.doubleInput(
     valueDelegate: DelegatedValue<Double> = DelegatedValue(0.0),
     valueReceiver: (Double) -> Unit = {},
     valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
-    valueStep: NumberInput.ValueStep<Double> = NumberInput.ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
+    valueStep: NumberInputWidget.ValueStep<Double> = NumberInputWidget.ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
     range: ClosedRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
     width: Float = 60f,
     height: Float = 20f,
     padding: Padding? = Theme.TEXT_INPUT.PADDING,
     margin: Margin? = null,
-    scope: NumberInput<Double>.() -> Unit = {}
-): NumberInput<Double> {
+    scope: NumberInputWidget<Double>.() -> Unit = {}
+): NumberInputWidget<Double> {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return numberInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
+    return addElement(DoubleInput(valueDelegate, valueReceiver, valueMapper, valueStep, range, width, height, padding, margin, scope))
+}
+
+@OptIn(ExperimentalContracts::class)
+fun DoubleInput(
+    valueDelegate: DelegatedValue<Double> = DelegatedValue(0.0),
+    valueReceiver: (Double) -> Unit = {},
+    valueMapper: (String) -> Double = { runCatching { it.toDouble() }.getOrDefault(0.0) },
+    valueStep: NumberInputWidget.ValueStep<Double> = NumberInputWidget.ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
+    range: ClosedRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
+    width: Float = 60f,
+    height: Float = 20f,
+    padding: Padding? = Theme.TEXT_INPUT.PADDING,
+    margin: Margin? = null,
+    scope: NumberInputWidget<Double>.() -> Unit = {}
+): NumberInputWidget<Double> {
+    contract {
+        callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
+    }
+    return NumberInput(valueDelegate, valueReceiver, valueMapper, { this + it }, { this - it }, valueStep, width, height, padding, margin, scope).apply {
         textPredicate = {
             val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
             Regex("-?\\d+(\\.\\d+)?").matches(str)

@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
-import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
@@ -30,7 +30,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
 
 class DropListTip(
-    val dropMenu: DropMenu,
+    val dropMenu: DropMenuWidget,
     private val maxHeight: Float? = null,
     padding: Margin? = Padding(2),
     val showScroller: Boolean = true,
@@ -92,7 +92,7 @@ class DropListTip(
     lateinit var scrollerBar: Scroller
         private set
 
-    val arrow: Button = flatButton {
+    val arrow: ButtonWidget = flatButton {
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true
@@ -300,7 +300,7 @@ class DropListTip(
 
 }
 
-fun DropMenu.itemList(
+fun DropMenuWidget.itemList(
     maxHeight: Float? = null,
     padding: Margin? = Padding(2),
     showScroller: Boolean = true,

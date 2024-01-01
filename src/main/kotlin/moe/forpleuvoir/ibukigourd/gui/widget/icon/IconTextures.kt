@@ -72,6 +72,9 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
     var LOCK = WidgetTexture(Corner(0), 32, 0, 48, 16, TEXTURE_INFO)
         private set
 
+    var UNLOCK = WidgetTexture(Corner(0), 48, 0, 64, 16, TEXTURE_INFO)
+        private set
+
     var CLOSE = WidgetTexture(Corner(0), 0, 16, 16, 32, TEXTURE_INFO)
         private set
 

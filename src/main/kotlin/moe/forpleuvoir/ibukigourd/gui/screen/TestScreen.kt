@@ -1,14 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
+import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.base.layout.draggableList
-import moe.forpleuvoir.ibukigourd.gui.base.layout.list
+import moe.forpleuvoir.ibukigourd.gui.base.layout.listLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
-import moe.forpleuvoir.ibukigourd.gui.tip.tip
-import moe.forpleuvoir.ibukigourd.gui.widget.button.button
-import moe.forpleuvoir.ibukigourd.gui.widget.button.checkBox
-import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
-import moe.forpleuvoir.ibukigourd.gui.widget.button.switchButton
+import moe.forpleuvoir.ibukigourd.gui.tip.hoverTip
+import moe.forpleuvoir.ibukigourd.gui.widget.button.*
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.drop.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.drop.dropSelector
@@ -17,6 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.drop.items
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
+import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tab
+import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tabs
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
@@ -39,10 +40,13 @@ import net.minecraft.client.util.math.MatrixStack
 var FRT = 0.0
 var FPS = 0L
 
+val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜", "日富美的裤袜", "普娜拉的裤袜")
+
 fun testScreen(index: Int) {
     when (index) {
-        1    -> testScreen1
-        2    -> testScreen2
+        1 -> testScreen1
+        2 -> testScreen2
+        3 -> testScreen3
         else -> testScreen1
     }.let {
         FRT = 0.0
@@ -51,6 +55,31 @@ fun testScreen(index: Int) {
     }
 }
 
+val testScreen3: Screen
+    get() = screen {
+        tabs(
+            300f,
+            200f,
+            null,
+            null,
+            2f,
+            backgroundColor = { Color(0xFFFFCCF0u) },
+            inactiveColor = { Color(0xFFB3F2FFu) },
+            direction = Direction.Top
+        ) {
+            repeat(5) { index ->
+                tab(index == 3,
+                    tab = Row {
+                        textField("选项卡$index")
+                    }, content = Row {
+                        button { textField("内容$index") }
+                    }
+                )
+            }
+        }
+    }
+
+
 val testScreen2: Screen
     get() = screen {
         padding(10)
@@ -58,14 +87,14 @@ val testScreen2: Screen
             spacing = 4f
             repeat(10) {
                 row(80f) {
-                    button { text("测试一下$it") }
+                    button { textField("测试一下$it") }
                 }
             }
         }
         val dl2 = draggableList(width = 240f, arrangement = Arrangement.Horizontal) {
             repeat(10) {
                 row(80f) {
-                    button { text("测试一下$it") }
+                    button { textField("测试一下$it") }
                 }
             }
         }
@@ -107,7 +136,6 @@ val testScreen1: Screen
         }
         padding(4)
         spacing = 5f
-        val list = notifiableList("黑丝", "白丝", "黑色裤袜", "白色裤袜", "日富美的裤袜", "普娜拉的裤袜")
         row {
             spacing = 5f
             val text = textInput(150f) {
@@ -118,11 +146,11 @@ val testScreen1: Screen
                 text.text = it
             }, scrollable = true)
             dropMenu {
-                text("下拉菜单")
+                textField("下拉菜单")
                 items {
                     repeat(20) {
                         flatButton(height = 16f) {
-                            text("下拉菜单选项$it")
+                            textField("下拉菜单选项$it")
                         }
                     }
                 }
@@ -141,7 +169,7 @@ val testScreen1: Screen
                 }
             }
             button {
-                text(
+                textField(
                     { if (status) literal("开").style { it.withColor(Colors.GREEN) } else literal("关").style { it.withColor(Colors.RED) } },
                     width = 40f,
                     alignment = PlanarAlignment::Center,
@@ -150,6 +178,7 @@ val testScreen1: Screen
                     status = !status
                 }
             }
+            lockBox(statusDelegate)
             checkBox(statusDelegate)
             switchButton(statusDelegate)
         }
@@ -159,14 +188,14 @@ val testScreen1: Screen
             val intValue by intDelegate
             intInput(intDelegate) { hintText = literal("只能输入整数") }
             button {
-                text({ intValue.toString() }, width = 40f)
+                textField({ intValue.toString() }, width = 40f)
             }
             dropMenu {
-                text("下拉菜单")
+                textField("下拉菜单")
                 itemList(maxHeight = 160f) {
                     repeat(20) {
                         flatButton(height = 16f) {
-                            text("下拉菜单选项$it")
+                            textField("下拉菜单选项$it")
                         }
                     }
                 }
@@ -179,40 +208,40 @@ val testScreen1: Screen
             floatInput(floatDelegate) { hintText = literal("只能输入浮点数") }
             doubleInput { hintText = literal("只能输入双精度浮点数") }
             button {
-                text({ floatValue.toString() }, width = 40f)
+                textField({ floatValue.toString() }, width = 40f)
             }
         }
-        var input: TextBox
+        var input: TextBoxWidget
         row {
             spacing = 5f
             input = textBox(120f, 120f, padding = Margin(10f, 10f, 5f, 5f)) {
                 hintText = literal("多行文本输入框测试")
                 transform.z = 10f
             }
-            list(height = 120f) {
+            listLayout(height = 120f) {
                 spacing = 3f
                 repeat(50) { i ->
                     if (i % 2 == 0)
                         button {
-                            text({ "按钮$i" })
+                            textField({ "按钮$i" })
                         }
                     else
-                        button { text("按钮$i 啊", rightToLeft = true) }
+                        button { textField("按钮$i 啊", rightToLeft = true) }
                 }
             }
             intScroller(0, -10..10, {}, length = 100f)
         }
         doubleScroller(0.0, -20.0..20.0, { }, length = 100f, arrangement = Arrangement.Horizontal)
-        list(240f, null, Arrangement.Horizontal, showScroller = false, showBackground = true) {
+        listLayout(240f, null, Arrangement.Horizontal, showScroller = false, showBackground = true) {
             spacing = 5f
             repeat(10) { i ->
                 button {
                     if (i % 2 == 0)
                         icon(IconTextures.RIGHT, Size.create(12f, 12f), Colors.BLACK).margin(bottom = -4f, top = -4f)
-                    text("水平按钮$i")
+                    textField("水平按钮$i")
                     if (i == 5) {
-                        tip {
-                            text(literal("我是提示!$i").style {
+                        hoverTip {
+                            textField(literal("我是提示!$i").style {
                                 it.withColor(Colors.RED)
                             })
                         }
