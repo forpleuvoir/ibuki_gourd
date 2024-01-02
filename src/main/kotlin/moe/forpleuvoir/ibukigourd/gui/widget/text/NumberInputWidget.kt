@@ -78,7 +78,7 @@ class NumberInputWidget<T>(
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true
-        icon(IconTextures.PLUS, Size.create(8f, 8f), Colors.BLACK)
+        icon(IconTextures.PLUS, scale = 0.45f, shaderColor = { Colors.BLACK })
 
         click {
             value = when {
@@ -94,7 +94,7 @@ class NumberInputWidget<T>(
         fixed = true
         transform.fixedWidth = true
         transform.fixedHeight = true
-        icon(IconTextures.MINUS, Size.create(8f, 8f), Colors.BLACK)
+        icon(IconTextures.MINUS, scale = 0.45f, shaderColor = { Colors.BLACK })
 
         click {
             value = when {

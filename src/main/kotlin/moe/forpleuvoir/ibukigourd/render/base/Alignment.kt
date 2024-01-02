@@ -180,7 +180,7 @@ sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement
             val rect = rect(parent.position.xyz(x, y), size)
             return arrangement.switch(
                 arrangement.calcPosition(rect.position, rectangles),
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
+                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
             )
         }
     }
@@ -193,7 +193,7 @@ sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement
             val rect = rect(parent.position.xyz(x, y), size)
             return arrangement.switch(
                 arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.center.x - r.halfWidth) },
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
+                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
             )
         }
     }
@@ -206,7 +206,7 @@ sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement
             val rect = rect(parent.position.xyz(x, y), size)
             return arrangement.switch(
                 arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.right - r.width) },
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
+                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
             )
         }
     }

@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.base.layout.draggableList
 import moe.forpleuvoir.ibukigourd.gui.base.layout.listLayout
@@ -21,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tabs
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -58,9 +58,9 @@ fun testScreen(index: Int) {
 val testScreen3: Screen
     get() = screen {
         tabs(
-            300f,
-            200f,
-            null,
+            250f,
+            150f,
+            Padding(4),
             null,
             2f,
             backgroundColor = { Color(0xFFFFCCF0u) },
@@ -68,13 +68,22 @@ val testScreen3: Screen
             direction = Direction.Top
         ) {
             repeat(5) { index ->
+                var color = Colors.BLACK
                 tab(index == 3,
                     tab = Row {
-                        textField("选项卡$index")
+                        if (index == 3) icon(IconTextures.SAVE, scale = 0.8f, shaderColor = { color })
+                        textField({ literal("选项卡$index").style { it.withColor(color) } })
                     }, content = Row {
                         button { textField("内容$index") }
                     }
-                )
+                ) {
+                    onEnter = {
+                        color = Colors.WHITE
+                    }
+                    onExit = {
+                        color = Colors.BLACK
+                    }
+                }
             }
         }
     }
@@ -236,8 +245,9 @@ val testScreen1: Screen
             spacing = 5f
             repeat(10) { i ->
                 button {
+                    spacing = 4f
                     if (i % 2 == 0)
-                        icon(IconTextures.RIGHT, Size.create(12f, 12f), Colors.BLACK).margin(bottom = -4f, top = -4f)
+                        icon(IconTextures.RIGHT, shaderColor = { Colors.BLACK })
                     textField("水平按钮$i")
                     if (i == 5) {
                         hoverTip {

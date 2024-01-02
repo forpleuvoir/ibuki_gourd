@@ -64,6 +64,7 @@ open class ButtonWidget(
     override var layout: Layout = LinearLayout({ this }, Arrangement.Horizontal)
         set(value) {
             field = value
+            field.spacing = this.spacing
             arrange()
         }
 
@@ -228,8 +229,8 @@ fun ElementContainer.lockBox(
     statusDelegate: DelegatedValue<Boolean> = DelegatedValue(false),
     onChanged: (Boolean) -> Unit = {},
     color: () -> ARGBColor = { COLOR },
-    width: Float? = 12f,
-    height: Float? = 12f,
+    width: Float? = 10f,
+    height: Float? = 10f,
 ): ButtonWidget = addElement(LockBox(statusDelegate, onChanged, color, width, height))
 
 /**
@@ -246,8 +247,8 @@ fun LockBox(
     statusDelegate: DelegatedValue<Boolean> = DelegatedValue(false),
     onChanged: (Boolean) -> Unit = {},
     color: () -> ARGBColor = { COLOR },
-    width: Float? = 12f,
-    height: Float? = 12f,
+    width: Float? = 10f,
+    height: Float? = 10f,
 ): ButtonWidget {
     var status by statusDelegate
     return object : ButtonWidget({

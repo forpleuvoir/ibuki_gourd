@@ -106,7 +106,7 @@ open class ListLayout(
         e.transform.translateTo(v)
     }
 
-    override var layout: Layout = object : Layout {
+    override val layout: Layout = object : Layout {
 
         override var spacing: Float = 0f
 
@@ -157,9 +157,6 @@ open class ListLayout(
         }
 
     }
-        @Deprecated("Do not set the layout value of ListLayout") set(@Suppress("UNUSED_PARAMETER") value) {
-            throw NotImplementedError("Do not set the layout value of ListLayout")
-        }
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = if (isWorld) transform.worldTop + padding.top else padding.top

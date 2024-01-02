@@ -63,58 +63,58 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
     override fun getFabricId(): Identifier = resources("icon")
 
 
-    var SEARCH = WidgetTexture(Corner(0), 0, 0, 16, 16, TEXTURE_INFO)
+    var SEARCH = WidgetTexture(Corner(0), 3, 3, 14, 14, TEXTURE_INFO)
         private set
 
     var OPACITY = WidgetTexture(Corner(0), 16, 0, 32, 16, TEXTURE_INFO)
         private set
 
-    var LOCK = WidgetTexture(Corner(0), 32, 0, 48, 16, TEXTURE_INFO)
+    var LOCK = WidgetTexture(Corner(0), 36, 3, 44, 13, TEXTURE_INFO)
         private set
 
-    var UNLOCK = WidgetTexture(Corner(0), 48, 0, 64, 16, TEXTURE_INFO)
+    var UNLOCK = WidgetTexture(Corner(0), 52, 3, 60, 13, TEXTURE_INFO)
         private set
 
-    var CLOSE = WidgetTexture(Corner(0), 0, 16, 16, 32, TEXTURE_INFO)
+    var CLOSE = WidgetTexture(Corner(0), 3, 19, 13, 29, TEXTURE_INFO)
         private set
 
-    var SAVE = WidgetTexture(Corner(0), 16, 16, 32, 32, TEXTURE_INFO)
+    var SAVE = WidgetTexture(Corner(0), 18, 18, 30, 30, TEXTURE_INFO)
         private set
 
-    var DELETE = WidgetTexture(Corner(0), 16, 32, 32, 48, TEXTURE_INFO)
+    var DELETE = WidgetTexture(Corner(0), 18, 34, 30, 47, TEXTURE_INFO)
         private set
 
-    var PLUS = WidgetTexture(Corner(0), 32, 16, 48, 32, TEXTURE_INFO)
+    var PLUS = WidgetTexture(Corner(0), 35, 19, 45, 29, TEXTURE_INFO)
         private set
 
-    var MINUS = WidgetTexture(Corner(0), 48, 16, 64, 32, TEXTURE_INFO)
+    var MINUS = WidgetTexture(Corner(0), 51, 23, 61, 25, TEXTURE_INFO)
         private set
 
-    var SETTING = WidgetTexture(Corner(0), 64, 16, 80, 32, TEXTURE_INFO)
+    var SETTING = WidgetTexture(Corner(0), 67, 18, 77, 29, TEXTURE_INFO)
         private set
 
-    var SWITCH = WidgetTexture(Corner(0), 80, 16, 96, 32, TEXTURE_INFO)
+    var SWITCH = WidgetTexture(Corner(0), 83, 19, 93, 29, TEXTURE_INFO)
         private set
 
-    var REFRESH = WidgetTexture(Corner(0), 96, 16, 112, 32, TEXTURE_INFO)
+    var REFRESH = WidgetTexture(Corner(0), 99, 19, 109, 29, TEXTURE_INFO)
         private set
 
-    var LEFT = WidgetTexture(Corner(0), 112, 16, 128, 32, TEXTURE_INFO)
+    var LEFT = WidgetTexture(Corner(0), 117, 19, 122, 28, TEXTURE_INFO)
         private set
 
-    var RIGHT = WidgetTexture(Corner(0), 128, 16, 144, 32, TEXTURE_INFO)
+    var RIGHT = WidgetTexture(Corner(0), 134, 19, 139, 28, TEXTURE_INFO)
         private set
 
-    var UP = WidgetTexture(Corner(0), 144, 16, 160, 32, TEXTURE_INFO)
+    var UP = WidgetTexture(Corner(0), 148, 21, 157, 26, TEXTURE_INFO)
         private set
 
-    var DOWN = WidgetTexture(Corner(0), 160, 16, 176, 32, TEXTURE_INFO)
+    var DOWN = WidgetTexture(Corner(0), 164, 22, 173, 27, TEXTURE_INFO)
         private set
 
-    var BACK = WidgetTexture(Corner(0), 176, 16, 192, 32, TEXTURE_INFO)
+    var BACK = WidgetTexture(Corner(0), 179, 20, 189, 28, TEXTURE_INFO)
         private set
 
-    var FILTER = WidgetTexture(Corner(0), 192, 16, 208, 32, TEXTURE_INFO)
+    var FILTER = WidgetTexture(Corner(0), 194, 19, 206, 29, TEXTURE_INFO)
         private set
 
 

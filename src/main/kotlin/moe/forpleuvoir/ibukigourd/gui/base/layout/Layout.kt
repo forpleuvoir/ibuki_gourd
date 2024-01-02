@@ -32,14 +32,12 @@ interface Layout {
             if (alignElements.lastIndex == index) {
                 spacing = 0f
             }
-            val size = arrangement.switch(
-                {
-                    Size.create(element.transform.width + element.margin.width, element.transform.height + element.margin.height + spacing)
-                }, {
+            rect(
+                vertex(0f, 0f, element.transform.z), arrangement.switch(
+                    Size.create(element.transform.width + element.margin.width, element.transform.height + element.margin.height + spacing),
                     Size.create(element.transform.width + element.margin.width + spacing, element.transform.height + element.margin.height)
-                }
+                )
             )
-            rect(vertex(0f, 0f, element.transform.z), size)
         }
     }
 

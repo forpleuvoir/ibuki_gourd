@@ -187,34 +187,34 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var SWITCH_BUTTON_OFF_BACKGROUND = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
         private set
 
-    var TABS_BACKGROUND = WidgetTexture(Corner(0), 208, 0, 224, 16, TEXTURE_INFO)
+    var TABS_BACKGROUND = WidgetTexture(Corner(4), 208, 0, 224, 16, TEXTURE_INFO)
         private set
 
-    var TABS_SCREEN_BACKGROUND = WidgetTexture(Corner(0), 208, 16, 224, 32, TEXTURE_INFO)
+    var TABS_SCREEN_BACKGROUND = WidgetTexture(Corner(top = 2, bottom = 0, left = 0, right = 0), 208, 16, 224, 32, TEXTURE_INFO)
         private set
 
-    var TAB_ACTIVE_TOP = WidgetTexture(Corner(0), 224, 0, 240, 16, TEXTURE_INFO)
+    var TAB_ACTIVE_TOP = WidgetTexture(Corner(4), 224, 0, 240, 16, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_TOP = WidgetTexture(Corner(0), 224, 32, 240, 48, TEXTURE_INFO)
+    var TAB_INACTIVE_TOP = WidgetTexture(Corner(4), 224, 32, 240, 48, TEXTURE_INFO)
         private set
 
-    var TAB_ACTIVE_BOTTOM = WidgetTexture(Corner(0), 240, 0, 256, 16, TEXTURE_INFO)
+    var TAB_ACTIVE_BOTTOM = WidgetTexture(Corner(4), 240, 0, 256, 16, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_BOTTOM = WidgetTexture(Corner(0), 240, 32, 256, 48, TEXTURE_INFO)
+    var TAB_INACTIVE_BOTTOM = WidgetTexture(Corner(4), 240, 32, 256, 48, TEXTURE_INFO)
         private set
 
-    var TAB_ACTIVE_LEFT = WidgetTexture(Corner(0), 224, 16, 240, 32, TEXTURE_INFO)
+    var TAB_ACTIVE_LEFT = WidgetTexture(Corner(4), 224, 16, 240, 32, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_LEFT = WidgetTexture(Corner(0), 224, 48, 240, 64, TEXTURE_INFO)
+    var TAB_INACTIVE_LEFT = WidgetTexture(Corner(4), 224, 48, 240, 64, TEXTURE_INFO)
         private set
 
-    var TAB_ACTIVE_RIGHT = WidgetTexture(Corner(0), 240, 16, 256, 32, TEXTURE_INFO)
+    var TAB_ACTIVE_RIGHT = WidgetTexture(Corner(4), 240, 16, 256, 32, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_RIGHT = WidgetTexture(Corner(0), 240, 48, 256, 64, TEXTURE_INFO)
+    var TAB_INACTIVE_RIGHT = WidgetTexture(Corner(4), 240, 48, 256, 64, TEXTURE_INFO)
         private set
 
 }

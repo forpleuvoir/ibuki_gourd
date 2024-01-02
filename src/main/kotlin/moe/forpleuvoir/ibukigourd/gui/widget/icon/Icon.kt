@@ -16,20 +16,22 @@ import kotlin.contracts.contract
 fun ElementContainer.icon(
     texture: () -> WidgetTexture,
     size: () -> Size<Float> = { Size.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
-    shaderColor: ARGBColor = Colors.WHITE,
+    scale: () -> Float = { 1f },
+    shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
 ): AbstractElement {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Icon(texture, size, shaderColor, scope))
+    return addElement(Icon(texture, size, scale, shaderColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
 fun Icon(
     texture: () -> WidgetTexture,
     size: () -> Size<Float> = { Size.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
-    shaderColor: ARGBColor = Colors.WHITE,
+    scale: () -> Float = { 1f },
+    shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
 ): AbstractElement {
     contract {
@@ -37,8 +39,8 @@ fun Icon(
     }
     return object : AbstractElement() {
         init {
-            transform.height = size().height
-            transform.width = size().width
+            transform.height = size().height * scale()
+            transform.width = size().width * scale()
             transform.resizeCallback = { _: Float, _: Float ->
                 parent().arrange()
             }
@@ -46,9 +48,9 @@ fun Icon(
 
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            transform.height = size().height
-            transform.width = size().width
-            renderTexture(renderContext.matrixStack, transform, texture(), shaderColor)
+            transform.height = size().height * scale()
+            transform.width = size().width * scale()
+            renderTexture(renderContext.matrixStack, transform, texture(), shaderColor())
         }
     }.apply(scope)
 }
@@ -57,20 +59,22 @@ fun Icon(
 fun ElementContainer.icon(
     texture: WidgetTexture,
     size: Size<Float> = Size.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
-    shaderColor: ARGBColor = Colors.WHITE,
+    scale: Float = 1f,
+    shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
 ): AbstractElement {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Icon(texture, size, shaderColor, scope))
+    return addElement(Icon(texture, size, scale, shaderColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
 fun Icon(
     texture: WidgetTexture,
     size: Size<Float> = Size.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
-    shaderColor: ARGBColor = Colors.WHITE,
+    scale: Float = 1f,
+    shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
 ): AbstractElement {
     contract {
@@ -78,12 +82,12 @@ fun Icon(
     }
     return object : AbstractElement() {
         init {
-            transform.height = size.height
-            transform.width = size.width
+            transform.height = size.height * scale
+            transform.width = size.width * scale
         }
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            renderTexture(renderContext.matrixStack, transform, texture, shaderColor)
+            renderTexture(renderContext.matrixStack, transform, texture, shaderColor())
         }
     }.apply(scope)
 }

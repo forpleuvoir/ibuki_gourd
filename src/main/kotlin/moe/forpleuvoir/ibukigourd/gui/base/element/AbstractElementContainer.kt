@@ -16,11 +16,7 @@ abstract class AbstractElementContainer : Element {
 
     final override val transform = Transform()
 
-    override var layout: Layout = LinearLayout({ this })
-        set(value) {
-            field = value
-            arrange()
-        }
+    override val layout: Layout = LinearLayout({ this })
 
     override var spacing: Float = 0f
         get() = layout.spacing

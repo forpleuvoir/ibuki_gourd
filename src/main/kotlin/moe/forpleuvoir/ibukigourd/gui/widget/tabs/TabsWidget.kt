@@ -4,6 +4,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TAB_ACTIVE_BOTTOM
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TAB_ACTIVE_LEFT
@@ -16,6 +18,14 @@ import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TAB_INACTIVE_TOP
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
+import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
+import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -43,27 +53,98 @@ class TabsWidget(
             transform.fixedHeight = true
             transform.height = it
         }
-        padding?.let(::padding)
         margin?.let(::margin)
     }
 
     val tabs: MutableList<Tab> = arrayListOf()
 
-    var current: Tab = tabs[0]
+    val tabElements: MutableList<Element> = arrayListOf()
+
+    val currentTabElement: Element get() = tabElements[tabs.indexOf(current)]
+
+    fun <T : Element> addTabElement(element: T): T {
+        tabElements.add(element)
+        return addElement(element)
+    }
+
+    var current: Tab? = null
         set(value) {
-            if (value in tabs) {
-                field.onExit()
+            if (value in tabs && value != null) {
+                field?.onExit?.invoke()
                 field = value
                 value.onEnter()
             } else throw IllegalArgumentException("current tab must be in tabs")
         }
 
 
-    val content: ProxyElement = proxy { current.content }
+    val content: ProxyElement = proxy {
+        padding?.let { padding(it) }
+        fixed = true
+        Row { }
+    }
 
     override fun init() {
-        current.onEnter()
+        if (current == null) current = tabs[0]
+        current!!.onEnter()
+        content.switchContent(current!!.content)
         super.init()
+    }
+
+    override val layout: Layout = object : Layout {
+        override val elementContainer: () -> ElementContainer = { this@TabsWidget }
+
+        override var spacing: Float = this@TabsWidget.spacing
+
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+            if (elements.isEmpty()) return null
+
+            val offset = when (direction) {
+                Direction.Top    -> vertex(0, 1f, 0)
+                Direction.Bottom -> vertex(0, -1f, 0)
+                Direction.Left   -> vertex(1f, 0, 0)
+                Direction.Right  -> vertex(-1f, 0, 0)
+            }
+
+            val alignment = when (direction) {
+                Direction.Top    -> PlanarAlignment.BottomLeft(Arrangement.Horizontal)
+                Direction.Bottom -> PlanarAlignment.TopLeft(Arrangement.Horizontal)
+                Direction.Left   -> PlanarAlignment.TopRight(Arrangement.Vertical)
+                Direction.Right  -> PlanarAlignment.TopLeft(Arrangement.Vertical)
+            }
+
+            val alignRects = alignRects(elements, alignment.arrangement)
+
+            val size = alignment.arrangement.contentSize(alignRects)
+
+            val contentRect = when (direction) {
+                Direction.Top    -> rect(vertex(4f, 0, 0), transform.width, size.height)
+                Direction.Bottom -> rect(vertex(4f, transform.height - size.height, 0), transform.width, size.height)
+                Direction.Left   -> rect(vertex(0, 4f, 0), size.width, transform.height)
+                Direction.Right  -> rect(vertex(transform.width - size.width, 4f, 0), size.width, transform.height)
+            }
+            alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
+                elements[index].let {
+                    it.transform.translateTo(vector3f + Vector3f(it.margin.left, it.margin.top))
+                    if (it != currentTabElement) {
+                        it.transform.translate(offset)
+                    }
+                }
+            }
+            return Size.create(contentRect.width, contentRect.height)
+        }
+    }
+
+    var tabSize: Size<Float> = Size.create(0f, 0f)
+
+    override fun arrange() {
+        layout.arrange(tabElements, margin, padding)?.let { size ->
+            tabSize = size
+            contentRect(false).let {
+                content.transform.translateTo(it.position)
+                content.transform.width = it.width
+                content.transform.height = it.height
+            }
+        }
     }
 
     fun switchTab(tab: Tab) {
@@ -71,12 +152,24 @@ class TabsWidget(
         content.switchContent(tab.content)
     }
 
+    override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+        val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabSize.height - 3 else 0f
+        val bottom = (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabSize.height - 3 else 0f
+        val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabSize.width - 3 else 0f
+        val right = (if (isWorld) transform.worldRight - padding.right else transform.width - padding.right) - if (direction == Direction.Right) tabSize.width - 3 else 0f
+        return rect(
+            vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
+        )
+    }
 
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
+        tabElements.filter { it != currentTabElement }.forEach { it.render(renderContext) }
         renderBackground.invoke(renderContext)
-        current.content.render(renderContext)
+        tabElements.find { it == currentTabElement }?.render?.let { it(renderContext) }
+        content.render(renderContext)
         renderOverlay.invoke(renderContext)
+//        renderRect(renderContext.matrixStack, rect(transform.worldPosition, tabSize), Color(0x7F000000))
     }
 
 
@@ -99,18 +192,18 @@ fun TabsWidget.tab(
     }.apply {
         scope()
         tabs.add(this)
-        tabButton(this)
         if (active) current = this
+        tabButton(this)
     }
 }
 
 internal fun TabsWidget.tabButton(
     tab: Tab,
 ): ButtonWidget {
-    return object : ButtonWidget({
+    return addTabElement(object : ButtonWidget({
         this.switchTab(tab)
         NextAction.Cancel
-    }, { NextAction.Cancel }, { backgroundColor() }, 0f, Theme.BUTTON.TEXTURE, null, null, null, null) {
+    }, { NextAction.Cancel }, { (current == tab).ternary({ backgroundColor() }, { inactiveColor() }) }, 0f, Theme.BUTTON.TEXTURE, null, null, Padding(2), null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
             val (active, inactive) = when (direction) {
@@ -121,7 +214,7 @@ internal fun TabsWidget.tabButton(
             }
             renderTexture(renderContext.matrixStack, transform, (current == tab).ternary(active, inactive), this.color())
         }
-    }.apply { addElement(tab.tab) }
+    }.apply { addElement(tab.tab) })
 }
 
 fun ElementContainer.tabs(

@@ -50,10 +50,8 @@ open class DropMenuWidget(
     override var onCollapse: (() -> Unit)? = {
         tip!!.visible = false
     }
-    override var layout: Layout = LinearLayout({ this }, Arrangement.Vertical, PlanarAlignment::CenterLeft)
-        @Deprecated("Do not set the layout value of DropMenu") set(@Suppress("UNUSED_PARAMETER") value) {
-            throw NotImplementedError("Do not set the layout value of DropMenu")
-        }
+
+    override val layout: Layout = LinearLayout({ this }, Arrangement.Vertical, PlanarAlignment::CenterLeft)
 
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 20f

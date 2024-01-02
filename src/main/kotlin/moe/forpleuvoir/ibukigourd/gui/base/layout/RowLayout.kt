@@ -32,10 +32,7 @@ class RowLayout(
         margin?.let(::margin)
     }
 
-    override var layout: Layout = LinearLayout({ this }, Arrangement.Horizontal, alignment)
-        @Deprecated("Do not set the layout value of Row") set(@Suppress("UNUSED_PARAMETER") value) {
-            throw NotImplementedError("Do not set the layout value of Row")
-        }
+    override val layout: Layout = LinearLayout({ this }, Arrangement.Horizontal, alignment)
 
 }
 

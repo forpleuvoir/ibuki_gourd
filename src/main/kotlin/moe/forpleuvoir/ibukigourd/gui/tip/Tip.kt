@@ -14,7 +14,7 @@ abstract class Tip(final override var parent: () -> Element, private val tipHand
 
     override var fixed: Boolean = true
 
-    override var layout: Layout = LinearLayout({ this }, alignment = PlanarAlignment::CenterLeft)
+    override val layout: Layout = LinearLayout({ this }, alignment = PlanarAlignment::CenterLeft)
 
     fun push(): Boolean = tipHandler().pushTip(this)
 

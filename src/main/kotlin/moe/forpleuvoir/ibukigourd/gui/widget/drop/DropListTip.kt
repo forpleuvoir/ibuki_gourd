@@ -37,7 +37,7 @@ class DropListTip(
     scrollerThickness: Float? = null
 ) : Tip({ dropMenu }, { dropMenu.screen() }) {
 
-    override var layout: Layout = object : Layout {
+    override val layout: Layout = object : Layout {
 
         override var spacing: Float = 1f
 
@@ -85,9 +85,6 @@ class DropListTip(
         }
 
     }
-        @Deprecated("Do not set the layout value of DropTip") set(@Suppress("UNUSED_PARAMETER") value) {
-            throw NotImplementedError("Do not set the layout value of DropTip")
-        }
 
     lateinit var scrollerBar: Scroller
         private set

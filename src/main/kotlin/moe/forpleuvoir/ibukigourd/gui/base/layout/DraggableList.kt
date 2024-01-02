@@ -51,7 +51,7 @@ class DraggableList(
     private val idleState: State = object : AbstractState("idle_state") {
 
         override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-            if (button == Mouse.LEFT && mouseHover()) {
+            if (button == Mouse.LEFT && mouseHover() && elements.find { it.mouseHover() } != null) {
                 stateMachineManager.currentState = pressedState
             }
             return NextAction.Continue
