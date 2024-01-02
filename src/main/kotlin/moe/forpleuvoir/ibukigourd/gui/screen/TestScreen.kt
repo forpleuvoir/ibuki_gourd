@@ -67,15 +67,20 @@ val testScreen3: Screen
             inactiveColor = { Color(0xFFB3F2FFu) },
             direction = Direction.Top
         ) {
-            repeat(5) { index ->
+            val content = listOf(
+                Row {
+//                   textBox()
+                },
+
+
+                )
+            repeat(content.size) { index ->
                 var color = Colors.BLACK
                 tab(index == 3,
                     tab = Row {
                         if (index == 3) icon(IconTextures.SAVE, scale = 0.8f, shaderColor = { color })
                         textField({ literal("选项卡$index").style { it.withColor(color) } })
-                    }, content = Row {
-                        button { textField("内容$index") }
-                    }
+                    }, content = content[index]
                 ) {
                     onEnter = {
                         color = Colors.WHITE
@@ -223,7 +228,7 @@ val testScreen1: Screen
         var input: TextBoxWidget
         row {
             spacing = 5f
-            input = textBox(120f, 120f, padding = Margin(10f, 10f, 5f, 5f)) {
+            input = textBox(120f, 120f, padding = Margin(5)) {
                 hintText = literal("多行文本输入框测试")
                 transform.z = 10f
             }

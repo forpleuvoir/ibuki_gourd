@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -15,7 +15,7 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.icon(
     texture: () -> WidgetTexture,
-    size: () -> Size<Float> = { Size.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
+    dimension: () -> Dimension<Float> = { Dimension.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
     scale: () -> Float = { 1f },
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -23,13 +23,13 @@ fun ElementContainer.icon(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Icon(texture, size, scale, shaderColor, scope))
+    return addElement(Icon(texture, dimension, scale, shaderColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
 fun Icon(
     texture: () -> WidgetTexture,
-    size: () -> Size<Float> = { Size.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
+    dimension: () -> Dimension<Float> = { Dimension.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
     scale: () -> Float = { 1f },
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -39,8 +39,8 @@ fun Icon(
     }
     return object : AbstractElement() {
         init {
-            transform.height = size().height * scale()
-            transform.width = size().width * scale()
+            transform.height = dimension().height * scale()
+            transform.width = dimension().width * scale()
             transform.resizeCallback = { _: Float, _: Float ->
                 parent().arrange()
             }
@@ -48,8 +48,8 @@ fun Icon(
 
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            transform.height = size().height * scale()
-            transform.width = size().width * scale()
+            transform.height = dimension().height * scale()
+            transform.width = dimension().width * scale()
             renderTexture(renderContext.matrixStack, transform, texture(), shaderColor())
         }
     }.apply(scope)
@@ -58,7 +58,7 @@ fun Icon(
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.icon(
     texture: WidgetTexture,
-    size: Size<Float> = Size.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
+    dimension: Dimension<Float> = Dimension.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
     scale: Float = 1f,
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -66,13 +66,13 @@ fun ElementContainer.icon(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Icon(texture, size, scale, shaderColor, scope))
+    return addElement(Icon(texture, dimension, scale, shaderColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
 fun Icon(
     texture: WidgetTexture,
-    size: Size<Float> = Size.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
+    dimension: Dimension<Float> = Dimension.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
     scale: Float = 1f,
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -82,8 +82,8 @@ fun Icon(
     }
     return object : AbstractElement() {
         init {
-            transform.height = size.height * scale
-            transform.width = size.width * scale
+            transform.height = dimension.height * scale
+            transform.width = dimension.width * scale
         }
 
         override fun onRenderBackground(renderContext: RenderContext) {

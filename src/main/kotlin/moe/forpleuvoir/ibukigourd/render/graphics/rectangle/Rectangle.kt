@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.render.graphics.rectangle
 
-import moe.forpleuvoir.ibukigourd.render.base.Size
-import moe.forpleuvoir.ibukigourd.render.base.SizeFloat
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.DimensionFloat
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -9,7 +9,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import kotlin.math.max
 import kotlin.math.min
 
-interface Rectangle<V : Vector3<Float>> : SizeFloat, Cloneable {
+interface Rectangle<V : Vector3<Float>> : DimensionFloat, Cloneable {
 
 	val position: Vector3<Float>
 
@@ -117,9 +117,9 @@ fun rect(x: Number, y: Number, z: Number, width: Number, height: Number): Rectan
 fun rect(startX: Number, startY: Number, endX: Number, endY: Number): Rectangle<Vector3<Float>> =
 	RectImpl(startX, startY, 0f, endX.toFloat() - startX.toFloat(), endY.toFloat() - startY.toFloat())
 
-fun rect(x: Number, y: Number, z: Number, size: Size<Number>): Rectangle<Vector3<Float>> = RectImpl(x, y, z, size)
+fun rect(x: Number, y: Number, z: Number, dimension: Dimension<Number>): Rectangle<Vector3<Float>> = RectImpl(x, y, z, dimension)
 
-fun rect(position: Vector3<Float>, size: Size<Float>): Rectangle<Vector3<Float>> = RectImpl(position, size)
+fun rect(position: Vector3<Float>, dimension: Dimension<Float>): Rectangle<Vector3<Float>> = RectImpl(position, dimension)
 
 fun colorRect(colorVertex: ColorVertex, width: Float, height: Float): Rectangle<ColorVertex> =
 	ColorRect(colorVertex, width, height, colorVertex.color, colorVertex.color, colorVertex.color, colorVertex.color)
@@ -130,10 +130,10 @@ fun colorRect(position: Vector3<Float>, width: Float, height: Float, vararg colo
 fun colorRect(x: Number, y: Number, z: Number, width: Number, height: Number, vararg colors: ARGBColor): Rectangle<ColorVertex> =
 	ColorRect(x, y, z, width, height, *colors)
 
-fun colorRect(x: Number, y: Number, z: Number, size: Size<Float>, vararg colors: ARGBColor): Rectangle<ColorVertex> =
-	ColorRect(x, y, z, size.width, size.height, *colors)
+fun colorRect(x: Number, y: Number, z: Number, dimension: Dimension<Float>, vararg colors: ARGBColor): Rectangle<ColorVertex> =
+	ColorRect(x, y, z, dimension.width, dimension.height, *colors)
 
 fun colorRect(rect: Rectangle<Vector3<Float>>, vararg colors: ARGBColor): Rectangle<ColorVertex> =
 	ColorRect(rect.x, rect.y, rect.z, rect.width, rect.height, *colors)
 
-fun colorRect(position: Vector3<Float>, size: Size<Float>, vararg colors: ARGBColor): Rectangle<ColorVertex> = ColorRect(position, size, *colors)
+fun colorRect(position: Vector3<Float>, dimension: Dimension<Float>, vararg colors: ARGBColor): Rectangle<ColorVertex> = ColorRect(position, dimension, *colors)

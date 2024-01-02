@@ -9,7 +9,10 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.util.NextAction
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class AbstractElement : Element, AbstractElementContainer() {
+abstract class AbstractElement(
+    width: Float = ElementDimension.WRAP_CONTENT,
+    height: Float = ElementDimension.WRAP_CONTENT
+) : Element, AbstractElementContainer() {
 
     override val screen: () -> Screen
         get() {
@@ -19,6 +22,16 @@ abstract class AbstractElement : Element, AbstractElementContainer() {
                 { parent().screen.invoke() }
             }
         }
+
+    final override val dimension: ElementDimension = ElementDimension(0f, 0f)
+
+    override var widthWeight: Float by dimension::widthWeight
+
+    override var heightWeight: Float by dimension::heightWeight
+
+    init {
+        dimension.set(width, height)
+    }
 
     override var visible: Boolean = true
 

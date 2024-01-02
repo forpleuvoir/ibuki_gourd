@@ -6,8 +6,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement.Vertical
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 
@@ -31,7 +31,7 @@ class LinearLayout(
         alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
     ) : this(elementContainer, alignment(arrangement))
 
-    override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+    override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>? {
         val alignElements = elements.filter { !it.fixed }
         if (alignElements.isEmpty()) return null
 
@@ -63,7 +63,7 @@ class LinearLayout(
             element.transform.translateTo(vector3f + Vector3f(element.margin.left, element.margin.top))
             element.visible = element.transform.inRect(contentRect, false)
         }
-        return Size.create(contentRect.width + padding.width, contentRect.height + padding.height)
+        return Dimension.create(contentRect.width + padding.width, contentRect.height + padding.height)
     }
 
 }

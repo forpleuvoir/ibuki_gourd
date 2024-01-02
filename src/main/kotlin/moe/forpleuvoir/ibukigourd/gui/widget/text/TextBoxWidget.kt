@@ -101,7 +101,7 @@ class TextBoxWidget(
         get() = (lineCount * (fontHeight + spacing)) - spacing
 
     override fun init() {
-        text = ""
+//        text = ""
         super.init()
         if (!this::scrollerBar.isInitialized) {
             scrollerBar = scroller(
@@ -119,10 +119,6 @@ class TextBoxWidget(
             scrollerBar.transform.y = this.padding.top
         }
     }
-
-    val overflows: Boolean get() = lineCount > maxLinesWithoutOverflow
-
-    val maxLinesWithoutOverflow: Float get() = (this.height - this.padding.height) / (fontHeight + spacing)
 
     lateinit var scrollerBar: Scroller
         private set

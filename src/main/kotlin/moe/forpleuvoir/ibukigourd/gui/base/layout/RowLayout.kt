@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementDimension.Companion.WRAP_CONTENT
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
@@ -12,22 +13,14 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 class RowLayout(
-    width: Float? = null,
-    height: Float? = null,
+    width: Float = WRAP_CONTENT,
+    height: Float = WRAP_CONTENT,
     padding: Padding? = null,
     margin: Margin? = null,
     alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
-) : AbstractElement() {
+) : AbstractElement(width, height) {
 
     init {
-        width?.let {
-            transform.fixedWidth = true
-            transform.width = it
-        }
-        height?.let {
-            transform.fixedHeight = true
-            transform.height = it
-        }
         padding?.let(::padding)
         margin?.let(::margin)
     }
@@ -38,8 +31,8 @@ class RowLayout(
 
 @OptIn(ExperimentalContracts::class)
 inline fun ElementContainer.row(
-    width: Float? = null,
-    height: Float? = null,
+    width: Float = WRAP_CONTENT,
+    height: Float = WRAP_CONTENT,
     padding: Padding? = Padding(2),
     margin: Margin? = null,
     spacing: Float = 2f,
@@ -54,8 +47,8 @@ inline fun ElementContainer.row(
 
 @OptIn(ExperimentalContracts::class)
 inline fun Row(
-    width: Float? = null,
-    height: Float? = null,
+    width: Float = WRAP_CONTENT,
+    height: Float = WRAP_CONTENT,
     padding: Padding? = Padding(2),
     margin: Margin? = null,
     spacing: Float = 2f,

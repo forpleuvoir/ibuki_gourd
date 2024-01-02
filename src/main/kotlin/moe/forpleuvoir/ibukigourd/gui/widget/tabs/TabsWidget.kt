@@ -19,8 +19,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -95,7 +95,7 @@ class TabsWidget(
 
         override var spacing: Float = this@TabsWidget.spacing
 
-        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>? {
             if (elements.isEmpty()) return null
 
             val offset = when (direction) {
@@ -130,15 +130,15 @@ class TabsWidget(
                     }
                 }
             }
-            return Size.create(contentRect.width, contentRect.height)
+            return Dimension.create(contentRect.width, contentRect.height)
         }
     }
 
-    var tabSize: Size<Float> = Size.create(0f, 0f)
+    var tabDimension: Dimension<Float> = Dimension.create(0f, 0f)
 
     override fun arrange() {
         layout.arrange(tabElements, margin, padding)?.let { size ->
-            tabSize = size
+            tabDimension = size
             contentRect(false).let {
                 content.transform.translateTo(it.position)
                 content.transform.width = it.width
@@ -153,10 +153,11 @@ class TabsWidget(
     }
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
-        val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabSize.height - 3 else 0f
-        val bottom = (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabSize.height - 3 else 0f
-        val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabSize.width - 3 else 0f
-        val right = (if (isWorld) transform.worldRight - padding.right else transform.width - padding.right) - if (direction == Direction.Right) tabSize.width - 3 else 0f
+        val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabDimension.height - 3 else 0f
+        val bottom =
+            (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabDimension.height - 3 else 0f
+        val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabDimension.width - 3 else 0f
+        val right = (if (isWorld) transform.worldRight - padding.right else transform.width - padding.right) - if (direction == Direction.Right) tabDimension.width - 3 else 0f
         return rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
         )
