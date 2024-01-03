@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.render.base.MutableSize
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.api.Initializable
@@ -18,6 +19,18 @@ interface ElementContainer : Initializable {
     val transform: Transform
 
     var spacing: Float
+
+    var widthDimensionMode: DimensionMode
+
+    var heightDimensionMode: DimensionMode
+
+    /**
+     * 只有在排序时才有有用的数据,固定大小的元素才会有剩余空间
+     */
+    var remainingWidth: Float
+
+    var remainingHeight: Float
+
 
     fun arrange()
 

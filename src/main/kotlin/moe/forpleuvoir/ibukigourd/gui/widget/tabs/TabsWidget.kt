@@ -86,7 +86,7 @@ class TabsWidget(
     override fun init() {
         if (current == null) current = tabs[0]
         current!!.onEnter()
-        content.switchContent(current!!.content)
+        switchTab(current!!)
         super.init()
     }
 
@@ -137,6 +137,7 @@ class TabsWidget(
     var tabSize: Size<Float> = Size.create(0f, 0f)
 
     override fun arrange() {
+        println("我执行了")
         layout.arrange(tabElements, margin, padding)?.let { size ->
             tabSize = size
             contentRect(false).let {

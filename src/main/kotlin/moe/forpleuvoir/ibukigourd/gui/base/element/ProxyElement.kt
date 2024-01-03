@@ -57,7 +57,7 @@ class ProxyElement(
 
     fun switchContent(element: Element?) {
         content = element
-        init()
+        init.invoke()
     }
 }
 

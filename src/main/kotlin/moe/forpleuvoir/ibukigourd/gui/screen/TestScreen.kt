@@ -3,6 +3,8 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
+import moe.forpleuvoir.ibukigourd.gui.base.element.FillRemainingSpace
+import moe.forpleuvoir.ibukigourd.gui.base.element.MatchParent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.base.layout.draggableList
 import moe.forpleuvoir.ibukigourd.gui.base.layout.listLayout
@@ -60,21 +62,41 @@ val testScreen3: Screen
         tabs(
             250f,
             150f,
-            Padding(4),
+            Padding(2),
             null,
             2f,
             backgroundColor = { Color(0xFFFFCCF0u) },
             inactiveColor = { Color(0xFFB3F2FFu) },
             direction = Direction.Top
         ) {
+            heightDimensionMode = MatchParent
+            widthDimensionMode = MatchParent
             repeat(5) { index ->
                 var color = Colors.BLACK
                 tab(index == 3,
                     tab = Row {
                         if (index == 3) icon(IconTextures.SAVE, scale = 0.8f, shaderColor = { color })
                         textField({ literal("选项卡$index").style { it.withColor(color) } })
-                    }, content = Row {
+                    }, content = Row(alignment = PlanarAlignment::TopLeft) {
+                        heightDimensionMode = MatchParent
+                        widthDimensionMode = MatchParent
+                        renderBackground = {
+                            renderRect(it.matrixStack, contentRect(true), Colors.BLACK.opacity(0.5f))
+                        }
                         button { textField("内容$index") }
+                        if (index == 3)
+                            row {
+                                renderBackground = {
+                                    renderRect(it.matrixStack, contentRect(true), Colors.RED.opacity(0.2f))
+                                }
+                                heightDimensionMode = MatchParent
+                                widthDimensionMode = FillRemainingSpace
+                                textBox(120f, 120f, padding = Margin(5)) {
+                                    hintText = literal("宽度填充测试")
+                                    heightDimensionMode = MatchParent
+                                    widthDimensionMode = MatchParent
+                                }
+                            }
                     }
                 ) {
                     onEnter = {
@@ -92,49 +114,58 @@ val testScreen3: Screen
 val testScreen2: Screen
     get() = screen {
         padding(10)
-        val dl1 = draggableList(height = 120f) {
-            spacing = 4f
-            repeat(10) {
-                row(80f) {
-                    button { textField("测试一下$it") }
-                }
+        row{
+//            heightDimensionMode = MatchParent
+//            widthDimensionMode = MatchParent
+            textBox(120f, 120f, padding = Margin(5)) {
+                hintText = literal("宽度填充测试")
+//                heightDimensionMode = MatchParent
+//                widthDimensionMode = MatchParent
             }
         }
-        val dl2 = draggableList(width = 240f, arrangement = Arrangement.Horizontal) {
-            repeat(10) {
-                row(80f) {
-                    button { textField("测试一下$it") }
-                }
-            }
-        }
-        renderBackground = {
-            renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
-            renderOutline(it.matrixStack, contentRect(false), Colors.RED.opacity(0.5f))
-            val rect = contentRect(true)
-            textRenderer.batchRender {
-                renderStringLines(
-                    it.matrixStack,
-                    "1.state: ${dl1.state.name} ,counter : ${dl1.draggingCounter}\n2.state: ${dl2.state.name} ,counter : ${dl2.draggingCounter}",
-                    rect,
-                    align = PlanarAlignment::TopLeft,
-                    color = Colors.WHITE
-                )
-                renderAlignmentText(
-                    it.matrixStack,
-                    literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
-                    rect,
-                    align = PlanarAlignment::BottomLeft,
-                    color = Colors.WHITE
-                )
-                renderStringLines(
-                    it.matrixStack,
-                    "frt:%.2fms\nfps:${FPS}".format(FRT / 1000000),
-                    rect,
-                    align = PlanarAlignment::TopRight,
-                    color = Colors.WHITE,
-                )
-            }
-        }
+//        val dl1 = draggableList(height = 120f) {
+//            spacing = 4f
+//            repeat(10) {
+//                row(80f) {
+//                    button { textField("测试一下$it") }
+//                }
+//            }
+//        }
+//        val dl2 = draggableList(width = 240f, arrangement = Arrangement.Horizontal) {
+//            repeat(10) {
+//                row(80f) {
+//                    button { textField("测试一下$it") }
+//                }
+//            }
+//        }
+//        renderBackground = {
+//            renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
+//            renderOutline(it.matrixStack, contentRect(false), Colors.RED.opacity(0.5f))
+//            val rect = contentRect(true)
+//            textRenderer.batchRender {
+//                renderStringLines(
+//                    it.matrixStack,
+//                    "1.state: ${dl1.state.name} ,counter : ${dl1.draggingCounter}\n2.state: ${dl2.state.name} ,counter : ${dl2.draggingCounter}",
+//                    rect,
+//                    align = PlanarAlignment::TopLeft,
+//                    color = Colors.WHITE
+//                )
+//                renderAlignmentText(
+//                    it.matrixStack,
+//                    literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
+//                    rect,
+//                    align = PlanarAlignment::BottomLeft,
+//                    color = Colors.WHITE
+//                )
+//                renderStringLines(
+//                    it.matrixStack,
+//                    "frt:%.2fms\nfps:${FPS}".format(FRT / 1000000),
+//                    rect,
+//                    align = PlanarAlignment::TopRight,
+//                    color = Colors.WHITE,
+//                )
+//            }
+//        }
     }
 
 val testScreen1: Screen
@@ -223,9 +254,8 @@ val testScreen1: Screen
         var input: TextBoxWidget
         row {
             spacing = 5f
-            input = textBox(120f, 120f, padding = Margin(10f, 10f, 5f, 5f)) {
+            input = textBox(120f, 120f, padding = Margin(5)) {
                 hintText = literal("多行文本输入框测试")
-                transform.z = 10f
             }
             listLayout(height = 120f) {
                 spacing = 3f
@@ -240,9 +270,12 @@ val testScreen1: Screen
             }
             intScroller(0, -10..10, {}, length = 100f)
         }
-        doubleScroller(0.0, -20.0..20.0, { }, length = 100f, arrangement = Arrangement.Horizontal)
+        doubleScroller(0.0, -20.0..20.0, { }, length = 100f, arrangement = Arrangement.Horizontal) {
+            widthDimensionMode = FillRemainingSpace
+        }
         listLayout(240f, null, Arrangement.Horizontal, showScroller = false, showBackground = true) {
             spacing = 5f
+            widthDimensionMode = FillRemainingSpace
             repeat(10) { i ->
                 button {
                     spacing = 4f

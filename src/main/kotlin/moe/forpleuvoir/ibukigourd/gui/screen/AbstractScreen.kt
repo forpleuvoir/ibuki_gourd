@@ -73,6 +73,11 @@ abstract class AbstractScreen(
         override val y: Float get() = preMouseY
     }
 
+    override fun init() {
+        super.init()
+        arrange()
+    }
+
     override fun tick() {
         preMouseX = this.mouseX
         preMouseY = this.mouseY
@@ -109,8 +114,9 @@ abstract class AbstractScreen(
     override fun onResize(width: Int, height: Int) {
         this.transform.width = width.toFloat()
         this.transform.height = height.toFloat()
-        layout.arrange(this.subElements, this.margin, this.padding)
+        arrange()
     }
+
 
     override var resize: (width: Int, height: Int) -> Unit = ::onResize
 

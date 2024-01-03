@@ -117,6 +117,22 @@ class TextBoxWidget(
             }
             scrollerBar.transform.worldX = this.transform.worldRight - scrollerThickness - (this.padding.right / 2).coerceAtLeast(4f)
             scrollerBar.transform.y = this.padding.top
+            transform.resizeCallback = { _, _ ->
+                scrollerBar.transform.worldX = this.transform.worldRight - scrollerThickness - (this.padding.right / 2).coerceAtLeast(4f)
+                scrollerBar.transform.y = this.padding.top
+                scrollerBar.transform.width = scrollerThickness
+                scrollerBar.transform.height = transform.height - padding.height
+            }
+        }
+    }
+
+    override fun arrange() {
+        super.arrange()
+        if (this::scrollerBar.isInitialized) {
+            scrollerBar.transform.worldX = this.transform.worldRight - scrollerThickness - (this.padding.right / 2).coerceAtLeast(4f)
+            scrollerBar.transform.y = this.padding.top
+            scrollerBar.transform.width = scrollerThickness
+            scrollerBar.transform.height = transform.height - padding.height
         }
     }
 
@@ -528,7 +544,7 @@ class TextBoxWidget(
         }
         when (keyCode) {
             //输入制表符或者四个空格
-            Keyboard.TAB -> {
+            Keyboard.TAB                      -> {
                 if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL))
                     replaceSelection("\t")
                 else

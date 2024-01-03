@@ -25,6 +25,13 @@ abstract class AbstractElementContainer : Element {
             field = value
         }
 
+    override var widthDimensionMode: DimensionMode = None
+
+    override var heightDimensionMode: DimensionMode = None
+
+    override var remainingWidth: Float = 0f
+
+    override var remainingHeight: Float = 0f
 
     override var margin: Margin = Margin()
         protected set
@@ -50,10 +57,10 @@ abstract class AbstractElementContainer : Element {
 
     override fun init() {
         for (e in subElements) e.init.invoke()
-        arrange()
     }
 
     override fun arrange() {
+        subElements.forEach { it.arrange() }
         layout.arrange(this.arrangeElements, margin, padding)?.let {
             if (!transform.fixedWidth) {
                 this.transform.width = it.width

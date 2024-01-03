@@ -69,6 +69,10 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
             override var charTyped: (chr: Char) -> NextAction = { NextAction.Cancel }
             override var init: () -> Unit = {}
             override var spacing: Float = 0f
+            override var widthDimensionMode: DimensionMode = None
+            override var heightDimensionMode: DimensionMode = None
+            override var remainingWidth: Float = 0f
+            override var remainingHeight: Float = 0f
 
             override fun arrange() {}
 
