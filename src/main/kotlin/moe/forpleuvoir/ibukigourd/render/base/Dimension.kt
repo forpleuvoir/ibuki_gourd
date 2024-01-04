@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.base
 
-interface Size<T : Number> {
+interface Dimension<T : Number> {
 
     val width: T
 
@@ -12,35 +12,35 @@ interface Size<T : Number> {
 
     companion object {
 
-        val Size<out Number>.string: String
+        val Dimension<out Number>.string: String
             get() {
                 return "Size(width : $width,halfWidth : $halfWidth, height : $height, halfHeight : $halfHeight )"
             }
 
 
-        fun create(width: Float, height: Float): Size<Float> = object : SizeFloat {
+        fun create(width: Float, height: Float): Dimension<Float> = object : DimensionFloat {
             override val width: Float get() = width
             override val height: Float get() = height
         }
 
-        fun create(width: Double, height: Double): Size<Double> = object : SizeDouble {
+        fun create(width: Double, height: Double): Dimension<Double> = object : DimensionDouble {
             override val width: Double get() = width
             override val height: Double get() = height
         }
 
-        fun create(width: Int, height: Int): Size<Int> = object : SizeInt {
+        fun create(width: Int, height: Int): Dimension<Int> = object : DimensionInt {
             override val width: Int get() = width
             override val height: Int get() = height
         }
 
-        fun create(width: Long, height: Long): Size<Long> = object : SizeLong {
+        fun create(width: Long, height: Long): Dimension<Long> = object : DimensionLong {
             override val width: Long get() = width
             override val height: Long get() = height
         }
     }
 }
 
-interface SizeFloat : Size<Float> {
+interface DimensionFloat : Dimension<Float> {
 
     override val width: Float
 
@@ -51,7 +51,7 @@ interface SizeFloat : Size<Float> {
 
 }
 
-interface SizeDouble : Size<Double> {
+interface DimensionDouble : Dimension<Double> {
 
     override val width: Double
 
@@ -62,7 +62,7 @@ interface SizeDouble : Size<Double> {
     override val halfHeight: Double get() = height / 2
 }
 
-interface SizeInt : Size<Int> {
+interface DimensionInt : Dimension<Int> {
 
     override val width: Int
 
@@ -72,7 +72,7 @@ interface SizeInt : Size<Int> {
     override val halfHeight: Int get() = height / 2
 }
 
-interface SizeLong : Size<Long> {
+interface DimensionLong : Dimension<Long> {
 
     override val width: Long
 
@@ -83,7 +83,7 @@ interface SizeLong : Size<Long> {
 }
 
 
-interface MutableSize<T : Number> : Size<T> {
+interface MutableDimension<T : Number> : Dimension<T> {
 
     override var width: T
 
@@ -96,29 +96,29 @@ interface MutableSize<T : Number> : Size<T> {
 
     companion object {
 
-        fun create(width: Float, height: Float): MutableSize<Float> = object : MutableSizeFloat {
+        fun create(width: Float, height: Float): MutableDimension<Float> = object : MutableDimensionFloat {
             override var width: Float = width
             override var height: Float = height
         }
 
-        fun create(width: Double, height: Double): MutableSize<Double> = object : MutableSizeDouble {
+        fun create(width: Double, height: Double): MutableDimension<Double> = object : MutableDimensionDouble {
             override var width: Double = width
             override var height: Double = height
         }
 
-        fun create(width: Int, height: Int): MutableSize<Int> = object : MutableSizeInt {
+        fun create(width: Int, height: Int): MutableDimension<Int> = object : MutableDimensionInt {
             override var width: Int = width
             override var height: Int = height
         }
 
-        fun create(width: Long, height: Long): MutableSize<Long> = object : MutableSizeLong {
+        fun create(width: Long, height: Long): MutableDimension<Long> = object : MutableDimensionLong {
             override var width: Long = width
             override var height: Long = height
         }
     }
 }
 
-interface MutableSizeFloat : MutableSize<Float> {
+interface MutableDimensionFloat : MutableDimension<Float> {
 
     override var width: Float
 
@@ -128,7 +128,7 @@ interface MutableSizeFloat : MutableSize<Float> {
     override val halfHeight: Float get() = height / 2
 }
 
-interface MutableSizeDouble : MutableSize<Double> {
+interface MutableDimensionDouble : MutableDimension<Double> {
 
     override var width: Double
 
@@ -139,7 +139,7 @@ interface MutableSizeDouble : MutableSize<Double> {
     override val halfHeight: Double get() = height / 2
 }
 
-interface MutableSizeInt : MutableSize<Int> {
+interface MutableDimensionInt : MutableDimension<Int> {
 
     override var width: Int
 
@@ -149,7 +149,7 @@ interface MutableSizeInt : MutableSize<Int> {
     override val halfHeight: Int get() = height / 2
 }
 
-interface MutableSizeLong : MutableSize<Long> {
+interface MutableDimensionLong : MutableDimension<Long> {
 
     override var width: Long
 

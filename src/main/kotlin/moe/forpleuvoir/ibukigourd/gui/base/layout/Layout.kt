@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
@@ -21,9 +21,9 @@ interface Layout {
      * @param elements List<Element>
      * @param margin Margin
      * @param padding Padding
-     * @return [Size] 排列完元素之后计算出的高度和宽度,如果为空则没有任何元素参与排列
+     * @return [Dimension] 排列完元素之后计算出的高度和宽度,如果为空则没有任何元素参与排列
      */
-    fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>?
+    fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>?
 
     fun alignRects(elements: List<Element>, arrangement: Arrangement): List<Rectangle<Vector3<Float>>> {
         val alignElements = elements.filter { !it.fixed }
@@ -45,8 +45,8 @@ interface Layout {
             element.heightDimensionMode.resizeHeight(element, element.parent())
             rect(
                 vertex(0f, 0f, element.transform.z), arrangement.switch(
-                    Size.create(element.transform.width + element.margin.width, element.transform.height + element.margin.height + spacing),
-                    Size.create(element.transform.width + element.margin.width + spacing, element.transform.height + element.margin.height)
+                    Dimension.create(element.transform.width + element.margin.width, element.transform.height + element.margin.height + spacing),
+                    Dimension.create(element.transform.width + element.margin.width + spacing, element.transform.height + element.margin.height)
                 )
             ).also { rect ->
                 arrangement.switch({

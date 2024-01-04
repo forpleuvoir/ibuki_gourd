@@ -71,10 +71,6 @@ class Transform(
             return pos
         }
 
-    var fixedWidth: Boolean = false
-
-    var fixedHeight: Boolean = false
-
     val asWorldRect: Rectangle<Vector3<Float>> get() = rect(worldPosition, width, height)
 
     override var x

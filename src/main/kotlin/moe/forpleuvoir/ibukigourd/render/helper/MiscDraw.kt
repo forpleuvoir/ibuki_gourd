@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColorVertexImpl
@@ -156,10 +156,10 @@ object RectBatchDrawScope {
             }
             buildSet {
                 yPoints.map { (_, x) -> x to xPoints[x] }.toSet().forEach { (x, y) ->
-                    add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
+                    add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Dimension.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
                     add(
                         vertex(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize, 0f)
-                                to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
+                                to Dimension.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
                     )
                 }
                 renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)] = this
@@ -223,7 +223,7 @@ object RectBatchDrawScope {
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, colorRect(rect.x, y, rect.z, Size.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
+                    renderRect(matrixStack, colorRect(rect.x, y, rect.z, Dimension.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
                     y += lengthSlice
                 }
 
@@ -234,7 +234,7 @@ object RectBatchDrawScope {
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+                    renderRect(matrixStack, colorRect(x, rect.y, rect.z, Dimension.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
                     x += lengthSlice
                 }
             }
@@ -413,7 +413,7 @@ fun renderHueGradientRect(
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, colorRect(rect.x, y, rect.z, Size.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
+                    renderRect(matrixStack, colorRect(rect.x, y, rect.z, Dimension.create(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
                     y += lengthSlice
                 }
 
@@ -424,7 +424,7 @@ fun renderHueGradientRect(
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, colorRect(x, rect.y, rect.z, Size.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+                    renderRect(matrixStack, colorRect(x, rect.y, rect.z, Dimension.create(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
                     x += lengthSlice
                 }
             }
@@ -635,10 +635,10 @@ fun renderRoundRect(
             buildSet {
                 yPoints.map { (_, x) -> x to xPoints[x] }
                     .toSet().forEach { (x, y) ->
-                        add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
+                        add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Dimension.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
                         add(
                             vertex(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize, 0f)
-                                    to Size.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
+                                    to Dimension.create(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
                         )
                     }
                 renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)] = this
@@ -657,7 +657,7 @@ private data class RenderRoundRect(
 
 private const val renderRoundRectCacheSize = 50
 
-private val renderRoundRectCache get() = mutableMapOf<RenderRoundRect, Set<Pair<Vector3<Float>, Size<Float>>>>()
+private val renderRoundRectCache get() = mutableMapOf<RenderRoundRect, Set<Pair<Vector3<Float>, Dimension<Float>>>>()
 
 /**
  * 渲染边框线条

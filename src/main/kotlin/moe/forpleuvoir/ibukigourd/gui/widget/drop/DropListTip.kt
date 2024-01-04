@@ -17,7 +17,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -44,7 +44,7 @@ class DropListTip(
         override val elementContainer: () -> ElementContainer
             get() = { this@DropListTip }
 
-        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>? {
             val alignElements = elements.filter { !it.fixed }
             if (alignElements.isEmpty()) return null
 
@@ -81,7 +81,7 @@ class DropListTip(
                 element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
-            return Size.create(contentRect.width + padding.width, contentRect.height + padding.height)
+            return Dimension.create(contentRect.width + padding.width, contentRect.height + padding.height)
         }
 
     }

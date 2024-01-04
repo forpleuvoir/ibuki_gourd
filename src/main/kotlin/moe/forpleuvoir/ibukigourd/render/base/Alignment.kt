@@ -30,8 +30,8 @@ interface Alignment {
 enum class Arrangement {
 
     Vertical {
-        override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Size<Float> =
-            Size.create(rectangles.maxOf { it.width }, rectangles.sumOf { it.height })
+        override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Dimension<Float> =
+            Dimension.create(rectangles.maxOf { it.width }, rectangles.sumOf { it.height })
 
         override fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
             return buildList {
@@ -44,8 +44,8 @@ enum class Arrangement {
         }
     },
     Horizontal {
-        override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Size<Float> =
-            Size.create(rectangles.sumOf { it.width }, rectangles.maxOf { it.height })
+        override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Dimension<Float> =
+            Dimension.create(rectangles.sumOf { it.width }, rectangles.maxOf { it.height })
 
         override fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
             return buildList {
@@ -77,7 +77,7 @@ enum class Arrangement {
      * @param rectangles List<Rectangle>
      * @return Size<Float>
      */
-    abstract fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Size<Float>
+    abstract fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Dimension<Float>
 
     /**
      * 计算排列之后的每一个元素的位置

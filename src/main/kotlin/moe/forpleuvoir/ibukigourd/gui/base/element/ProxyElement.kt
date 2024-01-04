@@ -17,14 +17,6 @@ class ProxyElement(
 ) : AbstractElement() {
 
     init {
-        width?.let {
-            transform.fixedWidth = true
-            transform.width = it
-        }
-        height?.let {
-            transform.fixedHeight = true
-            transform.height = it
-        }
         padding?.let(::padding)
         margin?.let(::margin)
     }

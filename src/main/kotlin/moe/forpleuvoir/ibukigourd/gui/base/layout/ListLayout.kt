@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -113,7 +113,7 @@ open class ListLayout(
         override val elementContainer: () -> ElementContainer
             get() = { this@ListLayout }
 
-        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>? {
             val alignElements = elements.filter { !it.fixed }
             if (alignElements.isEmpty()) return null
 
@@ -151,8 +151,8 @@ open class ListLayout(
                 element.visible = element.transform.inRect(contentRect, false)
             }
             return arrangement.switch(
-                Size.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height),
-                Size.create(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
+                Dimension.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height),
+                Dimension.create(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
             )
         }
 

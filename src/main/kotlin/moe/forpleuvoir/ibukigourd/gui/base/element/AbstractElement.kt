@@ -9,7 +9,10 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.util.NextAction
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class AbstractElement : Element, AbstractElementContainer() {
+abstract class AbstractElement(
+    override var width: DimensionMode = WrapContent,
+    override var height: DimensionMode = WrapContent
+) : Element, AbstractElementContainer() {
 
     override val screen: () -> Screen
         get() {

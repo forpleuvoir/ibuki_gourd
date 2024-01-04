@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
@@ -69,6 +70,15 @@ abstract class AbstractElementContainer : Element {
                 this.transform.height = it.height
             }
             if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
+        }
+    }
+
+    override fun measure(): Dimension<Float> {
+        when (this.width) {
+            is Fixed           -> transform.width = (this.width as Fixed).value
+            FillRemainingSpace -> if (parent().width is Fixed) transform.width = parent().remainingWidth
+            MatchParent        -> if (parent().width is Fixed) transform.width = parent().transform.width - parent().padding.width - this.margin.width
+            WrapContent        -> TODO()
         }
     }
 
