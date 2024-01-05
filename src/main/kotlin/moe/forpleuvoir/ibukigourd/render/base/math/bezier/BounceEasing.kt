@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.base.math.bezier
 
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 
 object BounceEasing : Easing {
     override fun easeIn(t: Float): Float {
@@ -20,7 +20,7 @@ object BounceEasing : Easing {
     }
 
     override fun easeInOut(t: Float): Float {
-        return (t < 0.5f).ternary(
+        return (t < 0.5f).pick(
             (1f - easeOut(1f - 2f * t)) / 2f,
             (1f + easeOut(2f * t - 1f)) / 2f
         )

@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.base.math.bezier
 
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 import kotlin.math.pow
 
 object BackEasing : Easing {
@@ -20,7 +20,7 @@ object BackEasing : Easing {
         val c1 = 1.70158f
         val c2 = c1 * 1.525f
 
-        return (t < 0.5f).ternary(
+        return (t < 0.5f).pick(
             ((2f * t).pow(2f) * ((c2 + 1f) * 2f * t - c2)) / 2f,
             ((2f * t - 2f).pow(2f) * ((c2 + 1f) * (t * 2f - 2f) + c2) + 2f) / 2f
         )

@@ -69,12 +69,9 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
             override var charTyped: (chr: Char) -> NextAction = { NextAction.Cancel }
             override var init: () -> Unit = {}
             override var spacing: Float = 0f
-            override var widthDimensionMode: DimensionMode = None
-            override var heightDimensionMode: DimensionMode = None
             override var remainingWidth: Float = 0f
             override var remainingHeight: Float = 0f
 
-            override fun arrange() {}
 
             override val elements: List<Element> = emptyList()
             override val renderElements: List<Element> = emptyList()
@@ -108,8 +105,6 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
             override fun padding(padding: Padding) = Unit
 
             override fun padding(left: Number, right: Number, top: Number, bottom: Number) = Unit
-            override val layout: Layout
-                get() = throw NotImplementedError()
 
             override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> = Rectangle.NULL
 
@@ -159,7 +154,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
     var priority: Int
 
     /**
-     * 固定元素，不会受到布局排列方法 [moe.forpleuvoir.ibukigourd.gui.base.layout.Layout.arrange] 的位置调整
+     * 固定元素，不会受到布局排列方法 [moe.forpleuvoir.ibukigourd.gui.base.layout.Layout.layout] 的位置调整
      */
     var fixed: Boolean
 

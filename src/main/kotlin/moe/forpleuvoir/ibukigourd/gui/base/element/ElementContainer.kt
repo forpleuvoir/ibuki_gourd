@@ -18,9 +18,9 @@ interface ElementContainer : Initializable {
      */
     val transform: Transform
 
-    var width: DimensionMode
+    var width: ElementDimension
 
-    var height: DimensionMode
+    var height: ElementDimension
 
     var spacing: Float
 
@@ -41,7 +41,12 @@ interface ElementContainer : Initializable {
      * 测量自身的尺寸
      * @return Size<Float>
      */
-    fun measure(): Dimension<Float>
+    fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float>
+
+    /**
+     * 对子元素进行排列
+     */
+    fun layout()
 
     /**
      * 子元素

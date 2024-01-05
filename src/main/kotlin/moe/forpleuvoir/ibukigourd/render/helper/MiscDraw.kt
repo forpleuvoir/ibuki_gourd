@@ -184,7 +184,7 @@ object RectBatchDrawScope {
         startColor: ARGBColor,
         endColor: ARGBColor,
     ) {
-        arrangement.switch(
+        arrangement.choose(
             renderRect(matrixStack, colorRect(rect, startColor, endColor, endColor, startColor)),
             renderRect(matrixStack, colorRect(rect, startColor, startColor, endColor, endColor))
         )
@@ -215,7 +215,7 @@ object RectBatchDrawScope {
     ) {
         val hueSlice = hueRange.endInclusive / precision
         var hue = if (reverse) hueRange.endInclusive else hueRange.start
-        arrangement.switch(
+        arrangement.choose(
             {
                 val lengthSlice = rect.height / precision
                 var y = rect.y
@@ -342,7 +342,7 @@ object RectBatchDrawScope {
         val saturationEndColor = HSVColor(hue, if (!reverse) saturationEnd else saturationStart, valueEnd)
         val alphaStartColor = Colors.BLACK.alpha((if (reverse) valueEnd else valueStart).clamp(valueRange))
         val alphaEndColor = Colors.BLACK.alpha((if (!reverse) valueEnd else valueStart).clamp(valueRange))
-        arrangement.switch(
+        arrangement.choose(
             {
                 renderGradientRect(matrixStack, rect, arrangement, saturationStartColor, saturationEndColor)
                 renderGradientRect(matrixStack, rect, Arrangement.Horizontal, alphaStartColor, alphaEndColor)
@@ -372,7 +372,7 @@ fun renderGradientRect(
     endColor: ARGBColor,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram
 ) {
-    arrangement.switch(
+    arrangement.choose(
         renderRect(matrixStack, colorRect(rect, startColor, endColor, endColor, startColor), shaderSupplier),
         renderRect(matrixStack, colorRect(rect, startColor, startColor, endColor, endColor), shaderSupplier)
     )
@@ -405,7 +405,7 @@ fun renderHueGradientRect(
     val hueSlice = hueRange.endInclusive / precision
     var hue = if (reverse) hueRange.endInclusive else hueRange.start
     rectBatchRender(shaderSupplier = shaderSupplier) {
-        arrangement.switch(
+        arrangement.choose(
             {
                 val lengthSlice = rect.height / precision
                 var y = rect.y
@@ -536,7 +536,7 @@ fun renderSVGradientRect(
     val alphaStartColor = Colors.BLACK.alpha((if (reverse) valueRange.endInclusive else valueRange.start).clamp(valueRange))
     val alphaEndColor = Colors.BLACK.alpha((if (!reverse) valueRange.endInclusive else valueRange.start).clamp(valueRange))
     rectBatchRender(shaderSupplier = shaderSupplier) {
-        arrangement.switch(
+        arrangement.choose(
             {
                 renderGradientRect(matrixStack, rect, arrangement, saturationStartColor, saturationEndColor)
                 renderGradientRect(matrixStack, rect, Arrangement.Horizontal, alphaStartColor, alphaEndColor)

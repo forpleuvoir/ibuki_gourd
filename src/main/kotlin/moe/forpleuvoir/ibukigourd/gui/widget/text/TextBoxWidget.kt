@@ -25,7 +25,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.wrapToLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.SharedConstants
 import net.minecraft.client.font.TextRenderer
@@ -664,7 +664,7 @@ class TextBoxWidget(
     }
 
     override fun onRenderBackground(renderContext: RenderContext) {
-        renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
+        renderTexture(renderContext.matrixStack, this.transform, focused.pick(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
     }
 
     override fun onRenderOverlay(renderContext: RenderContext) {

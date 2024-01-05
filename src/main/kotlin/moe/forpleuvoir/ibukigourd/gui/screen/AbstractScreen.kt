@@ -2,29 +2,22 @@
 
 package moe.forpleuvoir.ibukigourd.gui.screen
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
-import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.base.element.*
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.render.RenderContext
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 
 abstract class AbstractScreen(
-    width: Float = mc.window.scaledWidth.toFloat(),
-    height: Float = mc.window.scaledHeight.toFloat()
+    override var width: ElementDimension = MatchParent,
+    override var height: ElementDimension = MatchParent,
 ) : AbstractElement(), Screen {
 
     override val screen: () -> Screen get() = { this }
 
     override var parent: () -> Element = { this }
-
-    init {
-        this.transform.fixedWidth = true
-        this.transform.fixedHeight = true
-        this.transform.width = width
-        this.transform.height = height
-    }
 
     override val tipList = ArrayList<Tip>()
 
@@ -76,6 +69,29 @@ abstract class AbstractScreen(
     override fun init() {
         super.init()
         arrange()
+    }
+
+    override fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float> {
+        when (width) {
+            is MatchParent -> {
+                transform.width = measureWidth.value
+            }
+
+            is WrapContent -> {
+                //需要测量子元素
+            }
+
+            is Fixed       -> {
+                transform.width = if (measureWidth.mode == MeasureDimension.Mode.AT_MOST)
+                    (width as Fixed).value.coerceAtMost(measureWidth.value)
+                else (width as Fixed).value
+            }
+
+            is Weight      -> {
+                //需要测量子元素
+            }
+        }
+        return super.measure(measureWidth, measureHeight)
     }
 
     override fun tick() {

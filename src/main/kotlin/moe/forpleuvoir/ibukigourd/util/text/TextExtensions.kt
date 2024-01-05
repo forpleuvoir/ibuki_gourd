@@ -2,7 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.util.text
 
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 import net.minecraft.client.font.TextRenderer
 import java.util.*
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
@@ -59,7 +59,7 @@ fun String.wrapToLines(textRenderer: TextRenderer = tRenderer, width: Int = 0, l
             texts.add(temp.toString())
             end = start + temp.length
             lineWrapping(start, end)
-            start = (chr != '\n').ternary(end, end + 1)
+            start = (chr != '\n').pick(end, end + 1)
             temp = StringBuilder()
         }
         if (chr != '\n') {
