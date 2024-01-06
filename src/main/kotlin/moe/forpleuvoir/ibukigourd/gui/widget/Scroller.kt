@@ -49,14 +49,14 @@ open class Scroller(
         transform.fixedWidth = true
         transform.fixedHeight = true
         transform.resizeCallback = { width, height ->
-            arrangement.switch(
+            arrangement.choose(
                 {
                     bar.transform.width = width
                 }, {
                     bar.transform.height = height
                 })
         }
-        arrangement.switch(
+        arrangement.choose(
             {
                 transform.width = thickness
                 transform.height = length
@@ -72,7 +72,7 @@ open class Scroller(
         set(value) {
             val fixedValue = value.clamp(0f..totalAmount())
             val barPosition = scrollerLength * if (totalAmount() == 0f) 0f else fixedValue / totalAmount()
-            arrangement.switch(
+            arrangement.choose(
                 {
                     bar.transform.y = barPosition
                 }, {
@@ -84,7 +84,7 @@ open class Scroller(
     var amountReceiver: ((amount: Float) -> Unit)? = null
 
     open val scrollerLength: Float
-        get() = arrangement.switch(
+        get() = arrangement.choose(
             this.transform.height - (barLength() * this.transform.height),
             this.transform.width - (barLength() * this.transform.width)
         )
@@ -101,12 +101,12 @@ open class Scroller(
         }
         get() {
             if (scrollerLength == 0f) return 1f
-            return (arrangement.switch({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
+            return (arrangement.choose({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
         }
 
 
     private fun calcBarLength() {
-        arrangement.switch(
+        arrangement.choose(
             {
                 bar.transform.height = barLength() * this.transform.height
             }, {
@@ -124,7 +124,7 @@ open class Scroller(
 
     protected open fun setFromMouse(mouseX: Float, mouseY: Float) {
         if (bar.mouseHover()) return
-        arrangement.switch(
+        arrangement.choose(
             {
                 val a = mouseY - bar.transform.worldY
                 if (a > 0) {
@@ -147,7 +147,7 @@ open class Scroller(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging || !visible || !bar.dragging) return NextAction.Continue
-        arrangement.switch(
+        arrangement.choose(
             {
                 bar.transform.y = (bar.transform.y + deltaY).clamp(barPositionRange)
             }, {
@@ -349,7 +349,7 @@ fun <T> NumberScroller(
         amount = initValue.toFloat()
         bar.hoverTip(
             displayDelay = 1u,
-            optionalDirections = arrangement.switch(
+            optionalDirections = arrangement.choose(
                 listOf(Direction.Left, Direction.Right),
                 listOf(Direction.Top, Direction.Bottom)
             ),

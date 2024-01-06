@@ -19,8 +19,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -29,7 +29,7 @@ import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 
 class TabsWidget(
     width: Float,
@@ -86,7 +86,7 @@ class TabsWidget(
     override fun init() {
         if (current == null) current = tabs[0]
         current!!.onEnter()
-        content.switchContent(current!!.content)
+        switchTab(current!!)
         super.init()
     }
 
@@ -137,7 +137,8 @@ class TabsWidget(
     var tabDimension: Dimension<Float> = Dimension.create(0f, 0f)
 
     override fun arrange() {
-        layout.arrange(tabElements, margin, padding)?.let { size ->
+        println("我执行了")
+        layout.layout(tabElements, margin, padding)?.let { size ->
             tabDimension = size
             contentRect(false).let {
                 content.transform.translateTo(it.position)
@@ -154,8 +155,7 @@ class TabsWidget(
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabDimension.height - 3 else 0f
-        val bottom =
-            (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabDimension.height - 3 else 0f
+        val bottom = (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabDimension.height - 3 else 0f
         val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabDimension.width - 3 else 0f
         val right = (if (isWorld) transform.worldRight - padding.right else transform.width - padding.right) - if (direction == Direction.Right) tabDimension.width - 3 else 0f
         return rect(
@@ -204,7 +204,7 @@ internal fun TabsWidget.tabButton(
     return addTabElement(object : ButtonWidget({
         this.switchTab(tab)
         NextAction.Cancel
-    }, { NextAction.Cancel }, { (current == tab).ternary({ backgroundColor() }, { inactiveColor() }) }, 0f, Theme.BUTTON.TEXTURE, null, null, Padding(2), null) {
+    }, { NextAction.Cancel }, { (current == tab).pick({ backgroundColor() }, { inactiveColor() }) }, 0f, Theme.BUTTON.TEXTURE, null, null, Padding(2), null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
             val (active, inactive) = when (direction) {
@@ -213,7 +213,7 @@ internal fun TabsWidget.tabButton(
                 Direction.Left   -> TAB_ACTIVE_LEFT to TAB_INACTIVE_LEFT
                 Direction.Right  -> TAB_ACTIVE_RIGHT to TAB_INACTIVE_RIGHT
             }
-            renderTexture(renderContext.matrixStack, transform, (current == tab).ternary(active, inactive), this.color())
+            renderTexture(renderContext.matrixStack, transform, (current == tab).pick(active, inactive), this.color())
         }
     }.apply { addElement(tab.tab) })
 }

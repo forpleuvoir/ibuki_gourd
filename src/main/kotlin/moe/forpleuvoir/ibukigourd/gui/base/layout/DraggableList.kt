@@ -81,12 +81,12 @@ class DraggableList(
         }
 
         override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-            draggingElement?.transform?.translate(arrangement.switch(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
+            draggingElement?.transform?.translate(arrangement.choose(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
             val x = mouseX + deltaX
             val y = mouseY + deltaY
             val draggingIndex = elementIndexOf(draggingElement!!)
             arrangeElements.filter { it != draggingElement }.minByOrNull { element ->
-                arrangement.switch({
+                arrangement.choose({
                     //在元素内
                     if (y in element.transform.worldTop..element.transform.worldBottom) {
                         0f
@@ -110,7 +110,7 @@ class DraggableList(
                 if (index < draggingIndex) {
                     index = (index + 1).coerceAtLeast(0)
                 }
-                targetIndex = arrangement.switch({
+                targetIndex = arrangement.choose({
                     //在元素内
                     if (y in element.transform.worldTop..element.transform.worldBottom) {
                         if (y < element.transform.worldCenter.y) index - 1
@@ -251,7 +251,7 @@ class DraggableList(
         val element = subElements[targetIndex]
         val thickness = spacing.coerceAtLeast(1f)
         val color = Color(0x7F8CECFF)
-        arrangement.switch({
+        arrangement.choose({
             if (targetIndex > elementIndexOf(draggingElement!!)) {
                 vertex(0f, element.transform.height, 0f)
             } else {

@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.api.Initializable
@@ -17,9 +18,35 @@ interface ElementContainer : Initializable {
      */
     val transform: Transform
 
+    var width: ElementDimension
+
+    var height: ElementDimension
+
     var spacing: Float
 
-    fun arrange()
+    /**
+     * 只有在排序时才有有用的数据,固定大小的元素才会有剩余空间
+     */
+    var remainingWidth: Float
+
+    var remainingHeight: Float
+
+    /**
+     * 根据自身尺寸排列子元素
+     */
+    fun onMeasure()
+
+    /**
+     * 此方法应该由父元素调用
+     * 测量自身的尺寸
+     * @return Size<Float>
+     */
+    fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float>
+
+    /**
+     * 对子元素进行排列
+     */
+    fun layout()
 
     /**
      * 子元素

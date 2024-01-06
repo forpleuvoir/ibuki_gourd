@@ -16,8 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -158,7 +158,7 @@ class DropListTip(
     }
 
     override fun arrange() {
-        layout.arrange(this.subElements, this.margin, this.padding)?.let { size ->
+        layout.layout(this.subElements, this.margin, this.padding)?.let { size ->
             if (!transform.fixedHeight) {
                 if (maxHeight != null && size.height >= maxHeight) {
                     this.transform.height = maxHeight
@@ -177,7 +177,7 @@ class DropListTip(
         arrow.transform.y = dropMenu.arrow.transform.y
         arrow.transform.x = dropMenu.arrow.transform.x
 
-        arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
+        arrow.layout.layout(arrow.elements, arrow.margin, arrow.padding)
     }
 
 

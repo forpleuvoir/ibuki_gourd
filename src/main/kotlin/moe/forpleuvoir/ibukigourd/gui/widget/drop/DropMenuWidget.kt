@@ -68,7 +68,7 @@ open class DropMenuWidget(
             tip!!.transform.fixedWidth = false
         }
 
-        layout.arrange(this.subElements, margin, padding)?.let {
+        layout.layout(this.subElements, margin, padding)?.let {
             if (!transform.fixedHeight) {
                 this.transform.height = it.height
             }
@@ -83,7 +83,7 @@ open class DropMenuWidget(
         arrow.transform.y = transform.halfHeight - arrow.transform.halfHeight
         arrow.transform.x = transform.width - arrow.transform.y - arrow.transform.halfHeight - arrow.transform.halfWidth
 
-        arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
+        arrow.layout.layout(arrow.elements, arrow.margin, arrow.padding)
     }
 
     override fun onRenderBackground(renderContext: RenderContext) {

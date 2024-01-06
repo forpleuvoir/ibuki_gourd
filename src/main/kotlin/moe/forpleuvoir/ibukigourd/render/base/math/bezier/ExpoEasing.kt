@@ -1,11 +1,11 @@
 package moe.forpleuvoir.ibukigourd.render.base.math.bezier
 
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 import kotlin.math.pow
 
 object ExpoEasing : Easing {
-    override fun easeIn(t: Float): Float = (t == 0f).ternary(0f, 2f.pow(10f * t - 10))
-    override fun easeOut(t: Float): Float = (t == 1f).ternary(1f, 1f - 2f.pow(-10f * t))
+    override fun easeIn(t: Float): Float = (t == 0f).pick(0f, 2f.pow(10f * t - 10))
+    override fun easeOut(t: Float): Float = (t == 1f).pick(1f, 1f - 2f.pow(-10f * t))
 
     override fun easeInOut(t: Float): Float =
         when {

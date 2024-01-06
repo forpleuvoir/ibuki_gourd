@@ -28,7 +28,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.ifc
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.SharedConstants
 import net.minecraft.client.font.TextRenderer
@@ -439,7 +439,7 @@ open class TextInputWidget(
     override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
         if (!isActive) return super.onMouseScrolling(mouseX, mouseY, amount)
         mouseHoverContent() {
-            moveCursor((amount < 0f).ternary(1, -1))
+            moveCursor((amount < 0f).pick(1, -1))
             return NextAction.Cancel
         }
         return NextAction.Continue
@@ -456,7 +456,7 @@ open class TextInputWidget(
     }
 
     override fun onRenderBackground(renderContext: RenderContext) {
-        renderTexture(renderContext.matrixStack, this.transform, focused.ternary(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
+        renderTexture(renderContext.matrixStack, this.transform, focused.pick(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
     }
 
     fun renderCursor(renderContext: RenderContext) {

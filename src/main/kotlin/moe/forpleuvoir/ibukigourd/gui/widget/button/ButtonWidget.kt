@@ -43,7 +43,7 @@ import moe.forpleuvoir.ibukigourd.util.Tick
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.ternary
+import moe.forpleuvoir.nebula.common.pick
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -206,7 +206,7 @@ fun CheckBox(
     }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            status.ternary(
+            status.pick(
                 status(CHECK_BOX_TRUE_DISABLED, CHECK_BOX_TRUE_IDLE, CHECK_BOX_TRUE_HOVERED, CHECK_BOX_TRUE_PRESSED),
                 status(CHECK_BOX_FALSE_DISABLED, CHECK_BOX_FALSE_IDLE, CHECK_BOX_FALSE_HOVERED, CHECK_BOX_FALSE_PRESSED)
             ).let { renderTexture(renderContext.matrixStack, transform, it, this.color()) }
@@ -258,7 +258,7 @@ fun LockBox(
     }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            status.ternary(
+            status.pick(
                 status(LOCK_TRUE_DISABLED, LOCK_TRUE_IDLE, LOCK_TRUE_HOVERED, LOCK_TRUE_PRESSED),
                 status(LOCK_FALSE_DISABLED, LOCK_FALSE_IDLE, LOCK_FALSE_HOVERED, LOCK_FALSE_PRESSED)
             ).let { renderTexture(renderContext.matrixStack, transform, it, this.color()) }
@@ -289,10 +289,10 @@ fun SwitchButton(
     }, { NextAction.Cancel }, { COLOR }, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            renderTexture(renderContext.matrixStack, transform, status.ternary(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
+            renderTexture(renderContext.matrixStack, transform, status.pick(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
             renderTexture(
                 renderContext.matrixStack, rect(
-                    transform.worldPosition.x(transform.worldPosition.x + status.ternary(transform.width / 2, 0f)),
+                    transform.worldPosition.x(transform.worldPosition.x + status.pick(transform.width / 2, 0f)),
                     transform.width / 2,
                     transform.height
                 ), status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color()

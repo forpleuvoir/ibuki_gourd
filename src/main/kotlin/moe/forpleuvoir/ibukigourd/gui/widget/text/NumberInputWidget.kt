@@ -157,13 +157,13 @@ class NumberInputWidget<T>(
         plus.transform.width = (transform.height - 8f)
         plus.transform.x = transform.width - plus.transform.width - 4f
         plus.transform.y = 4f
-        plus.layout.arrange(plus.elements, plus.margin, plus.padding)
+        plus.layout.layout(plus.elements, plus.margin, plus.padding)
 
         minus.transform.height = plus.transform.height
         minus.transform.width = plus.transform.width
         minus.transform.x = plus.transform.x
         minus.transform.y = plus.transform.bottom + 1f
-        minus.layout.arrange(minus.elements, minus.margin, minus.padding)
+        minus.layout.layout(minus.elements, minus.margin, minus.padding)
     }
 
 

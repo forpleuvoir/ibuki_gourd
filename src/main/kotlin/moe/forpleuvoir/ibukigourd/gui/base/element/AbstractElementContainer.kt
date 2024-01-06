@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
@@ -25,6 +26,9 @@ abstract class AbstractElementContainer : Element {
             field = value
         }
 
+    override var remainingWidth: Float = 0f
+
+    override var remainingHeight: Float = 0f
 
     override var margin: Margin = Margin()
         protected set
@@ -50,18 +54,28 @@ abstract class AbstractElementContainer : Element {
 
     override fun init() {
         for (e in subElements) e.init.invoke()
-        arrange()
     }
 
-    override fun arrange() {
-        layout.arrange(this.arrangeElements, margin, padding)?.let {
-            if (!transform.fixedWidth) {
-                this.transform.width = it.width
-            }
-            if (!transform.fixedHeight) {
-                this.transform.height = it.height
-            }
-            if (!transform.fixedHeight || !transform.fixedWidth) parent().arrange()
+    override fun layout() {
+
+    }
+
+    override fun onMeasure() {
+        //测量子元素的尺寸
+        //
+    }
+
+    override fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float> {
+        //测量自身的尺寸
+        //Fixed 固定尺寸,不需要获取父元素和子元素的尺寸
+        //WrapContent 包裹内容,需要获取子元素的尺寸,如果没有子元素则为默认值 default
+        //MatchParent 占满父元素,需要获取父元素的尺寸
+        //FillRemainingSpace 填充剩余空间,需要获取父元素的尺寸和其他子元素的尺寸
+        when (this.width) {
+            is Fixed           -> transform.width = (this.width as Fixed).value
+            FillRemainingSpace -> if (parent().width is Fixed) transform.width = parent().remainingWidth
+            MatchParent        -> if (parent().width is Fixed) transform.width = parent().transform.width - parent().padding.width - this.margin.width
+            WrapContent        -> TODO()
         }
     }
 

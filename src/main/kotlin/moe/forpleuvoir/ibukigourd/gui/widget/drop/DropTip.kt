@@ -34,7 +34,7 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
     }
 
     override fun arrange() {
-        layout.arrange(this.subElements, this.margin, this.padding)?.let {
+        layout.layout(this.subElements, this.margin, this.padding)?.let {
             if (!transform.fixedHeight) {
                 this.transform.height = it.height
             }
@@ -48,7 +48,7 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
 
         arrow.transform.y = dropMenu.arrow.transform.y
         arrow.transform.x = dropMenu.arrow.transform.x
-        arrow.layout.arrange(arrow.elements, arrow.margin, arrow.padding)
+        arrow.layout.layout(arrow.elements, arrow.margin, arrow.padding)
     }
 
     override var visible: Boolean = false

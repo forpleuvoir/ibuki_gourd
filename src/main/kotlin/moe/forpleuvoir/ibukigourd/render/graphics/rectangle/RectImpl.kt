@@ -13,9 +13,9 @@ class RectImpl(
 
 	constructor(x: Number, y: Number, z: Number, width: Number, height: Number) : this(vertex(x, y, z), width.toFloat(), height.toFloat())
 
-    constructor(x: Number, y: Number, z: Number, dimension: Dimension<Number>) : this(vertex(x, y, z), dimension.width.toFloat(), dimension.height.toFloat())
+	constructor(x: Number, y: Number, z: Number, dimension: Dimension<Number>) : this(vertex(x, y, z), dimension.width.toFloat(), dimension.height.toFloat())
 
-    constructor(position: Vector3<Float>, dimension: Dimension<Float>) : this(ImmutableVector3f(position.x, position.y, position.z), dimension.width, dimension.height)
+	constructor(position: Vector3<Float>, dimension: Dimension<Float>) : this(ImmutableVector3f(position.x, position.y, position.z), dimension.width, dimension.height)
 
 	override val vertexes: Array<Vector3<Float>>
 		get() = arrayOf(
