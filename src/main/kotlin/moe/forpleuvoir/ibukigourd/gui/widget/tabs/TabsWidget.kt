@@ -18,9 +18,9 @@ import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TAB_INACTIVE_TOP
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -106,15 +106,15 @@ class TabsWidget(
             }
 
             val alignment = when (direction) {
-                Direction.Top    -> PlanarAlignment.BottomLeft(Arrangement.Horizontal)
-                Direction.Bottom -> PlanarAlignment.TopLeft(Arrangement.Horizontal)
-                Direction.Left   -> PlanarAlignment.TopRight(Arrangement.Vertical)
-                Direction.Right  -> PlanarAlignment.TopLeft(Arrangement.Vertical)
+                Direction.Top    -> PlanarAlignment.BottomLeft(Orientation.Horizontal)
+                Direction.Bottom -> PlanarAlignment.TopLeft(Orientation.Horizontal)
+                Direction.Left   -> PlanarAlignment.TopRight(Orientation.Vertical)
+                Direction.Right  -> PlanarAlignment.TopLeft(Orientation.Vertical)
             }
 
-            val alignRects = alignRects(elements, alignment.arrangement)
+            val alignRects = alignRects(elements, alignment.orientation)
 
-            val size = alignment.arrangement.contentSize(alignRects)
+            val size = alignment.orientation.contentSize(alignRects)
 
             val contentRect = when (direction) {
                 Direction.Top    -> rect(vertex(4f, 0, 0), transform.width, size.height)
@@ -130,11 +130,11 @@ class TabsWidget(
                     }
                 }
             }
-            return Dimension.create(contentRect.width, contentRect.height)
+            return Dimension.of(contentRect.width, contentRect.height)
         }
     }
 
-    var tabDimension: Dimension<Float> = Dimension.create(0f, 0f)
+    var tabDimension: Dimension<Float> = Dimension.of(0f, 0f)
 
     override fun arrange() {
         println("我执行了")

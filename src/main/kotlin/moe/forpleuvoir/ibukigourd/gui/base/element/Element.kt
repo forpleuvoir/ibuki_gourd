@@ -20,9 +20,6 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
     companion object {
         val EMPTY: Element = object : Element {
             override val transform: Transform = Transform()
-            override val dimension: ElementDimension = ElementDimension(0f, 0f)
-            override var widthWeight: Float = 0f
-            override var heightWeight: Float = 0f
             override var visible: Boolean = false
             override var parent: () -> Element = { this }
             override val screen: () -> Screen = { Screen.EMPTY }
@@ -71,10 +68,6 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
 
             override var charTyped: (chr: Char) -> NextAction = { NextAction.Cancel }
             override var init: () -> Unit = {}
-            override var spacing: Float = 0f
-            override var remainingWidth: Float = 0f
-            override var remainingHeight: Float = 0f
-
 
             override val elements: List<Element> = emptyList()
             override val renderElements: List<Element> = emptyList()
@@ -122,18 +115,9 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      */
     override val transform: Transform
 
-    /**
-     *  基础属性尺寸,
-     *  只是用于提供给transform长度和宽度
-     *  重新排列元素时
-     */
-    val dimension: ElementDimension
-
-    var widthWeight: Float
-
-    var heightWeight: Float
-
     override var visible: Boolean
+
+    val layoutData: Map<Any, Any>
 
     /**
      * 父元素

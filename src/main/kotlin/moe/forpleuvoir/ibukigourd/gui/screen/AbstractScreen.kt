@@ -3,17 +3,19 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 
 abstract class AbstractScreen(
-    override var width: ElementDimension = MatchParent,
-    override var height: ElementDimension = MatchParent,
-) : AbstractElement(), Screen {
+    width: ElementDimension = MatchParent,
+    height: ElementDimension = MatchParent,
+    orientation: Orientation = Orientation.Vertical
+) : LinearLayout(width, height, orientation), Screen {
 
     override val screen: () -> Screen get() = { this }
 
@@ -68,30 +70,28 @@ abstract class AbstractScreen(
 
     override fun init() {
         super.init()
-        arrange()
     }
 
-    override fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float> {
+    override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
+        val (mWidth, mHeight) = elementMeasureDimension
         when (width) {
-            is MatchParent -> {
-                transform.width = measureWidth.value
-            }
-
-            is WrapContent -> {
-                //需要测量子元素
-            }
-
-            is Fixed       -> {
-                transform.width = if (measureWidth.mode == MeasureDimension.Mode.AT_MOST)
-                    (width as Fixed).value.coerceAtMost(measureWidth.value)
-                else (width as Fixed).value
-            }
-
-            is Weight      -> {
-                //需要测量子元素
-            }
+            is Fixed           -> transform.width = (width as Fixed).value
+            FillRemainingSpace -> transform.width = mWidth.value
+            MatchParent        -> transform.width = mWidth.value
+            is Weight          -> transform.width = mWidth.value
+            is Percentage      -> transform.width = mWidth.value * (width as Percentage).value
+            is WrapContent     -> TODO()
         }
-        return super.measure(measureWidth, measureHeight)
+
+        when (height) {
+            is Fixed           -> transform.height = (height as Fixed).value
+            FillRemainingSpace -> transform.height = mHeight.value
+            MatchParent        -> transform.height = mHeight.value
+            is Weight          -> transform.height = mHeight.value
+            is Percentage      -> transform.height = mHeight.value * (height as Percentage).value
+            is WrapContent     -> TODO()
+        }
+
     }
 
     override fun tick() {
@@ -108,7 +108,7 @@ abstract class AbstractScreen(
         preMouseY = this.mouseY
         this.mouseX = mouseX
         this.mouseY = mouseY
-        return super<AbstractElement>.onMouseMove(mouseX, mouseY)
+        return super<LinearLayout>.onMouseMove(mouseX, mouseY)
     }
 
 
@@ -128,9 +128,7 @@ abstract class AbstractScreen(
     }
 
     override fun onResize(width: Int, height: Int) {
-        this.transform.width = width.toFloat()
-        this.transform.height = height.toFloat()
-        arrange()
+
     }
 
 
@@ -141,7 +139,7 @@ abstract class AbstractScreen(
             close()
             return NextAction.Cancel
         }
-        return super<AbstractElement>.onKeyPress(keyCode)
+        return super<LinearLayout>.onKeyPress(keyCode)
     }
 
 }

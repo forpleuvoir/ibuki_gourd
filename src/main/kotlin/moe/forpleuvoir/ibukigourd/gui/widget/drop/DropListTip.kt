@@ -15,9 +15,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -48,15 +48,15 @@ class DropListTip(
             val alignElements = elements.filter { !it.fixed }
             if (alignElements.isEmpty()) return null
 
-            val alignRects = alignRects(alignElements, Arrangement.Vertical)
+            val alignRects = alignRects(alignElements, Orientation.Vertical)
 
-            val alignment = PlanarAlignment.TopLeft(Arrangement.Vertical)
+            val alignment = PlanarAlignment.TopLeft(Orientation.Vertical)
 
 
             val container = elementContainer()
             val containerContentRect = container.contentRect(false)
 
-            val size = Arrangement.Vertical.contentSize(alignRects)
+            val size = Orientation.Vertical.contentSize(alignRects)
             val contentRect = when {
                 //固定高度和宽度
                 container.transform.fixedWidth && container.transform.fixedHeight  -> {
@@ -81,7 +81,7 @@ class DropListTip(
                 element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
-            return Dimension.create(contentRect.width + padding.width, contentRect.height + padding.height)
+            return Dimension.of(contentRect.width + padding.width, contentRect.height + padding.height)
         }
 
     }
@@ -132,15 +132,15 @@ class DropListTip(
 
     override fun init() {
         for (e in subElements) e.init.invoke()
-        val contentSize = Arrangement.Vertical.contentSize(layout.alignRects(subElements, Arrangement.Vertical))
+        val contentSize = Orientation.Vertical.contentSize(layout.alignRects(subElements, Orientation.Vertical))
         if (!this::scrollerBar.isInitialized) {
             scrollerBar = scroller(
                 transform.height - parent().transform.height - spacing,
                 scrollerThickness,
-                { (layout.alignRects(subElements, Arrangement.Vertical).minOf { it.height } / 2f) },
+                { (layout.alignRects(subElements, Orientation.Vertical).minOf { it.height } / 2f) },
                 { (contentSize.height - contentRect(false).height).coerceAtLeast(0f) },
                 { (contentRect(false).height / contentSize.height).clamp(0f..1f) },
-                Arrangement.Vertical
+                Orientation.Vertical
             ) {
                 fixed = true
                 visible = showScroller

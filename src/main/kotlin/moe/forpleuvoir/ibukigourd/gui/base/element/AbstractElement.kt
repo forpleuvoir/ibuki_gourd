@@ -25,6 +25,8 @@ abstract class AbstractElement(
 
     override var visible: Boolean = true
 
+    override val layoutData: Map<Any, Any> = hashMapOf()
+
     override var parent: () -> Element = { this }
 
     override var active = true

@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.input.notEquals
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
@@ -36,9 +36,9 @@ class DraggableList(
     padding: Margin? = Margin(6),
     showScroller: Boolean = true,
     showBackground: Boolean = true,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     scrollerThickness: Float = 10f,
-) : ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness) {
+) : ListLayout(width, height, padding, showScroller, showBackground, Orientation, scrollerThickness) {
 
     var elementSwap: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> }
 
@@ -81,12 +81,12 @@ class DraggableList(
         }
 
         override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-            draggingElement?.transform?.translate(arrangement.choose(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
+            draggingElement?.transform?.translate(Orientation.choose(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
             val x = mouseX + deltaX
             val y = mouseY + deltaY
             val draggingIndex = elementIndexOf(draggingElement!!)
-            arrangeElements.filter { it != draggingElement }.minByOrNull { element ->
-                arrangement.choose({
+            layoutElements.filter { it != draggingElement }.minByOrNull { element ->
+                Orientation.choose({
                     //在元素内
                     if (y in element.transform.worldTop..element.transform.worldBottom) {
                         0f
@@ -110,7 +110,7 @@ class DraggableList(
                 if (index < draggingIndex) {
                     index = (index + 1).coerceAtLeast(0)
                 }
-                targetIndex = arrangement.choose({
+                targetIndex = Orientation.choose({
                     //在元素内
                     if (y in element.transform.worldTop..element.transform.worldBottom) {
                         if (y < element.transform.worldCenter.y) index - 1
@@ -251,7 +251,7 @@ class DraggableList(
         val element = subElements[targetIndex]
         val thickness = spacing.coerceAtLeast(1f)
         val color = Color(0x7F8CECFF)
-        arrangement.choose({
+        Orientation.choose({
             if (targetIndex > elementIndexOf(draggingElement!!)) {
                 vertex(0f, element.transform.height, 0f)
             } else {
@@ -285,7 +285,7 @@ class DraggableList(
 fun ElementContainer.draggableList(
     width: Float? = null,
     height: Float? = null,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     padding: Margin? = Margin(6),
     showScroller: Boolean = true,
     showBackground: Boolean = true,
@@ -295,14 +295,14 @@ fun ElementContainer.draggableList(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(DraggableList(width, height, arrangement, padding, showScroller, showBackground, scrollerThickness, scope))
+    return this.addElement(DraggableList(width, height, Orientation, padding, showScroller, showBackground, scrollerThickness, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
 fun DraggableList(
     width: Float? = null,
     height: Float? = null,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     padding: Margin? = Margin(6),
     showScroller: Boolean = true,
     showBackground: Boolean = true,
@@ -312,5 +312,5 @@ fun DraggableList(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return DraggableList(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope)
+    return DraggableList(width, height, padding, showScroller, showBackground, Orientation, scrollerThickness).apply(scope)
 }

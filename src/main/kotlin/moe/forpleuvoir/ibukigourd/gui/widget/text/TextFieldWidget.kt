@@ -13,7 +13,7 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
@@ -38,7 +38,7 @@ open class TextFieldWidget(
     var rightToLeft: Boolean = RIGHT_TO_LEFT,
     var color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     var backgroundColor: Color = BACKGROUND_COLOR,
-    val alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    val alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -181,7 +181,7 @@ open class TextFieldWidget(
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
                 if (scrollable && if (hoverScroller) mouseHover() else true) {
-                    alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                    alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
 
                         if (index == 0) originYOffset = vec.y - transform.worldTop
 
@@ -205,7 +205,7 @@ open class TextFieldWidget(
                         )
                     }
                 } else {
-                    alignment(Arrangement.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                    alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
                         renderText(
                             renderContext.matrixStack,
                             renderText[index],
@@ -245,7 +245,7 @@ fun ElementContainer.textField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -290,7 +290,7 @@ fun TextField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -336,7 +336,7 @@ fun ElementContainer.textField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -382,7 +382,7 @@ fun TextField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -426,7 +426,7 @@ fun ElementContainer.textField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -455,7 +455,7 @@ fun TextField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -484,7 +484,7 @@ fun ElementContainer.textField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
@@ -512,7 +512,7 @@ fun TextField(
     rightToLeft: Boolean = RIGHT_TO_LEFT,
     color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,

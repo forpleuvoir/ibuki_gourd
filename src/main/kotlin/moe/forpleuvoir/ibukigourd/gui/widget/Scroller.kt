@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -34,7 +34,7 @@ open class Scroller(
      * 滚动条所占总长度的百分比 Range(0f..1f)
      */
     var barLength: () -> Float,
-    private val arrangement: Arrangement = Arrangement.Vertical,
+    private val Orientation: Orientation = Orientation.Vertical,
     var color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
 ) : ClickableElement() {
@@ -49,14 +49,14 @@ open class Scroller(
         transform.fixedWidth = true
         transform.fixedHeight = true
         transform.resizeCallback = { width, height ->
-            arrangement.choose(
+            Orientation.choose(
                 {
                     bar.transform.width = width
                 }, {
                     bar.transform.height = height
                 })
         }
-        arrangement.choose(
+        Orientation.choose(
             {
                 transform.width = thickness
                 transform.height = length
@@ -72,7 +72,7 @@ open class Scroller(
         set(value) {
             val fixedValue = value.clamp(0f..totalAmount())
             val barPosition = scrollerLength * if (totalAmount() == 0f) 0f else fixedValue / totalAmount()
-            arrangement.choose(
+            Orientation.choose(
                 {
                     bar.transform.y = barPosition
                 }, {
@@ -84,7 +84,7 @@ open class Scroller(
     var amountReceiver: ((amount: Float) -> Unit)? = null
 
     open val scrollerLength: Float
-        get() = arrangement.choose(
+        get() = Orientation.choose(
             this.transform.height - (barLength() * this.transform.height),
             this.transform.width - (barLength() * this.transform.width)
         )
@@ -101,12 +101,12 @@ open class Scroller(
         }
         get() {
             if (scrollerLength == 0f) return 1f
-            return (arrangement.choose({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
+            return (Orientation.choose({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
         }
 
 
     private fun calcBarLength() {
-        arrangement.choose(
+        Orientation.choose(
             {
                 bar.transform.height = barLength() * this.transform.height
             }, {
@@ -124,7 +124,7 @@ open class Scroller(
 
     protected open fun setFromMouse(mouseX: Float, mouseY: Float) {
         if (bar.mouseHover()) return
-        arrangement.choose(
+        Orientation.choose(
             {
                 val a = mouseY - bar.transform.worldY
                 if (a > 0) {
@@ -147,7 +147,7 @@ open class Scroller(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging || !visible || !bar.dragging) return NextAction.Continue
-        arrangement.choose(
+        Orientation.choose(
             {
                 bar.transform.y = (bar.transform.y + deltaY).clamp(barPositionRange)
             }, {
@@ -189,7 +189,7 @@ open class Scroller(
  * @param amountStep () -> Float 滚动步长 每次滚动鼠标时移动的距离
  * @param totalAmount () -> Float 滚动条总长度
  * @param barLength () -> Float 滚动条所占总长度的百分比 Range(0f..1f)
- * @param arrangement Arrangement 排列方式
+ * @param Orientation Arrangement 排列方式
  * @param color () -> ARGBColor 滚动条背景着色器颜色
  * @param barColor () -> ARGBColor  滚动条着色器颜色
  * @param scope Scroller.() -> Unit
@@ -202,7 +202,7 @@ fun ElementContainer.scroller(
     amountStep: () -> Float,
     totalAmount: () -> Float,
     barLength: () -> Float,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -210,7 +210,7 @@ fun ElementContainer.scroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor, scope))
+    return this.addElement(Scroller(length, thickness, amountStep, totalAmount, barLength, Orientation, color, barColor, scope))
 }
 
 /**
@@ -219,7 +219,7 @@ fun ElementContainer.scroller(
  * @param amountStep () -> Float 滚动步长 每次滚动鼠标时移动的距离
  * @param totalAmount () -> Float 滚动条总长度
  * @param barLength () -> Float 滚动条所占总长度的百分比 Range(0f..1f)
- * @param arrangement Arrangement 排列方式
+ * @param Orientation Arrangement 排列方式
  * @param color () -> ARGBColor 滚动条背景着色器颜色
  * @param barColor () -> ARGBColor  滚动条着色器颜色
  * @param scope Scroller.() -> Unit
@@ -232,7 +232,7 @@ fun Scroller(
     amountStep: () -> Float,
     totalAmount: () -> Float,
     barLength: () -> Float,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -240,7 +240,7 @@ fun Scroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return Scroller(length, thickness, amountStep, totalAmount, barLength, arrangement, color, barColor).apply(scope)
+    return Scroller(length, thickness, amountStep, totalAmount, barLength, Orientation, color, barColor).apply(scope)
 }
 
 /**
@@ -254,7 +254,7 @@ fun Scroller(
  * @param valueRender (T) -> Text 值渲染器
  * @param length Float 滚动条长度
  * @param thickness Float 滚动条厚度
- * @param arrangement Arrangement 排列方式
+ * @param Orientation Arrangement 排列方式
  * @param color () -> ARGBColor 滚动条背景着色器颜色
  * @param barColor () -> ARGBColor 滚动条着色器颜色
  * @param scope Scroller.() -> Unit 滚动条作用域
@@ -269,7 +269,7 @@ fun <T> ElementContainer.numberScroller(
     valueRender: (T) -> Text = { literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -286,7 +286,7 @@ fun <T> ElementContainer.numberScroller(
             valueRender,
             length,
             thickness,
-            arrangement,
+            Orientation,
             color,
             barColor,
             scope
@@ -303,7 +303,7 @@ fun <T> ElementContainer.numberScroller(
  * @param valueRender (T) -> Text 值渲染器
  * @param length Float 滚动条长度
  * @param thickness Float 滚动条厚度
- * @param arrangement Arrangement 排列方式
+ * @param Orientation Arrangement 排列方式
  * @param color () -> ARGBColor 滚动条背景着色器颜色
  * @param barColor () -> ARGBColor 滚动条着色器颜色
  * @param scope Scroller.() -> Unit 滚动条作用域
@@ -318,7 +318,7 @@ fun <T> NumberScroller(
     valueRender: (T) -> Text = { literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -343,13 +343,13 @@ fun <T> NumberScroller(
         { range.endInclusive.minus(range.start).toFloat() * 0.05f },
         { range.endInclusive.minus(range.start).toFloat() },
         { 10 / length },
-        arrangement, color, barColor
+        Orientation, color, barColor
     ).apply {
         scope()
         amount = initValue.toFloat()
         bar.hoverTip(
             displayDelay = 1u,
-            optionalDirections = arrangement.choose(
+            optionalDirections = Orientation.choose(
                 listOf(Direction.Left, Direction.Right),
                 listOf(Direction.Top, Direction.Bottom)
             ),
@@ -381,7 +381,7 @@ fun ElementContainer.intScroller(
     valueRender: (Int) -> Text = { literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -389,7 +389,7 @@ fun ElementContainer.intScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(IntScroller(initValue, range, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope))
+    return addElement(IntScroller(initValue, range, valueReceiver, valueRender, length, thickness, Orientation, color, barColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -400,7 +400,7 @@ fun IntScroller(
     valueRender: (Int) -> Text = { literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -408,7 +408,7 @@ fun IntScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return NumberScroller(initValue, range, { it.toInt() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+    return NumberScroller(initValue, range, { it.toInt() }, valueReceiver, valueRender, length, thickness, Orientation, color, barColor, scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -419,7 +419,7 @@ fun ElementContainer.floatScroller(
     valueRender: (Float) -> Text = { literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -427,7 +427,7 @@ fun ElementContainer.floatScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(FloatScroller(initValue, range, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope))
+    return addElement(FloatScroller(initValue, range, valueReceiver, valueRender, length, thickness, Orientation, color, barColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -438,7 +438,7 @@ fun FloatScroller(
     valueRender: (Float) -> Text = { literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -446,7 +446,7 @@ fun FloatScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return NumberScroller(initValue, range, { it.toFloat() }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+    return NumberScroller(initValue, range, { it.toFloat() }, valueReceiver, valueRender, length, thickness, Orientation, color, barColor, scope)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -457,7 +457,7 @@ fun ElementContainer.doubleScroller(
     valueRender: (Double) -> Text = { literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -465,7 +465,7 @@ fun ElementContainer.doubleScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(DoubleScroller(initValue, range, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope))
+    return addElement(DoubleScroller(initValue, range, valueReceiver, valueRender, length, thickness, Orientation, color, barColor, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -476,7 +476,7 @@ fun DoubleScroller(
     valueRender: (Double) -> Text = { literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     color: () -> ARGBColor = { Colors.WHITE },
     barColor: () -> ARGBColor = { Colors.WHITE },
     scope: Scroller.() -> Unit = {}
@@ -484,5 +484,5 @@ fun DoubleScroller(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return NumberScroller(initValue, range, { it }, valueReceiver, valueRender, length, thickness, arrangement, color, barColor, scope)
+    return NumberScroller(initValue, range, { it }, valueReceiver, valueRender, length, thickness, Orientation, color, barColor, scope)
 }

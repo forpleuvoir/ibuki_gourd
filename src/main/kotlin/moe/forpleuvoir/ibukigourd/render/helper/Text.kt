@@ -4,7 +4,7 @@ package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
@@ -158,14 +158,14 @@ object BatchTextRenderScope {
         matrixStack: MatrixStack,
         text: String,
         rect: Rectangle<Vector3<Float>>,
-        align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+        align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer!!.isRightToLeft,
         color: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
+        val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
         renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
@@ -184,14 +184,14 @@ object BatchTextRenderScope {
         matrixStack: MatrixStack,
         text: Text,
         rect: Rectangle<Vector3<Float>>,
-        align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+        align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer!!.isRightToLeft,
         color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
+        val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
         renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
@@ -209,7 +209,7 @@ object BatchTextRenderScope {
         matrixStack: MatrixStack,
         text: Text,
         transform: Transform,
-        align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+        align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer!!.isRightToLeft,
@@ -222,7 +222,7 @@ object BatchTextRenderScope {
         string: String,
         rect: Rectangle<Vector3<Float>>,
         lineSpacing: Number = 1,
-        align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+        align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer!!.isRightToLeft,
@@ -259,7 +259,7 @@ object BatchTextRenderScope {
         lines: List<String>,
         rect: Rectangle<Vector3<Float>>,
         lineSpacing: Number = 1,
-        align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+        align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer!!.isRightToLeft,
@@ -406,14 +406,14 @@ inline fun TextRenderer.renderAlignmentText(
     matrixStack: MatrixStack,
     text: String,
     rect: Rectangle<Vector3<Float>>,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,
     color: ARGBColor = Color(0x000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
+    val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
     renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
@@ -433,14 +433,14 @@ inline fun TextRenderer.renderAlignmentText(
     matrixStack: MatrixStack,
     text: Text,
     rect: Rectangle<Vector3<Float>>,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,
     color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    val position = align(Arrangement.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
+    val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
     renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
@@ -459,7 +459,7 @@ inline fun TextRenderer.renderAlignmentText(
     matrixStack: MatrixStack,
     text: Text,
     transform: Transform,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,
@@ -487,7 +487,7 @@ fun TextRenderer.renderStringLines(
     string: String,
     rect: Rectangle<Vector3<Float>>,
     lineSpacing: Number = 1,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,
@@ -526,7 +526,7 @@ fun TextRenderer.renderStringLines(
     lines: List<String>,
     rect: Rectangle<Vector3<Float>>,
     lineSpacing: Number = 1,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,
@@ -565,7 +565,7 @@ fun TextRenderer.renderTextLines(
     text: Text,
     rect: Rectangle<Vector3<Float>>,
     lineSpacing: Number = 1,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,
@@ -605,7 +605,7 @@ fun TextRenderer.renderTextLines(
     lines: List<Text>,
     rect: Rectangle<Vector3<Float>>,
     lineSpacing: Number = 1,
-    align: (Arrangement) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     rightToLeft: Boolean = this.isRightToLeft,

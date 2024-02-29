@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -15,7 +15,7 @@ class ColumnLayout(
     height: Float? = null,
     padding: Padding? = null,
     margin: Margin? = null,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center
 ) : AbstractElement() {
 
     init {
@@ -31,7 +31,7 @@ class ColumnLayout(
         margin?.let(::margin)
     }
 
-    override val layout: Layout = LinearLayout({ this }, Arrangement.Vertical, alignment)
+    override val layout: Layout = LinearLayout({ this }, Orientation.Vertical, alignment)
 
 }
 
@@ -43,7 +43,7 @@ inline fun ElementContainer.column(
     padding: Padding? = Padding(2),
     margin: Margin? = null,
     spacing: Float = 2f,
-    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    noinline alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     scope: ColumnLayout.() -> Unit
 ): ColumnLayout {
     contract {
@@ -59,7 +59,7 @@ inline fun Column(
     padding: Padding? = Padding(2),
     margin: Margin? = null,
     spacing: Float = 2f,
-    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    noinline alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     scope: ColumnLayout.() -> Unit
 ): ColumnLayout {
     contract {

@@ -477,7 +477,7 @@ open class TextInputWidget(
             if (cursor - firstCharacterIndex > 0) {
                 renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset - 0.85f, y), 1f, height), cursorColor)
             } else {
-                renderRect(renderContext.matrixStack, rect(rect.position.y(y), Dimension.create(1f, height)), cursorColor)
+                renderRect(renderContext.matrixStack, rect(rect.position.y(y), Dimension.of(1f, height)), cursorColor)
             }
         }
     }
@@ -522,9 +522,9 @@ open class TextInputWidget(
                           else 0f
                 val width = (start - end).absoluteValue
                 val rect = if (selectionEnd > selectionStart) {
-                    rect(contentRect.position.x(start), Dimension.create(width, contentRect.height))
+                    rect(contentRect.position.x(start), Dimension.of(width, contentRect.height))
                 } else {
-                    rect(contentRect.position.x(end), Dimension.create(width, contentRect.height))
+                    rect(contentRect.position.x(end), Dimension.of(width, contentRect.height))
                 }
                 renderRect(renderContext.matrixStack, rect, selectedColor)
             }

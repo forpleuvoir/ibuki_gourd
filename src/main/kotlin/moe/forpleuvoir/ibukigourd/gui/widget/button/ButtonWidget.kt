@@ -31,7 +31,7 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PRESS_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
@@ -61,7 +61,7 @@ open class ButtonWidget(
     margin: Margin? = null,
 ) : ClickableElement() {
 
-    override var layout: Layout = LinearLayout({ this }, Arrangement.Horizontal)
+    override var layout: Layout = LinearLayout({ this }, Orientation.Horizontal)
         set(value) {
             field = value
             field.spacing = this.spacing

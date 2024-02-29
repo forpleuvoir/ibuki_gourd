@@ -18,22 +18,22 @@ interface Dimension<T : Number> {
             }
 
 
-        fun create(width: Float, height: Float): Dimension<Float> = object : DimensionFloat {
+        fun of(width: Float, height: Float): Dimension<Float> = object : DimensionFloat {
             override val width: Float get() = width
             override val height: Float get() = height
         }
 
-        fun create(width: Double, height: Double): Dimension<Double> = object : DimensionDouble {
+        fun of(width: Double, height: Double): Dimension<Double> = object : DimensionDouble {
             override val width: Double get() = width
             override val height: Double get() = height
         }
 
-        fun create(width: Int, height: Int): Dimension<Int> = object : DimensionInt {
+        fun of(width: Int, height: Int): Dimension<Int> = object : DimensionInt {
             override val width: Int get() = width
             override val height: Int get() = height
         }
 
-        fun create(width: Long, height: Long): Dimension<Long> = object : DimensionLong {
+        fun of(width: Long, height: Long): Dimension<Long> = object : DimensionLong {
             override val width: Long get() = width
             override val height: Long get() = height
         }
@@ -96,22 +96,22 @@ interface MutableDimension<T : Number> : Dimension<T> {
 
     companion object {
 
-        fun create(width: Float, height: Float): MutableDimension<Float> = object : MutableDimensionFloat {
+        fun of(width: Float, height: Float): MutableDimension<Float> = object : MutableDimensionFloat {
             override var width: Float = width
             override var height: Float = height
         }
 
-        fun create(width: Double, height: Double): MutableDimension<Double> = object : MutableDimensionDouble {
+        fun of(width: Double, height: Double): MutableDimension<Double> = object : MutableDimensionDouble {
             override var width: Double = width
             override var height: Double = height
         }
 
-        fun create(width: Int, height: Int): MutableDimension<Int> = object : MutableDimensionInt {
+        fun of(width: Int, height: Int): MutableDimension<Int> = object : MutableDimensionInt {
             override var width: Int = width
             override var height: Int = height
         }
 
-        fun create(width: Long, height: Long): MutableDimension<Long> = object : MutableDimensionLong {
+        fun of(width: Long, height: Long): MutableDimension<Long> = object : MutableDimensionLong {
             override var width: Long = width
             override var height: Long = height
         }

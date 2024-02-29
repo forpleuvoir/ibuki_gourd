@@ -15,7 +15,7 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.icon(
     texture: () -> WidgetTexture,
-    dimension: () -> Dimension<Float> = { Dimension.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
+    dimension: () -> Dimension<Float> = { Dimension.of(texture().uSize.toFloat(), texture().vSize.toFloat()) },
     scale: () -> Float = { 1f },
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -29,7 +29,7 @@ fun ElementContainer.icon(
 @OptIn(ExperimentalContracts::class)
 fun Icon(
     texture: () -> WidgetTexture,
-    dimension: () -> Dimension<Float> = { Dimension.create(texture().uSize.toFloat(), texture().vSize.toFloat()) },
+    dimension: () -> Dimension<Float> = { Dimension.of(texture().uSize.toFloat(), texture().vSize.toFloat()) },
     scale: () -> Float = { 1f },
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -58,7 +58,7 @@ fun Icon(
 @OptIn(ExperimentalContracts::class)
 fun ElementContainer.icon(
     texture: WidgetTexture,
-    dimension: Dimension<Float> = Dimension.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
+    dimension: Dimension<Float> = Dimension.of(texture.uSize.toFloat(), texture.vSize.toFloat()),
     scale: Float = 1f,
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}
@@ -72,7 +72,7 @@ fun ElementContainer.icon(
 @OptIn(ExperimentalContracts::class)
 fun Icon(
     texture: WidgetTexture,
-    dimension: Dimension<Float> = Dimension.create(texture.uSize.toFloat(), texture.vSize.toFloat()),
+    dimension: Dimension<Float> = Dimension.of(texture.uSize.toFloat(), texture.vSize.toFloat()),
     scale: Float = 1f,
     shaderColor: () -> ARGBColor = { Colors.WHITE },
     scope: AbstractElement.() -> Unit = {}

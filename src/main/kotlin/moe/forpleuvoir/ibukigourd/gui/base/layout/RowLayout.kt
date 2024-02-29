@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementDimension.Companion.WRAP_CONTENT
 import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -17,7 +17,7 @@ class RowLayout(
     height: Float = WRAP_CONTENT,
     padding: Padding? = null,
     margin: Margin? = null,
-    alignment: (Arrangement) -> Alignment = PlanarAlignment::Center
+    alignment: (Orientation) -> Alignment = PlanarAlignment::Center
 ) : AbstractElement(width, height) {
 
     init {
@@ -25,7 +25,7 @@ class RowLayout(
         margin?.let(::margin)
     }
 
-    override val layout: Layout = LinearLayout({ this }, Arrangement.Horizontal, alignment)
+    override val layout: Layout = LinearLayout({ this }, Orientation.Horizontal, alignment)
 
 }
 
@@ -36,7 +36,7 @@ inline fun ElementContainer.row(
     padding: Padding? = Padding(2),
     margin: Margin? = null,
     spacing: Float = 2f,
-    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    noinline alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     scope: RowLayout.() -> Unit
 ): RowLayout {
     contract {
@@ -52,7 +52,7 @@ inline fun Row(
     padding: Padding? = Padding(2),
     margin: Margin? = null,
     spacing: Float = 2f,
-    noinline alignment: (Arrangement) -> Alignment = PlanarAlignment::Center,
+    noinline alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     scope: RowLayout.() -> Unit
 ): RowLayout {
     contract {

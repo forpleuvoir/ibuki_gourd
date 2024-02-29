@@ -10,9 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -31,7 +31,7 @@ open class ListLayout(
     padding: Margin? = Margin(6),
     val showScroller: Boolean = true,
     val showBackground: Boolean = true,
-    val arrangement: Arrangement = Arrangement.Vertical,
+    val Orientation: Orientation = Orientation.Vertical,
     scrollerThickness: Float = 10f,
 ) : AbstractElement() {
 
@@ -60,25 +60,25 @@ open class ListLayout(
 
     override fun init() {
         for (e in subElements) e.init.invoke()
-        val contentSize = arrangement.contentSize(layout.alignRects(subElements, arrangement))
+        val contentSize = Orientation.contentSize(layout.alignRects(subElements, Orientation))
         if (!this::scrollerBar.isInitialized) {
             scrollerBar = scroller(
-                arrangement.choose({ transform.height - padding.height }, { transform.width - padding.width }),
+                Orientation.choose({ transform.height - padding.height }, { transform.width - padding.width }),
                 scrollerThickness,
-                { (layout.alignRects(subElements, arrangement).minOf { r -> arrangement.choose(r.height, r.width) } / 2f) },
+                { (layout.alignRects(subElements, Orientation).minOf { r -> Orientation.choose(r.height, r.width) } / 2f) },
                 {
-                    arrangement.choose(
+                    Orientation.choose(
                         contentSize.height - contentRect(false).height,
                         contentSize.width - contentRect(false).width
                     ).coerceAtLeast(0f)
                 },
                 {
-                    arrangement.choose(
+                    Orientation.choose(
                         contentRect(false).height / contentSize.height,
                         contentRect(false).width / contentSize.width
                     ).clamp(0f..1f)
                 },
-                arrangement
+                Orientation
             ) {
                 fixed = true
                 visible = showScroller
@@ -89,7 +89,7 @@ open class ListLayout(
         }
         arrange()
         if (this::scrollerBar.isInitialized) {
-            arrangement.choose(
+            Orientation.choose(
                 {
                     scrollerBar.transform.worldX = transform.worldRight - scrollerThickness - padding.right / 2
                     scrollerBar.transform.y = padding.top
@@ -117,14 +117,14 @@ open class ListLayout(
             val alignElements = elements.filter { !it.fixed }
             if (alignElements.isEmpty()) return null
 
-            val alignRects = alignRects(alignElements, arrangement)
+            val alignRects = alignRects(alignElements, Orientation)
 
-            val alignment = arrangement.choose(PlanarAlignment.TopLeft(arrangement), PlanarAlignment.CenterLeft(arrangement))
+            val alignment = Orientation.choose(PlanarAlignment.TopLeft(Orientation), PlanarAlignment.CenterLeft(Orientation))
 
             val container = elementContainer()
             val containerContentRect = container.contentRect(false)
 
-            val size = arrangement.contentSize(alignRects)
+            val size = Orientation.contentSize(alignRects)
             val contentRect = when {
                 //固定高度和宽度
                 container.transform.fixedWidth && container.transform.fixedHeight -> {
@@ -145,14 +145,14 @@ open class ListLayout(
             }
             alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
                 val element = alignElements[index]
-                val v = vector3f + arrangement.choose(Vector3f(0f, -amount, 0f), Vector3f(-amount, 0f, 0f))
+                val v = vector3f + Orientation.choose(Vector3f(0f, -amount, 0f), Vector3f(-amount, 0f, 0f))
                 onElementTranslate(element, v + Vector3f(element.margin.left, element.margin.top))
 //                element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
-            return arrangement.choose(
-                Dimension.create(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height),
-                Dimension.create(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
+            return Orientation.choose(
+                Dimension.of(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height),
+                Dimension.of(contentRect.width + padding.width, contentRect.height + padding.height + this@ListLayout.scrollerThickness)
             )
         }
 
@@ -162,14 +162,14 @@ open class ListLayout(
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
 
         val bottom =
-            if (isWorld) transform.worldBottom - padding.bottom + arrangement.choose(0f, -scrollerThickness)
-            else transform.height - padding.bottom + arrangement.choose(0f, -scrollerThickness)
+            if (isWorld) transform.worldBottom - padding.bottom + Orientation.choose(0f, -scrollerThickness)
+            else transform.height - padding.bottom + Orientation.choose(0f, -scrollerThickness)
 
         val left = if (isWorld) transform.worldLeft + padding.left else padding.left
 
         val right =
-            if (isWorld) transform.worldRight - padding.right + arrangement.choose(-scrollerThickness, 0f)
-            else transform.width - padding.right + arrangement.choose(-scrollerThickness, 0f)
+            if (isWorld) transform.worldRight - padding.right + Orientation.choose(-scrollerThickness, 0f)
+            else transform.width - padding.right + Orientation.choose(-scrollerThickness, 0f)
 
         return rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
@@ -216,7 +216,7 @@ open class ListLayout(
 fun ElementContainer.listLayout(
     width: Float? = null,
     height: Float? = null,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     padding: Margin? = Margin(6),
     showScroller: Boolean = true,
     showBackground: Boolean = true,
@@ -226,14 +226,14 @@ fun ElementContainer.listLayout(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(ListLayout(width, height, arrangement, padding, showScroller, showBackground, scrollerThickness, scope))
+    return this.addElement(ListLayout(width, height, Orientation, padding, showScroller, showBackground, scrollerThickness, scope))
 }
 
 @OptIn(ExperimentalContracts::class)
 fun ListLayout(
     width: Float? = null,
     height: Float? = null,
-    arrangement: Arrangement = Arrangement.Vertical,
+    Orientation: Orientation = Orientation.Vertical,
     padding: Margin? = Margin(6),
     showScroller: Boolean = true,
     showBackground: Boolean = true,
@@ -243,5 +243,5 @@ fun ListLayout(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return ListLayout(width, height, padding, showScroller, showBackground, arrangement, scrollerThickness).apply(scope)
+    return ListLayout(width, height, padding, showScroller, showBackground, Orientation, scrollerThickness).apply(scope)
 }

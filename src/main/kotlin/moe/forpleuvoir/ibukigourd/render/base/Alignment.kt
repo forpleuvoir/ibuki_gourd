@@ -13,7 +13,7 @@ interface Alignment {
     /**
      * 排列方式
      */
-    val arrangement: Arrangement
+    val orientation: Orientation
 
     /**
      * 计算对齐之后的位置信息
@@ -27,11 +27,11 @@ interface Alignment {
 
 }
 
-enum class Arrangement {
+enum class Orientation {
 
     Vertical {
         override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Dimension<Float> =
-            Dimension.create(rectangles.maxOf { it.width }, rectangles.sumOf { it.height })
+            Dimension.of(rectangles.maxOf { it.width }, rectangles.sumOf { it.height })
 
         override fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
             return buildList {
@@ -45,7 +45,7 @@ enum class Arrangement {
     },
     Horizontal {
         override fun contentSize(rectangles: List<Rectangle<Vector3<Float>>>): Dimension<Float> =
-            Dimension.create(rectangles.sumOf { it.width }, rectangles.maxOf { it.height })
+            Dimension.of(rectangles.sumOf { it.width }, rectangles.maxOf { it.height })
 
         override fun calcPosition(position: Vector3<Float>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
             return buildList {
@@ -58,7 +58,7 @@ enum class Arrangement {
         }
     };
 
-    inline fun <R> choose(vertical: (Arrangement) -> R, horizontal: (Arrangement) -> R): R {
+    inline fun <R> choose(vertical: (Orientation) -> R, horizontal: (Orientation) -> R): R {
         return when (this) {
             Vertical   -> vertical(this)
             Horizontal -> horizontal(this)
@@ -108,105 +108,105 @@ enum class Arrangement {
 }
 
 
-sealed class PlanarAlignment(override val arrangement: Arrangement = Arrangement.Vertical) : Alignment {
-    class TopLeft(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+sealed class PlanarAlignment(override val orientation: Orientation = Orientation.Vertical) : Alignment {
+    class TopLeft(orientation: Orientation = Orientation.Vertical) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            return arrangement.calcPosition(parent.position, rectangles)
+            return orientation.calcPosition(parent.position, rectangles)
         }
     }
 
-    class TopCenter(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+    class TopCenter(orientation: Orientation = Orientation.Vertical) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            return arrangement.choose(
-                arrangement.calcPosition(parent.position, rectangles) { pos, rect -> pos.x(x = parent.center.x - rect.halfWidth) },
-                arrangement.calcPosition(parent.position.x(parent.center.x - arrangement.contentSize(rectangles).halfWidth), rectangles)
+            return orientation.choose(
+                orientation.calcPosition(parent.position, rectangles) { pos, rect -> pos.x(x = parent.center.x - rect.halfWidth) },
+                orientation.calcPosition(parent.position.x(parent.center.x - orientation.contentSize(rectangles).halfWidth), rectangles)
             )
         }
     }
 
-    class TopRight(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+    class TopRight(orientation: Orientation = Orientation.Vertical) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            return arrangement.choose(
-                arrangement.calcPosition(parent.position, rectangles) { pos, rect -> pos.x(x = parent.right - rect.width) },
-                arrangement.calcPosition(parent.position.x(parent.right - arrangement.contentSize(rectangles).width), rectangles)
+            return orientation.choose(
+                orientation.calcPosition(parent.position, rectangles) { pos, rect -> pos.x(x = parent.right - rect.width) },
+                orientation.calcPosition(parent.position.x(parent.right - orientation.contentSize(rectangles).width), rectangles)
             )
         }
     }
 
-    class CenterLeft(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+    class CenterLeft(orientation: Orientation = Orientation.Vertical) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            val size = arrangement.contentSize(rectangles)
+            val size = orientation.contentSize(rectangles)
             val y = parent.center.y - size.halfHeight
             val x = parent.left
             val rect = rect(parent.position.xyz(x, y), size)
-            return arrangement.choose(
-                arrangement.calcPosition(rect.position, rectangles),
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
+            return orientation.choose(
+                orientation.calcPosition(rect.position, rectangles),
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
             )
         }
     }
 
-    class Center(arrangement: Arrangement = Arrangement.Vertical) : PlanarAlignment(arrangement) {
+    class Center(orientationorientation: Orientation = Orientation.Vertical) : PlanarAlignment(orientationorientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            val size = arrangement.contentSize(rectangles)
+            val size = orientation.contentSize(rectangles)
             val y = parent.center.y - size.halfHeight
             val x = parent.center.x - size.halfWidth
             val rect = rect(parent.position.xyz(x, y), size)
-            return arrangement.choose(
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.center.x - r.halfWidth) },
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
+            return orientation.choose(
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.center.x - r.halfWidth) },
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
             )
         }
     }
 
-    class CenterRight(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+    class CenterRight(orientation: Orientation) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            val size = arrangement.contentSize(rectangles)
+            val size = orientation.contentSize(rectangles)
             val y = parent.center.y - size.halfHeight
             val x = parent.right - size.width
             val rect = rect(parent.position.xyz(x, y), size)
-            return arrangement.choose(
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.right - r.width) },
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
+            return orientation.choose(
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.right - r.width) },
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.center.y - r.halfHeight) }
             )
         }
     }
 
-    class BottomLeft(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+    class BottomLeft(orientation: Orientation) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            val size = arrangement.contentSize(rectangles)
+            val size = orientation.contentSize(rectangles)
             val y = parent.bottom - size.height
             val x = parent.left
             val rect = rect(parent.position.xyz(x, y), size)
-            return arrangement.choose(
-                arrangement.calcPosition(rect.position, rectangles),
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
+            return orientation.choose(
+                orientation.calcPosition(rect.position, rectangles),
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
             )
         }
     }
 
-    class BottomCenter(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+    class BottomCenter(orientation: Orientation) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            val size = arrangement.contentSize(rectangles)
+            val size = orientation.contentSize(rectangles)
             val y = parent.bottom - size.height
             val x = parent.center.x - size.halfWidth
             val rect = rect(parent.position.xyz(x, y), size)
-            return arrangement.choose(
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.center.x - r.halfWidth) },
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
+            return orientation.choose(
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.center.x - r.halfWidth) },
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
             )
         }
     }
 
-    class BottomRight(arrangement: Arrangement) : PlanarAlignment(arrangement) {
+    class BottomRight(orientation: Orientation) : PlanarAlignment(orientation) {
         override fun align(parent: Rectangle<Vector3<Float>>, rectangles: List<Rectangle<Vector3<Float>>>): List<Vector3<Float>> {
-            val size = arrangement.contentSize(rectangles)
+            val size = orientation.contentSize(rectangles)
             val y = parent.bottom - size.height
             val x = parent.right - size.width
             val rect = rect(parent.position.xyz(x, y), size)
-            return arrangement.choose(
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.right - r.width) },
-                arrangement.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
+            return orientation.choose(
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.x(rect.right - r.width) },
+                orientation.calcPosition(rect.position, rectangles) { pos, r -> pos.y(rect.bottom - r.height) }
             )
         }
     }

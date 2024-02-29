@@ -2,6 +2,12 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 
 /**
  * 只有参与排序的元素才会才会被重新设置大小
+ *
+ * 父元素为[WrapContent]时需要获取子元素的尺寸
+ * - 所有子元素为[Fixed]时，直接获取尺寸
+ *
+ *
+ *
  * @constructor
  */
 sealed class ElementDimension {
@@ -49,11 +55,9 @@ data object MatchParent : ElementDimension() {
 data object FillRemainingSpace : ElementDimension() {
 
     override fun resizeWidth(element: Element, parent: Element) {
-        element.transform.width = parent.remainingWidth
     }
 
     override fun resizeHeight(element: Element, parent: Element) {
-        element.transform.height = parent.remainingHeight
     }
 
 }
@@ -65,11 +69,25 @@ val Number.w get() = Weight(this.toFloat())
 
 data class Weight(val weight: Float) : ElementDimension() {
     override fun resizeWidth(element: Element, parent: Element) {
-        TODO("Not yet implemented")
     }
 
     override fun resizeHeight(element: Element, parent: Element) {
-        TODO("Not yet implemented")
+    }
+
+}
+
+val Number.p get() = Percentage(this.toFloat())
+
+/**
+ *
+ * @param value Float range 0..1
+ * @constructor
+ */
+data class Percentage(val value: Float) : ElementDimension() {
+    override fun resizeWidth(element: Element, parent: Element) {
+    }
+
+    override fun resizeHeight(element: Element, parent: Element) {
     }
 
 }

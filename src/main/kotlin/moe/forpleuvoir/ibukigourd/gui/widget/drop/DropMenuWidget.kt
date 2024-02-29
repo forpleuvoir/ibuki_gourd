@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
@@ -51,7 +51,7 @@ open class DropMenuWidget(
         tip!!.visible = false
     }
 
-    override val layout: Layout = LinearLayout({ this }, Arrangement.Vertical, PlanarAlignment::CenterLeft)
+    override val layout: Layout = LinearLayout({ this }, Orientation.Vertical, PlanarAlignment::CenterLeft)
 
     init {
         transform.width = width?.also { transform.fixedWidth = true } ?: 20f

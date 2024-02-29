@@ -3,9 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
-import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.MutableDimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
@@ -17,19 +15,6 @@ abstract class AbstractElementContainer : Element {
 
     final override val transform = Transform()
 
-    override val layout: Layout = LinearLayout({ this })
-
-    override var spacing: Float = 0f
-        get() = layout.spacing
-        set(value) {
-            layout.spacing = value
-            field = value
-        }
-
-    override var remainingWidth: Float = 0f
-
-    override var remainingHeight: Float = 0f
-
     override var margin: Margin = Margin()
         protected set
 
@@ -38,7 +23,10 @@ abstract class AbstractElementContainer : Element {
 
     protected val subElements = ArrayList<Element>()
 
-    open val arrangeElements: List<Element> get() = subElements.filter { !it.fixed }
+    /**
+     * 参与布局排列的元素
+     */
+    open val layoutElements: List<Element> get() = subElements.filter { !it.fixed }
 
     override val elements: List<Element> get() = subElements.filter { it != this.tip }
 
@@ -60,24 +48,40 @@ abstract class AbstractElementContainer : Element {
 
     }
 
-    override fun onMeasure() {
-        //测量子元素的尺寸
-        //
-    }
+    override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
+        val (mWidth, mHeight) = elementMeasureDimension
+        when (width) {
+            is Fixed           -> measuredDimension.width = (width as Fixed).value
+            FillRemainingSpace -> measuredDimension.width = mWidth.value
+            MatchParent        -> measuredDimension.width = mWidth.value
+            is Weight          -> measuredDimension.width = mWidth.value
+            is Percentage      -> measuredDimension.width = mWidth.value * (width as Percentage).value
+            is WrapContent     -> measuredDimension.width = mWidth.value
+        }
 
-    override fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float> {
-        //测量自身的尺寸
-        //Fixed 固定尺寸,不需要获取父元素和子元素的尺寸
-        //WrapContent 包裹内容,需要获取子元素的尺寸,如果没有子元素则为默认值 default
-        //MatchParent 占满父元素,需要获取父元素的尺寸
-        //FillRemainingSpace 填充剩余空间,需要获取父元素的尺寸和其他子元素的尺寸
-        when (this.width) {
-            is Fixed           -> transform.width = (this.width as Fixed).value
-            FillRemainingSpace -> if (parent().width is Fixed) transform.width = parent().remainingWidth
-            MatchParent        -> if (parent().width is Fixed) transform.width = parent().transform.width - parent().padding.width - this.margin.width
-            WrapContent        -> TODO()
+        when (height) {
+            is Fixed           -> measuredDimension.height = (height as Fixed).value
+            FillRemainingSpace -> measuredDimension.height = mHeight.value
+            MatchParent        -> measuredDimension.height = mHeight.value
+            is Weight          -> measuredDimension.height = mHeight.value
+            is Percentage      -> measuredDimension.height = mHeight.value * (height as Percentage).value
+            is WrapContent     -> measuredDimension.height = mHeight.value
+        }
+        var (widthRemainingSpace, heightRemainingSpace) = 0f to 0f
+        subElements.forEach {
+            when (it.width) {
+                FillRemainingSpace ->
+                is Fixed           -> TODO()
+                MatchParent        -> TODO()
+                is Percentage      -> TODO()
+                is Weight          -> TODO()
+                is WrapContent     -> TODO()
+            }
         }
     }
+
+    var measuredDimension: MutableDimension<Float> = MutableDimension.of(0f, 0f)
+
 
     final override fun margin(margin: Number) {
         this.margin = Margin(margin, margin)

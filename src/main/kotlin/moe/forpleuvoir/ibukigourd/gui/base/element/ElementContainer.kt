@@ -3,8 +3,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.api.Initializable
@@ -22,26 +20,14 @@ interface ElementContainer : Initializable {
 
     var height: ElementDimension
 
-    var spacing: Float
-
-    /**
-     * 只有在排序时才有有用的数据,固定大小的元素才会有剩余空间
-     */
-    var remainingWidth: Float
-
-    var remainingHeight: Float
-
-    /**
-     * 根据自身尺寸排列子元素
-     */
-    fun onMeasure()
 
     /**
      * 此方法应该由父元素调用
      * 测量自身的尺寸
+     * @param elementMeasureDimension ElementMeasureDimension 父元素的测量尺寸
      * @return Size<Float>
      */
-    fun measure(measureWidth: MeasureDimension, measureHeight: MeasureDimension): Dimension<Float>
+    fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension
 
     /**
      * 对子元素进行排列
@@ -88,8 +74,6 @@ interface ElementContainer : Initializable {
     fun padding(padding: Padding)
 
     fun padding(left: Number = this.padding.left, right: Number = this.padding.right, top: Number = this.padding.top, bottom: Number = this.padding.bottom)
-
-    val layout: Layout
 
     /**
      * 内容矩形

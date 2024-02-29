@@ -13,7 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Arrangement
+import moe.forpleuvoir.ibukigourd.render.base.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -110,7 +110,7 @@ class TextBoxWidget(
                 { fontHeight / 2f },
                 { (textContentHeight - contentHeight).coerceAtLeast(0f) },
                 { (contentHeight / textContentHeight).clamp(0f..1f) },
-                Arrangement.Vertical
+                Orientation.Vertical
             ) {
                 fixed = true
                 visible = showScroller
