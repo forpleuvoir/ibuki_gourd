@@ -29,7 +29,7 @@ object ServerModConfigHandler : ModConfigHandler {
 				configManagers.forEach { (key, value) ->
 					if (value.needSave) {
 						log.info("[{}]auto save server config...", key)
-						value.saveAsync()
+						value.asyncSave()
 					}
 				}
 			}
@@ -88,7 +88,7 @@ object ServerModConfigHandler : ModConfigHandler {
 		configManagers.forEach { (key, value) ->
 			if (value.needSave) {
 				log.info("[{}]auto async save server config...", key)
-				value.saveAsync()
+				value.asyncSave()
 			}
 		}
 	}

@@ -2,11 +2,11 @@ package moe.forpleuvoir.ibukigourd.config
 
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.config.ConfigSerializable
-import moe.forpleuvoir.nebula.config.category.ConfigCategoryImpl
+import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 
-open class ModConfigCategory(key: String) : ConfigCategoryImpl(key) {
+open class ModConfigCategory(key: String) : ConfigContainerImpl(key) {
 
 	private val log = logger()
 

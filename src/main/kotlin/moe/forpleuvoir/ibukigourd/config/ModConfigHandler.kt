@@ -8,16 +8,16 @@ interface ModConfigHandler {
 		managers.forEach { it.save() }
 	}
 
-	fun saveAsync() {
-		managers.forEach { it.saveAsync() }
+	fun asyncSave() {
+		managers.forEach { it.asyncSave() }
 	}
 
 	suspend fun load() {
 		managers.forEach { it.load() }
 	}
 
-	fun loadAsync() {
-		managers.forEach { it.loadAsync() }
+	fun asyncLoad() {
+		managers.forEach { it.asyncLoad() }
 	}
 
 }

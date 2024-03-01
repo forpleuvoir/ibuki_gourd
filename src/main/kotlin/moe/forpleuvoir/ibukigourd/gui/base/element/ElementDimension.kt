@@ -10,84 +10,53 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
  *
  * @constructor
  */
-sealed class ElementDimension {
-
-    abstract fun resizeWidth(element: Element, parent: Element)
-
-    abstract fun resizeHeight(element: Element, parent: Element)
-}
+sealed interface ElementDimension
 
 val Number.f get() = Fixed(this.toFloat())
 
-data class Fixed(val value: Float) : ElementDimension() {
-    override fun resizeWidth(element: Element, parent: Element) {
-        element.transform.width = value
-    }
-
-    override fun resizeHeight(element: Element, parent: Element) {
-        element.transform.height = value
-    }
-
-}
+/**
+ * 固定尺寸
+ * @param value Float
+ * @constructor
+ */
+data class Fixed(val value: Float) : ElementDimension
 
 /**
  * 会根据内容自动调整大小
  * @param default Float 如果没有内容，则使用默认值,如果默认值为空则使用元素的Padding
  */
-data class WrapContent(val default: Float? = null) : ElementDimension() {
+data class WrapContent(val default: Float? = null) : ElementDimension
 
-    override fun resizeWidth(element: Element, parent: Element) = Unit
-    override fun resizeHeight(element: Element, parent: Element) = Unit
-
-}
-
-data object MatchParent : ElementDimension() {
-    override fun resizeWidth(element: Element, parent: Element) {
-        element.transform.width = parent.contentRect(false).width
-    }
-
-    override fun resizeHeight(element: Element, parent: Element) {
-        element.transform.height = parent.contentRect(false).height
-    }
-
-}
-
-data object FillRemainingSpace : ElementDimension() {
-
-    override fun resizeWidth(element: Element, parent: Element) {
-    }
-
-    override fun resizeHeight(element: Element, parent: Element) {
-    }
-
-}
+val wrap_content = WrapContent(null)
 
 /**
- *
+ * 会根据父元素的大小自动调整大小
  */
+data object MatchParent : ElementDimension
+
+/**
+ * 填充剩余空间
+ */
+data object FillRemainingSpace : ElementDimension
+
 val Number.w get() = Weight(this.toFloat())
 
-data class Weight(val weight: Float) : ElementDimension() {
-    override fun resizeWidth(element: Element, parent: Element) {
-    }
-
-    override fun resizeHeight(element: Element, parent: Element) {
-    }
-
-}
+/**
+ * 根据内容大小调整大小
+ * @param weight Float
+ * @constructor
+ */
+data class Weight(val weight: Float) : ElementDimension
 
 val Number.p get() = Percentage(this.toFloat())
 
 /**
- *
- * @param value Float range 0..1
+ * 百分比,
+ * @param value Float 0..1
  * @constructor
  */
-data class Percentage(val value: Float) : ElementDimension() {
-    override fun resizeWidth(element: Element, parent: Element) {
+data class Percentage(val value: Float) : ElementDimension {
+    init {
+        check(value in 0f..1f) { "Percentage value must be between 0 and 1" }
     }
-
-    override fun resizeHeight(element: Element, parent: Element) {
-    }
-
 }
