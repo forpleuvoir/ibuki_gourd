@@ -31,7 +31,7 @@ class KeyBindSettingImpl(
     override fun serialization(): SerializeElement {
         return serializeObject {
             "key_environment" - environment.key
-            "next_action" - nextAction.serialization()
+            "next_action" - nextAction
             "exact_match" - exactMatch
             "trigger_mode" - triggerMode.key
             "trigger_period" - triggerPeriod
@@ -42,7 +42,7 @@ class KeyBindSettingImpl(
     override fun deserialization(serializeElement: SerializeElement) {
         runCatching {
             val obj = serializeElement.asObject
-            environment = environment.fromKey(obj["key_environment"]!!.asString)
+            environment = KeyEnvironment.deserialization(obj["key_environment"]!!)
             nextAction = NextAction.deserialization(obj["next_action"]!!)
             exactMatch = obj["exact_match"]!!.asBoolean
             triggerMode = KeyTriggerMode.fromKey(obj["trigger_mode"]!!.asString)

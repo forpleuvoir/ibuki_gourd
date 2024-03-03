@@ -5,12 +5,13 @@ package moe.forpleuvoir.ibukigourd.gui.base
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.input.MousePosition
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.base.math.*
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.nebula.common.ifc
+import org.joml.Vector3f
+import org.joml.Vector3fc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -19,7 +20,7 @@ import kotlin.contracts.contract
  * 变换青春版
  */
 class Transform(
-    override val position: Vector3f = Vector3f(),
+    position: Vector3fc = Vector3f(),
     /**
      * 是否为世界坐标轴
      */
@@ -27,7 +28,11 @@ class Transform(
     width: Float = 0.0f,
     height: Float = 0.0f,
     var parent: () -> Transform? = { null },
-) : Rectangle<Vector3f> {
+) : Rectangle {
+
+    override val position: Vector3fc = NotifiableVector3f(position)
+
+    private val positionAsNotifiable: NotifiableVector3f get() = position as NotifiableVector3f
 
     override var width: Float = width
         set(value) {
@@ -47,23 +52,23 @@ class Transform(
 
     var resizeCallback: ((width: Float, height: Float) -> Unit)? = null
 
-    var positionChangeCallback: ((x: Float, y: Float, z: Float) -> Unit)? by position::changeCallback
+    fun subscribePositionChange(action: (origin: Vector3fc, current: Vector3fc) -> Unit) = positionAsNotifiable.subscribe(action)
 
-    override val vertexes: Array<Vector3f>
+    override val vertexes: Array<Vector3fc>
         get() = arrayOf(
             position,
-            position.y(y + height),
-            position.xyz(x + width, y + height),
-            position.x(x + width)
+            position.copy(y = y + height),
+            position.copy(x + width, y + height),
+            position.copy(x + width)
         )
 
     var isWorldAxis: Boolean = isWorldAxis
         set(value) {
             field = value
-            if (value) parent()?.let { position += it.worldPosition }
+            if (value) parent()?.let { position as Vector3f += it.worldPosition }
         }
 
-    val worldPosition: Vector3f
+    val worldPosition: Vector3fc
         get() {
             if (isWorldAxis) return position
             var pos = position
@@ -71,53 +76,53 @@ class Transform(
             return pos
         }
 
-    val asWorldRect: Rectangle<Vector3<Float>> get() = rect(worldPosition, width, height)
+    val asWorldRect: Rectangle get() = rect(worldPosition, width, height)
 
     override var x
-        get() = position.x
+        get() = position.x()
         set(value) {
-            position.x = value
+            positionAsNotifiable.x = value
         }
 
     var worldX
         get() = worldPosition.x
         set(value) {
-            if (isWorldAxis) position.x = value
+            if (isWorldAxis) positionAsNotifiable.x = value
             else {
                 val delta = value - worldPosition.x
-                position.x += delta
+                positionAsNotifiable.x += delta
             }
         }
 
     override var y
         get() = position.y
         set(value) {
-            position.y = value
+            positionAsNotifiable.y = value
         }
 
     var worldY
         get() = worldPosition.y
         set(value) {
-            if (isWorldAxis) position.y = value
+            if (isWorldAxis) positionAsNotifiable.y = value
             else {
                 val delta = value - worldPosition.y
-                position.y += delta
+                positionAsNotifiable.y += delta
             }
         }
 
     override var z
         get() = position.z
         set(value) {
-            position.z = value
+            positionAsNotifiable.z = value
         }
 
     var worldZ
         get() = worldPosition.z
         set(value) {
-            if (isWorldAxis) position.z = value
+            if (isWorldAxis) positionAsNotifiable.z = value
             else {
                 val delta = value - worldPosition.z
-                position.z += delta
+                positionAsNotifiable.z += delta
             }
         }
 
@@ -137,14 +142,13 @@ class Transform(
 
     val worldRight: Float get() = worldLeft + width
 
-    override var center: Vector3<Float>
+    override var center: Vector3fc
         get() = vertex(x + this.halfWidth, y + this.halfHeight, z)
         set(value) {
             translate(value.x - center.x, value.y - center.y, value.z - center.z)
         }
 
     val worldCenter: Vector3f get() = Vector3f(worldX + this.halfWidth, worldY + this.halfHeight, worldZ)
-
 
     /**
      * 鼠标是否在此元素[Transform]内部
@@ -163,20 +167,28 @@ class Transform(
     fun isMouseOvered(mousePosition: MousePosition): Boolean =
         mousePosition.x in worldLeft..worldRight && mousePosition.y in worldTop..worldBottom
 
-    fun translate(vector3: Vector3<out Number>) {
-        position += Vector3f(vector3)
+    /**
+     * @see [isMouseOvered]
+     * @param mousePosition MousePosition
+     * @return Boolean
+     */
+    operator fun contains(mousePosition: MousePosition): Boolean =
+        mousePosition.x in worldLeft..worldRight && mousePosition.y in worldTop..worldBottom
+
+    fun translate(vector3: Vector3fc) {
+        positionAsNotifiable += Vector3f(vector3)
     }
 
     fun translate(x: Number = 0, y: Number = 0, z: Number = 0) {
-        position += Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
+        positionAsNotifiable += Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     }
 
-    fun translateTo(vector3: Vector3<out Number>) {
-        position.set(Vector3f(vector3))
+    fun translateTo(vector3: Vector3f) {
+        positionAsNotifiable.set(Vector3f(vector3))
     }
 
     fun translateTo(x: Number = position.x, y: Number = position.y, z: Number = position.z) {
-        position.set(Vector3f(x.toFloat(), y.toFloat(), z.toFloat()))
+        positionAsNotifiable.set(Vector3f(x.toFloat(), y.toFloat(), z.toFloat()))
     }
 
 }
@@ -205,13 +217,13 @@ inline fun Transform.mouseHover(mousePosition: MousePosition, block: Transform.(
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
-    isMouseOvered(mousePosition).ifc { block() }
+    if (mousePosition in this) block()
 }
 
 
 /**
  * 当鼠标位于此元素内部时调用
- * @param block [@kotlin.ExtensionFunctionType] Function1<Element, Unit>
+ * @param block Element.() -> Unit
  */
 inline fun Element.mouseHover(block: Element.() -> Unit) {
     contract {
@@ -223,7 +235,7 @@ inline fun Element.mouseHover(block: Element.() -> Unit) {
 }
 
 /**
- * 当鼠标位于此元素内容矩阵[Element.contentRect]"true"时调用
+ * 当鼠标位于此元素内容矩形[Element.contentRect]时调用
  * @receiver Element
  * @param block Element.() -> Unit
  */

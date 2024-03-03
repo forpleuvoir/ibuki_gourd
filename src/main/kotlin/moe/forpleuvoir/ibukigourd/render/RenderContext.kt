@@ -1,13 +1,13 @@
 package moe.forpleuvoir.ibukigourd.render
 
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
 import moe.forpleuvoir.ibukigourd.render.helper.setScissor
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.rest
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.math.MatrixStack
+import org.joml.Vector3fc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -63,7 +63,7 @@ class RenderContext(
         setScissor(scissorStack.peek())
     }
 
-    fun enableScissor(rect: Rectangle<Vector3<Float>>) {
+    fun enableScissor(rect: Rectangle) {
         scissorStack.push(rect)
         setScissor(scissorStack.peek())
     }
@@ -73,14 +73,14 @@ class RenderContext(
         setScissor(scissorStack.peek())
     }
 
-    inline fun scissor(rect: Rectangle<Vector3<Float>>, block: RenderContext.() -> Unit) {
+    inline fun scissor(rect: Rectangle, block: RenderContext.() -> Unit) {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         enableScissor(rect)
         block()
         disableScissor()
     }
 
-    inline fun scissorOffset(offset: Vector3<Float>, block: RenderContext.() -> Unit) {
+    inline fun scissorOffset(offset: Vector3fc, block: RenderContext.() -> Unit) {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         scissorStack.pushOffset(offset)
         block()
@@ -88,7 +88,7 @@ class RenderContext(
         setScissor(scissorStack.peek())
     }
 
-    inline fun scissor(rect: Rectangle<Vector3<Float>>, offset: Vector3<Float>, block: RenderContext.() -> Unit) {
+    inline fun scissor(rect: Rectangle, offset: Vector3fc, block: RenderContext.() -> Unit) {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         scissorStack.pushOffset(offset)
         enableScissor(rect)

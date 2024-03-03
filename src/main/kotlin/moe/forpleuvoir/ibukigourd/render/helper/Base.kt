@@ -5,9 +5,7 @@ package moe.forpleuvoir.ibukigourd.render.helper
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import moe.forpleuvoir.ibukigourd.render.base.math.ImmutableVector3f
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.ShaderProgram
@@ -18,6 +16,8 @@ import net.minecraft.client.render.VertexConsumer
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
+import org.joml.Vector3f
+import org.joml.Vector3fc
 import java.util.function.Supplier
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -27,16 +27,12 @@ val tessellator: Tessellator get() = Tessellator.getInstance()
 
 val bufferBuilder: BufferBuilder get() = tessellator.buffer
 
-inline fun MatrixStack.translate(vector3: Vector3<out Number>) {
-    this.translate(vector3.x.toFloat(), vector3.y.toFloat(), vector3.z.toFloat())
+inline fun MatrixStack.translate(vector3: Vector3fc) {
+    this.translate(vector3.x(), vector3.y(), vector3.z())
 }
 
-inline fun Matrix4f.translate(vector3: Vector3<out Number>) {
-    this.translate(vector3.x.toFloat(), vector3.y.toFloat(), vector3.z.toFloat())
-}
-
-inline fun Matrix4f.getPosition(): Vector3<Float> {
-    return ImmutableVector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
+inline fun Matrix4f.getPosition(): Vector3f {
+    return Vector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
 }
 
 inline fun BufferBuilder.draw() {
@@ -193,7 +189,7 @@ fun setScissor(x: Number, y: Number, width: Number, height: Number) {
     RenderSystem.enableScissor(x1.toInt(), y1.toInt(), 0.coerceAtLeast(width1.toInt()), 0.coerceAtLeast(height1.toInt()))
 }
 
-fun setScissor(rect: Rectangle<Vector3<Float>>?) {
+fun setScissor(rect: Rectangle?) {
     if (rect == null) return disableScissor()
     if (!rect.exist) return setScissor(0, 0, 0, 0)
     setScissor(rect.x, rect.y, rect.width, rect.height)
@@ -201,8 +197,8 @@ fun setScissor(rect: Rectangle<Vector3<Float>>?) {
 
 inline fun disableScissor() = RenderSystem.disableScissor()
 
-inline fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vector3<Float>): VertexConsumer =
-    vertex(matrix4f, vertex.x, vertex.y, vertex.z)
+inline fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vector3fc): VertexConsumer =
+    vertex(matrix4f, vertex.x(), vertex.y(), vertex.z())
 
 inline fun VertexConsumer.vertex(matrix4f: Matrix4f, x: Number, y: Number, z: Number): VertexConsumer =
     this.vertex(matrix4f, x.toFloat(), y.toFloat(), z.toFloat())
@@ -210,9 +206,9 @@ inline fun VertexConsumer.vertex(matrix4f: Matrix4f, x: Number, y: Number, z: Nu
 inline fun VertexConsumer.vertex(matrixStack: MatrixStack, x: Number, y: Number, z: Number): VertexConsumer =
     this.vertex(matrixStack.peek().positionMatrix, x.toFloat(), y.toFloat(), z.toFloat())
 
-inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector3: Vector3<Float>): VertexConsumer =
+inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector3: Vector3fc): VertexConsumer =
     this.vertex(matrixStack.peek().positionMatrix, vector3)
 
-inline fun VertexConsumer.color(color: ARGBColor): VertexConsumer = this.color(color.argb)
+inline fun VertexConsumer.color(color: ARGBColor): VertexConsumer = this.color(color.red, color.green, color.blue, color.alpha)
 
-inline fun VertexConsumer.normal(normal: Vector3<Float>): VertexConsumer = this.normal(normal.x, normal.y, normal.z)
+inline fun VertexConsumer.normal(normal: Vector3fc): VertexConsumer = this.normal(normal.x(), normal.y(), normal.z())

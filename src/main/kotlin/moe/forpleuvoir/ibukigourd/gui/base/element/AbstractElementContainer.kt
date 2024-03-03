@@ -6,8 +6,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.render.base.MutableDimension
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 
 abstract class AbstractElementContainer : Element {
 

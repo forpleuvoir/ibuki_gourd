@@ -1,82 +1,101 @@
 package moe.forpleuvoir.ibukigourd.render.base.texture
 
+import moe.forpleuvoir.ibukigourd.render.base.DimensionInt
+import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.getOr
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 open class UVMapping(
-	val u1: Int,
-	val v1: Int,
-	val u2: Int,
-	val v2: Int,
-) {
+    val uStart: Int,
+    val vStart: Int,
+    val uEnd: Int,
+    val vEnd: Int,
+) : DimensionInt, Serializable {
 
-	companion object {
-		fun uv(u: Int, v: Int, uSize: Int, vSize: Int) =
-			UVMapping(u, v, u + uSize, v + vSize)
+    companion object {
 
+        fun uv(u: Int, v: Int, uSize: Int, vSize: Int) =
+            UVMapping(u, v, u + uSize, v + vSize)
 
-		fun deserialization(serializeElement: SerializeElement?, default: UVMapping): UVMapping {
-			if (serializeElement == null || !serializeElement.isObject) return default
-			serializeElement.asObject.apply {
-				return runCatching {
-					val u1: Int
-					val u2: Int
-					if (containsKey("u") && containsKey("u_size")) {
-						u1 = get("u")!!.asInt
-						u2 = get("u_size")!!.asInt + u1
-					} else if (containsKey("u") && containsKey("width")) {
-						u1 = get("u")!!.asInt
-						u2 = get("width")!!.asInt + u1
-					} else {
-						u1 = getOr("u1", default.u1).toInt()
-						u2 = getOr("u2", default.u2).toInt()
-					}
-					val v1: Int
-					val v2: Int
-					if (containsKey("v") && containsKey("v_size")) {
-						v1 = get("v")!!.asInt
-						v2 = get("v_size")!!.asInt + v1
-					} else if (containsKey("v") && containsKey("height")) {
-						v1 = get("u")!!.asInt
-						v2 = get("height")!!.asInt + v1
-					} else {
-						v1 = getOr("v1", default.v1).toInt()
-						v2 = getOr("v2", default.v2).toInt()
-					}
-					UVMapping(u1, v1, u2, v2)
-				}.getOrDefault(default)
-			}
-		}
-	}
+        fun deserialization(serializeElement: SerializeElement?, default: UVMapping): UVMapping {
+            return serializeElement?.run {
+                checkType {
+                    check<SerializeObject> {
+                        it.run {
+                            val uStart: Int
+                            val uEnd: Int
+                            if (containsKey("u") && containsKey("u_size")) {
+                                uStart = get("u")!!.asInt
+                                uEnd = get("u_size")!!.asInt + uStart
+                            } else if (containsKey("u") && containsKey("width")) {
+                                uStart = get("u")!!.asInt
+                                uEnd = get("width")!!.asInt + uStart
+                            } else {
+                                uStart = getOr("uStart", default.uStart).toInt()
+                                uEnd = getOr("uEnd", default.uEnd).toInt()
+                            }
+                            val vStart: Int
+                            val vEnd: Int
+                            if (containsKey("v") && containsKey("v_size")) {
+                                vStart = get("v")!!.asInt
+                                vEnd = get("v_size")!!.asInt + vStart
+                            } else if (containsKey("v") && containsKey("height")) {
+                                vStart = get("u")!!.asInt
+                                vEnd = get("height")!!.asInt + vStart
+                            } else {
+                                vStart = getOr("vStart", default.vStart).toInt()
+                                vEnd = getOr("vEnd", default.vEnd).toInt()
+                            }
+                            UVMapping(uStart, vStart, uEnd, vEnd)
+                        }
+                    }
+                }.getOrDefault(default)
+            } ?: default
+        }
+    }
 
-	val uSize = u2 - u1
+    val uSize = uEnd - uStart
 
-	val vSize = v2 - v1
+    val vSize = vEnd - vStart
 
+    override fun serialization(): SerializeElement {
+        return serializeObject {
+            "uStart" to uStart
+            "vStart" to vStart
+            "uEnd" to uEnd
+            "vEnd" to vEnd
+        }
+    }
 
-	override fun toString(): String {
-		return "UVMapping(u1=$u1, v1=$v1, u2=$u2, v2=$v2)"
-	}
+    override fun toString(): String {
+        return "UVMapping(uStart=$uStart, vStart=$vStart, uEnd=$uEnd, vEnd=$vEnd, uSize=$uSize, vSize=$vSize)"
+    }
 
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (javaClass != other?.javaClass) return false
+    override val width: Int by ::uSize
 
-		other as UVMapping
+    override val height: Int by ::vSize
 
-		if (u1 != other.u1) return false
-		if (v1 != other.v1) return false
-		if (u2 != other.u2) return false
-		return v2 == other.v2
-	}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-	override fun hashCode(): Int {
-		var result = u1
-		result = 31 * result + v1
-		result = 31 * result + u2
-		result = 31 * result + v2
-		return result
-	}
+        other as UVMapping
 
+        if (uStart != other.uStart) return false
+        if (vStart != other.vStart) return false
+        if (uEnd != other.uEnd) return false
+        return vEnd == other.vEnd
+    }
+
+    override fun hashCode(): Int {
+        var result = uStart
+        result = 31 * result + vStart
+        result = 31 * result + uEnd
+        result = 31 * result + vEnd
+        return result
+    }
 
 }

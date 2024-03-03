@@ -17,7 +17,6 @@ interface Dimension<T : Number> {
                 return "Size(width : $width,halfWidth : $halfWidth, height : $height, halfHeight : $halfHeight )"
             }
 
-
         fun of(width: Float, height: Float): Dimension<Float> = object : DimensionFloat {
             override val width: Float get() = width
             override val height: Float get() = height
@@ -45,6 +44,7 @@ interface DimensionFloat : Dimension<Float> {
     override val width: Float
 
     override val height: Float
+
     override val halfWidth: Float get() = width / 2
 
     override val halfHeight: Float get() = height / 2
@@ -67,6 +67,7 @@ interface DimensionInt : Dimension<Int> {
     override val width: Int
 
     override val height: Int
+
     override val halfWidth: Int get() = width / 2
 
     override val halfHeight: Int get() = height / 2
@@ -77,6 +78,7 @@ interface DimensionLong : Dimension<Long> {
     override val width: Long
 
     override val height: Long
+
     override val halfWidth: Long get() = width / 2
 
     override val halfHeight: Long get() = height / 2
@@ -88,6 +90,10 @@ interface MutableDimension<T : Number> : Dimension<T> {
     override var width: T
 
     override var height: T
+
+    override var halfWidth: T
+
+    override var halfHeight: T
 
     fun set(width: T, height: T) {
         this.width = width
@@ -123,9 +129,18 @@ interface MutableDimensionFloat : MutableDimension<Float> {
     override var width: Float
 
     override var height: Float
-    override val halfWidth: Float get() = width / 2
 
-    override val halfHeight: Float get() = height / 2
+    override var halfWidth: Float
+        get() = width / 2
+        set(value) {
+            width = value * 2
+        }
+
+    override var halfHeight: Float
+        get() = height / 2
+        set(value) {
+            height = value * 2
+        }
 }
 
 interface MutableDimensionDouble : MutableDimension<Double> {
@@ -134,9 +149,17 @@ interface MutableDimensionDouble : MutableDimension<Double> {
 
     override var height: Double
 
-    override val halfWidth: Double get() = width / 2
+    override var halfWidth: Double
+        get() = width / 2
+        set(value) {
+            width = value * 2
+        }
 
-    override val halfHeight: Double get() = height / 2
+    override var halfHeight: Double
+        get() = height / 2
+        set(value) {
+            height = value * 2
+        }
 }
 
 interface MutableDimensionInt : MutableDimension<Int> {
@@ -144,9 +167,18 @@ interface MutableDimensionInt : MutableDimension<Int> {
     override var width: Int
 
     override var height: Int
-    override val halfWidth: Int get() = width / 2
 
-    override val halfHeight: Int get() = height / 2
+    override var halfWidth: Int
+        get() = width / 2
+        set(value) {
+            width = value * 2
+        }
+
+    override var halfHeight: Int
+        get() = height / 2
+        set(value) {
+            height = value * 2
+        }
 }
 
 interface MutableDimensionLong : MutableDimension<Long> {
@@ -154,7 +186,16 @@ interface MutableDimensionLong : MutableDimension<Long> {
     override var width: Long
 
     override var height: Long
-    override val halfWidth: Long get() = width / 2
 
-    override val halfHeight: Long get() = height / 2
+    override var halfWidth: Long
+        get() = width / 2
+        set(value) {
+            width = value * 2
+        }
+
+    override var halfHeight: Long
+        get() = height / 2
+        set(value) {
+            height = value * 2
+        }
 }

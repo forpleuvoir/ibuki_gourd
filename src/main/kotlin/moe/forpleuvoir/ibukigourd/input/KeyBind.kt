@@ -13,7 +13,6 @@ import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -191,8 +190,8 @@ class KeyBind(
 
     override fun serialization(): SerializeElement {
         return serializeObject {
-            "keys" - serializeArray(asTranslatableKey)
-            "setting" - setting.serialization()
+            "keys" to asTranslatableKey
+            "setting" to setting
         }
     }
 

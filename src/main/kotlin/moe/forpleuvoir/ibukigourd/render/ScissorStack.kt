@@ -1,23 +1,24 @@
 package moe.forpleuvoir.ibukigourd.render
 
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.base.math.plus
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import org.joml.Vector3fc
 import java.util.*
 
 class ScissorStack {
 
-    private val stack: Deque<Rectangle<Vector3<Float>>> = ArrayDeque()
+    private val stack: Deque<Rectangle> = ArrayDeque()
 
-    private val offsetStack: Deque<Vector3<Float>> = ArrayDeque()
+    private val offsetStack: Deque<Vector3fc> = ArrayDeque()
 
     fun rest() {
         stack.clear()
         offsetStack.clear()
     }
 
-    fun push(rectangle: Rectangle<Vector3<Float>>): Rectangle<Vector3<Float>> {
-        val rect: Rectangle<Vector3<Float>>? = stack.peekLast()
+    fun push(rectangle: Rectangle): Rectangle {
+        val rect: Rectangle? = stack.peekLast()
         if (rect != null) {
             val rect2 = rectangle.intersection(rect)
             stack.addLast(rect2)
@@ -27,12 +28,12 @@ class ScissorStack {
         return rectangle
     }
 
-    fun pop(): Rectangle<Vector3<Float>>? {
+    fun pop(): Rectangle? {
         stack.removeLast()
         return stack.peekLast()
     }
 
-    fun peek(): Rectangle<Vector3<Float>>? {
+    fun peek(): Rectangle? {
         val peek = stack.peekLast() ?: return null
         peekOffset()?.let {
             val pos = peek.position + it
@@ -41,8 +42,8 @@ class ScissorStack {
         return peek
     }
 
-    fun pushOffset(offset: Vector3<Float>): Vector3<Float> {
-        val o: Vector3<Float>? = offsetStack.peekLast()
+    fun pushOffset(offset: Vector3fc): Vector3fc {
+        val o: Vector3fc? = offsetStack.peekLast()
         if (o != null) {
             val o2 = offset + o
             offsetStack.addLast(o2)
@@ -52,12 +53,12 @@ class ScissorStack {
         return offset
     }
 
-    fun popOffset(): Vector3<Float>? {
+    fun popOffset(): Vector3fc? {
         offsetStack.removeLast()
         return offsetStack.peekLast()
     }
 
-    fun peekOffset(): Vector3<Float>? {
+    fun peekOffset(): Vector3fc? {
         return offsetStack.peekLast()
     }
 

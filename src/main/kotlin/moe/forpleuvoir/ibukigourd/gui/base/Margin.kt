@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base
 
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -55,7 +56,7 @@ data class Margin(
                     }
                 }
             }
-            throw IllegalArgumentException(
+            throw DeserializationException(
                 "serialization format error,expected SerializeObject or SerializePrimitive and SerializeArray but was ${serializeElement::class.simpleName}," +
                 "If the type is correct, then the corresponding key is wrong, or the length of the array is wrong(The length of the array is 2 or 4)."
             )

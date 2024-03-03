@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.render.graphics
+package moe.forpleuvoir.ibukigourd.render.shape
 
 import kotlin.math.atan2
 

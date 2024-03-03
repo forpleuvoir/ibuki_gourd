@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.render.base.texture.UVMapping
 import moe.forpleuvoir.ibukigourd.render.base.vertex.UVVertex
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gl.ShaderProgram
@@ -160,8 +160,8 @@ object BatchDrawScope {
             rect.width,
             rect.height,
             textureUV.corner,
-            textureUV.u1,
-            textureUV.v1,
+            textureUV.uStart,
+            textureUV.vStart,
             textureUV.uSize,
             textureUV.vSize,
             textureWidth,
@@ -354,10 +354,10 @@ fun drawTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, uvMap
     val matrix4f = matrixStack.peek().positionMatrix
     setShader(GameRenderer::getPositionTexProgram)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
-    bufferBuilder.vertex(matrix4f, rect.vertexes[0]).texture(uvMapping.u1.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
-    bufferBuilder.vertex(matrix4f, rect.vertexes[2]).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v1.toFloat() / textureHeight).next()
-    bufferBuilder.vertex(matrix4f, rect.vertexes[3]).texture(uvMapping.u1.toFloat() / textureHeight, uvMapping.v2.toFloat() / textureHeight).next()
-    bufferBuilder.vertex(matrix4f, rect.vertexes[4]).texture(uvMapping.u2.toFloat() / textureWidth, uvMapping.v2.toFloat() / textureHeight).next()
+    bufferBuilder.vertex(matrix4f, rect.vertexes[0]).texture(uvMapping.uStart.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight).next()
+    bufferBuilder.vertex(matrix4f, rect.vertexes[2]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight).next()
+    bufferBuilder.vertex(matrix4f, rect.vertexes[3]).texture(uvMapping.uStart.toFloat() / textureHeight, uvMapping.vEnd.toFloat() / textureHeight).next()
+    bufferBuilder.vertex(matrix4f, rect.vertexes[4]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vEnd.toFloat() / textureHeight).next()
     bufferBuilder.draw()
 }
 
@@ -469,8 +469,8 @@ fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, text
         rect.width,
         rect.height,
         textureUV.corner,
-        textureUV.u1,
-        textureUV.v1,
+        textureUV.uStart,
+        textureUV.vStart,
         textureUV.uSize,
         textureUV.vSize,
         textureWidth,

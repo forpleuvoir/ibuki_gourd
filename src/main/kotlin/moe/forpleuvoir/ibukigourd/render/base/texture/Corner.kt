@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd.render.base.texture
 
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.getOr
 
 data class Corner(
@@ -24,10 +26,9 @@ data class Corner(
         val EMPTY = Corner(0)
 
         fun deserialization(serializeElement: SerializeElement?, default: Corner): Corner {
-            if (serializeElement == null || serializeElement.isNull) return default
-            return runCatching {
-                if (serializeElement is SerializeObject)
-                    serializeElement.let {
+            return serializeElement?.run {
+                checkType<Corner>()
+                    .check<SerializeObject> {
                         val left: Int
                         val right: Int
                         if (it.containsKey("vertical")) {
@@ -48,10 +49,10 @@ data class Corner(
                         }
                         Corner(left, right, top, bottom)
                     }
-                else if (serializeElement.isPrimitive)
-                    Corner(serializeElement.asInt)
-                else default
-            }.getOrDefault(default)
+                    .check<SerializePrimitive> {
+                        Corner(it.asInt)
+                    }.getOrDefault(default)
+            } ?: default
         }
 
     }

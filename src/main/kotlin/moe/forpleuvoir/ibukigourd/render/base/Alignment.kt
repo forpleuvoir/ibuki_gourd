@@ -4,8 +4,8 @@ package moe.forpleuvoir.ibukigourd.render.base
 
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.graphics.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.nebula.common.sumOf
 
 interface Alignment {

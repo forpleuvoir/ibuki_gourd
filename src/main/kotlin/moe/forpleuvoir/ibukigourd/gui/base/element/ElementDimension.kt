@@ -6,9 +6,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
  * 父元素为[WrapContent]时需要获取子元素的尺寸
  * - 所有子元素为[Fixed]时，直接获取尺寸
  *
- *
- *
- * @constructor
  */
 sealed interface ElementDimension
 

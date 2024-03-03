@@ -4,6 +4,8 @@ import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 
 class WidgetTexture(
     corner: Corner,
@@ -13,28 +15,31 @@ class WidgetTexture(
 
     constructor(textureUVMapping: TextureUVMapping, textureInfo: TextureInfo) : this(
         textureUVMapping.corner,
-        textureUVMapping.u1,
-        textureUVMapping.v1,
-        textureUVMapping.u2,
-        textureUVMapping.v2,
+        textureUVMapping.uStart,
+        textureUVMapping.vStart,
+        textureUVMapping.uEnd,
+        textureUVMapping.vEnd,
         textureInfo
     )
 
     companion object {
         fun deserialization(serializeElement: SerializeElement?, default: WidgetTexture): WidgetTexture {
-            if (serializeElement == null || !serializeElement.isObject) return default
-            serializeElement.asObject.apply {
-                val textureUVMapping = TextureUVMapping.deserialization(this, default)
-                val textureInfo = TextureInfo.deserialization(get("texture_info"), default.textureInfo)
-                return WidgetTexture(textureUVMapping, textureInfo)
-            }
+            return serializeElement?.run {
+                checkType<WidgetTexture>()
+                    .check<SerializeObject> {
+                        WidgetTexture(
+                            textureUVMapping = TextureUVMapping.deserialization(this, default),
+                            textureInfo = TextureInfo.deserialization(it["texture_info"], default.textureInfo)
+                        )
+                    }.getOrDefault(default)
+            } ?: default
         }
 
     }
 
 
     override fun toString(): String {
-        return "WidgetTexture(corner=$corner,u1=$u1, v1=$v1, u2=$u2, v2=$v2,textureInfo=$textureInfo)"
+        return "WidgetTexture(corner=$corner,uStart=$uStart, vStart=$vStart, uEnd=$uEnd, vEnd=$vEnd,textureInfo=$textureInfo)"
     }
 
     override fun equals(other: Any?): Boolean {

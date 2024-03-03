@@ -4,39 +4,52 @@ import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.trans
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 
-enum class KeyEnvironment(val key: String) {
-	InGame("in_game"),
-	InScreen("in_screen"),
-	Both("both");
+enum class KeyEnvironment(val key: String) : Serializable {
+    InGame("in_game"),
+    InScreen("in_screen"),
+    Both("both");
 
-	val displayName: Text
-		get() = trans("ibuki_gourd.key_bind.environment.${key}")
+    companion object : Deserializer<KeyEnvironment> {
 
-	val description: Text
-		get() = trans("ibuki_gourd.key_bind.environment.${key}.description")
+        override fun deserialization(serializeElement: SerializeElement): KeyEnvironment {
+            return KeyEnvironment.fromKey(serializeElement.asString)
+        }
 
-	fun envMatch(): Boolean {
-		if (this == Both) return true
-		return this == currentEnv()
-	}
+        @JvmStatic
+        fun fromKey(key: String): KeyEnvironment {
+            return entries.first { it.key == key }
+        }
+    }
 
-	inline fun onEnvMatch(callback: () -> Unit) {
-		if (envMatch()) callback.invoke()
-	}
+    val displayName: Text
+        get() = trans("ibuki_gourd.key_bind.environment.${key}")
 
-	fun fromKey(key: String): KeyEnvironment {
-		allOption.forEach {
-			if (it.key == key) return it
-		}
-		return InGame
-	}
+    val description: Text
+        get() = trans("ibuki_gourd.key_bind.environment.${key}.description")
 
-	val allOption: List<KeyEnvironment>
-		get() = entries
+    fun envMatch(): Boolean {
+        if (this == Both) return true
+        return this == currentEnv()
+    }
+
+    inline fun onEnvMatch(callback: () -> Unit) {
+        if (envMatch()) callback.invoke()
+    }
+
+    override fun serialization(): SerializeElement {
+        return SerializePrimitive(this.key)
+    }
+
+    val allOption: List<KeyEnvironment>
+        get() = entries
 
 }
 
 fun currentEnv(): KeyEnvironment {
-	return if (mc.currentScreen != null || ScreenManager.hasScreen()) KeyEnvironment.InScreen else KeyEnvironment.InGame
+    return if (mc.currentScreen != null || ScreenManager.hasScreen()) KeyEnvironment.InScreen else KeyEnvironment.InGame
 }
