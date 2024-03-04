@@ -157,7 +157,7 @@ object BatchTextRenderScope {
     fun renderAlignmentText(
         matrixStack: MatrixStack,
         text: String,
-        rect: Rectangle<Vector3<Float>>,
+        rect: Rectangle,
         align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,

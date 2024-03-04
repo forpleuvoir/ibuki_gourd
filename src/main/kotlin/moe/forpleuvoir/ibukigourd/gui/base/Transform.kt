@@ -30,8 +30,14 @@ class Transform(
     var parent: () -> Transform? = { null },
 ) : Rectangle {
 
+    /**
+     * 不可变向量
+     */
     override val position: Vector3fc = NotifiableVector3f(position)
 
+    /**
+     * 可变向量
+     */
     private val positionAsNotifiable: NotifiableVector3f get() = position as NotifiableVector3f
 
     override var width: Float = width

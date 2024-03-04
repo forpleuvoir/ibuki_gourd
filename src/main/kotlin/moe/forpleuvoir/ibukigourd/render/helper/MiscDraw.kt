@@ -1,3 +1,5 @@
+@file:Suppress("unused", "DuplicatedCode")
+
 package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -62,10 +64,7 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg vertexes: Col
 
 /**
  * 批量绘制矩形
- * @param matrix4f Matrix4f
  * @param shaderSupplier () -> ShaderProgram?
- * @param drawMode VertexFormat.DrawMode
- * @param format VertexFormat
  * @param bufferBuilder BufferBuilder
  * @param block BatchDrawScope.() -> Unit
  */
@@ -103,7 +102,7 @@ object RectBatchDrawScope {
     /**
      * 渲染矩形
      * @param matrixStack MatrixStack
-     * @param rect Rectangle<Vector3<Float>>
+     * @param rect Rectangle
      * @param color ARGBColor
      */
     fun renderRect(matrixStack: MatrixStack, rect: Rectangle, color: ARGBColor) {
@@ -173,7 +172,7 @@ object RectBatchDrawScope {
      *
      * @param matrixStack The matrix stack to render onto.
      * @param rect The rectangle to render.
-     * @param Orientation The arrangement of gradient colors. Default value is Arrangement.Horizontal.
+     * @param orientation The arrangement of gradient colors. Default value is [Orientation.Horizontal].
      * @param startColor The starting color of the gradient in ARGB format.
      * @param endColor The ending color of the gradient in ARGB format.
      */
@@ -193,9 +192,9 @@ object RectBatchDrawScope {
     /**
      * 渲染HSV渐变矩形
      * @param matrixStack MatrixStack
-     * @param rect Rectangle<Vector3<Float>>
+     * @param rect Rectangle
      * @param precision Int 精度
-     * @param Orientation Arrangement
+     * @param orientation [Orientation]
      * @param reverse Boolean
      * @param hueRange ClosedFloatingPointRange<Float>
      * @param saturation Float
@@ -244,8 +243,8 @@ object RectBatchDrawScope {
     /**
      * 绘制饱和度渐变矩形
      * @param matrixStack MatrixStack
-     * @param rect Rectangle<Vector3<Float>>
-     * @param Orientation Arrangement
+     * @param rect Rectangle
+     * @param orientation [Orientation]
      * @param reverse Boolean
      * @param saturationRange ClosedFloatingPointRange<Float>
      * @param hue Float
@@ -270,8 +269,8 @@ object RectBatchDrawScope {
     /**
      * 绘制明度渐变矩形
      * @param matrixStack MatrixStack
-     * @param rect Rectangle<Vector3<Float>>
-     * @param Orientation Arrangement
+     * @param rect Rectangle
+     * @param orientation [Orientation]
      * @param reverse Boolean
      * @param valueRange ClosedFloatingPointRange<Float>
      * @param hue Float
@@ -296,8 +295,8 @@ object RectBatchDrawScope {
     /**
      * 绘制透明度渐变矩形
      * @param matrixStack MatrixStack
-     * @param rect Rectangle<Vector3<Float>>
-     * @param Orientation Arrangement
+     * @param rect Rectangle
+     * @param orientation [Orientation]
      * @param reverse Boolean
      * @param alphaRange ClosedFloatingPointRange<Float>
      * @param color ARGBColor
@@ -318,8 +317,8 @@ object RectBatchDrawScope {
     /**
      * 绘制饱和度和明度渐变矩形
      * @param matrixStack MatrixStack
-     * @param rect Rectangle<Vector3<Float>>
-     * @param Orientation Arrangement
+     * @param rect Rectangle
+     * @param orientation [Orientation]
      * @param reverse Boolean
      * @param saturationRange ClosedFloatingPointRange<Float>
      * @param valueRange ClosedFloatingPointRange<Float>
@@ -360,7 +359,7 @@ object RectBatchDrawScope {
  *
  * @param matrixStack The matrix stack to render onto.
  * @param rect The rectangle to render.
- * @param Orientation The arrangement of gradient colors. Default value is Arrangement.Horizontal.
+ * @param orientation The arrangement of gradient colors. Default value is [Orientation.Horizontal].
  * @param startColor The starting color of the gradient in ARGB format.
  * @param endColor The ending color of the gradient in ARGB format.
  */
@@ -381,9 +380,9 @@ fun renderGradientRect(
 /**
  * 渲染HSV渐变矩形
  * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
+ * @param rect Rectangle
  * @param precision Int 精度
- * @param Orientation Arrangement
+ * @param orientation [Orientation]
  * @param reverse Boolean
  * @param hueRange ClosedFloatingPointRange<Float>
  * @param saturation Float
@@ -435,8 +434,8 @@ fun renderHueGradientRect(
 /**
  * 绘制饱和度渐变矩形
  * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
- * @param Orientation Arrangement
+ * @param rect Rectangle
+ * @param orientation [Orientation]
  * @param reverse Boolean
  * @param saturationRange ClosedFloatingPointRange<Float>
  * @param hue Float
@@ -462,8 +461,8 @@ fun renderSaturationGradientRect(
 /**
  * 绘制明度渐变矩形
  * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
- * @param Orientation Arrangement
+ * @param rect Rectangle
+ * @param orientation [Orientation]
  * @param reverse Boolean
  * @param valueRange ClosedFloatingPointRange<Float>
  * @param hue Float
@@ -491,7 +490,7 @@ fun renderValueGradientRect(
  *
  * @param matrixStack The matrix stack used for rendering.
  * @param rect The rectangle representing the shape to be rendered.
- * @param Orientation The arrangement of the gradient. Default is [Orientation.Horizontal].
+ * @param orientation The arrangement of the gradient. Default is [Orientation.Horizontal].
  * @param reverse Whether to reverse the gradient. Default is false.
  * @param alphaRange The range of alpha values for the gradient. Default is 0f to 1f.
  * @param color The base color of the shape.
@@ -514,8 +513,8 @@ fun renderAlphaGradientRect(
 /**
  * 绘制饱和度和明度渐变矩形
  * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
- * @param Orientation Arrangement
+ * @param rect Rectangle
+ * @param orientation [Orientation]
  * @param reverse Boolean
  * @param saturationRange ClosedFloatingPointRange<Float>
  * @param valueRange ClosedFloatingPointRange<Float>
@@ -568,7 +567,7 @@ fun renderRect(matrixStack: MatrixStack, rect: ColoredRect, shaderSupplier: () -
 /**
  * 渲染矩形
  * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
+ * @param rect Rectangle
  * @param color ARGBColor
  */
 fun renderRect(matrixStack: MatrixStack, rect: Rectangle, color: ARGBColor, shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram) {
@@ -683,12 +682,12 @@ fun renderOutline(
 ) {
     rectBatchRender(shaderSupplier = shaderSupplier) {
         renderRect(matrixStack, coloredVertex, borderWidth, height)
-        renderRect(matrixStack, coloredVertex.copy(coloredVertex.x + width.toFloat() - borderWidth.toFloat()), borderWidth, height)
-        renderRect(matrixStack, coloredVertex.copy(coloredVertex.x + borderWidth.toFloat()), width.toFloat() - 2 * borderWidth.toFloat(), borderWidth)
+        renderRect(matrixStack, coloredVertex.copy(coloredVertex.x() + width.toFloat() - borderWidth.toFloat()), borderWidth, height)
+        renderRect(matrixStack, coloredVertex.copy(coloredVertex.x() + borderWidth.toFloat()), width.toFloat() - 2 * borderWidth.toFloat(), borderWidth)
         renderRect(
             matrixStack, coloredVertex.copy(
-                coloredVertex.x + borderWidth.toFloat(),
-                coloredVertex.y + height.toFloat() - borderWidth.toFloat(),
+                coloredVertex.x() + borderWidth.toFloat(),
+                coloredVertex.y() + height.toFloat() - borderWidth.toFloat(),
             ),
             width.toFloat() - 2 * borderWidth.toFloat(), borderWidth
         )
@@ -714,7 +713,7 @@ fun renderOutline(
 /**
  *  @see renderOutline
  * @param matrixStack MatrixStack
- * @param rect Rectangle<Vector3<Float>>
+ * @param rect Rectangle
  * @param color Color
  * @param borderWidth Number
  */
@@ -754,8 +753,8 @@ fun renderOutlinedBox(
             renderOutline(
                 matrixStack,
                 coloredVertex.copy(
-                    x = coloredVertex.x - borderWidth.toFloat(),
-                    y = coloredVertex.y - borderWidth.toFloat(),
+                    x = coloredVertex.x() - borderWidth.toFloat(),
+                    y = coloredVertex.y() - borderWidth.toFloat(),
                     color = outlineColor
                 ),
                 width.toFloat() + borderWidth.toFloat() * 2, height.toFloat() + borderWidth.toFloat() * 2,
@@ -765,8 +764,8 @@ fun renderOutlinedBox(
             renderRect(
                 matrixStack,
                 coloredVertex.copy(
-                    coloredVertex.x - borderWidth.toFloat(),
-                    coloredVertex.y - borderWidth.toFloat()
+                    coloredVertex.x() - borderWidth.toFloat(),
+                    coloredVertex.y() - borderWidth.toFloat()
                 ),
                 width.toFloat() - 2 * borderWidth.toFloat(), height.toFloat() - 2 * borderWidth.toFloat(),
             )
