@@ -18,15 +18,15 @@ import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TAB_INACTIVE_TOP
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.pick
@@ -95,7 +95,7 @@ class TabsWidget(
 
         override var spacing: Float = this@TabsWidget.spacing
 
-        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>? {
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
             if (elements.isEmpty()) return null
 
             val offset = when (direction) {
@@ -117,10 +117,10 @@ class TabsWidget(
             val size = alignment.orientation.contentSize(alignRects)
 
             val contentRect = when (direction) {
-                Direction.Top    -> rect(vertex(4f, 0, 0), transform.width, size.height)
-                Direction.Bottom -> rect(vertex(4f, transform.height - size.height, 0), transform.width, size.height)
-                Direction.Left   -> rect(vertex(0, 4f, 0), size.width, transform.height)
-                Direction.Right  -> rect(vertex(transform.width - size.width, 4f, 0), size.width, transform.height)
+                Direction.Top    -> Rect(vertex(4f, 0, 0), transform.width, size.height)
+                Direction.Bottom -> Rect(vertex(4f, transform.height - size.height, 0), transform.width, size.height)
+                Direction.Left   -> Rect(vertex(0, 4f, 0), size.width, transform.height)
+                Direction.Right  -> Rect(vertex(transform.width - size.width, 4f, 0), size.width, transform.height)
             }
             alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
                 elements[index].let {
@@ -130,16 +130,16 @@ class TabsWidget(
                     }
                 }
             }
-            return Dimension.of(contentRect.width, contentRect.height)
+            return Size.of(contentRect.width, contentRect.height)
         }
     }
 
-    var tabDimension: Dimension<Float> = Dimension.of(0f, 0f)
+    var tabSize: Size<Float> = Size.of(0f, 0f)
 
     override fun arrange() {
         println("我执行了")
         layout.layout(tabElements, margin, padding)?.let { size ->
-            tabDimension = size
+            tabSize = size
             contentRect(false).let {
                 content.transform.translateTo(it.position)
                 content.transform.width = it.width
@@ -154,11 +154,11 @@ class TabsWidget(
     }
 
     override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
-        val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabDimension.height - 3 else 0f
-        val bottom = (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabDimension.height - 3 else 0f
-        val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabDimension.width - 3 else 0f
-        val right = (if (isWorld) transform.worldRight - padding.right else transform.width - padding.right) - if (direction == Direction.Right) tabDimension.width - 3 else 0f
-        return rect(
+        val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabSize.height - 3 else 0f
+        val bottom = (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabSize.height - 3 else 0f
+        val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabSize.width - 3 else 0f
+        val right = (if (isWorld) transform.worldRight - padding.right else transform.width - padding.right) - if (direction == Direction.Right) tabSize.width - 3 else 0f
+        return Rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
         )
     }

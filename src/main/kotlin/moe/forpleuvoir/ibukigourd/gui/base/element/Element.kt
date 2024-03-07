@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.KeyCode
@@ -109,6 +110,8 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
             override fun tick() = Unit
         }
     }
+
+    val modifier: Modifier
 
     /**
      * 基础属性变换

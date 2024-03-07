@@ -15,16 +15,16 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -44,7 +44,7 @@ class DropListTip(
         override val elementContainer: () -> ElementContainer
             get() = { this@DropListTip }
 
-        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Dimension<Float>? {
+        override fun arrange(elements: List<Element>, margin: Margin, padding: Margin): Size<Float>? {
             val alignElements = elements.filter { !it.fixed }
             if (alignElements.isEmpty()) return null
 
@@ -64,15 +64,15 @@ class DropListTip(
                 }
                 //固定宽度 不固定高度
                 container.transform.fixedWidth && !container.transform.fixedHeight -> {
-                    rect(containerContentRect.position, containerContentRect.width, size.height)
+                    Rect(containerContentRect.position, containerContentRect.width, size.height)
                 }
                 //不固定宽度 固定高度
                 !container.transform.fixedWidth && container.transform.fixedHeight -> {
-                    rect(containerContentRect.position, size.width, containerContentRect.height)
+                    Rect(containerContentRect.position, size.width, containerContentRect.height)
                 }
                 //不固定宽度 不固定高度
                 else                                                               -> {
-                    rect(containerContentRect.position, size)
+                    Rect(containerContentRect.position, size)
                 }
             }
             alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
@@ -81,7 +81,7 @@ class DropListTip(
                 element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
                 element.visible = element.transform.inRect(contentRect, false)
             }
-            return Dimension.of(contentRect.width + padding.width, contentRect.height + padding.height)
+            return Size.of(contentRect.width + padding.width, contentRect.height + padding.height)
         }
 
     }
@@ -194,7 +194,7 @@ class DropListTip(
             if (isWorld) transform.worldRight - padding.right - scrollerThickness
             else transform.width - padding.right - scrollerThickness
 
-        return rect(
+        return Rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
         )
     }
@@ -257,7 +257,7 @@ class DropListTip(
                 //箭头下的横线
                 renderRect(
                     renderContext.matrixStack,
-                    rect(
+                    Rect(
                         arrow.transform.worldX,
                         arrow.transform.worldBottom,
                         transform.worldZ,
@@ -272,7 +272,7 @@ class DropListTip(
                         if (element.mouseHover())
                             renderRect(
                                 renderContext.matrixStack,
-                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, maxWidth, element.transform.height),
+                                Rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, maxWidth, element.transform.height),
                                 it()
                             )
                     }
@@ -280,7 +280,7 @@ class DropListTip(
                     if (index != list.lastIndex) {
                         renderRect(
                             renderContext.matrixStack,
-                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, spacing),
+                            Rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, spacing),
                             Colors.GRAY.alpha(0.2f)
                         )
                     }
@@ -288,7 +288,7 @@ class DropListTip(
                 //绘制竖线
                 renderRect(
                     renderContext.matrixStack,
-                    rect(arrow.transform.worldX - spacing, transform.worldTop + padding.top, transform.worldZ, spacing, transform.height - padding.height),
+                    Rect(arrow.transform.worldX - spacing, transform.worldTop + padding.top, transform.worldZ, spacing, transform.height - padding.height),
                     Colors.GRAY.alpha(0.2f)
                 )
             }

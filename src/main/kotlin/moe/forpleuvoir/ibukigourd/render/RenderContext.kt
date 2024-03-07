@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.render
 
 import moe.forpleuvoir.ibukigourd.render.helper.setScissor
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.rest
 import net.minecraft.client.MinecraftClient
@@ -59,7 +59,7 @@ class RenderContext(
     }
 
     fun enableScissor(x: Number, y: Number, width: Number, height: Number) {
-        scissorStack.push(rect(x, y, 0, width, height))
+        scissorStack.push(Rect(x, y, 0, width, height))
         setScissor(scissorStack.peek())
     }
 

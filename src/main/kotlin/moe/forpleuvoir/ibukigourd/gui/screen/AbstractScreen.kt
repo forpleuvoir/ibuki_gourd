@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 

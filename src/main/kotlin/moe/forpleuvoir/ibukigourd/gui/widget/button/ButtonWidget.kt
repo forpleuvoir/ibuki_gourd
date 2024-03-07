@@ -31,12 +31,12 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PRESS_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.translate
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.Tick
@@ -291,7 +291,7 @@ fun SwitchButton(
         override fun onRenderBackground(renderContext: RenderContext) {
             renderTexture(renderContext.matrixStack, transform, status.pick(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
             renderTexture(
-                renderContext.matrixStack, rect(
+                renderContext.matrixStack, Rect(
                     transform.worldPosition.x(transform.worldPosition.x + status.pick(transform.width / 2, 0f)),
                     transform.width / 2,
                     transform.height

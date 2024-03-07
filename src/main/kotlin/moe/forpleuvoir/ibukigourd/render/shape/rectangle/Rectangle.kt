@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.render.shape.rectangle
 
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
-import moe.forpleuvoir.ibukigourd.render.base.DimensionFloat
+import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.SizeFloat
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColoredVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -10,7 +10,7 @@ import org.joml.Vector3fc
 import kotlin.math.max
 import kotlin.math.min
 
-interface Rectangle : DimensionFloat, Cloneable {
+interface Rectangle : SizeFloat, Cloneable {
 
     val position: Vector3fc
 
@@ -94,7 +94,7 @@ interface Rectangle : DimensionFloat, Cloneable {
         val startY = max(this.y, target.y)
         val endX = min(this.endX, target.endX)
         val endY = min(this.endY, target.endY)
-        rect(startX, startY, endX, endY).let {
+        Rect(startX, startY, endX, endY).let {
             return if (it.exist) it else NULL
         }
     }
@@ -102,7 +102,7 @@ interface Rectangle : DimensionFloat, Cloneable {
     @Suppress("DuplicatedCode")
     companion object {
 
-        val NULL = rect(0, 0, 0, 0)
+        val NULL = Rect(0, 0, 0, 0)
 
         /**
          * 只判断矩形的位置与大小
@@ -130,32 +130,25 @@ interface Rectangle : DimensionFloat, Cloneable {
 
 }
 
-fun rect(position: Vector3fc, width: Float, height: Float): Rectangle = RectImpl(position, width, height)
+fun Rect(position: Vector3fc, width: Float, height: Float): Rectangle = RectImpl(position, width, height)
 
-fun rect(position: Vector3fc, width: Number, height: Number): Rectangle = RectImpl(position, width.toFloat(), height.toFloat())
+fun Rect(position: Vector3fc, width: Number, height: Number): Rectangle = RectImpl(position, width.toFloat(), height.toFloat())
 
-fun rect(x: Number, y: Number, z: Number, width: Number, height: Number): Rectangle = RectImpl(x, y, z, width, height)
+fun Rect(x: Number, y: Number, z: Number, width: Number, height: Number): Rectangle = RectImpl(x, y, z, width, height)
 
-fun rect(startX: Number, startY: Number, endX: Number, endY: Number): Rectangle =
+fun Rect(startX: Number, startY: Number, endX: Number, endY: Number): Rectangle =
     RectImpl(startX, startY, 0f, endX.toFloat() - startX.toFloat(), endY.toFloat() - startY.toFloat())
 
-fun rect(x: Number, y: Number, z: Number, dimension: Dimension<Number>): Rectangle = RectImpl(x, y, z, dimension)
+fun Rect(x: Number, y: Number, z: Number, size: Size<Number>): Rectangle = RectImpl(x, y, z, size)
 
-fun rect(position: Vector3fc, dimension: Dimension<Float>): Rectangle = RectImpl(position, dimension)
+fun Rect(position: Vector3fc, size: Size<Float>): Rectangle = RectImpl(position, size)
 
-fun coloredRect(coloredVertex: ColoredVertex, width: Float, height: Float): ColoredRect =
+fun ColoredRect(coloredVertex: ColoredVertex, width: Float, height: Float): ColoredRect =
     ColoredRect(coloredVertex, width, height, coloredVertex.color, coloredVertex.color, coloredVertex.color, coloredVertex.color)
 
-fun coloredRect(position: Vector3fc, width: Float, height: Float, vararg colors: ARGBColor): ColoredRect =
-    ColoredRect(position, width, height, *colors)
+fun ColoredRect(x: Number, y: Number, z: Number, size: Size<Float>, vararg colors: ARGBColor): ColoredRect =
+    ColoredRect(x, y, z, size.width, size.height, *colors)
 
-fun coloredRect(x: Number, y: Number, z: Number, width: Number, height: Number, vararg colors: ARGBColor): ColoredRect =
-    ColoredRect(x, y, z, width, height, *colors)
-
-fun coloredRect(x: Number, y: Number, z: Number, dimension: Dimension<Float>, vararg colors: ARGBColor): ColoredRect =
-    ColoredRect(x, y, z, dimension.width, dimension.height, *colors)
-
-fun coloredRect(rect: Rectangle, vararg colors: ARGBColor): ColoredRect =
+fun ColoredRect(rect: Rectangle, vararg colors: ARGBColor): ColoredRect =
     ColoredRect(rect.x, rect.y, rect.z, rect.width, rect.height, *colors)
 
-fun coloredRect(position: Vector3fc, dimension: Dimension<Float>, vararg colors: ARGBColor): ColoredRect = ColoredRect(position, dimension, *colors)

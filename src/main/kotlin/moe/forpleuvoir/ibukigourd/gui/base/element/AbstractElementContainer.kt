@@ -3,11 +3,11 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.render.base.MutableDimension
+import moe.forpleuvoir.ibukigourd.render.base.MutableSize
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 
 abstract class AbstractElementContainer : Element {
 
@@ -80,7 +80,7 @@ abstract class AbstractElementContainer : Element {
         }
     }
 
-    var measuredDimension: MutableDimension<Float> = MutableDimension.of(0f, 0f)
+    var measuredDimension: MutableSize<Float> = MutableSize.of(0f, 0f)
 
 
     final override fun margin(margin: Number) {
@@ -113,7 +113,7 @@ abstract class AbstractElementContainer : Element {
         val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
         val left = if (isWorld) transform.worldLeft + padding.left else padding.left
         val right = if (isWorld) transform.worldRight - padding.right else transform.width - padding.right
-        return rect(
+        return Rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
         )
     }

@@ -3,13 +3,13 @@
 package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.base.math.copy
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.text.wrapToTextLines
@@ -165,8 +165,8 @@ object BatchTextRenderScope {
         color: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
-        renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
+        val position = align(Orientation.Vertical).align(rect, Rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
+        renderText(matrixStack, text, position.x(), position.y(), position.z(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
     /**
@@ -183,7 +183,7 @@ object BatchTextRenderScope {
     fun renderAlignmentText(
         matrixStack: MatrixStack,
         text: Text,
-        rect: Rectangle<Vector3<Float>>,
+        rect: Rectangle,
         align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
@@ -191,8 +191,8 @@ object BatchTextRenderScope {
         color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
-        renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
+        val position = align(Orientation.Vertical).align(rect, Rect(Vector3f(), textRenderer!!.getWidth(text), textRenderer!!.fontHeight))
+        renderText(matrixStack, text, position.x(), position.y(), position.z(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
     /**
@@ -220,7 +220,7 @@ object BatchTextRenderScope {
     fun renderStringLines(
         matrixStack: MatrixStack,
         string: String,
-        rect: Rectangle<Vector3<Float>>,
+        rect: Rectangle,
         lineSpacing: Number = 1,
         align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
@@ -233,7 +233,7 @@ object BatchTextRenderScope {
         for (text in string.wrapToLines(textRenderer!!, rect.width.toInt())) {
             renderAlignmentText(
                 matrixStack,
-                text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
+                text, Rect(rect.position.copy(y = top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -257,7 +257,7 @@ object BatchTextRenderScope {
     fun renderStringLines(
         matrixStack: MatrixStack,
         lines: List<String>,
-        rect: Rectangle<Vector3<Float>>,
+        rect: Rectangle,
         lineSpacing: Number = 1,
         align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
         shadow: Boolean = false,
@@ -270,7 +270,7 @@ object BatchTextRenderScope {
         for (text in lines) {
             renderAlignmentText(
                 matrixStack,
-                text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
+                text, Rect(rect.position.copy(y = top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -405,7 +405,7 @@ fun TextRenderer.renderText(
 inline fun TextRenderer.renderAlignmentText(
     matrixStack: MatrixStack,
     text: String,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
@@ -413,8 +413,8 @@ inline fun TextRenderer.renderAlignmentText(
     color: ARGBColor = Color(0x000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
-    renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
+    val position = align(Orientation.Vertical).align(rect, Rect(Vector3f(), getWidth(text), fontHeight))
+    renderText(matrixStack, text, position.x(), position.y(), position.z(), shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
 /**
@@ -432,7 +432,7 @@ inline fun TextRenderer.renderAlignmentText(
 inline fun TextRenderer.renderAlignmentText(
     matrixStack: MatrixStack,
     text: Text,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
@@ -440,8 +440,8 @@ inline fun TextRenderer.renderAlignmentText(
     color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    val position = align(Orientation.Vertical).align(rect, rect(Vector3f(), getWidth(text), fontHeight))
-    renderText(matrixStack, text, position.x, position.y, position.z, shadow, layerType, rightToLeft, color, backgroundColor)
+    val position = align(Orientation.Vertical).align(rect, Rect(Vector3f(), getWidth(text), fontHeight))
+    renderText(matrixStack, text, position.x(), position.y(), position.z(), shadow, layerType, rightToLeft, color, backgroundColor)
 }
 
 /**
@@ -485,7 +485,7 @@ inline fun TextRenderer.renderAlignmentText(
 fun TextRenderer.renderStringLines(
     matrixStack: MatrixStack,
     string: String,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     lineSpacing: Number = 1,
     align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
@@ -499,7 +499,7 @@ fun TextRenderer.renderStringLines(
         for (text in string.wrapToLines(textRenderer!!, rect.width.toInt())) {
             renderAlignmentText(
                 matrixStack,
-                text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
+                text, Rect(rect.position.copy(y = top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -524,7 +524,7 @@ fun TextRenderer.renderStringLines(
 fun TextRenderer.renderStringLines(
     matrixStack: MatrixStack,
     lines: List<String>,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     lineSpacing: Number = 1,
     align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
@@ -538,7 +538,7 @@ fun TextRenderer.renderStringLines(
         for (text in lines.wrapToLines(textRenderer!!, rect.width.toInt())) {
             renderAlignmentText(
                 matrixStack,
-                text, rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
+                text, Rect(rect.position.copy(y = top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -563,7 +563,7 @@ fun TextRenderer.renderStringLines(
 fun TextRenderer.renderTextLines(
     matrixStack: MatrixStack,
     text: Text,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     lineSpacing: Number = 1,
     align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,
@@ -577,7 +577,7 @@ fun TextRenderer.renderTextLines(
         for (t in text.wrapToTextLines(textRenderer!!, rect.width.toInt())) {
             renderAlignmentText(
                 matrixStack, text,
-                rect(rect.position.y(top), rect.width, textRenderer!!.fontHeight), align,
+                Rect(rect.position.copy(y = top), rect.width, textRenderer!!.fontHeight), align,
                 shadow, layerType, rightToLeft, color, backgroundColor
             )
             top += textRenderer!!.fontHeight + lineSpacing.toFloat()
@@ -603,7 +603,7 @@ fun TextRenderer.renderTextLines(
 fun TextRenderer.renderTextLines(
     matrixStack: MatrixStack,
     lines: List<Text>,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     lineSpacing: Number = 1,
     align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
     shadow: Boolean = false,

@@ -21,13 +21,13 @@ import moe.forpleuvoir.ibukigourd.gui.widget.intScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tab
 import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tabs
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.delegate
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.literal
@@ -171,7 +171,7 @@ val testScreen1: Screen
     get() = screen {
         renderBackground = {
             renderRect(it.matrixStack, this.transform, Colors.BLACK.opacity(0.5f))
-            renderRect(it.matrixStack, rect(vertex(6f, this.transform.halfHeight, 0f), 60f, 20f), Colors.RED.opacity(0.5f))
+            renderRect(it.matrixStack, Rect(vertex(6f, this.transform.halfHeight, 0f), 60f, 20f), Colors.RED.opacity(0.5f))
         }
         padding(4)
         spacing = 5f
@@ -335,20 +335,20 @@ fun renderCrossHairs(matrixStack: MatrixStack, x: Number, y: Number) {
 }
 
 fun colorTest(matrixStack: MatrixStack) {
-    renderHueGradientRect(matrixStack, rect(3f, 3f, 0f, 160, 5f), 240, hueRange = 0f..360f)
-    renderHueGradientRect(matrixStack, rect(164f, 3f, 0f, 160, 5f), 240, reverse = true, hueRange = 0f..360f)
+    renderHueGradientRect(matrixStack, Rect(3f, 3f, 0f, 160, 5f), 240, hueRange = 0f..360f)
+    renderHueGradientRect(matrixStack, Rect(164f, 3f, 0f, 160, 5f), 240, reverse = true, hueRange = 0f..360f)
 
-    renderHueGradientRect(matrixStack, rect(3, 109f, 0f, 5f, 120f), 240, Orientation = Orientation.Vertical, hueRange = 0f..360f)
-    renderHueGradientRect(matrixStack, rect(9, 109f, 0f, 5f, 120f), 240, Orientation = Orientation.Vertical, reverse = true, hueRange = 0f..360f)
+    renderHueGradientRect(matrixStack, Rect(3, 109f, 0f, 5f, 120f), 240, Orientation = Orientation.Vertical, hueRange = 0f..360f)
+    renderHueGradientRect(matrixStack, Rect(9, 109f, 0f, 5f, 120f), 240, Orientation = Orientation.Vertical, reverse = true, hueRange = 0f..360f)
 
 
-    renderSaturationGradientRect(matrixStack, rect(3f, 9f, 0f, 160, 5f), saturationRange = 0f..1f, hue = 210f, value = 1f)
-    renderSaturationGradientRect(matrixStack, rect(164f, 9f, 0f, 160, 5f), reverse = true, saturationRange = 0f..1f, hue = 210f, value = 1f)
+    renderSaturationGradientRect(matrixStack, Rect(3f, 9f, 0f, 160, 5f), saturationRange = 0f..1f, hue = 210f, value = 1f)
+    renderSaturationGradientRect(matrixStack, Rect(164f, 9f, 0f, 160, 5f), reverse = true, saturationRange = 0f..1f, hue = 210f, value = 1f)
 
-    renderSaturationGradientRect(matrixStack, rect(15, 109f, 0f, 5, 120), Orientation = Orientation.Vertical, saturationRange = 0f..1f, hue = 210f, value = 1f)
+    renderSaturationGradientRect(matrixStack, Rect(15, 109f, 0f, 5, 120), Orientation = Orientation.Vertical, saturationRange = 0f..1f, hue = 210f, value = 1f)
     renderSaturationGradientRect(
         matrixStack,
-        rect(21, 109f, 0f, 5, 120),
+        Rect(21, 109f, 0f, 5, 120),
         Orientation = Orientation.Vertical,
         reverse = true,
         saturationRange = 0f..1f,
@@ -357,13 +357,13 @@ fun colorTest(matrixStack: MatrixStack) {
     )
 
 
-    renderValueGradientRect(matrixStack, rect(3f, 15f, 0f, 160, 5f), valueRange = 0f..1f, hue = 210f, saturation = 1f)
-    renderValueGradientRect(matrixStack, rect(164f, 15f, 0f, 160, 5f), reverse = true, valueRange = 0f..1f, hue = 210f, saturation = 1f)
+    renderValueGradientRect(matrixStack, Rect(3f, 15f, 0f, 160, 5f), valueRange = 0f..1f, hue = 210f, saturation = 1f)
+    renderValueGradientRect(matrixStack, Rect(164f, 15f, 0f, 160, 5f), reverse = true, valueRange = 0f..1f, hue = 210f, saturation = 1f)
 
-    renderValueGradientRect(matrixStack, rect(27, 109, 0f, 5, 120), Orientation = Orientation.Vertical, valueRange = 0f..1f, hue = 210f, saturation = 1f)
+    renderValueGradientRect(matrixStack, Rect(27, 109, 0f, 5, 120), Orientation = Orientation.Vertical, valueRange = 0f..1f, hue = 210f, saturation = 1f)
     renderValueGradientRect(
         matrixStack,
-        rect(33, 109, 0f, 5, 120),
+        Rect(33, 109, 0f, 5, 120),
         Orientation = Orientation.Vertical,
         reverse = true,
         valueRange = 0f..1f,
@@ -372,13 +372,13 @@ fun colorTest(matrixStack: MatrixStack) {
     )
 
 
-    renderAlphaGradientRect(matrixStack, rect(3f, 21f, 0f, 160, 5f), alphaRange = 0f..1f, color = Color(0, 128, 255))
-    renderAlphaGradientRect(matrixStack, rect(164f, 21f, 0f, 160, 5f), reverse = true, alphaRange = 0f..1f, color = Color(0, 128, 255))
+    renderAlphaGradientRect(matrixStack, Rect(3f, 21f, 0f, 160, 5f), alphaRange = 0f..1f, color = Color(0, 128, 255))
+    renderAlphaGradientRect(matrixStack, Rect(164f, 21f, 0f, 160, 5f), reverse = true, alphaRange = 0f..1f, color = Color(0, 128, 255))
 
-    renderAlphaGradientRect(matrixStack, rect(39, 109, 0f, 5, 120), Orientation = Orientation.Vertical, alphaRange = 0f..1f, color = Color(0, 128, 255))
+    renderAlphaGradientRect(matrixStack, Rect(39, 109, 0f, 5, 120), Orientation = Orientation.Vertical, alphaRange = 0f..1f, color = Color(0, 128, 255))
     renderAlphaGradientRect(
         matrixStack,
-        rect(45, 109, 0f, 5, 120),
+        Rect(45, 109, 0f, 5, 120),
         Orientation = Orientation.Vertical,
         reverse = true,
         alphaRange = 0f..1f,
@@ -386,9 +386,9 @@ fun colorTest(matrixStack: MatrixStack) {
     )
 
 
-    renderSVGradientRect(matrixStack, rect(3f, 27f, 0f, 120f, 80f), hue = 210f)
-    renderSVGradientRect(matrixStack, rect(124f, 27f, 0f, 120f, 80f), hue = 210f, reverse = true)
+    renderSVGradientRect(matrixStack, Rect(3f, 27f, 0f, 120f, 80f), hue = 210f)
+    renderSVGradientRect(matrixStack, Rect(124f, 27f, 0f, 120f, 80f), hue = 210f, reverse = true)
 
-    renderSVGradientRect(matrixStack, rect(51, 109, 0f, 80, 120), Orientation = Orientation.Vertical, hue = 210f)
-    renderSVGradientRect(matrixStack, rect(132, 109, 0f, 80, 120), Orientation = Orientation.Vertical, hue = 210f, reverse = true)
+    renderSVGradientRect(matrixStack, Rect(51, 109, 0f, 80, 120), Orientation = Orientation.Vertical, hue = 210f)
+    renderSVGradientRect(matrixStack, Rect(132, 109, 0f, 80, 120), Orientation = Orientation.Vertical, hue = 210f, reverse = true)
 }

@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.render
 
 import moe.forpleuvoir.ibukigourd.render.base.math.plus
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import org.joml.Vector3fc
 import java.util.*
 
@@ -37,7 +37,7 @@ class ScissorStack {
         val peek = stack.peekLast() ?: return null
         peekOffset()?.let {
             val pos = peek.position + it
-            return rect(pos, peek)
+            return Rect(pos, peek)
         }
         return peek
     }

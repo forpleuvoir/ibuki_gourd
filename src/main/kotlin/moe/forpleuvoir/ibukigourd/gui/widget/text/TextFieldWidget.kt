@@ -12,14 +12,14 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.RIGHT_TO_LEFT
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.text.Text
 import moe.forpleuvoir.ibukigourd.util.text.literal
 import moe.forpleuvoir.ibukigourd.util.text.maxWidth
@@ -165,9 +165,9 @@ open class TextFieldWidget(
         val list = buildList {
             renderText.forEachIndexed { index, text ->
                 if (renderText.lastIndex != index)
-                    add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
+                    add(Rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
                 else
-                    add(rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
+                    add(Rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
             }
         }
 

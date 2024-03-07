@@ -12,11 +12,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -93,7 +93,7 @@ open class DropMenuWidget(
     override fun onRenderOverlay(renderContext: RenderContext) {
         renderRect(
             renderContext.matrixStack,
-            rect(
+            Rect(
                 arrow.transform.worldX - (arrow.transform.y + arrow.transform.halfHeight) + arrow.transform.halfWidth + tip!!.spacing,
                 transform.worldTop + 2f,
                 transform.worldZ,

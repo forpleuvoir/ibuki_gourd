@@ -13,13 +13,13 @@ import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -425,7 +425,7 @@ class TextBoxWidget(
         val right = if (isWorld) transform.worldRight - padding.right - scrollerThickness
         else transform.width - padding.right - scrollerThickness
 
-        return rect(vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top)
+        return Rect(vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top)
     }
 
     override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
@@ -700,35 +700,35 @@ class TextBoxWidget(
                 if (startY == endY) {
                     renderRect(
                         renderContext.matrixStack,
-                        rect(contentRect.left + startXOffset, startY, contentRect.z, textRenderer.getWidth(selection.getText(this.text)), fontHeight),
+                        Rect(contentRect.left + startXOffset, startY, contentRect.z, textRenderer.getWidth(selection.getText(this.text)), fontHeight),
                         selectedColor, GameRenderer::getRenderTypeGuiTextHighlightProgram
                     )
                 } else if (mindY == 0f) {
                     rectBatchRender {
                         renderRect(
                             renderContext.matrixStack,
-                            rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
+                            Rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
                             selectedColor
                         )
                         renderRect(
                             renderContext.matrixStack,
-                            rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight), selectedColor
+                            Rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight), selectedColor
                         )
                     }
                 } else {
                     rectBatchRender {
                         renderRect(
                             renderContext.matrixStack,
-                            rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
+                            Rect(contentRect.left + startXOffset, startY, contentRect.z, contentRect.width - startXOffset, fontHeight + spacing),
                             selectedColor
                         )
                         renderRect(
                             renderContext.matrixStack,
-                            rect(contentRect.left, mindY, contentRect.z, contentRect.width, endY - startY - (fontHeight + spacing)), selectedColor
+                            Rect(contentRect.left, mindY, contentRect.z, contentRect.width, endY - startY - (fontHeight + spacing)), selectedColor
                         )
                         renderRect(
                             renderContext.matrixStack,
-                            rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight), selectedColor
+                            Rect(contentRect.left, endY, contentRect.z, endXOffset, fontHeight), selectedColor
                         )
                     }
                 }
@@ -743,9 +743,9 @@ class TextBoxWidget(
             val y = contentRect.top + currentLineIndex * (fontHeight + spacing) - amount
             if (y !in contentRect.top - fontHeight..contentRect.bottom) return
             if (cursor == text.length)
-                renderRect(renderContext.matrixStack, rect(contentRect.position.xyz(contentRect.left + xOffset, y + fontHeight - 1.25f), 5f, 1f), cursorColor)
+                renderRect(renderContext.matrixStack, Rect(contentRect.position.xyz(contentRect.left + xOffset, y + fontHeight - 1.25f), 5f, 1f), cursorColor)
             else
-                renderRect(renderContext.matrixStack, rect(contentRect.position.xyz(contentRect.left + xOffset, y), 1f, fontHeight), cursorColor)
+                renderRect(renderContext.matrixStack, Rect(contentRect.position.xyz(contentRect.left + xOffset, y), 1f, fontHeight), cursorColor)
         }
     }
 

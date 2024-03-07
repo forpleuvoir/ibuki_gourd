@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.Colors
 
@@ -106,7 +106,7 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
                 //箭头下的线
                 renderRect(
                     renderContext.matrixStack,
-                    rect(
+                    Rect(
                         arrow.transform.worldX,
                         arrow.transform.worldBottom,
                         transform.worldZ,
@@ -121,7 +121,7 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
                         if (element.mouseHover())
                             renderRect(
                                 renderContext.matrixStack,
-                                rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, maxWidth, element.transform.height),
+                                Rect(element.transform.worldX, element.transform.worldTop, transform.worldZ, maxWidth, element.transform.height),
                                 it()
                             )
                     }
@@ -129,7 +129,7 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
                         //元素下的横线
                         renderRect(
                             renderContext.matrixStack,
-                            rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, spacing),
+                            Rect(element.transform.worldX, element.transform.worldBottom, transform.worldZ, maxWidth, spacing),
                             Colors.GRAY.alpha(0.2f)
                         )
                     }
@@ -137,7 +137,7 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
                 //竖线
                 renderRect(
                     renderContext.matrixStack,
-                    rect(arrow.transform.worldX - spacing, transform.worldTop + padding1.top, transform.worldZ, spacing, transform.height - padding1.height),
+                    Rect(arrow.transform.worldX - spacing, transform.worldTop + padding1.top, transform.worldZ, spacing, transform.height - padding1.height),
                     Colors.GRAY.alpha(0.2f)
                 )
             }

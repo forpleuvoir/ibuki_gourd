@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.base.texture
 
-import moe.forpleuvoir.ibukigourd.render.base.DimensionInt
+import moe.forpleuvoir.ibukigourd.render.base.SizeInt
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -13,7 +13,7 @@ open class UVMapping(
     val vStart: Int,
     val uEnd: Int,
     val vEnd: Int,
-) : DimensionInt, Serializable {
+) : SizeInt, Serializable {
 
     companion object {
 

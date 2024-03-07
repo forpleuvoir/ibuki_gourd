@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.shape.rectangle
 
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.copy
 import moe.forpleuvoir.ibukigourd.render.base.vertex.ColoredVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -21,17 +21,17 @@ class ColoredRect(
         *colors
     )
 
-    constructor(x: Number, y: Number, z: Number, dimension: Dimension<Number>, vararg colors: ARGBColor) : this(
+    constructor(x: Number, y: Number, z: Number, size: Size<Number>, vararg colors: ARGBColor) : this(
         vertex(x, y, z),
-        dimension.width.toFloat(),
-        dimension.height.toFloat(),
+        size.width.toFloat(),
+        size.height.toFloat(),
         *colors
     )
 
-    constructor(position: Vector3fc, dimension: Dimension<Float>, vararg colors: ARGBColor) : this(
+    constructor(position: Vector3fc, size: Size<Float>, vararg colors: ARGBColor) : this(
         position,
-        dimension.width,
-        dimension.height,
+        size.width,
+        size.height,
         *colors
     )
 

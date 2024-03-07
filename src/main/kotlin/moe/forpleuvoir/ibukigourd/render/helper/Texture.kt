@@ -4,7 +4,6 @@ package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
@@ -56,13 +55,13 @@ object BatchDrawScope {
         zOffset: Number = 0
     ) {
         bufferBuilder!!.vertex(matrix4f, x.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
-            .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+                .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
         bufferBuilder!!.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
-            .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+                .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
         bufferBuilder!!.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat(), zOffset.toFloat())
-            .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
+                .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
         bufferBuilder!!.vertex(matrix4f, x.toFloat(), y.toFloat(), zOffset.toFloat())
-            .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
+                .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
     }
 
     /**
@@ -126,10 +125,10 @@ object BatchDrawScope {
         val rightU = u + (uSize - corner.right)
         val centerV = v + corner.top
         val bottomV = v + (vSize - corner.bottom)
-        val centerX = x.toDouble() + corner.left
-        val rightX = x.toDouble() + (width.toDouble() - corner.right)
-        val centerY = y.toDouble() + corner.top
-        val bottomY = y.toDouble() + (height.toDouble() - corner.bottom)
+        val centerX = x.toFloat() + corner.left
+        val rightX = x.toFloat() + (width.toFloat() - corner.right)
+        val centerY = y.toFloat() + corner.top
+        val bottomY = y.toFloat() + (height.toFloat() - corner.bottom)
         val matrix4f = matrixStack.peek().positionMatrix
 
         //top left
@@ -152,11 +151,11 @@ object BatchDrawScope {
         drawTexture(matrix4f, rightX, bottomY, corner.right, corner.bottom, rightU, bottomV, corner.right, corner.bottom, textureWidth, textureHeight, zOffset)
     }
 
-    fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+    fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
         draw9Texture(
             matrixStack,
-            rect.position.x,
-            rect.position.y,
+            rect.position.x(),
+            rect.position.y(),
             rect.width,
             rect.height,
             textureUV.corner,
@@ -166,7 +165,7 @@ object BatchDrawScope {
             textureUV.vSize,
             textureWidth,
             textureHeight,
-            rect.position.z
+            rect.position.z()
         )
     }
 
@@ -193,7 +192,7 @@ object BatchDrawScope {
      */
     fun draw9Texture(
         matrixStack: MatrixStack,
-        rect: Rectangle<Vector3<Float>>,
+        rect: Rectangle,
         cornerSize: Int,
         uvMapping: UVMapping,
         textureWidth: Int = 256,
@@ -225,7 +224,7 @@ object BatchDrawScope {
      */
     fun renderTexture(
         matrixStack: MatrixStack,
-        rect: Rectangle<Vector3<Float>>,
+        rect: Rectangle,
         textureUV: TextureUVMapping,
         textureInfo: TextureInfo,
         shaderColor: ARGBColor = Colors.WHITE
@@ -247,7 +246,7 @@ object BatchDrawScope {
      * @param widgetTexture WidgetTexture
      * @param shaderColor Color
      */
-    fun renderTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
+    fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
         renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
     }
 
@@ -312,13 +311,13 @@ fun drawTexture(
     setShader(GameRenderer::getPositionTexProgram)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
     bufferBuilder.vertex(matrix4f, x.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
-        .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+            .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
     bufferBuilder.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat() + height.toFloat(), zOffset.toFloat())
-        .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
+            .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight).next()
     bufferBuilder.vertex(matrix4f, x.toFloat() + width.toFloat(), y.toFloat(), zOffset.toFloat())
-        .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
+            .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight).next()
     bufferBuilder.vertex(matrix4f, x.toFloat(), y.toFloat(), zOffset.toFloat())
-        .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
+            .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight).next()
     bufferBuilder.draw()
 }
 
@@ -350,7 +349,7 @@ fun drawTexture(matrixStack: MatrixStack, vertex1: UVVertex, vertex2: UVVertex, 
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun drawTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+fun drawTexture(matrixStack: MatrixStack, rect: Rectangle, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
     val matrix4f = matrixStack.peek().positionMatrix
     setShader(GameRenderer::getPositionTexProgram)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
@@ -412,12 +411,12 @@ fun draw9Texture(
     /**
      * centerWidth
      */
-    val cw = width.toDouble() - (corner.left + corner.right)
+    val cw = width.toFloat() - (corner.left + corner.right)
 
     /**
      * centerHeight
      */
-    val ch = height.toDouble() - (corner.top + corner.bottom)
+    val ch = height.toFloat() - (corner.top + corner.bottom)
 
     /**
      * centerRegionWidth
@@ -433,10 +432,10 @@ fun draw9Texture(
     val rightU = u + (uSize - corner.right)
     val centerV = v + corner.top
     val bottomV = v + (vSize - corner.bottom)
-    val centerX = x.toDouble() + corner.left
-    val rightX = x.toDouble() + (width.toDouble() - corner.right)
-    val centerY = y.toDouble() + corner.top
-    val bottomY = y.toDouble() + (height.toDouble() - corner.bottom)
+    val centerX = x.toFloat() + corner.left
+    val rightX = x.toFloat() + (width.toFloat() - corner.right)
+    val centerY = y.toFloat() + corner.top
+    val bottomY = y.toFloat() + (height.toFloat() - corner.bottom)
     val matrix4f = matrixStack.peek().positionMatrix
 
     textureBatchDraw(GameRenderer::getPositionTexProgram, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE) {
@@ -461,11 +460,11 @@ fun draw9Texture(
     }
 }
 
-fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
     draw9Texture(
         matrixStack,
-        rect.position.x,
-        rect.position.y,
+        rect.position.x(),
+        rect.position.y(),
         rect.width,
         rect.height,
         textureUV.corner,
@@ -475,7 +474,7 @@ fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, text
         textureUV.vSize,
         textureWidth,
         textureHeight,
-        rect.position.z
+        rect.position.z()
     )
 }
 
@@ -502,7 +501,7 @@ fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: Text
  */
 fun draw9Texture(
     matrixStack: MatrixStack,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     cornerSize: Int,
     uvMapping: UVMapping,
     textureWidth: Int = 256,
@@ -534,7 +533,7 @@ fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int
  */
 fun renderTexture(
     matrixStack: MatrixStack,
-    rect: Rectangle<Vector3<Float>>,
+    rect: Rectangle,
     textureUV: TextureUVMapping,
     textureInfo: TextureInfo,
     shaderColor: ARGBColor = Colors.WHITE
@@ -556,7 +555,7 @@ fun renderTexture(
  * @param widgetTexture WidgetTexture
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, rect: Rectangle<Vector3<Float>>, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
+fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
     renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 }
 

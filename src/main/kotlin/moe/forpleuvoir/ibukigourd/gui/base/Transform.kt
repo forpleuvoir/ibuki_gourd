@@ -7,8 +7,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.base.math.*
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.nebula.common.ifc
 import org.joml.Vector3f
 import org.joml.Vector3fc
@@ -82,7 +82,7 @@ class Transform(
             return pos
         }
 
-    val asWorldRect: Rectangle get() = rect(worldPosition, width, height)
+    val asWorldRect: Rectangle get() = Rect(worldPosition, width, height)
 
     override var x
         get() = position.x()

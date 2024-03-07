@@ -12,13 +12,14 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.input.notEquals
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.peek
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderRoundRect
 import moe.forpleuvoir.ibukigourd.render.helper.useBlend
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.common.color.Color
@@ -81,12 +82,12 @@ class DraggableList(
         }
 
         override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-            draggingElement?.transform?.translate(Orientation.choose(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
+            draggingElement?.transform?.translate(Orientation.peek(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
             val x = mouseX + deltaX
             val y = mouseY + deltaY
             val draggingIndex = elementIndexOf(draggingElement!!)
             layoutElements.filter { it != draggingElement }.minByOrNull { element ->
-                Orientation.choose({
+                Orientation.peek({
                     //在元素内
                     if (y in element.transform.worldTop..element.transform.worldBottom) {
                         0f
@@ -110,7 +111,7 @@ class DraggableList(
                 if (index < draggingIndex) {
                     index = (index + 1).coerceAtLeast(0)
                 }
-                targetIndex = Orientation.choose({
+                targetIndex = Orientation.peek({
                     //在元素内
                     if (y in element.transform.worldTop..element.transform.worldBottom) {
                         if (y < element.transform.worldCenter.y) index - 1
@@ -251,7 +252,7 @@ class DraggableList(
         val element = subElements[targetIndex]
         val thickness = spacing.coerceAtLeast(1f)
         val color = Color(0x7F8CECFF)
-        Orientation.choose({
+        orientation.peek({
             if (targetIndex > elementIndexOf(draggingElement!!)) {
                 vertex(0f, element.transform.height, 0f)
             } else {
@@ -259,7 +260,7 @@ class DraggableList(
             }.let {
                 renderRect(
                     renderContext.matrixStack,
-                    rect(element.transform.worldPosition + it, draggingElement!!.transform.width, thickness),
+                    Rect(element.transform.worldPosition + it, draggingElement!!.transform.width, thickness),
                     color
                 )
             }
@@ -271,7 +272,7 @@ class DraggableList(
             }.let {
                 renderRect(
                     renderContext.matrixStack,
-                    rect(element.transform.worldPosition + it, thickness, draggingElement!!.transform.height),
+                    Rect(element.transform.worldPosition + it, thickness, draggingElement!!.transform.height),
                     color
                 )
             }

@@ -3,8 +3,8 @@ package moe.forpleuvoir.ibukigourd.config
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.manager.ConfigManagerImpl
-import moe.forpleuvoir.nebula.config.manager.plugin.localConfig
-import moe.forpleuvoir.nebula.config.manager.plugins
+import moe.forpleuvoir.nebula.config.manager.component.localConfig
+import moe.forpleuvoir.nebula.config.manager.components
 import moe.forpleuvoir.nebula.config.persistence.jsonPersistence
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -14,7 +14,7 @@ import java.nio.file.Path
 abstract class ModConfigManager(protected val modMetadata: ModMetadata, key: String) : ConfigManagerImpl(key) {
 
     init {
-        plugins {
+        components {
             localConfig(configPath, jsonPersistence())
         }
     }

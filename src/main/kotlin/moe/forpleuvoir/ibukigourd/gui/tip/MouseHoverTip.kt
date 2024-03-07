@@ -21,8 +21,8 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -83,7 +83,7 @@ open class MouseHoverTip(
     /**
      * 父元素最新的状态，如果没有变则不需要更新位置
      */
-    protected var latestParent: Rectangle<Vector3<Float>> = rect(vertex(0, 0, 0), 0, 0)
+    protected var latestParent: Rectangle<Vector3<Float>> = Rect(vertex(0, 0, 0), 0, 0)
 
     var keepDisplay: Boolean = false
 
@@ -157,7 +157,7 @@ open class MouseHoverTip(
     override fun onRenderBackground(renderContext: RenderContext) {
         val (texture, rect) = when (direction) {
             Left   ->
-                TIP_ARROW_LEFT to rect(
+                TIP_ARROW_LEFT to Rect(
                     transform.worldRight - ARROW_OFFSET.left,
                     parent().transform.worldCenter.y - MARGIN.left / 2,
                     transform.worldZ,
@@ -165,7 +165,7 @@ open class MouseHoverTip(
                 )
 
             Right  ->
-                TIP_ARROW_RIGHT to rect(
+                TIP_ARROW_RIGHT to Rect(
                     transform.worldLeft - MARGIN.right + ARROW_OFFSET.right,
                     parent().transform.worldCenter.y - MARGIN.left / 2,
                     transform.worldZ,
@@ -173,7 +173,7 @@ open class MouseHoverTip(
                 )
 
             Top    ->
-                TIP_ARROW_TOP to rect(
+                TIP_ARROW_TOP to Rect(
                     parent().transform.worldCenter.x - MARGIN.top / 2,
                     transform.worldBottom - ARROW_OFFSET.top,
                     transform.worldZ,
@@ -181,7 +181,7 @@ open class MouseHoverTip(
                 )
 
             Bottom ->
-                TIP_ARROW_BOTTOM to rect(
+                TIP_ARROW_BOTTOM to Rect(
                     parent().transform.worldCenter.x - MARGIN.bottom / 2,
                     transform.worldTop - MARGIN.bottom + ARROW_OFFSET.bottom,
                     transform.worldZ,

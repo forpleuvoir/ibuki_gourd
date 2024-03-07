@@ -16,13 +16,13 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.HINT_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.SELECTED_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.TEXT_COLOR
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
+import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.useColorLogicOp
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -477,7 +477,7 @@ open class TextInputWidget(
             if (cursor - firstCharacterIndex > 0) {
                 renderRect(renderContext.matrixStack, rect(rect.position.xyz(rect.left + offset - 0.85f, y), 1f, height), cursorColor)
             } else {
-                renderRect(renderContext.matrixStack, rect(rect.position.y(y), Dimension.of(1f, height)), cursorColor)
+                renderRect(renderContext.matrixStack, rect(rect.position.y(y), Size.of(1f, height)), cursorColor)
             }
         }
     }
@@ -500,7 +500,7 @@ open class TextInputWidget(
                 suggestion?.invoke(text)?.let {
                     if (focused && cursor == text.length) {
                         val renderTextWidth = textRenderer!!.getWidth(renderText).toFloat()
-                        val rect = rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
+                        val rect = Rect(contentRect.position + Vector3f(renderTextWidth, 0f, 0f), contentRect.width - renderTextWidth, contentRect.height)
                         renderAlignmentText(renderContext.matrixStack, it, rect)
                     }
                 }
@@ -522,9 +522,9 @@ open class TextInputWidget(
                           else 0f
                 val width = (start - end).absoluteValue
                 val rect = if (selectionEnd > selectionStart) {
-                    rect(contentRect.position.x(start), Dimension.of(width, contentRect.height))
+                    Rect(contentRect.position.x(start), Size.of(width, contentRect.height))
                 } else {
-                    rect(contentRect.position.x(end), Dimension.of(width, contentRect.height))
+                    Rect(contentRect.position.x(end), Size.of(width, contentRect.height))
                 }
                 renderRect(renderContext.matrixStack, rect, selectedColor)
             }

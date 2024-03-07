@@ -1,9 +1,12 @@
 package moe.forpleuvoir.ibukigourd.gui.base
 
-import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializer
+import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 typealias Padding = Margin
@@ -29,37 +32,43 @@ data class Margin(
 
     companion object : Deserializer<Margin>, Serializer<Margin> {
         override fun deserialization(serializeElement: SerializeElement): Margin {
-            if (serializeElement.isPrimitive) {
-                return Margin(serializeElement.asNumber)
-            } else if (serializeElement.isObject)
-                serializeElement.asObject.apply {
-                    if (this.keys == setOf("left", "right", "top", "bottom"))
-                        return Margin(
-                            this["left"]!!.asFloat,
-                            this["right"]!!.asFloat,
-                            this["top"]!!.asFloat,
-                            this["bottom"]!!.asFloat,
-                        )
-                    else if (this.keys == setOf("horizontal", "vertical")) {
-                        return Margin(
-                            this["horizontal"]!!.asNumber,
-                            this["vertical"]!!.asNumber,
-                        )
+            return serializeElement
+                    .checkType<Margin>()
+                    .check<SerializePrimitive> {
+                        Margin(it.asFloat)
                     }
-                }
-            else if (serializeElement.isArray) {
-                serializeElement.asArray.apply {
-                    if (this.size == 2) {
-                        return Margin(this[0].asNumber, this[1].asNumber)
-                    } else if (this.size == 4) {
-                        return Margin(this[0].asFloat, this[1].asFloat, this[2].asFloat, this[3].asFloat)
+                    .check<SerializeObject> {
+                        when (it.keys) {
+                            setOf("left", "right", "top", "bottom") ->
+                                Margin(
+                                    it["left"]!!.asFloat,
+                                    it["right"]!!.asFloat,
+                                    it["top"]!!.asFloat,
+                                    it["bottom"]!!.asFloat,
+                                )
+
+                            setOf("horizontal", "vertical")         ->
+                                Margin(
+                                    it["horizontal"]!!.asNumber,
+                                    it["vertical"]!!.asNumber,
+                                )
+
+                            else                                    -> throw IllegalArgumentException("The key of the object is wrong, expected [left,right,top,bottom] or [horizontal,vertical].")
+                        }
                     }
-                }
-            }
-            throw DeserializationException(
-                "serialization format error,expected SerializeObject or SerializePrimitive and SerializeArray but was ${serializeElement::class.simpleName}," +
-                "If the type is correct, then the corresponding key is wrong, or the length of the array is wrong(The length of the array is 2 or 4)."
-            )
+                    .check<SerializeArray> {
+                        when (it.size) {
+                            2    -> {
+                                Margin(it[0].asNumber, it[1].asNumber)
+                            }
+
+                            4    -> {
+                                Margin(it[0].asFloat, it[1].asFloat, it[2].asFloat, it[3].asFloat)
+                            }
+
+                            else -> throw IllegalArgumentException("The size of the array is wrong, expected [2] or [4].")
+                        }
+                    }.getOrThrow()
         }
 
         override fun serialization(target: Margin): SerializeElement = serializeObject {

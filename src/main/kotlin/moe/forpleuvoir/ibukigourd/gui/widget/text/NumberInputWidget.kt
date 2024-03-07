@@ -14,8 +14,8 @@ import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -144,7 +144,7 @@ class NumberInputWidget<T>(
         val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
         val left = if (isWorld) transform.worldLeft + padding.left else padding.left
         val right = if (isWorld) transform.worldRight - padding.right - plus.transform.width else transform.width - padding.right - plus.transform.width
-        return rect(
+        return Rect(
             vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top
         )
     }
@@ -176,8 +176,8 @@ class NumberInputWidget<T>(
     override fun onRenderBackground(renderContext: RenderContext) {
         super.onRenderBackground(renderContext)
         rectBatchRender {
-            renderRect(renderContext.matrixStack, rect(plus.transform.worldX - 1f, transform.worldTop + 4f, transform.worldZ, 1f, transform.height - 7f), Colors.GRAY.alpha(0.2f))
-            renderRect(renderContext.matrixStack, rect(plus.transform.worldX, plus.transform.worldBottom, transform.worldZ, plus.transform.width, 1f), Colors.GRAY.alpha(0.2f))
+            renderRect(renderContext.matrixStack, Rect(plus.transform.worldX - 1f, transform.worldTop + 4f, transform.worldZ, 1f, transform.height - 7f), Colors.GRAY.alpha(0.2f))
+            renderRect(renderContext.matrixStack, Rect(plus.transform.worldX, plus.transform.worldBottom, transform.worldZ, plus.transform.width, 1f), Colors.GRAY.alpha(0.2f))
         }
     }
 

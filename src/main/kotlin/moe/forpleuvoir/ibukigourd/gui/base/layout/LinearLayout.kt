@@ -1,21 +1,21 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
-import moe.forpleuvoir.ibukigourd.render.base.Dimension
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.Orientation.Vertical
+import moe.forpleuvoir.ibukigourd.render.base.Size
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation.Vertical
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
+import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.rect
 import moe.forpleuvoir.nebula.common.pick
 
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class LinearLayout(
-    width: ElementDimension = WrapContent(),
-    height: ElementDimension = WrapContent(),
+    width: ElementDimension = wrap_content,
+    height: ElementDimension = wrap_content,
     var orientation: Orientation = Vertical,
 ) : AbstractElement(width, height) {
 
@@ -35,10 +35,10 @@ open class LinearLayout(
         val alignElements = elements.filter { !it.fixed }
         return alignElements.mapIndexed { index, element ->
             val spacing = (alignElements.lastIndex == index).pick(0f, this.spacing)
-            rect(
-                vertex(0f, 0f, element.transform.z), orientation.choose(
-                    Dimension.of(element.transform.width + element.margin.width, element.transform.height + element.margin.height + spacing),
-                    Dimension.of(element.transform.width + element.margin.width + spacing, element.transform.height + element.margin.height)
+            Rect(
+                vertex(0f, 0f, element.transform.z), orientation.peek(
+                    Size.of(element.transform.width + element.margin.width, element.transform.height + element.margin.height + spacing),
+                    Size.of(element.transform.width + element.margin.width + spacing, element.transform.height + element.margin.height)
                 )
             )
         }
@@ -68,15 +68,15 @@ open class LinearLayout(
             }
             //固定宽度 不固定高度
             container.width is Fixed && container.height !is Fixed  -> {
-                rect(containerContentRect.position, containerContentRect.width, size.height)
+                Rect(containerContentRect.position, containerContentRect.width, size.height)
             }
             //不固定宽度 固定高度
             container.width !is Fixed && container.height !is Fixed -> {
-                rect(containerContentRect.position, size.width, containerContentRect.height)
+                Rect(containerContentRect.position, size.width, containerContentRect.height)
             }
             //不固定宽度 不固定高度
             else                                                    -> {
-                rect(containerContentRect.position, size)
+                Rect(containerContentRect.position, size)
             }
         }
         alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
@@ -84,7 +84,7 @@ open class LinearLayout(
             element.transform.translateTo(vector3f + Vector3f(element.margin.left, element.margin.top))
             element.visible = element.transform.inRect(contentRect, false)
         }
-        return Dimension.of(contentRect.width + padding.width, contentRect.height + padding.height)
+        return Size.of(contentRect.width + padding.width, contentRect.height + padding.height)
     }
 
     /**
@@ -127,7 +127,7 @@ open class LinearLayout(
         }
 
 
-        return orientation.choose(
+        return orientation.peek(
             verticalMeasure(elementMeasureDimension),
             horizontalMeasure(elementMeasureDimension)
         )

@@ -12,7 +12,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.peek
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.text.Text
@@ -49,14 +50,14 @@ open class Scroller(
         transform.fixedWidth = true
         transform.fixedHeight = true
         transform.resizeCallback = { width, height ->
-            Orientation.choose(
+            Orientation.peek(
                 {
                     bar.transform.width = width
                 }, {
                     bar.transform.height = height
                 })
         }
-        Orientation.choose(
+        Orientation.peek(
             {
                 transform.width = thickness
                 transform.height = length
@@ -72,7 +73,7 @@ open class Scroller(
         set(value) {
             val fixedValue = value.clamp(0f..totalAmount())
             val barPosition = scrollerLength * if (totalAmount() == 0f) 0f else fixedValue / totalAmount()
-            Orientation.choose(
+            Orientation.peek(
                 {
                     bar.transform.y = barPosition
                 }, {
@@ -84,7 +85,7 @@ open class Scroller(
     var amountReceiver: ((amount: Float) -> Unit)? = null
 
     open val scrollerLength: Float
-        get() = Orientation.choose(
+        get() = Orientation.peek(
             this.transform.height - (barLength() * this.transform.height),
             this.transform.width - (barLength() * this.transform.width)
         )
@@ -101,12 +102,12 @@ open class Scroller(
         }
         get() {
             if (scrollerLength == 0f) return 1f
-            return (Orientation.choose({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
+            return (Orientation.peek({ bar.transform.y }, { bar.transform.x }) / scrollerLength).clamp(0f..1f)
         }
 
 
     private fun calcBarLength() {
-        Orientation.choose(
+        Orientation.peek(
             {
                 bar.transform.height = barLength() * this.transform.height
             }, {
@@ -124,7 +125,7 @@ open class Scroller(
 
     protected open fun setFromMouse(mouseX: Float, mouseY: Float) {
         if (bar.mouseHover()) return
-        Orientation.choose(
+        Orientation.peek(
             {
                 val a = mouseY - bar.transform.worldY
                 if (a > 0) {
@@ -147,7 +148,7 @@ open class Scroller(
 
     override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
         if (!active || !dragging || !visible || !bar.dragging) return NextAction.Continue
-        Orientation.choose(
+        Orientation.peek(
             {
                 bar.transform.y = (bar.transform.y + deltaY).clamp(barPositionRange)
             }, {
@@ -349,7 +350,7 @@ fun <T> NumberScroller(
         amount = initValue.toFloat()
         bar.hoverTip(
             displayDelay = 1u,
-            optionalDirections = Orientation.choose(
+            optionalDirections = Orientation.peek(
                 listOf(Direction.Left, Direction.Right),
                 listOf(Direction.Top, Direction.Bottom)
             ),

@@ -4,9 +4,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.render.base.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
