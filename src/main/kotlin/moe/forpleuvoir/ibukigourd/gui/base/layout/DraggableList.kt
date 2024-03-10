@@ -242,7 +242,7 @@ class DraggableList(
         element.let {
             it.render(renderContext)
             useBlend(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA) {
-                renderRoundRect(renderContext.matrixStack, it.transform.asWorldRect, Color(0x7F8CECFF), 2)
+                renderRoundRect(renderContext.matrixStack, it.transform.asWorldBox, Color(0x7F8CECFF), 2)
             }
         }
     }

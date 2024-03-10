@@ -6,6 +6,7 @@ import moe.forpleuvoir.nebula.common.pick
 import net.minecraft.client.font.TextRenderer
 import java.util.*
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
+import net.minecraft.text.Text as McText
 
 @JvmOverloads
 fun literal(content: String = ""): Text = Text.literal(content)
@@ -21,7 +22,7 @@ fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
 }
 
 @JvmName("maxTextWidth")
-fun Collection<Text>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
+fun Collection<McText>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }
 }
 
@@ -81,13 +82,13 @@ fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRenderer, width
     }
 }
 
-fun Text.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<Text> {
-    return this.plainText
+fun McText.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<McText> {
+    return this.string
         .wrapToLines(textRenderer, width)
         .map { literal(it).style { this.style } }
 }
 
-fun Collection<Text>.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<Text> {
+fun Collection<McText>.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<McText> {
     return buildList {
         for (text in this@wrapToTextLines) {
             addAll(text.wrapToTextLines(textRenderer, width))
@@ -109,7 +110,7 @@ fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRenderer, width: Int
     }
 }
 
-fun List<Text>.wrapToSingleText(textRenderer: TextRenderer = tRenderer, width: Int = 0): Text {
+fun List<McText>.wrapToSingleText(textRenderer: TextRenderer = tRenderer, width: Int = 0): McText {
     return literal(buildString {
         this@wrapToSingleText.forEachIndexed { index, text ->
             text.wrapToTextLines(textRenderer, width).let {

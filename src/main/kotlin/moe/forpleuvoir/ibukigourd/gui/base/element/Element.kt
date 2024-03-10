@@ -5,18 +5,17 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.render.Drawable
-import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
 import moe.forpleuvoir.ibukigourd.util.NextAction
 
 @Suppress("unused", "KDocUnresolvedReference")
-interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler {
+interface Element : ElementContainer, moe.forpleuvoir.ibukigourd.gui.render.Drawable, ModifiableUserInteractionHandler {
 
     companion object {
         val EMPTY: Element = object : Element {

@@ -3,13 +3,14 @@
 package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.render.texture.Corner
+import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureInfo
+import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureUVMapping
+import moe.forpleuvoir.ibukigourd.gui.render.texture.UVMapping
+import moe.forpleuvoir.ibukigourd.gui.render.vertex.UVVertex
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
-import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
-import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
-import moe.forpleuvoir.ibukigourd.render.base.texture.UVMapping
-import moe.forpleuvoir.ibukigourd.render.base.vertex.UVVertex
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gl.ShaderProgram
@@ -24,7 +25,7 @@ fun textureBatchDraw(
     shaderSupplier: () -> ShaderProgram?,
     drawMode: VertexFormat.DrawMode,
     format: VertexFormat,
-    bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
+    bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.bufferBuilder,
     block: BatchDrawScope.() -> Unit
 ) {
     setShader(shaderSupplier)
@@ -151,13 +152,13 @@ object BatchDrawScope {
         drawTexture(matrix4f, rightX, bottomY, corner.right, corner.bottom, rightU, bottomV, corner.right, corner.bottom, textureWidth, textureHeight, zOffset)
     }
 
-    fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+    fun draw9Texture(matrixStack: MatrixStack, box: Box, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
         draw9Texture(
             matrixStack,
-            rect.position.x(),
-            rect.position.y(),
-            rect.width,
-            rect.height,
+            box.position.x(),
+            box.position.y(),
+            box.width,
+            box.height,
             textureUV.corner,
             textureUV.uStart,
             textureUV.vStart,
@@ -165,7 +166,7 @@ object BatchDrawScope {
             textureUV.vSize,
             textureWidth,
             textureHeight,
-            rect.position.z()
+            0f
         )
     }
 
@@ -178,7 +179,7 @@ object BatchDrawScope {
      * @param textureHeight Int
      */
     fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-        draw9Texture(matrixStack, transform.asWorldRect, textureUV, textureWidth, textureHeight)
+        draw9Texture(matrixStack, transform.asWorldBox, textureUV, textureWidth, textureHeight)
 
     /**
      * 渲染.9 格式的材质
@@ -192,7 +193,7 @@ object BatchDrawScope {
      */
     fun draw9Texture(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         cornerSize: Int,
         uvMapping: UVMapping,
         textureWidth: Int = 256,
@@ -211,7 +212,7 @@ object BatchDrawScope {
      * @param textureHeight Int
      */
     fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-        draw9Texture(matrixStack, transform.asWorldRect, cornerSize, uvMapping, textureWidth, textureHeight)
+        draw9Texture(matrixStack, transform.asWorldBox, cornerSize, uvMapping, textureWidth, textureHeight)
 
 
     /**
@@ -224,7 +225,7 @@ object BatchDrawScope {
      */
     fun renderTexture(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         textureUV: TextureUVMapping,
         textureInfo: TextureInfo,
         shaderColor: ARGBColor = Colors.WHITE
@@ -246,7 +247,7 @@ object BatchDrawScope {
      * @param widgetTexture WidgetTexture
      * @param shaderColor Color
      */
-    fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
+    fun renderTexture(matrixStack: MatrixStack, rect: Box, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
         renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
     }
 
@@ -264,7 +265,7 @@ object BatchDrawScope {
         textureInfo: TextureInfo,
         shaderColor: ARGBColor = Colors.WHITE
     ) =
-        renderTexture(matrixStack, transform.asWorldRect, textureUV, textureInfo, shaderColor)
+        renderTexture(matrixStack, transform.asWorldBox, textureUV, textureInfo, shaderColor)
 
     /**
      * 渲染材质
@@ -274,7 +275,7 @@ object BatchDrawScope {
      * @param shaderColor Color
      */
     fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) =
-        renderTexture(matrixStack, transform.asWorldRect, widgetTexture, widgetTexture.textureInfo, shaderColor)
+        renderTexture(matrixStack, transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, shaderColor)
 }
 
 
@@ -333,10 +334,10 @@ fun drawTexture(matrixStack: MatrixStack, vertex1: UVVertex, vertex2: UVVertex, 
     val matrix4f = matrixStack.peek().positionMatrix
     setShader(GameRenderer::getPositionTexProgram)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
-    bufferBuilder.vertex(matrix4f, vertex1).texture(vertex1.u, vertex1.v).next()
-    bufferBuilder.vertex(matrix4f, vertex2).texture(vertex2.u, vertex2.v).next()
-    bufferBuilder.vertex(matrix4f, vertex3).texture(vertex3.u, vertex3.v).next()
-    bufferBuilder.vertex(matrix4f, vertex4).texture(vertex4.u, vertex4.v).next()
+    bufferBuilder.vertex(matrix4f, vertex1).texture(vertex1).next()
+    bufferBuilder.vertex(matrix4f, vertex2).texture(vertex2).next()
+    bufferBuilder.vertex(matrix4f, vertex3).texture(vertex3).next()
+    bufferBuilder.vertex(matrix4f, vertex4).texture(vertex4).next()
     bufferBuilder.draw()
 }
 
@@ -349,7 +350,7 @@ fun drawTexture(matrixStack: MatrixStack, vertex1: UVVertex, vertex2: UVVertex, 
  * @param textureWidth Int
  * @param textureHeight Int
  */
-fun drawTexture(matrixStack: MatrixStack, rect: Rectangle, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+fun drawTexture(matrixStack: MatrixStack, rect: Box, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
     val matrix4f = matrixStack.peek().positionMatrix
     setShader(GameRenderer::getPositionTexProgram)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
@@ -369,7 +370,7 @@ fun drawTexture(matrixStack: MatrixStack, rect: Rectangle, uvMapping: UVMapping,
  * @param textureHeight Int
  */
 fun drawTexture(matrixStack: MatrixStack, transform: Transform, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-    drawTexture(matrixStack, transform.asWorldRect, uvMapping, textureWidth, textureHeight)
+    drawTexture(matrixStack, transform.asWorldBox, uvMapping, textureWidth, textureHeight)
 
 /**
  *  渲染.9 格式的材质
@@ -460,13 +461,13 @@ fun draw9Texture(
     }
 }
 
-fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
+fun draw9Texture(matrixStack: MatrixStack, box: Box, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) {
     draw9Texture(
         matrixStack,
-        rect.position.x(),
-        rect.position.y(),
-        rect.width,
-        rect.height,
+        box.position.x(),
+        box.position.y(),
+        box.width,
+        box.height,
         textureUV.corner,
         textureUV.uStart,
         textureUV.vStart,
@@ -474,7 +475,7 @@ fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUV
         textureUV.vSize,
         textureWidth,
         textureHeight,
-        rect.position.z()
+        0f
     )
 }
 
@@ -487,7 +488,7 @@ fun draw9Texture(matrixStack: MatrixStack, rect: Rectangle, textureUV: TextureUV
  * @param textureHeight Int
  */
 fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: TextureUVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-    draw9Texture(matrixStack, transform.asWorldRect, textureUV, textureWidth, textureHeight)
+    draw9Texture(matrixStack, transform.asWorldBox, textureUV, textureWidth, textureHeight)
 
 /**
  * 渲染.9 格式的材质
@@ -501,7 +502,7 @@ fun draw9Texture(matrixStack: MatrixStack, transform: Transform, textureUV: Text
  */
 fun draw9Texture(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     cornerSize: Int,
     uvMapping: UVMapping,
     textureWidth: Int = 256,
@@ -520,7 +521,7 @@ fun draw9Texture(
  * @param textureHeight Int
  */
 fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int, uvMapping: UVMapping, textureWidth: Int = 256, textureHeight: Int = 256) =
-    draw9Texture(matrixStack, transform.asWorldRect, cornerSize, uvMapping, textureWidth, textureHeight)
+    draw9Texture(matrixStack, transform.asWorldBox, cornerSize, uvMapping, textureWidth, textureHeight)
 
 
 /**
@@ -533,7 +534,7 @@ fun draw9Texture(matrixStack: MatrixStack, transform: Transform, cornerSize: Int
  */
 fun renderTexture(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     textureUV: TextureUVMapping,
     textureInfo: TextureInfo,
     shaderColor: ARGBColor = Colors.WHITE
@@ -555,7 +556,7 @@ fun renderTexture(
  * @param widgetTexture WidgetTexture
  * @param shaderColor Color
  */
-fun renderTexture(matrixStack: MatrixStack, rect: Rectangle, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
+fun renderTexture(matrixStack: MatrixStack, rect: Box, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) {
     renderTexture(matrixStack, rect, widgetTexture, widgetTexture.textureInfo, shaderColor)
 }
 
@@ -573,7 +574,7 @@ fun renderTexture(
     textureInfo: TextureInfo,
     shaderColor: ARGBColor = Colors.WHITE
 ) =
-    renderTexture(matrixStack, transform.asWorldRect, textureUV, textureInfo, shaderColor)
+    renderTexture(matrixStack, transform.asWorldBox, textureUV, textureInfo, shaderColor)
 
 /**
  * 渲染材质
@@ -583,4 +584,4 @@ fun renderTexture(
  * @param shaderColor Color
  */
 fun renderTexture(matrixStack: MatrixStack, transform: Transform, widgetTexture: WidgetTexture, shaderColor: ARGBColor = Colors.WHITE) =
-    renderTexture(matrixStack, transform.asWorldRect, widgetTexture, widgetTexture.textureInfo, shaderColor)
+    renderTexture(matrixStack, transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, shaderColor)

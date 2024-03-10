@@ -8,11 +8,7 @@ open class ModLogger(clazz: KClass<*>, modName: String) {
 
 	constructor(clazz: Class<*>, modName: String) : this(clazz.kotlin, modName)
 
-	private val log: Logger
-
-	init {
-		log = LoggerFactory.getLogger("${modName}[${clazz.simpleName ?: clazz.java.simpleName}]")
-	}
+    private val log: Logger = LoggerFactory.getLogger("${modName}[${clazz.simpleName ?: clazz.java.simpleName}]")
 
 	fun info(msg: String, vararg params: Any?) {
 		log.info(msg, *params)

@@ -17,7 +17,8 @@ class ServerText(
 	constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
 
 	class ServerTranslatableContents(key: String, fallback: String?, vararg args: Any) : TranslatableTextContent(key, fallback, args) {
-		constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
+
+        constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
 
 		override fun updateTranslations() {
 			val language = ServerLanguage

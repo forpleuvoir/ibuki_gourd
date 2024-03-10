@@ -95,10 +95,10 @@ open class MouseHoverTip(
                     visible = push()
                     if (!visible) field = 0u
                 }
-                if (!Rectangle.equals(latestParent, transform.parent()!!.asWorldRect)) {
+                if (!Rectangle.equals(latestParent, transform.parent()!!.asWorldBox)) {
                     checkDirection()
                     calcPosition()
-                    latestParent = transform.parent()!!.asWorldRect
+                    latestParent = transform.parent()!!.asWorldBox
                 }
             }
         }

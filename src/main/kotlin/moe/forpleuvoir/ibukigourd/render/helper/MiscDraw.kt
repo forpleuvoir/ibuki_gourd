@@ -3,21 +3,22 @@
 package moe.forpleuvoir.ibukigourd.render.helper
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.render.base.Size
-import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.arrange.peek
-import moe.forpleuvoir.ibukigourd.render.base.math.plus
-import moe.forpleuvoir.ibukigourd.render.base.vertex.ColoredVertex
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.shape.pointsInCircleRange
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.ColoredRect
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.gui.render.Size
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.peek
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.ColoredBox
+import moe.forpleuvoir.ibukigourd.gui.render.shape.pointsInCircleRange
+import moe.forpleuvoir.ibukigourd.gui.render.vertex.ColoredVertex
+import moe.forpleuvoir.ibukigourd.render.*
+import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.render.math.plus
 import moe.forpleuvoir.nebula.common.color.*
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack
+import org.joml.Vector2fc
 import org.joml.Vector3fc
 import kotlin.math.abs
 import kotlin.math.min
@@ -69,7 +70,7 @@ fun renderLine(matrixStack: MatrixStack, lineWidth: Number, vararg vertexes: Col
  * @param block BatchDrawScope.() -> Unit
  */
 fun rectBatchRender(
-    bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.helper.bufferBuilder,
+    bufferBuilder: BufferBuilder = moe.forpleuvoir.ibukigourd.render.bufferBuilder,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram,
     block: RectBatchDrawScope.() -> Unit
 ) {
@@ -93,8 +94,8 @@ object RectBatchDrawScope {
      * @param matrixStack MatrixStack
      * @param rect Rectangle
      */
-    fun renderRect(matrixStack: MatrixStack, rect: ColoredRect) {
-        for (vertex in rect.vertexes) {
+    fun renderRect(matrixStack: MatrixStack, rect: ColoredBox) {
+        for (vertex in rect.coloredVertexes) {
             vertexConsumer!!.vertex(matrixStack, vertex).color(vertex.color).next()
         }
     }
@@ -105,7 +106,7 @@ object RectBatchDrawScope {
      * @param rect Rectangle
      * @param color ARGBColor
      */
-    fun renderRect(matrixStack: MatrixStack, rect: Rectangle, color: ARGBColor) {
+    fun renderRect(matrixStack: MatrixStack, rect: Box, color: ARGBColor) {
         for (vertex in rect.vertexes) {
             vertexConsumer!!.vertex(matrixStack, vertex).color(color).next()
         }
@@ -119,7 +120,7 @@ object RectBatchDrawScope {
      * @param height Number
      */
     fun renderRect(matrixStack: MatrixStack, coloredVertex: ColoredVertex, width: Number, height: Number) {
-        renderRect(matrixStack, ColoredRect(coloredVertex, width.toFloat(), height.toFloat()))
+        renderRect(matrixStack, ColoredBox(coloredVertex, width.toFloat(), height.toFloat()))
     }
 
     /**
@@ -140,11 +141,11 @@ object RectBatchDrawScope {
      * @param round The radius of the round corners of the rectangle.
      * @param pixelSize The size in pixels of each unit in the coordinate system. Default value is 1.0 pixel.
      */
-    fun renderRoundRect(matrixStack: MatrixStack, rect: Rectangle, color: ARGBColor, round: Int, pixelSize: Float = 1f) {
+    fun renderRoundRect(matrixStack: MatrixStack, rect: Box, color: ARGBColor, round: Int, pixelSize: Float = 1f) {
         if (round > 0) {
-            renderRect(matrixStack, Rect(rect.position + vertex(0f, (round + 1) * pixelSize, 0f), rect.width, rect.height - ((round + 1) * pixelSize) * 2), color)
+            renderRect(matrixStack, Box(rect.position + Vector2f(0f, (round + 1) * pixelSize), rect.width, rect.height - ((round + 1) * pixelSize) * 2), color)
             renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)]?.let {
-                it.forEach { (position, size) -> renderRect(matrixStack, Rect(rect.position + position, size), color) }
+                it.forEach { (position, size) -> renderRect(matrixStack, Box(rect.position + position, size), color) }
                 return
             }
             val yPoints = mutableMapOf<Int, Int>()
@@ -155,15 +156,15 @@ object RectBatchDrawScope {
             }
             buildSet {
                 yPoints.map { (_, x) -> x to xPoints[x] }.toSet().forEach { (x, y) ->
-                    add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Size(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
+                    add(Vector2f(abs(x * pixelSize), abs(y!!.first) * pixelSize) to Size(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
                     add(
-                        vertex(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize, 0f)
+                        Vector2f(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize)
                                 to Size(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
                     )
                 }
                 renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)] = this
                 if (size > renderRoundRectCacheSize) renderRoundRectCache.remove(renderRoundRectCache.keys.first())
-            }.forEach { (position, size) -> renderRect(matrixStack, Rect(rect.position + position, size), color) }
+            }.forEach { (position, size) -> renderRect(matrixStack, Box(rect.position + position, size), color) }
         } else renderRect(matrixStack, rect, color)
     }
 
@@ -178,14 +179,14 @@ object RectBatchDrawScope {
      */
     fun renderGradientRect(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         orientation: Orientation = Orientation.Horizontal,
         startColor: ARGBColor,
         endColor: ARGBColor,
     ) {
         orientation.peek(
-            renderRect(matrixStack, ColoredRect(rect, startColor, endColor, endColor, startColor)),
-            renderRect(matrixStack, ColoredRect(rect, startColor, startColor, endColor, endColor))
+            renderRect(matrixStack, ColoredBox(rect, startColor, endColor, endColor, startColor)),
+            renderRect(matrixStack, ColoredBox(rect, startColor, startColor, endColor, endColor))
         )
     }
 
@@ -203,7 +204,7 @@ object RectBatchDrawScope {
      */
     fun renderHueGradientRect(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         precision: Int,
         orientation: Orientation = Orientation.Horizontal,
         reverse: Boolean = false,
@@ -222,7 +223,7 @@ object RectBatchDrawScope {
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, ColoredRect(rect.x, y, rect.z, Size(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
+                    renderRect(matrixStack, ColoredBox(rect.x, y, Size(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
                     y += lengthSlice
                 }
 
@@ -233,7 +234,7 @@ object RectBatchDrawScope {
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, ColoredRect(x, rect.y, rect.z, Size(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+                    renderRect(matrixStack, ColoredBox(x, rect.y, Size(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
                     x += lengthSlice
                 }
             }
@@ -253,7 +254,7 @@ object RectBatchDrawScope {
      */
     fun renderSaturationGradientRect(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         orientation: Orientation = Orientation.Horizontal,
         reverse: Boolean = false,
         saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -279,7 +280,7 @@ object RectBatchDrawScope {
      */
     fun renderValueGradientRect(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         orientation: Orientation = Orientation.Horizontal,
         reverse: Boolean = false,
         valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -303,7 +304,7 @@ object RectBatchDrawScope {
      */
     fun renderAlphaGradientRect(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         orientation: Orientation = Orientation.Horizontal,
         reverse: Boolean = false,
         alphaRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -326,7 +327,7 @@ object RectBatchDrawScope {
      */
     fun renderSVGradientRect(
         matrixStack: MatrixStack,
-        rect: Rectangle,
+        rect: Box,
         orientation: Orientation = Orientation.Horizontal,
         reverse: Boolean = false,
         saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -365,15 +366,15 @@ object RectBatchDrawScope {
  */
 fun renderGradientRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     orientation: Orientation = Orientation.Horizontal,
     startColor: ARGBColor,
     endColor: ARGBColor,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram
 ) {
     orientation.peek(
-        renderRect(matrixStack, ColoredRect(rect, startColor, endColor, endColor, startColor), shaderSupplier),
-        renderRect(matrixStack, ColoredRect(rect, startColor, startColor, endColor, endColor), shaderSupplier)
+        renderRect(matrixStack, ColoredBox(rect, startColor, endColor, endColor, startColor), shaderSupplier),
+        renderRect(matrixStack, ColoredBox(rect, startColor, startColor, endColor, endColor), shaderSupplier)
     )
 }
 
@@ -391,7 +392,7 @@ fun renderGradientRect(
  */
 fun renderHueGradientRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     precision: Int,
     orientation: Orientation = Orientation.Horizontal,
     reverse: Boolean = false,
@@ -412,7 +413,7 @@ fun renderHueGradientRect(
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, ColoredRect(rect.x, y, rect.z, Size(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
+                    renderRect(matrixStack, ColoredBox(rect.x, y, Size(rect.width, lengthSlice), colorStart, colorEnd, colorEnd, colorStart))
                     y += lengthSlice
                 }
 
@@ -424,7 +425,7 @@ fun renderHueGradientRect(
                     val colorStart = HSVColor(hue, saturation, value, alpha, false)
                     hue = if (reverse) (hue - hueSlice).clamp(hueRange) else (hue + hueSlice).clamp(hueRange)
                     val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-                    renderRect(matrixStack, ColoredRect(x, rect.y, rect.z, Size(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
+                    renderRect(matrixStack, ColoredBox(x, rect.y, Size(lengthSlice, rect.height), colorStart, colorStart, colorEnd, colorEnd))
                     x += lengthSlice
                 }
             }
@@ -445,7 +446,7 @@ fun renderHueGradientRect(
  */
 fun renderSaturationGradientRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     orientation: Orientation = Orientation.Horizontal,
     reverse: Boolean = false,
     saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -472,7 +473,7 @@ fun renderSaturationGradientRect(
  */
 fun renderValueGradientRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     orientation: Orientation = Orientation.Horizontal,
     reverse: Boolean = false,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -499,7 +500,7 @@ fun renderValueGradientRect(
  */
 fun renderAlphaGradientRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     orientation: Orientation = Orientation.Horizontal,
     reverse: Boolean = false,
     alphaRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -523,7 +524,7 @@ fun renderAlphaGradientRect(
  */
 fun renderSVGradientRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     orientation: Orientation = Orientation.Horizontal,
     reverse: Boolean = false,
     saturationRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -554,11 +555,11 @@ fun renderSVGradientRect(
  * @param matrixStack MatrixStack
  * @param rect Rectangle
  */
-fun renderRect(matrixStack: MatrixStack, rect: ColoredRect, shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram) {
+fun renderRect(matrixStack: MatrixStack, rect: ColoredBox, shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram) {
     enableBlend()
     setShader(shaderSupplier)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
-    for (vertex in rect.vertexes) {
+    for (vertex in rect.coloredVertexes) {
         bufferBuilder.vertex(matrixStack, vertex).color(vertex.color).next()
     }
     bufferBuilder.draw()
@@ -571,7 +572,7 @@ fun renderRect(matrixStack: MatrixStack, rect: ColoredRect, shaderSupplier: () -
  * @param rect Rectangle
  * @param color ARGBColor
  */
-fun renderRect(matrixStack: MatrixStack, rect: Rectangle, color: ARGBColor, shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram) {
+fun renderRect(matrixStack: MatrixStack, rect: Box, color: ARGBColor, shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram) {
     enableBlend()
     setShader(shaderSupplier)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
@@ -596,7 +597,7 @@ fun renderRect(
     height: Number,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram
 ) {
-    renderRect(matrixStack, ColoredRect(coloredVertex, width.toFloat(), height.toFloat()), shaderSupplier)
+    renderRect(matrixStack, ColoredBox(coloredVertex, width.toFloat(), height.toFloat()), shaderSupplier)
 }
 
 /**
@@ -619,7 +620,7 @@ fun renderRect(matrixStack: MatrixStack, transform: Transform, color: ARGBColor,
  */
 fun renderRoundRect(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     color: ARGBColor,
     round: Int,
     pixelSize: Float = 1f,
@@ -627,9 +628,9 @@ fun renderRoundRect(
 ) {
     if (round > 0)
         rectBatchRender(shaderSupplier = shaderSupplier) {
-            renderRect(matrixStack, Rect(rect.position + vertex(0f, (round + 1) * pixelSize, 0f), rect.width, rect.height - ((round + 1) * pixelSize) * 2), color)
+            renderRect(matrixStack, Box(rect.position + Vector2f(0f, (round + 1) * pixelSize), rect.width, rect.height - ((round + 1) * pixelSize) * 2), color)
             renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)]?.let {
-                it.forEach { (position, size) -> renderRect(matrixStack, Rect(rect.position + position, size), color) }
+                it.forEach { (position, size) -> renderRect(matrixStack, Box(rect.position + position, size), color) }
                 return@rectBatchRender
             }
             val yPoints = mutableMapOf<Int, Int>()
@@ -641,15 +642,15 @@ fun renderRoundRect(
             buildSet {
                 yPoints.map { (_, x) -> x to xPoints[x] }
                         .toSet().forEach { (x, y) ->
-                            add(vertex(abs(x * pixelSize), abs(y!!.first) * pixelSize, 0f) to Size(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
+                            add(Vector2f(abs(x * pixelSize), abs(y!!.first) * pixelSize) to Size(rect.width - abs(x * pixelSize * 2), y.second * pixelSize))
                             add(
-                                vertex(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize, 0f)
+                                Vector2f(abs(x * pixelSize), rect.height - y.second * pixelSize - (abs(y.first)) * pixelSize)
                                         to Size(rect.width - abs(x * pixelSize * 2), y.second * pixelSize)
                             )
                         }
                 renderRoundRectCache[RenderRoundRect(round, pixelSize, rect.width, rect.height)] = this
                 if (size > renderRoundRectCacheSize) renderRoundRectCache.remove(renderRoundRectCache.keys.first())
-            }.forEach { (position, size) -> renderRect(matrixStack, Rect(rect.position + position, size), color) }
+            }.forEach { (position, size) -> renderRect(matrixStack, Box(rect.position + position, size), color) }
         }
     else renderRect(matrixStack, rect, color, shaderSupplier)
 }
@@ -663,7 +664,7 @@ private data class RenderRoundRect(
 
 private const val renderRoundRectCacheSize = 50
 
-private val renderRoundRectCache get() = mutableMapOf<RenderRoundRect, Set<Pair<Vector3fc, Size<Float>>>>()
+private val renderRoundRectCache get() = mutableMapOf<RenderRoundRect, Set<Pair<Vector2fc, Size<Float>>>>()
 
 /**
  * 渲染边框线条
@@ -720,7 +721,7 @@ fun renderOutline(
  */
 fun renderOutline(
     matrixStack: MatrixStack,
-    rect: Rectangle,
+    rect: Box,
     color: ARGBColor,
     borderWidth: Number = 1,
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram

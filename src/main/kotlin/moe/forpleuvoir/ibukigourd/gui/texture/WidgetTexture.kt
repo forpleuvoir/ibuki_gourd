@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.texture
 
-import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
-import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
-import moe.forpleuvoir.ibukigourd.render.base.texture.TextureUVMapping
+import moe.forpleuvoir.ibukigourd.gui.render.texture.Corner
+import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureInfo
+import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureUVMapping
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType

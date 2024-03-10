@@ -149,7 +149,7 @@ open class ListLayout(
                 val v = vector3f + orientation.peek(Vector3f(0f, -amount, 0f), Vector3f(-amount, 0f, 0f))
                 onElementTranslate(element, v + Vector3f(element.margin.left, element.margin.top))
 //                element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
-                element.visible = element.transform.inRect(contentRect, false)
+                element.visible = element.transform.inBox(contentRect, false)
             }
             return orientation.peek(
                 Size.of(contentRect.width + padding.width + this@ListLayout.scrollerThickness, contentRect.height + padding.height),

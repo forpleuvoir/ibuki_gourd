@@ -4,14 +4,12 @@
 package moe.forpleuvoir.ibukigourd.gui.base
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.MousePosition
-import moe.forpleuvoir.ibukigourd.render.base.math.*
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.render.math.*
 import moe.forpleuvoir.nebula.common.ifc
-import org.joml.Vector3f
-import org.joml.Vector3fc
+import org.joml.Vector2f
+import org.joml.Vector2fc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -20,7 +18,7 @@ import kotlin.contracts.contract
  * 变换青春版
  */
 class Transform(
-    position: Vector3fc = Vector3f(),
+    position: Vector2fc = Vector2f(),
     /**
      * 是否为世界坐标轴
      */
@@ -28,17 +26,17 @@ class Transform(
     width: Float = 0.0f,
     height: Float = 0.0f,
     var parent: () -> Transform? = { null },
-) : Rectangle {
+) : Box {
 
     /**
      * 不可变向量
      */
-    override val position: Vector3fc = NotifiableVector3f(position)
+    override val position: Vector2fc = NotifiableVector2f(position)
 
     /**
      * 可变向量
      */
-    private val positionAsNotifiable: NotifiableVector3f get() = position as NotifiableVector3f
+    private val positionAsNotifiable: NotifiableVector2f get() = position as NotifiableVector2f
 
     override var width: Float = width
         set(value) {
@@ -58,9 +56,9 @@ class Transform(
 
     var resizeCallback: ((width: Float, height: Float) -> Unit)? = null
 
-    fun subscribePositionChange(action: (origin: Vector3fc, current: Vector3fc) -> Unit) = positionAsNotifiable.subscribe(action)
+    fun subscribePositionChange(action: (origin: Vector2fc, current: Vector2fc) -> Unit) = positionAsNotifiable.subscribe(action)
 
-    override val vertexes: Array<Vector3fc>
+    override val vertexes: Array<out Vector2fc>
         get() = arrayOf(
             position,
             position.copy(y = y + height),
@@ -71,10 +69,12 @@ class Transform(
     var isWorldAxis: Boolean = isWorldAxis
         set(value) {
             field = value
-            if (value) parent()?.let { position as Vector3f += it.worldPosition }
+            if (value) parent()?.let { positionAsNotifiable += it.worldPosition }
         }
 
-    val worldPosition: Vector3fc
+    val localPosition: Vector2fc by this::position
+
+    val worldPosition: Vector2fc
         get() {
             if (isWorldAxis) return position
             var pos = position
@@ -82,7 +82,7 @@ class Transform(
             return pos
         }
 
-    val asWorldRect: Rectangle get() = Rect(worldPosition, width, height)
+    val asWorldBox: Box get() = Box(worldPosition, width, height)
 
     override var x
         get() = position.x()
@@ -116,22 +116,6 @@ class Transform(
             }
         }
 
-    override var z
-        get() = position.z
-        set(value) {
-            positionAsNotifiable.z = value
-        }
-
-    var worldZ
-        get() = worldPosition.z
-        set(value) {
-            if (isWorldAxis) positionAsNotifiable.z = value
-            else {
-                val delta = value - worldPosition.z
-                positionAsNotifiable.z += delta
-            }
-        }
-
     override val top: Float get() = y
 
     val worldTop: Float get() = worldY
@@ -148,13 +132,13 @@ class Transform(
 
     val worldRight: Float get() = worldLeft + width
 
-    override var center: Vector3fc
-        get() = vertex(x + this.halfWidth, y + this.halfHeight, z)
+    override var center: Vector2fc
+        get() = Vector2f(x + this.halfWidth, y + this.halfHeight)
         set(value) {
-            translate(value.x - center.x, value.y - center.y, value.z - center.z)
+            translate(value.x - center.x, value.y - center.y)
         }
 
-    val worldCenter: Vector3f get() = Vector3f(worldX + this.halfWidth, worldY + this.halfHeight, worldZ)
+    val worldCenter: Vector2fc get() = Vector2f(worldX + this.halfWidth, worldY + this.halfHeight)
 
     /**
      * 鼠标是否在此元素[Transform]内部
@@ -181,20 +165,20 @@ class Transform(
     operator fun contains(mousePosition: MousePosition): Boolean =
         mousePosition.x in worldLeft..worldRight && mousePosition.y in worldTop..worldBottom
 
-    fun translate(vector3: Vector3fc) {
-        positionAsNotifiable += Vector3f(vector3)
+    fun translate(vector2fc: Vector2fc) {
+        positionAsNotifiable += vector2fc
     }
 
-    fun translate(x: Number = 0, y: Number = 0, z: Number = 0) {
-        positionAsNotifiable += Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
+    fun translate(x: Number = 0, y: Number = 0) {
+        positionAsNotifiable += Vector2f(x.toFloat(), y.toFloat())
     }
 
-    fun translateTo(vector3: Vector3f) {
-        positionAsNotifiable.set(Vector3f(vector3))
+    fun translateTo(vector2fc: Vector2fc) {
+        positionAsNotifiable.set(vector2fc)
     }
 
-    fun translateTo(x: Number = position.x, y: Number = position.y, z: Number = position.z) {
-        positionAsNotifiable.set(Vector3f(x.toFloat(), y.toFloat(), z.toFloat()))
+    fun translateTo(x: Number = position.x, y: Number = position.y) {
+        positionAsNotifiable.set(x, y)
     }
 
 }

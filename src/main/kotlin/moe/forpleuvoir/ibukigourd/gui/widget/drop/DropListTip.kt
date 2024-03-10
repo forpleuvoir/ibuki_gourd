@@ -79,7 +79,7 @@ class DropListTip(
                 val element = alignElements[index]
                 val v = vector3f + (Vector3f(0f, -amount, 0f))
                 element.transform.translateTo(v + Vector3f(element.margin.left, element.margin.top))
-                element.visible = element.transform.inRect(contentRect, false)
+                element.visible = element.transform.inBox(contentRect, false)
             }
             return Size.of(contentRect.width + padding.width, contentRect.height + padding.height)
         }

@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_DISABLED
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_HOVERED
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_IDLE
@@ -30,12 +31,11 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PRESS_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
-import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
+import moe.forpleuvoir.ibukigourd.render.helper.BatchDrawScope.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
-import moe.forpleuvoir.ibukigourd.render.helper.translate
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction

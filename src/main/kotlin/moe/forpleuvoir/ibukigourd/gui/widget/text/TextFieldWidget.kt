@@ -152,7 +152,7 @@ open class TextFieldWidget(
             changed = false
         }
         renderBackground(renderContext)
-        renderContext.scissor(transform.asWorldRect) {
+        renderContext.scissor(transform.asWorldBox) {
             renderText(renderContext)
         }
         renderOverlay(renderContext)

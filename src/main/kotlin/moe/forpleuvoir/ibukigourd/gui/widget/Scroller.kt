@@ -14,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.arrange.peek
+import moe.forpleuvoir.ibukigourd.render.helper.BatchDrawScope.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.text.Text

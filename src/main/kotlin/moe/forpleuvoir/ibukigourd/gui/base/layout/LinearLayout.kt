@@ -82,7 +82,7 @@ open class LinearLayout(
         alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
             val element = alignElements[index]
             element.transform.translateTo(vector3f + Vector3f(element.margin.left, element.margin.top))
-            element.visible = element.transform.inRect(contentRect, false)
+            element.visible = element.transform.inBox(contentRect, false)
         }
         return Size.of(contentRect.width + padding.width, contentRect.height + padding.height)
     }

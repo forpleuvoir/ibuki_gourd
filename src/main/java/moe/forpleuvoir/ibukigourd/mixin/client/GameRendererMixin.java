@@ -1,9 +1,8 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext;
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.gui.screen.TestScreenKt;
-import moe.forpleuvoir.ibukigourd.render.RenderContext;
-import moe.forpleuvoir.ibukigourd.render.ScissorStack;
 import moe.forpleuvoir.ibukigourd.util.MiscKt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
