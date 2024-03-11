@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.text.style.*
-import net.minecraft.item.ItemStack
+import moe.forpleuvoir.ibukigourd.text.style.StyleScope
 import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 
@@ -104,27 +103,4 @@ class TranslateScope {
 
 fun Text(content: TextScope.() -> Unit): MutableText {
     return TextScope().apply(content).text
-}
-
-//TODO("待删除")
-fun usage() {
-    Text { literal { context { "Hello" } } }
-    Text {
-        line { literal { context { "Hello" } } }
-        translate {
-            key { "key" }
-            params("param1", "param2")
-            style {
-                color(0x00FF00)
-                bold()
-                italic()
-                click<RunCommand>("/test")
-            }
-        }
-    }
-
-    Literal("Hello").style {
-        color(0x00FF00)
-    }
-
 }

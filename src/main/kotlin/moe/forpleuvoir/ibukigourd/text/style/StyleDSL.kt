@@ -19,15 +19,15 @@ class StyleScope {
 
     private var color: RGBColor? = null
 
-    private var bold: Boolean = false
+    private var bold: Boolean? = null
 
-    private var italic: Boolean = false
+    private var italic: Boolean? = null
 
-    private var underlined: Boolean = false
+    private var underlined: Boolean? = null
 
-    private var strikethrough: Boolean = false
+    private var strikethrough: Boolean? = null
 
-    private var obfuscated: Boolean = false
+    private var obfuscated: Boolean? = null
 
     private var clickEvent: ClickEvent? = null
 
