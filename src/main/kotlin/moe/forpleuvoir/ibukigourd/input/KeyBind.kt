@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.exactMatch
 import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.text.Text
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.common.api.Notifiable
 import moe.forpleuvoir.nebula.common.api.Resettable

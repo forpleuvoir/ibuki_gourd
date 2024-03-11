@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.util.text
+package moe.forpleuvoir.ibukigourd.text
 
 import com.google.common.collect.ImmutableList
 import net.minecraft.text.StringVisitable
@@ -12,6 +12,7 @@ class ServerText(
 	style: Style = Style.EMPTY,
 ) : Text(content, list, style) {
 
+	@JvmOverloads
 	constructor(key: String, fallback: String? = null, vararg args: Any) : this(ServerTranslatableContents(key, fallback, *args))
 
 	constructor(key: String, fallback: String? = null) : this(key, fallback, emptyArray<Any>())
@@ -26,7 +27,7 @@ class ServerText(
 				return
 			}
 			languageCache = language
-			val string = if (fallback != null) language.get(key, fallback!!) else language[key]
+			val string = if (fallback != null) ServerLanguage.get(key, fallback!!) else language[key]
 			translations = runCatching {
 				val builder = ImmutableList.builder<StringVisitable>()
 				forEachPart(string) { builder.add(it) }

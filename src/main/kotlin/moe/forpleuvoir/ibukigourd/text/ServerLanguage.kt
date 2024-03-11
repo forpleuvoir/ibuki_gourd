@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.util.text
+package moe.forpleuvoir.ibukigourd.text
 
 import com.google.common.collect.Lists
 import com.google.gson.JsonObject
@@ -111,10 +111,10 @@ object ServerLanguage : Language() {
 				json.entrySet().forEach { entry ->
 					map[entry.key] = UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key)).replaceAll("%$1s")
 				}
-				if (this.map.containsKey(languagePair)) {
-					this.map[languagePair]!!.putAll(map)
+				if (ServerLanguage.map.containsKey(languagePair)) {
+					ServerLanguage.map[languagePair]!!.putAll(map)
 				} else {
-					this.map[languagePair] = map
+					ServerLanguage.map[languagePair] = map
 				}
 			}
 		}.onFailure {

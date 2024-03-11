@@ -20,10 +20,10 @@ import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
-import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.literal
-import moe.forpleuvoir.ibukigourd.util.text.maxWidth
-import moe.forpleuvoir.ibukigourd.util.text.wrapToTextLines
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
@@ -252,7 +252,7 @@ fun ElementContainer.textField(
 ): TextFieldWidget =
     addElement(
         TextFieldWidget(
-            { literal(text).style { style } },
+            { Literal(text).style { style } },
             spacing,
             shadow,
             layerType,
@@ -296,7 +296,7 @@ fun TextField(
     height: Float? = null,
 ): TextFieldWidget =
     TextFieldWidget(
-        { literal(text).style { style } },
+        { Literal(text).style { style } },
         spacing,
         shadow,
         layerType,
@@ -343,7 +343,7 @@ fun ElementContainer.textField(
 ): TextFieldWidget =
     addElement(
         TextFieldWidget(
-            { literal(text()).style { style } },
+            { Literal(text()).style { style } },
             spacing,
             shadow,
             layerType,
@@ -388,7 +388,7 @@ fun TextField(
     height: Float? = null,
 ): TextFieldWidget =
     TextFieldWidget(
-        { literal(text()).style { style } },
+        { Literal(text()).style { style } },
         spacing,
         shadow,
         layerType,

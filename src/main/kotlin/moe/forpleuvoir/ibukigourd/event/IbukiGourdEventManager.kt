@@ -9,11 +9,6 @@ object IbukiGourdEventManager : EventManager() {
 
 	override fun init() {
 		super.init()
-		//todo delete
-//		println("已注册事件")
-//		eventSet().forEach{
-//			println(it.simpleName)
-//		}
 	}
 
 	override fun scanPackage(predicate: (KClass<*>) -> Boolean): Set<KClass<*>> {

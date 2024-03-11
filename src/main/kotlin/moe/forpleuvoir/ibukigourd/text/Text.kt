@@ -1,8 +1,9 @@
 @file:Suppress("UNUSED")
 
-package moe.forpleuvoir.ibukigourd.util.text
+package moe.forpleuvoir.ibukigourd.text
 
 import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.text.style.StyleScope
 import net.minecraft.text.*
 import net.minecraft.util.Formatting
 import java.util.function.UnaryOperator
@@ -60,7 +61,7 @@ open class Text(
         return this
     }
 
-    inline fun append(text: () -> Text): Text {
+    inline fun append(text: () -> McText): Text {
         contract {
             callsInPlace(text, InvocationKind.EXACTLY_ONCE)
         }
@@ -68,17 +69,14 @@ open class Text(
         return this
     }
 
-    override fun setStyle(style: Style): Text {
-        return super.setStyle(style) as Text
+    fun style(style: StyleScope.() -> Unit): Text {
+        return this.styled {
+            StyleScope().apply(style).style
+        }
     }
 
-
-    inline fun style(style: (Style) -> Style): Text {
-        contract {
-            callsInPlace(style, InvocationKind.EXACTLY_ONCE)
-        }
-        this.style = style(this.style)
-        return this
+    override fun setStyle(style: Style): Text {
+        return super.setStyle(style) as Text
     }
 
     override fun styled(styleUpdater: UnaryOperator<Style>): Text {

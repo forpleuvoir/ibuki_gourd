@@ -2,8 +2,8 @@ package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.trans
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Trans
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -27,10 +27,10 @@ enum class KeyEnvironment(val key: String) : Serializable {
     }
 
     val displayName: Text
-        get() = trans("ibuki_gourd.key_bind.environment.${key}")
+        get() = Trans("ibuki_gourd.key_bind.environment.${key}")
 
     val description: Text
-        get() = trans("ibuki_gourd.key_bind.environment.${key}.description")
+        get() = Trans("ibuki_gourd.key_bind.environment.${key}.description")
 
     fun envMatch(): Boolean {
         if (this == Both) return true

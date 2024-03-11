@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.reflect.ClassPath
 import moe.forpleuvoir.ibukigourd.IbukiGourd
-import moe.forpleuvoir.ibukigourd.util.text.literal
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.fabricmc.loader.api.FabricLoader
@@ -59,7 +59,7 @@ fun MinecraftClient.chatMessage(message: net.minecraft.text.Text) {
 }
 
 fun MinecraftClient.chatMessage(message: String) {
-    chatMessage(literal(message))
+    chatMessage(Literal(message))
 }
 
 fun MinecraftClient.overlayMessage(message: net.minecraft.text.Text, tinted: Boolean = false) {
@@ -67,7 +67,7 @@ fun MinecraftClient.overlayMessage(message: net.minecraft.text.Text, tinted: Boo
 }
 
 fun MinecraftClient.overlayMessage(message: String, tinted: Boolean = false) {
-    this.inGameHud.setOverlayMessage(literal(message), tinted)
+    this.inGameHud.setOverlayMessage(Literal(message), tinted)
 }
 
 fun Any.logger(modName: String): ModLogger {

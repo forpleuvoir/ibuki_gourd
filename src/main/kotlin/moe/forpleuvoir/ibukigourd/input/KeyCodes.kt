@@ -2,7 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.util.text.Text
+import moe.forpleuvoir.ibukigourd.text.Text
 import net.minecraft.client.util.InputUtil
 
 interface KeyCode {

@@ -30,8 +30,8 @@ import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.util.delegate
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.text.literal
-import moe.forpleuvoir.ibukigourd.util.text.withColor
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.style.withColor
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -75,7 +75,7 @@ val testScreen3: Screen
                 tab(index == 3,
                     tab = Row {
                         if (index == 3) icon(IconTextures.SAVE, scale = 0.8f, shaderColor = { color })
-                        textField({ literal("选项卡$index").style { it.withColor(color) } })
+                        textField({ Literal("选项卡$index").style { it.withColor(color) } })
                     }, content = Row(alignment = PlanarAlignment::TopLeft) {
                         heightDimensionMode = MatchParent
                         widthDimensionMode = MatchParent
@@ -91,7 +91,7 @@ val testScreen3: Screen
                                 heightDimensionMode = MatchParent
                                 widthDimensionMode = FillRemainingSpace
                                 textBox(120f, 120f, padding = Margin(5)) {
-                                    hintText = literal("宽度填充测试")
+                                    hintText = Literal("宽度填充测试")
                                     heightDimensionMode = MatchParent
                                     widthDimensionMode = MatchParent
                                 }
@@ -117,7 +117,7 @@ val testScreen2: Screen
 //            heightDimensionMode = MatchParent
 //            widthDimensionMode = MatchParent
             textBox(120f, 120f, padding = Margin(5)) {
-                hintText = literal("宽度填充测试")
+                hintText = Literal("宽度填充测试")
 //                heightDimensionMode = MatchParent
 //                widthDimensionMode = MatchParent
             }
@@ -178,7 +178,7 @@ val testScreen1: Screen
         row {
             spacing = 5f
             val text = textInput(150f) {
-                hintText = literal("测试测试")
+                hintText = Literal("测试测试")
             }
             dropSelector(options = list, onSelectionChange = {
                 println("选择了$it")
@@ -202,14 +202,14 @@ val testScreen1: Screen
             var currentText = "啊啊"
             textInput(width = 150f) {
                 text = currentText
-                hintText = literal("只能输入浮点")
+                hintText = Literal("只能输入浮点")
                 onTextChanged = {
                     currentText = it
                 }
             }
             button {
                 textField(
-                    { if (status) literal("开").style { it.withColor(Colors.GREEN) } else literal("关").style { it.withColor(Colors.RED) } },
+                    { if (status) Literal("开").style { it.withColor(Colors.GREEN) } else Literal("关").style { it.withColor(Colors.RED) } },
                     width = 40f,
                     alignment = PlanarAlignment::Center,
                 )
@@ -225,7 +225,7 @@ val testScreen1: Screen
             spacing = 5f
             val intDelegate = delegate(0)
             val intValue by intDelegate
-            intInput(intDelegate) { hintText = literal("只能输入整数") }
+            intInput(intDelegate) { hintText = Literal("只能输入整数") }
             button {
                 textField({ intValue.toString() }, width = 40f)
             }
@@ -244,8 +244,8 @@ val testScreen1: Screen
             spacing = 5f
             val floatDelegate = delegate(0f)
             val floatValue by floatDelegate
-            floatInput(floatDelegate) { hintText = literal("只能输入浮点数") }
-            doubleInput { hintText = literal("只能输入双精度浮点数") }
+            floatInput(floatDelegate) { hintText = Literal("只能输入浮点数") }
+            doubleInput { hintText = Literal("只能输入双精度浮点数") }
             button {
                 textField({ floatValue.toString() }, width = 40f)
             }
@@ -254,7 +254,7 @@ val testScreen1: Screen
         row {
             spacing = 5f
             input = textBox(120f, 120f, padding = Margin(5)) {
-                hintText = literal("多行文本输入框测试")
+                hintText = Literal("多行文本输入框测试")
             }
             listLayout(height = 120f) {
                 spacing = 3f
@@ -283,7 +283,7 @@ val testScreen1: Screen
                     textField("水平按钮$i")
                     if (i == 5) {
                         hoverTip {
-                            textField(literal("我是提示!$i").style {
+                            textField(Literal("我是提示!$i").style {
                                 it.withColor(Colors.RED)
                             })
                         }
@@ -298,7 +298,7 @@ val testScreen1: Screen
             textRenderer.batchRender {
                 renderAlignmentText(
                     it.matrixStack,
-                    literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
+                    Literal("x:%.2f, y:%.2f".format(mousePosition.x, mousePosition.y)),
                     rect,
                     align = PlanarAlignment::BottomLeft,
                     color = Colors.WHITE

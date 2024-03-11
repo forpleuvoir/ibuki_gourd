@@ -17,8 +17,8 @@ import moe.forpleuvoir.ibukigourd.render.base.arrange.peek
 import moe.forpleuvoir.ibukigourd.render.helper.BatchDrawScope.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.ibukigourd.util.text.Text
-import moe.forpleuvoir.ibukigourd.util.text.literal
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -268,7 +268,7 @@ fun <T> ElementContainer.numberScroller(
     range: ClosedRange<T>,
     valueMapper: (Double) -> T,
     valueReceiver: (T) -> Unit,
-    valueRender: (T) -> Text = { literal(it.toString()) },
+    valueRender: (T) -> Text = { Literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -317,7 +317,7 @@ fun <T> NumberScroller(
     range: ClosedRange<T>,
     valueMapper: (Double) -> T,
     valueReceiver: (T) -> Unit,
-    valueRender: (T) -> Text = { literal(it.toString()) },
+    valueRender: (T) -> Text = { Literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -380,7 +380,7 @@ fun ElementContainer.intScroller(
     initValue: Int,
     range: ClosedRange<Int>,
     valueReceiver: (Int) -> Unit,
-    valueRender: (Int) -> Text = { literal(it.toString()) },
+    valueRender: (Int) -> Text = { Literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -399,7 +399,7 @@ fun IntScroller(
     initValue: Int,
     range: ClosedRange<Int>,
     valueReceiver: (Int) -> Unit,
-    valueRender: (Int) -> Text = { literal(it.toString()) },
+    valueRender: (Int) -> Text = { Literal(it.toString()) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -418,7 +418,7 @@ fun ElementContainer.floatScroller(
     initValue: Float,
     range: ClosedRange<Float>,
     valueReceiver: (Float) -> Unit,
-    valueRender: (Float) -> Text = { literal("%.2f".format(it)) },
+    valueRender: (Float) -> Text = { Literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -437,7 +437,7 @@ fun FloatScroller(
     initValue: Float,
     range: ClosedRange<Float>,
     valueReceiver: (Float) -> Unit,
-    valueRender: (Float) -> Text = { literal("%.2f".format(it)) },
+    valueRender: (Float) -> Text = { Literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -456,7 +456,7 @@ fun ElementContainer.doubleScroller(
     initValue: Double,
     range: ClosedRange<Double>,
     valueReceiver: (Double) -> Unit,
-    valueRender: (Double) -> Text = { literal("%.2f".format(it)) },
+    valueRender: (Double) -> Text = { Literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,
@@ -475,7 +475,7 @@ fun DoubleScroller(
     initValue: Double,
     range: ClosedRange<Double>,
     valueReceiver: (Double) -> Unit,
-    valueRender: (Double) -> Text = { literal("%.2f".format(it)) },
+    valueRender: (Double) -> Text = { Literal("%.2f".format(it)) },
     length: Float,
     thickness: Float = 10f,
     Orientation: Orientation = Orientation.Vertical,

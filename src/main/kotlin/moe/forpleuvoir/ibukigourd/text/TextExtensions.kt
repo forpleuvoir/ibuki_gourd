@@ -1,6 +1,6 @@
 @file:Suppress("UNUSED")
 
-package moe.forpleuvoir.ibukigourd.util.text
+package moe.forpleuvoir.ibukigourd.text
 
 import moe.forpleuvoir.nebula.common.pick
 import net.minecraft.client.font.TextRenderer
@@ -9,13 +9,10 @@ import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
 import net.minecraft.text.Text as McText
 
 @JvmOverloads
-fun literal(content: String = ""): Text = Text.literal(content)
+fun Literal(content: String = ""): Text = Text.literal(content)
 
 @JvmOverloads
-fun trans(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
-
-@JvmOverloads
-fun serverText(key: String, fallback: String? = null, vararg args: Any): ServerText = ServerText(key, fallback, *args)
+fun Trans(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
 
 fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }
@@ -85,7 +82,7 @@ fun Collection<String>.wrapToLines(textRenderer: TextRenderer = tRenderer, width
 fun McText.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<McText> {
     return this.string
         .wrapToLines(textRenderer, width)
-        .map { literal(it).style { this.style } }
+        .map { Literal(it).style { this.style } }
 }
 
 fun Collection<McText>.wrapToTextLines(textRenderer: TextRenderer = tRenderer, width: Int = 0): List<McText> {
@@ -111,7 +108,7 @@ fun List<String>.wrapToSingle(textRenderer: TextRenderer = tRenderer, width: Int
 }
 
 fun List<McText>.wrapToSingleText(textRenderer: TextRenderer = tRenderer, width: Int = 0): McText {
-    return literal(buildString {
+    return Literal(buildString {
         this@wrapToSingleText.forEachIndexed { index, text ->
             text.wrapToTextLines(textRenderer, width).let {
                 it.forEachIndexed { i, t ->

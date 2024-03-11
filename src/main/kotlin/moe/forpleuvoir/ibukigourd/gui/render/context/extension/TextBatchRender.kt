@@ -9,8 +9,8 @@ import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.render.setShader
-import moe.forpleuvoir.ibukigourd.util.text.wrapToLines
-import moe.forpleuvoir.ibukigourd.util.text.wrapToTextLines
+import moe.forpleuvoir.ibukigourd.text.wrapToLines
+import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
