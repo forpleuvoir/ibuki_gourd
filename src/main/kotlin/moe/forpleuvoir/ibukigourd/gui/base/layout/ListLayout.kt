@@ -69,14 +69,14 @@ open class ListLayout(
                 { (layout.alignRects(subElements, orientation).minOf { r -> orientation.peek(r.height, r.width) } / 2f) },
                 {
                     orientation.peek(
-                        contentSize.height - contentRect(false).height,
-                        contentSize.width - contentRect(false).width
+                        contentSize.height - contentBox(false).height,
+                        contentSize.width - contentBox(false).width
                     ).coerceAtLeast(0f)
                 },
                 {
                     orientation.peek(
-                        contentRect(false).height / contentSize.height,
-                        contentRect(false).width / contentSize.width
+                        contentBox(false).height / contentSize.height,
+                        contentBox(false).width / contentSize.width
                     ).clamp(0f..1f)
                 },
                 orientation
@@ -123,7 +123,7 @@ open class ListLayout(
             val alignment = orientation.peek(PlanarAlignment.TopLeft(orientation), PlanarAlignment.CenterLeft(orientation))
 
             val container = elementContainer()
-            val containerContentRect = container.contentRect(false)
+            val containerContentRect = container.contentBox(false)
 
             val size = orientation.contentSize(alignRects)
             val contentRect = when {
@@ -159,7 +159,7 @@ open class ListLayout(
 
     }
 
-    override fun contentRect(isWorld: Boolean): Rectangle {
+    override fun contentBox(isWorld: Boolean): Rectangle {
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
 
         val bottom =
@@ -199,7 +199,7 @@ open class ListLayout(
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
         renderBackground.invoke(renderContext)
-        renderContext.scissor(super.contentRect(true)) {
+        renderContext.scissor(super.contentBox(true)) {
             renderElements.filter { it != scrollerBar || !it.fixed }.forEach { it.render(renderContext) }
         }
         fixedElements.forEach { it.render(renderContext) }

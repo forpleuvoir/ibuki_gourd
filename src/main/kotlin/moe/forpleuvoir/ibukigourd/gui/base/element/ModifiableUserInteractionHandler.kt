@@ -1,9 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.util.NextAction
 
 /**
  *
@@ -45,25 +43,23 @@ interface ModifiableUserInteractionHandler :UserInteractionHandler {
      * @param mouseX Float
      * @param mouseY Float
      */
-    var mouseMove: (mouseX: Float, mouseY: Float) -> NextAction
+    var mouseMove: (mouseX: Float, mouseY: Float) -> Unit
 
     /**
      * 鼠标点击
      * @param button Mouse
      * @param mouseX Float
      * @param mouseY Float
-     * @return 是否处理之后的同类操作
      */
-    var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction
+    var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit
 
     /**
      * 鼠标释放
      * @param button Mouse
      * @param mouseX Float
      * @param mouseY Float
-     * @return 是否处理之后的同类操作
      */
-    var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction
+    var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit
 
     /**
      * 鼠标拖动
@@ -72,38 +68,33 @@ interface ModifiableUserInteractionHandler :UserInteractionHandler {
      * @param button Mouse
      * @param deltaX Float
      * @param deltaY Float
-     * @return 是否处理之后的同类操作
      */
-    var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> NextAction
+    var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> Unit
 
     /**
      * 鼠标滚动
      * @param mouseX Float
      * @param mouseY Float
      * @param amount Float
-     * @return 是否处理之后的同类操作
      */
-    var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> NextAction
+    var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> Unit
 
     /**
      * 按键按下
      * @param keyCode KeyCode
-     * @return 是否处理之后的同类操作
      */
-    var keyPress: (keyCode: KeyCode) -> NextAction
+    var keyPress: (keyCode: KeyCode) -> Unit
 
     /**
      * 按键释放
      * @param keyCode KeyCode
-     * @return 是否处理之后的同类操作
      */
-    var keyRelease: (keyCode: KeyCode) -> NextAction
+    var keyRelease: (keyCode: KeyCode) -> Unit
 
     /**
      * 字符输入
      * @param chr Char
-     * @return 是否处理之后的同类操作
      */
-    var charTyped: (chr: Char) -> NextAction
+    var charTyped: (chr: Char) -> Unit
 
 }

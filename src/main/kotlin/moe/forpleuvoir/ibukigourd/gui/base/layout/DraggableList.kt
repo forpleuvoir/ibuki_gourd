@@ -223,7 +223,7 @@ class DraggableList(
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
         renderBackground.invoke(renderContext)
-        val rect = super.contentRect(true)
+        val rect = super.contentBox(true)
         renderContext.scissor(rect) {
             renderElements.filter { it != scrollerBar || !it.fixed || it != draggingElement }.forEach { it.render(renderContext) }
         }

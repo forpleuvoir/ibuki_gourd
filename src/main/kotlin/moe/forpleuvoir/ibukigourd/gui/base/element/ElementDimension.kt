@@ -9,7 +9,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
  */
 sealed interface ElementDimension
 
-val Number.f get() = Fixed(this.toFloat())
+val Number.fixed get() = Fixed(this.toFloat())
 
 /**
  * 固定尺寸
@@ -36,7 +36,7 @@ data object MatchParent : ElementDimension
  */
 data object FillRemainingSpace : ElementDimension
 
-val Number.w get() = Weight(this.toFloat())
+val Number.weight get() = Weight(this.toFloat())
 
 /**
  * 根据内容大小调整大小
@@ -45,7 +45,7 @@ val Number.w get() = Weight(this.toFloat())
  */
 data class Weight(val weight: Float) : ElementDimension
 
-val Number.p get() = Percentage(this.toFloat())
+val Number.percent get() = Percentage(this.toFloat())
 
 /**
  * 百分比,

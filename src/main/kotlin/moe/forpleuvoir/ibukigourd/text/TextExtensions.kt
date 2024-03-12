@@ -12,7 +12,7 @@ import net.minecraft.text.Text as McText
 fun Literal(content: String = ""): Text = Text.literal(content)
 
 @JvmOverloads
-fun Trans(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
+fun Translatable(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
 
 fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }

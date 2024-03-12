@@ -139,7 +139,7 @@ class NumberInputWidget<T>(
         return NextAction.Continue
     }
 
-    override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+    override fun contentBox(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
         val bottom = if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom
         val left = if (isWorld) transform.worldLeft + padding.left else padding.left

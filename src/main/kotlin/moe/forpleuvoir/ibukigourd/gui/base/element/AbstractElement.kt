@@ -1,12 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.util.NextAction
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement(
@@ -33,8 +32,6 @@ abstract class AbstractElement(
 
     override var fixed: Boolean = false
 
-    override var priority: Int = 0
-
     override val focused: Boolean
         get() {
             if (focusable)
@@ -56,6 +53,7 @@ abstract class AbstractElement(
         }
 
     override fun init() {
+        modifier.apply(this)
         super.init()
         tip?.init?.invoke()
     }
@@ -98,18 +96,19 @@ abstract class AbstractElement(
     override var renderOverlay: (renderContext: RenderContext) -> Unit = ::onRenderOverlay
 
     override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveIn
+
     override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
 
     override var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveOut
 
     override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onMouseMove(mouseX: Float, mouseY: Float) {
+        if (!active)
         for (element in handleElements) {
-            element.mouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
+            element.mouseMove(mouseX, mouseY)
         }
-        if (!visible) return NextAction.Continue
+        if (!visible) return
         //上一帧不在元素内,这一帧在 触发 mouseMoveIn
         screen().let {
             if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
@@ -118,13 +117,12 @@ abstract class AbstractElement(
                 mouseMoveOut(mouseX, mouseY)
             }
         }
-        return NextAction.Continue
     }
 
-    override var mouseMove: (mouseX: Float, mouseY: Float) -> NextAction = ::onMouseMove
+    override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMove
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse) {
+        if (!active) return
         if (button == Mouse.LEFT && mouseHover()) {
             dragging = true
             if (focusable) {
@@ -141,74 +139,67 @@ abstract class AbstractElement(
             }
         }
         for (element in handleElements) {
-            element.mouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
+            element.mouseClick(mouseX, mouseY, button)
         }
-        return NextAction.Continue
     }
 
-    override var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction = ::onMouseClick
+    override var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit = ::onMouseClick
 
-    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse) {
+        if (!active) return
         if (button == Mouse.LEFT) dragging = false
         for (element in handleElements) {
-            element.mouseRelease(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
+            element.mouseRelease(mouseX, mouseY, button)
         }
-        return NextAction.Continue
     }
 
-    override var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> NextAction = ::onMouseRelease
+    override var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit = ::onMouseRelease
 
     override var dragging: Boolean = false
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-        if (!active || !dragging) return NextAction.Continue
+    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
+        if (!active || !dragging) return
         for (element in handleElements) {
-            element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
+            element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY)
         }
-        return NextAction.Continue
     }
 
-    override var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> NextAction =
+    override var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> Unit =
         ::onMouseDragging
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): Unit {
+        if (!active) return
         for (element in handleElements) {
-            element.mouseScrolling(mouseX, mouseY, amount).ifCancel { return NextAction.Cancel }
+            element.mouseScrolling(mouseX, mouseY, amount)
         }
-        return NextAction.Continue
     }
 
-    override var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> NextAction = ::onMouseScrolling
+    override var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> Unit = ::onMouseScrolling
 
-    override fun onKeyPress(keyCode: KeyCode): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onKeyPress(keyCode: KeyCode) {
+        if (!active) return
         for (element in handleElements) {
-            element.keyPress(keyCode).ifCancel { return NextAction.Cancel }
+            element.keyPress(keyCode)
         }
-        return NextAction.Continue
     }
 
-    override var keyPress: (keyCode: KeyCode) -> NextAction = ::onKeyPress
+    override var keyPress: (keyCode: KeyCode) -> Unit = ::onKeyPress
 
-    override fun onKeyRelease(keyCode: KeyCode): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onKeyRelease(keyCode: KeyCode) {
+        if (!active) return
         for (element in handleElements) {
-            element.keyRelease(keyCode).ifCancel { return NextAction.Cancel }
+            element.keyRelease(keyCode)
         }
-        return NextAction.Continue
     }
 
-    override var keyRelease: (keyCode: KeyCode) -> NextAction = ::onKeyRelease
+    override var keyRelease: (keyCode: KeyCode) -> Unit = ::onKeyRelease
 
-    override fun onCharTyped(chr: Char): NextAction {
-        if (!active) return NextAction.Continue
+    override fun onCharTyped(chr: Char) {
+        if (!active) return
         for (element in handleElements) {
-            element.charTyped(chr).ifCancel { return NextAction.Cancel }
+            element.charTyped(chr)
         }
-        return NextAction.Continue
     }
 
-    override var charTyped: (chr: Char) -> NextAction = ::onCharTyped
+    override var charTyped: (chr: Char) -> Unit = ::onCharTyped
 }

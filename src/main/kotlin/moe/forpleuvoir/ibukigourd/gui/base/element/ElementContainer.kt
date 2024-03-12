@@ -3,8 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.nebula.common.api.Initializable
 
 interface ElementContainer : Initializable {
@@ -59,27 +58,15 @@ interface ElementContainer : Initializable {
 
     fun clearElements(predicate: (Element) -> Boolean)
 
-    val margin: Margin
+    var margin: Margin
 
-    val padding: Padding
-
-    fun margin(margin: Number)
-
-    fun margin(margin: Margin)
-
-    fun margin(left: Number = this.margin.left, right: Number = this.margin.right, top: Number = this.margin.top, bottom: Number = this.margin.bottom)
-
-    fun padding(padding: Number)
-
-    fun padding(padding: Padding)
-
-    fun padding(left: Number = this.padding.left, right: Number = this.padding.right, top: Number = this.padding.top, bottom: Number = this.padding.bottom)
+    var padding: Padding
 
     /**
      * 内容矩形
      * @param isWorld Boolean
      * @return Rectangle
      */
-    fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>>
+    fun contentBox(isWorld: Boolean): Box
 
 }

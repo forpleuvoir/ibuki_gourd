@@ -20,10 +20,10 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
+import moe.forpleuvoir.ibukigourd.util.NextAction
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -391,7 +391,7 @@ class TextBoxWidget(
             lines.add(Substring.EMPTY)
             return
         }
-        text.wrapToLines(textRenderer, contentRect(true).width.toInt()) { start, end ->
+        text.wrapToLines(textRenderer, contentBox(true).width.toInt()) { start, end ->
             lines.add(Substring(start, end))
         }
         if (text[text.length - 1] == '\n') {
@@ -414,7 +414,7 @@ class TextBoxWidget(
     }
 
     @Suppress("DuplicatedCode")
-    override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+    override fun contentBox(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
 
         val bottom = if (isWorld) transform.worldBottom - padding.bottom
@@ -651,7 +651,7 @@ class TextBoxWidget(
 
     override fun onRender(renderContext: RenderContext) {
         renderBackground.invoke(renderContext)
-        renderContext.scissor(contentRect(true)) {
+        renderContext.scissor(contentBox(true)) {
             renderText(renderContext)
         }
         fixedElements.forEach { it.render(renderContext) }
@@ -664,12 +664,12 @@ class TextBoxWidget(
     }
 
     override fun onRenderOverlay(renderContext: RenderContext) {
-        renderContext.scissor(contentRect(true), ::renderCursor)
+        renderContext.scissor(contentBox(true), ::renderCursor)
     }
 
 
     private fun renderText(renderContext: RenderContext) {
-        val contentRect = contentRect(true)
+        val contentRect = contentBox(true)
         //渲染提示文本
         if (text.isEmpty() && !focused) {
             if (hintText != null) {
@@ -738,7 +738,7 @@ class TextBoxWidget(
 
     private fun renderCursor(renderContext: RenderContext) {
         if (focusedTicks % 15 >= 5 && focused) {
-            val contentRect = contentRect(true)
+            val contentRect = contentBox(true)
             val xOffset = textRenderer.getWidth(text.substring(currentLine.beginIndex, cursor)).let { it + if (it == 0) 0f else -0.95f }
             val y = contentRect.top + currentLineIndex * (fontHeight + spacing) - amount
             if (y !in contentRect.top - fontHeight..contentRect.bottom) return

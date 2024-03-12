@@ -4,6 +4,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.render.Size
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.math.*
@@ -40,23 +41,45 @@ class Transform(
 
     override var width: Float = width
         set(value) {
-            if (value != field) {
-                resizeCallback?.invoke(value, height)
+            notifyIfChanged {
+                field = value
             }
-            field = value
         }
 
     override var height: Float = height
         set(value) {
-            if (value != field) {
-                resizeCallback?.invoke(width, value)
+            notifyIfChanged {
+                field = value
             }
-            field = value
         }
 
-    var resizeCallback: ((width: Float, height: Float) -> Unit)? = null
+    val depth: Int
+        get() = parent()?.let { it.depth + 1 } ?: 0
+
+    private val resizeCallbackSubscribers: MutableList<(origin: Size<Float>, current: Size<Float>) -> Unit> = ArrayList()
+
+    private fun notify(origin: Size<Float>) {
+        for (subscriber in resizeCallbackSubscribers) {
+            subscriber(origin, this)
+        }
+    }
+
+    private inline fun notifyIfChanged(block: () -> Unit) {
+        val origin = Size(width, height)
+        block.invoke()
+        if (origin != this) notify(origin)
+    }
 
     fun subscribePositionChange(action: (origin: Vector2fc, current: Vector2fc) -> Unit) = positionAsNotifiable.subscribe(action)
+
+    fun subscribeSizeChange(action: (origin: Size<Float>, current: Size<Float>) -> Unit) {
+        resizeCallbackSubscribers.add(action)
+    }
+
+    fun subscribeChange(sizeChangedAction: (origin: Size<Float>, current: Size<Float>) -> Unit, positionChangedAction: (origin: Vector2fc, current: Vector2fc) -> Unit) {
+        resizeCallbackSubscribers.add(sizeChangedAction)
+        positionAsNotifiable.subscribe(positionChangedAction)
+    }
 
     override val vertexes: Array<out Vector2fc>
         get() = arrayOf(
@@ -225,7 +248,7 @@ inline fun Element.mouseHover(block: Element.() -> Unit) {
 }
 
 /**
- * 当鼠标位于此元素内容矩形[Element.contentRect]时调用
+ * 当鼠标位于此元素内容矩形[Element.contentBox]时调用
  * @receiver Element
  * @param block Element.() -> Unit
  */
@@ -251,13 +274,13 @@ fun Element.mouseHover(): Boolean = screen().let { transform.isMouseOvered(it.mo
 fun Element.mouseHover(mousePosition: MousePosition): Boolean = transform.isMouseOvered(mousePosition)
 
 fun Element.mouseHoverContent(): Boolean {
-    val contentRect = contentRect(true)
+    val contentRect = contentBox(true)
     screen().let {
         return it.mousePosition.x in contentRect.left..contentRect.right && it.mousePosition.y in contentRect.top..contentRect.bottom
     }
 }
 
 fun Element.mouseHoverContent(mousePosition: MousePosition): Boolean {
-    val contentRect = contentRect(true)
+    val contentRect = contentBox(true)
     return mousePosition.x in contentRect.left..contentRect.right && mousePosition.y in contentRect.top..contentRect.bottom
 }

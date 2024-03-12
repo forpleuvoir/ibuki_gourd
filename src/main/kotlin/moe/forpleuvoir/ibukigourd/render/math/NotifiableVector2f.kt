@@ -23,8 +23,8 @@ class NotifiableVector2f private constructor(private val vector2f: Vector2f) : V
 
     private inline fun notifyIfChanged(block: () -> Unit) {
         val origin = vector2f.copy()
-        if (origin.equals(this)) block.invoke()
-        notify(origin)
+        block.invoke()
+        if (!origin.equals(this)) notify(origin)
     }
 
     private fun notify(origin: Vector2fc) {

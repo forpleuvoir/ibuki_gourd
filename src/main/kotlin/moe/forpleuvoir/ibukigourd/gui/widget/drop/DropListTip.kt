@@ -54,7 +54,7 @@ class DropListTip(
 
 
             val container = elementContainer()
-            val containerContentRect = container.contentRect(false)
+            val containerContentRect = container.contentBox(false)
 
             val size = Orientation.Vertical.contentSize(alignRects)
             val contentRect = when {
@@ -138,8 +138,8 @@ class DropListTip(
                 transform.height - parent().transform.height - spacing,
                 scrollerThickness,
                 { (layout.alignRects(subElements, Orientation.Vertical).minOf { it.height } / 2f) },
-                { (contentSize.height - contentRect(false).height).coerceAtLeast(0f) },
-                { (contentRect(false).height / contentSize.height).clamp(0f..1f) },
+                { (contentSize.height - contentBox(false).height).coerceAtLeast(0f) },
+                { (contentBox(false).height / contentSize.height).clamp(0f..1f) },
                 Orientation.Vertical
             ) {
                 fixed = true
@@ -181,7 +181,7 @@ class DropListTip(
     }
 
 
-    override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+    override fun contentBox(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = if (isWorld) transform.worldTop + padding.top else padding.top
 
         val bottom =
@@ -235,12 +235,12 @@ class DropListTip(
         if (!visible) return
         renderContext.postRender {
             renderBackground.invoke(renderContext)
-            renderContext.scissor(super.contentRect(true)) {
+            renderContext.scissor(super.contentBox(true)) {
                 renderElements.filter { it != scrollerBar || !it.fixed }.forEach { it.render(renderContext) }
             }
             fixedElements.forEach { it.render(renderContext) }
             scrollerBar.render(renderContext)
-            renderContext.scissor(super.contentRect(true)) {
+            renderContext.scissor(super.contentBox(true)) {
                 renderOverlay.invoke(renderContext)
             }
         }

@@ -28,10 +28,10 @@ import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.*
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
-import moe.forpleuvoir.ibukigourd.util.delegate
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.style.withColor
+import moe.forpleuvoir.ibukigourd.util.delegate
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -80,13 +80,13 @@ val testScreen3: Screen
                         heightDimensionMode = MatchParent
                         widthDimensionMode = MatchParent
                         renderBackground = {
-                            renderRect(it.matrixStack, contentRect(true), Colors.BLACK.opacity(0.5f))
+                            renderRect(it.matrixStack, contentBox(true), Colors.BLACK.opacity(0.5f))
                         }
                         button { textField("内容$index") }
                         if (index == 3)
                             row {
                                 renderBackground = {
-                                    renderRect(it.matrixStack, contentRect(true), Colors.RED.opacity(0.2f))
+                                    renderRect(it.matrixStack, contentBox(true), Colors.RED.opacity(0.2f))
                                 }
                                 heightDimensionMode = MatchParent
                                 widthDimensionMode = FillRemainingSpace
@@ -293,7 +293,7 @@ val testScreen1: Screen
         }
 
         renderOverlay = {
-            val rect = contentRect(false)
+            val rect = contentBox(false)
 
             textRenderer.batchRender {
                 renderAlignmentText(

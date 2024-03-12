@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.Trans
+import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 
@@ -26,10 +26,10 @@ enum class KeyTriggerMode(val key: String) {
     BOTH("both");
 
     val displayName: Text
-        get() = Trans("ibuki_gourd.key_bind.trigger_mode.${key}")
+        get() = Translatable("ibuki_gourd.key_bind.trigger_mode.${key}")
 
     val description: Text
-        get() = Trans("ibuki_gourd.key_bind.trigger_mode.${key}.description")
+        get() = Translatable("ibuki_gourd.key_bind.trigger_mode.${key}.description")
 
 
     companion object : Deserializer<KeyTriggerMode> {

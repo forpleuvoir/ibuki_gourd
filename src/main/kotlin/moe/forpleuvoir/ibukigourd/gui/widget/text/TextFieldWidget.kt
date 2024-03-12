@@ -20,8 +20,8 @@ import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.Color
@@ -159,7 +159,7 @@ open class TextFieldWidget(
     }
 
     protected fun renderText(renderContext: RenderContext) {
-        val contentRect = contentRect(true)
+        val contentRect = contentBox(true)
         val renderText = renderText
 
         val list = buildList {

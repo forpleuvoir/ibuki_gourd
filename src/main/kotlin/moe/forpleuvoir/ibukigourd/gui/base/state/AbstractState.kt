@@ -1,9 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.state
 
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.util.NextAction
 
 abstract class AbstractState(override val name: String = "nameless") : State {
 
@@ -19,19 +18,19 @@ abstract class AbstractState(override val name: String = "nameless") : State {
 
     override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction = NextAction.Continue
+    override fun onMouseMove(mouseX: Float, mouseY: Float) = Unit
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Continue
+    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse) = Unit
 
-    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction = NextAction.Continue
+    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse) = Unit
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction = NextAction.Continue
+    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) = Unit
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction = NextAction.Continue
+    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float) = Unit
 
-    override fun onKeyPress(keyCode: KeyCode): NextAction = NextAction.Continue
+    override fun onKeyPress(keyCode: KeyCode) = Unit
 
-    override fun onKeyRelease(keyCode: KeyCode): NextAction = NextAction.Continue
+    override fun onKeyRelease(keyCode: KeyCode) = Unit
 
-    override fun onCharTyped(chr: Char): NextAction = NextAction.Continue
+    override fun onCharTyped(chr: Char) = Unit
 }

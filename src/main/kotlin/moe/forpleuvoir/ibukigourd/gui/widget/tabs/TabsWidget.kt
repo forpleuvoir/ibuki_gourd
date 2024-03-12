@@ -140,7 +140,7 @@ class TabsWidget(
         println("我执行了")
         layout.layout(tabElements, margin, padding)?.let { size ->
             tabSize = size
-            contentRect(false).let {
+            contentBox(false).let {
                 content.transform.translateTo(it.position)
                 content.transform.width = it.width
                 content.transform.height = it.height
@@ -153,7 +153,7 @@ class TabsWidget(
         content.switchContent(tab.content)
     }
 
-    override fun contentRect(isWorld: Boolean): Rectangle<Vector3<Float>> {
+    override fun contentBox(isWorld: Boolean): Rectangle<Vector3<Float>> {
         val top = (if (isWorld) transform.worldTop + padding.top else padding.top) + if (direction == Direction.Top) tabSize.height - 3 else 0f
         val bottom = (if (isWorld) transform.worldBottom - padding.bottom else transform.height - padding.bottom) - if (direction == Direction.Bottom) tabSize.height - 3 else 0f
         val left = (if (isWorld) transform.worldLeft + padding.left else padding.left) + if (direction == Direction.Left) tabSize.width - 3 else 0f
@@ -175,7 +175,7 @@ class TabsWidget(
 
 
     override fun onRenderBackground(renderContext: RenderContext) {
-        renderTexture(renderContext.matrixStack, contentRect(true), backgroundTexture, backgroundColor())
+        renderTexture(renderContext.matrixStack, contentBox(true), backgroundTexture, backgroundColor())
     }
 }
 

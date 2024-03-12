@@ -23,9 +23,9 @@ import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.useColorLogicOp
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.ifc
 import moe.forpleuvoir.nebula.common.pick
@@ -99,7 +99,7 @@ open class TextInputWidget(
             if (firstCharacterIndex > textLength) {
                 firstCharacterIndex = textLength
             }
-            val width: Int = this.contentRect(true).width.toInt()
+            val width: Int = this.contentBox(true).width.toInt()
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), width)
             val k = string.length + firstCharacterIndex
             if (field == firstCharacterIndex) {
@@ -430,7 +430,7 @@ open class TextInputWidget(
 
     override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
         if (mouseHoverContent() && button == Mouse.LEFT) {
-            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
+            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(true).width.toInt())
             cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex
         }
         return super.onMouseClick(mouseX, mouseY, button)
@@ -449,7 +449,7 @@ open class TextInputWidget(
         if (!active || !dragging) return NextAction.Continue
         super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
         selecting = true
-        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect(true).width.toInt())
+        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(true).width.toInt())
         cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
         return NextAction.Cancel
@@ -461,7 +461,7 @@ open class TextInputWidget(
 
     fun renderCursor(renderContext: RenderContext) {
         if (focusedTicks % 15 >= 5 && focused) {
-            val rect = contentRect(true)
+            val rect = contentBox(true)
             val height = textRenderer.fontHeight.toFloat()
             val y = rect.top + (rect.height - height) / 2f - 0.75f
             val offset = textRenderer.getWidth(
@@ -483,7 +483,7 @@ open class TextInputWidget(
     }
 
     fun renderText(renderContext: RenderContext) {
-        val contentRect = contentRect(true)
+        val contentRect = contentBox(true)
         renderContext.matrixStack {
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
@@ -534,7 +534,7 @@ open class TextInputWidget(
     override fun onRender(renderContext: RenderContext) {
         if (!isActive && !visible) return
         renderBackground(renderContext)
-        renderContext.scissor(contentRect(true)) {
+        renderContext.scissor(contentBox(true)) {
             renderText(renderContext)
             renderCursor(renderContext)
         }

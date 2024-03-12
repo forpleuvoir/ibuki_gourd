@@ -33,8 +33,8 @@ open class TextScope {
         textChain.add(Literal(content.toString()))
     }
 
-    fun translate(content: TranslateScope.() -> Unit) {
-        textChain.add(TranslateScope().apply(content).text)
+    fun translatable(content: TranslatableScope.() -> Unit) {
+        textChain.add(TranslatableScope().apply(content).text)
     }
 
 }
@@ -67,12 +67,12 @@ class LiteralScope {
 
 }
 
-class TranslateScope {
+class TranslatableScope {
 
     val text: MutableText
         get() {
             check(key != null) { "Key is not initialized" }
-            return Trans(key!!, fallback, *params ?: emptyArray()).setStyle(style)
+            return Translatable(key!!, fallback, *params ?: emptyArray()).setStyle(style)
         }
 
     private var key: String? = null
