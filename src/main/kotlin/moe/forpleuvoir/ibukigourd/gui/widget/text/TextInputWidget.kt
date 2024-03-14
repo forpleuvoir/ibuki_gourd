@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_INPUT
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_SELECTED_INPUT
@@ -420,7 +421,7 @@ open class TextInputWidget(
         return NextAction.Continue
     }
 
-    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
+    override fun onMouseMoveEnter(event: MouseEnterEvent) {
         MouseCursor.current = MouseCursor.Cursor.IBEAM_CURSOR
     }
 

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.state
 
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
@@ -14,7 +15,7 @@ abstract class AbstractState(override val name: String = "nameless") : State {
 
     override fun tick() = Unit
 
-    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
+    override fun onMouseMoveEnter(event: MouseEnterEvent) = Unit
 
     override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
 

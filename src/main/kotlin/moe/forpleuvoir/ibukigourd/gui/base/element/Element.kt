@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.render.Drawable
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
@@ -66,7 +67,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override var keyPress: (keyCode: KeyCode) -> Unit = {}
         override var keyRelease: (keyCode: KeyCode) -> Unit = {}
         override var charTyped: (chr: Char) -> Unit = {}
-        override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
+        override fun onMouseMoveEnter(event: MouseEnterEvent) = Unit
         override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
         override fun tick() = Unit
     }

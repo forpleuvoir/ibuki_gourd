@@ -11,15 +11,8 @@ import kotlin.contracts.contract
  */
 class ProxyElement(
     width: Float? = null,
-    height: Float? = null,
-    padding: Padding? = null,
-    margin: Margin? = null
+    height: Float? = null
 ) : AbstractElement() {
-
-    init {
-        padding?.let(::padding)
-        margin?.let(::margin)
-    }
 
     private var content: Element? = null
         set(value) {

@@ -11,15 +11,21 @@ val MinecraftClient.mouseX: Float get() = mouse.x.toFloat() * window.scaledWidth
 val MinecraftClient.mouseY: Float get() = mouse.y.toFloat() * window.scaledHeight / window.height
 
 val MinecraftClient.mousePosition: MousePosition
-    get() = object : MousePosition {
-        override val x: Float
-            get() = this@mousePosition.mouseX
-        override val y: Float
-            get() = this@mousePosition.mouseY
-
-    }
+    get() = MousePosition(mouseX, mouseY)
 
 interface MousePosition {
+
+    companion object {
+
+        operator fun invoke(x: Float, y: Float) =
+            object : MousePosition {
+                override val x: Float
+                    get() = x
+                override val y: Float
+                    get() = y
+            }
+    }
+
     val x: Float
     val y: Float
 }

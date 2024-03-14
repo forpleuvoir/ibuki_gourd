@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
@@ -43,7 +44,7 @@ abstract class ClickableElement : AbstractElement() {
         super.tick()
     }
 
-    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
+    override fun onMouseMoveEnter(event: MouseEnterEvent) {
         MouseCursor.current = MouseCursor.Cursor.POINTING_HAND_CURSOR
     }
 

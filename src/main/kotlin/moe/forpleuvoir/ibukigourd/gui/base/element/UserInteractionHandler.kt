@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
 
@@ -8,10 +9,8 @@ interface UserInteractionHandler : Tickable {
 
     /**
      * 当鼠标移动到元素内时
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    fun onMouseMoveIn(mouseX: Float, mouseY: Float)
+    fun onMouseMoveEnter(event: MouseEnterEvent)
 
     /**
      * 当鼠标移动到元素外时

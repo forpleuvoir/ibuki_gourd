@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
@@ -95,9 +96,9 @@ abstract class AbstractElement(
 
     override var renderOverlay: (renderContext: RenderContext) -> Unit = ::onRenderOverlay
 
-    override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveIn
+    override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveEnter
 
-    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) = Unit
+    override fun onMouseMoveEnter(event: MouseEnterEvent) = Unit
 
     override var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveOut
 

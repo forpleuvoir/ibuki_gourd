@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.state
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.UserInteractionHandler
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Mouse
 
@@ -13,7 +14,7 @@ open class StateMachineManager(initialState: State) : UserInteractionHandler {
             field.onEnter()
         }
 
-    override fun onMouseMoveIn(mouseX: Float, mouseY: Float) {
+    override fun onMouseMoveEnter(event: MouseEnterEvent) {
         currentState.onMouseMove(mouseX, mouseY)
     }
 
