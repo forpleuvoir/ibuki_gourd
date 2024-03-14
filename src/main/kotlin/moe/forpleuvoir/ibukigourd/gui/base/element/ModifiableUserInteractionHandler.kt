@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 
 /**
  *
@@ -26,75 +25,54 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
  */
 interface ModifiableUserInteractionHandler :UserInteractionHandler {
 
-    var tick: () -> Unit
-
     /**
      * 当鼠标移动到元素内时
      */
-    var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit
+    var mouseEnter: (event: MouseEnterEvent) -> Unit
 
     /**
      * 当鼠标移动到元素外时
      */
-    var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit
+    var mouseLeave: (event: MouseLeaveEvent) -> Unit
 
     /**
      * 鼠标移动
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    var mouseMove: (mouseX: Float, mouseY: Float) -> Unit
+    var mouseMove: (event: MouseMoveEvent) -> Unit
 
     /**
      * 鼠标点击
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit
+    var mouseClick: (event: MousePressEvent) -> Unit
 
     /**
      * 鼠标释放
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit
+    var mouseRelease: (event: MouseReleaseEvent) -> Unit
 
     /**
      * 鼠标拖动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param button Mouse
-     * @param deltaX Float
-     * @param deltaY Float
      */
-    var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> Unit
+    var mouseDragging: (event: MouseDragEvent) -> Unit
 
     /**
      * 鼠标滚动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param amount Float
      */
-    var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> Unit
+    var mouseScrolling: (event: MouseScrollEvent) -> Unit
 
     /**
      * 按键按下
-     * @param keyCode KeyCode
      */
-    var keyPress: (keyCode: KeyCode) -> Unit
+    var keyPress: (event: KeyPressEvent) -> Unit
 
     /**
      * 按键释放
-     * @param keyCode KeyCode
      */
-    var keyRelease: (keyCode: KeyCode) -> Unit
+    var keyRelease: (event: KeyReleaseEvent) -> Unit
 
     /**
      * 字符输入
-     * @param chr Char
      */
-    var charTyped: (chr: Char) -> Unit
+    var charTyped: (event: CharTypedEvent) -> Unit
 
 }

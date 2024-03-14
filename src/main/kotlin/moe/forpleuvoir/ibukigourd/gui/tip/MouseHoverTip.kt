@@ -4,13 +4,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.base.event.KeyPressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.KeyReleaseEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_BOTTOM
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_LEFT
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_RIGHT
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_TOP
-import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.ARROW_OFFSET
@@ -193,18 +194,18 @@ open class MouseHoverTip(
 
     }
 
-    override fun onKeyPress(keyCode: KeyCode): NextAction {
+    override fun onKeyPress(event: KeyPressEvent): NextAction {
         if (keyCode == Keyboard.LEFT_CONTROL) {
             keepDisplay = true
         }
-        return super.onKeyPress(keyCode)
+        return super.onKeyPress()
     }
 
-    override fun onKeyRelease(keyCode: KeyCode): NextAction {
+    override fun onKeyRelease(event: KeyReleaseEvent): NextAction {
         if (keyCode == Keyboard.LEFT_CONTROL) {
             keepDisplay = false
         }
-        return super.onKeyRelease(keyCode)
+        return super.onKeyRelease()
     }
 
 }

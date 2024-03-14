@@ -9,7 +9,19 @@ open class GUIEvent {
         used = true
     }
 
-    inline fun onUsed(block: () -> Unit) {
+    /**
+     * 如果事件被使用，则执行block
+     * @param block () -> Unit
+     */
+    inline fun used(block: () -> Unit) {
+        if (used) block()
+    }
+
+    /**
+     * 如果事件未被使用，则执行block
+     * @param block () -> Unit
+     */
+    inline fun unUsed(block: () -> Unit) {
         if (used) block()
     }
 

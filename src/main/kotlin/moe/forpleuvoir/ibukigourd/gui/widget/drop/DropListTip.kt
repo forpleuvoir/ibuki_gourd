@@ -4,6 +4,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseMoveEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
@@ -13,7 +16,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
-import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
@@ -199,29 +201,29 @@ class DropListTip(
         )
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+    override fun onMouseMove(event: MouseMoveEvent): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
         if (!mouseHover()) return NextAction.Continue
-        super.onMouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
+        super.onMouseMove().ifCancel { return NextAction.Cancel }
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+    override fun onMouseClick(event: MousePressEvent): NextAction {
         if (!mouseHover() && dropMenu.expend) {
             dropMenu.expend = false
         }
         if (!mouseHover()) return NextAction.Continue
-        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
+        super.onMouseClick().ifCancel { return NextAction.Cancel }
         if (mouseHover()) {
             return NextAction.Cancel
         }
         return NextAction.Continue
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
-        super.onMouseScrolling(mouseX, mouseY, amount).ifCancel { return NextAction.Cancel }
+        super.onMouseScrolling().ifCancel { return NextAction.Cancel }
         mouseHover {
             if (!scrollerBar.mouseHover()) {
                 scrollerBar.amount -= scrollerBar.amountStep() * amount

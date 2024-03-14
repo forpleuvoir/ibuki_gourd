@@ -1,6 +1,9 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent;
+import moe.forpleuvoir.ibukigourd.gui.base.event.CharTypedEvent;
+import moe.forpleuvoir.ibukigourd.gui.base.event.KeyPressEvent;
+import moe.forpleuvoir.ibukigourd.gui.base.event.KeyReleaseEvent;
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.input.KeyCode;
@@ -39,7 +42,7 @@ abstract class KeyboardMixin {
                 if (InputHandler.onKeyPress(keyCode)) ci.cancel();
                 ScreenManager.hasScreen(screen -> {
                     if (screen.getActive()) {
-                        screen.getKeyPress().invoke(keyCode);
+                        screen.getKeyPress().invoke(new KeyPressEvent(keyCode));
                         ci.cancel();
                     }
                 });
@@ -55,7 +58,7 @@ abstract class KeyboardMixin {
                 if (InputHandler.onKeyRelease(keyCode)) ci.cancel();
                 ScreenManager.hasScreen(screen -> {
                     if (screen.getActive()) {
-                        screen.getKeyRelease().invoke(keyCode);
+                        screen.getKeyRelease().invoke(new KeyReleaseEvent(keyCode));
                         ci.cancel();
                     }
                 });
@@ -69,7 +72,7 @@ abstract class KeyboardMixin {
             if (Character.charCount(i) == 1) {
                 ScreenManager.hasScreen(screen -> {
                     if (screen.getActive()) {
-                        screen.getCharTyped().invoke((char) i);
+                        screen.getCharTyped().invoke(new CharTypedEvent((char) i));
                         ci.cancel();
                     }
                 });
@@ -77,7 +80,7 @@ abstract class KeyboardMixin {
                 for (char c : Character.toChars(i)) {
                     ScreenManager.hasScreen(screen -> {
                         if (screen.getActive()) {
-                            screen.getCharTyped().invoke(c);
+                            screen.getCharTyped().invoke(new CharTypedEvent(c));
                             ci.cancel();
                         }
                     });

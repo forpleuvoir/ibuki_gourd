@@ -3,13 +3,13 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
+import moe.forpleuvoir.ibukigourd.gui.base.event.KeyPressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseMoveEvent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.*
-import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.ibukigourd.util.mc
 
 abstract class AbstractScreen(
     width: ElementDimension = MatchParent,
@@ -95,20 +95,13 @@ abstract class AbstractScreen(
     }
 
     override fun tick() {
-        preMouseX = this.mouseX
-        preMouseY = this.mouseY
-        this.mouseX = mc.mouseX
-        this.mouseY = mc.mouseY
         super.tick()
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
-        if (!active) return NextAction.Cancel
-        preMouseX = this.mouseX
-        preMouseY = this.mouseY
-        this.mouseX = mouseX
-        this.mouseY = mouseY
-        return super<LinearLayout>.onMouseMove(mouseX, mouseY)
+    override fun onMouseMove(event: MouseMoveEvent) {
+        event.used { return }
+        if (!active) return
+
     }
 
 
@@ -134,12 +127,12 @@ abstract class AbstractScreen(
 
     override var resize: (width: Int, height: Int) -> Unit = ::onResize
 
-    override fun onKeyPress(keyCode: KeyCode): NextAction {
-        if (keyCode == Keyboard.ESCAPE && shouldCloseOnEsc) {
+    override fun onKeyPress(event: KeyPressEvent) {
+        event.used { return }
+        if (event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc) {
             close()
-            return NextAction.Cancel
+            event.use()
         }
-        return super<LinearLayout>.onKeyPress(keyCode)
     }
 
 }
