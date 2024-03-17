@@ -23,6 +23,8 @@ interface Screen : Element, TipHandler {
         }
     }
 
+    val eventBus: ScreenEventBus
+
     /**
      * 上一级屏幕
      */

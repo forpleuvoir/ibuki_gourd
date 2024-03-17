@@ -7,6 +7,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.event.KeyPressEvent
 import moe.forpleuvoir.ibukigourd.gui.base.event.KeyReleaseEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_BOTTOM
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TIP_ARROW_LEFT
@@ -18,13 +20,11 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.ARROW_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.DELAY
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.MARGIN
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TIP.PADDING
-import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rectangle
-import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -158,34 +158,30 @@ open class MouseHoverTip(
     override fun onRenderBackground(renderContext: RenderContext) {
         val (texture, rect) = when (direction) {
             Left   ->
-                TIP_ARROW_LEFT to Rect(
+                TIP_ARROW_LEFT to Box(
                     transform.worldRight - ARROW_OFFSET.left,
-                    parent().transform.worldCenter.y - MARGIN.left / 2,
-                    transform.worldZ,
+                    parent().transform.worldCenter.y() - MARGIN.left / 2,
                     MARGIN.left, MARGIN.left
                 )
 
             Right  ->
-                TIP_ARROW_RIGHT to Rect(
+                TIP_ARROW_RIGHT to Box(
                     transform.worldLeft - MARGIN.right + ARROW_OFFSET.right,
-                    parent().transform.worldCenter.y - MARGIN.left / 2,
-                    transform.worldZ,
+                    parent().transform.worldCenter.y() - MARGIN.left / 2,
                     MARGIN.right, MARGIN.right
                 )
 
             Top    ->
-                TIP_ARROW_TOP to Rect(
-                    parent().transform.worldCenter.x - MARGIN.top / 2,
+                TIP_ARROW_TOP to Box(
+                    parent().transform.worldCenter.x() - MARGIN.top / 2,
                     transform.worldBottom - ARROW_OFFSET.top,
-                    transform.worldZ,
                     MARGIN.top, MARGIN.top
                 )
 
             Bottom ->
-                TIP_ARROW_BOTTOM to Rect(
-                    parent().transform.worldCenter.x - MARGIN.bottom / 2,
+                TIP_ARROW_BOTTOM to Box(
+                    parent().transform.worldCenter.x() - MARGIN.bottom / 2,
                     transform.worldTop - MARGIN.bottom + ARROW_OFFSET.bottom,
-                    transform.worldZ,
                     MARGIN.bottom, MARGIN.bottom
                 )
         }
@@ -194,18 +190,18 @@ open class MouseHoverTip(
 
     }
 
-    override fun onKeyPress(event: KeyPressEvent): NextAction {
-        if (keyCode == Keyboard.LEFT_CONTROL) {
+    override fun onKeyPress(event: KeyPressEvent) {
+        if (event.keyCode == Keyboard.LEFT_CONTROL) {
             keepDisplay = true
+            event.use()
         }
-        return super.onKeyPress()
     }
 
-    override fun onKeyRelease(event: KeyReleaseEvent): NextAction {
-        if (keyCode == Keyboard.LEFT_CONTROL) {
+    override fun onKeyRelease(event: KeyReleaseEvent) {
+        if (event.keyCode == Keyboard.LEFT_CONTROL) {
             keepDisplay = false
+            event.use()
         }
-        return super.onKeyRelease()
     }
 
 }
