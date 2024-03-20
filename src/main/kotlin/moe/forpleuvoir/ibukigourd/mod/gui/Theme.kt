@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.mod.gui
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
-import moe.forpleuvoir.ibukigourd.config.ModConfigCategory
+import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigMargin
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
@@ -25,7 +25,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
         }
     }
 
-    object BUTTON : ModConfigCategory("button") {
+    object BUTTON : ModConfigContainer("button") {
 
         val COLOR by ConfigColor("color", Colors.WHITE)
 
@@ -40,7 +40,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
 
     }
 
-    object TEXT_INPUT : ModConfigCategory("text_input") {
+    object TEXT_INPUT : ModConfigContainer("text_input") {
 
         val PADDING by ConfigMargin("padding", Margin(6))
 
@@ -56,7 +56,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
 
     }
 
-    object TEXT : ModConfigCategory("text") {
+    object TEXT : ModConfigContainer("text") {
 
         val COLOR by ConfigColor("color", Colors.BLACK)
 
@@ -70,7 +70,7 @@ object Theme : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}
 
     }
 
-    object TIP : ModConfigCategory("tip") {
+    object TIP : ModConfigContainer("tip") {
 
         val BACKGROUND_COLOR by ConfigColor("background_color", Colors.WHITE)
 

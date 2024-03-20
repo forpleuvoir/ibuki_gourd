@@ -1,31 +1,31 @@
 # IBUKI GOURD
 
-[English](https://github.com/forpleuvoir/ibuki_gourd/blob/dev/README-eng.md)
+[简体中文](https://github.com/forpleuvoir/ibuki_gourd/blob/dev/README.md)
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-`IbukiGourd` 是一个主要由`kotlin`编写的`Minecraft Fabric MOD`,主要为其他MOD提供前置功能
+`IbukiGourd` is a `Minecraft Fabric MOD` primarily written in `kotlin`, mainly providing prerequisite features for other MODs.
 
-如:`配置管理` `配置GUI` `指令DSL` `GUI DSL`
+`Config Manage` `Config GUI` `Command DSL` `GUI DSL`
 
-依赖于:
+Dependent:
 
 - [Fabric API](https://github.com/FabricMC/fabric)
 - [Fabric Language Kotlin](https://github.com/FabricMC/fabric)
 
-## 如何使用
+## Usage
 
-### 依赖
-添加仓库到你的Gradle项目
+### Dependency
+Add repositories to your Gradle project
 
 Gradle Groovy:
 ```
-//快照仓库
+//Snapshot repository
 maven {
     name "forpleuvoirSnapshots"
     url "https://maven.forpleuvoir.moe/snapshots"
 }
-//发布仓库
+//Releases repository
 maven {
     name "forpleuvoirReleases"
     url "https://maven.forpleuvoir.moe/releases"
@@ -33,63 +33,64 @@ maven {
 ```
 Gradle Kotlin:
 ```
-//快照仓库
+//Snapshot repository
 maven {
     name = "forpleuvoirSnapshots"
     url = uri("https://maven.forpleuvoir.moe/snapshots")
 }
-//发布仓库
+//Releases repository
 maven {
     name = "forpleuvoirReleases"
     url = uri("https://maven.forpleuvoir.moe/releases")
 }
 ```
-添加依赖
+Add it as a dependency to your Gradle project:
 ```
 dependencies {
     implementation("moe.forpleuvoir:ibukigourd:$version")
 }
 ```
 
-### 配置
+### Config
 
-客户端配置,需要继承`ClientModConfigManager`
+Client-side Config,need to extends `ClientModConfigManager`
 
-例:
+example:
 ```
 object YourModConfigs : ClientModConfigManager(yourModMeta,"key"){
 
-    //使用属性委托
+    //Use property delegations
     var stringConfig by ConfigString("config_key_1","defaultValue")
 
-    //不使用委托
+    //Delegates are not used
     val mapConfing = ConfigStringMap("config_key_2",mapOf("k1" to "v1","k2" to "v2"))
 
-    //添加子容器
+    //Add a child container
     object Other : ModConfigContainer("other"){
         ......
     }
 
 }
 ```
-手动管理配置管理器
+Manually manage the Config Manager
 ```
-//初始化
+//initialize
 YourModConfigs.init()
-//从文件中加载配置
+//Load the config from the file
 YourModConfigs.load()
-//保存配置到文件中
+//Save the config to a file
 YourModConfigs.save()
-//强制保存
+//Forced save
 YourModConfigs.forceSave()
 ```
-服务端配置,需要继承`ServerModConfigManager`
+Server-side config,need to extends`ServerModConfigManager`
 ```
-//初始化时需要传入MinecraftServer实例,其余同客户端配置
+//For initialization, you need to pass in the Minecraft Server instance, and the rest is configured with the same client
 ServerModConfigManager.init(MinecraftServer)
 ```
-自动管理配置
-- 在`fabric.mod.json`中添加
+Automatically manage config
+
+ - Add in`fabric.mod.json`
 ```
 "custom": {
   "ibukigourd": {
@@ -99,13 +100,13 @@ ServerModConfigManager.init(MinecraftServer)
   }
 }
 ```
-- 在配置管理器上添加注解`@ModConfig("config_Key")`
+ - Add annotations on the Config Manager`@ModConfig("config_Key")`
 ```
 @ModConfig("config_Key")
 object YourModConfigs : ClientModConfigManager(yourModMeta,"key")
 ```
-### 指令DSL(计划中,未开发)
-计划效果
+### Command DSL(planned, undeveloped)
+expect:
 ```
 literal("yourCommand"){
     literal("subCommand"){
@@ -125,8 +126,8 @@ literal("yourCommand"){
 
 ```
 
-### GUI DSL(开发中)
-预期效果
+### GUI DSL(Under development)
+expect:
 ```
 screen{
     row{
@@ -143,9 +144,8 @@ screen{
 ```
 
 
-## 鸣谢
+## Acknowledgement
 
-> [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的 IDE，适用于 JVM 平台语言。
-
-特别感谢 [JetBrains](https://www.jetbrains.com) 为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai) 等 IDE 的授权  
+>Thanks to [JetBrains](https://www.jetbrains.com) for allocating free open-source licences for IDEs such as [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai).
+ 
 [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com)

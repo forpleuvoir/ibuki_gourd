@@ -6,7 +6,7 @@ import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 
-open class ModConfigCategory(key: String) : ConfigContainerImpl(key) {
+open class ModConfigContainer(key: String) : ConfigContainerImpl(key) {
 
 	private val log = logger()
 
