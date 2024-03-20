@@ -85,6 +85,7 @@ abstract class AbstractElementContainer : Element {
         subElements.add(element)
         element.transform.parent = { this.transform }
         element.parent = { this }
+        screen().eventBus.subscribe(element)
         return element
     }
 

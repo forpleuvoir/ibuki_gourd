@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_INPUT
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_SELECTED_INPUT
@@ -280,7 +280,7 @@ open class TextInputWidget(
         cursor = text.length
     }
 
-    override fun onKeyPress(keyCode: KeyCode): NextAction {
+    override fun onKeyPress(event: KeyPressEvent): NextAction {
         if (!this.isActive) return NextAction.Continue
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
         //全选文本
@@ -385,9 +385,9 @@ open class TextInputWidget(
         return NextAction.Continue
     }
 
-    override fun onKeyRelease(keyCode: KeyCode): NextAction {
+    override fun onKeyRelease(event: KeyReleaseEvent): NextAction {
         selecting = if (keyCode == Keyboard.LEFT_SHIFT) false else selecting
-        return super.onKeyRelease(keyCode)
+        return super.onKeyRelease()
     }
 
 
@@ -396,7 +396,7 @@ open class TextInputWidget(
             return visible && focused
         }
 
-    override fun onCharTyped(chr: Char): NextAction {
+    override fun onCharTyped(event: CharTypedEvent): NextAction {
         if (!isActive) return NextAction.Continue
         if (SharedConstants.isValidChar(chr)) {
             write(chr.toString())
@@ -405,7 +405,7 @@ open class TextInputWidget(
         return NextAction.Continue
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+    override fun onMouseMove(event: MouseMoveEvent): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
             element.mouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
@@ -415,30 +415,30 @@ open class TextInputWidget(
             if (!mouseHoverContent(it.preMousePosition) && mouseHoverContent(it.mousePosition)) {
                 mouseMoveIn(mouseX, mouseY)
             } else if (mouseHoverContent(it.preMousePosition) && !mouseHoverContent(it.mousePosition)) {
-                mouseMoveOut(mouseX, mouseY)
+                mouseLeave(mouseX, mouseY)
             }
         }
         return NextAction.Continue
     }
 
-    override fun onMouseMoveEnter(event: MouseEnterEvent) {
+    override fun onMouseEnter(event: MouseEnterEvent) {
         MouseCursor.current = MouseCursor.Cursor.IBEAM_CURSOR
     }
 
-    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) {
+    override fun onMouseLeave(event: MouseLeaveEvent) {
         MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+    override fun onMouseClick(event: MousePressEvent): NextAction {
         if (mouseHoverContent() && button == Mouse.LEFT) {
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(true).width.toInt())
             cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex
         }
-        return super.onMouseClick(mouseX, mouseY, button)
+        return super.onMouseClick()
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
-        if (!isActive) return super.onMouseScrolling(mouseX, mouseY, amount)
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
+        if (!isActive) return super.onMouseScrolling()
         mouseHoverContent() {
             moveCursor((amount < 0f).pick(1, -1))
             return NextAction.Cancel
@@ -446,9 +446,9 @@ open class TextInputWidget(
         return NextAction.Continue
     }
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+    override fun onMouseDragging(event: MouseDragEvent): NextAction {
         if (!active || !dragging) return NextAction.Continue
-        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
+        super.onMouseDragging().ifCancel { return NextAction.Cancel }
         selecting = true
         val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(true).width.toInt())
         cursor = textRenderer.trimToWidth(string, (mouseX - this.transform.worldX - padding.left + 3f).toInt()).length + firstCharacterIndex

@@ -1,12 +1,9 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
-import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Mouse
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement(
@@ -61,18 +58,6 @@ abstract class AbstractElement(
 
     override fun tick() {
         if (!active) return
-        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
-        screen().let {
-            if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
-                it.mousePosition.let { position ->
-                    mouseMoveIn(position.x, position.y)
-                }
-            } else if (mouseHover(it.preMousePosition) && !mouseHover(it.mousePosition)) {
-                it.mousePosition.let { position ->
-                    mouseMoveOut(position.x, position.y)
-                }
-            }
-        }
         for (element in handleElements) element.tick.invoke()
         tip?.tick?.invoke()
     }
@@ -82,7 +67,6 @@ abstract class AbstractElement(
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
         renderBackground.invoke(renderContext)
-        for (element in renderElements) element.render(renderContext)
         renderOverlay.invoke(renderContext)
     }
 
@@ -96,111 +80,25 @@ abstract class AbstractElement(
 
     override var renderOverlay: (renderContext: RenderContext) -> Unit = ::onRenderOverlay
 
-    override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveEnter
+    override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 
-    override fun onMouseMoveEnter(event: MouseEnterEvent) = Unit
+    override var mouseLeave: (event: MouseLeaveEvent) -> Unit = ::onMouseLeave
 
-    override var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMoveOut
+    override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
 
-    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
+    override var mouseClick: (event: MousePressEvent) -> Unit = ::onMouseClick
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float) {
-        if (!active)
-        for (element in handleElements) {
-            element.mouseMove(mouseX, mouseY)
-        }
-        if (!visible) return
-        //上一帧不在元素内,这一帧在 触发 mouseMoveIn
-        screen().let {
-            if (!mouseHover(it.preMousePosition) && mouseHover(it.mousePosition)) {
-                mouseMoveIn(mouseX, mouseY)
-            } else if (mouseHover(it.preMousePosition) && !mouseHover(it.mousePosition)) {
-                mouseMoveOut(mouseX, mouseY)
-            }
-        }
-    }
-
-    override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = ::onMouseMove
-
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse) {
-        if (!active) return
-        if (button == Mouse.LEFT && mouseHover()) {
-            dragging = true
-            if (focusable) {
-                screen().focusedElement = this
-                onFocusedChanged?.invoke(true)
-            }
-        }
-        if (!mouseHover()) {
-            screen().let {
-                if (it.focusedElement == this) {
-                    it.focusedElement = null
-                    onFocusedChanged?.invoke(false)
-                }
-            }
-        }
-        for (element in handleElements) {
-            element.mouseClick(mouseX, mouseY, button)
-        }
-    }
-
-    override var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit = ::onMouseClick
-
-    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse) {
-        if (!active) return
-        if (button == Mouse.LEFT) dragging = false
-        for (element in handleElements) {
-            element.mouseRelease(mouseX, mouseY, button)
-        }
-    }
-
-    override var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit = ::onMouseRelease
+    override var mouseRelease: (event: MouseReleaseEvent) -> Unit = ::onMouseRelease
 
     override var dragging: Boolean = false
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {
-        if (!active || !dragging) return
-        for (element in handleElements) {
-            element.mouseDragging(mouseX, mouseY, button, deltaX, deltaY)
-        }
-    }
+    override var mouseDragging: (event: MouseDragEvent) -> Unit = ::onMouseDragging
 
-    override var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> Unit =
-        ::onMouseDragging
+    override var mouseScrolling: (event: MouseScrollEvent) -> Unit = ::onMouseScrolling
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): Unit {
-        if (!active) return
-        for (element in handleElements) {
-            element.mouseScrolling(mouseX, mouseY, amount)
-        }
-    }
+    override var keyPress: (event: KeyPressEvent) -> Unit = ::onKeyPress
 
-    override var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> Unit = ::onMouseScrolling
+    override var keyRelease: (event: KeyReleaseEvent) -> Unit = ::onKeyRelease
 
-    override fun onKeyPress(keyCode: KeyCode) {
-        if (!active) return
-        for (element in handleElements) {
-            element.keyPress(keyCode)
-        }
-    }
-
-    override var keyPress: (keyCode: KeyCode) -> Unit = ::onKeyPress
-
-    override fun onKeyRelease(keyCode: KeyCode) {
-        if (!active) return
-        for (element in handleElements) {
-            element.keyRelease(keyCode)
-        }
-    }
-
-    override var keyRelease: (keyCode: KeyCode) -> Unit = ::onKeyRelease
-
-    override fun onCharTyped(chr: Char) {
-        if (!active) return
-        for (element in handleElements) {
-            element.charTyped(chr)
-        }
-    }
-
-    override var charTyped: (chr: Char) -> Unit = ::onCharTyped
+    override var charTyped: (event: CharTypedEvent) -> Unit = ::onCharTyped
 }

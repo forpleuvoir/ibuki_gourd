@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.base.state.AbstractState
 import moe.forpleuvoir.ibukigourd.gui.base.state.State
@@ -51,11 +52,12 @@ class DraggableList(
 
     private val idleState: State = object : AbstractState("idle_state") {
 
-        override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-            if (button == Mouse.LEFT && mouseHover() && elements.find { it.mouseHover() } != null) {
+        override fun onMouseClick(event: MousePressEvent) {
+            event.used { return }
+            if (event.button == Mouse.LEFT && mouseHover() && elements.find { it.mouseHover() } != null) {
                 stateMachineManager.currentState = pressedState
+                event.use()
             }
-            return NextAction.Continue
         }
     }
 
@@ -76,62 +78,62 @@ class DraggableList(
             arrange()
         }
 
-        override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+        override fun onMouseRelease(event: MouseReleaseEvent): NextAction {
             stateMachineManager.currentState = idleState
             return NextAction.Continue
         }
 
-        override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+        override fun onMouseDragging(event: MouseDragEvent): NextAction {
             draggingElement?.transform?.translate(Orientation.peek(vertex(0f, deltaY, 0f), vertex(deltaX, 0f, 0f)))
             val x = mouseX + deltaX
             val y = mouseY + deltaY
             val draggingIndex = elementIndexOf(draggingElement!!)
             layoutElements.filter { it != draggingElement }.minByOrNull { element ->
                 Orientation.peek({
-                    //在元素内
-                    if (y in element.transform.worldTop..element.transform.worldBottom) {
-                        0f
-                    } else if (y < element.transform.worldTop) {//在元素上
-                        element.transform.worldTop - y
-                    } else {//在元素下
-                        y - element.transform.worldBottom
-                    }
-                }, {
-                    //在元素内
-                    if (x in element.transform.worldLeft..element.transform.worldRight) {
-                        0f
-                    } else if (x < element.transform.worldLeft) {//在元素上
-                        element.transform.worldLeft - x
-                    } else {//在元素下
-                        x - element.transform.worldRight
-                    }
-                })
+                                     //在元素内
+                                     if (y in element.transform.worldTop..element.transform.worldBottom) {
+                                         0f
+                                     } else if (y < element.transform.worldTop) {//在元素上
+                                         element.transform.worldTop - y
+                                     } else {//在元素下
+                                         y - element.transform.worldBottom
+                                     }
+                                 }, {
+                                     //在元素内
+                                     if (x in element.transform.worldLeft..element.transform.worldRight) {
+                                         0f
+                                     } else if (x < element.transform.worldLeft) {//在元素上
+                                         element.transform.worldLeft - x
+                                     } else {//在元素下
+                                         x - element.transform.worldRight
+                                     }
+                                 })
             }?.let { element ->
                 var index = elementIndexOf(element)
                 if (index < draggingIndex) {
                     index = (index + 1).coerceAtLeast(0)
                 }
                 targetIndex = Orientation.peek({
-                    //在元素内
-                    if (y in element.transform.worldTop..element.transform.worldBottom) {
-                        if (y < element.transform.worldCenter.y) index - 1
-                        else index
-                    } else if (y < element.transform.worldTop) {//在元素上
-                        index - 1
-                    } else {//在元素下
-                        index
-                    }
-                }, {
-                    //在元素内
-                    if (x in element.transform.worldLeft..element.transform.worldRight) {
-                        if (x < element.transform.worldCenter.x) index - 1
-                        else index
-                    } else if (x < element.transform.worldLeft) {//在元素上
-                        index - 1
-                    } else {//在元素下
-                        index
-                    }
-                })
+                                                   //在元素内
+                                                   if (y in element.transform.worldTop..element.transform.worldBottom) {
+                                                       if (y < element.transform.worldCenter.y) index - 1
+                                                       else index
+                                                   } else if (y < element.transform.worldTop) {//在元素上
+                                                       index - 1
+                                                   } else {//在元素下
+                                                       index
+                                                   }
+                                               }, {
+                                                   //在元素内
+                                                   if (x in element.transform.worldLeft..element.transform.worldRight) {
+                                                       if (x < element.transform.worldCenter.x) index - 1
+                                                       else index
+                                                   } else if (x < element.transform.worldLeft) {//在元素上
+                                                       index - 1
+                                                   } else {//在元素下
+                                                       index
+                                                   }
+                                               })
                 if (targetIndex == elementIndexOf(draggingElement!!)) targetIndex = -1
             }
             return NextAction.Continue
@@ -164,7 +166,7 @@ class DraggableList(
             }
         }
 
-        override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+        override fun onMouseRelease(event: MouseReleaseEvent): NextAction {
             stateMachineManager.currentState = idleState
             return NextAction.Continue
         }
@@ -192,32 +194,32 @@ class DraggableList(
         stateMachineManager.tick()
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
-        return stateMachineManager.onMouseClick(mouseX, mouseY, button)
+    override fun onMouseClick(event: MousePressEvent): NextAction {
+        super.onMouseClick().ifCancel { return NextAction.Cancel }
+        return stateMachineManager.onMouseClick()
     }
 
 
-    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        super.onMouseRelease(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
-        return stateMachineManager.onMouseRelease(mouseX, mouseY, button)
+    override fun onMouseRelease(event: MouseReleaseEvent): NextAction {
+        super.onMouseRelease().ifCancel { return NextAction.Cancel }
+        return stateMachineManager.onMouseRelease()
     }
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
-        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
-        stateMachineManager.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY)
+    override fun onMouseDragging(event: MouseDragEvent): NextAction {
+        super.onMouseDragging().ifCancel { return NextAction.Cancel }
+        stateMachineManager.onMouseDragging()
         return NextAction.Continue
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
-        super.onMouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
-        stateMachineManager.onMouseMove(mouseX, mouseY)
-        return super.onMouseMove(mouseX, mouseY)
+    override fun onMouseMove(event: MouseMoveEvent): NextAction {
+        super.onMouseMove().ifCancel { return NextAction.Cancel }
+        stateMachineManager.onMouseMove()
+        return super.onMouseMove()
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
-        stateMachineManager.onMouseScrolling(mouseX, mouseY, amount)
-        return super.onMouseScrolling(mouseX, mouseY, amount)
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
+        stateMachineManager.onMouseScrolling()
+        return super.onMouseScrolling()
     }
 
     override fun onRender(renderContext: RenderContext) {
@@ -253,30 +255,30 @@ class DraggableList(
         val thickness = spacing.coerceAtLeast(1f)
         val color = Color(0x7F8CECFF)
         orientation.peek({
-            if (targetIndex > elementIndexOf(draggingElement!!)) {
-                vertex(0f, element.transform.height, 0f)
-            } else {
-                vertex(0f, -thickness, 0f)
-            }.let {
-                renderRect(
-                    renderContext.matrixStack,
-                    Rect(element.transform.worldPosition + it, draggingElement!!.transform.width, thickness),
-                    color
-                )
-            }
-        }, {
-            if (targetIndex > elementIndexOf(draggingElement!!)) {
-                vertex(element.transform.width, 0f, 0f)
-            } else {
-                vertex(-thickness, -1f, 0f)
-            }.let {
-                renderRect(
-                    renderContext.matrixStack,
-                    Rect(element.transform.worldPosition + it, thickness, draggingElement!!.transform.height),
-                    color
-                )
-            }
-        })
+                             if (targetIndex > elementIndexOf(draggingElement!!)) {
+                                 vertex(0f, element.transform.height, 0f)
+                             } else {
+                                 vertex(0f, -thickness, 0f)
+                             }.let {
+                                 renderRect(
+                                     renderContext.matrixStack,
+                                     Rect(element.transform.worldPosition + it, draggingElement!!.transform.width, thickness),
+                                     color
+                                 )
+                             }
+                         }, {
+                             if (targetIndex > elementIndexOf(draggingElement!!)) {
+                                 vertex(element.transform.width, 0f, 0f)
+                             } else {
+                                 vertex(-thickness, -1f, 0f)
+                             }.let {
+                                 renderRect(
+                                     renderContext.matrixStack,
+                                     Rect(element.transform.worldPosition + it, thickness, draggingElement!!.transform.height),
+                                     color
+                                 )
+                             }
+                         })
     }
 
 }

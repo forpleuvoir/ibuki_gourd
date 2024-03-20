@@ -24,7 +24,7 @@ class MouseReleaseEvent(
     val button: Mouse,
 ) : MouseEvent(x, y)
 
-class MouseScrollerEvent(
+class MouseScrollEvent(
     x: Float,
     y: Float,
     val amount: Float,

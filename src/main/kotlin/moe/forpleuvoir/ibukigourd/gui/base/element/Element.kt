@@ -3,15 +3,13 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.render.Drawable
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Mouse
 
 @Suppress("unused", "KDocUnresolvedReference")
 interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler {
@@ -19,6 +17,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
     companion object : Element {
         override val modifier: Modifier = Modifier
         override val transform: Transform = Transform()
+        override val layer: Layer = DefaultLayer
         override var visible: Boolean = false
         override val layoutData: Map<Any, Any> = emptyMap()
         override var parent: () -> Element = { this }
@@ -57,18 +56,18 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override fun contentBox(isWorld: Boolean): Box = Box.NULL
         override fun init() = Unit
         override var tick: () -> Unit = {}
-        override var mouseMoveIn: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
-        override var mouseMoveOut: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
-        override var mouseMove: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
-        override var mouseClick: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit = { _, _, _ -> }
-        override var mouseRelease: (mouseX: Float, mouseY: Float, button: Mouse) -> Unit = { _, _, _ -> }
-        override var mouseDragging: (mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) -> Unit = { _, _, _, _, _ -> }
-        override var mouseScrolling: (mouseX: Float, mouseY: Float, amount: Float) -> Unit = { _, _, _ -> }
-        override var keyPress: (keyCode: KeyCode) -> Unit = {}
-        override var keyRelease: (keyCode: KeyCode) -> Unit = {}
-        override var charTyped: (chr: Char) -> Unit = {}
-        override fun onMouseMoveEnter(event: MouseEnterEvent) = Unit
-        override fun onMouseMoveOut(mouseX: Float, mouseY: Float) = Unit
+        override var mouseEnter: (event: MouseEnterEvent) -> Unit = {}
+        override var mouseLeave: (event: MouseLeaveEvent) -> Unit = {}
+        override var mouseMove: (event: MouseMoveEvent) -> Unit = {}
+        override var mouseClick: (event: MousePressEvent) -> Unit = {}
+        override var mouseRelease: (event: MouseReleaseEvent) -> Unit = {}
+        override var mouseDragging: (event: MouseDragEvent) -> Unit = {}
+        override var mouseScrolling: (event: MouseScrollEvent) -> Unit = {}
+        override var keyPress: (event: KeyPressEvent) -> Unit = {}
+        override var keyRelease: (event: KeyReleaseEvent) -> Unit = {}
+        override var charTyped: (event: CharTypedEvent) -> Unit = {}
+        override fun onMouseEnter(event: MouseEnterEvent) = Unit
+        override fun onMouseLeave(event: MouseLeaveEvent) = Unit
         override fun tick() = Unit
     }
 
@@ -78,6 +77,10 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * 基础属性变换
      */
     override val transform: Transform
+
+    val depth: Int get() = transform.depth
+
+    val layer: Layer
 
     override var visible: Boolean
 
@@ -122,6 +125,8 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         transform.x = x
         transform.y = y
     }
+
+    var tick: () -> Unit
 
     /**
      * 渲染元素
@@ -170,7 +175,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * @param mouseX Float
      * @param mouseY Float
      */
-    override fun onMouseMove(mouseX: Float, mouseY: Float) {}
+    override fun onMouseMove(event: MouseMoveEvent) {}
 
     /**
      * 鼠标点击
@@ -179,7 +184,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * @param mouseY Float
      * @return 是否处理之后的同类操作
      */
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse) {}
+    override fun onMouseClick(event: MousePressEvent) {}
 
     /**
      * 鼠标释放
@@ -188,7 +193,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * @param mouseY Float
      * @return 是否处理之后的同类操作
      */
-    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse) {}
+    override fun onMouseRelease(event: MouseReleaseEvent) {}
 
     /**
      * 鼠标是否为拖拽中
@@ -204,7 +209,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * @param deltaY Float
      * @return 是否处理之后的同类操作
      */
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float) {}
+    override fun onMouseDragging(event: MouseDragEvent) {}
 
     /**
      * 鼠标滚动
@@ -213,26 +218,26 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * @param amount Float
      * @return 是否处理之后的同类操作
      */
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float) {}
+    override fun onMouseScrolling(event: MouseScrollEvent) {}
 
     /**
      * 按键按下
      * @param keyCode KeyCode
      * @return 是否处理之后的同类操作
      */
-    override fun onKeyPress(keyCode: KeyCode) {}
+    override fun onKeyPress(event: KeyPressEvent) {}
 
     /**
      * 按键释放
      * @param keyCode KeyCode
      * @return 是否处理之后的同类操作
      */
-    override fun onKeyRelease(keyCode: KeyCode) {}
+    override fun onKeyRelease(event: KeyReleaseEvent) {}
 
     /**
      * 字符输入
      * @param chr Char
      * @return 是否处理之后的同类操作
      */
-    override fun onCharTyped(chr: Char) {}
+    override fun onCharTyped(event: CharTypedEvent) {}
 }

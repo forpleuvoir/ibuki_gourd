@@ -4,11 +4,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseMoveEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.LIST_BACKGROUND
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
-import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
@@ -177,23 +179,23 @@ open class ListLayout(
         )
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+    override fun onMouseMove(event: MouseMoveEvent): NextAction {
         if (!mouseHover()) return NextAction.Continue
-        return super.onMouseMove(mouseX, mouseY)
+        return super.onMouseMove()
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+    override fun onMouseClick(event: MousePressEvent): NextAction {
         if (!mouseHover()) return NextAction.Continue
-        return super.onMouseClick(mouseX, mouseY, button)
+        return super.onMouseClick()
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
         mouseHover {
             if (!scrollerBar.mouseHover()) {
                 scrollerBar.amount -= scrollerBar.amountStep() * amount
             }
         }
-        return super.onMouseScrolling(mouseX, mouseY, amount)
+        return super.onMouseScrolling()
     }
 
     override fun onRender(renderContext: RenderContext) {

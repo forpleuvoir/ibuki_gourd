@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
+import moe.forpleuvoir.ibukigourd.gui.render.ScissorStack;
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext;
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.gui.screen.TestScreenKt;
@@ -21,56 +22,56 @@ import java.util.Deque;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-	@Unique
-	private static final RenderContext context = new RenderContext(MinecraftClient.getInstance(), new MatrixStack(), new ScissorStack());
-	@Unique
-	private static final Deque<Long> list = new ArrayDeque<>();
-	@Unique
-	private static Long tickDeltaCounter = 0L;
-	@Unique
-	private static int temp = 0;
-	@Shadow
-	@Final
-	MinecraftClient client;
+    @Unique
+    private static final RenderContext context = new RenderContext(MinecraftClient.getInstance(), MinecraftClient.getInstance().textRenderer, new MatrixStack(), new ScissorStack());
+    @Unique
+    private static final Deque<Long> list = new ArrayDeque<>();
+    @Unique
+    private static Long tickDeltaCounter = 0L;
+    @Unique
+    private static int temp = 0;
+    @Shadow
+    @Final
+    MinecraftClient client;
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
-	public void renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
-		if (MiscKt.isDevEnv()) {
-			ScreenManager.hasScreen(screen -> {
-				var delta = MiscKt.measureTime(() -> {
-					if (screen.getVisible()) {
-						screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
-						context.render();
-					}
-				}).getSecond();
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
+    public void renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+        if (MiscKt.isDevEnv()) {
+            ScreenManager.hasScreen(screen -> {
+                var delta = MiscKt.measureTime(() -> {
+                    if (screen.getVisible()) {
+                        screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
+                        context.render();
+                    }
+                }).getSecond();
 
-				tickDeltaCounter += delta;
+                tickDeltaCounter += delta;
 
-				if (list.size() > 500) {
-					list.pop();
-				}
-				list.addLast(delta);
+                if (list.size() > 500) {
+                    list.pop();
+                }
+                list.addLast(delta);
 
-				if (tickDeltaCounter / 250_000_000 > temp) {
-					temp++;
-					var frt = list.stream().mapToLong((it) -> it).average().orElseGet(() -> 0.0);
-					TestScreenKt.setFRT(frt);
-					TestScreenKt.setFPS((int) (1000_000_000 / frt));
-				}
-				if (tickDeltaCounter >= 1000_000_000) {
-					tickDeltaCounter = 0L;
-					temp = 1;
-				}
-			});
-		} else {
-			ScreenManager.hasScreen(screen -> {
-				if (screen.getVisible()) {
-					screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
-					context.render();
-				}
-			});
-		}
-	}
+                if (tickDeltaCounter / 250_000_000 > temp) {
+                    temp++;
+                    var frt = list.stream().mapToLong((it) -> it).average().orElseGet(() -> 0.0);
+                    TestScreenKt.setFRT(frt);
+                    TestScreenKt.setFPS((int) (1000_000_000 / frt));
+                }
+                if (tickDeltaCounter >= 1000_000_000) {
+                    tickDeltaCounter = 0L;
+                    temp = 1;
+                }
+            });
+        } else {
+            ScreenManager.hasScreen(screen -> {
+                if (screen.getVisible()) {
+                    screen.getRender().invoke(context.nextFrame(client.getLastFrameDuration()));
+                    context.render();
+                }
+            });
+        }
+    }
 
 
 }

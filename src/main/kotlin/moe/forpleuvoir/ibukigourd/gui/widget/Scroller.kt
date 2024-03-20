@@ -3,6 +3,9 @@ package moe.forpleuvoir.ibukigourd.gui.widget
 import moe.forpleuvoir.ibukigourd.gui.base.Direction
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseDragEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SCROLLER_BACKGROUND
 import moe.forpleuvoir.ibukigourd.gui.tip.hoverTip
@@ -10,15 +13,14 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonThemes
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
-import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.render.base.arrange.peek
 import moe.forpleuvoir.ibukigourd.render.helper.BatchDrawScope.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
-import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.clamp
@@ -147,7 +149,7 @@ open class Scroller(
         amountReceiver?.invoke(amount)
     }
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+    override fun onMouseDragging(event: MouseDragEvent): NextAction {
         if (!active || !dragging || !visible || !bar.dragging) return NextAction.Continue
         Orientation.peek(
             {
@@ -157,22 +159,22 @@ open class Scroller(
             }
         )
         amountReceiver?.invoke(amount)
-        return super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY)
+        return super.onMouseDragging()
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
+    override fun onMouseClick(event: MousePressEvent): NextAction {
         if (!visible) return NextAction.Continue
         mouseHover {
             setFromMouse(mouseX, mouseY)
         }
-        return super.onMouseClick(mouseX, mouseY, button)
+        return super.onMouseClick()
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
         mouseHover {
             this@Scroller.amount -= amountStep() * amount
         }
-        return super.onMouseScrolling(mouseX, mouseY, amount)
+        return super.onMouseScrolling()
     }
 
 

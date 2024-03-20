@@ -1,13 +1,15 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.drop
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseMoveEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
-import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.helper.rectBatchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
@@ -62,15 +64,15 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
             }
         }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+    override fun onMouseMove(event: MouseMoveEvent): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
-        super.onMouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
+        super.onMouseMove().ifCancel { return NextAction.Cancel }
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
+    override fun onMouseClick(event: MousePressEvent): NextAction {
+        super.onMouseClick().ifCancel { return NextAction.Cancel }
         if (!mouseHover() && dropMenu.expend) {
             dropMenu.expend = false
         }
@@ -80,9 +82,9 @@ class DropTip(private val dropMenu: DropMenuWidget) : Tip({ dropMenu }, { dropMe
         return NextAction.Continue
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
         if (!dropMenu.expend) return NextAction.Continue
-        super.onMouseScrolling(mouseX, mouseY, amount).ifCancel { return NextAction.Cancel }
+        super.onMouseScrolling().ifCancel { return NextAction.Cancel }
         if (mouseHover()) return NextAction.Cancel
         return NextAction.Continue
     }

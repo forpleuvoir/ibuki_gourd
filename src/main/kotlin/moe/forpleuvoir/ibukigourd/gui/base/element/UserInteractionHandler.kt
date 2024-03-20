@@ -1,80 +1,57 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 
 interface UserInteractionHandler : Tickable {
 
     /**
      * 当鼠标移动到元素内时
      */
-    fun onMouseMoveEnter(event: MouseEnterEvent)
+    fun onMouseEnter(event: MouseEnterEvent)
 
     /**
      * 当鼠标移动到元素外时
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    fun onMouseMoveOut(mouseX: Float, mouseY: Float)
+    fun onMouseLeave(event: MouseLeaveEvent)
 
     /**
      * 鼠标移动
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    fun onMouseMove(mouseX: Float, mouseY: Float)
+    fun onMouseMove(event: MouseMoveEvent)
 
     /**
      * 鼠标点击
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse)
+    fun onMouseClick(event: MousePressEvent)
 
     /**
      * 鼠标释放
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
      */
-    fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse)
+    fun onMouseRelease(event: MouseReleaseEvent)
 
     /**
      * 鼠标拖动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param button Mouse
-     * @param deltaX Float
-     * @param deltaY Float
      */
-    fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float)
+    fun onMouseDragging(event: MouseDragEvent)
 
     /**
      * 鼠标滚动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param amount Float
      */
-    fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float)
+    fun onMouseScrolling(event: MouseScrollEvent)
 
     /**
      * 按键按下
-     * @param keyCode KeyCode
      */
-    fun onKeyPress(keyCode: KeyCode)
+    fun onKeyPress(event: KeyPressEvent)
 
     /**
      * 按键释放
-     * @param keyCode KeyCode
      */
-    fun onKeyRelease(keyCode: KeyCode)
+    fun onKeyRelease(event: KeyReleaseEvent)
 
     /**
      * 字符输入
-     * @param chr Char
      */
-    fun onCharTyped(chr: Char)
+    fun onCharTyped(event: CharTypedEvent)
 }

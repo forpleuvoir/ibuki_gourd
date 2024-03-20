@@ -3,14 +3,11 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.tip.TipHandler
-import moe.forpleuvoir.ibukigourd.input.MousePosition
 
 interface Screen : Element, TipHandler {
     companion object {
 
-        val EMPTY: Screen = object : Screen, Element by Element.EMPTY {
-            override val mousePosition: MousePosition = throw NotImplementedError()
-            override val preMousePosition: MousePosition = throw NotImplementedError()
+        val EMPTY: Screen = object : Screen, Element by Element {
             override var parentScreen: Screen? = null
             override var focusedElement: Element? = null
             override val pauseGame: Boolean = false
@@ -26,9 +23,7 @@ interface Screen : Element, TipHandler {
         }
     }
 
-    val mousePosition: MousePosition
-
-    val preMousePosition: MousePosition
+    val eventBus: ScreenEventBus
 
     /**
      * 上一级屏幕
@@ -41,7 +36,7 @@ interface Screen : Element, TipHandler {
     var focusedElement: Element?
 
     /**
-     * 打开时是否需要暂停游戏，在服务器中无效
+     * 打开时是否需要暂停游戏，在多人游戏中无效
      */
     val pauseGame: Boolean
 

@@ -2,14 +2,17 @@
 
 package moe.forpleuvoir.ibukigourd.gui.screen
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.*
+import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementDimension
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementMeasureDimension
+import moe.forpleuvoir.ibukigourd.gui.base.element.MatchParent
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.ibukigourd.input.*
-import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 
 abstract class AbstractScreen(
     width: ElementDimension = MatchParent,
@@ -48,69 +51,59 @@ abstract class AbstractScreen(
 
     override val handleElements: List<Element>
         get() = buildList {
-            addAll(tipList.sortedByDescending { it.priority })
             addAll(super.handleElements)
         }
 
-    protected var mouseX: Float = 0f
-    protected var mouseY: Float = 0f
+    override val eventBus = ScreenEventBus()
 
-    override val mousePosition: MousePosition = object : MousePosition {
-        override val x: Float get() = mouseX
-        override val y: Float get() = mouseY
-    }
-
-    protected var preMouseX: Float = 0f
-    protected var preMouseY: Float = 0f
-
-    override val preMousePosition = object : MousePosition {
-        override val x: Float get() = preMouseX
-        override val y: Float get() = preMouseY
-    }
-
-    override fun init() {
-        super.init()
-    }
 
     override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
-        val (mWidth, mHeight) = elementMeasureDimension
-        when (width) {
-            is Fixed           -> transform.width = (width as Fixed).value
-            FillRemainingSpace -> transform.width = mWidth.value
-            MatchParent        -> transform.width = mWidth.value
-            is Weight          -> transform.width = mWidth.value
-            is Percentage      -> transform.width = mWidth.value * (width as Percentage).value
-            is WrapContent     -> TODO()
+
+    }
+
+    override fun onMouseClick(event: MousePressEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onMouseRelease(event: MouseReleaseEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onMouseDragging(event: MouseDragEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onMouseScrolling(event: MouseScrollEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onMouseEnter(event: MouseEnterEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onMouseLeave(event: MouseLeaveEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onMouseMove(event: MouseMoveEvent) {
+        eventBus.broadcast(event)
+    }
+
+    override fun onKeyPress(event: KeyPressEvent) {
+        eventBus.broadcast(event)
+        if (!event.used && event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc) {
+            close()
+            event.use()
         }
-
-        when (height) {
-            is Fixed           -> transform.height = (height as Fixed).value
-            FillRemainingSpace -> transform.height = mHeight.value
-            MatchParent        -> transform.height = mHeight.value
-            is Weight          -> transform.height = mHeight.value
-            is Percentage      -> transform.height = mHeight.value * (height as Percentage).value
-            is WrapContent     -> TODO()
-        }
-
     }
 
-    override fun tick() {
-        preMouseX = this.mouseX
-        preMouseY = this.mouseY
-        this.mouseX = mc.mouseX
-        this.mouseY = mc.mouseY
-        super.tick()
+    override fun onKeyRelease(event: KeyReleaseEvent) {
+        eventBus.broadcast(event)
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
-        if (!active) return NextAction.Cancel
-        preMouseX = this.mouseX
-        preMouseY = this.mouseY
-        this.mouseX = mouseX
-        this.mouseY = mouseY
-        return super<LinearLayout>.onMouseMove(mouseX, mouseY)
+    override fun onCharTyped(event: CharTypedEvent) {
+        eventBus.broadcast(event)
     }
-
 
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
@@ -133,14 +126,6 @@ abstract class AbstractScreen(
 
 
     override var resize: (width: Int, height: Int) -> Unit = ::onResize
-
-    override fun onKeyPress(keyCode: KeyCode): NextAction {
-        if (keyCode == Keyboard.ESCAPE && shouldCloseOnEsc) {
-            close()
-            return NextAction.Cancel
-        }
-        return super<LinearLayout>.onKeyPress(keyCode)
-    }
 
 }
 

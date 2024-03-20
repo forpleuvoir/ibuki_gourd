@@ -2,6 +2,9 @@ package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseLeaveEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseReleaseEvent
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
@@ -44,16 +47,16 @@ abstract class ClickableElement : AbstractElement() {
         super.tick()
     }
 
-    override fun onMouseMoveEnter(event: MouseEnterEvent) {
+    override fun onMouseEnter(event: MouseEnterEvent) {
         MouseCursor.current = MouseCursor.Cursor.POINTING_HAND_CURSOR
     }
 
-    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) {
+    override fun onMouseLeave(event: MouseLeaveEvent) {
         MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        super.onMouseClick(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
+    override fun onMouseClick(event: MousePressEvent): NextAction {
+        super.onMouseClick().ifCancel { return NextAction.Cancel }
         if (button == Mouse.LEFT && mouseHover()) {
             if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
             pressed = true
@@ -62,8 +65,8 @@ abstract class ClickableElement : AbstractElement() {
         return NextAction.Continue
     }
 
-    override fun onMouseRelease(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        super.onMouseRelease(mouseX, mouseY, button).ifCancel { return NextAction.Cancel }
+    override fun onMouseRelease(event: MouseReleaseEvent): NextAction {
+        super.onMouseRelease().ifCancel { return NextAction.Cancel }
         if (button == Mouse.LEFT && pressed) {
             pressed = false
             return onRelease()

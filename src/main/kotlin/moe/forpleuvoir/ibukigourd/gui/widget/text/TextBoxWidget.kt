@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_INPUT
@@ -429,7 +429,7 @@ class TextBoxWidget(
         return Rect(vertex(left, top, if (isWorld) transform.worldZ else transform.z), right - left, bottom - top)
     }
 
-    override fun onMouseMove(mouseX: Float, mouseY: Float): NextAction {
+    override fun onMouseMove(event: MouseMoveEvent): NextAction {
         if (!active) return NextAction.Continue
         for (element in handleElements) {
             element.mouseMove(mouseX, mouseY).ifCancel { return NextAction.Cancel }
@@ -439,22 +439,22 @@ class TextBoxWidget(
             if (!mouseHoverContent(it.preMousePosition) && mouseHoverContent(it.mousePosition)) {
                 mouseMoveIn(mouseX, mouseY)
             } else if (mouseHoverContent(it.preMousePosition) && !mouseHoverContent(it.mousePosition)) {
-                mouseMoveOut(mouseX, mouseY)
+                mouseLeave(mouseX, mouseY)
             }
         }
         return NextAction.Continue
     }
 
-    override fun onMouseMoveEnter(event: MouseEnterEvent) {
+    override fun onMouseEnter(event: MouseEnterEvent) {
         MouseCursor.current = MouseCursor.Cursor.IBEAM_CURSOR
     }
 
-    override fun onMouseMoveOut(mouseX: Float, mouseY: Float) {
+    override fun onMouseLeave(event: MouseLeaveEvent) {
         MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
     }
 
-    override fun onMouseClick(mouseX: Float, mouseY: Float, button: Mouse): NextAction {
-        super.onMouseClick(mouseX, mouseY, button)
+    override fun onMouseClick(event: MousePressEvent): NextAction {
+        super.onMouseClick()
         if (!scrollerBar.mouseHover() && mouseHoverContent() && button == Mouse.LEFT) {
             selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
             moveCursor(mouseX, mouseY)
@@ -463,18 +463,18 @@ class TextBoxWidget(
         return NextAction.Continue
     }
 
-    override fun onMouseScrolling(mouseX: Float, mouseY: Float, amount: Float): NextAction {
+    override fun onMouseScrolling(event: MouseScrollEvent): NextAction {
         mouseHover {
             if (!scrollerBar.mouseHover()) {
                 scrollerBar.amount -= scrollerBar.amountStep() * amount
             }
         }
-        return super.onMouseScrolling(mouseX, mouseY, amount)
+        return super.onMouseScrolling()
     }
 
-    override fun onMouseDragging(mouseX: Float, mouseY: Float, button: Mouse, deltaX: Float, deltaY: Float): NextAction {
+    override fun onMouseDragging(event: MouseDragEvent): NextAction {
         if (!active || !dragging) return NextAction.Continue
-        super.onMouseDragging(mouseX, mouseY, button, deltaX, deltaY).ifCancel { return NextAction.Cancel }
+        super.onMouseDragging().ifCancel { return NextAction.Cancel }
         if (scrollerBar.dragging) return NextAction.Continue
         selecting = true
         moveCursor(mouseX, mouseY)
@@ -482,7 +482,7 @@ class TextBoxWidget(
         return NextAction.Cancel
     }
 
-    override fun onKeyPress(keyCode: KeyCode): NextAction {
+    override fun onKeyPress(event: KeyPressEvent): NextAction {
         if (!focused) return NextAction.Continue
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
         //全选
@@ -637,12 +637,12 @@ class TextBoxWidget(
         return NextAction.Continue
     }
 
-    override fun onKeyRelease(keyCode: KeyCode): NextAction {
+    override fun onKeyRelease(event: KeyReleaseEvent): NextAction {
         selecting = if (keyCode == Keyboard.LEFT_SHIFT) false else selecting
-        return super.onKeyRelease(keyCode)
+        return super.onKeyRelease()
     }
 
-    override fun onCharTyped(chr: Char): NextAction {
+    override fun onCharTyped(event: CharTypedEvent): NextAction {
         if (!(this.focused && SharedConstants.isValidChar(chr))) {
             return NextAction.Continue
         }

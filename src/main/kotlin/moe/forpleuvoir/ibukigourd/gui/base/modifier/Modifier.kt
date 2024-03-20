@@ -6,7 +6,15 @@ interface Modifier {
 
     companion object : ModifierImpl() {
 
+        operator fun invoke(): Modifier = object : ModifierImpl() {
+            override fun modify(element: Element) {}
+        }
+
         override fun modify(element: Element) {}
+
+        override fun then(other: Modifier): Modifier {
+            return Modifier().then(other)
+        }
 
     }
 
@@ -24,13 +32,14 @@ abstract class ModifierImpl : Modifier {
 
     override var next: Modifier? = null
 
+
     override fun apply(element: Element) {
         modify(element)
         next?.apply(element)
     }
 
     override fun then(other: Modifier): Modifier {
-        next = other
+        other.next = this
         return other
     }
 
