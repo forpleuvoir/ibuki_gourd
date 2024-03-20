@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MainMixin {
 
 	@Inject(method = "main", at = @At(value = "INVOKE", target = "Lnet/minecraft/SharedConstants;createGameVersion()V", shift = At.Shift.AFTER))
-	private static void init(String[] args, CallbackInfo ci) {
+	private static void ibukigourd$init(String[] args, CallbackInfo ci) {
 		IbukiGourdEventManager.INSTANCE.init();
 	}
 

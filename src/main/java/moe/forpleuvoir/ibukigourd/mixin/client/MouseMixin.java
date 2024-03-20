@@ -39,7 +39,7 @@ public abstract class MouseMixin {
     private double y;
 
     @Inject(method = "onMouseButton", at = @At("HEAD"), cancellable = true)
-    public void onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
+    public void ibukigourd$onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
         if (window == this.client.getWindow().getHandle()) {
             var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(button);
             if (action == 1) {
@@ -75,7 +75,7 @@ public abstract class MouseMixin {
     }
 
     @Inject(method = "onMouseScroll", at = @At("HEAD"), cancellable = true)
-    public void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
+    public void ibukigourd$onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
         if (window == this.client.getWindow().getHandle()) {
             double amount = (this.client.options.getDiscreteMouseScroll().getValue() ? Math.signum(vertical) : vertical) * this.client.options.getMouseWheelSensitivity().getValue();
             var event = new MouseEvent.MouseScrollEvent(amount, currentEnv());
@@ -93,7 +93,7 @@ public abstract class MouseMixin {
     }
 
     @Inject(method = "onCursorPos", at = @At("HEAD"), cancellable = true)
-    public void onCursorPos(long window, double x, double y, CallbackInfo ci) {
+    public void ibukigourd$onCursorPos(long window, double x, double y, CallbackInfo ci) {
         if (window == this.client.getWindow().getHandle()) {
             var position = MouseKt.getMousePosition(this.client);
             var event = new MouseEvent.MouseMoveEvent(position.getX(), position.getY(), currentEnv());

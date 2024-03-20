@@ -28,7 +28,7 @@ abstract class KeyboardMixin {
     private MinecraftClient client;
 
     @Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
-    public void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
+    public void ibukigourd$onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if (window == this.client.getWindow().getHandle()) {
             var keyCode = KeyCode.fromCode(key);
             //key press
@@ -67,7 +67,7 @@ abstract class KeyboardMixin {
     }
 
     @Inject(method = "onChar", at = @At("HEAD"), cancellable = true)
-    public void onChar(long l, int i, int j, CallbackInfo ci) {
+    public void ibukigourd$onChar(long l, int i, int j, CallbackInfo ci) {
         if (l == this.client.getWindow().getHandle()) {
             if (Character.charCount(i) == 1) {
                 ScreenManager.hasScreen(screen -> {

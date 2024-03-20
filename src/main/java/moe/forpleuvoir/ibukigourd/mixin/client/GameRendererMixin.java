@@ -35,7 +35,7 @@ public abstract class GameRendererMixin {
     MinecraftClient client;
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
-    public void renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+    public void ibukigourd$renderScreen(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
         if (MiscKt.isDevEnv()) {
             ScreenManager.hasScreen(screen -> {
                 var delta = MiscKt.measureTime(() -> {
@@ -54,7 +54,7 @@ public abstract class GameRendererMixin {
 
                 if (tickDeltaCounter / 250_000_000 > temp) {
                     temp++;
-                    var frt = list.stream().mapToLong((it) -> it).average().orElseGet(() -> 0.0);
+                    var frt = list.stream().mapToLong((it) -> it).average().orElse(0.0);
                     TestScreenKt.setFRT(frt);
                     TestScreenKt.setFPS((int) (1000_000_000 / frt));
                 }

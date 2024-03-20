@@ -28,7 +28,7 @@ public class MinecraftServerMixin {
 	private static final ModLogger log = new ModLogger(MinecraftServerMixin.class, IbukiGourd.MOD_NAME);
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	public void init(
+	public void ibukigourd$init(
 			Thread serverThread,
 			LevelStorage.Session session,
 			ResourcePackManager dataPackManager,
@@ -42,27 +42,27 @@ public class MinecraftServerMixin {
 	}
 
 	@Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;setupServer()Z"))
-	private void beforeSetupServer(CallbackInfo info) {
+	private void ibukigourd$beforeSetupServer(CallbackInfo info) {
 		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStartingEvent((MinecraftServer) (Object) this));
 	}
 
 	@Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;"))
-	private void afterSetupServer(CallbackInfo info) {
+	private void ibukigourd$afterSetupServer(CallbackInfo info) {
 		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStartedEvent((MinecraftServer) (Object) this));
 	}
 
 	@Inject(method = "shutdown", at = @At("HEAD"))
-	private void beforeShutdownServer(CallbackInfo info) {
+	private void ibukigourd$beforeShutdownServer(CallbackInfo info) {
 		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStoppingEvent((MinecraftServer) (Object) this));
 	}
 
 	@Inject(method = "shutdown", at = @At("TAIL"))
-	private void afterShutdownServer(CallbackInfo info) {
+	private void ibukigourd$afterShutdownServer(CallbackInfo info) {
 		EventBus.Companion.broadcast(new ServerLifecycleEvent.ServerStoppedEvent((MinecraftServer) (Object) this));
 	}
 
 	@Inject(method = "save", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getOverworld()Lnet/minecraft/server/world/ServerWorld;", shift = At.Shift.AFTER))
-	private void saveEverything(boolean bl, boolean bl2, boolean bl3, CallbackInfoReturnable<Boolean> cir) {
+	private void ibukigourd$saveEverything(boolean bl, boolean bl2, boolean bl3, CallbackInfoReturnable<Boolean> cir) {
 		EventBus.Companion.broadcast(new ServerSavingEvent((MinecraftServer) (Object) this));
 	}
 }
