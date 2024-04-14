@@ -240,4 +240,47 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      * @return 是否处理之后的同类操作
      */
     override fun onCharTyped(event: CharTypedEvent) {}
+
+
+    /**
+     * 下面为扩展函数
+     */
+
+    /**
+     * 事件是否可使用
+     * @receiver GUIEvent
+     * @return Boolean
+     */
+    fun GUIEvent.canUse(): Boolean {
+        return this.canUse(this@Element)
+    }
+
+    fun GUIEvent.canUse(block: () -> Unit) {
+        this.canUse(this@Element, block)
+    }
+
+    fun GUIEvent.cantUse(): Boolean {
+        return this.cantUse(this@Element)
+    }
+
+    fun GUIEvent.cantUse(block: () -> Unit) {
+        this.canUse(this@Element, block)
+    }
+
+    fun RenderContext.canRender(): Boolean {
+        return this.canRender(this@Element)
+    }
+
+    fun RenderContext.canRender(block: () -> Unit) {
+        this.canRender(this@Element, block)
+    }
+
+    fun RenderContext.cantRender(): Boolean {
+        return this.cantRender(this@Element)
+    }
+
+    fun RenderContext.cantRender(block: () -> Unit) {
+        this.cantRender(this@Element, block)
+    }
+
 }

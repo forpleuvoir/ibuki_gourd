@@ -17,6 +17,8 @@ abstract class AbstractElementContainer : Element {
 
     private var contentWorldBoxCache: Box? = null
 
+    private var initialized = false
+
     init {
         transform.subscribeChange(
             { _, _ ->
@@ -25,29 +27,51 @@ abstract class AbstractElementContainer : Element {
                 refreshContentBoxCache()
             }
         )
+        initialized = true
+        updateElementListCache()
     }
 
     override var margin: Margin = Margin()
 
-    override var padding: Padding = Margin()
+    override var padding: Padding = Padding()
 
     protected val subElements = ArrayList<Element>()
 
     /**
      * 参与布局排列的元素
      */
-    open val layoutElements: List<Element> get() = subElements.filter { !it.fixed }
+    override val layoutElements: List<Element> get() = layoutElementsCache
 
-    override val elements: List<Element> get() = subElements.filter { it != this.tip }
+    private var layoutElementsCache: List<Element> = subElements.filter { !it.fixed }
 
-    override val renderElements get() = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
+    override val elements: List<Element> get() = elementsCache
 
-    override val fixedElements get() = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
+    private var elementsCache: List<Element> = subElements.filter { it != this.tip }
 
-    override val handleElements get() = subElements.filter { it != this.tip && it.active }
+    override val renderElements get() = renderElementsCache
+
+    private var renderElementsCache: List<Element> = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
+
+    override val fixedElements get() = fixedElementsCache
+
+    private var fixedElementsCache: List<Element> = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
+
+    override val handleElements get() = handleElementsCache
+
+    private var handleElementsCache: List<Element> = subElements.filter { it != this.tip && it.active }
+
+    private fun updateElementListCache() {
+        if (!initialized) return
+        layoutElementsCache = subElements.filter { !it.fixed }
+        elementsCache = subElements.filter { it != this.tip }
+        renderElementsCache = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
+        fixedElementsCache = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
+        handleElementsCache = subElements.filter { it != this.tip && it.active }
+    }
 
     override fun clearElements(predicate: (Element) -> Boolean) {
         subElements.removeAll(predicate)
+        updateElementListCache()
     }
 
     override fun init() {
@@ -64,7 +88,7 @@ abstract class AbstractElementContainer : Element {
 
     var measuredDimension: MutableSize<Float> = MutableSize(0f, 0f)
 
-    fun refreshContentBoxCache() {
+    private fun refreshContentBoxCache() {
         contentBoxCache = null
         contentBoxCache = contentBox(false)
         contentWorldBoxCache = null
@@ -83,9 +107,9 @@ abstract class AbstractElementContainer : Element {
     override fun <T : Element> addElement(element: T): T {
         if (subElements.contains(element)) return element
         subElements.add(element)
+        updateElementListCache()
         element.transform.parent = { this.transform }
         element.parent = { this }
-        screen().eventBus.subscribe(element)
         return element
     }
 
@@ -106,7 +130,9 @@ abstract class AbstractElementContainer : Element {
     override fun removeElement(element: Element): Boolean {
         element.transform.parent = { null }
         element.parent = { Element }
-        return subElements.remove(element)
+        val value = subElements.remove(element)
+        updateElementListCache()
+        return value
     }
 
     override fun removeElement(index: Int) {
@@ -114,5 +140,7 @@ abstract class AbstractElementContainer : Element {
             transform.parent = { null }
             parent = { Element }
         }
+        updateElementListCache()
     }
+
 }

@@ -55,23 +55,27 @@ abstract class ClickableElement : AbstractElement() {
         MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
     }
 
-    override fun onMouseClick(event: MousePressEvent): NextAction {
-        super.onMouseClick().ifCancel { return NextAction.Cancel }
-        if (button == Mouse.LEFT && mouseHover()) {
-            if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-            pressed = true
-            return onClick()
+    override fun onMouseClick(event: MousePressEvent) {
+        super.onMouseClick(event)
+        event.canUse {
+            if (event.button == Mouse.LEFT && mouseHover()) {
+                if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+                pressed = true
+                onClick()
+                event.use()
+            }
         }
-        return NextAction.Continue
     }
 
-    override fun onMouseRelease(event: MouseReleaseEvent): NextAction {
-        super.onMouseRelease().ifCancel { return NextAction.Cancel }
-        if (button == Mouse.LEFT && pressed) {
-            pressed = false
-            return onRelease()
+    override fun onMouseRelease(event: MouseReleaseEvent) {
+        super.onMouseRelease(event)
+        event.canUse {
+            if (event.button == Mouse.LEFT && pressed) {
+                pressed = false
+                onRelease()
+                event.use()
+            }
         }
-        return NextAction.Continue
     }
 
 

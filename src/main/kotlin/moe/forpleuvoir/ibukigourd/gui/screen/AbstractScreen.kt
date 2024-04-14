@@ -2,10 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.gui.screen
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.Element
-import moe.forpleuvoir.ibukigourd.gui.base.element.ElementDimension
-import moe.forpleuvoir.ibukigourd.gui.base.element.ElementMeasureDimension
-import moe.forpleuvoir.ibukigourd.gui.base.element.MatchParent
+import moe.forpleuvoir.ibukigourd.gui.base.element.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
@@ -17,8 +14,15 @@ import moe.forpleuvoir.ibukigourd.input.MouseCursor
 abstract class AbstractScreen(
     width: ElementDimension = MatchParent,
     height: ElementDimension = MatchParent,
-    orientation: Orientation = Orientation.Vertical
+    orientation: Orientation = Orientation.Vertical,
+    val layers: List<Layer> = listOf(Layer.pop, Layer.default)
 ) : LinearLayout(width, height, orientation), Screen {
+
+    init {
+        check(layers.toSet().size == layers.size) {
+            "Duplicate layers are not allowed"
+        }
+    }
 
     override val screen: () -> Screen get() = { this }
 
@@ -54,15 +58,16 @@ abstract class AbstractScreen(
             addAll(super.handleElements)
         }
 
-    override val eventBus = ScreenEventBus()
-
 
     override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
 
     }
 
     override fun onMouseClick(event: MousePressEvent) {
-        eventBus.broadcast(event)
+        for (layer in layers) {
+            event.layer = layer
+            super<LinearLayout>.onMouseClick(event)
+        }
     }
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
@@ -108,10 +113,27 @@ abstract class AbstractScreen(
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
         renderBackground.invoke(renderContext)
-        for (element in renderElements) element.render(renderContext)
-        tipList.sortedBy { it.renderPriority }.forEach {
-            if (it.visible) it.render.invoke(renderContext)
+
+        for (i in layers.lastIndex downTo 0) {
+            renderContext.layer = layers[i]
+            for (renderElement in renderElements) {
+                renderElement.render(renderContext)
+            }
         }
+        //迭代器实现
+//        layers.listIterator(layers.lastIndex).let {
+//            while (it.hasPrevious()) {
+//                renderContext.layer = it.previous()
+//                for (renderElement in renderElements) {
+//                    renderElement.render(renderContext)
+//                }
+//            }
+//        }
+
+        //TODO("是否需要重写Tip的实现")
+//        tipList.sortedBy { it.renderPriority }.forEach {
+//            if (it.visible) it.render.invoke(renderContext)
+//        }
         renderOverlay.invoke(renderContext)
     }
 

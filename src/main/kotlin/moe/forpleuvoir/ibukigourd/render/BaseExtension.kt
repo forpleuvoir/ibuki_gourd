@@ -34,6 +34,10 @@ inline fun MatrixStack.translate(vector3: Vector3fc) {
     this.translate(vector3.x(), vector3.y(), vector3.z())
 }
 
+inline fun MatrixStack.translate(vector3: Vector2fc) {
+    this.translate(vector3.x(), vector3.y(), 0f)
+}
+
 inline fun Matrix4f.getPosition(): Vector3f {
     return Vector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
 }

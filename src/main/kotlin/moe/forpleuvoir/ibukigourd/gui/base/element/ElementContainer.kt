@@ -38,6 +38,8 @@ interface ElementContainer : Initializable {
      */
     val elements: List<Element>
 
+    val layoutElements: List<Element>
+
     val renderElements: List<Element>
 
     val fixedElements: List<Element>

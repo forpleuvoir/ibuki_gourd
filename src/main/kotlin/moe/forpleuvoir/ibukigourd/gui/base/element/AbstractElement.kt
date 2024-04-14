@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
+import moe.forpleuvoir.nebula.common.ifc
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement(
@@ -64,21 +65,29 @@ abstract class AbstractElement(
 
     override var tick: () -> Unit = ::tick
 
-    override fun onRender(renderContext: RenderContext) {
-        if (!visible) return
-        renderBackground.invoke(renderContext)
-        renderOverlay.invoke(renderContext)
-    }
-
     override var render: (renderContext: RenderContext) -> Unit = ::onRender
 
-    override fun onRenderBackground(renderContext: RenderContext) = Unit
+    override fun onRender(renderContext: RenderContext) {
+        renderContext.canRender().ifc {
+            renderBackground.invoke(renderContext)
+        }
+
+        for (renderElement in renderElements) {
+            renderElement.render(renderContext)
+        }
+
+        renderContext.canRender().ifc {
+            renderOverlay.invoke(renderContext)
+        }
+    }
 
     override var renderBackground: (renderContext: RenderContext) -> Unit = ::onRenderBackground
 
-    override fun onRenderOverlay(renderContext: RenderContext) = Unit
+    override fun onRenderBackground(renderContext: RenderContext) = Unit
 
     override var renderOverlay: (renderContext: RenderContext) -> Unit = ::onRenderOverlay
+
+    override fun onRenderOverlay(renderContext: RenderContext) = Unit
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 
@@ -86,13 +95,38 @@ abstract class AbstractElement(
 
     override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
 
+    override fun onMouseMove(event: MouseMoveEvent) {
+        for (handleElement in handleElements) {
+            handleElement.mouseMove(event)
+        }
+    }
+
     override var mouseClick: (event: MousePressEvent) -> Unit = ::onMouseClick
 
+    override fun onMouseClick(event: MousePressEvent) {
+        for (element in handleElements) {
+            element.mouseClick(event)
+        }
+    }
+
     override var mouseRelease: (event: MouseReleaseEvent) -> Unit = ::onMouseRelease
+
+    override fun onMouseRelease(event: MouseReleaseEvent) {
+        for (element in handleElements) {
+            element.mouseRelease(event)
+        }
+    }
 
     override var dragging: Boolean = false
 
     override var mouseDragging: (event: MouseDragEvent) -> Unit = ::onMouseDragging
+
+    override fun onMouseDragging(event: MouseDragEvent) {
+        for (element in handleElements) {
+            element.mouseDragging(event)
+        }
+        dragging = true
+    }
 
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit = ::onMouseScrolling
 

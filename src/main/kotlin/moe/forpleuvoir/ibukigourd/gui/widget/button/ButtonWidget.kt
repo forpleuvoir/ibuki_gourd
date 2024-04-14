@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
+import moe.forpleuvoir.ibukigourd.gui.render.context.extension.batchRenderTexture
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_DISABLED
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_HOVERED
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.CHECK_BOX_FALSE_IDLE
@@ -32,11 +33,12 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PRESS_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.helper.BatchDrawScope.renderTexture
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
+import moe.forpleuvoir.ibukigourd.render.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
+import moe.forpleuvoir.ibukigourd.render.translate
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.Tick
@@ -107,7 +109,12 @@ open class ButtonWidget(
     }
 
     override fun onRenderBackground(renderContext: RenderContext) {
-        renderTexture(renderContext.matrixStack, transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
+        renderContext {
+            batchRenderTexture {
+                drawTexture(transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
+            }
+        }
+
     }
 
 }
@@ -200,10 +207,10 @@ fun CheckBox(
 ): ButtonWidget {
     var status by statusDelegate
     return object : ButtonWidget({
-        status = !status
-        onChanged(status)
-        NextAction.Cancel
-    }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
+                                     status = !status
+                                     onChanged(status)
+                                     NextAction.Cancel
+                                 }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
             status.pick(
@@ -252,10 +259,10 @@ fun LockBox(
 ): ButtonWidget {
     var status by statusDelegate
     return object : ButtonWidget({
-        status = !status
-        onChanged(status)
-        NextAction.Cancel
-    }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
+                                     status = !status
+                                     onChanged(status)
+                                     NextAction.Cancel
+                                 }, { NextAction.Cancel }, color, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
             status.pick(
@@ -283,10 +290,10 @@ fun SwitchButton(
 ): ButtonWidget {
     var status by statusDelegate
     return object : ButtonWidget({
-        status = !status
-        onChanged(status)
-        NextAction.Cancel
-    }, { NextAction.Cancel }, { COLOR }, 0f, TEXTURE, width, height, null, null) {
+                                     status = !status
+                                     onChanged(status)
+                                     NextAction.Cancel
+                                 }, { NextAction.Cancel }, { COLOR }, 0f, TEXTURE, width, height, null, null) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
             renderTexture(renderContext.matrixStack, transform, status.pick(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
