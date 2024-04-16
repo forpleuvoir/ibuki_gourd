@@ -1,10 +1,10 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.nebula.common.ifc
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement(
@@ -21,6 +21,10 @@ abstract class AbstractElement(
             }
         }
 
+    override var layer: Layer = Layer.default
+
+    override val modifier: Modifier = Modifier
+
     override var visible: Boolean = true
 
     override val layoutData: Map<Any, Any> = hashMapOf()
@@ -31,16 +35,23 @@ abstract class AbstractElement(
 
     override var fixed: Boolean = false
 
-    override val focused: Boolean
+    override var wasFocused: Boolean
+        set(value) {
+            if (value) {
+                screen().focusedElement = this
+            } else {
+                if (screen().focusedElement == this) screen().focusedElement = screen()
+            }
+        }
         get() {
-            if (focusable)
-                return screen().focusedElement == this
-            return false
+            return screen().focusedElement == this
         }
 
     override var onFocusedChanged: ((Boolean) -> Unit)? = null
 
     override val focusable: Boolean = false
+
+    override var wasMouseOver: Boolean = false
 
     final override var tip: Tip? = null
         set(value) {
@@ -68,16 +79,16 @@ abstract class AbstractElement(
     override var render: (renderContext: RenderContext) -> Unit = ::onRender
 
     override fun onRender(renderContext: RenderContext) {
-        renderContext.canRender().ifc {
-            renderBackground.invoke(renderContext)
+        renderContext.tryRender {
+            renderBackground.invoke(this)
         }
 
         for (renderElement in renderElements) {
             renderElement.render(renderContext)
         }
 
-        renderContext.canRender().ifc {
-            renderOverlay.invoke(renderContext)
+        renderContext.tryRender {
+            renderOverlay.invoke(this)
         }
     }
 
@@ -96,22 +107,53 @@ abstract class AbstractElement(
     override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
 
     override fun onMouseMove(event: MouseMoveEvent) {
-        for (handleElement in handleElements) {
-            handleElement.mouseMove(event)
+
+        wasMouseOver = event.position in transform.asWorldBox
+
+        for (element in handleElements) {
+            val mouseOver = element.wasMouseOver
+            element.mouseMove(event)
+            if (!mouseOver && element.wasMouseOver) {
+                element.mouseEnter(MouseEnterEvent(event.x, event.y).apply { this.layer = event.layer })
+            } else if (mouseOver && !element.wasMouseOver) {
+                element.mouseLeave(MouseLeaveEvent(event.x, event.y).apply { this.layer = event.layer })
+            }
         }
     }
 
     override var mouseClick: (event: MousePressEvent) -> Unit = ::onMouseClick
 
     override fun onMouseClick(event: MousePressEvent) {
+        dragging = wasMouseOver
+
+        if (wasMouseOver) {
+            focused(FocusedEvent())
+        }
+
         for (element in handleElements) {
             element.mouseClick(event)
+        }
+    }
+
+    override var focused: (event: FocusedEvent) -> Unit = ::onFocused
+
+    override fun onFocused(event: FocusedEvent) {
+
+        for (element in handleElements) {
+            element.focused(event)
+        }
+
+        event.tryUse().onSuccess {
+            wasFocused = true
         }
     }
 
     override var mouseRelease: (event: MouseReleaseEvent) -> Unit = ::onMouseRelease
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
+
+        dragging = false
+
         for (element in handleElements) {
             element.mouseRelease(event)
         }
@@ -123,16 +165,39 @@ abstract class AbstractElement(
 
     override fun onMouseDragging(event: MouseDragEvent) {
         for (element in handleElements) {
-            element.mouseDragging(event)
+            if (element.dragging) element.mouseDragging(event)
         }
-        dragging = true
     }
 
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit = ::onMouseScrolling
 
+    override fun onMouseScrolling(event: MouseScrollEvent) {
+        for (element in handleElements) {
+            element.mouseScrolling(event)
+        }
+    }
+
     override var keyPress: (event: KeyPressEvent) -> Unit = ::onKeyPress
+
+    override fun onKeyPress(event: KeyPressEvent) {
+        for (element in handleElements) {
+            element.keyPress(event)
+        }
+    }
 
     override var keyRelease: (event: KeyReleaseEvent) -> Unit = ::onKeyRelease
 
+    override fun onKeyRelease(event: KeyReleaseEvent) {
+        for (element in handleElements) {
+            element.keyRelease(event)
+        }
+    }
+
     override var charTyped: (event: CharTypedEvent) -> Unit = ::onCharTyped
+
+    override fun onCharTyped(event: CharTypedEvent) {
+        for (element in handleElements) {
+            element.charTyped(event)
+        }
+    }
 }

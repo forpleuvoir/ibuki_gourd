@@ -6,20 +6,19 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
+import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.BACKGROUND_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.RIGHT_TO_LEFT
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
-import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.render.base.math.bezier.Ease
-import moe.forpleuvoir.ibukigourd.render.base.math.bezier.SineEasing
-import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
-import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
+import moe.forpleuvoir.ibukigourd.render.math.bezier.Ease
+import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
@@ -32,7 +31,7 @@ import kotlin.experimental.ExperimentalTypeInference
 
 open class TextFieldWidget(
     val text: () -> Text,
-    override var spacing: Float = SPACING,
+    var spacing: Float = SPACING,
     var shadow: Boolean = SHADOW,
     var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     var rightToLeft: Boolean = RIGHT_TO_LEFT,
@@ -151,11 +150,15 @@ open class TextFieldWidget(
             resize()
             changed = false
         }
-        renderBackground(renderContext)
+        renderContext.tryRender {
+            renderBackground(this)
+        }
         renderContext.scissor(transform.asWorldBox) {
             renderText(renderContext)
         }
-        renderOverlay(renderContext)
+        renderContext.tryRender {
+            renderOverlay(this)
+        }
     }
 
     protected fun renderText(renderContext: RenderContext) {
@@ -165,9 +168,9 @@ open class TextFieldWidget(
         val list = buildList {
             renderText.forEachIndexed { index, text ->
                 if (renderText.lastIndex != index)
-                    add(Rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
+                    add(Box(0f, 0f, textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
                 else
-                    add(Rect(vertex(0f, 0f, transform.z), textRenderer.getWidth(text), textRenderer.fontHeight))
+                    add(Box(0f, 0f, textRenderer.getWidth(text), textRenderer.fontHeight))
             }
         }
 

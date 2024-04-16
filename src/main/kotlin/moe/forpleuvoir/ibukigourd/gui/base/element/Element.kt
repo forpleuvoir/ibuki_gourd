@@ -17,16 +17,17 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
     companion object : Element {
         override val modifier: Modifier = Modifier
         override val transform: Transform = Transform()
-        override val layer: Layer = DefaultLayer
+        override var layer: Layer = DefaultLayer
         override var visible: Boolean = false
         override val layoutData: Map<Any, Any> = emptyMap()
         override var parent: () -> Element = { this }
         override val screen: () -> Screen = { Screen.EMPTY }
         override var active: Boolean = false
-        override val focused: Boolean = false
+        override var wasFocused: Boolean = false
         override val onFocusedChanged: ((Boolean) -> Unit) = {}
         override val focusable: Boolean = false
         override var fixed: Boolean = false
+        override var wasMouseOver: Boolean = false
         override var tip: Tip? = null
         override var render: (renderContext: RenderContext) -> Unit = { }
         override fun onRender(renderContext: RenderContext) = Unit
@@ -41,6 +42,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension = elementMeasureDimension
         override fun layout() = Unit
         override val elements: List<Element> = emptyList()
+        override val layoutElements: List<Element> = elements
         override val renderElements: List<Element> = elements
         override val fixedElements: List<Element> = elements
         override val handleElements: List<Element> = elements
@@ -60,6 +62,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override var mouseLeave: (event: MouseLeaveEvent) -> Unit = {}
         override var mouseMove: (event: MouseMoveEvent) -> Unit = {}
         override var mouseClick: (event: MousePressEvent) -> Unit = {}
+        override var focused: (event: FocusedEvent) -> Unit = {}
         override var mouseRelease: (event: MouseReleaseEvent) -> Unit = {}
         override var mouseDragging: (event: MouseDragEvent) -> Unit = {}
         override var mouseScrolling: (event: MouseScrollEvent) -> Unit = {}
@@ -80,7 +83,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
 
     val depth: Int get() = transform.depth
 
-    val layer: Layer
+    var layer: Layer
 
     override var visible: Boolean
 
@@ -104,7 +107,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
     /**
      * 是否为聚焦中的元素
      */
-    val focused: Boolean
+    var wasFocused: Boolean
 
     val onFocusedChanged: ((Boolean) -> Unit)?
 
@@ -118,6 +121,11 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      */
     var fixed: Boolean
 
+    /**
+     * 鼠标是否在此元素上
+     */
+    var wasMouseOver: Boolean
+
     var tip: Tip?
 
     fun fixed(x: Float, y: Float) {
@@ -130,68 +138,73 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
 
     /**
      * 渲染元素
-     * @param matrixStack MatrixStack
-     * @param delta Float 距离上一帧数渲染时间
+     * @param renderContext [RenderContext]
      */
     override var render: (renderContext: RenderContext) -> Unit
 
     /**
      * 渲染元素
-     * @param renderContext MatrixStack
-     * @param delta Float 距离上一帧数渲染时间
+     * @param renderContext [RenderContext]
      */
     override fun onRender(renderContext: RenderContext)
 
     /**
      * 渲染背景
-     * @param matrixStack MatrixStack
-     * @param delta Float
+     * @param renderContext [RenderContext]
      */
     var renderBackground: (renderContext: RenderContext) -> Unit
 
     /**
      * 渲染背景
-     * @param matrixStack MatrixStack
-     * @param renderContext Float
+     * @param renderContext [RenderContext]
      */
     fun onRenderBackground(renderContext: RenderContext)
 
     /**
      * 渲染覆盖层
-     * @param matrixStack MatrixStack
-     * @param delta Float
+     * @param renderContext [RenderContext]
      */
     var renderOverlay: (renderContext: RenderContext) -> Unit
 
     /**
      * 渲染覆盖层
-     * @param renderContext MatrixStack
-     * @param delta Float
+     * @param renderContext [RenderContext]
      */
     fun onRenderOverlay(renderContext: RenderContext)
 
     /**
+     * 鼠标进入
+     * @param event MouseEnterEvent
+     */
+    override fun onMouseEnter(event: MouseEnterEvent) {}
+
+    /**
+     * 鼠标离开
+     * @param event MouseLeaveEvent
+     */
+    override fun onMouseLeave(event: MouseLeaveEvent) {}
+
+    /**
      * 鼠标移动
-     * @param mouseX Float
-     * @param mouseY Float
+     * @param event MouseMoveEvent
      */
     override fun onMouseMove(event: MouseMoveEvent) {}
 
     /**
      * 鼠标点击
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
-     * @return 是否处理之后的同类操作
+     * @param event MousePressEvent
      */
     override fun onMouseClick(event: MousePressEvent) {}
 
     /**
+     * 获得焦点
+     * @param event FocusedEvent
+     */
+    override fun onFocused(event: FocusedEvent) {}
+
+    /**
      * 鼠标释放
-     * @param button Mouse
-     * @param mouseX Float
-     * @param mouseY Float
-     * @return 是否处理之后的同类操作
+     * @param event MouseReleaseEvent
      */
     override fun onMouseRelease(event: MouseReleaseEvent) {}
 
@@ -202,42 +215,31 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
 
     /**
      * 鼠标拖动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param button Mouse
-     * @param deltaX Float
-     * @param deltaY Float
-     * @return 是否处理之后的同类操作
+     * @param event MouseDragEvent
      */
     override fun onMouseDragging(event: MouseDragEvent) {}
 
     /**
      * 鼠标滚动
-     * @param mouseX Float
-     * @param mouseY Float
-     * @param amount Float
-     * @return 是否处理之后的同类操作
+     * @param event MouseScrollEvent
      */
     override fun onMouseScrolling(event: MouseScrollEvent) {}
 
     /**
      * 按键按下
-     * @param keyCode KeyCode
-     * @return 是否处理之后的同类操作
+     * @param event KeyPressEvent
      */
     override fun onKeyPress(event: KeyPressEvent) {}
 
     /**
      * 按键释放
-     * @param keyCode KeyCode
-     * @return 是否处理之后的同类操作
+     * @param event KeyReleaseEvent
      */
     override fun onKeyRelease(event: KeyReleaseEvent) {}
 
     /**
      * 字符输入
-     * @param chr Char
-     * @return 是否处理之后的同类操作
+     * @param event CharTypedEvent
      */
     override fun onCharTyped(event: CharTypedEvent) {}
 
@@ -247,9 +249,37 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      */
 
     /**
-     * 事件是否可使用
-     * @receiver GUIEvent
-     * @return Boolean
+     * Executes the use function on the current GUIEvent instance with the given Element.
+     * @receiver GUIEvent The current GUIEvent instance.
+     * @param element The Element to use.
+     */
+    fun GUIEvent.use() {
+        this.use(this@Element)
+    }
+
+    /**
+     * Tries to use the current GUIEvent instance with the given block of code.
+     * If the GUIEvent can be used and the block returns true, the 'use' function is executed on the element, and true is returned.
+     * If the GUIEvent cannot be used or the block returns false, false is returned.
+     * @receiver GUIEvent The current GUIEvent instance.
+     * @param block The block of code to be executed.
+     * @return Result<Boolean> Success(true) if the event was used, Failure(false) otherwise.
+     */
+    fun GUIEvent.tryUse(block: () -> Boolean = { true }): Result<Boolean> {
+        if (canUse(this@Element)) {
+            if (block()) {
+                this.use(this@Element)
+                return Result.success(true)
+            }
+            return Result.failure(Exception("Block returned false."))
+        }
+        return Result.failure(Exception("Event cannot be used."))
+    }
+
+    /**
+     * Determines if the GUIEvent instance can be used with the given Element.
+     *
+     * @return true if the GUIEvent can be used with the Element, false otherwise.
      */
     fun GUIEvent.canUse(): Boolean {
         return this.canUse(this@Element)
@@ -271,16 +301,8 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         return this.canRender(this@Element)
     }
 
-    fun RenderContext.canRender(block: () -> Unit) {
-        this.canRender(this@Element, block)
-    }
-
-    fun RenderContext.cantRender(): Boolean {
-        return this.cantRender(this@Element)
-    }
-
-    fun RenderContext.cantRender(block: () -> Unit) {
-        this.cantRender(this@Element, block)
+    fun RenderContext.tryRender(block: RenderContext.() -> Unit) {
+        this.tryRender(this@Element, block)
     }
 
 }

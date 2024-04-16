@@ -2,10 +2,10 @@ package moe.forpleuvoir.ibukigourd.gui.widget.icon
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.render.Size
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
+import moe.forpleuvoir.ibukigourd.gui.render.context.extension.batchRenderTexture
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.render.RenderContext
-import moe.forpleuvoir.ibukigourd.render.base.Size
-import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.contracts.ExperimentalContracts
@@ -41,16 +41,17 @@ fun Icon(
         init {
             transform.height = size().height * scale()
             transform.width = size().width * scale()
-            transform.resizeCallback = { _: Float, _: Float ->
-                parent().arrange()
+            transform.subscribeSizeChange { _, _ ->
+                //todo 重新布局父元素
             }
         }
-
 
         override fun onRenderBackground(renderContext: RenderContext) {
             transform.height = size().height * scale()
             transform.width = size().width * scale()
-            renderTexture(renderContext.matrixStack, transform, texture(), shaderColor())
+            renderContext.batchRenderTexture { context ->
+                context.drawTexture(transform, texture(), shaderColor())
+            }
         }
     }.apply(scope)
 }
@@ -87,7 +88,9 @@ fun Icon(
         }
 
         override fun onRenderBackground(renderContext: RenderContext) {
-            renderTexture(renderContext.matrixStack, transform, texture, shaderColor())
+            renderContext.batchRenderTexture { context ->
+                context.drawTexture(transform, texture, shaderColor())
+            }
         }
     }.apply(scope)
 }

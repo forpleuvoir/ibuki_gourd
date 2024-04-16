@@ -68,8 +68,8 @@ public abstract class MinecraftClientMixin {
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void ibukigourd$tickStart(CallbackInfo ci) {
-		EventBus.Companion.broadcast(new ClientTickEvent.ClientTickStartEvent((MinecraftClient) (Object) this));
 		InputHandler.INSTANCE.tick();
+        EventBus.Companion.broadcast(new ClientTickEvent.ClientTickStartEvent((MinecraftClient) (Object) this));
 	}
 
 	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sound/SoundManager;tick(Z)V", shift = At.Shift.BEFORE))

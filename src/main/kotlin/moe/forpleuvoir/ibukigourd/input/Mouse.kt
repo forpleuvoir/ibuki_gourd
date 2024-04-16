@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.input
 
+import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil
@@ -28,6 +29,8 @@ interface MousePosition {
 
     val x: Float
     val y: Float
+
+    val asVector2fc get() = Vector2f(x, y)
 }
 
 fun MousePosition.equals(x: Float, y: Float): Boolean = this.x == x && this.y == y

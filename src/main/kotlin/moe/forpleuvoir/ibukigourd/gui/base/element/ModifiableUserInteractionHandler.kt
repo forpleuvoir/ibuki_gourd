@@ -15,12 +15,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
  * 子类重写方法,调用者调用高阶函数
  *
  * 例:
- *
- * render={matrixStack,delta ->
- *
+ * ```kotlin
+ * render = {matrixStack,delta ->
  *     onRender(matrixStack,delta)
- *     code
+ *     your code
  * }
+ * ```
  *
  */
 interface ModifiableUserInteractionHandler :UserInteractionHandler {
@@ -44,6 +44,11 @@ interface ModifiableUserInteractionHandler :UserInteractionHandler {
      * 鼠标点击
      */
     var mouseClick: (event: MousePressEvent) -> Unit
+
+    /**
+     * 获得焦点
+     */
+    var focused: (event: FocusedEvent) -> Unit
 
     /**
      * 鼠标释放

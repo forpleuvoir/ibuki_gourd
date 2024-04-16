@@ -21,11 +21,11 @@ import net.minecraft.client.render.VertexFormats
 
 fun RenderContext.batchRenderTexture(
     shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionTexColorProgram,
-    block: TextureBatchRenderScope.() -> Unit
+    block: TextureBatchRenderScope.(RenderContext) -> Unit
 ) {
     setShader(shaderSupplier)
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
-    block(TextureBatchRenderScope)
+    block.invoke(TextureBatchRenderScope, this)
     bufferBuilder.draw()
 }
 
@@ -65,21 +65,21 @@ open class TextureBatchRenderScope private constructor() {
         val matrix4f = positionMatrix
         bufferBuilder.apply {
             vertex(matrix4f, x, y + height, 0f)
-                    .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight)
-                    .color(color)
-                    .next()
+                .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight)
+                .color(color)
+                .next()
             vertex(matrix4f, x + width, y + height, 0f)
-                    .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight)
-                    .color(color)
-                    .next()
+                .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight)
+                .color(color)
+                .next()
             vertex(matrix4f, x + width, y, 0f)
-                    .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight)
-                    .color(color)
-                    .next()
+                .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight)
+                .color(color)
+                .next()
             vertex(matrix4f, x, y, 0f)
-                    .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight)
-                    .color(color)
-                    .next()
+                .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight)
+                .color(color)
+                .next()
         }
     }
 

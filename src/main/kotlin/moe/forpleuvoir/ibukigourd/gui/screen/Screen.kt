@@ -1,14 +1,14 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
-import moe.forpleuvoir.ibukigourd.gui.tip.Tip
-import moe.forpleuvoir.ibukigourd.gui.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.element.Layer
 
-interface Screen : Element, TipHandler {
+interface Screen : Element {
     companion object {
 
         val EMPTY: Screen = object : Screen, Element by Element {
             override var parentScreen: Screen? = null
+            override val layers: List<Layer> = emptyList()
             override var focusedElement: Element? = null
             override val pauseGame: Boolean = false
             override val shouldCloseOnEsc: Boolean = false
@@ -16,10 +16,6 @@ interface Screen : Element, TipHandler {
             override fun onResize(width: Int, height: Int) = Unit
             override var close: () -> Unit = {}
             override fun onClose() = Unit
-            override val tipList: Iterable<Tip> = emptyList()
-            override var maxTip: Int = -1
-            override fun pushTip(tip: Tip): Boolean = false
-            override fun popTip(tip: Tip): Boolean = false
         }
     }
 
@@ -27,6 +23,11 @@ interface Screen : Element, TipHandler {
      * 上一级屏幕
      */
     var parentScreen: Screen?
+
+    /**
+     * GUI层
+     */
+    val layers: List<Layer>
 
     /**
      * 当前选中的元素

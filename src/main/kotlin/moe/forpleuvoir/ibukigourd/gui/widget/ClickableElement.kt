@@ -57,13 +57,13 @@ abstract class ClickableElement : AbstractElement() {
 
     override fun onMouseClick(event: MousePressEvent) {
         super.onMouseClick(event)
-        event.canUse {
-            if (event.button == Mouse.LEFT && mouseHover()) {
-                if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-                pressed = true
-                onClick()
-                event.use()
-            }
+
+        event.tryUse {
+            event.button == Mouse.LEFT && mouseHover()
+        }.onSuccess {
+            if (playClickSound) soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+            pressed = true
+            onClick()
         }
     }
 

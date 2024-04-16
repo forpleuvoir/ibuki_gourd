@@ -7,7 +7,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.render.Size
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.MousePosition
+import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.render.math.*
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.ifc
 import org.joml.Vector2f
 import org.joml.Vector2fc
@@ -67,7 +69,7 @@ class Transform(
     private inline fun notifyIfChanged(block: () -> Unit) {
         val origin = Size(width, height)
         block.invoke()
-        if (origin != this) notify(origin)
+        if (!Size.equals(origin, this)) notify(origin)
     }
 
     fun subscribePositionChange(action: (origin: Vector2fc, current: Vector2fc) -> Unit) = positionAsNotifiable.subscribe(action)
@@ -163,6 +165,11 @@ class Transform(
 
     val worldCenter: Vector2fc get() = Vector2f(worldX + this.halfWidth, worldY + this.halfHeight)
 
+
+    override fun contains(position: MousePosition): Boolean {
+        return isMouseOvered(position)
+    }
+
     /**
      * 鼠标是否在此元素[Transform]内部
      * @param mouseX Number
@@ -178,14 +185,6 @@ class Transform(
      * @return Boolean
      */
     fun isMouseOvered(mousePosition: MousePosition): Boolean =
-        mousePosition.x in worldLeft..worldRight && mousePosition.y in worldTop..worldBottom
-
-    /**
-     * @see [isMouseOvered]
-     * @param mousePosition MousePosition
-     * @return Boolean
-     */
-    operator fun contains(mousePosition: MousePosition): Boolean =
         mousePosition.x in worldLeft..worldRight && mousePosition.y in worldTop..worldBottom
 
     fun translate(vector2fc: Vector2fc) {
@@ -242,9 +241,7 @@ inline fun Element.mouseHover(block: Element.() -> Unit) {
     contract {
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
-    screen().let {
-        transform.isMouseOvered(it.mousePosition.x, it.mousePosition.y).ifc { block() }
-    }
+    if (mouseHover()) block()
 }
 
 /**
@@ -264,7 +261,7 @@ inline fun Element.mouseHoverContent(block: Element.() -> Unit) {
  * @receiver T
  * @return Boolean
  */
-fun Element.mouseHover(): Boolean = screen().let { transform.isMouseOvered(it.mousePosition.x, it.mousePosition.y) }
+fun Element.mouseHover(): Boolean = mc.mousePosition in transform
 
 /**
  * 鼠标是否在此元素内
@@ -273,14 +270,6 @@ fun Element.mouseHover(): Boolean = screen().let { transform.isMouseOvered(it.mo
  */
 fun Element.mouseHover(mousePosition: MousePosition): Boolean = transform.isMouseOvered(mousePosition)
 
-fun Element.mouseHoverContent(): Boolean {
-    val contentRect = contentBox(true)
-    screen().let {
-        return it.mousePosition.x in contentRect.left..contentRect.right && it.mousePosition.y in contentRect.top..contentRect.bottom
-    }
-}
+fun Element.mouseHoverContent(): Boolean = mc.mousePosition in contentBox(true)
 
-fun Element.mouseHoverContent(mousePosition: MousePosition): Boolean {
-    val contentRect = contentBox(true)
-    return mousePosition.x in contentRect.left..contentRect.right && mousePosition.y in contentRect.top..contentRect.bottom
-}
+fun Element.mouseHoverContent(mousePosition: MousePosition): Boolean = mousePosition in contentBox(true)

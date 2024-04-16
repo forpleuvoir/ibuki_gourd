@@ -304,7 +304,7 @@ class TextBoxWidget(
     override fun tick() {
         super.tick()
         history.tick()
-        if (focused) {
+        if (wasFocused) {
             ++focusedTicks
         } else {
             focusedTicks = 0

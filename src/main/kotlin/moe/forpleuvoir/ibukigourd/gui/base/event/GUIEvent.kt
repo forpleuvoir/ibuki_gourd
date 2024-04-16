@@ -37,8 +37,10 @@ open class GUIEvent {
         if (cantUse(element)) block()
     }
 
-    fun use() {
-        used = true
+    fun use(element: Element) {
+        canUse(element) {
+            used = true
+        }
     }
 
     /**

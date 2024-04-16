@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.render.shape.box
 
 import moe.forpleuvoir.ibukigourd.gui.render.Size
 import moe.forpleuvoir.ibukigourd.gui.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.toVector2fc
 import moe.forpleuvoir.nebula.common.pick
@@ -77,6 +78,20 @@ interface Box : SizeFloat, Cloneable {
     operator fun contains(vector3fc: Vector3fc): Boolean {
         return this.exist.pick(
             vector3fc.x() in this.top..this.bottom && vector3fc.y() in this.left..this.right,
+            false
+        )
+    }
+
+    operator fun contains(vector2fc: Vector2fc): Boolean {
+        return this.exist.pick(
+            vector2fc.x() in this.top..this.bottom && vector2fc.y() in this.left..this.right,
+            false
+        )
+    }
+
+    operator fun contains(position: MousePosition): Boolean {
+        return this.exist.pick(
+            position.x in this.top..this.bottom && position.y in this.left..this.right,
             false
         )
     }

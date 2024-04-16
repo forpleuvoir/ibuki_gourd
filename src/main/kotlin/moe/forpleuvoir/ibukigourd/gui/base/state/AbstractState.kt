@@ -21,6 +21,8 @@ abstract class AbstractState(override val name: String = "nameless") : State {
 
     override fun onMouseClick(event: MousePressEvent) = Unit
 
+    override fun onFocused(event: FocusedEvent) = Unit
+
     override fun onMouseRelease(event: MouseReleaseEvent) = Unit
 
     override fun onMouseDragging(event: MouseDragEvent) = Unit

@@ -15,6 +15,8 @@ interface Layer {
 
         val pop = PopLayer
 
+        val defaultLayers: List<Layer> = listOf(pop, default)
+
     }
 
 

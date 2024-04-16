@@ -13,7 +13,7 @@ open class StateMachineManager(initialState: State) : UserInteractionHandler {
         }
 
     override fun onMouseEnter(event: MouseEnterEvent) {
-        currentState.onMouseMove()
+        currentState.onMouseEnter(event)
     }
 
     override fun onMouseLeave(event: MouseLeaveEvent) {
@@ -21,35 +21,39 @@ open class StateMachineManager(initialState: State) : UserInteractionHandler {
     }
 
     override fun onMouseMove(event: MouseMoveEvent) {
-        currentState.onMouseMove()
+        currentState.onMouseMove(event)
     }
 
     override fun onMouseClick(event: MousePressEvent) {
-        currentState.onMouseClick()
+        currentState.onMouseClick(event)
+    }
+
+    override fun onFocused(event: FocusedEvent) {
+        currentState.onFocused(event)
     }
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
-        currentState.onMouseRelease()
+        currentState.onMouseRelease(event)
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        currentState.onMouseDragging()
+        currentState.onMouseDragging(event)
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        currentState.onMouseScrolling()
+        currentState.onMouseScrolling(event)
     }
 
     override fun onKeyPress(event: KeyPressEvent) {
-        currentState.onKeyPress()
+        currentState.onKeyPress(event)
     }
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        currentState.onKeyRelease()
+        currentState.onKeyRelease(event)
     }
 
     override fun onCharTyped(event: CharTypedEvent) {
-        currentState.onCharTyped()
+        currentState.onCharTyped(event)
     }
 
     override fun tick() {

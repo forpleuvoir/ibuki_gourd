@@ -25,14 +25,4 @@ interface Drawable {
      */
     fun onRender(renderContext: RenderContext)
 
-    /**
-     * 将渲染动作提交到最后渲染
-     * @receiver RenderContext
-     * @param render RenderContext.() -> Unit
-     */
-    fun RenderContext.postRender(render: RenderContext.() -> Unit) {
-        this.postRender(renderPriority, render)
-    }
-
-
 }

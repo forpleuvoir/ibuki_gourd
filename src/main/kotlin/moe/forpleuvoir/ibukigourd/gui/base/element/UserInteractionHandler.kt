@@ -26,6 +26,11 @@ interface UserInteractionHandler : Tickable {
     fun onMouseClick(event: MousePressEvent)
 
     /**
+     * 获得焦点
+     */
+    fun onFocused(event: FocusedEvent)
+
+    /**
      * 鼠标释放
      */
     fun onMouseRelease(event: MouseReleaseEvent)

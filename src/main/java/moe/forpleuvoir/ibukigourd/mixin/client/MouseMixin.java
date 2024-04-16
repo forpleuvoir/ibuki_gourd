@@ -113,7 +113,6 @@ public abstract class MouseMixin {
                 }
                 final double deltaX = (x - this.x) * (double) this.client.getWindow().getScaledWidth() / (double) this.client.getWindow().getWidth();
                 final double deltaY = (y - this.y) * (double) this.client.getWindow().getScaledHeight() / (double) this.client.getWindow().getHeight();
-
                 ScreenManager.hasScreen(screen -> screen.getMouseDragging().invoke(new MouseDragEvent(position.getX(), position.getY(), keyCode, (float) deltaX, (float) deltaY)));
             }
         }

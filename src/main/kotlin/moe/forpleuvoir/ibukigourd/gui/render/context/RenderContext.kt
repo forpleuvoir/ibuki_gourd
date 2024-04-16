@@ -54,26 +54,13 @@ class RenderContext(
         } else false
     }
 
-    fun cantRender(element: Element): Boolean {
-        return !canRender(element)
-    }
-
     @OptIn(ExperimentalContracts::class)
-    inline fun canRender(element: Element, block: () -> Unit) {
+    inline fun tryRender(element: Element, block: RenderContext.() -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         }
         if (canRender(element)) block()
     }
-
-    @OptIn(ExperimentalContracts::class)
-    inline fun cantRender(element: Element, block: () -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
-        }
-        if (cantRender(element)) block()
-    }
-
 
     fun postRender(renderPriority: Int, render: RenderContext.() -> Unit) {
         if (rendering) return

@@ -7,7 +7,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
-import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 
@@ -15,7 +14,7 @@ abstract class AbstractScreen(
     width: ElementDimension = MatchParent,
     height: ElementDimension = MatchParent,
     orientation: Orientation = Orientation.Vertical,
-    val layers: List<Layer> = listOf(Layer.pop, Layer.default)
+    final override val layers: List<Layer> = Layer.defaultLayers
 ) : LinearLayout(width, height, orientation), Screen {
 
     init {
@@ -24,24 +23,12 @@ abstract class AbstractScreen(
         }
     }
 
+    override var layer: Layer = Layer.default
+
+
     override val screen: () -> Screen get() = { this }
 
     override var parent: () -> Element = { this }
-
-    override val tipList = ArrayList<Tip>()
-
-    override var maxTip: Int = 5
-
-    override fun pushTip(tip: Tip): Boolean {
-        if (tipList.contains(tip)) return false
-        return if (tipList.size < maxTip)
-            tipList.add(tip)
-        else false
-    }
-
-    override fun popTip(tip: Tip): Boolean {
-        return tipList.remove(tip)
-    }
 
     override var parentScreen: Screen? = null
 
@@ -53,66 +40,149 @@ abstract class AbstractScreen(
 
     override var close: () -> Unit = ::onClose
 
-    override val handleElements: List<Element>
-        get() = buildList {
-            addAll(super.handleElements)
-        }
+//    override val handleElements: List<Element>
+//        get() = buildList {
+//            addAll(super.handleElements)
+//        }
 
 
     override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
+        TODO()
+    }
+
+    override fun onMouseEnter(event: MouseEnterEvent) = Unit
+
+    override fun onMouseLeave(event: MouseLeaveEvent) = Unit
+
+    override fun onMouseMove(event: MouseMoveEvent) {
+        if (!active) return
+
+        wasMouseOver = event.position in transform.asWorldBox
+
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                val mouseOver = element.wasMouseOver
+                element.mouseMove(event)
+                if (!mouseOver && element.wasMouseOver) {
+                    element.mouseEnter(MouseEnterEvent(event.x, event.y).apply { this.layer = layer })
+                } else if (mouseOver && !element.wasMouseOver) {
+                    element.mouseLeave(MouseLeaveEvent(event.x, event.y).apply { this.layer = layer })
+                }
+            }
+        }
 
     }
 
     override fun onMouseClick(event: MousePressEvent) {
+        if (!active) return
+
+        dragging = wasMouseOver
+
+        if (wasMouseOver) {
+            focused(FocusedEvent())
+        }
+
         for (layer in layers) {
             event.layer = layer
-            super<LinearLayout>.onMouseClick(event)
+            for (element in handleElements) {
+                element.mouseClick(event)
+            }
+        }
+    }
+
+    override fun onFocused(event: FocusedEvent) {
+        if (!active) return
+
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                element.focused(event)
+            }
+        }
+
+        event.tryUse().onSuccess {
+            wasFocused = true
         }
     }
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
-        eventBus.broadcast(event)
+        if (!active) return
+
+        dragging = false
+
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                element.mouseRelease(event)
+            }
+        }
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        eventBus.broadcast(event)
+        if (!active && dragging) return
+
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                if (element.dragging) element.mouseDragging(event)
+            }
+        }
+
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        eventBus.broadcast(event)
-    }
+        if (!active) return
 
-    override fun onMouseEnter(event: MouseEnterEvent) {
-        eventBus.broadcast(event)
-    }
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                element.mouseScrolling(event)
+            }
+        }
 
-    override fun onMouseLeave(event: MouseLeaveEvent) {
-        eventBus.broadcast(event)
-    }
-
-    override fun onMouseMove(event: MouseMoveEvent) {
-        eventBus.broadcast(event)
     }
 
     override fun onKeyPress(event: KeyPressEvent) {
-        eventBus.broadcast(event)
-        if (!event.used && event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc) {
+        if (!active) return
+
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                element.keyPress(event)
+            }
+        }
+
+        event.tryUse {
+            event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc
+        }.onSuccess {
             close()
-            event.use()
         }
     }
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        eventBus.broadcast(event)
+        if (!active) return
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                element.keyRelease(event)
+            }
+        }
     }
 
     override fun onCharTyped(event: CharTypedEvent) {
-        eventBus.broadcast(event)
+        if (!active) return
+        for (layer in layers) {
+            event.layer = layer
+            for (element in handleElements) {
+                element.charTyped(event)
+            }
+        }
     }
 
     override fun onRender(renderContext: RenderContext) {
         if (!visible) return
-        renderBackground.invoke(renderContext)
+        renderBackground(renderContext)
 
         for (i in layers.lastIndex downTo 0) {
             renderContext.layer = layers[i]
@@ -129,12 +199,7 @@ abstract class AbstractScreen(
 //                }
 //            }
 //        }
-
-        //TODO("是否需要重写Tip的实现")
-//        tipList.sortedBy { it.renderPriority }.forEach {
-//            if (it.visible) it.render.invoke(renderContext)
-//        }
-        renderOverlay.invoke(renderContext)
+        renderOverlay(renderContext)
     }
 
     override fun onClose() {

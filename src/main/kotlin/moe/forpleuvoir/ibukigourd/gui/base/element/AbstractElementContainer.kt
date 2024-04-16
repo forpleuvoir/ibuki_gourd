@@ -17,8 +17,6 @@ abstract class AbstractElementContainer : Element {
 
     private var contentWorldBoxCache: Box? = null
 
-    private var initialized = false
-
     init {
         transform.subscribeChange(
             { _, _ ->
@@ -27,8 +25,6 @@ abstract class AbstractElementContainer : Element {
                 refreshContentBoxCache()
             }
         )
-        initialized = true
-        updateElementListCache()
     }
 
     override var margin: Margin = Margin()
@@ -40,38 +36,18 @@ abstract class AbstractElementContainer : Element {
     /**
      * 参与布局排列的元素
      */
-    override val layoutElements: List<Element> get() = layoutElementsCache
+    override val layoutElements: List<Element> get() = subElements.filter { !it.fixed }
 
-    private var layoutElementsCache: List<Element> = subElements.filter { !it.fixed }
+    override val elements: List<Element> get() = subElements.filter { it != this.tip }
 
-    override val elements: List<Element> get() = elementsCache
+    override val renderElements get() = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
 
-    private var elementsCache: List<Element> = subElements.filter { it != this.tip }
+    override val fixedElements get() = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
 
-    override val renderElements get() = renderElementsCache
-
-    private var renderElementsCache: List<Element> = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
-
-    override val fixedElements get() = fixedElementsCache
-
-    private var fixedElementsCache: List<Element> = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
-
-    override val handleElements get() = handleElementsCache
-
-    private var handleElementsCache: List<Element> = subElements.filter { it != this.tip && it.active }
-
-    private fun updateElementListCache() {
-        if (!initialized) return
-        layoutElementsCache = subElements.filter { !it.fixed }
-        elementsCache = subElements.filter { it != this.tip }
-        renderElementsCache = subElements.filter { it != this.tip && it.visible }.sortedBy { it.renderPriority }
-        fixedElementsCache = subElements.filter { it != this.tip && it.fixed }.sortedBy { it.renderPriority }
-        handleElementsCache = subElements.filter { it != this.tip && it.active }
-    }
+    override val handleElements get() = subElements.filter { it != this.tip && it.active }
 
     override fun clearElements(predicate: (Element) -> Boolean) {
         subElements.removeAll(predicate)
-        updateElementListCache()
     }
 
     override fun init() {
@@ -107,9 +83,9 @@ abstract class AbstractElementContainer : Element {
     override fun <T : Element> addElement(element: T): T {
         if (subElements.contains(element)) return element
         subElements.add(element)
-        updateElementListCache()
         element.transform.parent = { this.transform }
         element.parent = { this }
+        element.layer = this.layer
         return element
     }
 
@@ -131,7 +107,6 @@ abstract class AbstractElementContainer : Element {
         element.transform.parent = { null }
         element.parent = { Element }
         val value = subElements.remove(element)
-        updateElementListCache()
         return value
     }
 
@@ -140,7 +115,6 @@ abstract class AbstractElementContainer : Element {
             transform.parent = { null }
             parent = { Element }
         }
-        updateElementListCache()
     }
 
 }

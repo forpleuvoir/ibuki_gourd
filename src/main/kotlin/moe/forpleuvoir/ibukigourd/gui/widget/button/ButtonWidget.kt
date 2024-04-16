@@ -101,9 +101,13 @@ open class ButtonWidget(
         renderContext.scissorOffset(offset) {
             matrixStack {
                 matrixStack.translate(offset)
-                renderBackground(this)
+                tryRender {
+                    renderBackground(this)
+                }
                 super.onRender(this)
-                renderOverlay(this)
+                tryRender {
+                    renderOverlay(this)
+                }
             }
         }
     }
