@@ -1,15 +1,18 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractElement(
-    override var width: ElementDimension = WrapContent(),
-    override var height: ElementDimension = WrapContent()
+    override var width: ElementDimension = wrap_content,
+    override var height: ElementDimension = wrap_content
 ) : Element, AbstractElementContainer() {
 
     override val screen: () -> Screen
@@ -17,7 +20,7 @@ abstract class AbstractElement(
             return if (parent() is Screen) {
                 { parent() as Screen }
             } else {
-                { parent().screen.invoke() }
+                { parent().screen() }
             }
         }
 
@@ -26,8 +29,6 @@ abstract class AbstractElement(
     override val modifier: Modifier = Modifier
 
     override var visible: Boolean = true
-
-    override val layoutData: Map<Any, Any> = hashMapOf()
 
     override var parent: () -> Element = { this }
 
@@ -52,6 +53,12 @@ abstract class AbstractElement(
     override val focusable: Boolean = false
 
     override var wasMouseOver: Boolean = false
+
+    override var layout: Layout = LinearLayout(Orientation.Horizontal) { this }
+
+    override fun onLayout() {
+        layout.layout()
+    }
 
     final override var tip: Tip? = null
         set(value) {

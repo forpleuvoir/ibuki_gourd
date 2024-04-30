@@ -37,40 +37,49 @@ class StyleScope {
 
     private var font: Identifier? = null
 
-    fun color(rgbColor: RGBColor) {
+    fun color(rgbColor: RGBColor): StyleScope {
         this.color = rgbColor
+        return this
     }
 
-    fun color(rgbColor: Int) {
+    fun color(rgbColor: Int): StyleScope {
         this.color = Color(rgbColor).alpha(1f)
+        return this
     }
 
-    fun bold(bold: Boolean = true) {
+    fun bold(bold: Boolean = true): StyleScope {
         this.bold = bold
+        return this
     }
 
-    fun italic(italic: Boolean = true) {
+    fun italic(italic: Boolean = true): StyleScope {
         this.italic = italic
+        return this
     }
 
-    fun underlined(underlined: Boolean = true) {
+    fun underlined(underlined: Boolean = true): StyleScope {
         this.underlined = underlined
+        return this
     }
 
-    fun strikethrough(strikethrough: Boolean = true) {
+    fun strikethrough(strikethrough: Boolean = true): StyleScope {
         this.strikethrough = strikethrough
+        return this
     }
 
-    fun obfuscated(obfuscated: Boolean = true) {
+    fun obfuscated(obfuscated: Boolean = true): StyleScope {
         this.obfuscated = obfuscated
+        return this
     }
 
-    fun clickEvent(clickEvent: ClickEvent) {
+    fun clickEvent(clickEvent: ClickEvent): StyleScope {
         this.clickEvent = clickEvent
+        return this
     }
 
-    inline fun <reified T : ClickEventAction> click(value: String) {
-        clickEvent(
+    @Suppress("DuplicatedCode")
+    inline fun <reified T : ClickEventAction> click(value: String): StyleScope {
+        return clickEvent(
             when (T::class) {
                 OpenUrl::class         -> ClickEvent(ClickEvent.Action.OPEN_URL, value)
                 OpenFile::class        -> ClickEvent(ClickEvent.Action.OPEN_FILE, value)
@@ -83,36 +92,44 @@ class StyleScope {
         )
     }
 
-    fun hoverEvent(hoverEvent: HoverEvent) {
+    fun hoverEvent(hoverEvent: HoverEvent): StyleScope {
         this.hoverEvent = hoverEvent
+        return this
     }
 
-    fun hover(itemStack: ItemStack) {
+    fun hover(itemStack: ItemStack): StyleScope {
         hoverEvent(HoverEvent(HoverEvent.Action.SHOW_ITEM, HoverEvent.ItemStackContent(itemStack)))
+        return this
     }
 
-    fun hover(itemStackContent: HoverEvent.ItemStackContent) {
+    fun hover(itemStackContent: HoverEvent.ItemStackContent): StyleScope {
         hoverEvent(HoverEvent(HoverEvent.Action.SHOW_ITEM, itemStackContent))
+        return this
     }
 
-    fun hover(entity: Entity) {
+    fun hover(entity: Entity): StyleScope {
         hoverEvent(HoverEvent(HoverEvent.Action.SHOW_ENTITY, HoverEvent.EntityContent(entity.type, entity.uuid, entity.displayName)))
+        return this
     }
 
-    fun hover(entityContent: HoverEvent.EntityContent) {
+    fun hover(entityContent: HoverEvent.EntityContent): StyleScope {
         hoverEvent(HoverEvent(HoverEvent.Action.SHOW_ENTITY, entityContent))
+        return this
     }
 
-    fun hover(text: Text) {
+    fun hover(text: Text): StyleScope {
         hoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, text))
+        return this
     }
 
-    fun insertion(insertion: String) {
+    fun insertion(insertion: String): StyleScope {
         this.insertion = insertion
+        return this
     }
 
-    fun font(font: Identifier) {
+    fun font(font: Identifier): StyleScope {
         this.font = font
+        return this
     }
 
 }

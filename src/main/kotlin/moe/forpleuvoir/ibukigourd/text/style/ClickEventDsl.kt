@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.text.style
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Style
 
+@Suppress("DuplicatedCode")
 inline fun <reified T : ClickEventAction> Style.click(value: String):Style {
     val event = when (T::class) {
         OpenUrl::class         -> ClickEvent(ClickEvent.Action.OPEN_URL, value)

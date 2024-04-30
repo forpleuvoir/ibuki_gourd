@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.MatchParent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.base.layout.listLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.row
+import moe.forpleuvoir.ibukigourd.gui.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.tip.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.widget.button.*
 import moe.forpleuvoir.ibukigourd.gui.widget.doubleScroller
@@ -22,7 +23,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tab
 import moe.forpleuvoir.ibukigourd.gui.widget.tabs.tabs
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.render.base.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.render.base.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.base.vertex.colorVertex
 import moe.forpleuvoir.ibukigourd.render.base.vertex.vertex
@@ -68,17 +68,14 @@ val testScreen3: Screen
             inactiveColor = { Color(0xFFB3F2FFu) },
             direction = Direction.Top
         ) {
-            heightDimensionMode = MatchParent
-            widthDimensionMode = MatchParent
             repeat(5) { index ->
                 var color = Colors.BLACK
                 tab(index == 3,
                     tab = Row {
                         if (index == 3) icon(IconTextures.SAVE, scale = 0.8f, shaderColor = { color })
-                        textField({ Literal("选项卡$index").style { it.withColor(color) } })
-                    }, content = Row(alignment = PlanarAlignment::TopLeft) {
-                        heightDimensionMode = MatchParent
-                        widthDimensionMode = MatchParent
+                        textField({ Literal("选项卡$index").style { color(color) } })
+                    },
+                    content = Row(alignment = PlanarAlignment::TopLeft) {
                         renderBackground = {
                             renderRect(it.matrixStack, contentBox(true), Colors.BLACK.opacity(0.5f))
                         }
@@ -88,8 +85,6 @@ val testScreen3: Screen
                                 renderBackground = {
                                     renderRect(it.matrixStack, contentBox(true), Colors.RED.opacity(0.2f))
                                 }
-                                heightDimensionMode = MatchParent
-                                widthDimensionMode = FillRemainingSpace
                                 textBox(120f, 120f, padding = Margin(5)) {
                                     hintText = Literal("宽度填充测试")
                                     heightDimensionMode = MatchParent
@@ -113,7 +108,7 @@ val testScreen3: Screen
 val testScreen2: Screen
     get() = screen {
         padding(10)
-        row{
+        row {
 //            heightDimensionMode = MatchParent
 //            widthDimensionMode = MatchParent
             textBox(120f, 120f, padding = Margin(5)) {

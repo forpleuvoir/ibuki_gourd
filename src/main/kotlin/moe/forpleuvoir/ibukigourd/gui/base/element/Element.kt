@@ -1,9 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.render.Drawable
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
@@ -11,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.screen.Screen
 import moe.forpleuvoir.ibukigourd.gui.tip.Tip
 
+@GuiDslMark
 @Suppress("unused", "KDocUnresolvedReference")
 interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler {
 
@@ -19,7 +22,6 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override val transform: Transform = Transform()
         override var layer: Layer = DefaultLayer
         override var visible: Boolean = false
-        override val layoutData: Map<Any, Any> = emptyMap()
         override var parent: () -> Element = { this }
         override val screen: () -> Screen = { Screen.EMPTY }
         override var active: Boolean = false
@@ -40,7 +42,7 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override var width: ElementDimension = 0.fixed
         override var height: ElementDimension = 0.fixed
         override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension = elementMeasureDimension
-        override fun layout() = Unit
+        override fun onLayout() = Unit
         override val elements: List<Element> = emptyList()
         override val layoutElements: List<Element> = elements
         override val renderElements: List<Element> = elements
@@ -87,8 +89,6 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
 
     override var visible: Boolean
 
-    val layoutData: Map<Any, Any>
-
     /**
      * 父元素
      */
@@ -98,6 +98,8 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
      *  当前元素所在的Screen
      */
     val screen: () -> Screen
+
+    var layout: Layout
 
     /**
      * 是否为激活的元素

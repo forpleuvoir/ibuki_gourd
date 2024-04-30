@@ -1,8 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
-import moe.forpleuvoir.ibukigourd.gui.base.element.MeasureDimension
-import moe.forpleuvoir.ibukigourd.gui.base.element.with
+import moe.forpleuvoir.ibukigourd.gui.base.element.MeasureSpec
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.option.KeyBinding
@@ -22,11 +21,11 @@ object ScreenManager : Tickable {
             KeyBinding.unpressAll()
             InputHandler.unpressAll()
             it.init.invoke()
-            it.measure(
-                MeasureDimension(MeasureDimension.Mode.AT_MOST, mc.window.scaledWidth.toFloat()) with
-                        MeasureDimension(MeasureDimension.Mode.AT_MOST, mc.window.scaledHeight.toFloat())
+            it.onMeasure(
+                MeasureSpec(MeasureSpec.Mode.AT_MOST, mc.window.scaledWidth.toFloat()),
+                MeasureSpec(MeasureSpec.Mode.AT_MOST, mc.window.scaledHeight.toFloat())
             )
-            it.layout()
+            it.onLayout()
             mc.skipGameRender = false
             mc.updateWindowTitle()
             return

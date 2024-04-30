@@ -26,12 +26,12 @@ interface ElementContainer : Initializable {
      * @param elementMeasureDimension ElementMeasureDimension 父元素的测量尺寸
      * @return Size<Float>
      */
-    fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension
+    fun onMeasure(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec)
 
     /**
      * 对子元素进行排列
      */
-    fun layout()
+    fun onLayout()
 
     /**
      * 子元素

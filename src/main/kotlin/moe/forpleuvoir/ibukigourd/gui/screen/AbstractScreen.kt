@@ -4,18 +4,15 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
-import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 
 abstract class AbstractScreen(
-    width: ElementDimension = MatchParent,
-    height: ElementDimension = MatchParent,
-    orientation: Orientation = Orientation.Vertical,
+    width: ElementDimension = match_parent,
+    height: ElementDimension = match_parent,
     final override val layers: List<Layer> = Layer.defaultLayers
-) : LinearLayout(width, height, orientation), Screen {
+) : AbstractElement(width, height), Screen {
 
     init {
         check(layers.toSet().size == layers.size) {
@@ -46,9 +43,6 @@ abstract class AbstractScreen(
 //        }
 
 
-    override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
-        TODO()
-    }
 
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 

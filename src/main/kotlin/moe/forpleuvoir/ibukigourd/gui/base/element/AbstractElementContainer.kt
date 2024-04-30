@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.element.MeasureSpec.Mode.*
 import moe.forpleuvoir.ibukigourd.gui.render.MutableSize
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
@@ -54,12 +55,25 @@ abstract class AbstractElementContainer : Element {
         for (e in subElements) e.init.invoke()
     }
 
-    override fun layout() {
+    override fun onMeasure(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec) {
 
     }
 
-    override fun measure(elementMeasureDimension: ElementMeasureDimension): ElementMeasureDimension {
-        return elementMeasureDimension
+    private fun calculateDimension(measureSpec: MeasureSpec): Float {
+        var result = 0f
+        val (mode, size) = measureSpec
+        when (mode) {
+            EXACTLY     -> {
+                result = size
+            }
+
+            AT_MOST     -> {
+
+            }
+
+            UNSPECIFIED -> {}
+        }
+        return result
     }
 
     var measuredDimension: MutableSize<Float> = MutableSize(0f, 0f)
