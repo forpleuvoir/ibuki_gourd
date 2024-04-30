@@ -54,7 +54,7 @@ class SearchBar(x: Int, y: Int, width: Int, height: Int) : PositionParentWidget(
 	}
 
 	fun tick() {
-		textField.tick()
+//		textField.tick()
 	}
 
 	override fun appendNarrations(builder: NarrationMessageBuilder) {}

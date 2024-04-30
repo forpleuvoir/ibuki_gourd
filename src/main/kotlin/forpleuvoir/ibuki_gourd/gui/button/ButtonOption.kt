@@ -41,8 +41,8 @@ class ButtonOption(
 		this.message = current.text
 	}
 
-	override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-		super.renderButton(context, mouseX, mouseY, delta)
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		super.renderWidget(context, mouseX, mouseY, delta)
 	}
 
 	fun changCurrent() {

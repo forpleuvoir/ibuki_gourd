@@ -71,10 +71,10 @@ open class WidgetSliderNumber(
 		)
 	}
 
-	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (!visible) return
 		this.updateMessage()
-		super.render(context, mouseX, mouseY, delta)
+		super.renderWidget(context, mouseX, mouseY, delta)
 	}
 
 	override fun onRelease(mouseX: Double, mouseY: Double) {

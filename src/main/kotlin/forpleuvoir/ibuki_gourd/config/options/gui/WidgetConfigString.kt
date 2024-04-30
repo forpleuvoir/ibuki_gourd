@@ -4,7 +4,6 @@ import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.options.IConfigString
 import forpleuvoir.ibuki_gourd.gui.widget.WidgetText
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.gui.DrawContext
 
 /**
  *
@@ -39,10 +38,6 @@ class WidgetConfigString(
 		config.setOnValueChangedCallback {
 			updateText()
 		}
-	}
-
-	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-		super.render(context, mouseX, mouseY, delta)
 	}
 
 	private fun updateText() {

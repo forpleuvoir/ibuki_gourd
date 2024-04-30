@@ -82,6 +82,6 @@ class WidgetListStringConfigEntry(
 
 
 	override fun tick() {
-		textInput.tick()
+//		textInput.tick()
 	}
 }

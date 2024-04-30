@@ -28,6 +28,10 @@ open class WidgetText(x: Int, y: Int, width: Int, height: Int, text: Text? = nul
 		setMaxLength(65535)
 	}
 
+//	open fun tick(){
+//		method_1865()
+//	}
+
 	var unFocusedCallback: ((WidgetText) -> Unit)? = null
 
 	override fun setFocusUnlocked(focused: Boolean) {

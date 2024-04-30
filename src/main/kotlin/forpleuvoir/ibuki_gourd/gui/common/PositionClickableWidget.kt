@@ -36,7 +36,7 @@ open class PositionClickableWidget(x: Int, y: Int, width: Int, height: Int, mess
 		onPositionChanged?.invoke(deltaX, deltaY, x, y)
 	}
 
-	override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 
 	}
 

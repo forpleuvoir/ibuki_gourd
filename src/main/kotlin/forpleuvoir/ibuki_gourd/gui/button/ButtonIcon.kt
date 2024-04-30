@@ -36,8 +36,8 @@ class ButtonIcon(
 	onButtonPress: ((ButtonIcon) -> Unit)? = null
 ) : ButtonBase<ButtonIcon>(x, y, width, height, "".text, onButtonPress) {
 
-	override fun renderButton(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-		if (renderBg) super.renderButton(context, mouseX, mouseY, delta)
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		if (renderBg) super.renderWidget(context, mouseX, mouseY, delta)
 		if (this.isHovered) {
 			if (renderBord)
 				drawOutline(context, this.x, this.y, this.width, this.height, 1, Color4f.WHITE)

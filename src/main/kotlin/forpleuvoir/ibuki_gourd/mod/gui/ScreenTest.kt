@@ -37,9 +37,9 @@ class ScreenTest(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 	private var testValue = 10.0
 
 	override fun tick() {
-		children().forEach {
-			if (it is MultilineTextField) it.tick()
-		}
+//		children().forEach {
+//			if (it is MultilineTextField) it.tick()
+//		}
 	}
 
 	override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {

@@ -89,7 +89,7 @@ open class ConfigString(
 			}
 
 			override fun tick() {
-				widget.tick()
+//				widget.tick()
 			}
 		}
 	}

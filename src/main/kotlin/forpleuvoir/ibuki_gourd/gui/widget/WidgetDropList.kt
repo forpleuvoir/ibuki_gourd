@@ -145,8 +145,9 @@ open class WidgetDropList<E>(
 			}
 	}
 
-	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
-		return listWidget.mouseScrolled(mouseX, mouseY, amount)
+	//mouseScrolled
+	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double, verticalAmount: Double): Boolean {
+		return listWidget.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
 	}
 
 	private fun toggle(entry: E) {

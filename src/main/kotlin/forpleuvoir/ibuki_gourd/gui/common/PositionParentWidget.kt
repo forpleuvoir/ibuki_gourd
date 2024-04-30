@@ -91,9 +91,9 @@ abstract class PositionParentWidget(var x: Int, var y: Int, open var width: Int,
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
 	}
 
-	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double, verticalAmount: Double): Boolean {
 		if (!active) return false
-		return super.mouseScrolled(mouseX, mouseY, amount)
+		return super.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
 	}
 
 	override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {

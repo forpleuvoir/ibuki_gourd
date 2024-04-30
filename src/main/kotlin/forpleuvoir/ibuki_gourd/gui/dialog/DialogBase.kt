@@ -109,7 +109,7 @@ open class DialogBase<D : DialogBase<D>>(protected var dialogWidth: Int, protect
 
 	}
 
-	override fun renderBackground(context: DrawContext) {
+	fun renderBackground(context: DrawContext) {
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram)
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f)
 		RenderSystem.enableBlend()

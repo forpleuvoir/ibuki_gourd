@@ -57,9 +57,9 @@ class ButtonConfigColor(
 		}
 	}
 
-	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		updateText()
-		super.render(context, mouseX, mouseY, delta)
+		super.renderWidget(context, mouseX, mouseY, delta)
 	}
 
 	private fun updateText() {
@@ -67,9 +67,9 @@ class ButtonConfigColor(
 			it.withColor(color.getValue().rgba)
 		}
 	}
-
-	override fun renderButton(context: DrawContext?, mouseX: Int, mouseY: Int, delta: Float) {
-		super.renderButton(context, mouseX, mouseY, delta)
-	}
+//
+//	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+//		super.renderWidget(context, mouseX, mouseY, delta)
+//	}
 
 }

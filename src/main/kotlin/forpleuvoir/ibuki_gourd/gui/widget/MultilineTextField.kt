@@ -92,7 +92,7 @@ open class MultilineTextField(
 		this.textChangedListener = textChangedListener
 	}
 
-	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		drawBackground(context, mouseX, mouseY, delta)
 		renderVisibleText(context)
 		renderCursor(context)
@@ -118,13 +118,13 @@ open class MultilineTextField(
 		return click(mouseX, mouseY, state, isWithinBounds)
 	}
 
-	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double, verticalAmount: Double): Boolean {
 		if (!active || !isFocused) return false
-		scrollbar - amount * fontHeight
-		return if (amount < 0.0) {
+		scrollbar - verticalAmount * fontHeight
+		return if (verticalAmount < 0.0) {
 			incrementVisibleLines()
 			true
-		} else if (amount > 0.0) {
+		} else if (verticalAmount > 0.0) {
 			decrementVisibleLines()
 			true
 		} else {
@@ -151,7 +151,7 @@ open class MultilineTextField(
 			return false
 		}
 		if (Screen.isSelectAll(keyCode)) {
-			setCursorToEnd()
+			setCursorToEnd(Screen.hasControlDown())
 			setSelectionEnd(0)
 			return true
 		}
@@ -270,9 +270,9 @@ open class MultilineTextField(
 		}
 	}
 
-	override fun tick() {
-		++cursorCounter
-	}
+//	override fun tick() {
+//		++cursorCounter
+//	}
 
 	private fun toLines(): List<StringVisitable> {
 		return wrapToWidth(this.text, wrapWidth)

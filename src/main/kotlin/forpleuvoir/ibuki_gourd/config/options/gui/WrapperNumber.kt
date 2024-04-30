@@ -75,6 +75,6 @@ abstract class WrapperNumber(
 	}
 
 	override fun tick() {
-		children().forEach { if (it is TextFieldWidget) it.tick() }
+//		children().forEach { if (it is TextFieldWidget) it.method_1865() }
 	}
 }

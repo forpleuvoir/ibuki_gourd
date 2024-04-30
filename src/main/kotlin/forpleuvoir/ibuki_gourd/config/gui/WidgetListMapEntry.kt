@@ -87,7 +87,7 @@ class WidgetListMapEntry(
 	}
 
 	override fun tick() {
-		key.tick()
-		value.tick()
+//		key.tick()
+//		value.tick()
 	}
 }

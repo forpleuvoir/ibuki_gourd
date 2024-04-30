@@ -33,8 +33,8 @@ class ButtonConfigBoolean(x: Int, y: Int, width: Int, height: Int = 20, private 
 	}
 
 
-	override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-		super.render(context, mouseX, mouseY, delta)
+	override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+		super.renderWidget(context, mouseX, mouseY, delta)
 		this.updateText()
 	}
 
