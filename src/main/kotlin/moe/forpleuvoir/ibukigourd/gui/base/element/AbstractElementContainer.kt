@@ -56,7 +56,7 @@ abstract class AbstractElementContainer : Element {
     }
 
     override fun onMeasure(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec) {
-
+        widthMeasureSpec.value
     }
 
     private fun calculateDimension(measureSpec: MeasureSpec): Float {

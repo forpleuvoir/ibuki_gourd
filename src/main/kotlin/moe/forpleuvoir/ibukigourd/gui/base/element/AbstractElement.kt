@@ -56,8 +56,8 @@ abstract class AbstractElement(
 
     override var layout: Layout = LinearLayout(Orientation.Horizontal) { this }
 
-    override fun onLayout() {
-        layout.layout()
+    override fun onLayout(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec) {
+        layout.layout(widthMeasureSpec, heightMeasureSpec)
     }
 
     final override var tip: Tip? = null

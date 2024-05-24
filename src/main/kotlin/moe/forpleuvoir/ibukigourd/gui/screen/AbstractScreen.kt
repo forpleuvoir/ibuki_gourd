@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.nebula.common.pick
 
 abstract class AbstractScreen(
     width: ElementDimension = match_parent,
@@ -42,6 +43,28 @@ abstract class AbstractScreen(
 //            addAll(super.handleElements)
 //        }
 
+
+    override fun onMeasure(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec) {
+        transform.width = measure(widthMeasureSpec, width, true)
+        transform.height = measure(heightMeasureSpec, height, false)
+    }
+
+    private fun measure(widthMeasureSpec: MeasureSpec, elementDimension: ElementDimension, width: Boolean) = when (elementDimension) {
+        MatchParent, is FillRemainingSpace, is Weight -> {
+            widthMeasureSpec.value
+        }
+
+        is Fixed                                      -> elementDimension.value
+        is Percentage                                 -> elementDimension.value * widthMeasureSpec.value
+        is WrapContent                                -> {
+            TODO("等待布局之后再测量")
+            when {
+                subElements.all { width.pick(it.width, it.height).conflictsParentDimension(elementDimension) }
+            }
+
+        }
+
+    }
 
 
     override fun onMouseEnter(event: MouseEnterEvent) = Unit

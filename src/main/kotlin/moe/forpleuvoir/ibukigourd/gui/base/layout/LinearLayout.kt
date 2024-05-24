@@ -6,53 +6,72 @@ import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
 
 @Suppress("MemberVisibilityCanBePrivate")
 open class LinearLayout(
-    orientation: Orientation,
+    val orientation: Orientation,
     override val element: () -> Element
 ) : Layout {
 
     var spacing: Float = 0f
 
-    override fun layout() {
-        val alignElements = elements.filter { !it.fixed }
-        if (alignElements.isEmpty()) return
+    override fun layout(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec) {
+        if (orientation == Orientation.Vertical) {
+            element().apply {
+                //measure
+                var maxWidth = 0f
+                var remainingWidth = 0f
+                when (width) {
+                    is Fixed, is FillRemainingSpace, MatchParent, is Percentage, is Weight -> {
+                        transform.width = widthMeasureSpec.value
+                        remainingWidth = transform.width
+                    }
 
-        val alignRects = alignRects(alignElements, alignment.arrangement)
+                    is WrapContent                                                         -> {
+                        if (widthMeasureSpec.mode == MeasureSpec.Mode.EXACTLY) {
+                            maxWidth = widthMeasureSpec.value
+                            remainingWidth = maxWidth
+                        }
+                    }
+                }
 
-        val container = element()
+                val layoutElements = layoutElements
 
-        val containerContentRect = container.contentRect(false)
-        val size = alignment.arrangement.contentSize(alignRects)
+                val subElements = elements
 
-        when {
-            //如果为[MatchParent]则宽度已固定
-            container.width == MatchParent -> {}
+                //填充剩余空间权重的每一份权重所有的值
+                val remainingWidthWeightValue = remainingWidth / layoutElements.filter { it.width is FillRemainingSpace }.sumOf { (it.width as FillRemainingSpace).weight }
+
+                subElements.forEach {
+                    var width = MeasureSpec(MeasureSpec.Mode.AT_MOST, maxWidth)
+                    var height = MeasureSpec(MeasureSpec.Mode.AT_MOST, maxWidth)
+                    when (it.width) {
+                        is FillRemainingSpace -> {
+                            width = MeasureSpec.exactly((it.width as FillRemainingSpace).weight * remainingWidthWeightValue)
+                        }
+
+                        is Fixed              -> {
+                            width = MeasureSpec.exactly((it.width as Fixed).value)
+                        }
+
+                        MatchParent           -> {
+                            width = MeasureSpec.atMost(maxWidth)
+                        }
+
+                        is Percentage         -> {
+                            width = MeasureSpec.exactly((it.width as Percentage).value * maxWidth)
+                        }
+
+                        is Weight             -> TODO()
+                        is WrapContent        -> TODO()
+                    }
+
+
+                    onLayout(width, height)
+                }
+
+
+            }
+        } else {
 
         }
-
-        val contentRect = when {
-            //固定高度和宽度
-            container.width is Fixed && container.height is Fixed   -> {
-                containerContentRect
-            }
-            //固定宽度 不固定高度
-            container.width is Fixed && container.height !is Fixed  -> {
-                Rect(containerContentRect.position, containerContentRect.width, size.height)
-            }
-            //不固定宽度 固定高度
-            container.width !is Fixed && container.height !is Fixed -> {
-                Rect(containerContentRect.position, size.width, containerContentRect.height)
-            }
-            //不固定宽度 不固定高度
-            else                                                    -> {
-                Rect(containerContentRect.position, size)
-            }
-        }
-        alignment.align(contentRect, alignRects).forEachIndexed { index, vector3f ->
-            val element = alignElements[index]
-            element.transform.translateTo(vector3f + Vector3f(element.margin.left, element.margin.top))
-            element.visible = element.transform.inBox(contentRect, false)
-        }
-        return Size.of(contentRect.width + padding.width, contentRect.height + padding.height)
     }
 
 }

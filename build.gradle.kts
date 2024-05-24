@@ -3,23 +3,23 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-	java
-	signing
-    id("fabric-loom") version "1.4-SNAPSHOT"
-	kotlin("jvm") version "1.9.21"
-	id("maven-publish")
+    java
+    signing
+    id("fabric-loom") version "1.6-SNAPSHOT"
+    kotlin("jvm") version "1.9.23"
+    id("maven-publish")
 }
 
 repositories {
-	mavenCentral()
-	mavenLocal()
-	maven { url = uri("https://www.jitpack.io") }
-	maven { url = uri("https://maven.terraformersmc.com/") }
+    mavenCentral()
+    mavenLocal()
+    maven { url = uri("https://www.jitpack.io") }
+    maven { url = uri("https://maven.terraformersmc.com/") }
 //	maven { url = uri("https://maven.forpleuvoir.moe/releases") }
-	maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
+    maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
 }
 
-val time: String = SimpleDateFormat("yyyyMMdd").format(Date())
+val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
 
 val modName = properties["archives_base_name"].toString()
 val minecraftVersion: String = properties["minecraft_version"].toString()
@@ -36,119 +36,119 @@ group = properties["maven_group"].toString()
 archivesName.set(modName)
 
 loom {
-	accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
+    accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
 }
 
 dependencies {
-	minecraft("com.mojang:minecraft:$minecraftVersion")
-	mappings("net.fabricmc:yarn:$yarnMappings:v2")
-	modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
-	modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+    minecraft("com.mojang:minecraft:$minecraftVersion")
+    mappings("net.fabricmc:yarn:$yarnMappings:v2")
+    modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 
-	modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
+    modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
 
-	//其他mod依赖
-	modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
+    //其他mod依赖
+    modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
 
-	//nebula
-	api("moe.forpleuvoir:nebula:$nebulaVersion")
-	include("moe.forpleuvoir:nebula:$nebulaVersion:nebula")
+    //nebula
+    api("moe.forpleuvoir:nebula:$nebulaVersion")
+    include("moe.forpleuvoir:nebula:$nebulaVersion:nebula")
 
-	//其他第三方库依赖
+    //其他第三方库依赖
 
 }
 
 tasks {
 
-	processResources {
-		inputs.property("version", version)
-		filteringCharset = "UTF-8"
-		filesMatching("fabric.mod.json") {
-			expand("version" to version)
-		}
-	}
+    processResources {
+        inputs.property("version", version)
+        filteringCharset = "UTF-8"
+        filesMatching("fabric.mod.json") {
+            expand("version" to version)
+        }
+    }
 
-	withType<JavaCompile>().configureEach {
-		options.encoding = "UTF-8"
-		options.release.set(17)
-		targetCompatibility = JavaVersion.VERSION_17.toString()
-		sourceCompatibility = JavaVersion.VERSION_17.toString()
-	}
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.release.set(21)
+        targetCompatibility = JavaVersion.VERSION_21.toString()
+        sourceCompatibility = JavaVersion.VERSION_21.toString()
+    }
 
-	withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-		kotlinOptions.suppressWarnings = true
-		kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
-	}
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions.suppressWarnings = true
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_21.toString()
+    }
 
-	jar {
-		from("LICENSE") {
-			rename { "${it}_$modName" }
-		}
-	}
+    jar {
+        from("LICENSE") {
+            rename { "${it}_$modName" }
+        }
+    }
 
-	register("modJar", Copy::class) {
-		dependsOn("remapJar")
-		mustRunAfter("remapJar")
-		val outPath = "./out/$version"
-		val name = "$modName-$version.jar"
-		val newName = "$modName-$version.$time-minecraft.$minecraftVersion-fabric.jar"
-		from("build/libs")
-		into(outPath)
-		include(name)
-		doLast {
-			file("$outPath/$name").renameTo(file("$outPath/$newName"))
-		}
-	}
+    register("modJar", Copy::class) {
+        dependsOn("remapJar")
+        mustRunAfter("remapJar")
+        val outPath = "./out/$version"
+        val name = "$modName-$version.jar"
+        val newName = "$modName-$version.$time-minecraft.$minecraftVersion-fabric.jar"
+        from("build/libs")
+        into(outPath)
+        include(name)
+        doLast {
+            file("$outPath/$name").renameTo(file("$outPath/$newName"))
+        }
+    }
 
 }
 
 java {
-	withSourcesJar()
-	toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 publishing {
-	//https://reposilite.com/guide/gradle
-	repositories {
-		maven {
-			name = "releases"
-			url = uri("https://maven.forpleuvoir.moe/releases")
-			credentials(PasswordCredentials::class)
-			authentication {
-				create<BasicAuthentication>("basic")
-			}
-		}
-		maven {
-			name = "snapshots"
-			url = uri("https://maven.forpleuvoir.moe/snapshots")
-			credentials(PasswordCredentials::class)
-			authentication {
-				create<BasicAuthentication>("basic")
-			}
-		}
-	}
-	publications {
-		create<MavenPublication>(project.name) {
-			artifact(tasks.remapJar)
-			artifact(tasks.remapSourcesJar)
-			pom {
-				name.set(project.name)
-				description.set("forpleuvoir的Minecraft基础前置mod")
-				url.set("https://github.com/forpleuvoir/ibuki_gourd")
-				licenses {
-					license {
-						name.set("GNU General Public License, version 3 (GPLv3)")
-						url.set("https://www.gnu.org/licenses/gpl-3.0.txt")
-					}
-				}
-				developers {
-					developer {
-						id.set("forpleuvoir")
-						name.set("forpleuvoir")
-						email.set("forpleuvoir@gmail.com")
-					}
-				}
-			}
-		}
-	}
+    //https://reposilite.com/guide/gradle
+    repositories {
+        maven {
+            name = "releases"
+            url = uri("https://maven.forpleuvoir.moe/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+        maven {
+            name = "snapshots"
+            url = uri("https://maven.forpleuvoir.moe/snapshots")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>(project.name) {
+            artifact(tasks.remapJar)
+            artifact(tasks.remapSourcesJar)
+            pom {
+                name.set(project.name)
+                description.set("forpleuvoir的Minecraft基础前置mod")
+                url.set("https://github.com/forpleuvoir/ibuki_gourd")
+                licenses {
+                    license {
+                        name.set("GNU General Public License, version 3 (GPLv3)")
+                        url.set("https://www.gnu.org/licenses/gpl-3.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("forpleuvoir")
+                        name.set("forpleuvoir")
+                        email.set("forpleuvoir@gmail.com")
+                    }
+                }
+            }
+        }
+    }
 }

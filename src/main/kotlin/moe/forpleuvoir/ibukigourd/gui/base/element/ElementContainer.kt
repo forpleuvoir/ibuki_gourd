@@ -31,7 +31,7 @@ interface ElementContainer : Initializable {
     /**
      * 对子元素进行排列
      */
-    fun onLayout()
+    fun onLayout(widthMeasureSpec: MeasureSpec, heightMeasureSpec: MeasureSpec)
 
     /**
      * 子元素

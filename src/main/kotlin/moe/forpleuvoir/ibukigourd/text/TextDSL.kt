@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.text.style.StyleScope
 import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 
+@TextDslMark
 open class TextScope {
     private val textChain: MutableList<MutableText> = ArrayList()
 
@@ -12,35 +13,50 @@ open class TextScope {
             return textChain[0]
         }
 
-    fun line(content: LineScope.() -> Unit) {
-        LineScope()
-            .apply(content)
-            .text
-            .let {
-                if (textChain.isNotEmpty()) {
-                    literal("\n")
-                }
-                textChain.add(it)
-                literal("\n")
-            }
+    fun newLine() {
+        literal("\n")
     }
 
-    fun literal(content: LiteralScope.() -> Unit) {
-        textChain.add(LiteralScope().apply(content).text)
+    fun literal(scope: LiteralScope.() -> Unit) {
+        textChain.add(LiteralScope().apply(scope).text)
+    }
+
+    fun literal(content: Any, scope: LiteralScope.() -> Unit = {}) {
+        textChain.add(LiteralScope().apply {
+            context(content.toString())
+            scope.invoke(this)
+        }.text)
     }
 
     fun literal(content: Any) {
         textChain.add(Literal(content.toString()))
     }
 
-    fun translatable(content: TranslatableScope.() -> Unit) {
-        textChain.add(TranslatableScope().apply(content).text)
+    fun translatable(key: String, fallback: String?, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
+        textChain.add(TranslatableScope().apply {
+            key { key }
+            fallback { fallback }
+            params(*params)
+            scope.invoke(this)
+        }.text)
+    }
+
+    fun translatable(key: String, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
+        textChain.add(TranslatableScope().apply {
+            key { key }
+            params(*params)
+            scope.invoke(this)
+        }.text)
+    }
+
+    fun translatable(scope: TranslatableScope.() -> Unit) {
+        textChain.add(TranslatableScope().apply(scope).text)
     }
 
 }
 
-class LineScope : TextScope()
 
+@TextDslMark
 class LiteralScope {
 
     val text: MutableText
@@ -67,6 +83,7 @@ class LiteralScope {
 
 }
 
+@TextDslMark
 class TranslatableScope {
 
     val text: MutableText
@@ -91,7 +108,7 @@ class TranslatableScope {
         this.params = params
     }
 
-    fun fallback(fallback: () -> Any) {
+    fun fallback(fallback: () -> String?) {
         this.fallback = fallback().toString()
     }
 
