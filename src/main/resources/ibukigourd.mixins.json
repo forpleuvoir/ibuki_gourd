@@ -6,13 +6,6 @@
   "mixins": [
     "server.MinecraftServerMixin"
   ],
-  "client": [
-    "client.GameRendererMixin",
-    "client.KeyboardMixin",
-    "client.MainMixin",
-    "client.MinecraftClientMixin",
-    "client.MouseMixin"
-  ],
   "server": [
     "server.MainMixin"
   ],

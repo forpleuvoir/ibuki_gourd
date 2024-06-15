@@ -11,11 +11,13 @@ import kotlin.contracts.contract
 @JvmInline
 value class NextAction private constructor(val value: Boolean) : Serializable {
     companion object : Deserializer<NextAction> {
+
         @JvmStatic
         val Continue = NextAction(false)
 
         @JvmStatic
         val Cancel = NextAction(true)
+
         override fun deserialization(serializeElement: SerializeElement): NextAction {
             return when (serializeElement.asString) {
                 "continue" -> Continue

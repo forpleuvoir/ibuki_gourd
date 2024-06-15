@@ -1,12 +1,17 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.random.Random
+
+/**
+ *
+ */
 
 plugins {
     java
     signing
     id("fabric-loom") version "1.6-SNAPSHOT"
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.0"
     id("maven-publish")
 }
 
@@ -33,11 +38,6 @@ val nebulaVersion: String = properties["nebula_version"].toString()
 
 version = properties["mod_version"].toString()
 group = properties["maven_group"].toString()
-archivesName.set(modName)
-
-loom {
-    accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
-}
 
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
@@ -56,6 +56,60 @@ dependencies {
 
     //其他第三方库依赖
 
+    //test
+    testImplementation(kotlin("test"))
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        create(modName) {
+            sourceSet(sourceSets.main.get())
+            sourceSet(sourceSets["client"])
+        }
+    }
+    accessWidenerPath.set(file("src/main/resources/ibukigourd.accesswidener"))
+}
+
+sourceSets {
+    create("devClientTest") {
+        compileClasspath += main.get().compileClasspath + main.get().output + sourceSets["client"].output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output + sourceSets["client"].output
+    }
+    create("devServerTest") {
+        compileClasspath += main.get().compileClasspath + main.get().output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output
+    }
+}
+
+loom {
+    runs {
+        create("clientTest") {
+            val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
+            val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
+            programArgs("--username", name, "--uuid", uuid)
+            client()
+            name("ClientTest")
+            ideConfigGenerated(true)
+            source(sourceSets["devClientTest"])
+        }
+        create("serverTest") {
+            server()
+            name("ServerTest")
+            runDir("server_run")
+            ideConfigGenerated(true)
+            source(sourceSets["devServerTest"])
+        }
+    }
+}
+
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 tasks {
@@ -75,9 +129,24 @@ tasks {
         sourceCompatibility = JavaVersion.VERSION_21.toString()
     }
 
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions.suppressWarnings = true
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_21.toString()
+    named<JavaCompile>("compileClientJava") {
+        dependsOn("compileJava")
+    }
+    named<JavaCompile>("compileDevClientTestJava") {
+        dependsOn("compileClientJava")
+    }
+    named<JavaCompile>("compileDevServerTestJava") {
+        dependsOn("compileJava")
+    }
+
+    named<KotlinCompile>("compileClientKotlin") {
+        dependsOn("compileKotlin")
+    }
+    named<KotlinCompile>("compileDevClientTestKotlin") {
+        dependsOn("compileClientKotlin")
+    }
+    named<KotlinCompile>("compileDevServerTestKotlin") {
+        dependsOn("compileKotlin")
     }
 
     jar {
@@ -86,7 +155,7 @@ tasks {
         }
     }
 
-    register("modJar", Copy::class) {
+    register<Copy>("modJar") {
         dependsOn("remapJar")
         mustRunAfter("remapJar")
         val outPath = "./out/$version"
@@ -100,11 +169,6 @@ tasks {
         }
     }
 
-}
-
-java {
-    withSourcesJar()
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 publishing {

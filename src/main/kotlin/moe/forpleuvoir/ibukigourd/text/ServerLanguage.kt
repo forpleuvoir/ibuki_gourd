@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.mod.config.IbukiGourdServerConfig
 import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.resources
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 import moe.forpleuvoir.nebula.serialization.gson.getOr
@@ -34,130 +33,130 @@ import java.util.regex.Pattern
 @EventSubscriber
 object ServerLanguage : Language() {
 
-	private val log = logger()
+    private val log = logger()
 
-	private val UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]")
+    private val UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]")
 
-	private val map: MutableMap<LanguagePair, MutableMap<String, String>> = HashMap()
+    private val map: MutableMap<LanguagePair, MutableMap<String, String>> = HashMap()
 
-	private val current: String
-		get() {
-			val serverLanguage = IbukiGourdServerConfig.SERVER_LANGUAGE
-			return if (hasTranslation(serverLanguage)) {
-				serverLanguage
-			} else "zh_cn"
-		}
+    private val current: String
+        get() {
+            val serverLanguage = IbukiGourdServerConfig.SERVER_LANGUAGE
+            return if (hasTranslation(serverLanguage)) {
+                serverLanguage
+            } else "zh_cn"
+        }
 
-	private val currentMap: Map<String, String>
-		get() {
-			return map.asSequence().find { it.key.language == current }?.value ?: emptyMap()
-		}
+    private val currentMap: Map<String, String>
+        get() {
+            return map.asSequence().find { it.key.language == current }?.value ?: emptyMap()
+        }
 
-	data class LanguagePair(val language: String, val rightToLeft: Boolean) {
-		override fun hashCode(): Int {
-			return language.hashCode()
-		}
+    data class LanguagePair(val language: String, val rightToLeft: Boolean) {
+        override fun hashCode(): Int {
+            return language.hashCode()
+        }
 
-		override fun equals(other: Any?): Boolean {
-			if (this === other) return true
-			if (javaClass != other?.javaClass) return false
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
 
-			other as LanguagePair
+            other as LanguagePair
 
-			if (language != other.language) return false
-			if (rightToLeft != other.rightToLeft) return false
+            if (language != other.language) return false
+            if (rightToLeft != other.rightToLeft) return false
 
-			return true
-		}
+            return true
+        }
 
-	}
+    }
 
-	@Subscriber
-	fun modInit(event: ModInitializerEvent) {
-		if (event.meta.id == IbukiGourd.MOD_ID) {
-			ResourceManagerHelper.get(SERVER_DATA)
-				.registerReloadListener(object : SimpleSynchronousResourceReloadListener {
-					override fun reload(manager: ResourceManager) {
-						log.info("load server language...")
-						map.clear()
-						manager.allNamespaces.forEach { nameSpace ->
-							manager.findResources("server_language") { it.path.endsWith(".json") }
-								.forEach { (identifier, resource) ->
-									runCatching {
-										appendFrom(identifier.path, resource)
-									}.onFailure {
-										log.error("Skipped language file: {}:{} ({})", nameSpace, name, it)
-									}
-								}
-						}
-					}
+    @Subscriber
+    fun modInit(event: ModInitializerEvent) {
+        if (event.meta.id == IbukiGourd.MOD_ID) {
+            ResourceManagerHelper.get(SERVER_DATA)
+                .registerReloadListener(object : SimpleSynchronousResourceReloadListener {
+                    override fun reload(manager: ResourceManager) {
+                        log.info("load server language...")
+                        map.clear()
+                        manager.allNamespaces.forEach { nameSpace ->
+                            manager.findResources("server_language") { it.path.endsWith(".json") }
+                                .forEach { (identifier, resource) ->
+                                    runCatching {
+                                        appendFrom(identifier.path, resource)
+                                    }.onFailure {
+                                        log.error("Skipped language file: {}:{} ({})", nameSpace, name, it)
+                                    }
+                                }
+                        }
+                    }
 
-					override fun getFabricId(): Identifier {
-						return resources("server_language")
-					}
+                    override fun getFabricId(): Identifier {
+                        return Identifier.of(IbukiGourd.MOD_ID, "server_language")
+                    }
 
-				})
-		}
-	}
+                })
+        }
+    }
 
 
-	private fun appendFrom(languageName: String, resource: Resource) {
-		val path = languageName.replace(".json", "").replace("server_lang/", "")
-		runCatching {
-			resource.inputStream.use {
-				val json = gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
-				val languagePair = LanguagePair(path, json.getOr("rightToLft", false))
-				val map = HashMap<String, String>()
-				json.entrySet().forEach { entry ->
-					map[entry.key] = UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key)).replaceAll("%$1s")
-				}
-				if (ServerLanguage.map.containsKey(languagePair)) {
-					ServerLanguage.map[languagePair]!!.putAll(map)
-				} else {
-					ServerLanguage.map[languagePair] = map
-				}
-			}
-		}.onFailure {
-			if (it is IOException) log.error("Failed to load translations for {} from pack {}", path, resource.resourcePackName, it)
-			else throw it
-		}
-	}
+    private fun appendFrom(languageName: String, resource: Resource) {
+        val path = languageName.replace(".json", "").replace("server_lang/", "")
+        runCatching {
+            resource.inputStream.use {
+                val json = gson.fromJson(InputStreamReader(it, StandardCharsets.UTF_8) as Reader, JsonObject::class.java)
+                val languagePair = LanguagePair(path, json.getOr("rightToLft", false))
+                val map = HashMap<String, String>()
+                json.entrySet().forEach { entry ->
+                    map[entry.key] = UNSUPPORTED_FORMAT_PATTERN.matcher(JsonHelper.asString(entry.value, entry.key)).replaceAll("%$1s")
+                }
+                if (ServerLanguage.map.containsKey(languagePair)) {
+                    ServerLanguage.map[languagePair]!!.putAll(map)
+                } else {
+                    ServerLanguage.map[languagePair] = map
+                }
+            }
+        }.onFailure {
+            if (it is IOException) log.error("Failed to load translations for {} from pack {}", path, resource.packId, it)
+            else throw it
+        }
+    }
 
-	override fun get(key: String): String {
-		return currentMap[key] ?: key
-	}
+    override fun get(key: String): String {
+        return currentMap[key] ?: key
+    }
 
-	override fun get(key: String, fallback: String): String {
-		return currentMap[key] ?: fallback
-	}
+    override fun get(key: String, fallback: String): String {
+        return currentMap[key] ?: fallback
+    }
 
-	override fun hasTranslation(key: String): Boolean {
-		return map.filterKeys { it.language == key }.isNotEmpty()
-	}
+    override fun hasTranslation(key: String): Boolean {
+        return map.filterKeys { it.language == key }.isNotEmpty()
+    }
 
-	override fun isRightToLeft(): Boolean {
-		return map.asSequence().find { it.key.language == current }?.key?.rightToLeft ?: false
-	}
+    override fun isRightToLeft(): Boolean {
+        return map.asSequence().find { it.key.language == current }?.key?.rightToLeft ?: false
+    }
 
-	override fun reorder(text: StringVisitable): OrderedText {
-		return reorder(text, this.isRightToLeft)
-	}
+    override fun reorder(text: StringVisitable): OrderedText {
+        return reorder(text, this.isRightToLeft)
+    }
 
-	private fun reorder(text: StringVisitable, rightToLeft: Boolean): OrderedText {
-		val textReorderingProcessor = TextReorderingProcessor.create(text, UCharacter::getMirror, this::shapeArabic)
-		val bidi = Bidi(textReorderingProcessor.string, if (rightToLeft) 127 else 126)
-		bidi.reorderingMode = 0
-		val list = Lists.newArrayList<OrderedText>()
-		val i = bidi.countRuns()
-		for (j in 0 until i) {
-			val bidiRun = bidi.getVisualRun(j)
-			list.addAll(textReorderingProcessor.process(bidiRun.start, bidiRun.length, bidiRun.isOddRun))
-		}
-		return OrderedText.concat(list)
-	}
+    private fun reorder(text: StringVisitable, rightToLeft: Boolean): OrderedText {
+        val textReorderingProcessor = TextReorderingProcessor.create(text, UCharacter::getMirror, this::shapeArabic)
+        val bidi = Bidi(textReorderingProcessor.string, if (rightToLeft) 127 else 126)
+        bidi.reorderingMode = 0
+        val list = Lists.newArrayList<OrderedText>()
+        val i = bidi.countRuns()
+        for (j in 0 until i) {
+            val bidiRun = bidi.getVisualRun(j)
+            list.addAll(textReorderingProcessor.process(bidiRun.start, bidiRun.length, bidiRun.isOddRun))
+        }
+        return OrderedText.concat(list)
+    }
 
-	private fun shapeArabic(string: String): String? {
-		return runCatching { ArabicShaping(8).shape(string) }.getOrDefault(string)
-	}
+    private fun shapeArabic(string: String): String? {
+        return runCatching { ArabicShaping(8).shape(string) }.getOrDefault(string)
+    }
 
 }

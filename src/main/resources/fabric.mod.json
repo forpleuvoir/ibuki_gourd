@@ -38,14 +38,18 @@
     ]
   },
   "mixins": [
-    "ibukigourd.mixins.json"
+    "ibukigourd.mixins.json",
+    {
+      "config": "ibukigourd.client.mixins.json",
+      "environment": "client"
+    }
   ],
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric": "*",
-    "minecraft": "1.20.x",
+    "minecraft": "~1.21",
     "java": ">=21",
-    "fabric-language-kotlin": ">=1.10.19+kotlin.1.9.23"
+    "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0"
   },
   "suggests": {
     "another-mod": "modmenu"

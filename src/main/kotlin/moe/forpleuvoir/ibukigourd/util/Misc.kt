@@ -7,68 +7,22 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.reflect.ClassPath
 import moe.forpleuvoir.ibukigourd.IbukiGourd
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.font.TextRenderer
-import net.minecraft.client.sound.SoundManager
-import net.minecraft.client.texture.TextureManager
-import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.util.Identifier
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
-val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
-
-val textRenderer: TextRenderer by lazy { mc.textRenderer }
-
-val soundManager: SoundManager by lazy { mc.soundManager }
-
-val textureManager: TextureManager by lazy { mc.textureManager }
-
-val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager as ReloadableResourceManagerImpl }
-
 typealias Tick = Long
-
-fun resources(nameSpace: String, path: String): Identifier = Identifier(nameSpace, path)
-
-internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
 
 val ARGBColor?.isNull: Boolean
     get() = this == null || this.alpha == 0
 
 val ARGBColor?.get: ARGBColor
     get() = this ?: Colors.BLACK.alpha(0)
-
-fun MinecraftClient.sendMessage(message: String) {
-    this.player?.networkHandler?.let {
-        if (message.startsWith("/"))
-            it.sendChatCommand(message)
-        else
-            it.sendChatMessage(message)
-    }
-}
-
-fun MinecraftClient.chatMessage(message: net.minecraft.text.Text) {
-    inGameHud.chatHud.addMessage(message)
-}
-
-fun MinecraftClient.chatMessage(message: String) {
-    chatMessage(Literal(message))
-}
-
-fun MinecraftClient.overlayMessage(message: net.minecraft.text.Text, tinted: Boolean = false) {
-    this.inGameHud.setOverlayMessage(message, tinted)
-}
-
-fun MinecraftClient.overlayMessage(message: String, tinted: Boolean = false) {
-    this.inGameHud.setOverlayMessage(Literal(message), tinted)
-}
 
 fun Any.logger(modName: String): ModLogger {
     return ModLogger(this::class, modName)
@@ -81,20 +35,14 @@ internal fun Any.logger(): ModLogger {
 val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
-
+fun resources(nameSpace: String, path: String): Identifier = Identifier.of(nameSpace, path)
+internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
 
 inline fun isDevEnv(block: () -> Unit) {
     contract {
-        callsInPlace(block, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, kotlin.contracts.InvocationKind.AT_MOST_ONCE)
     }
     if (isDevEnv) block()
-}
-
-fun MatrixStack.rest() {
-    if (!isEmpty) {
-        this.pop()
-        rest()
-    }
 }
 
 /**

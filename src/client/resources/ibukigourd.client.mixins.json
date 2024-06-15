@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "moe.forpleuvoir.ibukigourd.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "GameRendererMixin",
+    "KeyboardMixin",
+    "MainMixin",
+    "MinecraftClientMixin",
+    "MouseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

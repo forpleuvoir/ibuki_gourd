@@ -6,34 +6,44 @@ import net.minecraft.text.Style
 
 @TextDslMark
 open class TextScope {
-    private val textChain: MutableList<MutableText> = ArrayList()
+
+    private lateinit var content: MutableText
 
     val text: MutableText
         get() {
-            return textChain[0]
+            check(!::content.isInitialized) { "Content is not initialized" }
+            return content
         }
+
+    private fun add(text: MutableText) {
+        if (::content.isInitialized) {
+            content.append(text)
+        } else {
+            content = text
+        }
+    }
 
     fun newLine() {
         literal("\n")
     }
 
     fun literal(scope: LiteralScope.() -> Unit) {
-        textChain.add(LiteralScope().apply(scope).text)
+        add(LiteralScope().apply(scope).text)
     }
 
     fun literal(content: Any, scope: LiteralScope.() -> Unit = {}) {
-        textChain.add(LiteralScope().apply {
+        add(LiteralScope().apply {
             context(content.toString())
             scope.invoke(this)
         }.text)
     }
 
     fun literal(content: Any) {
-        textChain.add(Literal(content.toString()))
+        add(Literal(content.toString()))
     }
 
     fun translatable(key: String, fallback: String?, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
-        textChain.add(TranslatableScope().apply {
+        add(TranslatableScope().apply {
             key { key }
             fallback { fallback }
             params(*params)
@@ -42,7 +52,7 @@ open class TextScope {
     }
 
     fun translatable(key: String, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
-        textChain.add(TranslatableScope().apply {
+        add(TranslatableScope().apply {
             key { key }
             params(*params)
             scope.invoke(this)
@@ -50,7 +60,7 @@ open class TextScope {
     }
 
     fun translatable(scope: TranslatableScope.() -> Unit) {
-        textChain.add(TranslatableScope().apply(scope).text)
+        add(TranslatableScope().apply(scope).text)
     }
 
 }
@@ -61,7 +71,7 @@ class LiteralScope {
 
     val text: MutableText
         get() {
-            check(::content.isInitialized) { "Content is not initialized" }
+            check(!::content.isInitialized) { "Content is not initialized" }
             return Literal(content).setStyle(style)
         }
 
