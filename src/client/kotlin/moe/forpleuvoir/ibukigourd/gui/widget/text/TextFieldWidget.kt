@@ -5,14 +5,14 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.dimension
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.widget.util.ScrollingAxis
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.BACKGROUND_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.RIGHT_TO_LEFT
@@ -20,26 +20,21 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
 import moe.forpleuvoir.ibukigourd.render.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.sumOf
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.Style
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.math.min
+
 
 open class TextFieldWidget(
     val text: () -> Text,
-    var spacing: Float = SPACING,
-    var shadow: Boolean = SHADOW,
-    var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-    var rightToLeft: Boolean = RIGHT_TO_LEFT,
-    var backgroundColor: Color = BACKGROUND_COLOR,
-    val alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
-    private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    modifier: Modifier = Modifier.width(wrap_content).height(wrap_content)
+    val setting: TextFieldSetting,
+    modifier: Modifier = Modifier.dimension(wrap_content, wrap_content)
 ) : AbstractElement(modifier) {
 
     data class TextFieldSetting(
@@ -54,34 +49,41 @@ open class TextFieldWidget(
 
     constructor(
         text: () -> Text,
-        setting: TextFieldSetting,
-        modifier: Modifier = Modifier.width(wrap_content).height(wrap_content)
+        spacing: Float = SPACING,
+        shadow: Boolean = SHADOW,
+        layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+        rightToLeft: Boolean = RIGHT_TO_LEFT,
+        backgroundColor: Color = BACKGROUND_COLOR,
+        alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
+        textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
+        modifier: Modifier = Modifier.dimension(wrap_content, wrap_content)
     ) : this(
-        text,
-        setting.spacing,
-        setting.shadow,
-        setting.layerType,
-        setting.rightToLeft,
-        setting.backgroundColor,
-        setting.alignment,
-        setting.textRenderer,
-        modifier
+        text, TextFieldSetting(spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer), modifier
     )
+
+    fun setting(setting: TextFieldSetting.() -> Unit) = this.setting.apply(setting)
+
+    private val textRenderer by setting::textRenderer
 
     /**
      * 最新的文本
      */
     protected var latestText: Text = text()
 
-    var changed: Boolean = false
+    protected var changed: Boolean = false
+
+    /**
+     * 当宽度不够是是否自动换行
+     */
+    val autoNewLine: Boolean = false
 
     /**
      * 是否启用文本滚动
      */
-    var scrollable: Boolean = width != null || height != null
+    var scrollingAxis: ScrollingAxis? = ScrollingAxis.X
 
     /**
-     * 鼠标悬浮时启用滚动,只有当[scrollable]为true时有效
+     * 鼠标悬浮时启用滚动,只有当[scrollerAsix]为true时有效
      */
     var hoverScroller: Boolean = false
 
@@ -107,19 +109,28 @@ open class TextFieldWidget(
 
     protected var textYOffset: Float = 0f
 
-    override fun onLayout() {}
+    override fun onLayout() = Unit
+
+    override fun onMeasureWidth(measureSpec: MeasureSpec): Float {
+        if (measureSpec.mode == MeasureSpec.Mode.EXACTLY) {
+            setMeasureWidth(measureSpec.value)
+        } else {
+            setMeasureWidth(min(textRenderer.getWidth(text()).toFloat(), measureSpec.value - margin.width))
+        }
+        return transform.width + margin.width
+    }
 
     override fun onMeasureHeight(measureSpec: MeasureSpec): Float {
         if (measureSpec.mode == MeasureSpec.Mode.EXACTLY) {
             setMeasureHeight(measureSpec.value)
         } else {
-            textRenderer.getWidth(text())
+            val currentText = text()
+            val height = currentText.wrapToTextLines(textRenderer, autoNewLine.pick(contentWidth.toInt(), 0))
+                .sumOf { textRenderer.getWidth(it).toFloat() + setting.spacing } - setting.spacing
+
+            setMeasureWidth(min(height, measureSpec.value - margin.height))
         }
         return transform.height + margin.height
-    }
-
-    override fun onMeasureWidth(measureSpec: MeasureSpec): Float {
-        return super.onMeasureWidth(measureSpec)
     }
 
     protected var currentYOffset: Float = 0f
@@ -127,15 +138,21 @@ open class TextFieldWidget(
             field = value.clamp(0f, textYOffset)
         }
 
-    protected val renderText: List<Text>
+    protected val renderText: List<McText>
         get() {
-            val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth && !scrollable) transform.width.toInt() else 0)
+            val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth && !scrollerAsix) transform.width.toInt() else 0)
             if (latestText != text()) {
                 changed = true
                 latestText = text()
             }
             return text
         }
+
+    protected fun onChanged() {
+        screen().apply {
+            if (isInitialized) screenLayout()
+        }
+    }
 
     init {
         transform.width = width?.also {
@@ -230,7 +247,7 @@ open class TextFieldWidget(
         renderContext.useMatrixStack {
             matrixStack.translate(0.0f, 0.4f, 0f)
             textRenderer.batchRender {
-                if (scrollable && if (hoverScroller) mouseHover() else true) {
+                if (scrollerAsix && if (hoverScroller) mouseHover() else true) {
                     alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
 
                         if (index == 0) originYOffset = vec.y - transform.worldTop
@@ -270,6 +287,7 @@ open class TextFieldWidget(
     }
 
 }
+
 
 /**
  * @receiver Element
@@ -539,7 +557,8 @@ fun ElementContainer.textField(
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
     width: Float? = null,
     height: Float? = null,
-): TextFieldWidget = addElement(TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
+): TextFieldWidget =
+    addElement(TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
 
 /**
  * @param text Text 文本

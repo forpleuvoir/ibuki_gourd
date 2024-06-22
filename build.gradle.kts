@@ -3,10 +3,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
 
-/**
- *
- */
-
 plugins {
     java
     signing
@@ -26,7 +22,7 @@ repositories {
 
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
 
-val modName = properties["archives_base_name"].toString()
+val modName: String = properties["archives_base_name"].toString()
 val minecraftVersion: String = properties["minecraft_version"].toString()
 val yarnMappings: String = properties["yarn_mappings"].toString()
 val fabricLoaderVersion: String = properties["fabric_loader_version"].toString()

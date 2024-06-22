@@ -28,7 +28,7 @@ class Transform(
     isWorldAxis: Boolean = false,
     width: Float = 0.0f,
     height: Float = 0.0f,
-    var parent: () -> moe.forpleuvoir.ibukigourd.gui.base.Transform? = { null },
+    var parent: () -> Transform? = { null },
 ) : Box {
 
     /**
@@ -78,7 +78,10 @@ class Transform(
         resizeCallbackSubscribers.add(action)
     }
 
-    fun subscribeChange(sizeChangedAction: (origin: Size<Float>, current: Size<Float>) -> Unit, positionChangedAction: (origin: Vector2fc, current: Vector2fc) -> Unit) {
+    fun subscribeChange(
+        sizeChangedAction: (origin: Size<Float>, current: Size<Float>) -> Unit,
+        positionChangedAction: (origin: Vector2fc, current: Vector2fc) -> Unit
+    ) {
         resizeCallbackSubscribers.add(sizeChangedAction)
         positionAsNotifiable.subscribe(positionChangedAction)
     }
@@ -102,15 +105,19 @@ class Transform(
     val worldPosition: Vector2fc
         get() {
             if (isWorldAxis) return position
-            var pos = position
-            parent()?.let { pos = it.worldPosition + position }
-            return pos
+            return position + (parent()?.worldPosition ?: Vector2f(0f, 0f))
         }
 
     val asWorldBox: Box get() = Box(worldPosition, width, height)
 
     override var x
         get() = position.x()
+        set(value) {
+            positionAsNotifiable.x = value
+        }
+
+    var localX
+        get() = localPosition.x
         set(value) {
             positionAsNotifiable.x = value
         }
@@ -127,6 +134,12 @@ class Transform(
 
     override var y
         get() = position.y
+        set(value) {
+            positionAsNotifiable.y = value
+        }
+
+    var localY
+        get() = localPosition.y
         set(value) {
             positionAsNotifiable.y = value
         }
@@ -212,10 +225,10 @@ class Transform(
  * @param mouseY Number
  * @param block Transform.() -> Unit
  */
-inline fun moe.forpleuvoir.ibukigourd.gui.base.Transform.mouseHover(
+inline fun Transform.mouseHover(
     mouseX: Number,
     mouseY: Number,
-    block: moe.forpleuvoir.ibukigourd.gui.base.Transform.() -> Unit
+    block: Transform.() -> Unit
 ) {
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)
@@ -229,9 +242,9 @@ inline fun moe.forpleuvoir.ibukigourd.gui.base.Transform.mouseHover(
  * @param mousePosition MousePosition
  * @param block Transform.() -> Unit
  */
-inline fun moe.forpleuvoir.ibukigourd.gui.base.Transform.mouseHover(
+inline fun Transform.mouseHover(
     mousePosition: MousePosition,
-    block: moe.forpleuvoir.ibukigourd.gui.base.Transform.() -> Unit
+    block: Transform.() -> Unit
 ) {
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)

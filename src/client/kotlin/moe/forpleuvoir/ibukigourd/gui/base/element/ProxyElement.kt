@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -8,9 +9,8 @@ import kotlin.contracts.contract
  * 只有一个可切换的子元素,一般用于实现Tab选项卡的内容元素
  */
 class ProxyElement(
-    width: Float? = null,
-    height: Float? = null
-) : AbstractElement() {
+    modifier: Modifier = Modifier
+) : AbstractElement(modifier) {
 
     private var content: Element? = null
         set(value) {
@@ -46,31 +46,25 @@ class ProxyElement(
 
 @OptIn(ExperimentalContracts::class)
 inline fun ElementContainer.proxy(
-    width: Float? = null,
-    height: Float? = null,
-    padding: moe.forpleuvoir.ibukigourd.gui.base.Padding? = null,
-    margin: moe.forpleuvoir.ibukigourd.gui.base.Margin? = null,
+    modifier: Modifier = Modifier,
     scope: ProxyElement.() -> Element
 ): ProxyElement {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Proxy(width, height, padding, margin, scope))
+    return addElement(Proxy(modifier, scope))
 }
 
 @Suppress("FunctionName")
 @OptIn(ExperimentalContracts::class)
 inline fun Proxy(
-    width: Float? = null,
-    height: Float? = null,
-    padding: moe.forpleuvoir.ibukigourd.gui.base.Padding? = null,
-    margin: moe.forpleuvoir.ibukigourd.gui.base.Margin? = null,
+    modifier: Modifier = Modifier,
     scope: ProxyElement.() -> Element
 ): ProxyElement {
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return ProxyElement(width, height, padding, margin).apply {
+    return ProxyElement(modifier).apply {
         initContent(scope())
     }
 }

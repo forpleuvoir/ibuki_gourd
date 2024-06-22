@@ -32,7 +32,6 @@ abstract class ModifierImpl : Modifier {
 
     override var next: Modifier? = null
 
-
     override fun apply(element: Element) {
         modify(element)
         next?.apply(element)

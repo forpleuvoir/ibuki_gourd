@@ -1,7 +1,16 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.Margin
+
 data class MeasureSpec(
     val mode: Mode,
+    /**
+     * 给到的值是包括了元素外边距的[Element.margin],使用时需要减去[Margin.width]
+     * ```kotlin
+     *   measureSpec.value - margin.width
+     *
+     * ```
+     */
     val value: Float
 ) {
 
@@ -26,4 +35,5 @@ data class MeasureSpec(
         EXACTLY,
         AT_MOST
     }
+
 }

@@ -87,15 +87,15 @@ fun vector3fDeserialization(element: SerializeElement): Vector3f {
  */
 fun Vector3f.deserialization(element: SerializeElement) {
     element.checkType<Unit>()
-            .check<SerializeArray> {
-                this.x = it[0].asFloat
-                this.y = it[1].asFloat
-                this.z = it[2].asFloat
-            }.check<SerializeObject> {
-                this.x = it["x"]!!.asFloat
-                this.y = it["y"]!!.asFloat
-                this.z = it["z"]!!.asFloat
-            }.getOrThrow()
+        .check<SerializeArray> {
+            this.x = it[0].asFloat
+            this.y = it[1].asFloat
+            this.z = it[2].asFloat
+        }.check<SerializeObject> {
+            this.x = it["x"]!!.asFloat
+            this.y = it["y"]!!.asFloat
+            this.z = it["z"]!!.asFloat
+        }.getOrThrow()
 }
 
 /**

@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
+import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LayoutData
@@ -63,8 +65,8 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
         override fun removeElement(element: Element): Boolean = false
         override fun removeElement(index: Int) = Unit
         override fun clearElements(predicate: (Element) -> Boolean) = Unit
-        override var margin: moe.forpleuvoir.ibukigourd.gui.base.Margin = moe.forpleuvoir.ibukigourd.gui.base.Margin()
-        override var padding: moe.forpleuvoir.ibukigourd.gui.base.Padding = moe.forpleuvoir.ibukigourd.gui.base.Padding()
+        override var margin: Margin = Margin()
+        override var padding: Padding = Padding()
         override fun contentBox(isWorld: Boolean): Box = Box.NULL
         override fun init() = Unit
         override var tick: () -> Unit = {}
@@ -89,7 +91,11 @@ interface Element : ElementContainer, Drawable, ModifiableUserInteractionHandler
     /**
      * 基础属性变换
      */
-    override val transform: moe.forpleuvoir.ibukigourd.gui.base.Transform
+    override val transform: Transform
+
+    val contentWidth: Float get() = transform.width - padding.width
+
+    val contentHeight: Float get() = transform.height - padding.height
 
     val depth: Int get() = transform.depth
 

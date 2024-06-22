@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.nebula.common.api.Initializable
 
@@ -48,9 +50,9 @@ interface ElementContainer : Initializable {
 
     fun clearElements(predicate: (Element) -> Boolean)
 
-    var margin: moe.forpleuvoir.ibukigourd.gui.base.Margin
+    var margin: Margin
 
-    var padding: moe.forpleuvoir.ibukigourd.gui.base.Padding
+    var padding: Padding
 
     /**
      * 内容矩形

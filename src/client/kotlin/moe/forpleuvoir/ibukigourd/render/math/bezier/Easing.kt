@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Contract
 typealias Ease = (Float) -> Float
 
 /**
- * https://easings.net/zh-cn
+ * [代码来源](https://easings.net/zh-cn)
  */
 interface Easing {
 
@@ -16,6 +16,7 @@ interface Easing {
     companion object {
 
         val LINEAR: Easing = object : Easing {
+
             override fun easeIn(t: Float): Float = t
 
             override fun easeOut(t: Float): Float = t

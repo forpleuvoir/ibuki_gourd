@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SWITCH_BUTTON_OFF_B
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.SWITCH_BUTTON_ON_BACKGROUND
 import moe.forpleuvoir.ibukigourd.gui.widget.PressableElement
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.COLOR
+import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PADDING
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.PRESS_OFFSET
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.BUTTON.TEXTURE
 import moe.forpleuvoir.ibukigourd.render.math.Vector3f
@@ -44,6 +45,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.pick
 import org.jetbrains.annotations.Contract
+import org.joml.Vector3fc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -52,10 +54,15 @@ open class ButtonWidget(
     override var onPress: () -> Unit = { },
     override var onRelease: () -> Unit = { },
     var color: () -> ARGBColor = { COLOR },
-    val pressOffset: Float = PRESS_OFFSET,
     var theme: ButtonTheme = TEXTURE,
     modifier: Modifier = Modifier
 ) : PressableElement(modifier) {
+
+    init {
+        padding = PADDING
+    }
+
+    var pressOffset: Vector3fc = PRESS_OFFSET
 
     fun longPress(time: Tick, action: () -> Unit) {
         longPressTime = time
@@ -75,7 +82,7 @@ open class ButtonWidget(
     }
 
     override fun onRender(renderContext: RenderContext) {
-        val offset = Vector3f(0f, status(pressOffset, 0f, 0f, pressOffset), 0f)
+        val offset = pressOffset
         renderContext.scissorOffset(offset) {
             useMatrixStack {
                 matrixStack.translate(offset)
@@ -119,7 +126,6 @@ fun ElementContainer.button(
     onPress: () -> Unit = { },
     onRelease: () -> Unit = { },
     color: () -> ARGBColor = { COLOR },
-    pressOffset: Float = PRESS_OFFSET,
     theme: ButtonTheme = TEXTURE,
     modifier: Modifier = Modifier,
     scope: ButtonWidget.() -> Unit = {}
@@ -127,7 +133,7 @@ fun ElementContainer.button(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return addElement(Button(onPress, onRelease, color, pressOffset, theme, modifier, scope))
+    return addElement(Button(onPress, onRelease, color, theme, modifier, scope))
 }
 
 /**
@@ -147,7 +153,6 @@ fun Button(
     onPress: () -> Unit = { },
     onRelease: () -> Unit = { },
     color: () -> ARGBColor = { COLOR },
-    pressOffset: Float = PRESS_OFFSET,
     theme: ButtonTheme = TEXTURE,
     modifier: Modifier = Modifier,
     scope: ButtonWidget.() -> Unit = {}
@@ -155,7 +160,7 @@ fun Button(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return ButtonWidget(onPress, onRelease, color, pressOffset, theme, modifier).apply(scope)
+    return ButtonWidget(onPress, onRelease, color, theme, modifier).apply(scope)
 }
 
 @Contract("_ ->this")
@@ -174,7 +179,7 @@ fun CheckBox(
     modifier: Modifier = Modifier.width(12.fixed).height(12.fixed),
 ): ButtonWidget {
     var status by statusDelegate
-    return object : ButtonWidget({ status = !status;onChanged(status) }, { }, color, 0f, TEXTURE, modifier) {
+    return object : ButtonWidget({ status = !status;onChanged(status) }, { }, color, TEXTURE, modifier) {
         override fun onRenderBackground(renderContext: RenderContext) {
             status.pick(
                 status(CHECK_BOX_TRUE_DISABLED, CHECK_BOX_TRUE_IDLE, CHECK_BOX_TRUE_HOVERED, CHECK_BOX_TRUE_PRESSED),
@@ -187,6 +192,8 @@ fun CheckBox(
                 }
             }
         }
+    }.apply {
+        pressOffset = Vector3f()
     }
 }
 
@@ -223,7 +230,7 @@ fun LockBox(
     modifier: Modifier = Modifier.width(10.fixed).height(10.fixed)
 ): ButtonWidget {
     var status by statusDelegate
-    return object : ButtonWidget({ status = !status;onChanged(status) }, { }, color, 0f, TEXTURE, modifier) {
+    return object : ButtonWidget({ status = !status;onChanged(status) }, { }, color, TEXTURE, modifier) {
         override fun onRenderBackground(renderContext: RenderContext) {
             status.pick(
                 status(LOCK_TRUE_DISABLED, LOCK_TRUE_IDLE, LOCK_TRUE_HOVERED, LOCK_TRUE_PRESSED),
@@ -236,6 +243,8 @@ fun LockBox(
                 }
             }
         }
+    }.apply {
+        pressOffset = Vector3f()
     }
 }
 
@@ -253,8 +262,7 @@ fun SwitchButton(
     modifier: Modifier = Modifier.width(32.fixed).height(16.fixed)
 ): ButtonWidget {
     var status by statusDelegate
-    return object : ButtonWidget({ status = !status;onChanged(status) }, { }, { COLOR }, 0f, TEXTURE, modifier) {
-
+    return object : ButtonWidget({ status = !status;onChanged(status) }, { }, { COLOR }, TEXTURE, modifier) {
         override fun onRenderBackground(renderContext: RenderContext) {
             renderContext.tryRender {
                 batchRenderTexture {
@@ -270,6 +278,8 @@ fun SwitchButton(
                 }
             }
         }
+    }.apply {
+        pressOffset = Vector3f()
     }
 }
 
@@ -333,7 +343,7 @@ fun FlatButton(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return object : ButtonWidget(onPress, onRelease, { Color(0x000000) }, 0f, TEXTURE, modifier) {
+    return object : ButtonWidget(onPress, onRelease, { Color(0x000000) }, TEXTURE, modifier) {
 
         override fun onRenderBackground(renderContext: RenderContext) {
             renderContext.tryRender {
@@ -352,5 +362,8 @@ fun FlatButton(
                 renderOverlay(this)
             }
         }
-    }.apply(scope)
+    }.apply {
+        pressOffset = Vector3f()
+        scope.invoke(this)
+    }
 }

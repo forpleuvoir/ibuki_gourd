@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHoverContent
+import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_INPUT
 import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTextures.TEXT_SELECTED_INPUT
 import moe.forpleuvoir.ibukigourd.gui.widget.PressableElement
@@ -14,14 +15,13 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.CURSOR_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.HINT_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.SELECTED_COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT_INPUT.TEXT_COLOR
-import moe.forpleuvoir.ibukigourd.render.RenderContext
 import moe.forpleuvoir.ibukigourd.render.base.Size
 import moe.forpleuvoir.ibukigourd.render.base.math.Vector3f
 import moe.forpleuvoir.ibukigourd.render.helper.batchRender
 import moe.forpleuvoir.ibukigourd.render.helper.renderRect
 import moe.forpleuvoir.ibukigourd.render.helper.renderTexture
-import moe.forpleuvoir.ibukigourd.render.helper.useColorLogicOp
 import moe.forpleuvoir.ibukigourd.render.shape.rectangle.Rect
+import moe.forpleuvoir.ibukigourd.render.useColorLogicOp
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -562,7 +562,7 @@ fun ElementContainer.textInput(
     contract {
         callsInPlace(scope, InvocationKind.EXACTLY_ONCE)
     }
-    return this.addElement(moe.forpleuvoir.ibukigourd.gui.widget.text.TextInput(width, height, padding, margin, scope))
+    return this.addElement(TextInput(width, height, padding, margin, scope))
 }
 
 /**

@@ -9,7 +9,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
-typealias Padding = moe.forpleuvoir.ibukigourd.gui.base.Margin
+typealias Padding = Margin
 
 data class Margin(
     val left: Float = 0.0f,
@@ -30,17 +30,17 @@ data class Margin(
 
     val height get() = top + bottom
 
-    companion object : Deserializer<moe.forpleuvoir.ibukigourd.gui.base.Margin>, Serializer<moe.forpleuvoir.ibukigourd.gui.base.Margin> {
-        override fun deserialization(serializeElement: SerializeElement): moe.forpleuvoir.ibukigourd.gui.base.Margin {
+    companion object : Deserializer<Margin>, Serializer<Margin> {
+        override fun deserialization(serializeElement: SerializeElement): Margin {
             return serializeElement
-                .checkType<moe.forpleuvoir.ibukigourd.gui.base.Margin>()
+                .checkType<Margin>()
                     .check<SerializePrimitive> {
-                        moe.forpleuvoir.ibukigourd.gui.base.Margin(it.asFloat)
+                        Margin(it.asFloat)
                     }
                     .check<SerializeObject> {
                         when (it.keys) {
                             setOf("left", "right", "top", "bottom") ->
-                                moe.forpleuvoir.ibukigourd.gui.base.Margin(
+                                Margin(
                                     it["left"]!!.asFloat,
                                     it["right"]!!.asFloat,
                                     it["top"]!!.asFloat,
@@ -48,7 +48,7 @@ data class Margin(
                                 )
 
                             setOf("horizontal", "vertical")         ->
-                                moe.forpleuvoir.ibukigourd.gui.base.Margin(
+                                Margin(
                                     it["horizontal"]!!.asNumber,
                                     it["vertical"]!!.asNumber,
                                 )
@@ -59,11 +59,11 @@ data class Margin(
                     .check<SerializeArray> {
                         when (it.size) {
                             2    -> {
-                                moe.forpleuvoir.ibukigourd.gui.base.Margin(it[0].asNumber, it[1].asNumber)
+                                Margin(it[0].asNumber, it[1].asNumber)
                             }
 
                             4    -> {
-                                moe.forpleuvoir.ibukigourd.gui.base.Margin(it[0].asFloat, it[1].asFloat, it[2].asFloat, it[3].asFloat)
+                                Margin(it[0].asFloat, it[1].asFloat, it[2].asFloat, it[3].asFloat)
                             }
 
                             else -> throw IllegalArgumentException("The size of the array is wrong, expected [2] or [4].")
@@ -71,7 +71,7 @@ data class Margin(
                     }.getOrThrow()
         }
 
-        override fun serialization(target: moe.forpleuvoir.ibukigourd.gui.base.Margin): SerializeElement = serializeObject {
+        override fun serialization(target: Margin): SerializeElement = serializeObject {
             "left" - target.left
             "right" - target.right
             "top" - target.top

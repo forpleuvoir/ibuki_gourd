@@ -3,10 +3,10 @@ package moe.forpleuvoir.ibukigourd.gui.base.modifier
 import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LayoutData
 
-class LayoutDataModifier(val layoutData: LayoutData) : ModifierImpl() {
+class LayoutDataModifier(private val layoutData: LayoutData) : ModifierImpl() {
 
     override fun modify(element: Element) {
-        (element.layoutData as MutableMap).put(layoutData::class, layoutData)
+        (element.layoutData as MutableMap)[layoutData::class] = layoutData
     }
 
 }
