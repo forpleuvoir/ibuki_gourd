@@ -10,8 +10,8 @@ open class ModConfigContainer(key: String) : ConfigContainerImpl(key) {
 
 	private val log = logger()
 
-	override fun deserializationExceptionHandler(configSerializable: ConfigSerializable, serializeElement: SerializeElement, e: DeserializationException) {
-		needSave = true
-		log.error("${configSerializable.key}:${serializeElement} deserialization failed", e)
+	override fun deserializationExceptionHandler(config: ConfigSerializable, serializeElement: SerializeElement, e: DeserializationException) {
+		configManager?.markSavable()
+		log.error("${config.key}:${serializeElement} deserialization failed", e)
 	}
 }

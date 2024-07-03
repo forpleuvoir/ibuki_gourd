@@ -16,81 +16,81 @@ import kotlin.reflect.full.isSubclassOf
 @EventSubscriber
 @Deprecated("Internal objects,Do not call")
 object ServerModConfigHandler : ModConfigHandler {
-	private val log = logger()
+    private val log = logger()
 
-	private val configManagers = HashMap<String, ServerModConfigManager>()
+    private val configManagers = HashMap<String, ServerModConfigManager>()
 
-	override val managers: Iterable<ModConfigManager>
-		get() = configManagers.values
+    override val managers: Iterable<ModConfigManager>
+        get() = configManagers.values
 
-	private fun init() {
-		Timer().schedule(object : TimerTask() {
-			override fun run() {
-				configManagers.forEach { (key, value) ->
-					if (value.needSave) {
-						log.info("[{}]auto save server config...", key)
-						value.asyncSave()
-					}
-				}
-			}
-		}, 0, 1000 * 30)
-	}
+    private fun init() {
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                configManagers.forEach { (key, value) ->
+                    if (value.savable()) {
+                        log.info("[{}]auto save server config...", key)
+                        value.asyncSave()
+                    }
+                }
+            }
+        }, 0, 1000 * 30)
+    }
 
 
-	@Subscriber
-	fun init(event: ServerLifecycleEvent.ServerStartingEvent) {
-		log.info("init server mod config...")
-		init()
-		scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ServerModConfigManager::class) }.forEach { (modMeta, classes) ->
-			classes.forEach { kClass ->
+    @Subscriber
+    fun init(event: ServerLifecycleEvent.ServerStartingEvent) {
+        log.info("init server mod config...")
+        init()
+        scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ServerModConfigManager::class) }.forEach { (modMeta, classes) ->
+            classes.forEach { kClass ->
 
-				val instance = runCatching {
-					// 尝试创建实例
-					kClass.createInstance() as ServerModConfigManager
-				}.recoverCatching {
-					// 如果创建实例失败，尝试获取 objectInstance
-					kClass.objectInstance as ServerModConfigManager
-				}.getOrElse {
-					// 如果两者都失败，抛出异常
-					throw Exception("Unable to create instance of ${kClass.qualifiedName}, must have noArgsConstructor or be objectInstance")
-				}
+                val instance = runCatching {
+                    // 尝试创建实例
+                    kClass.createInstance() as ServerModConfigManager
+                }.recoverCatching {
+                    // 如果创建实例失败，尝试获取 objectInstance
+                    kClass.objectInstance as ServerModConfigManager
+                }.getOrElse {
+                    // 如果两者都失败，抛出异常
+                    throw Exception("Unable to create instance of ${kClass.qualifiedName}, must have noArgsConstructor or be objectInstance")
+                }
 
-				val annotation = kClass.findAnnotation<ModConfig>()!!
-				instance.init(event.server)
-				log.info("[${modMeta.id} - ${annotation.name}]server config init")
-				runCatching {
-					runBlocking {
-						instance.load()
-					}
-				}.onFailure {
-					runBlocking {
-						instance.forceSave()
-					}
-					log.error(it)
-				}
-				configManagers["${modMeta.id} - ${annotation.name}"] = instance
-			}
-		}
-	}
+                val annotation = kClass.findAnnotation<ModConfig>()!!
+                instance.init(event.server)
+                log.info("[${modMeta.id} - ${annotation.name}]server config init")
+                runCatching {
+                    runBlocking {
+                        instance.load()
+                    }
+                }.onFailure {
+                    runBlocking {
+                        instance.forceSave()
+                    }
+                    log.error(it)
+                }
+                configManagers["${modMeta.id} - ${annotation.name}"] = instance
+            }
+        }
+    }
 
-	@Subscriber
-	@Suppress("unused")
-	fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
-		log.info("server mod config saving...")
-		runBlocking {
-			save()
-		}
-	}
+    @Subscriber
+    @Suppress("unused")
+    fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
+        log.info("server mod config saving...")
+        runBlocking {
+            save()
+        }
+    }
 
-	@Subscriber
-	@Suppress("unused")
-	fun serverSave(event: ServerSavingEvent) {
-		configManagers.forEach { (key, value) ->
-			if (value.needSave) {
-				log.info("[{}]auto async save server config...", key)
-				value.asyncSave()
-			}
-		}
-	}
+    @Subscriber
+    @Suppress("unused")
+    fun serverSave(event: ServerSavingEvent) {
+        configManagers.forEach { (key, value) ->
+            if (value.savable()) {
+                log.info("[{}]auto async save server config...", key)
+                value.asyncSave()
+            }
+        }
+    }
 
 }

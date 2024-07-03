@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.render.math.deserialization
 import moe.forpleuvoir.ibukigourd.render.math.serialization
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.ConfigValue
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import org.joml.Vector2f
 
@@ -22,3 +23,5 @@ class ConfigVector2f(
 
     override fun serialization(): SerializeElement = configValue.serialization()
 }
+
+fun ConfigContainer.vector2f(key: String, defaultValue: Vector2f) = addConfig(ConfigVector2f(key, defaultValue))

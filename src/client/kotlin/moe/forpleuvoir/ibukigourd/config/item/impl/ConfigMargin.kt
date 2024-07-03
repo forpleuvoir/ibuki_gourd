@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.config.item.impl
 import moe.forpleuvoir.ibukigourd.config.item.ConfigMarginValue
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.nebula.config.ConfigBase
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 
 class ConfigMargin(
@@ -28,3 +29,5 @@ class ConfigMargin(
 	}
 
 }
+
+fun ConfigContainer.margin(key: String, defaultValue: Margin) = addConfig(ConfigMargin(key, defaultValue))

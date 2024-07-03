@@ -6,8 +6,8 @@ import kotlin.random.Random
 plugins {
     java
     signing
-    id("fabric-loom") version "1.6-SNAPSHOT"
-    kotlin("jvm") version "2.0.0"
+    alias(libs.plugins.fabricLoom)
+    alias(libs.plugins.kotlinJVM)
     id("maven-publish")
 }
 
@@ -23,32 +23,22 @@ repositories {
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
 
 val modName: String = properties["archives_base_name"].toString()
-val minecraftVersion: String = properties["minecraft_version"].toString()
-val yarnMappings: String = properties["yarn_mappings"].toString()
-val fabricLoaderVersion: String = properties["fabric_loader_version"].toString()
-val fabricApiVersion: String = properties["fabric_api_version"].toString()
-val fabricKotlinVersion: String = properties["fabric_kotlin_version"].toString()
-val modMenuVersion: String = properties["mod_menu_version"].toString()
-
-val nebulaVersion: String = properties["nebula_version"].toString()
-
 version = properties["mod_version"].toString()
 group = properties["maven_group"].toString()
 
 dependencies {
-    minecraft("com.mojang:minecraft:$minecraftVersion")
-    mappings("net.fabricmc:yarn:$yarnMappings:v2")
-    modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+    minecraft(libs.minecraft)
+    mappings("${libs.yarnMappings.get()}:v2")
+    modImplementation(libs.fabricLoader)
+    modImplementation(libs.fabricApi)
 
-    modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
+    modImplementation(libs.fabricKotlin)
 
     //其他mod依赖
-    modImplementation("com.terraformersmc:modmenu:$modMenuVersion")
+    modImplementation(libs.modMenu)
 
     //nebula
-    api("moe.forpleuvoir:nebula:$nebulaVersion")
-    include("moe.forpleuvoir:nebula:$nebulaVersion:nebula")
+    include(api("${libs.nebula.get()}:nebula")!!)
 
     //其他第三方库依赖
 
@@ -156,7 +146,7 @@ tasks {
         mustRunAfter("remapJar")
         val outPath = "./out/$version"
         val name = "$modName-$version.jar"
-        val newName = "$modName-$version.$time-minecraft.$minecraftVersion-fabric.jar"
+        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion}-fabric.jar"
         from("build/libs")
         into(outPath)
         include(name)

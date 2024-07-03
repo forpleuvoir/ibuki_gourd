@@ -4,30 +4,33 @@ import moe.forpleuvoir.ibukigourd.config.item.ConfigKeyBindValue
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.nebula.config.ConfigBase
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 
 class ConfigKeyBind(
-	override val key: String,
-	override val defaultValue: KeyBind
+    override val key: String,
+    override val defaultValue: KeyBind
 ) : ConfigBase<KeyBind, ConfigKeyBind>(), ConfigKeyBindValue {
 
-	override var configValue: KeyBind = KeyBind(defaultValue)
+    override var configValue: KeyBind = KeyBind(defaultValue)
 
-	override fun init() {
-		super.init()
-		InputHandler.register(configValue)
-	}
+    override fun init() {
+        super.init()
+        InputHandler.register(configValue)
+    }
 
-	override fun setValue(value: KeyBind) {
-		configValue.copyOf(value)
-	}
+    override fun setValue(value: KeyBind) {
+        configValue.copyOf(value)
+    }
 
-	override fun deserialization(serializeElement: SerializeElement) {
-		configValue.deserialization(serializeElement)
-	}
+    override fun deserialization(serializeElement: SerializeElement) {
+        configValue.deserialization(serializeElement)
+    }
 
-	override fun serialization(): SerializeElement {
-		return configValue.serialization()
-	}
+    override fun serialization(): SerializeElement {
+        return configValue.serialization()
+    }
 
 }
+
+fun ConfigContainer.keyBind(key: String, defaultValue: KeyBind) = addConfig(ConfigKeyBind(key, defaultValue))
