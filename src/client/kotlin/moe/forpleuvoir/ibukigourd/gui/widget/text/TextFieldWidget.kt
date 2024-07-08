@@ -4,17 +4,17 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.*
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.dimension
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
+import moe.forpleuvoir.ibukigourd.gui.render.context.extension.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.util.ScrollingAxis
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.BACKGROUND_COLOR
-import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.COLOR
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.RIGHT_TO_LEFT
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
@@ -34,7 +34,7 @@ import kotlin.math.min
 open class TextFieldWidget(
     val text: () -> Text,
     val setting: TextFieldSetting,
-    modifier: Modifier = Modifier.dimension(wrap_content, wrap_content)
+    modifier: Modifier = Modifier
 ) : AbstractElement(modifier) {
 
     data class TextFieldSetting(
@@ -56,7 +56,7 @@ open class TextFieldWidget(
         backgroundColor: Color = BACKGROUND_COLOR,
         alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
         textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-        modifier: Modifier = Modifier.dimension(wrap_content, wrap_content)
+        modifier: Modifier = Modifier
     ) : this(
         text, TextFieldSetting(spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer), modifier
     )
@@ -116,11 +116,17 @@ open class TextFieldWidget(
         get() {
             val text = text().wrapToTextLines(textRenderer, if (scrollingAxis == ScrollingAxis.X) transform.width.toInt() else 0)
             if (latestText != text()) {
-                onChange()
                 latestText = text()
+                onChanged()
             }
             return text
         }
+
+    override val layout: Layout = object : Layout {
+        override fun Element.layout() {}
+        override fun Element.measureWidth(measureSpec: MeasureSpec): Float = 0f
+        override fun Element.measureHeight(measureSpec: MeasureSpec): Float = 0f
+    }
 
     override fun onLayout() = Unit
 
@@ -146,14 +152,10 @@ open class TextFieldWidget(
         return transform.height + margin.height
     }
 
-    protected fun onChanged() {
-        screen().apply {
-            if (isInitialized) screenLayout()
-        }
-    }
+    private fun onChanged() {
+        screen().takeIf { it.isInitialized }?.let { screen ->
+            screen.screenLayout()
 
-    init {
-        transform.width = width?.also {
             currentXOffset.clear()
             xScrollerForward.clear()
             textXOffset.apply {
@@ -164,45 +166,11 @@ open class TextFieldWidget(
                     xScrollerForward.add(index, 1f)
                 }
             }
-        } ?: 16f
-        transform.height = height?.also {
+
             currentYOffset = 0f
             yScrollerForward = 1f
-            textYOffset = (renderText.size * (textRenderer.fontHeight + spacing) - spacing - transform.height).coerceAtLeast(0f)
-        } ?: 16f
-    }
-
-    private fun onChange() {
-
-    }
-
-    fun resize() {
-        var changed = false
-        if (!transform.fixedWidth) {
-            transform.width = (renderText.maxWidth(textRenderer).toFloat() + padding.width).coerceAtLeast(1f)
-            changed = true
-        } else {
-            currentXOffset.clear()
-            xScrollerForward.clear()
-            textXOffset.apply {
-                clear()
-                for ((index, text) in renderText.withIndex()) {
-                    this.add(index, (textRenderer.getWidth(text).toFloat() - transform.width).coerceAtLeast(0f))
-                    currentXOffset.add(index, 0f)
-                    xScrollerForward.add(index, 1f)
-                }
-            }
+            textYOffset = (renderText.size * (textRenderer.fontHeight + setting.spacing) - setting.spacing - transform.height).coerceAtLeast(0f)
         }
-        if (!transform.fixedHeight) {
-            transform.height = (renderText.size * (textRenderer.fontHeight + spacing) - spacing + padding.height).coerceAtLeast(1f)
-            changed = true
-        } else {
-            currentYOffset = 0f
-            yScrollerForward = 1f
-            textYOffset = (renderText.size * (textRenderer.fontHeight + spacing) - spacing - transform.height).coerceAtLeast(0f)
-        }
-        if (changed) parent().arrange()
-
     }
 
     override fun onRender(renderContext: RenderContext) {
@@ -224,53 +192,57 @@ open class TextFieldWidget(
         val list = buildList {
             renderText.forEachIndexed { index, text ->
                 if (renderText.lastIndex != index)
-                    add(Box(0f, 0f, textRenderer.getWidth(text), textRenderer.fontHeight + spacing))
+                    add(Box(0f, 0f, textRenderer.getWidth(text), textRenderer.fontHeight + setting.spacing))
                 else
                     add(Box(0f, 0f, textRenderer.getWidth(text), textRenderer.fontHeight))
             }
         }
 
-        currentYOffset += renderContext.tickCounter * yScrollerSpeed * yScrollerForward
+        currentYOffset += renderContext.tickCounter.lastFrameDuration * yScrollerSpeed * yScrollerForward
         if (currentYOffset == textYOffset) yScrollerForward = -1f
         if (currentYOffset <= 0f) yScrollerForward = 1f
 
         var originYOffset = 0f
 
-        renderContext.useMatrixStack {
+        renderContext.useMatrixStack { matrixStack ->
             matrixStack.translate(0.0f, 0.4f, 0f)
-            textRenderer.batchRender {
-                if (scrollerAsix && if (hoverScroller) mouseHover() else true) {
-                    alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+            useTextRenderer(this.textRenderer) {
+                batchRenderText {
+                    if (scrollingAxis != null && hoverScroller.pick(mouseHover(), true)) {//启用滚动
+                        setting.alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                            if (index == 0) originYOffset = vec.y() - transform.worldTop
 
-                        if (index == 0) originYOffset = vec.y - transform.worldTop
+                            if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
+                                currentXOffset[index] =
+                                    (currentXOffset[index] + renderContext.tickCounter.lastFrameDuration * xScrollerSpeed * xScrollerForward[index]).clamp(
+                                        0f,
+                                        textXOffset[index]
+                                    )
+                                if (currentXOffset[index] >= textXOffset[index]) xScrollerForward[index] = -1f
+                                if (currentXOffset[index] <= 0f) xScrollerForward[index] = 1f
+                            }
 
-                        if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
-                            currentXOffset[index] =
-                                (currentXOffset[index] + renderContext.tickCounter * xScrollerSpeed * xScrollerForward[index]).clamp(0f, textXOffset[index])
-                            if (currentXOffset[index] >= textXOffset[index]) xScrollerForward[index] = -1f
-                            if (currentXOffset[index] <= 0f) xScrollerForward[index] = 1f
+                            val originXOffset = if (textXOffset.getOrElse(index) { 0f } != 0f) vec.x() - transform.worldLeft else 0f
+
+                            val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset)
+                                .let { if (it.isNaN()) 0f else it }
+
+                            val xEasing = (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
+                                .let { if (it.isNaN()) 0f else it }
+
+                            text(
+                                renderText[index],
+                                vec.x() - xEasing - originXOffset, vec.y() - yEasing - originYOffset,
+                                setting.shadow, setting.layerType, setting.rightToLeft, setting.backgroundColor
+                            )
                         }
-                        val originXOffset = if (textXOffset.getOrElse(index) { 0f } != 0f) vec.x - transform.worldLeft else 0f
-
-                        val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset)
-                            .let { if (it.isNaN()) 0f else it }
-
-                        val xEasing = (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
-                            .let { if (it.isNaN()) 0f else it }
-
-                        renderText(
-                            renderContext.matrixStack, renderText[index],
-                            vec.x - xEasing - originXOffset, vec.y - yEasing - originYOffset, vec.z,
-                            shadow, layerType, rightToLeft, color, backgroundColor
-                        )
-                    }
-                } else {
-                    alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
-                        renderText(
-                            renderContext.matrixStack,
-                            renderText[index],
-                            vec.x, vec.y, vec.z, shadow, layerType, rightToLeft, color, backgroundColor
-                        )
+                    } else {
+                        setting.alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                            text(
+                                renderText[index],
+                                vec.x(), vec.y(), setting.shadow, setting.layerType, setting.rightToLeft, setting.backgroundColor
+                            )
+                        }
                     }
                 }
             }
@@ -280,7 +252,6 @@ open class TextFieldWidget(
 
 }
 
-
 /**
  * @receiver Element
  * @param text String 文本
@@ -289,12 +260,10 @@ open class TextFieldWidget(
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 fun ElementContainer.textField(
@@ -304,28 +273,16 @@ fun ElementContainer.textField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget =
-    addElement(
-        TextFieldWidget(
-            { Literal(text).style { style } },
-            spacing,
-            shadow,
-            layerType,
-            rightToLeft,
-            color,
-            backgroundColor,
-            alignment,
-            textRenderer,
-            width,
-            height
-        )
+    modifier: Modifier = Modifier
+): TextFieldWidget = addElement(
+    TextFieldWidget(
+        { Literal(text).styled { style } },
+        spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier
     )
+)
 
 /**
  * @param text String 文本
@@ -334,12 +291,10 @@ fun ElementContainer.textField(
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 fun TextField(
@@ -349,26 +304,14 @@ fun TextField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget =
-    TextFieldWidget(
-        { Literal(text).style { style } },
-        spacing,
-        shadow,
-        layerType,
-        rightToLeft,
-        color,
-        backgroundColor,
-        alignment,
-        textRenderer,
-        width,
-        height
-    )
+    modifier: Modifier = Modifier
+): TextFieldWidget = TextFieldWidget(
+    { Literal(text).styled { style } },
+    spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier
+)
 
 
 /**
@@ -379,12 +322,10 @@ fun TextField(
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
@@ -395,42 +336,29 @@ fun ElementContainer.textField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget =
-    addElement(
-        TextFieldWidget(
-            { Literal(text()).style { style } },
-            spacing,
-            shadow,
-            layerType,
-            rightToLeft,
-            color,
-            backgroundColor,
-            alignment,
-            textRenderer,
-            width,
-            height
-        )
+    modifier: Modifier = Modifier
+): TextFieldWidget = addElement(
+    TextFieldWidget(
+        { Literal(text()).styled { style } },
+        spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier
     )
+)
 
 /**
+ * @receiver ElementContainer
  * @param text () -> String 文本
  * @param style Style 样式
  * @param spacing Float 行间距
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
@@ -441,26 +369,14 @@ fun TextField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget =
-    TextFieldWidget(
-        { Literal(text()).style { style } },
-        spacing,
-        shadow,
-        layerType,
-        rightToLeft,
-        color,
-        backgroundColor,
-        alignment,
-        textRenderer,
-        width,
-        height
-    )
+    modifier: Modifier = Modifier
+): TextFieldWidget = TextFieldWidget(
+    { Literal(text()).styled { style } },
+    spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier
+)
 
 
 /**
@@ -470,12 +386,10 @@ fun TextField(
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
@@ -485,26 +399,23 @@ fun ElementContainer.textField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget = addElement(TextFieldWidget(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
+    modifier: Modifier = Modifier
+): TextFieldWidget = addElement(TextFieldWidget(text, spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier))
 
 /**
+ * @receiver ElementContainer
  * @param text () -> Text 文本
  * @param spacing Float 行间距
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 @OverloadResolutionByLambdaReturnType
@@ -514,13 +425,11 @@ fun TextField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(text().style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget = TextFieldWidget(text, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height)
+    modifier: Modifier = Modifier
+): TextFieldWidget = TextFieldWidget(text, spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier)
 
 /**
  * @receiver ElementContainer
@@ -529,12 +438,10 @@ fun TextField(
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 fun ElementContainer.textField(
@@ -543,27 +450,24 @@ fun ElementContainer.textField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
+    modifier: Modifier = Modifier
 ): TextFieldWidget =
-    addElement(TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height))
+    addElement(TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier))
 
 /**
+ * @receiver ElementContainer
  * @param text Text 文本
  * @param spacing Float 行间距
  * @param shadow Boolean 是否有阴影
  * @param layerType TextRenderer.TextLayerType 渲染层
  * @param rightToLeft Boolean 是否从右到左
- * @param color Color 文本颜色
  * @param backgroundColor Color 背景颜色
  * @param alignment (Arrangement) -> Alignment 对齐方式
  * @param textRenderer TextRenderer 文本渲染器
- * @param width Float? 宽度 null -> auto,!null - value
- * @param height Float? 高度 null -> auto,!null - value
+ * @param modifier [Modifier]
  * @return TextField
  */
 fun TextField(
@@ -572,10 +476,8 @@ fun TextField(
     shadow: Boolean = SHADOW,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = RIGHT_TO_LEFT,
-    color: Color = Color(text.style.color?.rgb ?: COLOR.argb),
     backgroundColor: Color = BACKGROUND_COLOR,
     alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
     textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer,
-    width: Float? = null,
-    height: Float? = null,
-): TextFieldWidget = TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, color, backgroundColor, alignment, textRenderer, width, height)
+    modifier: Modifier = Modifier
+): TextFieldWidget = TextFieldWidget({ text }, spacing, shadow, layerType, rightToLeft, backgroundColor, alignment, textRenderer, modifier)

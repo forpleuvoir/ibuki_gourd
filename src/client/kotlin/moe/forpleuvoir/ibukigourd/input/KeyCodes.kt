@@ -13,10 +13,9 @@ interface KeyCode {
         get() = keyNameText.plainText
 
     val keyNameText: Text
-        get() = Text.keyBind(this)
+        get() = Text.keyBind(this.translationKey)
 
     val translationKey: String
-
 
     companion object {
 

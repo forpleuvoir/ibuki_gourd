@@ -70,22 +70,18 @@ open class ButtonWidget(
     }
 
     fun press(action: () -> Unit) {
-        onPress = {
-            action()
-        }
+        onPress = action
     }
 
     fun release(action: () -> Unit) {
-        onRelease = {
-            action()
-        }
+        onRelease = action
     }
 
     override fun onRender(renderContext: RenderContext) {
         val offset = pressOffset
         renderContext.scissorOffset(offset) {
             useMatrixStack {
-                matrixStack.translate(offset)
+                it.translate(offset)
                 tryRender {
                     renderBackground(this)
                 }

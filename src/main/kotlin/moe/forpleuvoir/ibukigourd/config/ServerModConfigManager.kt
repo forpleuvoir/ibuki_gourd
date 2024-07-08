@@ -15,6 +15,6 @@ abstract class ServerModConfigManager(modMetadata: ModMetadata, key: String) : M
 	}
 
 	override val configPath: Path
-		get() = File(server.session.directory.path.toFile(), modMetadata.id).toPath()
+		get() = File(server.session.directory.rootPath, modMetadata.id).toPath()
 
 }

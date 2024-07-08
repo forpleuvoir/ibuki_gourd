@@ -47,8 +47,6 @@ class ColoredBox(
         coloredVertex.color
     )
 
-    constructor(x: Number, y: Number, size: Size<Float>, vararg colors: ARGBColor) : this(x, y, size.width, size.height, *colors)
-
     constructor(box: Box, vararg colors: ARGBColor) : this(box.x, box.y, box.width, box.height, *colors)
 
     val coloredVertexes: Array<ColoredVertex> by lazy {

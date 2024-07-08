@@ -231,7 +231,7 @@ inline fun Transform.mouseHover(
     block: Transform.() -> Unit
 ) {
     contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
     isMouseOvered(mouseX, mouseY).ifc { block() }
 }
@@ -247,7 +247,7 @@ inline fun Transform.mouseHover(
     block: Transform.() -> Unit
 ) {
     contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }
     if (mousePosition in this) block()
 }

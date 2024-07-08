@@ -2,7 +2,6 @@
 
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.text.style.StyleScope
 import net.minecraft.text.*
 import net.minecraft.util.Formatting
@@ -38,8 +37,8 @@ open class Text(
         }
 
         @JvmStatic
-        fun keyBind(keyCode: KeyCode): Text {
-            return Text(KeybindTextContent(keyCode.translationKey))
+        fun keyBind(translationKey: String): Text {
+            return Text(KeybindTextContent(translationKey))
         }
 
     }

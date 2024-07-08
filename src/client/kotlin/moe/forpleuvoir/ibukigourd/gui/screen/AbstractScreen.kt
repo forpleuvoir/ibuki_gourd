@@ -13,9 +13,9 @@ import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 
 abstract class AbstractScreen(
-    modifier: Modifier = Modifier.width(match_parent).height(match_parent),
+    modifier: Modifier = Modifier,
     final override val layers: List<Layer> = Layer.defaultLayers
-) : AbstractElement(modifier), Screen {
+) : AbstractElement(Modifier.width(match_parent).height(match_parent).then(modifier)), Screen {
 
     init {
         check(layers.toSet().size == layers.size) {
@@ -238,8 +238,8 @@ abstract class AbstractScreen(
 
 }
 
-fun screen(screenScope: Screen.() -> Unit): Screen {
-    return object : AbstractScreen() {}.apply {
+fun screen(modifier: Modifier = Modifier, screenScope: Screen.() -> Unit): Screen {
+    return object : AbstractScreen(modifier) {}.apply {
         screenScope(this)
     }
 }

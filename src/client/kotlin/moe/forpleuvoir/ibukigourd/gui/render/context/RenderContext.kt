@@ -24,12 +24,15 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 class RenderContext(
     val client: MinecraftClient = mc,
-    val textRenderer: TextRenderer = mc.textRenderer,
+    textRenderer: TextRenderer = mc.textRenderer,
     val matrixStack: MatrixStack = MatrixStack(),
     val scissorStack: ScissorStack = ScissorStack(),
 ) {
 
     lateinit var layer: Layer
+
+    var textRenderer: TextRenderer = textRenderer
+        private set
 
     var tickCounter: RenderTickCounter = RenderTickCounter.ZERO
         private set
@@ -87,10 +90,17 @@ class RenderContext(
         return this
     }
 
-    inline fun useMatrixStack(block: RenderContext.() -> Unit) {
+    fun useTextRenderer(textRenderer: TextRenderer, block: RenderContext.() -> Unit) {
+        val temp = this.textRenderer
+        this.textRenderer = textRenderer
+        this.block()
+        this.textRenderer = temp
+    }
+
+    inline fun useMatrixStack(block: RenderContext.(matrixStack: MatrixStack) -> Unit) {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         matrixStack.push()
-        this.block()
+        this.block(matrixStack)
         matrixStack.pop()
     }
 

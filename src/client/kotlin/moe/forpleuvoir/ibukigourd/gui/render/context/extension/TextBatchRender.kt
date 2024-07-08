@@ -36,7 +36,6 @@ open class TextBatchRenderScope private constructor() {
 
     internal companion object : TextBatchRenderScope()
 
-
     /**
      * 渲染文本
      * @receiver RenderContext
