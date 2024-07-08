@@ -2,8 +2,8 @@ package moe.forpleuvoir.ibukigourd.gui.texture
 
 import com.google.common.io.CharStreams
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
-import moe.forpleuvoir.ibukigourd.render.base.texture.Corner
-import moe.forpleuvoir.ibukigourd.render.base.texture.TextureInfo
+import moe.forpleuvoir.ibukigourd.gui.render.texture.Corner
+import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.resources
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi

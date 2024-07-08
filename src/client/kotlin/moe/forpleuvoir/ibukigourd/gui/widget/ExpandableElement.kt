@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
-import moe.forpleuvoir.ibukigourd.util.NextAction
-
 abstract class ExpandableElement(
     expend: Boolean = false,
 ) : PressableElement() {
@@ -20,9 +18,8 @@ abstract class ExpandableElement(
     open var onCollapse: (() -> Unit)? = null
 
 
-    override val onPress: () -> NextAction = {
+    override val onPress: () -> Unit = {
         this.expend = !this.expend
-        NextAction.Cancel
     }
 
 }

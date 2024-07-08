@@ -70,8 +70,6 @@ open class TextFieldWidget(
      */
     protected var latestText: Text = text()
 
-    protected var changed: Boolean = false
-
     /**
      * 当宽度不够是是否自动换行
      */
@@ -83,7 +81,7 @@ open class TextFieldWidget(
     var scrollingAxis: ScrollingAxis? = ScrollingAxis.X
 
     /**
-     * 鼠标悬浮时启用滚动,只有当[scrollerAsix]为true时有效
+     * 鼠标悬浮时启用滚动,只有当[scrollingAxis] != `null`时有效
      */
     var hoverScroller: Boolean = false
 
@@ -109,6 +107,21 @@ open class TextFieldWidget(
 
     protected var textYOffset: Float = 0f
 
+    protected var currentYOffset: Float = 0f
+        set(value) {
+            field = value.clamp(0f, textYOffset)
+        }
+
+    protected val renderText: List<McText>
+        get() {
+            val text = text().wrapToTextLines(textRenderer, if (scrollingAxis == ScrollingAxis.X) transform.width.toInt() else 0)
+            if (latestText != text()) {
+                onChange()
+                latestText = text()
+            }
+            return text
+        }
+
     override fun onLayout() = Unit
 
     override fun onMeasureWidth(measureSpec: MeasureSpec): Float {
@@ -133,21 +146,6 @@ open class TextFieldWidget(
         return transform.height + margin.height
     }
 
-    protected var currentYOffset: Float = 0f
-        set(value) {
-            field = value.clamp(0f, textYOffset)
-        }
-
-    protected val renderText: List<McText>
-        get() {
-            val text = text().wrapToTextLines(textRenderer, if (transform.fixedWidth && !scrollerAsix) transform.width.toInt() else 0)
-            if (latestText != text()) {
-                changed = true
-                latestText = text()
-            }
-            return text
-        }
-
     protected fun onChanged() {
         screen().apply {
             if (isInitialized) screenLayout()
@@ -156,7 +154,6 @@ open class TextFieldWidget(
 
     init {
         transform.width = width?.also {
-            transform.fixedWidth = true
             currentXOffset.clear()
             xScrollerForward.clear()
             textXOffset.apply {
@@ -169,15 +166,14 @@ open class TextFieldWidget(
             }
         } ?: 16f
         transform.height = height?.also {
-            transform.fixedHeight = true
             currentYOffset = 0f
             yScrollerForward = 1f
             textYOffset = (renderText.size * (textRenderer.fontHeight + spacing) - spacing - transform.height).coerceAtLeast(0f)
         } ?: 16f
     }
 
-    override fun init() {
-        resize()
+    private fun onChange() {
+
     }
 
     fun resize() {
@@ -210,10 +206,6 @@ open class TextFieldWidget(
     }
 
     override fun onRender(renderContext: RenderContext) {
-        if (changed) {
-            resize()
-            changed = false
-        }
         renderContext.tryRender {
             renderBackground(this)
         }
