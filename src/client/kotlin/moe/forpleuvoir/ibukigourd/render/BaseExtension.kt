@@ -5,8 +5,6 @@ package moe.forpleuvoir.ibukigourd.render
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.render.vertex.UVVertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
@@ -239,11 +237,11 @@ fun setScissor(x: Number, y: Number, width: Number, height: Number) {
     RenderSystem.enableScissor(x1.toInt(), y1.toInt(), 0.coerceAtLeast(width1.toInt()), 0.coerceAtLeast(height1.toInt()))
 }
 
-fun setScissor(rect: Box?) {
-    if (rect == null) return disableScissor()
-    if (!rect.exist) return setScissor(0, 0, 0, 0)
-    setScissor(rect.x, rect.y, rect.width, rect.height)
-}
+//fun setScissor(rect: Box?) {
+//    if (rect == null) return disableScissor()
+//    if (!rect.exist) return setScissor(0, 0, 0, 0)
+//    setScissor(rect.x, rect.y, rect.width, rect.height)
+//}
 
 inline fun disableScissor() = RenderSystem.disableScissor()
 
@@ -265,8 +263,8 @@ inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector3: Vector3fc): 
 inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector2fc: Vector2fc): VertexConsumer =
     this.vertex(matrixStack.peek().positionMatrix, vector2fc)
 
-inline fun VertexConsumer.texture(uv: UVVertex): VertexConsumer =
-    this.texture(uv.u, uv.v)
+//inline fun VertexConsumer.texture(uv: UVVertex): VertexConsumer =
+//    this.texture(uv.u, uv.v)
 
 inline fun VertexConsumer.color(color: ARGBColor): VertexConsumer = this.color(color.red, color.green, color.blue, color.alpha)
 

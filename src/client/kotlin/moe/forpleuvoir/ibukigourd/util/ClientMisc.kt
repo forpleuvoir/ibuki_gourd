@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.text.Literal
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.sound.SoundManager
 import net.minecraft.client.texture.TextureManager
 import net.minecraft.client.util.math.MatrixStack
@@ -24,7 +25,10 @@ val textureManager: TextureManager by lazy { mc.textureManager }
 
 val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager as ReloadableResourceManagerImpl }
 
-internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
+@Suppress("NOTHING_TO_INLINE")
+inline fun openScreen(screen: Screen?) = mc.setScreen(screen)
+
+internal fun identifier(path: String): Identifier = identifier(IbukiGourd.MOD_ID, path)
 
 fun MinecraftClient.sendMessage(message: String) {
     this.player?.networkHandler?.let {

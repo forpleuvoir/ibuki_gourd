@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -51,5 +50,5 @@ enum class KeyEnvironment(val key: String) : Serializable {
 }
 
 fun currentEnv(): KeyEnvironment {
-    return if (mc.currentScreen != null || ScreenManager.hasScreen()) KeyEnvironment.InScreen else KeyEnvironment.InGame
+    return if (mc.currentScreen != null) KeyEnvironment.InScreen else KeyEnvironment.InGame
 }

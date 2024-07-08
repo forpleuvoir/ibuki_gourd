@@ -59,8 +59,8 @@ loom {
 
 sourceSets {
     create("devClientTest") {
-        compileClasspath += main.get().compileClasspath + main.get().output + sourceSets["client"].output
-        runtimeClasspath += main.get().runtimeClasspath + main.get().output + sourceSets["client"].output
+        compileClasspath += main.get().compileClasspath + main.get().output + sourceSets["client"].compileClasspath + sourceSets["client"].output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output + sourceSets["client"].runtimeClasspath + sourceSets["client"].output
     }
     create("devServerTest") {
         compileClasspath += main.get().compileClasspath + main.get().output

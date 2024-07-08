@@ -1,9 +1,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.nebula.common.pick
 import net.minecraft.client.font.TextRenderer
-import net.minecraft.text.KeybindTextContent
 import net.minecraft.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
 

@@ -35,8 +35,8 @@ internal fun Any.logger(): ModLogger {
 val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }
-fun resources(nameSpace: String, path: String): Identifier = Identifier.of(nameSpace, path)
-internal fun resources(path: String): Identifier = resources(IbukiGourd.MOD_ID, path)
+fun identifier(nameSpace: String, path: String): Identifier = Identifier.of(nameSpace, path)
+internal fun identifier(path: String): Identifier = identifier(IbukiGourd.MOD_ID, path)
 
 inline fun isDevEnv(block: () -> Unit) {
     contract {

@@ -1,10 +1,6 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent;
-import moe.forpleuvoir.ibukigourd.gui.base.event.CharTypedEvent;
-import moe.forpleuvoir.ibukigourd.gui.base.event.KeyPressEvent;
-import moe.forpleuvoir.ibukigourd.gui.base.event.KeyReleaseEvent;
-import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.input.KeyCode;
 import moe.forpleuvoir.nebula.event.EventBus;
@@ -40,12 +36,6 @@ abstract class KeyboardMixin {
                     return;
                 }
                 if (InputHandler.onKeyPress(keyCode)) ci.cancel();
-                ScreenManager.hasScreen(screen -> {
-                    if (screen.getActive()) {
-                        screen.getKeyPress().invoke(new KeyPressEvent(keyCode));
-                        ci.cancel();
-                    }
-                });
             }
             //key release
             else if (action == GLFW_RELEASE) {
@@ -56,37 +46,8 @@ abstract class KeyboardMixin {
                     return;
                 }
                 if (InputHandler.onKeyRelease(keyCode)) ci.cancel();
-                ScreenManager.hasScreen(screen -> {
-                    if (screen.getActive()) {
-                        screen.getKeyRelease().invoke(new KeyReleaseEvent(keyCode));
-                        ci.cancel();
-                    }
-                });
             }
         }
     }
 
-    @Inject(method = "onChar", at = @At("HEAD"), cancellable = true)
-    public void ibukigourd$onChar(long l, int i, int j, CallbackInfo ci) {
-        if (l == this.client.getWindow().getHandle()) {
-            if (Character.charCount(i) == 1) {
-                ScreenManager.hasScreen(screen -> {
-                    if (screen.getActive()) {
-                        screen.getCharTyped().invoke(new CharTypedEvent((char) i));
-                        ci.cancel();
-                    }
-                });
-            } else {
-                for (char c : Character.toChars(i)) {
-                    ScreenManager.hasScreen(screen -> {
-                        if (screen.getActive()) {
-                            screen.getCharTyped().invoke(new CharTypedEvent(c));
-                            ci.cancel();
-                        }
-                    });
-                }
-            }
-        }
-
-    }
 }

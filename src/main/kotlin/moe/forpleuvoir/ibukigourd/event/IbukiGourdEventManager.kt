@@ -7,10 +7,6 @@ import kotlin.reflect.full.isSubclassOf
 
 object IbukiGourdEventManager : EventManager() {
 
-	override fun init() {
-		super.init()
-	}
-
 	override fun scanPackage(predicate: (KClass<*>) -> Boolean): Set<KClass<*>> {
 		return buildSet {
 			for (set in scanModPackage(predicate).values) {

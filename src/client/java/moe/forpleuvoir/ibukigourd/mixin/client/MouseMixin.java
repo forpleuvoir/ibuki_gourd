@@ -1,8 +1,6 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent;
-import moe.forpleuvoir.ibukigourd.gui.base.event.*;
-import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.input.KeyCode;
 import moe.forpleuvoir.ibukigourd.input.MouseKt;
@@ -31,13 +29,6 @@ public abstract class MouseMixin {
     @Shadow
     private double glfwTime;
 
-    @Shadow
-    private double x;
-
-
-    @Shadow
-    private double y;
-
     @Inject(method = "onMouseButton", at = @At("HEAD"), cancellable = true)
     public void ibukigourd$onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
         if (window == this.client.getWindow().getHandle()) {
@@ -51,11 +42,6 @@ public abstract class MouseMixin {
                     return;
                 }
                 if (InputHandler.onKeyPress(keyCode)) ci.cancel();
-                ScreenManager.hasScreen(screen -> {
-                    var position = MouseKt.getMousePosition(this.client);
-                    screen.getMouseClick().invoke(new MousePressEvent(position.getX(), position.getY(), keyCode));
-                    ci.cancel();
-                });
             } else {
                 this.activeButton = -1;
                 final var keyEvent = new MouseEvent.MouseReleaseEvent(keyCode, keyCode.getKeyName(), currentEnv());
@@ -65,11 +51,6 @@ public abstract class MouseMixin {
                     return;
                 }
                 if (InputHandler.onKeyRelease(keyCode)) ci.cancel();
-                ScreenManager.hasScreen(screen -> {
-                    final var position = MouseKt.getMousePosition(this.client);
-                    screen.getMouseRelease().invoke(new MouseReleaseEvent(position.getX(), position.getY(), keyCode));
-                    ci.cancel();
-                });
             }
         }
     }
@@ -84,11 +65,6 @@ public abstract class MouseMixin {
                 ci.cancel();
                 return;
             }
-            ScreenManager.hasScreen(screen -> {
-                final var position = MouseKt.getMousePosition(this.client);
-                screen.getMouseScrolling().invoke(new MouseScrollEvent(position.getX(), position.getY(), (float) amount));
-                ci.cancel();
-            });
         }
     }
 
@@ -102,7 +78,6 @@ public abstract class MouseMixin {
                 ci.cancel();
                 return;
             }
-            ScreenManager.hasScreen(screen -> screen.getMouseMove().invoke(new MouseMoveEvent(position.getX(), position.getY())));
             if (this.activeButton != -1 && this.glfwTime > 0.0) {
                 final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(activeButton);
                 final var draggingEvent = new MouseEvent.MouseDraggingEvent(keyCode, keyCode.getKeyName(), position.getX(), position.getY(), currentEnv());
@@ -111,9 +86,6 @@ public abstract class MouseMixin {
                     ci.cancel();
                     return;
                 }
-                final double deltaX = (x - this.x) * (double) this.client.getWindow().getScaledWidth() / (double) this.client.getWindow().getWidth();
-                final double deltaY = (y - this.y) * (double) this.client.getWindow().getScaledHeight() / (double) this.client.getWindow().getHeight();
-                ScreenManager.hasScreen(screen -> screen.getMouseDragging().invoke(new MouseDragEvent(position.getX(), position.getY(), keyCode, (float) deltaX, (float) deltaY)));
             }
         }
     }
