@@ -12,4 +12,7 @@ accessible field net/minecraft/text/TranslatableTextContent translations Ljava/u
 accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
 accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Lnet/minecraft/world/level/storage/LevelStorage$LevelSave;
 accessible field net/minecraft/client/render/Tessellator allocator Lnet/minecraft/client/util/BufferAllocator;
-
+accessible field net/minecraft/client/gui/DrawContext client Lnet/minecraft/client/MinecraftClient;
+accessible field net/minecraft/client/gui/DrawContext matrices Lnet/minecraft/client/util/math/MatrixStack;
+accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
+accessible field net/minecraft/client/gui/DrawContext scissorStack Lnet/minecraft/client/gui/DrawContext$ScissorStack;

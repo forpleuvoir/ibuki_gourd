@@ -9,7 +9,7 @@
 //import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureUVMapping
 //import moe.forpleuvoir.ibukigourd.gui.render.texture.UVMapping
 //import moe.forpleuvoir.ibukigourd.gui.render.vertex.UVVertex
-//import moe.forpleuvoir.ibukigourd.gui.texture.WidgetTexture
+//import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTexture
 //import moe.forpleuvoir.ibukigourd.render.*
 //import moe.forpleuvoir.nebula.common.color.ARGBColor
 //import moe.forpleuvoir.nebula.common.color.Colors
