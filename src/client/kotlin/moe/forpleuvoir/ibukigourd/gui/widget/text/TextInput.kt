@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
+import moe.forpleuvoir.ibukigourd.gui.base.PressableElement
 import moe.forpleuvoir.ibukigourd.gui.extensions.asBox
 import moe.forpleuvoir.ibukigourd.gui.extensions.contentBox
 import moe.forpleuvoir.ibukigourd.gui.extensions.drawcontent.*
@@ -21,14 +22,12 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.ifc
 import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
 import net.minecraft.client.gui.screen.narration.NarrationPart
-import net.minecraft.client.gui.widget.PressableWidget
 import net.minecraft.util.StringHelper
 import net.minecraft.util.Util
 import kotlin.math.abs
@@ -46,11 +45,12 @@ open class TextInput(
     var hintColor: ARGBColor = Color(0x707070),
     var bgShaderColor: ARGBColor = Colors.WHITE,
     var selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
+    var suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     var cursorColor: ARGBColor = Colors.BLACK,
-    val padding: Padding = Padding(6, 6, 6, 6),
+    padding: Padding = Padding(6, 6, 6, 6),
     message: Text = Literal("textInput"),
     private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-) : PressableWidget(x, y, width, height, message), Tickable {
+) : PressableElement(x, y, width, height, message, padding), Tickable {
 
     var text: String = ""
         set(value) {
@@ -321,9 +321,11 @@ open class TextInput(
                             return true
                         }
                     }
+                    return true
+                } else {
                     write("    ")
+                    return true
                 }
-                return true
             }
             //光标左移,如果按下左控制键则跳过一个单词
             Keyboard.LEFT.code      -> {
@@ -391,6 +393,7 @@ open class TextInput(
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (!isMouseOver(mouseX, mouseY)) isFocused = false
         if (mouseHoveredContent(mouseX, mouseY, padding) && button == Mouse.LEFT.code) {
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(padding).width.toInt())
             cursor = textRenderer.trimToWidth(string, (mouseX - this.x - padding.left + 3).toInt()).length + firstCharacterIndex
@@ -445,8 +448,8 @@ open class TextInput(
 
     fun renderText(content: DrawContext) {
         val contentRect = contentBox(padding)
-        content.useMatrixStack {
-            it.translate(0.0f, 0.4f, 0f)
+        content.useMatrixStack { matrices ->
+            matrices.translate(0.0f, 0.4f, 0f)
             content.batchRenderText(textRenderer) {
                 //"渲染提示文本"
                 if (text.isEmpty() && hintText != null && !isFocused) {
@@ -454,16 +457,16 @@ open class TextInput(
                 }
                 //"渲染文本本体"
                 val renderText = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentRect.width.toInt())
-                renderText.isNotEmpty().ifc {
-                    alignmentText(renderText, contentRect, color = textColor)
+                renderText.takeIf { it.isNotEmpty() }?.let {
+                    alignmentText(it, contentRect, color = textColor)
                 }
                 //"渲染文本建议"
                 suggestion?.invoke(text)?.let { suggestion ->
                     if (isFocused && cursor == text.length) {
                         val renderTextWidth = textRenderer.getWidth(renderText).toFloat()
-                        val rect =
+                        val box =
                             Box(contentRect.position.copy(contentRect.position.x() + renderTextWidth), contentRect.width - renderTextWidth, contentRect.height)
-                        alignmentText(suggestion, rect)
+                        alignmentText(suggestion, box, color = suggestionColor)
                     }
                 }
             }
@@ -511,5 +514,6 @@ open class TextInput(
     }
 
     override fun onPress() {}
+    override fun onRelease() {}
 
 }

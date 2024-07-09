@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.math
 
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -10,6 +11,10 @@ import org.joml.Vector2fc
 import org.joml.Vector3fc
 
 fun Vector3fc.toVector2fc(): Vector2fc = Vector2f(x, y)
+
+operator fun Vector2fc.component1(): Float = x
+
+operator fun Vector2fc.component2(): Float = y
 
 /**
  * 创建一个向量[Vector2f]对象
@@ -64,8 +69,16 @@ fun Vector2fc.serialization(): SerializeElement = serializeObject {
     "y" to y()
 }
 
-fun vector2fDeserialization(element: SerializeElement): Vector2f {
-    return Vector2f().apply { deserialization(element) }
+object Vector2fc : Deserializer<Vector2fc> {
+    override fun deserialization(serializeElement: SerializeElement): Vector2fc {
+        return serializeElement.checkType<Vector2fc>()
+            .check<SerializeArray> {
+                Vector2f(it[0].asFloat, it[1].asFloat)
+            }.check<SerializeObject> {
+                Vector2f(it["x"]!!.asFloat, it["y"]!!.asFloat)
+            }.getOrThrow()
+    }
+
 }
 
 /**
@@ -75,13 +88,13 @@ fun vector2fDeserialization(element: SerializeElement): Vector2f {
  */
 fun Vector2f.deserialization(element: SerializeElement) {
     element.checkType<Unit>()
-            .check<SerializeArray> {
-                this.x = it[0].asFloat
-                this.y = it[1].asFloat
-            }.check<SerializeObject> {
-                this.x = it["x"]!!.asFloat
-                this.y = it["y"]!!.asFloat
-            }.getOrThrow()
+        .check<SerializeArray> {
+            this.x = it[0].asFloat
+            this.y = it[1].asFloat
+        }.check<SerializeObject> {
+            this.x = it["x"]!!.asFloat
+            this.y = it["y"]!!.asFloat
+        }.getOrThrow()
 }
 
 /**

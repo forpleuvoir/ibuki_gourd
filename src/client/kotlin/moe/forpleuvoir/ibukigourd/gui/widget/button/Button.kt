@@ -1,14 +1,16 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
+import moe.forpleuvoir.ibukigourd.gui.base.PressableElement
 import moe.forpleuvoir.ibukigourd.gui.extensions.asBox
 import moe.forpleuvoir.ibukigourd.gui.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.render.enableBlend
 import moe.forpleuvoir.ibukigourd.render.enableDepthTest
+import moe.forpleuvoir.ibukigourd.util.Tick
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.text.Text
 import net.minecraft.util.Util
 import net.minecraft.util.math.MathHelper
@@ -22,20 +24,10 @@ open class Button(
     width: Int,
     height: Int,
     message: Text,
+    padding: Padding = Padding(4),
     private val theme: ButtonTheme = ButtonThemes.Button2,
-    onPress: (Button) -> Unit,
-    narrationSupplier: NarrationSupplier = DEFAULT_NARRATION_SUPPLIER
-) : ButtonWidget(x, y, width, height, message, { onPress(it as Button) }, narrationSupplier) {
+) : PressableElement(x, y, width, height, message, padding) {
 
-    constructor(
-        x: Int,
-        y: Int,
-        width: Int,
-        height: Int,
-        message: Text,
-        theme: ButtonTheme = ButtonThemes.Button2,
-        onPress: (Button) -> Unit,
-    ) : this(x, y, width, height, message, theme, onPress, DEFAULT_NARRATION_SUPPLIER)
 
     companion object {
         protected fun drawScrollableText(
@@ -84,17 +76,53 @@ open class Button(
 
     }
 
-    protected open var pressed: Boolean = false
+    open var longPressTime: Tick = 20
 
-    var xMargin: Int = 4
+    open var pressTickCounter: Tick = 0
+        protected set
 
-    override fun onPress() {
-        pressed = true
-        super.onPress()
+    override fun tick() {
+        if (pressed) {
+            pressTickCounter++
+            if (longPressTime == pressTickCounter) {
+                longPress(this)
+            }
+        } else if (pressTickCounter != 0L) {
+            pressTickCounter = 0
+        }
     }
 
-    override fun onRelease(mouseX: Double, mouseY: Double) {
-        pressed = false
+    protected var onPress: (Button) -> Unit = {}
+        private set
+
+    protected var longPress: (Button) -> Unit = {}
+        private set
+
+    protected var onRelease: (Button) -> Unit = {}
+        private set
+
+    override fun onPress() {
+        onPress(this)
+    }
+
+    override fun onRelease() {
+        onRelease(this)
+    }
+
+    fun longPress(time: Tick, action: (Button) -> Unit): Button {
+        longPressTime = time
+        longPress = action
+        return this
+    }
+
+    fun press(action: (Button) -> Unit): Button {
+        onPress = action
+        return this
+    }
+
+    fun release(action: (Button) -> Unit): Button {
+        onRelease = action
+        return this
     }
 
     override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
@@ -110,31 +138,16 @@ open class Button(
         this.drawMessage(context, context.client.textRenderer, pressOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
     }
 
-    override fun drawMessage(context: DrawContext, textRenderer: TextRenderer, color: Int) {
-        this.drawScrollableText(context, textRenderer, xMargin, color)
+    protected open fun drawMessage(context: DrawContext, textRenderer: TextRenderer, color: Int) {
+        this.drawScrollableText(context, textRenderer, color)
     }
 
-    override fun drawScrollableText(context: DrawContext, textRenderer: TextRenderer, xMargin: Int, color: Int) {
-        val i: Int = this.x + xMargin
-        val j: Int = this.x + this.getWidth() - xMargin
-        drawScrollableText(context, textRenderer, this.message, i, this.y, j, this.y + this.getHeight(), color)
+    protected open fun drawScrollableText(context: DrawContext, textRenderer: TextRenderer, color: Int) {
+        val content = contentBox()
+        val left: Int = content.left.toInt()
+        val right: Int = content.right.toInt()
+        drawScrollableText(context, textRenderer, this.message, left, this.y, right, this.bottom, color)
     }
 
-    protected val pressOrDisabled: Boolean get() = this.active || pressed
 
-    protected fun <T> status(disabled: T, idle: T, hovered: T, pressed: T): T {
-        return if (active) {
-            if (this.pressed) pressed
-            else if (this.hovered || this.isFocused) hovered
-            else idle
-        } else disabled
-    }
-
-    protected inline fun <R> status(disabled: () -> R, idle: () -> R, hovered: () -> R, pressed: () -> R): R {
-        return if (active) {
-            if (this.pressed) pressed()
-            else if (this.hovered || this.isFocused) hovered()
-            else idle()
-        } else disabled()
-    }
 }

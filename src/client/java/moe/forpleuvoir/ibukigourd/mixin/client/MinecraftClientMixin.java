@@ -1,10 +1,12 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
+import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.RunArgs;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,6 +18,12 @@ public abstract class MinecraftClientMixin {
 
     @Shadow
     private volatile boolean running;
+
+
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Ljava/lang/System;currentTimeMillis()J"))
+    private void ibukigourd$init(RunArgs args, CallbackInfo ci) {
+        IbukiGourdEventManager.INSTANCE.init();
+    }
 
     @Inject(method = "run", at = @At("HEAD"))
     public void ibukigourd$runStarting(CallbackInfo ci) {

@@ -2,6 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.render.math
 
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -12,6 +13,13 @@ import org.joml.Vector3f
 import org.joml.Vector3fc
 
 fun Vector2fc.toVector3fc(): Vector3fc = Vector3f(x, y, 0f)
+
+operator fun Vector3fc.component1(): Float = x
+
+operator fun Vector3fc.component2(): Float = y
+
+operator fun Vector3fc.component3(): Float = z
+
 
 /**
  * 创建一个向量[Vector3f]对象
@@ -76,9 +84,18 @@ fun Vector3fc.serialization(): SerializeElement = serializeObject {
     "z" to z()
 }
 
-fun vector3fDeserialization(element: SerializeElement): Vector3f {
-    return Vector3f().apply { deserialization(element) }
+object Vector3fc : Deserializer<Vector3fc> {
+    override fun deserialization(serializeElement: SerializeElement): Vector3fc {
+        return serializeElement.checkType<Vector3fc>()
+            .check<SerializeArray> {
+                Vector3f(it[0].asFloat, it[1].asFloat, it[2].asFloat)
+            }.check<SerializeObject> {
+                Vector3f(it["x"]!!.asFloat, it["y"]!!.asFloat, it["z"]!!.asFloat)
+            }.getOrThrow()
+    }
+
 }
+
 
 /**
  * 将[Vector3f]反序列化
