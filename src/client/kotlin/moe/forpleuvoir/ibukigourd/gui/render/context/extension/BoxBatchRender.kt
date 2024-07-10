@@ -9,9 +9,11 @@ import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.ColoredBox
 import moe.forpleuvoir.ibukigourd.gui.render.shape.pointsInCircleRange
-import moe.forpleuvoir.ibukigourd.render.*
+import moe.forpleuvoir.ibukigourd.render.color
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.plus
+import moe.forpleuvoir.ibukigourd.render.setShader
+import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange
@@ -19,26 +21,25 @@ import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.VertexFormat
-import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.render.RenderLayer
+import net.minecraft.client.render.VertexConsumer
 import org.joml.Vector2fc
 import kotlin.math.abs
 import kotlin.math.min
 
+
 fun RenderContext.batchRenderBox(
-    shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui(),
+    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
     block: BoxBatchRenderScope.() -> Unit
 ) {
     setShader(shaderSupplier)
-    bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
-    block(BoxBatchRenderScope)
-    bufferBuilder.draw()
+    block(BoxBatchRenderScope(vertexConsumers.getBuffer(layer)))
+    draw()
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class BoxBatchRenderScope private constructor() {
-
-    internal companion object : BoxBatchRenderScope()
+data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexConsumer) {
 
     /**
      * 渲染一个[Box]
@@ -127,15 +128,25 @@ open class BoxBatchRenderScope private constructor() {
         inner: Boolean = false
     ) {
         check(borderSize > 0) { "borderSize must be greater than 0" }
-        val offset = if (inner) 0f else -borderSize
-        //top
-        box(x = x, y = y + offset, width = width - borderSize, height = borderSize, color = color)
-        //right
-        box(x = x + width, y = y + offset, width = borderSize, height = height - borderSize, color = color)
-        //bottom
-        box(x = x + borderSize, y = y + height + if (inner) -borderSize else 0f, width = width - borderSize, height = borderSize, color = color)
-        //left
-        box(x = x + offset, y = y + borderSize, width = borderSize, height = height - borderSize, color = color)
+        if (inner) {
+            //top
+            box(x = x, y = y, width = width - borderSize, height = borderSize, color = color)
+            //right
+            box(x = x + width - borderSize, y = y, width = borderSize, height = height - borderSize, color = color)
+            //bottom
+            box(x = x + borderSize, y = y + height - borderSize, width = width - borderSize, height = borderSize, color = color)
+            //left
+            box(x = x, y = y + borderSize, width = borderSize, height = height - borderSize, color = color)
+        } else {
+            //top
+            box(x = x - borderSize, y = y - borderSize, width = width + borderSize, height = borderSize, color = color)
+            //right
+            box(x = x + width, y = y - borderSize, width = borderSize, height = height + borderSize, color = color)
+            //bottom
+            box(x = x, y = y + height, width = width + borderSize, height = borderSize, color = color)
+            //left
+            box(x = x - borderSize, y = y, width = borderSize, height = height + borderSize, color = color)
+        }
     }
 
     /**
@@ -409,7 +420,6 @@ open class BoxBatchRenderScope private constructor() {
     ) {
         valueGradientBox(box.x, box.y, box.width, box.height, orientation, reverse, valueRange, hue, saturation, alpha)
     }
-
 
     private data class RoundBox(
         val round: Int,

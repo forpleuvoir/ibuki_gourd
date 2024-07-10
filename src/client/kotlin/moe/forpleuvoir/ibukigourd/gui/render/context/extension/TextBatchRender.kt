@@ -7,34 +7,30 @@ import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
-import moe.forpleuvoir.ibukigourd.render.setShader
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.font.TextRenderer.TextLayerType
-import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.render.*
 import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Text
 
 fun RenderContext.batchRenderText(
-    shaderSupplier: () -> ShaderProgram? = GameRenderer::getPositionTexColorProgram,
+    textRenderer: TextRenderer = this.textRenderer,
     block: TextBatchRenderScope.() -> Unit
 ) {
-    setShader(shaderSupplier)
-    TextBatchRenderScope.apply {
-        block(this)
-        immediate.draw()
+    this.useTextRenderer(textRenderer) {
+        TextBatchRenderScope().apply(block)
     }
+    draw()
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-open class TextBatchRenderScope private constructor() {
-
-    internal companion object : TextBatchRenderScope()
+open class TextBatchRenderScope internal constructor() {
 
     /**
      * 渲染文本
@@ -65,7 +61,7 @@ open class TextBatchRenderScope private constructor() {
             color.argb,
             shadow,
             positionMatrix,
-            immediate,
+            vertexConsumers,
             layerType,
             backgroundColor.argb,
             LightmapTextureManager.MAX_LIGHT_COORDINATE
@@ -99,7 +95,7 @@ open class TextBatchRenderScope private constructor() {
             color.argb,
             shadow,
             positionMatrix,
-            immediate,
+            vertexConsumers,
             layerType,
             backgroundColor.argb,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
@@ -135,7 +131,7 @@ open class TextBatchRenderScope private constructor() {
             color.argb,
             shadow,
             positionMatrix,
-            immediate,
+            vertexConsumers,
             layerType,
             backgroundColor.argb,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,

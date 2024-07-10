@@ -5,10 +5,13 @@ import moe.forpleuvoir.ibukigourd.gui.render.context.RenderContext;
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager;
 import moe.forpleuvoir.ibukigourd.util.MiscKt;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,8 +20,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
+    @Shadow
+    @Final
+    MinecraftClient client;
+
+    @Shadow
+    @Final
+    private BufferBuilderStorage buffers;
+
     @Unique
-    private static final RenderContext context = new RenderContext(MinecraftClient.getInstance(), MinecraftClient.getInstance().textRenderer, new MatrixStack(), new ScissorStack());
+    private static RenderContext context;
+
 //    @Unique
 //    private static final Deque<Long> list = new ArrayDeque<>();
 //    @Unique
@@ -31,6 +43,9 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V", ordinal = 1))
     public void ibukigourd$renderScreen(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
+        if (context == null) {
+            context = new RenderContext(this.client, this.client.textRenderer, this.buffers.getEntityVertexConsumers(), new MatrixStack(), new ScissorStack());
+        }
         if (MiscKt.isDevEnv()) {
             ScreenManager.hasScreen(screen -> {
                 var delta = MiscKt.measureTime(() -> {

@@ -4,13 +4,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.Element
 import moe.forpleuvoir.ibukigourd.gui.base.element.Layer
 import moe.forpleuvoir.ibukigourd.gui.render.ScissorStack
 import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.render.disableDepthTest
+import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.setScissor
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.rest
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
-import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.RenderTickCounter
 import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexConsumerProvider
@@ -25,6 +26,7 @@ import kotlin.contracts.contract
 class RenderContext(
     val client: MinecraftClient = mc,
     textRenderer: TextRenderer = mc.textRenderer,
+    val vertexConsumers: VertexConsumerProvider.Immediate,
     val matrixStack: MatrixStack = MatrixStack(),
     val scissorStack: ScissorStack = ScissorStack(),
 ) {
@@ -37,15 +39,11 @@ class RenderContext(
     var tickCounter: RenderTickCounter = RenderTickCounter.ZERO
         private set
 
-    val positionMatrix by matrixStack.peek()::positionMatrix
+    val positionMatrix get() = matrixStack.peek().positionMatrix
 
-    val normalMatrix by matrixStack.peek()::normalMatrix
+    val normalMatrix get() = matrixStack.peek().normalMatrix
 
     val tessellator: Tessellator get() = Tessellator.getInstance()
-
-    lateinit var bufferBuilder: BufferBuilder
-
-    val immediate: VertexConsumerProvider.Immediate = VertexConsumerProvider.immediate(tessellator.allocator)
 
     private val renderList: MutableList<Pair<Int, RenderContext.() -> Unit>> = mutableListOf()
 
@@ -72,6 +70,12 @@ class RenderContext(
     fun postRender(renderPriority: Int, render: RenderContext.() -> Unit) {
         if (rendering) return
         renderList.add(renderPriority to render)
+    }
+
+    fun draw() {
+        disableDepthTest()
+        vertexConsumers.draw()
+        enableDepthTest()
     }
 
     fun render() {

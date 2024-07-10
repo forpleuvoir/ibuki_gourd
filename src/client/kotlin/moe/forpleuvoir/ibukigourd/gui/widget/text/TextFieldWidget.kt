@@ -3,7 +3,10 @@
 
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.*
+import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractElement
+import moe.forpleuvoir.ibukigourd.gui.base.element.Element
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.element.MeasureSpec
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.mouseHover
@@ -20,7 +23,10 @@ import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SHADOW
 import moe.forpleuvoir.ibukigourd.mod.gui.Theme.TEXT.SPACING
 import moe.forpleuvoir.ibukigourd.render.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
-import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.sumOf
@@ -177,9 +183,9 @@ open class TextFieldWidget(
         renderContext.tryRender {
             renderBackground(this)
         }
-        renderContext.scissor(transform.asWorldBox) {
+//        renderContext.scissor(transform.asWorldBox) {
             renderText(renderContext)
-        }
+//        }
         renderContext.tryRender {
             renderOverlay(this)
         }
@@ -206,48 +212,45 @@ open class TextFieldWidget(
 
         renderContext.useMatrixStack { matrixStack ->
             matrixStack.translate(0.0f, 0.4f, 0f)
-            useTextRenderer(this.textRenderer) {
-                batchRenderText {
-                    if (scrollingAxis != null && hoverScroller.pick(mouseHover(), true)) {//启用滚动
-                        setting.alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
-                            if (index == 0) originYOffset = vec.y() - transform.worldTop
+            batchRenderText {
+                if (scrollingAxis != null && hoverScroller.pick(mouseHover(), true)) {//启用滚动
+                    setting.alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                        if (index == 0) originYOffset = vec.y() - transform.worldTop
 
-                            if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
-                                currentXOffset[index] =
-                                    (currentXOffset[index] + renderContext.tickCounter.lastFrameDuration * xScrollerSpeed * xScrollerForward[index]).clamp(
-                                        0f,
-                                        textXOffset[index]
-                                    )
-                                if (currentXOffset[index] >= textXOffset[index]) xScrollerForward[index] = -1f
-                                if (currentXOffset[index] <= 0f) xScrollerForward[index] = 1f
-                            }
-
-                            val originXOffset = if (textXOffset.getOrElse(index) { 0f } != 0f) vec.x() - transform.worldLeft else 0f
-
-                            val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset)
-                                .let { if (it.isNaN()) 0f else it }
-
-                            val xEasing = (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
-                                .let { if (it.isNaN()) 0f else it }
-
-                            text(
-                                renderText[index],
-                                vec.x() - xEasing - originXOffset, vec.y() - yEasing - originYOffset,
-                                setting.shadow, setting.layerType, setting.rightToLeft, setting.backgroundColor
-                            )
+                        if (currentXOffset.isNotEmpty() && index in currentXOffset.indices) {
+                            currentXOffset[index] =
+                                (currentXOffset[index] + renderContext.tickCounter.lastFrameDuration * xScrollerSpeed * xScrollerForward[index]).clamp(
+                                    0f,
+                                    textXOffset[index]
+                                )
+                            if (currentXOffset[index] >= textXOffset[index]) xScrollerForward[index] = -1f
+                            if (currentXOffset[index] <= 0f) xScrollerForward[index] = 1f
                         }
-                    } else {
-                        setting.alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
-                            text(
-                                renderText[index],
-                                vec.x(), vec.y(), setting.shadow, setting.layerType, setting.rightToLeft, setting.backgroundColor
-                            )
-                        }
+
+                        val originXOffset = if (textXOffset.getOrElse(index) { 0f } != 0f) vec.x() - transform.worldLeft else 0f
+
+                        val yEasing = (scrollerEasing(currentYOffset / textYOffset) * textYOffset)
+                            .let { if (it.isNaN()) 0f else it }
+
+                        val xEasing = (currentXOffset.getOrNull(index)?.let { scrollerEasing(it / textXOffset[index]) * textXOffset[index] } ?: 0f)
+                            .let { if (it.isNaN()) 0f else it }
+
+                        text(
+                            renderText[index],
+                            vec.x() - xEasing - originXOffset, vec.y() - yEasing - originYOffset,
+                            setting.shadow, setting.layerType, setting.rightToLeft, setting.backgroundColor
+                        )
+                    }
+                } else {
+                    setting.alignment(Orientation.Vertical).align(contentRect, list).forEachIndexed { index, vec ->
+                        text(
+                            renderText[index],
+                            vec.x(), vec.y(), setting.shadow, setting.layerType, setting.rightToLeft, setting.backgroundColor
+                        )
                     }
                 }
             }
         }
-
     }
 
 }

@@ -37,20 +37,19 @@ fun RenderContext.renderText(
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
 ) {
-    immediate.also { v ->
-        textRenderer.draw(
-            ReorderingUtil.reorder(text, rightToLeft),
-            x,
-            y,
-            color.argb,
-            shadow,
-            positionMatrix,
-            v,
-            layerType,
-            backgroundColor.argb,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE
-        )
-    }.draw()
+    textRenderer.draw(
+        ReorderingUtil.reorder(text, rightToLeft),
+        x,
+        y,
+        color.argb,
+        shadow,
+        positionMatrix,
+        vertexConsumers,
+        layerType,
+        backgroundColor.argb,
+        LightmapTextureManager.MAX_LIGHT_COORDINATE
+    )
+    draw()
 }
 
 /**
@@ -73,20 +72,19 @@ fun RenderContext.renderText(
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
 ) {
-    immediate.also { v ->
-        textRenderer.draw(
-            text,
-            x,
-            y,
-            color.argb,
-            shadow,
-            positionMatrix,
-            v,
-            layerType,
-            backgroundColor.argb,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
-        )
-    }.draw()
+    textRenderer.draw(
+        text,
+        x,
+        y,
+        color.argb,
+        shadow,
+        positionMatrix,
+        vertexConsumers,
+        layerType,
+        backgroundColor.argb,
+        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+    )
+    draw()
 }
 
 /**
@@ -111,21 +109,20 @@ fun RenderContext.renderText(
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
 ) {
-    immediate.also { v ->
-        textRenderer.draw(
-            text,
-            x,
-            y,
-            color.argb,
-            shadow,
-            positionMatrix,
-            v,
-            layerType,
-            backgroundColor.argb,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
-            rightToLeft
-        )
-    }.draw()
+    textRenderer.draw(
+        text,
+        x,
+        y,
+        color.argb,
+        shadow,
+        positionMatrix,
+        vertexConsumers,
+        layerType,
+        backgroundColor.argb,
+        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft
+    )
+    draw()
 }
 
 /**

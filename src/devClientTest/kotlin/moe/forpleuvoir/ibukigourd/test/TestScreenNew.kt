@@ -2,10 +2,13 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.render
+import moe.forpleuvoir.ibukigourd.gui.render.context.extension.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.render.context.extension.renderText
 import moe.forpleuvoir.ibukigourd.gui.screen.ScreenManager
 import moe.forpleuvoir.ibukigourd.gui.screen.screen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
+import moe.forpleuvoir.nebula.common.color.Colors
 
 var FRT = 0.0
 var FPS = 0L
@@ -26,6 +29,11 @@ fun testScreen(index: Int) {
 fun testScreen1() = screen(
     Modifier.render { renderContext ->
         onRender(renderContext)
+        renderContext.renderText("Hello World!", 10f, 20f, color = Colors.WHITE)
+        renderContext.batchRenderText {
+            renderContext.text("测试赛", 10f, 50f, color = Colors.WHITE)
+            renderContext.text("测试赛", 10f, 60f, color = Colors.WHITE)
+        }
         renderContext.tryRender {
 
         }

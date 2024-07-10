@@ -46,7 +46,7 @@ inline fun BufferBuilder.draw() {
 
 inline fun setShader(shaderSupplier: Supplier<ShaderProgram?>) = RenderSystem.setShader(shaderSupplier)
 
-inline fun setShader(noinline shaderSupplier: (() -> ShaderProgram?)) = RenderSystem.setShader(shaderSupplier)
+inline fun setShader(noinline shaderSupplier: (() -> ShaderProgram?)?) = shaderSupplier?.let { RenderSystem.setShader(it) }
 
 inline fun setShaderTexture(texture: Identifier) = RenderSystem.setShaderTexture(0, texture)
 

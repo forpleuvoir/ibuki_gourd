@@ -12,6 +12,7 @@ import moe.forpleuvoir.ibukigourd.render.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gl.ShaderProgram
+import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
@@ -21,15 +22,13 @@ fun RenderContext.batchRenderTexture(
     block: TextureBatchRenderScope.(RenderContext) -> Unit
 ) {
     setShader(shaderSupplier)
-    bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
-    block.invoke(TextureBatchRenderScope, this)
+    val bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
+    block.invoke(TextureBatchRenderScope(bufferBuilder), this)
     bufferBuilder.draw()
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-open class TextureBatchRenderScope private constructor() {
-
-    internal companion object : TextureBatchRenderScope()
+open class TextureBatchRenderScope internal constructor(private val bufferBuilder: BufferBuilder) {
 
     /**
      * 绘制纹理
@@ -104,12 +103,12 @@ open class TextureBatchRenderScope private constructor() {
         val matrix4f = positionMatrix
         bufferBuilder.vertex(matrix4f, rect.vertexes[0]).texture(uvMapping.uStart.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
             .color(color)
-        bufferBuilder.vertex(matrix4f, rect.vertexes[2]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
+        bufferBuilder.vertex(matrix4f, rect.vertexes[1]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
             .color(color)
-        bufferBuilder.vertex(matrix4f, rect.vertexes[3]).texture(uvMapping.uStart.toFloat() / textureHeight, uvMapping.vEnd.toFloat() / textureHeight)
+        bufferBuilder.vertex(matrix4f, rect.vertexes[2]).texture(uvMapping.uStart.toFloat() / textureHeight, uvMapping.vEnd.toFloat() / textureHeight)
             .color(color)
-        bufferBuilder.vertex(matrix4f, rect.vertexes[4]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vEnd.toFloat() / textureHeight).color(color)
-            
+        bufferBuilder.vertex(matrix4f, rect.vertexes[3]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vEnd.toFloat() / textureHeight).color(color)
+
     }
 
     /**
@@ -317,7 +316,7 @@ open class TextureBatchRenderScope private constructor() {
      * @param textureInfo TextureInfo
      * @param color Color
      */
-    fun RenderContext.ninePatchTexture(
+    fun RenderContext.nineSliceTexture(
         box: Box,
         textureUV: TextureUVMapping,
         textureInfo: TextureInfo,
@@ -328,43 +327,43 @@ open class TextureBatchRenderScope private constructor() {
     }
 
     /**
-     * @see [ninePatchTexture]
+     * @see [widgetTexture]
      * @receiver RenderContext
      * @param box Box
      * @param widgetTexture WidgetTexture
      * @param color Color
      */
-    fun RenderContext.ninePatchTexture(box: Box, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
-        ninePatchTexture(box, widgetTexture, widgetTexture.textureInfo, color)
+    fun RenderContext.widgetTexture(box: Box, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
+        nineSliceTexture(box, widgetTexture, widgetTexture.textureInfo, color)
 
     /**
-     * @see [ninePatchTexture]
+     * @see [nineSliceTexture]
      * @receiver RenderContext
      * @param transform Transform
      * @param textureUV TextureUVMapping
      * @param textureInfo TextureInfo
      * @param color Color
      */
-    fun RenderContext.ninePatchTexture(
+    fun RenderContext.widgetTexture(
         transform: moe.forpleuvoir.ibukigourd.gui.base.Transform,
         textureUV: TextureUVMapping,
         textureInfo: TextureInfo,
         color: ARGBColor = Colors.WHITE
-    ) = ninePatchTexture(transform.asWorldBox, textureUV, textureInfo, color)
+    ) = nineSliceTexture(transform.asWorldBox, textureUV, textureInfo, color)
 
     /**
-     * @see [ninePatchTexture]
+     * @see [widgetTexture]
      * @receiver RenderContext
      * @param transform Transform
      * @param widgetTexture WidgetTexture
      * @param color Color
      */
-    fun RenderContext.ninePatchTexture(
+    fun RenderContext.widgetTexture(
         transform: moe.forpleuvoir.ibukigourd.gui.base.Transform,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE
     ) =
-        ninePatchTexture(transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, color)
+        nineSliceTexture(transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, color)
 
 }
 

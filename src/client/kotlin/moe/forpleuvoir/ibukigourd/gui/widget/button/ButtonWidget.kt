@@ -56,7 +56,7 @@ open class ButtonWidget(
     var color: () -> ARGBColor = { COLOR },
     var theme: ButtonTheme = TEXTURE,
     modifier: Modifier = Modifier
-) : PressableElement(modifier) {
+) : PressableElement(Modifier.then(modifier)) {
 
     init {
         padding = PADDING
@@ -96,7 +96,7 @@ open class ButtonWidget(
     override fun onRenderBackground(renderContext: RenderContext) {
         renderContext {
             batchRenderTexture {
-                drawTexture(transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
+                widgetTexture(transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed), color())
             }
         }
 
@@ -183,7 +183,7 @@ fun CheckBox(
             ).let { widgetTexture ->
                 renderContext.tryRender {
                     batchRenderTexture {
-                        ninePatchTexture(transform, widgetTexture, color())
+                        widgetTexture(transform, widgetTexture, color())
                     }
                 }
             }
@@ -234,7 +234,7 @@ fun LockBox(
             ).let { widgetTexture ->
                 renderContext.tryRender {
                     batchRenderTexture {
-                        ninePatchTexture(transform, widgetTexture, color())
+                        widgetTexture(transform, widgetTexture, color())
                     }
                 }
             }
@@ -262,8 +262,8 @@ fun SwitchButton(
         override fun onRenderBackground(renderContext: RenderContext) {
             renderContext.tryRender {
                 batchRenderTexture {
-                    ninePatchTexture(transform, status.pick(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
-                    ninePatchTexture(
+                    widgetTexture(transform, status.pick(SWITCH_BUTTON_ON_BACKGROUND, SWITCH_BUTTON_OFF_BACKGROUND), color())
+                    widgetTexture(
                         Box(
                             transform.worldPosition.copy(x = transform.worldX + status.pick(transform.width / 2, 0f)),
                             transform.width / 2, transform.height
