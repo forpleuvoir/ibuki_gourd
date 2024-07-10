@@ -1,16 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import com.mojang.blaze3d.platform.GlStateManager
-import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.PressableElement
-import moe.forpleuvoir.ibukigourd.gui.extensions.asBox
-import moe.forpleuvoir.ibukigourd.gui.extensions.contentBox
-import moe.forpleuvoir.ibukigourd.gui.extensions.drawcontent.*
-import moe.forpleuvoir.ibukigourd.gui.extensions.mouseHoveredContent
-import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.TEXT_INPUT
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.TEXT_SELECTED_INPUT
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.asBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.*
+import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.TEXT_INPUT
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.TEXT_SELECTED_INPUT
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGClickableWidget
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
@@ -50,7 +47,7 @@ open class TextInput(
     padding: Padding = Padding(6, 6, 6, 6),
     message: Text = Literal("textInput"),
     private val textRenderer: TextRenderer = moe.forpleuvoir.ibukigourd.util.textRenderer
-) : PressableElement(x, y, width, height, message, padding), Tickable {
+) : IGClickableWidget(x, y, width, height, message, padding) {
 
     var text: String = ""
         set(value) {
@@ -87,7 +84,7 @@ open class TextInput(
             if (firstCharacterIndex > textLength) {
                 firstCharacterIndex = textLength
             }
-            val width: Int = contentBox(padding).width.toInt()
+            val width: Int = contentBox().width.toInt()
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), width)
             val k = string.length + firstCharacterIndex
             if (field == firstCharacterIndex) {
@@ -318,14 +315,12 @@ open class TextInput(
                     suggestion!!(text).let {
                         if (it.isNotEmpty()) {
                             write(it)
-                            return true
                         }
                     }
-                    return true
                 } else {
                     write("    ")
-                    return true
                 }
+                return true
             }
             //光标左移,如果按下左控制键则跳过一个单词
             Keyboard.LEFT.code      -> {
@@ -394,8 +389,8 @@ open class TextInput(
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (!isMouseOver(mouseX, mouseY)) isFocused = false
-        if (mouseHoveredContent(mouseX, mouseY, padding) && button == Mouse.LEFT.code) {
-            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(padding).width.toInt())
+        if (mouseHoveredContent(mouseX, mouseY) && button == Mouse.LEFT.code) {
+            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox().width.toInt())
             cursor = textRenderer.trimToWidth(string, (mouseX - this.x - padding.left + 3).toInt()).length + firstCharacterIndex
         }
         return super.mouseClicked(mouseX, mouseY, button)
@@ -403,7 +398,7 @@ open class TextInput(
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
         if (!isActive) return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
-        mouseHoveredContent(mouseX, mouseY, padding) {
+        mouseHoveredContent(mouseX, mouseY) {
             moveCursor((verticalAmount < 0f).pick(1, -1))
             return true
         }
@@ -412,7 +407,7 @@ open class TextInput(
 
     override fun onDrag(mouseX: Double, mouseY: Double, deltaX: Double, deltaY: Double) {
         selecting = true
-        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox(padding).width.toInt())
+        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox().width.toInt())
         cursor = textRenderer.trimToWidth(string, (mouseX - x - padding.left + 3f).toInt()).length + firstCharacterIndex
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
     }
@@ -425,7 +420,7 @@ open class TextInput(
 
     fun renderCursor(content: DrawContext) {
         if (focusedTicks % 15 >= 5 && isFocused) {
-            val box = contentBox(padding)
+            val box = contentBox()
             val height = textRenderer.fontHeight.toFloat()
             val y = box.top + (box.height - height) / 2f - 0.75f
             val offset = textRenderer.getWidth(
@@ -447,7 +442,7 @@ open class TextInput(
     }
 
     fun renderText(content: DrawContext) {
-        val contentRect = contentBox(padding)
+        val contentRect = contentBox()
         content.useMatrixStack { matrices ->
             matrices.translate(0.0f, 0.4f, 0f)
             content.batchRenderText(textRenderer) {
@@ -501,19 +496,16 @@ open class TextInput(
         if (!isActive && !visible) return
         onRenderBackground(context)
         context.batchRenderBox {
-            context.boxOutline(contentBox(padding), Colors.RED)
+            context.boxOutline(contentBox(), Colors.RED)
         }
-        context.scissor(contentBox(padding)) {
+        context.scissor(contentBox()) {
             renderText(context)
             renderCursor(context)
         }
     }
 
     override fun appendClickableNarrations(builder: NarrationMessageBuilder) {
-        builder.put(NarrationPart.TITLE, this.narrationMessage)
+        builder.put(NarrationPart.TITLE, this.getNarrationMessage())
     }
-
-    override fun onPress() {}
-    override fun onRelease() {}
 
 }

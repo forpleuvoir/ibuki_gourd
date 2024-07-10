@@ -8,9 +8,12 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import org.joml.Vector2f
 import org.joml.Vector2fc
+import org.joml.Vector2ic
 import org.joml.Vector3fc
 
 fun Vector3fc.toVector2fc(): Vector2fc = Vector2f(x, y)
+
+fun Vector2ic.asFloat(): Vector2fc = Vector2f(x.toFloat(), y.toFloat())
 
 operator fun Vector2fc.component1(): Float = x
 

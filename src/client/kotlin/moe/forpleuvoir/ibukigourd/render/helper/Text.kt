@@ -3,10 +3,10 @@
 //package moe.forpleuvoir.ibukigourd.render.helper
 //
 //import moe.forpleuvoir.ibukigourd.gui.base.Transform
-//import moe.forpleuvoir.ibukigourd.gui.render.arrange.Alignment
-//import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
-//import moe.forpleuvoir.ibukigourd.gui.render.arrange.PlanarAlignment
-//import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
+//import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
+//import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+//import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
+//import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 //import moe.forpleuvoir.ibukigourd.render.bufferBuilder
 //import moe.forpleuvoir.ibukigourd.render.math.Vector3f
 //import moe.forpleuvoir.ibukigourd.render.math.copy

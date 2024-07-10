@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.PressableElement
-import moe.forpleuvoir.ibukigourd.gui.extensions.asBox
-import moe.forpleuvoir.ibukigourd.gui.extensions.drawcontent.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.asBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
 import moe.forpleuvoir.ibukigourd.render.enableBlend
 import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.util.Tick
@@ -26,7 +26,7 @@ open class Button(
     message: Text,
     padding: Padding = Padding(4),
     private val theme: ButtonTheme = ButtonThemes.Button2,
-) : PressableElement(x, y, width, height, message, padding) {
+) : IGPressableWidget(x, y, width, height, message, padding) {
 
 
     companion object {
@@ -56,11 +56,11 @@ open class Button(
             color: Int,
             shadow: Boolean = false
         ) {
-            val i = textRenderer.getWidth(text)
+            val textWidth = textRenderer.getWidth(text)
             val y = (startY + endY - 9) / 2 + 1
-            val k = endX - startX
-            if (i > k) {
-                val l = i - k
+            val width = endX - startX
+            if (textWidth > width) {
+                val l = textWidth - width
                 val d = Util.getMeasuringTimeMs().toDouble() / 1000.0
                 val e = max(l.toDouble() * 0.5, 3.0)
                 val f = sin((Math.PI / 2) * cos((Math.PI * 2) * d / e)) / 2.0 + 0.5
@@ -69,7 +69,7 @@ open class Button(
                 context.drawText(textRenderer, text, startX - g.toInt(), y, color, shadow)
                 context.disableScissor()
             } else {
-                val l = MathHelper.clamp(centerX, startX + i / 2, endX - i / 2)
+                val l = MathHelper.clamp(centerX, startX + textWidth / 2, endX - textWidth / 2)
                 context.drawText(textRenderer, text, l - textRenderer.getWidth(text) / 2, y, color, shadow)
             }
         }
@@ -126,7 +126,6 @@ open class Button(
     }
 
     override fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha)
         enableBlend()
         enableDepthTest()
 
@@ -134,7 +133,6 @@ open class Button(
             context.drawWidgetTexture(asBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
         }
 
-        context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         this.drawMessage(context, context.client.textRenderer, pressOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
     }
 
@@ -146,7 +144,7 @@ open class Button(
         val content = contentBox()
         val left: Int = content.left.toInt()
         val right: Int = content.right.toInt()
-        drawScrollableText(context, textRenderer, this.message, left, this.y, right, this.bottom, color)
+        drawScrollableText(context, textRenderer, this.message, left, this.y, right, this.transform.bottom, color)
     }
 
 

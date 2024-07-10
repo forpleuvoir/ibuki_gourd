@@ -1,18 +1,18 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_DISABLED_1
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_DISABLED_2
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_HOVERED_1
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_HOVERED_2
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_IDLE_1
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_IDLE_2
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_PRESSED_1
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.BUTTON_PRESSED_2
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.SCROLLER_BAR_DISABLED
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.SCROLLER_BAR_HOVERED
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.SCROLLER_BAR_IDLE
-import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTextures.SCROLLER_BAR_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_IDLE
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_PRESSED
 
 interface ButtonTheme {
 

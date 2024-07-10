@@ -3,13 +3,13 @@
 //package moe.forpleuvoir.ibukigourd.render.helper
 //
 //import moe.forpleuvoir.ibukigourd.gui.base.Transform
-//import moe.forpleuvoir.ibukigourd.gui.render.Size
-//import moe.forpleuvoir.ibukigourd.gui.render.arrange.Orientation
-//import moe.forpleuvoir.ibukigourd.gui.render.arrange.peek
-//import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
-//import moe.forpleuvoir.ibukigourd.gui.render.shape.box.ColoredBox
-//import moe.forpleuvoir.ibukigourd.gui.render.shape.pointsInCircleRange
-//import moe.forpleuvoir.ibukigourd.gui.render.vertex.ColoredVertex
+//import moe.forpleuvoir.ibukigourd.gui.base.render.Size
+//import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+//import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
+//import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+//import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
+//import moe.forpleuvoir.ibukigourd.gui.base.render.shape.pointsInCircleRange
+//import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.ColoredVertex
 //import moe.forpleuvoir.ibukigourd.render.*
 //import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 //import moe.forpleuvoir.ibukigourd.render.math.plus

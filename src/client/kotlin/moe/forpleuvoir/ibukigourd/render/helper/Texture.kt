@@ -3,13 +3,13 @@
 //package moe.forpleuvoir.ibukigourd.render.helper
 //
 //import moe.forpleuvoir.ibukigourd.gui.base.Transform
-//import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
-//import moe.forpleuvoir.ibukigourd.gui.render.texture.Corner
-//import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureInfo
-//import moe.forpleuvoir.ibukigourd.gui.render.texture.TextureUVMapping
-//import moe.forpleuvoir.ibukigourd.gui.render.texture.UVMapping
-//import moe.forpleuvoir.ibukigourd.gui.render.vertex.UVVertex
-//import moe.forpleuvoir.ibukigourd.gui.render.texture.WidgetTexture
+//import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+//import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
+//import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
+//import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureUVMapping
+//import moe.forpleuvoir.ibukigourd.gui.base.render.texture.UVMapping
+//import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
+//import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 //import moe.forpleuvoir.ibukigourd.render.*
 //import moe.forpleuvoir.nebula.common.color.ARGBColor
 //import moe.forpleuvoir.nebula.common.color.Colors

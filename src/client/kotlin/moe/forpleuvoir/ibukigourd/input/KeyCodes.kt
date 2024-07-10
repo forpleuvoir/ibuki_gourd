@@ -158,6 +158,16 @@ enum class Keyboard(override val code: Int) : KeyCode {
     SCROLL_LOCK(281),
     PRINT_SCREEN(283);
 
+    companion object {
+        fun isToggle(keyCode: KeyCode): Boolean {
+            return keyCode == ENTER || keyCode == SPACE || keyCode == KP_ENTER
+        }
+
+        fun isToggle(keyCode: Int): Boolean {
+            return isToggle(KeyCode.fromCode(keyCode))
+        }
+    }
+
     override val translationKey: String
         get() = InputUtil.fromKeyCode(code, 0).translationKey
 }

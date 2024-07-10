@@ -5,8 +5,8 @@ package moe.forpleuvoir.ibukigourd.render
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import moe.forpleuvoir.ibukigourd.gui.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.render.vertex.UVVertex
+import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
