@@ -49,7 +49,7 @@ abstract class IGClickableWidget(
     protected open fun isValidClickButton(button: Int): Boolean = button == Mouse.LEFT.code
 
     protected open fun clicked(mouseX: Double, mouseY: Double): Boolean {
-        return isMouseOver(mouseX, mouseY)
+        return transform.isMouseOvered(mouseX, mouseY)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -57,7 +57,7 @@ abstract class IGClickableWidget(
             if (isValidClickButton(button)) {
                 if (this.clicked(mouseX, mouseY)) {
                     this.playClickSound(soundManager)
-                    this.clicked(mouseX, mouseY)
+                    this.onClick(mouseX, mouseY)
                     return true
                 }
             }

@@ -1,13 +1,11 @@
 package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.moveToBottom
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.HorizontalAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextInput
 import moe.forpleuvoir.ibukigourd.test.TestInitialization.text
 import moe.forpleuvoir.ibukigourd.text.Literal
-import net.minecraft.client.gui.tooltip.Tooltip
 import net.minecraft.client.gui.widget.ButtonWidget
 
 class TestScreen : IGScreen(Literal("test")) {

@@ -27,8 +27,8 @@ import kotlin.contracts.contract
  * 所有组件的基类
  */
 abstract class IGWidget(
-    y: Int,
     x: Int,
+    y: Int,
     width: Int,
     height: Int,
     var padding: Padding = Padding(0)
