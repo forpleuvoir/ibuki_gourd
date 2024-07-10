@@ -6,10 +6,21 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import org.joml.Vector2dc
+import org.joml.Vector2fc
 import org.joml.Vector2i
 import org.joml.Vector2ic
+import org.joml.Vector3ic
 
-fun Vector2ic.asInt(): Vector2ic = Vector2i(x.toInt(), y.toInt())
+fun Vector2ic.isEmpty() = this.x() == 0 && this.y() == 0
+
+fun Vector2ic.isNotEmpty() = this.x() != 0 && this.y() != 0
+
+fun Vector3ic.asVector2ic(): Vector2ic = Vector2i(x(), y())
+
+fun Vector2fc.asInt(): Vector2ic = Vector2i(x().toInt(), y().toInt())
+
+fun Vector2dc.asInt(): Vector2ic = Vector2i(x().toInt(), y().toInt())
 
 operator fun Vector2ic.component1(): Int = x()
 

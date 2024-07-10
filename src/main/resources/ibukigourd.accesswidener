@@ -15,4 +15,4 @@ accessible field net/minecraft/client/render/Tessellator allocator Lnet/minecraf
 accessible field net/minecraft/client/gui/DrawContext client Lnet/minecraft/client/MinecraftClient;
 accessible field net/minecraft/client/gui/DrawContext matrices Lnet/minecraft/client/util/math/MatrixStack;
 accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
-accessible field net/minecraft/client/gui/DrawContext scissorStack Lnet/minecraft/client/gui/DrawContext$ScissorStack;
+accessible method net/minecraft/client/gui/DrawContext setScissor (Lnet/minecraft/client/gui/ScreenRect;)V

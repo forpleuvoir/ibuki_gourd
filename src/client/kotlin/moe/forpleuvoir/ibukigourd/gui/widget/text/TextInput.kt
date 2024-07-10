@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.asBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.TEXT_INPUT
@@ -11,7 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGClickableWidget
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
+import moe.forpleuvoir.ibukigourd.render.math.plus
 import moe.forpleuvoir.ibukigourd.render.useColorLogicOp
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
@@ -23,8 +24,6 @@ import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
-import net.minecraft.client.gui.screen.narration.NarrationPart
 import net.minecraft.util.StringHelper
 import net.minecraft.util.Util
 import kotlin.math.abs
@@ -84,7 +83,7 @@ open class TextInput(
             if (firstCharacterIndex > textLength) {
                 firstCharacterIndex = textLength
             }
-            val width: Int = contentBox().width.toInt()
+            val width: Int = contentWidth
             val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), width)
             val k = string.length + firstCharacterIndex
             if (field == firstCharacterIndex) {
@@ -311,7 +310,7 @@ open class TextInput(
         when (keyCode) {
             //制表符，如果有建议文本则补全建议文本，否则输入四个空格
             Keyboard.TAB.code       -> {
-                if (suggestion != null) {
+                if (suggestion != null && cursor == text.length) {
                     suggestion!!(text).let {
                         if (it.isNotEmpty()) {
                             write(it)
@@ -390,7 +389,7 @@ open class TextInput(
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (!isMouseOver(mouseX, mouseY)) isFocused = false
         if (mouseHoveredContent(mouseX, mouseY) && button == Mouse.LEFT.code) {
-            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox().width.toInt())
+            val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth)
             cursor = textRenderer.trimToWidth(string, (mouseX - this.x - padding.left + 3).toInt()).length + firstCharacterIndex
         }
         return super.mouseClicked(mouseX, mouseY, button)
@@ -407,14 +406,14 @@ open class TextInput(
 
     override fun onDrag(mouseX: Double, mouseY: Double, deltaX: Double, deltaY: Double) {
         selecting = true
-        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox().width.toInt())
-        cursor = textRenderer.trimToWidth(string, (mouseX - x - padding.left + 3f).toInt()).length + firstCharacterIndex
+        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth)
+        cursor = textRenderer.trimToWidth(string, (mouseX - transform.x - padding.left + 3f).toInt()).length + firstCharacterIndex
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
     }
 
     fun onRenderBackground(context: DrawContext) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(asBox, isFocused.pick(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
+            context.drawWidgetTexture(transform.asWorldBox, isFocused.pick(TEXT_SELECTED_INPUT, TEXT_INPUT), bgShaderColor)
         }
     }
 
@@ -460,7 +459,7 @@ open class TextInput(
                     if (isFocused && cursor == text.length) {
                         val renderTextWidth = textRenderer.getWidth(renderText).toFloat()
                         val box =
-                            Box(contentRect.position.copy(contentRect.position.x() + renderTextWidth), contentRect.width - renderTextWidth, contentRect.height)
+                            Box(contentRect.position + Vector2f(renderTextWidth), contentRect.width - renderTextWidth, contentRect.height)
                         alignmentText(suggestion, box, color = suggestionColor)
                     }
                 }
@@ -502,10 +501,6 @@ open class TextInput(
             renderText(context)
             renderCursor(context)
         }
-    }
-
-    override fun appendClickableNarrations(builder: NarrationMessageBuilder) {
-        builder.put(NarrationPart.TITLE, this.getNarrationMessage())
     }
 
 }

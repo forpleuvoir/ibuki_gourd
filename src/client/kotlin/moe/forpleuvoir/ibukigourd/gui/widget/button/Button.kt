@@ -1,11 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.asBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
 import moe.forpleuvoir.ibukigourd.render.enableBlend
 import moe.forpleuvoir.ibukigourd.render.enableDepthTest
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.Tick
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.pick
@@ -23,10 +23,9 @@ open class Button(
     y: Int,
     width: Int,
     height: Int,
-    message: Text,
     padding: Padding = Padding(4),
     private val theme: ButtonTheme = ButtonThemes.Button2,
-) : IGPressableWidget(x, y, width, height, message, padding) {
+) : IGPressableWidget(x, y, width, height, padding) {
 
 
     companion object {
@@ -130,7 +129,7 @@ open class Button(
         enableDepthTest()
 
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(asBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
+            context.drawWidgetTexture(transform.asWorldBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
         }
 
         this.drawMessage(context, context.client.textRenderer, pressOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
@@ -144,7 +143,7 @@ open class Button(
         val content = contentBox()
         val left: Int = content.left.toInt()
         val right: Int = content.right.toInt()
-        drawScrollableText(context, textRenderer, this.message, left, this.y, right, this.transform.bottom, color)
+        drawScrollableText(context, textRenderer, Literal("测试中"), left, this.transform.worldY.toInt(), right, this.transform.bottom.toInt(), color)
     }
 
 

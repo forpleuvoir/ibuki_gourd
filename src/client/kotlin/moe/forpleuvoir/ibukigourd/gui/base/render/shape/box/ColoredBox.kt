@@ -3,9 +3,9 @@ package moe.forpleuvoir.ibukigourd.gui.base.render.shape.box
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.ColoredVertex
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.render.math.asVector2fc
+import moe.forpleuvoir.ibukigourd.render.math.asVector3fc
 import moe.forpleuvoir.ibukigourd.render.math.copy
-import moe.forpleuvoir.ibukigourd.render.math.toVector2fc
-import moe.forpleuvoir.ibukigourd.render.math.toVector3fc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import org.joml.Vector2fc
 
@@ -38,7 +38,7 @@ class ColoredBox(
     )
 
     constructor(coloredVertex: ColoredVertex, width: Float, height: Float) : this(
-        coloredVertex.toVector2fc(),
+        coloredVertex.asVector2fc(),
         width,
         height,
         coloredVertex.color,
@@ -50,7 +50,7 @@ class ColoredBox(
     constructor(box: Box, vararg colors: ARGBColor) : this(box.x, box.y, box.width, box.height, *colors)
 
     val coloredVertexes: Array<ColoredVertex> by lazy {
-        position.toVector3fc().let { position ->
+        position.asVector3fc().let { position ->
             arrayOf(
                 ColoredVertex(position, colors[0]),
                 ColoredVertex(position.copy(y = y + height), if (colors.size < 2) colors[0] else colors[1]),
@@ -60,7 +60,7 @@ class ColoredBox(
         }
     }
 
-    override val vertexes: Array<out Vector2fc> = coloredVertexes.map { it.toVector2fc() }.toTypedArray()
+    override val vertexes: Array<out Vector2fc> = coloredVertexes.map { it.asVector2fc() }.toTypedArray()
 
     override val topLeft: Vector2fc get() = vertexes[0]
 

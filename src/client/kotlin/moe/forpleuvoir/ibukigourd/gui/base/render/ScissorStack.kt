@@ -17,11 +17,11 @@ class ScissorStack {
     }
 
     fun push(box: Box): Box {
-        val rect: Box? = stack.peekLast()
-        if (rect != null) {
-            val rect2 = box intersectWith rect
-            stack.addLast(rect2)
-            return rect2
+        val _box: Box? = stack.peekLast()
+        if (_box != null) {
+            val box2 = box intersectWith _box
+            stack.addLast(box2)
+            return box2
         }
         stack.addLast(box)
         return box

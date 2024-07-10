@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGParentElement
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementContainer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Element
 import net.minecraft.client.gui.ScreenRect
@@ -11,13 +12,21 @@ abstract class IGParentWidget(
     y: Int,
     width: Int,
     height: Int,
-) : IGWidget(x, y, width, height), IGParentElement {
+    padding: Padding
+) : IGWidget(x, y, width, height, padding), ElementContainer {
 
     private val children: MutableList<IGWidget> = ArrayList()
 
     private var focusedElement: Element? = null
 
     private var dragging = false
+
+    fun <W : IGWidget> addWidget(widget: W): W {
+        children.add(widget)
+        widget.transform.parent = { this.transform }
+        return widget
+    }
+
 
     override fun children(): MutableList<out IGWidget> {
         return children

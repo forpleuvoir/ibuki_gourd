@@ -4,9 +4,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.render.math.toVector2fc
+import moe.forpleuvoir.ibukigourd.render.math.asVector2fc
 import moe.forpleuvoir.nebula.common.pick
+import net.minecraft.client.gui.ScreenRect
 import org.joml.Vector2fc
+import org.joml.Vector2ic
 import org.joml.Vector3fc
 import kotlin.math.max
 import kotlin.math.min
@@ -57,13 +59,15 @@ interface Box : SizeFloat, Cloneable {
 
     val exist: Boolean get() = this.width > 0 && this.height > 0
 
+    val asScreenRect: ScreenRect get() = ScreenRect(this.x.toInt(), this.y.toInt(), this.width.toInt(), this.height.toInt())
+
     fun inBox(target: Box, completeInside: Boolean): Boolean {
         if (!this.exist || !target.exist) return false
         return if (completeInside) {
             this.x - target.x >= 0
-            && target.endX - this.endX >= 0
-            && this.y - target.y >= 0
-            && target.endY - this.endY >= 0
+                    && target.endX - this.endX >= 0
+                    && this.y - target.y >= 0
+                    && target.endY - this.endY >= 0
         } else {
             this.intersectWith(target).exist
         }
@@ -85,6 +89,13 @@ interface Box : SizeFloat, Cloneable {
     operator fun contains(vector2fc: Vector2fc): Boolean {
         return this.exist.pick(
             vector2fc.x() in this.top..this.bottom && vector2fc.y() in this.left..this.right,
+            false
+        )
+    }
+
+    operator fun contains(vector2fc: Vector2ic): Boolean {
+        return this.exist.pick(
+            vector2fc.x().toFloat() in this.top..this.bottom && vector2fc.y().toFloat() in this.left..this.right,
             false
         )
     }
@@ -119,11 +130,11 @@ interface Box : SizeFloat, Cloneable {
 
         operator fun invoke(position: Vector2fc, width: Float, height: Float): Box = BoxImpl(position, width, height)
 
-        operator fun invoke(position: Vector3fc, width: Float, height: Float): Box = BoxImpl(position.toVector2fc(), width, height)
+        operator fun invoke(position: Vector3fc, width: Float, height: Float): Box = BoxImpl(position.asVector2fc(), width, height)
 
         operator fun invoke(position: Vector2fc, width: Number, height: Number): Box = BoxImpl(position, width.toFloat(), height.toFloat())
 
-        operator fun invoke(position: Vector3fc, width: Number, height: Number): Box = BoxImpl(position.toVector2fc(), width.toFloat(), height.toFloat())
+        operator fun invoke(position: Vector3fc, width: Number, height: Number): Box = BoxImpl(position.asVector2fc(), width.toFloat(), height.toFloat())
 
         operator fun invoke(x: Number, y: Number, width: Number, height: Number): Box = BoxImpl(x, y, width, height)
 
@@ -134,7 +145,7 @@ interface Box : SizeFloat, Cloneable {
 
         operator fun invoke(position: Vector2fc, size: Size<Float>): Box = BoxImpl(position, size)
 
-        operator fun invoke(position: Vector3fc, size: Size<Float>): Box = BoxImpl(position.toVector2fc(), size)
+        operator fun invoke(position: Vector3fc, size: Size<Float>): Box = BoxImpl(position.asVector2fc(), size)
 
         /**
          * 只判断矩形的位置与大小

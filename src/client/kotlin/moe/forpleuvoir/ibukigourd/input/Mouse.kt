@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.input
 
+import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.MinecraftClient
@@ -18,17 +19,21 @@ interface MousePosition {
 
     companion object {
 
-        operator fun invoke(x: Float, y: Float) =
+        operator fun invoke(x: Number, y: Number) =
             object : MousePosition {
                 override val x: Float
-                    get() = x
+                    get() = x.toFloat()
                 override val y: Float
-                    get() = y
+                    get() = y.toFloat()
             }
     }
 
     val x: Float
     val y: Float
+
+    operator fun component1(): Float = x
+
+    operator fun component2(): Float = y
 
     val asVector2fc get() = Vector2f(x, y)
 }
@@ -51,6 +56,11 @@ enum class Mouse(override val code: Int) : KeyCode {
     BUTTON_6(5),
     BUTTON_7(6),
     BUTTON_8(7);
+
+    companion object {
+        @JvmStatic
+        fun fromCode(code: Int): Mouse = keyMap[code] as Mouse
+    }
 
     override val translationKey: String
         get() = InputUtil.Type.MOUSE.createFromCode(code).translationKey

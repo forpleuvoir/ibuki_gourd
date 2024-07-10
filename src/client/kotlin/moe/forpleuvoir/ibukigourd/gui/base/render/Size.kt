@@ -10,6 +10,10 @@ interface Size<T : Number> {
 
     val halfHeight: T
 
+    operator fun component1(): T = width
+
+    operator fun component2(): T = height
+
     companion object {
 
         val Size<out Number>.string: String

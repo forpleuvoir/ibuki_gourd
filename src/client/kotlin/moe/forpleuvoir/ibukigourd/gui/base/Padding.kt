@@ -9,20 +9,22 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
+typealias Margin = Padding
+
 data class Padding(
-    val left: Int,
-    val right: Int,
-    val top: Int,
-    val bottom: Int
+    val left: Float,
+    val right: Float,
+    val top: Float,
+    val bottom: Float
 ) {
 
     constructor(left: Number, right: Number, top: Number, bottom: Number) : this(
-        left.toInt(), right.toInt(), top.toInt(), bottom.toInt()
+        left.toFloat(), right.toFloat(), top.toFloat(), bottom.toFloat()
     )
 
     constructor(horizontal: Number = 0, vertical: Number = 0) : this(horizontal, horizontal, vertical, vertical)
 
-    constructor(padding: Number) : this(padding, padding, padding, padding)
+    constructor(all: Number) : this(all, all, all, all)
 
     val width get() = left + right
 
@@ -33,16 +35,16 @@ data class Padding(
             return serializeElement
                 .checkType<Padding>()
                 .check<SerializePrimitive> {
-                    Padding(it.asInt)
+                    Padding(it.asFloat)
                 }
                 .check<SerializeObject> {
                     when (it.keys) {
                         setOf("left", "right", "top", "bottom") ->
                             Padding(
-                                it["left"]!!.asInt,
-                                it["right"]!!.asInt,
-                                it["top"]!!.asInt,
-                                it["bottom"]!!.asInt,
+                                it["left"]!!.asFloat,
+                                it["right"]!!.asFloat,
+                                it["top"]!!.asFloat,
+                                it["bottom"]!!.asFloat,
                             )
 
                         setOf("horizontal", "vertical")         ->
@@ -61,7 +63,7 @@ data class Padding(
                         }
 
                         4    -> {
-                            Padding(it[0].asInt, it[1].asInt, it[2].asInt, it[3].asInt)
+                            Padding(it[0].asFloat, it[1].asFloat, it[2].asFloat, it[3].asFloat)
                         }
 
                         else -> throw IllegalArgumentException("The size of the array is wrong, expected [2] or [4].")

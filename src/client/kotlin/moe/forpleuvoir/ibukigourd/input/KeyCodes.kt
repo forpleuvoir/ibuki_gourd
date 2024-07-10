@@ -2,6 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.input
 
+import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
 import moe.forpleuvoir.ibukigourd.text.Text
 import net.minecraft.client.util.InputUtil
 
@@ -19,7 +20,7 @@ interface KeyCode {
 
     companion object {
 
-        private val keyMap: Map<Int, KeyCode> by lazy {
+        internal val keyMap: Map<Int, KeyCode> by lazy {
             buildMap {
                 this[UNKNOWN.code] = UNKNOWN
                 for (mouseCode in Mouse.entries) this[mouseCode.code] = mouseCode
@@ -159,6 +160,10 @@ enum class Keyboard(override val code: Int) : KeyCode {
     PRINT_SCREEN(283);
 
     companion object {
+
+        @JvmStatic
+        fun fromCode(code: Int): Keyboard = keyMap[code] as Keyboard
+
         fun isToggle(keyCode: KeyCode): Boolean {
             return keyCode == ENTER || keyCode == SPACE || keyCode == KP_ENTER
         }

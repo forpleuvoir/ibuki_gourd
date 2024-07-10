@@ -12,7 +12,11 @@ import org.joml.Vector2fc
 import org.joml.Vector3f
 import org.joml.Vector3fc
 
-fun Vector2fc.toVector3fc(): Vector3fc = Vector3f(x, y, 0f)
+fun Vector3fc.isEmpty() = this.x() == 0f && this.y() == 0f && this.z() == 0f
+
+fun Vector3fc.isNotEmpty() = this.x() != 0f && this.y() != 0f && this.z() != 0f
+
+fun Vector2fc.asVector3fc(): Vector3fc = Vector3f(x, y, 0f)
 
 operator fun Vector3fc.component1(): Float = x
 

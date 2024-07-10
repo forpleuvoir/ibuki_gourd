@@ -1,14 +1,12 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.util.soundManager
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
+import moe.forpleuvoir.nebula.common.ifc
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.sound.SoundManager
 import net.minecraft.sound.SoundEvents
-import net.minecraft.text.Text
 import java.util.function.Consumer
 
 abstract class IGClickableWidget(
@@ -16,13 +14,8 @@ abstract class IGClickableWidget(
     y: Int,
     width: Int,
     height: Int,
-    message: Text,
     padding: Padding = Padding(0),
-) : IGWidget(x, y, width, height, padding), Tickable {
-
-    init {
-        this.message = message
-    }
+) : IGParentWidget(x, y, width, height, padding) {
 
     override fun forEachElement(consumer: Consumer<IGWidget>) {
         consumer.accept(this)
@@ -54,6 +47,7 @@ abstract class IGClickableWidget(
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (this.active && this.visible) {
+            super.mouseClicked(mouseX, mouseY, button).ifc { return true }
             if (isValidClickButton(button)) {
                 if (this.clicked(mouseX, mouseY)) {
                     this.playClickSound(soundManager)
@@ -84,12 +78,4 @@ abstract class IGClickableWidget(
         }
     }
 
-    override fun appendNarrations(builder: NarrationMessageBuilder) {
-        super.appendNarrations(builder)
-        appendClickableNarrations(builder)
-    }
-
-    protected open fun appendClickableNarrations(builder: NarrationMessageBuilder) {
-        appendDefaultNarrations(builder)
-    }
 }

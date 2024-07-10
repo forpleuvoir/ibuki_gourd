@@ -3,18 +3,14 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.util.soundManager
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.input.KeyCodes
-import net.minecraft.text.Text
 
 abstract class IGPressableWidget(
     x: Int,
     y: Int,
     width: Int,
     height: Int,
-    message: Text,
     padding: Padding = Padding(0)
-) : IGClickableWidget(x, y, width, height, message, padding) {
+) : IGClickableWidget(x, y, width, height, padding) {
 
     open var pressed: Boolean = false
         protected set
