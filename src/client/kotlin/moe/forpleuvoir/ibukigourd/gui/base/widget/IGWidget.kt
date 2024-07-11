@@ -3,80 +3,51 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
+import moe.forpleuvoir.ibukigourd.gui.base.element.AbstractDrawableElement
+import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.input.MousePosition
-import net.minecraft.client.gui.DrawContext
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 /**
- * 所有组件的基类
+ * 所有组件的基类,实现任何组件都应该继承此类
  */
-abstract class IGWidget(
-    var padding: Padding = Padding(0),
-    var margin: Margin = Margin(0)
-) : IGElement, IGDrawable {
+abstract class IGWidget : AbstractDrawableElement(), Measurable {
+
+    //------------ IbukiGourd Widget ------------\\
 
     val transform: Transform = Transform()
+
+    var padding: Padding = Padding(0)
+
+    var margin: Margin = Margin(0)
+
+    abstract val constraints: Constraints
 
     val contentWidth: Float get() = transform.width - padding.width
 
     val contentHeight: Float get() = transform.height - padding.height
 
-    override fun tick() {}
-
-    fun contentBox(isWorldAxis: Boolean = true): Box {
-        val x = if (isWorldAxis) transform.worldX + padding.left else padding.left
-        val y = if (isWorldAxis) transform.worldY + padding.top else padding.top
-        return Box(x, y, contentWidth, contentHeight)
+    fun contentBox(isWorldAxis: Boolean): Box {
+        val left = transform.left - padding.left
+        val top = transform.top - padding.top
+        val right = transform.right - padding.right
+        val bottom = transform.bottom - padding.bottom
+        return Box(left, top, right, bottom)
     }
 
-    //--------- Widget Begin ----------
+    //------------ Measurable ------------\\
 
-    var active: Boolean = true
-        protected set
+    override var parentData: Any? = null
 
-    override var visible: Boolean = true
+    abstract override fun measure(constraints: Constraints): SizeFloat
 
-    protected var hovered: Boolean = false
+    override fun minIntrinsicWidth(height: Float): Float = constraints.minWidth
 
-    private var wasFocused = false
+    override fun maxIntrinsicWidth(height: Float): Float = constraints.maxWidth
 
-    final override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        if (visible) {
-            this.hovered = context.scissorContains(mouseX, mouseY) && transform.isMouseOvered(mouseX, mouseY)
-            this.renderWidget(context, mouseX, mouseY, delta)
-            //TODO 渲染tooltip
-        }
-    }
+    override fun minIntrinsicHeight(width: Float): Float = constraints.minHeight
 
-    abstract fun renderWidget(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float)
-
-    fun mouseHoveredContent(mouseX: Double, mouseY: Double): Boolean {
-        return MousePosition(mouseX, mouseY) in contentBox(true)
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    inline fun mouseHoveredContent(mouseX: Double, mouseY: Double, block: () -> Unit) {
-        contract { callsInPlace(block, InvocationKind.AT_MOST_ONCE) }
-        if (mouseHoveredContent(mouseX, mouseY)) {
-            block()
-        }
-    }
-
-    override fun setFocused(focused: Boolean) {
-        if (this.wasFocused != focused) {
-            this.wasFocused = focused
-            onFocusedChange(isFocused)
-        }
-    }
-
-    open fun onFocusedChange(focused: Boolean) {}
-
-
-    override fun isFocused(): Boolean = this.wasFocused
+    override fun maxIntrinsicHeight(width: Float): Float = constraints.maxHeight
 
 }

@@ -58,13 +58,17 @@ loom {
 }
 
 sourceSets {
-    create("devClientTest") {
+    val devClient = create("devClientTest") {
         compileClasspath += main.get().compileClasspath + main.get().output + sourceSets["client"].compileClasspath + sourceSets["client"].output
         runtimeClasspath += main.get().runtimeClasspath + main.get().output + sourceSets["client"].runtimeClasspath + sourceSets["client"].output
     }
-    create("devServerTest") {
+    val devSever = create("devServerTest") {
         compileClasspath += main.get().compileClasspath + main.get().output
         runtimeClasspath += main.get().runtimeClasspath + main.get().output
+    }
+    named("test") {
+        compileClasspath += devClient.compileClasspath + devClient.output
+        runtimeClasspath += devClient.runtimeClasspath + devClient.output
     }
 }
 

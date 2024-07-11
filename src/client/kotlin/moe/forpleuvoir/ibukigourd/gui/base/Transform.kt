@@ -16,11 +16,13 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+typealias WidgetPosition = Vector2fc
+
 /**
  * 变换青春版
  */
 class Transform(
-    position: Vector2fc = Vector2f(),
+    position: WidgetPosition = Vector2f(),
     width: Float = 0f,
     height: Float = 0f,
     /**
@@ -33,7 +35,7 @@ class Transform(
     /**
      * 不可变向量
      */
-    override val position: Vector2fc = NotifiableVector2f(position)
+    override val position: WidgetPosition = NotifiableVector2f(position)
 
     /**
      * 可变向量
@@ -171,13 +173,13 @@ class Transform(
 
     val worldRight: Float get() = worldLeft + width
 
-    override var center: Vector2fc
+    override var center: WidgetPosition
         get() = Vector2f(x + this.halfWidth, y + this.halfHeight)
         set(value) {
             translate(value.x - center.x, value.y - center.y)
         }
 
-    val worldCenter: Vector2fc get() = Vector2f(worldX + this.halfWidth, worldY + this.halfHeight)
+    val worldCenter: WidgetPosition get() = Vector2f(worldX + this.halfWidth, worldY + this.halfHeight)
 
 
     override operator fun contains(position: MousePosition): Boolean {
@@ -199,7 +201,7 @@ class Transform(
      * @return Boolean
      */
     fun isMouseOvered(mousePosition: MousePosition): Boolean =
-        (mousePosition.x in (worldLeft.toFloat()..worldRight.toFloat())) && (mousePosition.y in (worldTop.toFloat()..worldBottom.toFloat()))
+        (mousePosition.x in (worldLeft..worldRight)) && (mousePosition.y in (worldTop..worldBottom))
 
     fun translate(vector2fc: Vector2fc) {
         positionAsNotifiable += vector2fc

@@ -1,5 +1,5 @@
 package moe.forpleuvoir.ibukigourd.api
 
-interface Tickable {
+fun interface Tickable {
 	fun tick()
 }

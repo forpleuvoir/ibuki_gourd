@@ -20,12 +20,12 @@ interface IGDrawable : Drawable {
     /**
      * 可见
      */
-    val visible: Boolean get() = true
+    var visible: Boolean
 
     /**
      * 渲染优先级,越低越先渲染.会导致被更高[renderPriority]的[IGDrawable]覆盖
      */
-    val renderPriority: Int get() = 0
+    var renderPriority: Int
 
     var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit
 

@@ -12,7 +12,7 @@ import net.minecraft.client.gui.navigation.GuiNavigationPath
 
 interface IGElement : Element, ModifiableUserInteractionHandler {
 
-    val layer: GuiLayer
+    var layer: GuiLayer
 
     //------------ Vanilla Element ------------\\
 
@@ -72,6 +72,7 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
     override fun getNavigationFocus(): ScreenRect {
         return ScreenRect.empty()
     }
+
 
     //------------ Extensions ------------\\
 
