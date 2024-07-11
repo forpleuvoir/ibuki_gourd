@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
+import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.enableScissor
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import net.minecraft.client.MinecraftClient
@@ -46,18 +46,18 @@ class IGDrawContext(
         afterRendering = false
     }
 
-    fun canRender(element: IGElement): Boolean {
+    fun canRender(drawable: IGDrawable): Boolean {
         return if (::layer.isInitialized) {
-            element.layer == this@IGDrawContext.layer
+            drawable.layer == this@IGDrawContext.layer
         } else false
     }
 
     @OptIn(ExperimentalContracts::class)
-    inline fun tryRender(element: IGElement, block: IGDrawContext.() -> Unit) {
+    inline fun tryRender(drawable: IGDrawable, block: IGDrawContext.() -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         }
-        if (canRender(element)) this.block()
+        if (canRender(drawable)) this.block()
     }
 
     @OptIn(ExperimentalContracts::class)

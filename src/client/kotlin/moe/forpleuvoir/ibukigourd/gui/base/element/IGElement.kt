@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import net.minecraft.client.gui.Element
@@ -11,6 +11,10 @@ import net.minecraft.client.gui.navigation.GuiNavigation
 import net.minecraft.client.gui.navigation.GuiNavigationPath
 
 interface IGElement : Element, ModifiableUserInteractionHandler {
+
+    val screen: () -> IGScreen?
+
+    var parent: () -> IGElement?
 
     var layer: GuiLayer
 
@@ -79,7 +83,6 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
     /**
      * Executes the use function on the current GUIEvent instance with the given Element.
      * @receiver GUIEvent The current GUIEvent instance.
-     * @param element The Element to use.
      */
     fun GUIEvent.use() {
         this.use(this@IGElement)
@@ -89,6 +92,14 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
      * Tries to use the current GUIEvent instance with the given block of code.
      * If the GUIEvent can be used and the block returns true, the 'use' function is executed on the element, and true is returned.
      * If the GUIEvent cannot be used or the block returns false, false is returned.
+     * ```kotlin
+     * event.tryUse{
+     *     //if used return true
+     *     true
+     * }.onSuccess{
+     *     //do something
+     * }
+     * ```
      * @receiver GUIEvent The current GUIEvent instance.
      * @param block The block of code to be executed.
      * @return Result<Boolean> Success(true) if the event was used, Failure(false) otherwise.
@@ -125,11 +136,4 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
         this.canUse(this@IGElement, block)
     }
 
-    fun IGDrawContext.canRender(): Boolean {
-        return this.canRender(this@IGElement)
-    }
-
-    fun IGDrawContext.tryRender(block: IGDrawContext.() -> Unit) {
-        this.tryRender(this@IGElement, block)
-    }
 }

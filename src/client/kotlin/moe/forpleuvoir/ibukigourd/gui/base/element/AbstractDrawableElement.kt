@@ -5,23 +5,21 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.input.mousePosition
-import moe.forpleuvoir.ibukigourd.input.mouseX
-import moe.forpleuvoir.ibukigourd.input.mouseY
 import net.minecraft.client.gui.DrawContext
 
-abstract class AbstractDrawableElement : IGElement, IGDrawable {
-
+abstract class AbstractDrawableElement : DrawableElement {
 
     //------------ Vanilla Drawable ------------\\
-
 
     @Suppress("LocalVariableName")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val ctx = context.toIGDrawContext()
-        val (_mouseX,_mouseY) = context.client.mousePosition
-        ctx.tryRender { renderBackground(this, _mouseX, _mouseY, delta) }
-        render.invoke(ctx, _mouseX, _mouseY, delta)
-        ctx.tryRender { renderOverlay(this, _mouseX, _mouseY, delta) }
+        val (_mouseX, _mouseY) = context.client.mousePosition
+        ctx.tryRender {
+            renderBackground.invoke(this, _mouseX, _mouseY, delta)
+            render.invoke(ctx, _mouseX, _mouseY, delta)
+            renderOverlay.invoke(this, _mouseX, _mouseY, delta)
+        }
     }
 
 
