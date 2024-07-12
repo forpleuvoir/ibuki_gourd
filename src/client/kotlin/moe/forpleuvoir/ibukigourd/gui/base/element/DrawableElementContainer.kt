@@ -21,9 +21,9 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
 
     //------------ ElementContainer ------------\\
-    override fun drawableChildren(): List<IGDrawable> 
+    override fun drawableChildren(): List<IGDrawable>
 
-    override fun elementChildren(): List<IGElement> 
+    override fun elementChildren(): List<IGElement>
 
     override fun <T : IGDrawable> addDrawableChild(child: T): T
 
@@ -31,18 +31,18 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     //------------ Vanilla Drawable ------------\\
 
-    @Suppress("LocalVariableName")
+    @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
         ctx.tryRender {
             renderBackground(this, _mouseX, _mouseY, delta)
-            render.invoke(this, _mouseX, _mouseY, delta)
+            vanillaRender(this, _mouseX, _mouseY, delta)
         }
 
         for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
             ctx.tryRender(drawableChild) {
-                drawableChild.render.invoke(this, _mouseX, _mouseY, delta)
+                if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
             }
         }
 
@@ -74,6 +74,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var layer: GuiLayer
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit
+
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 
     override var mouseLeave: (event: MouseLeaveEvent) -> Unit
@@ -84,7 +85,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onMouseMove(event: MouseMoveEvent) {
         for (child in elementChildren()) {
-            child.mouseMove.invoke(event)
+            if (child.active) child.mouseMove.invoke(event)
         }
     }
 
@@ -92,7 +93,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onMouseClick(event: MousePressEvent) {
         for (child in elementChildren()) {
-            child.mouseClick.invoke(event)
+            if (child.active) child.mouseClick.invoke(event)
         }
     }
 
@@ -100,7 +101,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onFocused(event: FocusedEvent) {
         for (child in elementChildren()) {
-            child.focused.invoke(event)
+            if (child.active) child.focused.invoke(event)
         }
     }
 
@@ -108,7 +109,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
         for (child in elementChildren()) {
-            child.mouseRelease.invoke(event)
+            if (child.active) child.mouseRelease.invoke(event)
         }
     }
 
@@ -116,7 +117,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onMouseDragging(event: MouseDragEvent) {
         for (child in elementChildren()) {
-            child.mouseDragging.invoke(event)
+            if (child.active) child.mouseDragging.invoke(event)
         }
     }
 
@@ -124,7 +125,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
         for (child in elementChildren()) {
-            child.mouseScrolling.invoke(event)
+            if (child.active) child.mouseScrolling.invoke(event)
         }
     }
 
@@ -132,7 +133,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onKeyPress(event: KeyPressEvent) {
         for (child in elementChildren()) {
-            child.keyPress.invoke(event)
+            if (child.active) child.keyPress.invoke(event)
         }
     }
 
@@ -140,7 +141,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
         for (child in elementChildren()) {
-            child.keyRelease.invoke(event)
+            if (child.active) child.keyRelease.invoke(event)
         }
     }
 
@@ -148,7 +149,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override fun onCharTyped(event: CharTypedEvent) {
         for (child in elementChildren()) {
-            child.charTyped.invoke(event)
+            if (child.active) child.charTyped.invoke(event)
         }
     }
 

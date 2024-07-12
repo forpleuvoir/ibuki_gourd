@@ -12,7 +12,7 @@ import org.joml.Vector2fc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import  moe.forpleuvoir.ibukigourd.gui.base.render.ScissorStack as IGScissorStack
+import moe.forpleuvoir.ibukigourd.gui.base.render.ScissorStack as IGScissorStack
 
 class IGDrawContext(
     client: MinecraftClient,
@@ -20,9 +20,9 @@ class IGDrawContext(
 ) : DrawContext(client, vertexConsumers) {
 
     companion object {
-        fun DrawContext.toIGDrawContext(): IGDrawContext {
-            return IGDrawContext(this.client, this.vertexConsumers)
-        }
+        fun DrawContext.toIGDrawContext(): IGDrawContext =
+            if (this is IGDrawContext) this else IGDrawContext(this.client, this.vertexConsumers)
+
     }
 
     lateinit var layer: GuiLayer

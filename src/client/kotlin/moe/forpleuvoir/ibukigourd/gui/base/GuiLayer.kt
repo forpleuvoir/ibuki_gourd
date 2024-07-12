@@ -15,7 +15,7 @@ interface GuiLayer {
 
         val pop = PopLayer
 
-        val defaultLayers: Set<GuiLayer> = setOf(pop, default)
+        val defaultLayers: List<GuiLayer> = listOf(pop, default)
 
     }
 

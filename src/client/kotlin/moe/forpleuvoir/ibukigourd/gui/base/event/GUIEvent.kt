@@ -8,6 +8,13 @@ import kotlin.contracts.contract
 
 open class GUIEvent {
 
+    companion object {
+        fun <R : GUIEvent> R.layer(layer: GuiLayer): R = apply {
+            this.layer = layer
+        }
+
+    }
+
     lateinit var layer: GuiLayer
 
     var used: Boolean = false

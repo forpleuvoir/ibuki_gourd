@@ -14,11 +14,10 @@ abstract class DrawableElementImpl : DrawableElement {
 
     @Suppress("LocalVariableName")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
-        ctx.tryRender {
+        context.toIGDrawContext().tryRender {
             renderBackground.invoke(this, _mouseX, _mouseY, delta)
-            render.invoke(ctx, _mouseX, _mouseY, delta)
+            vanillaRender(this, _mouseX, _mouseY, delta)
             renderOverlay.invoke(this, _mouseX, _mouseY, delta)
         }
     }
@@ -33,6 +32,9 @@ abstract class DrawableElementImpl : DrawableElement {
 
     //------------ IGDrawable ------------\\
 
+    override var visible: Boolean = true
+
+    override var renderPriority: Int = 0
 
     override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
 
@@ -49,10 +51,6 @@ abstract class DrawableElementImpl : DrawableElement {
 
     //------------ IGElement ------------\\
 
-    override var visible: Boolean = true
-
-    override var renderPriority: Int = 0
-
     override val screen: () -> IGScreen?
         get() {
             return if (parent() is IGScreen) {
@@ -65,6 +63,8 @@ abstract class DrawableElementImpl : DrawableElement {
     override var parent: () -> IGElement? = { null }
 
     override var layer: GuiLayer = GuiLayer.default
+
+    override var active: Boolean = true
 
     abstract override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean
 

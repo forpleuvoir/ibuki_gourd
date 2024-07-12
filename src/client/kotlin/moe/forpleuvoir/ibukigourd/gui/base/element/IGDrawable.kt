@@ -12,6 +12,9 @@ interface IGDrawable : Drawable {
 
     //------------ Vanilla Drawable ------------\\
 
+    fun vanillaRender(context: DrawContext, mouseX: Number, mouseY: Number, delta: Float) =
+        render(context, mouseX.toInt(), mouseY.toInt(), delta)
+
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         render.invoke(context.toIGDrawContext(), context.client.mouseX, context.client.mouseY, delta)
     }

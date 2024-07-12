@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
@@ -18,50 +19,51 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
 
     var layer: GuiLayer
 
+    var active: Boolean
+
     //------------ Vanilla Element ------------\\
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
-        mouseMove(MouseMoveEvent(mouseX, mouseY))
+        if (active) mouseMove(MouseMoveEvent(mouseX, mouseY).layer(layer))
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        mouseClick(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)))
-        return true
+        if (active) mouseClick(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(layer))
+        return false
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        mouseRelease(MouseReleaseEvent(mouseX, mouseY, Mouse.fromCode(button)))
-        return true
+        if (active) mouseRelease(MouseReleaseEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(layer))
+        return false
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-        mouseDragging(MouseDragEvent(mouseX, mouseY, Mouse.fromCode(button), deltaX, deltaY))
-        return true
+        if (active) mouseDragging(MouseDragEvent(mouseX, mouseY, Mouse.fromCode(button), deltaX, deltaY).layer(layer))
+        return false
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
-        mouseScrolling(MouseScrollEvent(mouseX, mouseY, horizontalAmount, verticalAmount))
-        return true
+        if (active) mouseScrolling(MouseScrollEvent(mouseX, mouseY, horizontalAmount, verticalAmount).layer(layer))
+        return false
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
-        return true
+        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(layer))
+        return false
     }
 
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
-        return true
+        if (active) keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(layer))
+        return false
     }
 
     override fun charTyped(chr: Char, modifiers: Int): Boolean {
-        charTyped.invoke(CharTypedEvent(chr, modifiers))
-        return true
+        if (active) charTyped.invoke(CharTypedEvent(chr, modifiers).layer(layer))
+        return false
     }
 
-    override fun getNavigationPath(navigation: GuiNavigation?): GuiNavigationPath? {
-        return null
-    }
+    override fun getNavigationPath(navigation: GuiNavigation?): GuiNavigationPath? = null
+
 
     override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean
 
@@ -69,13 +71,11 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
 
     override fun isFocused(): Boolean
 
-    override fun getFocusedPath(): GuiNavigationPath? {
-        return if (this.isFocused) GuiNavigationPath.of(this) else null
-    }
+    override fun getFocusedPath(): GuiNavigationPath? =
+        if (this.isFocused) GuiNavigationPath.of(this) else null
 
-    override fun getNavigationFocus(): ScreenRect {
-        return ScreenRect.empty()
-    }
+    override fun getNavigationFocus(): ScreenRect =
+        ScreenRect.empty()
 
 
     //------------ Extensions ------------\\
@@ -84,9 +84,8 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
      * Executes the use function on the current GUIEvent instance with the given Element.
      * @receiver GUIEvent The current GUIEvent instance.
      */
-    fun GUIEvent.use() {
+    fun GUIEvent.use() =
         this.use(this@IGElement)
-    }
 
     /**
      * Tries to use the current GUIEvent instance with the given block of code.
@@ -120,20 +119,20 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
      *
      * @return true if the GUIEvent can be used with the Element, false otherwise.
      */
-    fun GUIEvent.canUse(): Boolean {
-        return this.canUse(this@IGElement)
-    }
+    fun GUIEvent.canUse(): Boolean =
+        this.canUse(this@IGElement)
 
-    fun GUIEvent.canUse(block: () -> Unit) {
+
+    fun GUIEvent.canUse(block: () -> Unit) =
         this.canUse(this@IGElement, block)
-    }
 
-    fun GUIEvent.cantUse(): Boolean {
-        return this.cantUse(this@IGElement)
-    }
 
-    fun GUIEvent.cantUse(block: () -> Unit) {
+    fun GUIEvent.cantUse(): Boolean =
+        this.cantUse(this@IGElement)
+
+
+    fun GUIEvent.cantUse(block: () -> Unit) =
         this.canUse(this@IGElement, block)
-    }
+
 
 }

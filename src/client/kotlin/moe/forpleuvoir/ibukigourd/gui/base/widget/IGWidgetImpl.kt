@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
@@ -84,29 +85,27 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
+
+    @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
         //判断鼠标是否在组件内
         if (event.position in transform.asWorldBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
                 wasMouseOver = true
-                mouseEnter(MouseEnterEvent(event.x, event.y))
+                mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
             if (wasMouseOver) {
                 wasMouseOver = false
-                mouseLeave(MouseLeaveEvent(event.x, event.y))
+                mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
             }
         }
     }
 
     override fun onMouseClick(event: MousePressEvent) {
         wasDragging = wasMouseOver
-
-        if (wasMouseOver) {
-            focused(FocusedEvent())
-        }
     }
 
     override fun onFocused(event: FocusedEvent) {
@@ -124,6 +123,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
     override fun onMouseScrolling(event: MouseScrollEvent) = Unit
 
     override fun onKeyPress(event: KeyPressEvent) = Unit
+
     override fun onKeyRelease(event: KeyReleaseEvent) = Unit
 
     override fun onCharTyped(event: CharTypedEvent) = Unit

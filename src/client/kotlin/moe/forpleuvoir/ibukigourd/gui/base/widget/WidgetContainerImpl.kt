@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
@@ -48,17 +49,18 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer {
 
     //------------ Drawable ------------\\
 
+    @Suppress("LocalVariableName")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
         ctx.tryRender {
             renderBackground(this, _mouseX, _mouseY, delta)
-            render.invoke(this, _mouseX, _mouseY, delta)
+            vanillaRender(this, _mouseX, _mouseY, delta)
         }
 
         for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {
             ctx.tryRender(drawableChild) {
-                drawableChild.render.invoke(this, _mouseX, _mouseY, delta)
+                if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
             }
         }
 
@@ -71,10 +73,18 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer {
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
 
+    @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
         super.onMouseMove(event)
+
         for (child in widgetChildren()) {
+            val mouseOver = child.wasMouseOver
             child.mouseMove.invoke(event)
+            if (!mouseOver && child.wasMouseOver) {
+                child.mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
+            } else if (mouseOver && !child.wasMouseOver) {
+                child.mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
+            }
         }
     }
 

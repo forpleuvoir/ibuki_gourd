@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElement
+import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 
@@ -36,5 +37,9 @@ interface IGWidget : DrawableElement, Measurable {
         val bottom = transform.bottom - padding.bottom
         return Box(left, top, right, bottom)
     }
+
+    override var parentData: Any?
+
+    override var constraints: Constraints
 
 }
