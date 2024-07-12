@@ -7,25 +7,27 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDr
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
-interface DrawableElementContainer<E : DrawableElement> : DrawableElement, ElementContainer<E>, DrawableContainer<E> {
+interface DrawableElementContainer : DrawableElement, ElementContainer, DrawableContainer {
 
     //------------ Tickable ------------\\
 
     override var tick: () -> Unit
 
     override fun tick() {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.tick.invoke()
         }
     }
 
 
     //------------ ElementContainer ------------\\
+    override fun drawableChildren(): List<IGDrawable> 
 
-    override fun addChild(child: E): E
+    override fun elementChildren(): List<IGElement> 
 
-    override fun children(): List<E>
+    override fun <T : IGDrawable> addDrawableChild(child: T): T
 
+    override fun <T : IGElement> addElementChild(child: T): T
 
     //------------ Vanilla Drawable ------------\\
 
@@ -38,7 +40,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
             render.invoke(this, _mouseX, _mouseY, delta)
         }
 
-        for (drawableChild in children().sortedBy { it.renderPriority }) {
+        for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
             ctx.tryRender(drawableChild) {
                 drawableChild.render.invoke(this, _mouseX, _mouseY, delta)
             }
@@ -81,7 +83,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var mouseMove: (event: MouseMoveEvent) -> Unit
 
     override fun onMouseMove(event: MouseMoveEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.mouseMove.invoke(event)
         }
     }
@@ -89,7 +91,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var mouseClick: (event: MousePressEvent) -> Unit
 
     override fun onMouseClick(event: MousePressEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.mouseClick.invoke(event)
         }
     }
@@ -97,7 +99,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var focused: (event: FocusedEvent) -> Unit
 
     override fun onFocused(event: FocusedEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.focused.invoke(event)
         }
     }
@@ -105,7 +107,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var mouseRelease: (event: MouseReleaseEvent) -> Unit
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.mouseRelease.invoke(event)
         }
     }
@@ -113,7 +115,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var mouseDragging: (event: MouseDragEvent) -> Unit
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.mouseDragging.invoke(event)
         }
     }
@@ -121,7 +123,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.mouseScrolling.invoke(event)
         }
     }
@@ -129,7 +131,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var keyPress: (event: KeyPressEvent) -> Unit
 
     override fun onKeyPress(event: KeyPressEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.keyPress.invoke(event)
         }
     }
@@ -137,7 +139,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var keyRelease: (event: KeyReleaseEvent) -> Unit
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.keyRelease.invoke(event)
         }
     }
@@ -145,7 +147,7 @@ interface DrawableElementContainer<E : DrawableElement> : DrawableElement, Eleme
     override var charTyped: (event: CharTypedEvent) -> Unit
 
     override fun onCharTyped(event: CharTypedEvent) {
-        for (child in children()) {
+        for (child in elementChildren()) {
             child.charTyped.invoke(event)
         }
     }

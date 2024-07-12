@@ -4,8 +4,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 
-interface IGScreen : DrawableElementContainer {
+interface IGScreen : DrawableElementContainer, WidgetContainer {
 
     val transform: Transform
 

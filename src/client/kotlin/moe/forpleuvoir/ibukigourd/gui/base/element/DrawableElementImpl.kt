@@ -4,10 +4,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
-abstract class AbstractDrawableElement : DrawableElement {
+abstract class DrawableElementImpl : DrawableElement {
 
     //------------ Vanilla Drawable ------------\\
 
@@ -21,6 +22,13 @@ abstract class AbstractDrawableElement : DrawableElement {
             renderOverlay.invoke(this, _mouseX, _mouseY, delta)
         }
     }
+
+
+    //------------ Tickable ------------\\
+
+    override var tick: () -> Unit = ::tick
+
+    override fun tick() {}
 
 
     //------------ IGDrawable ------------\\
@@ -41,6 +49,20 @@ abstract class AbstractDrawableElement : DrawableElement {
 
     //------------ IGElement ------------\\
 
+    override var visible: Boolean = true
+
+    override var renderPriority: Int = 0
+
+    override val screen: () -> IGScreen?
+        get() {
+            return if (parent() is IGScreen) {
+                { parent() as IGScreen }
+            } else {
+                { parent()?.screen?.let { it() } }
+            }
+        }
+
+    override var parent: () -> IGElement? = { null }
 
     override var layer: GuiLayer = GuiLayer.default
 
@@ -93,9 +115,5 @@ abstract class AbstractDrawableElement : DrawableElement {
     override var charTyped: (event: CharTypedEvent) -> Unit = ::onCharTyped
 
     abstract override fun onCharTyped(event: CharTypedEvent)
-
-    override var tick: () -> Unit = ::tick
-
-    override fun tick() {}
 
 }
