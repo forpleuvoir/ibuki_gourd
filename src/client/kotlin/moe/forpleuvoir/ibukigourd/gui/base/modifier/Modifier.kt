@@ -41,6 +41,8 @@ interface Modifier {
 
         override fun all(predicate: Element.() -> Boolean): Boolean = predicate(this)
 
+        fun tryApplyModify(target: Any)
+
     }
 
 }

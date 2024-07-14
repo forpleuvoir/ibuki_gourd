@@ -10,7 +10,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 
 /**
@@ -58,15 +57,15 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var parentData: Any? = null
 
-    abstract override fun measure(constraints: Constraints): SizeFloat
-
-    abstract override fun minIntrinsicWidth(height: Float): Float
-
-    abstract override fun maxIntrinsicWidth(height: Float): Float
-
-    abstract override fun minIntrinsicHeight(width: Float): Float
-
-    abstract override fun maxIntrinsicHeight(width: Float): Float
+//    abstract override fun measure(constraints: Constraints): SizeFloat
+//
+//    abstract override fun minIntrinsicWidth(height: Float): Float
+//
+//    abstract override fun maxIntrinsicWidth(height: Float): Float
+//
+//    abstract override fun minIntrinsicHeight(width: Float): Float
+//
+//    abstract override fun maxIntrinsicHeight(width: Float): Float
 
 
     //------------ DrawableElement ------------\\
@@ -104,7 +103,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
         }
     }
 
-    override fun onMouseClick(event: MousePressEvent) {
+    override fun onMousePress(event: MousePressEvent) {
         wasDragging = wasMouseOver
     }
 

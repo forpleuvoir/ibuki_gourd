@@ -22,7 +22,7 @@ sealed class HorizontalAlignment(orientation: Orientation) : LinearAlignment(ori
 
         override fun align(parent: Box, boxes: List<Box>): List<Vector2fc> {
             return orientation.peek(
-                orientation.mapPositions(parent.position, boxes) { pos, rect -> pos.copy(x = parent.center.x() - rect.halfWidth) },
+                orientation.mapPositions(parent.position, boxes) { pos, box -> pos.copy(x = parent.center.x() - box.halfWidth) },
                 orientation.mapPositions(parent.position.copy(x = parent.center.x() - orientation.contentSize(boxes).halfWidth), boxes)
             )
         }
@@ -30,9 +30,10 @@ sealed class HorizontalAlignment(orientation: Orientation) : LinearAlignment(ori
     }
 
     class Right(orientation: Orientation) : HorizontalAlignment(orientation) {
+
         override fun align(parent: Box, boxes: List<Box>): List<Vector2fc> {
             return orientation.peek(
-                orientation.mapPositions(parent.position, boxes) { pos, rect -> pos.copy(x = parent.right - rect.width) },
+                orientation.mapPositions(parent.position, boxes) { pos, box -> pos.copy(x = parent.right - box.width) },
                 orientation.mapPositions(parent.position.copy(x = parent.right - orientation.contentSize(boxes).width), boxes)
             )
         }
@@ -52,6 +53,7 @@ sealed class VerticalAlignment(orientation: Orientation) : LinearAlignment(orien
     }
 
     class Center(orientation: Orientation) : VerticalAlignment(orientation) {
+
         override fun align(parent: Box, boxes: List<Box>): List<Vector2fc> {
             val size = orientation.contentSize(boxes)
             val y = parent.center.y() - size.halfHeight
@@ -59,13 +61,14 @@ sealed class VerticalAlignment(orientation: Orientation) : LinearAlignment(orien
             val rect = Box(parent.position.copy(x = x, y = y), size)
             return orientation.peek(
                 orientation.mapPositions(rect.position, boxes),
-                orientation.mapPositions(rect.position, boxes) { pos, r -> pos.copy(y = rect.center.y() - r.halfHeight) }
+                orientation.mapPositions(rect.position, boxes) { pos, box -> pos.copy(y = rect.center.y() - box.halfHeight) }
             )
         }
 
     }
 
     class Bottom(orientation: Orientation) : VerticalAlignment(orientation) {
+
         override fun align(parent: Box, boxes: List<Box>): List<Vector2fc> {
             val size = orientation.contentSize(boxes)
             val y = parent.bottom - size.height
@@ -73,7 +76,7 @@ sealed class VerticalAlignment(orientation: Orientation) : LinearAlignment(orien
             val rect = Box(parent.position.copy(x = x, y = y), size)
             return orientation.peek(
                 orientation.mapPositions(rect.position, boxes),
-                orientation.mapPositions(rect.position, boxes) { pos, r -> pos.copy(y = rect.bottom - r.height) }
+                orientation.mapPositions(rect.position, boxes) { pos, box -> pos.copy(y = rect.bottom - box.height) }
             )
         }
 

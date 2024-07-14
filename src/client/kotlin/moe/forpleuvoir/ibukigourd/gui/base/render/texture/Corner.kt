@@ -23,7 +23,7 @@ data class Corner(
 
     companion object {
 
-        val EMPTY = Corner(0)
+        val Unspecified = Corner(0)
 
         fun deserialization(serializeElement: SerializeElement?, default: Corner): Corner {
             return serializeElement?.run {

@@ -110,23 +110,23 @@ interface Box : SizeFloat, Cloneable {
     /**
      * 判断两个[Box]是否相交
      * @param target 目标[Box]
-     * @return [Box] 相交时返回交集[Box]，否则返回不存在的[Box.NULL]
+     * @return [Box] 相交时返回交集[Box]，否则返回不存在的[Box.Unspecified]
      */
     infix fun intersectWith(target: Box): Box {
-        if (!this.exist || !target.exist) return NULL
+        if (!this.exist || !target.exist) return Unspecified
         val startX = max(this.x, target.x)
         val startY = max(this.y, target.y)
         val endX = min(this.endX, target.endX)
         val endY = min(this.endY, target.endY)
         Box(startX, startY, endX, endY).let {
-            return if (it.exist) it else NULL
+            return if (it.exist) it else Unspecified
         }
     }
 
     @Suppress("DuplicatedCode")
     companion object {
 
-        val NULL = Box(0, 0, 0, 0)
+        val Unspecified = Box(0, 0, 0, 0)
 
         operator fun invoke(position: Vector2fc, width: Float, height: Float): Box = BoxImpl(position, width, height)
 
@@ -164,7 +164,7 @@ interface Box : SizeFloat, Cloneable {
                 if (!equals(it, rects.first())) {
                     temp = it intersectWith temp
                 }
-                if (!temp.exist) return NULL
+                if (!temp.exist) return Unspecified
             }
             return temp
         }

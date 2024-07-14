@@ -309,13 +309,13 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (active) mouseClick(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(this.layer))
+        if (active) mousePress(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(this.layer))
         return false
     }
 
-    override var mouseClick: (event: MousePressEvent) -> Unit = ::onMouseClick
+    override var mousePress: (event: MousePressEvent) -> Unit = ::onMousePress
 
-    override fun onMouseClick(event: MousePressEvent) {
+    override fun onMousePress(event: MousePressEvent) {
         wasDragging = wasMouseOver
 
         for (layer in layers) {
@@ -326,7 +326,7 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
             }
 
             for (child in elementChildren()) {
-                child.mouseClick.invoke(event)
+                child.mousePress.invoke(event)
             }
         }
     }

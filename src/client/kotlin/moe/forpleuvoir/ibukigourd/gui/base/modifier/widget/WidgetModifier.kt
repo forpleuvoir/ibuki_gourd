@@ -6,21 +6,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
-fun interface WidgetModifier : Modifier.Element {
+fun interface WidgetModifier : TargetModifier<IGWidget>
 
-    companion object {
-
-        fun IGWidget.tryApplyModify(modifier: Modifier) {
-            if (modifier is WidgetModifier) {
-                modifier.applyModifier(this)
-            }
-        }
-
-    }
-
-    fun applyModifier(widget: IGWidget)
-
-}
 
 //------------ Size ------------\\
 
@@ -42,7 +29,7 @@ fun Modifier.size(width: Float?, height: Float?) = this then WidgetModifier { wi
 }
 
 /**
- * sets the width of the widget's constraints..
+ * sets the width of the widget's constraints.
  *
  * @param width the width value to set
  * @return The modified modifier.
@@ -52,7 +39,7 @@ fun Modifier.width(width: Float) = this then WidgetModifier { widget ->
 }
 
 /**
- * sets the height of the widget's constraints..
+ * sets the height of the widget's constraints.
  *
  * @param height the height value to set
  * @return The modified modifier.

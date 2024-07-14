@@ -84,9 +84,9 @@ abstract class DrawableElementImpl : DrawableElement {
 
     abstract override fun onMouseMove(event: MouseMoveEvent)
 
-    override var mouseClick: (event: MousePressEvent) -> Unit = ::onMouseClick
+    override var mousePress: (event: MousePressEvent) -> Unit = ::onMousePress
 
-    abstract override fun onMouseClick(event: MousePressEvent)
+    abstract override fun onMousePress(event: MousePressEvent)
 
     override var focused: (event: FocusedEvent) -> Unit = ::onFocused
 

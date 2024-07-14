@@ -28,7 +28,7 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (active) mouseClick(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(layer))
+        if (active) mousePress(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(layer))
         return false
     }
 

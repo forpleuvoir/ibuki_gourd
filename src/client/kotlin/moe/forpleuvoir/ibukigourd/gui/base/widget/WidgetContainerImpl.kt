@@ -3,35 +3,26 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
 
-abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer {
+abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable {
 
     //------------ Measure ------------\\
 
-    override fun measure(constraints: Constraints): SizeFloat {
-        TODO("Not yet implemented")
-    }
+    abstract override fun measure(constraints: Constraints): SizeFloat
 
-    override fun minIntrinsicWidth(height: Float): Float {
-        TODO("Not yet implemented")
-    }
+    abstract override fun minIntrinsicWidth(height: Float): Float
 
-    override fun maxIntrinsicWidth(height: Float): Float {
-        TODO("Not yet implemented")
-    }
+    abstract override fun maxIntrinsicWidth(height: Float): Float
 
-    override fun minIntrinsicHeight(width: Float): Float {
-        TODO("Not yet implemented")
-    }
+    abstract override fun minIntrinsicHeight(width: Float): Float
 
-    override fun maxIntrinsicHeight(width: Float): Float {
-        TODO("Not yet implemented")
-    }
+    abstract override fun maxIntrinsicHeight(width: Float): Float
 
 
     //------------ Container ------------\\
@@ -88,10 +79,10 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer {
         }
     }
 
-    override fun onMouseClick(event: MousePressEvent) {
-        super.onMouseClick(event)
+    override fun onMousePress(event: MousePressEvent) {
+        super.onMousePress(event)
         for (child in widgetChildren()) {
-            child.mouseClick.invoke(event)
+            child.mousePress.invoke(event)
         }
     }
 

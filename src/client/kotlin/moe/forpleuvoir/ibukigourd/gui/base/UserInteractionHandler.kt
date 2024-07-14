@@ -23,7 +23,7 @@ interface UserInteractionHandler : Tickable {
     /**
      * 鼠标点击
      */
-    fun onMouseClick(event: MousePressEvent)
+    fun onMousePress(event: MousePressEvent)
 
     /**
      * 获得焦点

@@ -89,21 +89,21 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
     /**
      * 绘制纹理
      * @receiver DrawContext
-     * @param rect Box
+     * @param box Box
      * @param uvMapping UVMapping
      * @param color ARGBColor
      * @param textureWidth Int
      * @param textureHeight Int
      */
-    fun DrawContext.drawTexture(rect: Box, uvMapping: UVMapping, color: ARGBColor = Colors.WHITE, textureWidth: Int = 256, textureHeight: Int = 256) {
+    fun DrawContext.drawTexture(box: Box, uvMapping: UVMapping, color: ARGBColor = Colors.WHITE, textureWidth: Int = 256, textureHeight: Int = 256) {
         val matrix4f = positionMatrix
-        bufferBuilder.vertex(matrix4f, rect.vertexes[0]).texture(uvMapping.uStart.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
+        bufferBuilder.vertex(matrix4f, box.vertexes[0]).texture(uvMapping.uStart.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
             .color(color)
-        bufferBuilder.vertex(matrix4f, rect.vertexes[2]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
+        bufferBuilder.vertex(matrix4f, box.vertexes[2]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
             .color(color)
-        bufferBuilder.vertex(matrix4f, rect.vertexes[3]).texture(uvMapping.uStart.toFloat() / textureHeight, uvMapping.vEnd.toFloat() / textureHeight)
+        bufferBuilder.vertex(matrix4f, box.vertexes[3]).texture(uvMapping.uStart.toFloat() / textureHeight, uvMapping.vEnd.toFloat() / textureHeight)
             .color(color)
-        bufferBuilder.vertex(matrix4f, rect.vertexes[4]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vEnd.toFloat() / textureHeight).color(color)
+        bufferBuilder.vertex(matrix4f, box.vertexes[4]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vEnd.toFloat() / textureHeight).color(color)
 
     }
 
@@ -139,7 +139,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
         textureHeight: Int = 256,
     ) {
 
-        if (corner == Corner.EMPTY) {
+        if (corner == Corner.Unspecified) {
             drawTexture(x, y, width, height, u, v, uSize, vSize, color, textureWidth, textureHeight)
             return
         }

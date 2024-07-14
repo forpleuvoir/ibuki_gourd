@@ -44,7 +44,7 @@ interface ModifiableUserInteractionHandler : UserInteractionHandler {
     /**
      * 鼠标点击
      */
-    var mouseClick: (event: MousePressEvent) -> Unit
+    var mousePress: (event: MousePressEvent) -> Unit
 
     /**
      * 获得焦点

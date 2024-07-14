@@ -89,11 +89,11 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
         }
     }
 
-    override var mouseClick: (event: MousePressEvent) -> Unit
+    override var mousePress: (event: MousePressEvent) -> Unit
 
-    override fun onMouseClick(event: MousePressEvent) {
+    override fun onMousePress(event: MousePressEvent) {
         for (child in elementChildren()) {
-            if (child.active) child.mouseClick.invoke(event)
+            if (child.active) child.mousePress.invoke(event)
         }
     }
 

@@ -268,7 +268,7 @@ inline fun IGWidget.mouseHover(block: IGWidget.() -> Unit) {
 }
 
 /**
- * 当鼠标位于此元素内容矩形[Element.contentBox]时调用
+ * 当鼠标位于此元素内容矩形[IGWidget.contentBox]时调用
  * @receiver Element
  * @param block Element.() -> Unit
  */
