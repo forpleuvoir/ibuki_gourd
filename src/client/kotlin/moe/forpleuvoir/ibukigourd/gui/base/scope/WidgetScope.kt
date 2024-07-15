@@ -6,6 +6,7 @@ interface WidgetScope<T : IGWidget> : GuiScope<T> {
 
     companion object {
 
+        @JvmName("createScope")
         fun <T : IGWidget> create(widget: T): WidgetScope<T> = object : WidgetScope<T> {
             override val owner: T get() = widget
         }

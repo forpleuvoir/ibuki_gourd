@@ -3,6 +3,7 @@
 
 package moe.forpleuvoir.ibukigourd.gui.base
 
+import moe.forpleuvoir.ibukigourd.gui.base.render.MutableSizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -30,7 +31,7 @@ class Transform(
      */
     isWorldAxis: Boolean = false,
     var parent: () -> Transform? = { null },
-) : Box {
+) : Box, MutableSizeFloat {
 
     /**
      * 不可变向量
@@ -55,6 +56,18 @@ class Transform(
                 field = value
             }
         }
+    override var halfWidth: Float
+        get() = width / 2
+        set(value) {
+            width = value * 2
+        }
+
+    override var halfHeight: Float
+        get() = height / 2
+        set(value) {
+            height = value * 2
+        }
+
 
     val depth: Int
         get() = parent()?.let { it.depth + 1 } ?: 0
@@ -185,6 +198,7 @@ class Transform(
     override operator fun contains(position: MousePosition): Boolean {
         return isMouseOvered(position)
     }
+
 
     /**
      * 鼠标是否在此元素[Transform]内部

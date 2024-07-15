@@ -57,16 +57,6 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var parentData: Any? = null
 
-//    abstract override fun measure(constraints: Constraints): SizeFloat
-//
-//    abstract override fun minIntrinsicWidth(height: Float): Float
-//
-//    abstract override fun maxIntrinsicWidth(height: Float): Float
-//
-//    abstract override fun minIntrinsicHeight(width: Float): Float
-//
-//    abstract override fun maxIntrinsicHeight(width: Float): Float
-
 
     //------------ DrawableElement ------------\\
 

@@ -85,22 +85,6 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var parentData: Any? = null
 
-    override fun minIntrinsicWidth(height: Float): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun maxIntrinsicWidth(height: Float): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun minIntrinsicHeight(width: Float): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun maxIntrinsicHeight(width: Float): Float {
-        TODO("Not yet implemented")
-    }
-
     override var constraints: Constraints
         get() = Constraints(
             transform.width, transform.width,
@@ -111,7 +95,10 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
 
     override fun measure(constraints: Constraints): SizeFloat {
-        TODO("Not yet implemented")
+        for (widgetChild in widgetChildren) {
+            widgetChild.measure(this.constraints.copy(minWidth = 0f, minHeight = 0f))
+        }
+        return transform
     }
 
     //------------ Container ------------\\
@@ -185,7 +172,7 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override fun shouldCloseOnEsc(): Boolean = closeOnEsc
 
-    override var closeOnEsc: Boolean = false
+    override var closeOnEsc: Boolean = true
 
     override var onClose: (() -> Unit)? = null
 
@@ -216,18 +203,19 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         if (!visible) return
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
-        ctx.tryRender {
-            renderBackground(this, _mouseX, _mouseY, delta)
-            vanillaRender(this, _mouseX, _mouseY, delta)
-        }
+        renderBackground(ctx, _mouseX, _mouseY, delta)
+        onRender(ctx, _mouseX, _mouseY, delta)
 
-        for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
-            ctx.tryRender(drawableChild) {
-                if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
+        for (layer in layers) {
+            ctx.layer = layer
+            for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
+                ctx.tryRender(drawableChild) {
+                    if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
+                }
             }
         }
 
-        ctx.tryRender { renderOverlay(this, _mouseX, _mouseY, delta) }
+        renderOverlay(ctx, _mouseX, _mouseY, delta)
     }
 
     override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
@@ -398,7 +386,7 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
-        return false
+        return true
     }
 
     override var keyPress: (event: KeyPressEvent) -> Unit = ::onKeyPress

@@ -17,7 +17,7 @@ abstract class DrawableElementImpl : DrawableElement {
         val (_mouseX, _mouseY) = context.client.mousePosition
         context.toIGDrawContext().tryRender {
             renderBackground.invoke(this, _mouseX, _mouseY, delta)
-            vanillaRender(this, _mouseX, _mouseY, delta)
+            onRender(this, _mouseX, _mouseY, delta)
             renderOverlay.invoke(this, _mouseX, _mouseY, delta)
         }
     }

@@ -4,7 +4,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 
-fun interface ElementModifier : TargetModifier<IGElement>
+fun interface ElementModifier : Modifier.Element {
+    fun applyModify(element: IGElement)
+
+    override fun tryApplyModify(target: Any) {
+        if(target is IGElement) applyModify(target)
+    }
+
+}
 
 fun Modifier.mouseEnter(action: IGElement.(MouseEnterEvent) -> Unit) = this then ElementModifier { element ->
     element.mouseEnter = { element.action(it) }

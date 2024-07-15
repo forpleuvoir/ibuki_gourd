@@ -6,8 +6,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
-fun interface WidgetModifier : TargetModifier<IGWidget>
+fun interface WidgetModifier : Modifier.Element {
+    fun applyModify(element: IGWidget)
 
+    override fun tryApplyModify(target: Any) {
+        if(target is IGWidget) applyModify(target)
+    }
+
+}
 
 //------------ Size ------------\\
 

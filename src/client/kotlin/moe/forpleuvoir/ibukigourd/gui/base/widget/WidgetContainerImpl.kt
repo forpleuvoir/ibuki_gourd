@@ -16,15 +16,6 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     abstract override fun measure(constraints: Constraints): SizeFloat
 
-    abstract override fun minIntrinsicWidth(height: Float): Float
-
-    abstract override fun maxIntrinsicWidth(height: Float): Float
-
-    abstract override fun minIntrinsicHeight(width: Float): Float
-
-    abstract override fun maxIntrinsicHeight(width: Float): Float
-
-
     //------------ Container ------------\\
 
     private val widgetChildren = mutableListOf<IGWidget>()

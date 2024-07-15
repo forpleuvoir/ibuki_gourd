@@ -157,20 +157,5 @@ open class IGButtonWidget(
         TODO("Not yet implemented")
     }
 
-    override fun minIntrinsicWidth(height: Float): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun maxIntrinsicWidth(height: Float): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun minIntrinsicHeight(width: Float): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun maxIntrinsicHeight(width: Float): Float {
-        TODO("Not yet implemented")
-    }
 
 }
