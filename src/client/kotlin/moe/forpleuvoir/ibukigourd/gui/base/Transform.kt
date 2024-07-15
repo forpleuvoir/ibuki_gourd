@@ -3,6 +3,7 @@
 
 package moe.forpleuvoir.ibukigourd.gui.base
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.render.MutableSizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
@@ -31,7 +32,7 @@ class Transform(
      */
     isWorldAxis: Boolean = false,
     var parent: () -> Transform? = { null },
-) : Box, MutableSizeFloat {
+) : Box, MutableSizeFloat, Placeable {
 
     /**
      * 不可变向量
@@ -42,6 +43,7 @@ class Transform(
      * 可变向量
      */
     private val positionAsNotifiable: NotifiableVector2f get() = position as NotifiableVector2f
+
 
     override var width: Float = width
         set(value) {
@@ -98,6 +100,16 @@ class Transform(
     ) {
         resizeCallbackSubscribers.add(sizeChangedAction)
         positionAsNotifiable.subscribe(positionChangedAction)
+    }
+
+    override fun placeAt(x: Float, y: Float, isWorldAxis: Boolean) {
+        if (isWorldAxis) {
+            worldX = x
+            worldY = y
+        } else {
+            this.x = x
+            this.y = y
+        }
     }
 
     override val vertexes: Array<out Vector2fc>

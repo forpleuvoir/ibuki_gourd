@@ -2,25 +2,22 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
 
-abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable {
-
-    //------------ Measure ------------\\
-
-    abstract override fun measure(constraints: Constraints): SizeFloat
+abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable, Layout {
 
     //------------ Container ------------\\
 
     private val widgetChildren = mutableListOf<IGWidget>()
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
+
+    override fun measureChildren(): List<Measurable> = widgetChildren
 
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
         it.transform.parent = { this.transform }
@@ -37,7 +34,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
         val (_mouseX, _mouseY) = context.client.mousePosition
         ctx.tryRender {
             renderBackground(this, _mouseX, _mouseY, delta)
-            vanillaRender(this, _mouseX, _mouseY, delta)
+            onRender(this, _mouseX, _mouseY, delta)
         }
 
         for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {

@@ -26,10 +26,12 @@ object ServerModConfigHandler : ModConfigHandler {
     private fun init() {
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                configManagers.forEach { (key, value) ->
-                    if (value.savable()) {
+                configManagers.forEach { (key, manager) ->
+                    if (manager.savable()) {
                         log.info("[{}]auto save server config...", key)
-                        value.asyncSave()
+                        manager.asyncSave().let {
+                            log.info("[{}]saved server config,saving time:$it", key)
+                        }
                     }
                 }
             }
@@ -58,15 +60,16 @@ object ServerModConfigHandler : ModConfigHandler {
                 val annotation = kClass.findAnnotation<ModConfig>()!!
                 instance.init(event.server)
                 log.info("[${modMeta.id} - ${annotation.name}]server config init")
-                runCatching {
-                    runBlocking {
+                runBlocking {
+                    runCatching {
                         instance.load()
-                    }
-                }.onFailure {
-                    runBlocking {
+                    }.onFailure {
                         instance.forceSave()
+                        log.error(it)
                     }
-                    log.error(it)
+                    if (instance.savable()) {
+                        instance.save()
+                    }
                 }
                 configManagers["${modMeta.id} - ${annotation.name}"] = instance
             }
@@ -88,7 +91,9 @@ object ServerModConfigHandler : ModConfigHandler {
         configManagers.forEach { (key, value) ->
             if (value.savable()) {
                 log.info("[{}]auto async save server config...", key)
-                value.asyncSave()
+                value.asyncSave().let {
+                    log.info("[{}]async saved server config,saving time:$it", key)
+                }
             }
         }
     }

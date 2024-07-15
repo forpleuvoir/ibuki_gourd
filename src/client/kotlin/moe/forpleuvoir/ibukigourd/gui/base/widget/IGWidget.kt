@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElement
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 
 interface IGWidget : DrawableElement, Measurable {

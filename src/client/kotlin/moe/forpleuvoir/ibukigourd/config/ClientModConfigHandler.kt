@@ -43,15 +43,13 @@ object ClientModConfigHandler : ModConfigHandler {
                     val annotation = kClass.findAnnotation<ModConfig>()!!
                     instance.init()
                     log.info("[${modMeta.id} - ${annotation.name}]client config init")
-                    runCatching {
-                        runBlocking {
+                    runBlocking {
+                        runCatching {
                             instance.load()
-                        }
-                    }.onFailure {
-                        runBlocking {
+                        }.onFailure {
                             instance.forceSave()
+                            log.error(it)
                         }
-                        log.error(it)
                     }
                     configManagers["${modMeta.id} - ${annotation.name}"] = instance
                 }

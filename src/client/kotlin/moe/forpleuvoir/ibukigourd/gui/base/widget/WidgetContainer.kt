@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 
 interface WidgetContainer : Measurable {
 

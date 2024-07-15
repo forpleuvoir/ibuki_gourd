@@ -7,8 +7,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 

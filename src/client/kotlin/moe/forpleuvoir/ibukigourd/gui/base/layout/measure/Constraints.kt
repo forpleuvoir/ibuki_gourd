@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.gui.base.measure
+package moe.forpleuvoir.ibukigourd.gui.base.layout.measure
 
 import kotlin.math.max
 import kotlin.math.min

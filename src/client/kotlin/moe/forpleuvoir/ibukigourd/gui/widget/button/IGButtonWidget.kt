@@ -1,11 +1,16 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.render.enableBlend
 import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -22,9 +27,8 @@ import kotlin.math.max
 import kotlin.math.sin
 
 open class IGButtonWidget(
-    private val layout: Layout,
     private val theme: ButtonTheme = ButtonThemes.Button2,
-) : IGPressableWidget() {
+) : IGPressableWidget(), LinearLayout {
 
 
     companion object {
@@ -153,9 +157,19 @@ open class IGButtonWidget(
 
     override var constraints: Constraints = Constraints()
 
-    override fun measure(constraints: Constraints): SizeFloat {
-        TODO("Not yet implemented")
+    override val orientation: Orientation = Orientation.Horizontal
+
+    override fun applyResult(size: Size<Float>): SizeFloat {
+        transform.set(size.width, size.height)
+        return transform
     }
 
-
 }
+
+
+fun GuiScope<out WidgetContainer>.button(modifier: Modifier) =
+    owner.addWidgetChild(IGButtonWidget().apply {
+        modifier.foldIn(Unit) { _, e ->
+            e.tryApplyModify(this)
+        }
+    })

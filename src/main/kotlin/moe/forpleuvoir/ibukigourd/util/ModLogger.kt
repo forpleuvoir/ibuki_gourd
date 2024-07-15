@@ -29,4 +29,5 @@ open class ModLogger(clazz: KClass<*>, modName: String) {
 	fun warn(msg: String, vararg params: Any?) {
 		log.warn(msg, *params)
 	}
+
 }

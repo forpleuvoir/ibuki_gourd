@@ -9,16 +9,19 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderGradientBox
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.mousePosition
+import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
@@ -29,7 +32,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.tooltip.TooltipPositioner
 import net.minecraft.text.OrderedText
 
-open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
+abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     //------------ IGWidget ------------\\
 
@@ -94,7 +97,7 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
             throw UnsupportedOperationException("Default IGScreen implementation cannot set constraints")
 
 
-    override fun measure(constraints: Constraints): SizeFloat {
+    override fun measure(constraints: Constraints): Placeable {
         for (widgetChild in widgetChildren) {
             widgetChild.measure(this.constraints.copy(minWidth = 0f, minHeight = 0f))
         }
@@ -187,10 +190,20 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override fun resize(client: MinecraftClient, width: Int, height: Int) {
         super.resize(client, width, height)
-        transform.width = width.toFloat()
-        transform.height = height.toFloat()
+        transform.set(width.toFloat(), height.toFloat())
     }
 
+    override fun init(client: MinecraftClient, width: Int, height: Int) {
+        transform.set(width.toFloat(), height.toFloat())
+        super.init(client, width, height)
+    }
+
+    override fun init() {
+        GuiScope.create(this).content()
+        measure(Constraints())
+    }
+
+    abstract fun GuiScope<out IGScreen>.content()
 
     //------------ Drawable ------------\\
 
@@ -221,7 +234,16 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        renderVanillaBackground(context, mouseX, mouseY, delta)
+        if (client!!.world == null) {
+            this.renderPanoramaBackground(context, delta)
+        }
+        renderBlur(BG_BLUR_RADIUS, delta)
+        renderDarkening(context)
+    }
+
+    protected fun renderBlur(radius: Float, delta: Float) {
+        client!!.gameRenderer.renderBlur(radius, delta)
+        client!!.framebuffer.beginWrite(false)
     }
 
     override var render: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRender
@@ -234,13 +256,13 @@ open class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     //------------ Vanilla Drawable Override ------------\\
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    protected fun renderVanillaBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) =
-        renderBackground(context, mouseX.toInt(), mouseY.toInt(), delta)
-
     override fun renderDarkening(context: DrawContext) {
         renderDarkening(context, transform.worldX.toInt(), transform.worldY.toInt(), width, height)
     }
+
+    @Suppress("MemberVisibilityCanBePrivate", "NOTHING_TO_INLINE")
+    protected inline fun renderVanillaBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) =
+        renderBackground(context, mouseX.toInt(), mouseY.toInt(), delta)
 
     override fun renderInGameBackground(context: DrawContext) {
         context.renderGradientBox(transform.asWorldBox, Color(0xC0101010), Color(0xD0101010), Orientation.Vertical)

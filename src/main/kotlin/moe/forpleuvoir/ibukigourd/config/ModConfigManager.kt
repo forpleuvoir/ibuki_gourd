@@ -23,6 +23,10 @@ abstract class ModConfigManager(protected val modMetadata: ModMetadata, key: Str
 
     private val log = logger()
 
+    fun step() {
+
+    }
+
     override fun deserializationExceptionHandler(config: ConfigSerializable, serializeElement: SerializeElement, e: DeserializationException) {
         markSavable()
         log.error("${config.key}:${serializeElement} deserialization failed", e)

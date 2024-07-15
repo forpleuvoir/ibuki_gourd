@@ -11,10 +11,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gl.ShaderProgram
-import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.BufferRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexConsumer
+import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
@@ -32,8 +29,8 @@ inline fun MatrixStack.translate(vector3: Vector3fc) {
     this.translate(vector3.x(), vector3.y(), vector3.z())
 }
 
-inline fun MatrixStack.translate(vector3: Vector2fc) {
-    this.translate(vector3.x(), vector3.y(), 0f)
+inline fun MatrixStack.translate(vector2: Vector2fc) {
+    this.translate(vector2.x(), vector2.y(), 0f)
 }
 
 inline fun Matrix4f.getPosition(): Vector3f {
@@ -246,6 +243,14 @@ fun setScissor(box: Box?) {
 }
 
 inline fun disableScissor() = RenderSystem.disableScissor()
+
+fun GameRenderer.renderBlur(radius: Float, delta: Float) {
+    if (this.blurPostProcessor != null && radius >= 1.0f) {
+        this.blurPostProcessor!!.setUniforms("Radius", radius)
+        this.blurPostProcessor!!.render(delta)
+    }
+}
+
 
 inline fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vector3fc): VertexConsumer =
     vertex(matrix4f, vertex.x(), vertex.y(), vertex.z())

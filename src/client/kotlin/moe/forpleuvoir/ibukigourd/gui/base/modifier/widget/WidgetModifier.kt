@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.modifier.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
