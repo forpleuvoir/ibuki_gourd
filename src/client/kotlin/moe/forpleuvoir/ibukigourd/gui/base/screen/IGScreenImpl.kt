@@ -43,6 +43,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
+
     override var padding: Padding = Padding(0)
 
     override var margin: Margin = Margin(0)
@@ -88,6 +89,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var parentData: Any? = null
 
+
     override var constraints: Constraints
         get() = Constraints(
             transform.width, transform.width,
@@ -101,7 +103,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         for (widgetChild in widgetChildren) {
             widgetChild.measure(this.constraints.copy(minWidth = 0f, minHeight = 0f))
         }
-        return transform
+        return this
     }
 
     //------------ Container ------------\\

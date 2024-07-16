@@ -6,7 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
-import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 interface LinearLayout : Layout {
@@ -47,7 +46,7 @@ interface LinearLayout : Layout {
             //内容的最大高度
             val contentMaxHeight = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
             //可放置元素
-            val placeables = ArrayList<Placeable>(measurables.size)
+            val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
             val parentDatas = measurables.map { WrappedLinearLayoutData.fromMeasurable(it) }
             //使用的高度
@@ -71,8 +70,8 @@ interface LinearLayout : Layout {
                             (contentMaxHeight - usedHeight - child.margin.height).coerceAtLeast(0f)
                         )
                     )
-                    if (placeable.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.width + child.margin.width
-                    usedHeight += placeable.height + child.margin.height
+                    if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
+                    usedHeight += placeable.size.height + child.margin.height
                     placeables[index] = placeable
                 }
             }
@@ -91,14 +90,17 @@ interface LinearLayout : Layout {
                             distributionHeight
                         )
                     )
-                    if (placeable.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.width + child.margin.width
-                    usedHeight += placeable.height + child.margin.height
+                    if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
+                    usedHeight += placeable.size.height + child.margin.height
                     placeables[index] = placeable
                 }
             }
-
-            layout(placeables, parentDatas)
-            return applyResult(Size(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight)))
+            usedHeight += widget.padding.height
+            maxChildWidth += widget.padding.width
+            applyResult(Size(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))).let { placeable ->
+                layout(placeables.map { it!! }, parentDatas)
+                return placeable
+            }
         }
 
         private fun LinearLayout.measureHorizontal(measurables: List<Measurable>, constraints: Constraints): Placeable {
@@ -111,7 +113,7 @@ interface LinearLayout : Layout {
             //内容的最大高度
             val contentMaxWidth = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
             //可放置元素
-            val placeables = ArrayList<Placeable>(measurables.size)
+            val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
             val parentDatas = measurables.map { WrappedLinearLayoutData.fromMeasurable(it) }
             //使用的宽度
@@ -135,8 +137,8 @@ interface LinearLayout : Layout {
                             contentMaxHeight - child.margin.height
                         )
                     )
-                    if (placeable.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.height + child.margin.height
-                    usedWidth += placeable.width + child.margin.width
+                    if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
+                    usedWidth += placeable.size.width + child.margin.width
                     placeables[index] = placeable
                 }
             }
@@ -155,42 +157,49 @@ interface LinearLayout : Layout {
                             contentMaxHeight - child.margin.height,
                         )
                     )
-                    if (placeable.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.height + child.margin.height
-                    usedWidth += placeable.width + child.margin.width
+                    if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
+                    usedWidth += placeable.size.width + child.margin.width
                     placeables[index] = placeable
                 }
             }
-
-            layout(placeables, parentDatas)
-            return applyResult(Size(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight)))
+            usedWidth += widget.padding.width
+            maxChildHeight += widget.padding.height
+            applyResult(Size(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))).let { placeable ->
+                layout(placeables.map { it!! }, parentDatas)
+                return placeable
+            }
         }
 
         private fun LinearLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
-            val contentBox = widget.contentBox(true)
-            alignment(orientation).align(contentBox, placeables).forEachIndexed { index, vector2fc ->
+            val contentBox = widget.contentBox(false)
+            alignment(orientation).align(contentBox, placeables.map { Size(it.size.width + it.margin.width, it.size.height + it.margin.height) })
+                .forEachIndexed { index, vector2fc ->
                 val placeable = placeables[index]
                 val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
                 val x = when (gravity) {
                     WrappedLinearLayoutData.Gravity.Start  -> widget.padding.left + placeable.margin.left
-                    WrappedLinearLayoutData.Gravity.Center -> widget.halfWidth - (placeable.margin.left + placeable.halfWidth)
-                    WrappedLinearLayoutData.Gravity.End    -> widget.width - widget.padding.right - placeable.width - placeable.margin.right
+                    WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
+                    WrappedLinearLayoutData.Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
                 }
-                placeable.placeAt(x, vector2fc.y())
+                    val y = vector2fc.y() + placeable.margin.top
+                    placeable.placeAt(x, y, false)
             }
         }
 
         private fun LinearLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
-            val contentBox = widget.contentBox(true)
-            alignment(orientation).align(contentBox, placeables).forEachIndexed { index, vector2fc ->
-                val placeable = placeables[index]
-                val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
-                val y = when (gravity) {
-                    WrappedLinearLayoutData.Gravity.Start  -> widget.padding.top + placeable.margin.top
-                    WrappedLinearLayoutData.Gravity.Center -> widget.halfHeight - (placeable.margin.top + placeable.halfHeight)
-                    WrappedLinearLayoutData.Gravity.End    -> widget.height - widget.padding.bottom - placeable.height - placeable.margin.bottom
+            val contentBox = widget.contentBox(false)
+            alignment(orientation).align(contentBox, placeables.map { Size(it.size.width + it.margin.width, it.size.height + it.margin.height) })
+                .forEachIndexed { index, vector2fc ->
+                    val placeable = placeables[index]
+                    val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
+                    val y = when (gravity) {
+                        WrappedLinearLayoutData.Gravity.Start -> widget.padding.top + placeable.margin.top
+                        WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
+                        WrappedLinearLayoutData.Gravity.End -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
+                    }
+                    val x = vector2fc.x() + placeable.margin.left
+                    placeable.placeAt(x, y, false)
                 }
-                placeable.placeAt(vector2fc.x(), y)
-            }
         }
     }
 
@@ -200,7 +209,10 @@ interface LinearLayout : Layout {
     val alignment: (Orientation) -> Alignment
 
     override fun measure(measurables: List<Measurable>, constraints: Constraints): Placeable =
-        orientation.peek(measureVertical(measurables, constraints), measureHorizontal(measurables, constraints))
+        orientation.peek(
+            { measureVertical(measurables, constraints) },
+            { measureHorizontal(measurables, constraints) }
+        )
 
     override fun measure(constraints: Constraints): Placeable =
         measure(measurableChildren(), this.constraints.constraint(constraints))
@@ -209,8 +221,8 @@ interface LinearLayout : Layout {
     override fun layout(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
         if (placeables.isEmpty()) return
         orientation.peek(
-            layoutVertical(placeables, parentDatas),
-            layoutHorizontal(placeables, parentDatas)
+            { layoutVertical(placeables, parentDatas) },
+            { layoutHorizontal(placeables, parentDatas) }
         )
     }
 

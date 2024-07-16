@@ -38,9 +38,9 @@ class IconWidget(
 
 }
 
-fun GuiScope<out WidgetContainer>.icon(texture: WidgetTexture, color: ARGBColor = Colors.WHITE, modifier: Modifier) =
+fun GuiScope<out WidgetContainer>.icon(texture: WidgetTexture, color: ARGBColor = Colors.WHITE, modifier: Modifier? = null) =
     owner.addWidgetChild(IconWidget(texture, color).apply {
-        modifier.foldIn(Unit) { _, e ->
+        modifier?.foldIn(Unit) { _, e ->
             e.tryApplyModify(this)
         }
     })

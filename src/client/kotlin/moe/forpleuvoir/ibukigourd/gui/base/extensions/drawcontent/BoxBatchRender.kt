@@ -74,9 +74,9 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
      */
     fun DrawContext.box(x: Float, y: Float, width: Float, height: Float, color: ARGBColor) {
         bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(color)
-        bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(color)
-        bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(color)
         bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(color)
+        bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(color)
+        bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(color)
     }
 
     /**
@@ -101,9 +101,9 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         bottomRightColor: ARGBColor
     ) {
         bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(topLeftColor)
-        bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
-        bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
         bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(bottomLeftColor)
+        bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
+        bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
     }
 
     /**

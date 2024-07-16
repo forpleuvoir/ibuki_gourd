@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 
 interface IGWidget : DrawableElement, Measurable, Placeable {
@@ -29,21 +30,19 @@ interface IGWidget : DrawableElement, Measurable, Placeable {
     val contentHeight: Float get() = transform.height - padding.height
 
     fun contentBox(isWorldAxis: Boolean): Box {
-        val left = transform.left - padding.left
-        val top = transform.top - padding.top
-        val right = transform.right - padding.right
-        val bottom = transform.bottom - padding.bottom
-        return Box(left, top, right, bottom)
+        val x = if (isWorldAxis) transform.worldX + padding.left else transform.x + padding.left
+        val y = if (isWorldAxis) transform.worldY + padding.top else transform.y + padding.top
+        val width = transform.width - padding.width
+        val height = transform.height - padding.height
+        return Box(x = x, y = y, width = width, height = height)
     }
 
     //------------ Placeable ------------\\
 
-    override var margin: Margin
+    override val size: Size<Float>
+        get() = transform
 
-    override val halfHeight: Float get() = transform.halfHeight
-    override val halfWidth: Float get() = transform.halfWidth
-    override val height: Float get() = transform.height
-    override val width: Float get() = transform.width
+    override var margin: Margin
 
     override fun placeAt(x: Float, y: Float, isWorldAxis: Boolean) {
         if (isWorldAxis) {

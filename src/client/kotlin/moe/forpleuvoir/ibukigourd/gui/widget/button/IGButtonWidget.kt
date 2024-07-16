@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -16,8 +17,6 @@ import moe.forpleuvoir.ibukigourd.render.enableBlend
 import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.Tick
-import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
@@ -137,8 +136,11 @@ open class IGButtonWidget(
         context.batchRenderTextureColored {
             context.drawWidgetTexture(transform.asWorldBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
         }
-
-        this.drawMessage(context, context.client.textRenderer, pressedOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
+//        context.batchRenderBox {
+//            context.boxOutline(contentBox(true), Colors.RED)
+//
+//        }
+//        this.drawMessage(context, context.client.textRenderer, pressedOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
     }
 
     protected open fun drawMessage(context: DrawContext, textRenderer: TextRenderer, color: Int) {
@@ -168,9 +170,11 @@ open class IGButtonWidget(
 }
 
 
-fun GuiScope<out WidgetContainer>.button(modifier: Modifier) =
+fun GuiScope<out WidgetContainer>.button(modifier: Modifier? = null, content: GuiScope<IGButtonWidget>.() -> Unit) =
     owner.addWidgetChild(IGButtonWidget().apply {
-        modifier.foldIn(Unit) { _, e ->
+        padding = Padding(horizontal = 6, vertical = 6)
+        GuiScope.create(this).content()
+        modifier?.foldIn(Unit) { _, e ->
             e.tryApplyModify(this)
         }
     })
