@@ -17,7 +17,7 @@ class IconWidget(
     private val color: ARGBColor = Colors.WHITE
 ) : IGWidgetImpl() {
 
-    val aspectRatio: Float = iconTexture.width.toFloat() / iconTexture.height.toFloat()
+    private val aspectRatio: Float = iconTexture.width.toFloat() / iconTexture.height.toFloat()
 
     override fun measure(constraints: Constraints): Placeable {
         val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraint(constraints)
@@ -27,12 +27,12 @@ class IconWidget(
         } else {
             transform.set(maxWidth, (maxWidth / aspectRatio).coerceIn(minHeight, maxHeight))
         }
-        return transform
+        return this
     }
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(transform.asWorldBox, iconTexture, color)
+            context.drawWidgetTexture(contentBox(true), iconTexture, color)
         }
     }
 

@@ -32,7 +32,7 @@ class Transform(
      */
     isWorldAxis: Boolean = false,
     var parent: () -> Transform? = { null },
-) : Box, MutableSizeFloat, Placeable {
+) : Box, MutableSizeFloat {
 
     /**
      * 不可变向量
@@ -102,15 +102,7 @@ class Transform(
         positionAsNotifiable.subscribe(positionChangedAction)
     }
 
-    override fun placeAt(x: Float, y: Float, isWorldAxis: Boolean) {
-        if (isWorldAxis) {
-            worldX = x
-            worldY = y
-        } else {
-            this.x = x
-            this.y = y
-        }
-    }
+
 
     override val vertexes: Array<out Vector2fc>
         get() = arrayOf(

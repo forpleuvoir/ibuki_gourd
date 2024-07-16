@@ -17,7 +17,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
 
-    override fun measureChildren(): List<Measurable> = widgetChildren
+    override fun measurableChildren(): List<Measurable> = widgetChildren
 
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
         it.transform.parent = { this.transform }

@@ -11,10 +11,10 @@ data class Constraints(
 ) {
 
     fun constraint(constraints: Constraints): Constraints {
-        val minWidth = max(this.minWidth, constraints.minWidth)
-        val maxWidth = min(this.maxWidth, constraints.maxWidth)
-        val minHeight = max(this.minHeight, constraints.minHeight)
-        val maxHeight = min(this.maxHeight, constraints.maxHeight)
+        val minWidth = max(this.minWidth, constraints.minWidth).coerceAtMost(min(this.maxWidth, constraints.maxWidth))
+        val maxWidth = min(this.maxWidth, constraints.maxWidth).coerceAtLeast(minWidth)
+        val minHeight = max(this.minHeight, constraints.minHeight).coerceAtMost(min(this.maxHeight, constraints.maxHeight))
+        val maxHeight = min(this.maxHeight, constraints.maxHeight).coerceAtLeast(minHeight)
         return Constraints(minWidth, maxWidth, minHeight, maxHeight)
     }
 

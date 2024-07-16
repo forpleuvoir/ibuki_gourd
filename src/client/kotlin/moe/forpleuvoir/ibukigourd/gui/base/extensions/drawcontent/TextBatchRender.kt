@@ -1,10 +1,10 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
 
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
@@ -159,7 +159,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         color: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        val position = align(Orientation.Vertical).align(box, Box(Vector2f(), textRenderer.getWidth(text), textRenderer.fontHeight))
+        val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
         text(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
@@ -185,7 +185,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
         backgroundColor: ARGBColor = Color(0),
     ) {
-        val position = align(Orientation.Vertical).align(box, Box(Vector2f(), textRenderer.getWidth(text), textRenderer.fontHeight))
+        val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
         text(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 

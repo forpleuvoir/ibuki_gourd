@@ -5,11 +5,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.render.enableBlend
 import moe.forpleuvoir.ibukigourd.render.enableDepthTest
@@ -159,10 +160,10 @@ open class IGButtonWidget(
 
     override val orientation: Orientation = Orientation.Horizontal
 
-    override fun applyResult(size: Size<Float>): SizeFloat {
-        transform.set(size.width, size.height)
-        return transform
-    }
+    override val alignment: (Orientation) -> Alignment = PlanarAlignment::Center
+
+    override val widget: IGWidget
+        get() = this
 
 }
 
