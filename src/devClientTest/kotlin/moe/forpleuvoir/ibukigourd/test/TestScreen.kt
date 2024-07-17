@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
@@ -34,6 +35,10 @@ class TestScreen : IGScreenImpl(), LinearLayout {
     override fun measure(constraints: Constraints): Placeable =
         super<LinearLayout>.measure(constraints)
 
+    override fun applyResult(size: Size<Float>): Placeable {
+        return this
+    }
+
 
     override fun GuiScope<out IGScreen>.content() {
 //        icon(
@@ -42,8 +47,8 @@ class TestScreen : IGScreenImpl(), LinearLayout {
 //        )
         button {
             icon(IconTextures.CLOSE, modifier = Modifier.height(8f))
-            icon(IconTextures.SEARCH, modifier = Modifier.height(8f).margin(Margin(left = 15f, 0, 0, 0)))
-            icon(IconTextures.FILTER, modifier = Modifier.height(16f).margin(Margin(left = 25, 0, 0, 0)))
+            icon(IconTextures.SEARCH, modifier = Modifier.height(8f))
+            icon(IconTextures.FILTER, modifier = Modifier.height(8f))
         }
     }
 

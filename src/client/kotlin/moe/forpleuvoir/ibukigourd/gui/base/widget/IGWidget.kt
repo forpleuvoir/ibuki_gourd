@@ -52,6 +52,7 @@ interface IGWidget : DrawableElement, Measurable, Placeable {
             transform.x = x
             transform.y = y
         }
+//        println("${this::class.simpleName} placeAt($x, $y),parent:${parent()?.let { it::class.simpleName }},parent size :${transform.parent()?.let { "${it.width},${it.height}" }}, isWorldAxis: $isWorldAxis")
     }
 
 }

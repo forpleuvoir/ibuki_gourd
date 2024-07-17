@@ -191,8 +191,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     override fun onDisplayed() = onDisplayed?.invoke() ?: Unit
 
     override fun resize(client: MinecraftClient, width: Int, height: Int) {
-        super.resize(client, width, height)
         transform.set(width.toFloat(), height.toFloat())
+        super.resize(client, width, height)
     }
 
     override fun init(client: MinecraftClient, width: Int, height: Int) {

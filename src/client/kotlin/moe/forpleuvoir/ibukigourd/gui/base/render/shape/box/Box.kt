@@ -102,7 +102,7 @@ interface Box : SizeFloat, Cloneable {
 
     operator fun contains(position: MousePosition): Boolean {
         return this.exist.pick(
-            position.x in this.top..this.bottom && position.y in this.left..this.right,
+            position.y in this.top..this.bottom && position.x in this.left..this.right,
             false
         )
     }
