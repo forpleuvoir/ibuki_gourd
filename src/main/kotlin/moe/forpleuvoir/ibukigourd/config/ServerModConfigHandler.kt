@@ -65,7 +65,7 @@ object ServerModConfigHandler : ModConfigHandler {
                         instance.load()
                     }.onFailure {
                         instance.forceSave()
-                        log.error(it)
+                        log.warn(it)
                     }
                     if (instance.savable()) {
                         instance.save()

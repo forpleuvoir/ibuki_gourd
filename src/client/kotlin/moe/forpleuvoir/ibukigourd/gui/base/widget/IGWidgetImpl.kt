@@ -98,7 +98,9 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
     }
 
     override fun onFocused(event: FocusedEvent) {
-        event.tryUse().onSuccess {
+        event.tryUse {
+            wasMouseOver
+        }.onSuccess {
             isFocused = true
         }
     }

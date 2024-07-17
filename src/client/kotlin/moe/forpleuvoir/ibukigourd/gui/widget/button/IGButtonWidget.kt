@@ -1,11 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseEnterEvent
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseLeaveEvent
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseMoveEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -15,14 +10,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.render.enableBlend
-import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.Tick
-import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.text.Text
@@ -136,16 +129,8 @@ open class IGButtonWidget(
     }
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        enableBlend()
-        enableDepthTest()
-
         context.batchRenderTextureColored {
             context.drawWidgetTexture(transform.asWorldBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
-        }
-        context.batchRenderBox {
-            if (wasMouseOver)
-                context.boxOutline(contentBox(true), Colors.RED)
-
         }
 //        this.drawMessage(context, context.client.textRenderer, pressedOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
     }
@@ -176,11 +161,24 @@ open class IGButtonWidget(
 
 }
 
+data class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, LinearLayoutScope {
 
-fun GuiScope<out WidgetContainer>.button(modifier: Modifier? = null, content: GuiScope<IGButtonWidget>.() -> Unit) =
-    owner.addWidgetChild(IGButtonWidget().apply {
+    override fun layout(): LinearLayout = button
+
+    override fun owner(): IGButtonWidget = button
+
+    fun press(action: (IGButtonWidget) -> Unit) = button.press(action)
+
+    fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = button.longPress(time, action)
+
+    fun release(action: (IGButtonWidget) -> Unit) = button.release(action)
+
+}
+
+fun GuiScope<out WidgetContainer>.button(modifier: Modifier? = null, content: IGButtonScope.() -> Unit) =
+    owner().addWidgetChild(IGButtonWidget().apply {
         padding = Padding(horizontal = 6, vertical = 6)
-        GuiScope.create(this).content()
+        IGButtonScope(this).content()
         modifier?.foldIn(Unit) { _, e ->
             e.tryApplyModify(this)
         }

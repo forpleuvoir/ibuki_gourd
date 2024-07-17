@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
+import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 interface LinearLayout : Layout {
@@ -174,16 +175,16 @@ interface LinearLayout : Layout {
             val contentBox = widget.contentBox(false)
             alignment(orientation).align(contentBox, placeables.map { Size(it.size.width + it.margin.width, it.size.height + it.margin.height) })
                 .forEachIndexed { index, vector2fc ->
-                val placeable = placeables[index]
-                val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
-                val x = when (gravity) {
-                    WrappedLinearLayoutData.Gravity.Start  -> widget.padding.left + placeable.margin.left
-                    WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
-                    WrappedLinearLayoutData.Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
-                }
+                    val placeable = placeables[index]
+                    val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
+                    val x = when (gravity) {
+                        WrappedLinearLayoutData.Gravity.Start  -> widget.padding.left + placeable.margin.left
+                        WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
+                        WrappedLinearLayoutData.Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
+                    }
                     val y = vector2fc.y() + placeable.margin.top
                     placeable.placeAt(x, y, false)
-            }
+                }
         }
 
         private fun LinearLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
@@ -195,7 +196,7 @@ interface LinearLayout : Layout {
                     val y = when (gravity) {
                         WrappedLinearLayoutData.Gravity.Start -> widget.padding.top + placeable.margin.top
                         WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
-                        WrappedLinearLayoutData.Gravity.End -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
+                        WrappedLinearLayoutData.Gravity.End   -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
                     }
                     val x = vector2fc.x() + placeable.margin.left
                     placeable.placeAt(x, y, false)
@@ -233,6 +234,15 @@ interface LinearLayout : Layout {
 
 }
 
+interface RowLayout : LinearLayout {
+    override val orientation: Orientation get() = Orientation.Vertical
+
+}
+
+interface ColumnLayout : LinearLayout {
+    override val orientation: Orientation get() = Orientation.Horizontal
+
+}
 
 data class WrappedLinearLayoutData(
     val weight: Int? = null,

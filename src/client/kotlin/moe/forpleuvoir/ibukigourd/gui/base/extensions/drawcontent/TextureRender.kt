@@ -14,17 +14,21 @@ import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 
 fun DrawContext.batchRenderTextureColored(
+    beforeAction: () -> Unit = {
+        enableBlend()
+    },
     shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionTexColorProgram,
     block: TextureBatchRenderScope.(DrawContext) -> Unit
 ) {
     setShader(shaderSupplier)
+    beforeAction()
     val bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
     block.invoke(TextureBatchRenderScope(bufferBuilder), this)
     bufferBuilder.draw()
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-open class TextureBatchRenderScope internal constructor(private val bufferBuilder:BufferBuilder) {
+open class TextureBatchRenderScope internal constructor(private val bufferBuilder: BufferBuilder) {
 
     /**
      * 绘制纹理

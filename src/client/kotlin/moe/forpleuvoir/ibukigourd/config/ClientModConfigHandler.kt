@@ -48,7 +48,7 @@ object ClientModConfigHandler : ModConfigHandler {
                             instance.load()
                         }.onFailure {
                             instance.forceSave()
-                            log.error(it)
+                            log.warn(it)
                         }
                     }
                     configManagers["${modMeta.id} - ${annotation.name}"] = instance

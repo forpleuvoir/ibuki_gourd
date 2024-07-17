@@ -1,24 +1,26 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.widget.box
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.row
+import moe.forpleuvoir.nebula.common.color.Colors
 
 class TestScreen : IGScreenImpl(), LinearLayout {
     override val orientation: Orientation
@@ -40,15 +42,49 @@ class TestScreen : IGScreenImpl(), LinearLayout {
     }
 
 
-    override fun GuiScope<out IGScreen>.content() {
-//        icon(
-//            IconTextures.CLOSE,
-//            modifier = Modifier.width(16f)
-//        )
-        button {
-            icon(IconTextures.CLOSE, modifier = Modifier.height(8f))
-            icon(IconTextures.SEARCH, modifier = Modifier.height(8f))
-            icon(IconTextures.FILTER, modifier = Modifier.height(8f))
+    override fun ScreenScope<out IGScreen>.content() {
+        val icons = listOf(
+            IconTextures.CLOSE,
+            IconTextures.SEARCH,
+            IconTextures.FILTER,
+            IconTextures.MINUS,
+        )
+        row {
+            icons.forEach {
+                icon(it)
+                box(Modifier.height(8f))
+            }
+        }
+        icons.forEachIndexed { index, texture ->
+            box(
+                Modifier.height(8f)
+                    .width(8f)
+                    .render { context, mouseX, mouseY, delta ->
+                        this as IGWidget
+                        context.batchRenderBox {
+                            context.boxOutline(transform.asWorldBox, Colors.BLUE.opacity(.8f), inner = true)
+                        }
+                    }
+            )
+            button(
+                Modifier.maxHeight(24f)
+                    .maxWidth(80f)
+                    .renderOverlay { context, mouseX, mouseY, delta ->
+                        this as IGWidget
+                        context.batchRenderBox {
+                            if (wasMouseOver) context.boxOutline(transform.asWorldBox, Colors.RED.opacity(.8f))
+                        }
+                    }
+            ) {
+                press {
+                    println("按下了测试按钮$index")
+                    println(this@TestScreen.focusedWidget)
+                }
+                longPress(10) {
+                    println("长按了按钮$index")
+                }
+                icon(texture)
+            }
         }
     }
 

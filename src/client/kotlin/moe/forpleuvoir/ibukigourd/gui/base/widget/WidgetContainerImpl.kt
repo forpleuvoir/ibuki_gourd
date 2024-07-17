@@ -34,7 +34,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
         val (_mouseX, _mouseY) = context.client.mousePosition
         ctx.tryRender {
             renderBackground(this, _mouseX, _mouseY, delta)
-            onRender(this, _mouseX, _mouseY, delta)
+            render.invoke(this, _mouseX, _mouseY, delta)
         }
 
         for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {

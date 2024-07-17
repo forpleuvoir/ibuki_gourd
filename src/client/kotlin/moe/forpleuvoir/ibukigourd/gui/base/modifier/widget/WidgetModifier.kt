@@ -10,7 +10,7 @@ fun interface WidgetModifier : Modifier.Element {
     fun applyModify(element: IGWidget)
 
     override fun tryApplyModify(target: Any) {
-        if(target is IGWidget) applyModify(target)
+        if (target is IGWidget) applyModify(target)
     }
 
 }
@@ -34,6 +34,20 @@ fun Modifier.size(width: Float?, height: Float?) = this then WidgetModifier { wi
     )
 }
 
+fun Modifier.minSize(minWidth: Float?, minHeight: Float?) = this then WidgetModifier { widget ->
+    widget.constraints = widget.constraints.copy(
+        minWidth = minWidth ?: widget.constraints.minWidth,
+        minHeight = minHeight ?: widget.constraints.minHeight
+    )
+}
+
+fun Modifier.maxSize(maxWidth: Float?, maxHeight: Float?) = this then WidgetModifier { widget ->
+    widget.constraints = widget.constraints.copy(
+        maxWidth = maxWidth ?: widget.constraints.maxWidth,
+        maxHeight = maxHeight ?: widget.constraints.maxHeight
+    )
+}
+
 /**
  * sets the width of the widget's constraints.
  *
@@ -44,6 +58,15 @@ fun Modifier.width(width: Float) = this then WidgetModifier { widget ->
     widget.constraints = widget.constraints.copy(minWidth = width, maxWidth = width)
 }
 
+fun Modifier.minWidth(minWidth: Float) = this then WidgetModifier { widget ->
+    widget.constraints = widget.constraints.copy(minWidth = minWidth)
+}
+
+fun Modifier.maxWidth(maxWidth: Float) = this then WidgetModifier { widget ->
+    widget.constraints = widget.constraints.copy(maxWidth = maxWidth)
+}
+
+
 /**
  * sets the height of the widget's constraints.
  *
@@ -52,6 +75,14 @@ fun Modifier.width(width: Float) = this then WidgetModifier { widget ->
  */
 fun Modifier.height(height: Float) = this then WidgetModifier { widget ->
     widget.constraints = widget.constraints.copy(minHeight = height, maxHeight = height)
+}
+
+fun Modifier.minHeight(minHeight: Float) = this then WidgetModifier { widget ->
+    widget.constraints = widget.constraints.copy(minHeight = minHeight)
+}
+
+fun Modifier.maxHeight(maxHeight: Float) = this then WidgetModifier { widget ->
+    widget.constraints = widget.constraints.copy(maxHeight = maxHeight)
 }
 
 //------------ Padding ------------\\
@@ -75,3 +106,23 @@ fun Modifier.padding(padding: Padding) = this then WidgetModifier { widget ->
 fun Modifier.margin(margin: Margin) = this then WidgetModifier { widget ->
     widget.margin = margin
 }
+
+//------------ Drawable ------------\\
+
+//fun Modifier.renderBackground(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
+//    widget.renderBackground = { context, mouseX, mouseY, delta ->
+//        widget.action(context, mouseX, mouseY, delta)
+//    }
+//}
+//
+//fun Modifier.render(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
+//    widget.render = { context, mouseX, mouseY, delta ->
+//        widget.action(context, mouseX, mouseY, delta)
+//    }
+//}
+//
+//fun Modifier.renderOverlay(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
+//    widget.renderOverlay = { context, mouseX, mouseY, delta ->
+//        widget.action(context, mouseX, mouseY, delta)
+//    }
+//}

@@ -14,7 +14,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
@@ -201,11 +201,11 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     }
 
     override fun init() {
-        GuiScope.create(this).content()
+        ScreenScope { this }.content()
         measure(Constraints())
     }
 
-    abstract fun GuiScope<out IGScreen>.content()
+    abstract fun ScreenScope<out IGScreen>.content()
 
     //------------ Drawable ------------\\
 
@@ -219,8 +219,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
         renderBackground(ctx, _mouseX, _mouseY, delta)
-        onRender(ctx, _mouseX, _mouseY, delta)
-
+        render.invoke(ctx, _mouseX, _mouseY, delta)
         for (layer in layers) {
             ctx.layer = layer
             for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {

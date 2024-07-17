@@ -46,10 +46,8 @@ abstract class IGClickableWidget : WidgetContainerImpl() {
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
         if (this.isValidClickButton(event.button)) {
-            event.tryUse().onSuccess {
-                this.onRelease(event.x, event.y)
-                this.playReleaseSound(soundManager)
-            }
+            this.onRelease(event.x, event.y)
+            this.playReleaseSound(soundManager)
         }
     }
 
