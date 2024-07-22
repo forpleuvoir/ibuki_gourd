@@ -102,10 +102,10 @@ class IGDrawContext(
     }
 
     @OptIn(ExperimentalContracts::class)
-    inline fun useScissor(rect: Box, offset: Vector2fc, block: IGDrawContext.() -> Unit) {
+    inline fun useScissor(box: Box, offset: Vector2fc, block: IGDrawContext.() -> Unit) {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         igScissorStack.pushOffset(offset)
-        enableScissor(rect)
+        enableScissor(box)
         this.block()
         igScissorStack.popOffset()
         disableScissor()

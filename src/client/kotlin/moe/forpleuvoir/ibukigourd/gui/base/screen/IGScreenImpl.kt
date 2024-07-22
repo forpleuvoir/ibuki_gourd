@@ -33,6 +33,8 @@ import net.minecraft.client.gui.navigation.GuiNavigationPath
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.tooltip.TooltipPositioner
 import net.minecraft.text.OrderedText
+import kotlin.time.Duration
+import kotlin.time.measureTime
 
 abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
 
@@ -216,23 +218,30 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override var renderPriority: Int = 0
 
+    var latestRenderTime: Duration = Duration.ZERO
+        protected set
+
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-        val ctx = context.toIGDrawContext()
-        val (_mouseX, _mouseY) = context.client.mousePosition
-        renderBackground(ctx, _mouseX, _mouseY, delta)
-        render.invoke(ctx, _mouseX, _mouseY, delta)
-        for (layer in layers) {
-            ctx.layer = layer
-            for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
-                ctx.tryRender(drawableChild) {
-                    if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
+        latestRenderTime = measureTime {
+            val ctx = context.toIGDrawContext()
+            val (_mouseX, _mouseY) = context.client.mousePosition
+            renderBackground(ctx, _mouseX, _mouseY, delta)
+            render.invoke(ctx, _mouseX, _mouseY, delta)
+            for (layer in layers) {
+                ctx.layer = layer
+                for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
+                    ctx.tryRender(drawableChild) {
+                        if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
+                    }
                 }
             }
-        }
 
-        renderOverlay(ctx, _mouseX, _mouseY, delta)
+            renderOverlay(ctx, _mouseX, _mouseY, delta)
+
+            ctx.render()
+        }
     }
 
     override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground

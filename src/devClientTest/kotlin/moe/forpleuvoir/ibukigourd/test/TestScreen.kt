@@ -1,10 +1,13 @@
 package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.BoxLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
+import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
@@ -15,14 +18,27 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import moe.forpleuvoir.nebula.common.color.Colors
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 
 class TestScreen : IGScreenImpl(), BoxLayout {
 
     override fun ScreenScope<out IGScreen>.content() {
+        padding = Padding(8f)
+        renderOverlay = { context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float ->
+            onRenderOverlay(context, mouseX, mouseY, delta)
+            context.batchRenderText {
+                val texts = listOf(
+                    Literal("Screen renderTime:${latestRenderTime}").style { color(Colors.AQUA) },
+                    Literal("Screen FPS:${(1.seconds / latestRenderTime).toInt()}").style { color(Colors.GREEN) }
+                )
+                context.textLines(texts, contentBox(true), align = BoxAlignment::TopLeft)
+            }
+        }
         column(modifier = Modifier.renderOverlay { context, mouseX, mouseY, delta ->
             this as IGWidget
             context.batchRenderBox {
