@@ -18,7 +18,7 @@ data class Padding(
     val bottom: Float
 ) {
 
-    constructor(left: Number, right: Number, top: Number, bottom: Number) : this(
+    constructor(left: Number = 0f, right: Number = 0f, top: Number = 0f, bottom: Number = 0f) : this(
         left.toFloat(), right.toFloat(), top.toFloat(), bottom.toFloat()
     )
 

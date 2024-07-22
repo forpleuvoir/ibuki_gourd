@@ -1,24 +1,26 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.BoxLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
-fun GuiScope<out WidgetContainer>.box(modifier: Modifier? = null) =
-    owner().addWidgetChild(object : IGWidgetImpl() {
-        override var constraints: Constraints = Constraints(0f, 0f, 0f, 0f)
+class BoxWidget : WidgetContainerImpl(), BoxLayout
 
-        override fun measure(constraints: Constraints): Placeable {
-            val (_, maxWidth, _, maxHeight) = this.constraints.constraint(constraints)
-            transform.set(maxWidth, maxHeight)
-            return this
-        }
+@JvmInline
+value class BoxScope(private val boxWidget: BoxWidget) : GuiScope<BoxWidget>, BoxLayoutScope {
+    override fun owner(): BoxWidget = boxWidget
 
-    }.apply {
-        modifier?.foldIn(Unit) { _, e ->
-            e.tryApplyModify(this)
-        }
-    })
+}
+
+fun GuiScope<out WidgetContainer>.box(
+    modifier: Modifier? = null,
+    context: (BoxScope.() -> Unit)? = null
+): WidgetContainerImpl = owner().addWidgetChild(BoxWidget()) {
+    context?.let { BoxScope(this).it() }
+    modifier?.foldIn(Unit) { _, e ->
+        e.tryApplyModify(this)
+    }
+}

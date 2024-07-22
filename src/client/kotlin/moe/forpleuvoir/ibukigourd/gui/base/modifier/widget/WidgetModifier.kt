@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
 fun interface WidgetModifier : Modifier.Element {
@@ -32,6 +33,10 @@ fun Modifier.size(width: Float?, height: Float?) = this then WidgetModifier { wi
         height ?: widget.constraints.minHeight,
         height ?: widget.constraints.maxHeight
     )
+}
+
+fun Modifier.size(size: Size<Float>) = this then WidgetModifier { widget ->
+    widget.constraints = Constraints(size.width, size.width, size.height, size.height)
 }
 
 fun Modifier.minSize(minWidth: Float?, minHeight: Float?) = this then WidgetModifier { widget ->
@@ -97,6 +102,19 @@ fun Modifier.padding(padding: Padding) = this then WidgetModifier { widget ->
     widget.padding = padding
 }
 
+fun Modifier.padding(left: Number = 0f, right: Number = 0f, top: Number = 0f, bottom: Number = 0f) = this then WidgetModifier { widget ->
+    widget.padding = Padding(left, right, top, bottom)
+}
+
+fun Modifier.padding(horizontal: Number = 0, vertical: Number = 0) = this then WidgetModifier { widget ->
+    widget.padding = Padding(horizontal, vertical)
+}
+
+fun Modifier.padding(all: Number) = this then WidgetModifier { widget ->
+    widget.padding = Padding(all)
+}
+
+
 /**
  * Adds a margin to the widget.
  *
@@ -107,22 +125,14 @@ fun Modifier.margin(margin: Margin) = this then WidgetModifier { widget ->
     widget.margin = margin
 }
 
-//------------ Drawable ------------\\
+fun Modifier.margin(left: Number = 0f, right: Number = 0f, top: Number = 0f, bottom: Number = 0f) = this then WidgetModifier { widget ->
+    widget.margin = Margin(left, right, top, bottom)
+}
 
-//fun Modifier.renderBackground(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
-//    widget.renderBackground = { context, mouseX, mouseY, delta ->
-//        widget.action(context, mouseX, mouseY, delta)
-//    }
-//}
-//
-//fun Modifier.render(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
-//    widget.render = { context, mouseX, mouseY, delta ->
-//        widget.action(context, mouseX, mouseY, delta)
-//    }
-//}
-//
-//fun Modifier.renderOverlay(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
-//    widget.renderOverlay = { context, mouseX, mouseY, delta ->
-//        widget.action(context, mouseX, mouseY, delta)
-//    }
-//}
+fun Modifier.margin(horizontal: Number = 0, vertical: Number = 0) = this then WidgetModifier { widget ->
+    widget.margin = Margin(horizontal, vertical)
+}
+
+fun Modifier.margin(all: Number) = this then WidgetModifier { widget ->
+    widget.margin = Margin(all)
+}

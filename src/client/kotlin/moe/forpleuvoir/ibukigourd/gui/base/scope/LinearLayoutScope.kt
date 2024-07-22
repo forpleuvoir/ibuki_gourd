@@ -12,8 +12,31 @@ fun interface LinearLayoutScope {
     fun layout(): LinearLayout
 
     fun Modifier.weight(weight: Int) = this then WidgetModifier {
-        it.parentData = WrappedLinearLayoutData(weight)
+        when (val parentData = it.parentData) {
+            is WrappedLinearLayoutData -> it.parentData = parentData.copy(weight = weight)
+            null                       -> it.parentData = WrappedLinearLayoutData(weight = weight)
+        }
     }
 
+    fun Modifier.gravity(gravity: WrappedLinearLayoutData.Gravity) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is WrappedLinearLayoutData -> it.parentData = parentData.copy(gravity = gravity)
+            null                       -> it.parentData = WrappedLinearLayoutData(gravity = gravity)
+        }
+    }
+
+    fun Modifier.gravityCenter() = gravity(WrappedLinearLayoutData.Gravity.Center)
+
+    fun Modifier.gravityStart() = gravity(WrappedLinearLayoutData.Gravity.Start)
+
+    fun Modifier.gravityEnd() = gravity(WrappedLinearLayoutData.Gravity.End)
+
+
+    fun Modifier.fill() = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is WrappedLinearLayoutData -> it.parentData = parentData.copy(fill = true)
+            null                       -> it.parentData = WrappedLinearLayoutData(fill = true)
+        }
+    }
 
 }

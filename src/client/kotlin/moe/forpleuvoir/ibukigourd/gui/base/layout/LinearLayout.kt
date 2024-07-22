@@ -6,7 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
-import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 interface LinearLayout : Layout {
@@ -26,11 +25,11 @@ interface LinearLayout : Layout {
                     return widget.measure(constraints)
                 }
 
-                override fun measure(measurables: List<Measurable>, constraints: Constraints): Placeable {
-                    return widget.measure(measurables, constraints)
+                override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
+                    return widget.measureChildren(measurables, constraints)
                 }
 
-                override fun layout(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
+                override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
                     widget.layout(placeables, parentDatas)
                 }
 
@@ -49,7 +48,7 @@ interface LinearLayout : Layout {
             //可放置元素
             val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
-            val parentDatas = measurables.map { WrappedLinearLayoutData.fromMeasurable(it) }
+            val parentDatas = measurables.map { WrappedLinearLayoutData.getOrDefault(it) }
             //使用的高度
             var usedHeight = 0f
             //总权重
@@ -58,14 +57,15 @@ interface LinearLayout : Layout {
             var weightChildrenCount = 0
 
             measurables.forEachIndexed { index, child ->
-                val weight = parentDatas[index]?.weight
+                val weight = parentDatas[index].weight
                 if (weight != null) {
                     totalWidget += weight
                     weightChildrenCount++
                 } else {
+
                     val placeable = child.measure(
-                        Constraints(
-                            0f,
+                        Constraints.of(
+                            if (parentDatas[index].fill) contentMaxWidth - child.margin.width else 0f,
                             contentMaxWidth - child.margin.width,
                             0f,
                             (contentMaxHeight - usedHeight - child.margin.height).coerceAtLeast(0f)
@@ -80,12 +80,12 @@ interface LinearLayout : Layout {
             val weightUnitHeight = if (totalWidget > 0) (contentMaxHeight - usedHeight) / totalWidget else 0f
 
             measurables.forEachIndexed { index, child ->
-                val widget = parentDatas[index]?.weight
+                val widget = parentDatas[index].weight
                 if (widget != null) {
                     val distributionHeight = ((weightUnitHeight * widget) - child.margin.height).coerceAtLeast(0f)
                     val placeable = child.measure(
-                        Constraints(
-                            0f,
+                        Constraints.of(
+                            if (parentDatas[index].fill) contentMaxWidth - child.margin.width else 0f,
                             contentMaxWidth - child.margin.width,
                             distributionHeight,
                             distributionHeight
@@ -116,7 +116,7 @@ interface LinearLayout : Layout {
             //可放置元素
             val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
-            val parentDatas = measurables.map { WrappedLinearLayoutData.fromMeasurable(it) }
+            val parentDatas = measurables.map { WrappedLinearLayoutData.getOrDefault(it) }
             //使用的宽度
             var usedWidth = 0f
             //总权重
@@ -125,16 +125,16 @@ interface LinearLayout : Layout {
             var weightChildrenCount = 0
 
             measurables.forEachIndexed { index, child ->
-                val weight = parentDatas[index]?.weight
+                val weight = parentDatas[index].weight
                 if (weight != null) {
                     totalWidget += weight
                     weightChildrenCount++
                 } else {
                     val placeable = child.measure(
-                        Constraints(
+                        Constraints.of(
                             0f,
                             (contentMaxWidth - usedWidth - child.margin.width).coerceAtLeast(0f),
-                            0f,
+                            if (parentDatas[index].fill) contentMaxHeight - child.margin.height else 0f,
                             contentMaxHeight - child.margin.height
                         )
                     )
@@ -147,15 +147,15 @@ interface LinearLayout : Layout {
             val weightUnitWidth = if (totalWidget > 0) (contentMaxWidth - usedWidth) / totalWidget else 0f
 
             measurables.forEachIndexed { index, child ->
-                val widget = parentDatas[index]?.weight
+                val widget = parentDatas[index].weight
                 if (widget != null) {
                     val distributionWidth = ((weightUnitWidth * widget) - child.margin.width).coerceAtLeast(0f)
                     val placeable = child.measure(
-                        Constraints(
+                        Constraints.of(
                             distributionWidth,
                             distributionWidth,
-                            0f,
-                            contentMaxHeight - child.margin.height,
+                            if (parentDatas[index].fill) contentMaxHeight - child.margin.height else 0f,
+                            contentMaxHeight - child.margin.height
                         )
                     )
                     if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
@@ -171,12 +171,12 @@ interface LinearLayout : Layout {
             }
         }
 
-        private fun LinearLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
+        private fun LinearLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
             val contentBox = widget.contentBox(false)
-            alignment(orientation).align(contentBox, placeables.map { Size(it.size.width + it.margin.width, it.size.height + it.margin.height) })
+            alignment(orientation).align(contentBox, placeables.map { it.wrappedSize })
                 .forEachIndexed { index, vector2fc ->
                     val placeable = placeables[index]
-                    val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
+                    val gravity = parentDatas[index].gravity
                     val x = when (gravity) {
                         WrappedLinearLayoutData.Gravity.Start  -> widget.padding.left + placeable.margin.left
                         WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
@@ -187,12 +187,12 @@ interface LinearLayout : Layout {
                 }
         }
 
-        private fun LinearLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
+        private fun LinearLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
             val contentBox = widget.contentBox(false)
-            alignment(orientation).align(contentBox, placeables.map { Size(it.size.width + it.margin.width, it.size.height + it.margin.height) })
+            alignment(orientation).align(contentBox, placeables.map { it.wrappedSize })
                 .forEachIndexed { index, vector2fc ->
                     val placeable = placeables[index]
-                    val gravity = parentDatas[index]?.gravity ?: WrappedLinearLayoutData.Gravity.Center
+                    val gravity = parentDatas[index].gravity
                     val y = when (gravity) {
                         WrappedLinearLayoutData.Gravity.Start -> widget.padding.top + placeable.margin.top
                         WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
@@ -209,21 +209,18 @@ interface LinearLayout : Layout {
 
     val alignment: (Orientation) -> Alignment
 
-    override fun measure(measurables: List<Measurable>, constraints: Constraints): Placeable =
+    override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable =
         orientation.peek(
             { measureVertical(measurables, constraints) },
             { measureHorizontal(measurables, constraints) }
         )
 
-    override fun measure(constraints: Constraints): Placeable =
-        measure(measurableChildren(), this.constraints.constraint(constraints))
-
-
-    override fun layout(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData?>) {
+    override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
         if (placeables.isEmpty()) return
+        val datas = parentDatas.map { it as WrappedLinearLayoutData }
         orientation.peek(
-            { layoutVertical(placeables, parentDatas) },
-            { layoutHorizontal(placeables, parentDatas) }
+            { layoutVertical(placeables, datas) },
+            { layoutHorizontal(placeables, datas) }
         )
     }
 
@@ -246,6 +243,7 @@ interface ColumnLayout : LinearLayout {
 
 data class WrappedLinearLayoutData(
     val weight: Int? = null,
+    val fill: Boolean = false,
     var gravity: Gravity = Gravity.Center
 ) {
 
@@ -255,8 +253,14 @@ data class WrappedLinearLayoutData(
 
     companion object {
 
+        private val default = WrappedLinearLayoutData()
+
         fun fromMeasurable(measurable: Measurable): WrappedLinearLayoutData? {
             return measurable.parentData as? WrappedLinearLayoutData
+        }
+
+        fun getOrDefault(measurable: Measurable, default: WrappedLinearLayoutData = this.default): WrappedLinearLayoutData {
+            return fromMeasurable(measurable) ?: default
         }
 
     }

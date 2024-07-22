@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTex
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.size
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
@@ -19,10 +20,10 @@ class IconWidget(
 
     private val aspectRatio: Float = iconTexture.width.toFloat() / iconTexture.height.toFloat()
 
-    override var constraints: Constraints = Constraints(
-        0f, iconTexture.width.toFloat(),
-        0f, iconTexture.height.toFloat()
-    )
+//    override var constraints: Constraints = Constraints(
+//        0f, iconTexture.width.toFloat(),
+//        0f, iconTexture.height.toFloat()
+//    )
 
     override fun measure(constraints: Constraints): Placeable {
         val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraint(constraints)
@@ -43,9 +44,18 @@ class IconWidget(
 
 }
 
-fun GuiScope<out WidgetContainer>.icon(texture: WidgetTexture, color: ARGBColor = Colors.WHITE, modifier: Modifier? = null) =
+fun GuiScope<out WidgetContainer>.icon(
+    texture: WidgetTexture,
+    color: ARGBColor = Colors.WHITE,
+    modifier: Modifier? = null
+) =
     owner().addWidgetChild(IconWidget(texture, color).apply {
-        modifier?.foldIn(Unit) { _, e ->
+        val m = if (modifier != null) {
+            Modifier.size(texture.toFloat()).then(modifier)
+        } else {
+            Modifier.size(texture.toFloat())
+        }
+        m.foldIn(Unit) { _, e ->
             e.tryApplyModify(this)
         }
     })

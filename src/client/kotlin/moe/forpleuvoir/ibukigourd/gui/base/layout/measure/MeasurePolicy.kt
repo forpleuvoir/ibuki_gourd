@@ -4,6 +4,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 
 fun interface MeasurePolicy {
 
-    fun measure(measurables: List<Measurable>, constraints: Constraints): Placeable
+    fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable
 
 }

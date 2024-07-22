@@ -268,7 +268,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
                 val colorEnd = HSVColor(hue, saturation, value, alpha, false)
 
                 repeat(precision) {
-                    box(currentX, y, width, lengthSlice, colorStart, colorStart, colorEnd, colorEnd)
+                    box(currentX, y, lengthSlice, height, colorStart, colorStart, colorEnd, colorEnd)
                     colorStart.hue = hue
                     hue = (hue + hueOffset).clamp(hueRange)
                     colorEnd.hue = hue

@@ -2,17 +2,12 @@ package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.BoxLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.Tick
@@ -27,7 +22,7 @@ import kotlin.math.sin
 
 open class IGButtonWidget(
     private val theme: ButtonTheme = ButtonThemes.Button2,
-) : IGPressableWidget(), LinearLayout {
+) : IGPressableWidget(), BoxLayout {
 
 
     companion object {
@@ -148,22 +143,10 @@ open class IGButtonWidget(
 
     //------------ Measurable ------------\\
 
-    override var parentData: Any? = null
-
-    override var constraints: Constraints = Constraints()
-
-    override val orientation: Orientation = Orientation.Horizontal
-
-    override val alignment: (Orientation) -> Alignment = PlanarAlignment::Center
-
-    override val widget: IGWidget
-        get() = this
-
 }
 
-data class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, LinearLayoutScope {
-
-    override fun layout(): LinearLayout = button
+@JvmInline
+value class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, BoxLayoutScope {
 
     override fun owner(): IGButtonWidget = button
 
@@ -175,11 +158,13 @@ data class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButton
 
 }
 
-fun GuiScope<out WidgetContainer>.button(modifier: Modifier? = null, content: IGButtonScope.() -> Unit) =
-    owner().addWidgetChild(IGButtonWidget().apply {
-        padding = Padding(horizontal = 6, vertical = 6)
-        IGButtonScope(this).content()
-        modifier?.foldIn(Unit) { _, e ->
-            e.tryApplyModify(this)
-        }
-    })
+fun GuiScope<out WidgetContainer>.button(
+    modifier: Modifier? = null,
+    content: (IGButtonScope.() -> Unit)? = null
+) = owner().addWidgetChild(IGButtonWidget()) {
+    padding = Padding(horizontal = 6, vertical = 6)
+    content?.let { IGButtonScope(this).it() }
+    modifier?.foldIn(Unit) { _, e ->
+        e.tryApplyModify(this)
+    }
+}

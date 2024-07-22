@@ -9,8 +9,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderGradientBox
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
@@ -32,7 +34,7 @@ import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.tooltip.TooltipPositioner
 import net.minecraft.text.OrderedText
 
-abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
+abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
 
     //------------ IGWidget ------------\\
 
@@ -98,12 +100,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         set(_) =
             throw UnsupportedOperationException("Default IGScreen implementation cannot set constraints")
 
+    override val widget: IGWidget
+        get() = this
+
+    override fun measurableChildren(): List<Measurable> = widgetChildren()
 
     override fun measure(constraints: Constraints): Placeable {
-        for (widgetChild in widgetChildren) {
-            widgetChild.measure(this.constraints.copy(minWidth = 0f, minHeight = 0f))
-        }
-        return this
+        return super.measure(constraints = constraints)
     }
 
     //------------ Container ------------\\

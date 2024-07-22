@@ -1,0 +1,72 @@
+package moe.forpleuvoir.ibukigourd.gui.base.layout
+
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.render.math.plus
+
+interface BoxLayout : Layout {
+
+    override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
+        val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraint(constraints)
+        var maxChildWidth = 0f
+        var maxChildHeight = 0f
+        val parentDatas = measurables.map { WrappedBoxLayoutData.getOrDefault(it) }
+        val placeables = measurables.mapIndexed { index, child ->
+            var childConstraints = Constraints.of(0f, _maxWidth - widget.padding.width, 0f, _maxHeight - widget.padding.height)
+            val data = parentDatas[index]
+            if (data.fillWidth) {
+                val w = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
+                childConstraints = childConstraints.copy(minWidth = w, maxWidth = w)
+            }
+            if (data.fillHeight) {
+                val h = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
+                childConstraints = childConstraints.copy(minHeight = h, maxHeight = h)
+            }
+            val placeable = child.measure(childConstraints).also {
+                if (it.size.width + child.margin.width > maxChildWidth) maxChildWidth = it.size.width + child.margin.width
+                if (it.size.height + child.margin.height > maxChildHeight) maxChildHeight = it.size.height + child.margin.height
+            }
+
+            placeable
+        }
+        maxChildWidth += widget.padding.width
+        maxChildHeight += widget.padding.height
+        widget.transform.set(maxChildWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))
+        layout(placeables, parentDatas)
+        return widget
+    }
+
+    override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
+        if (placeables.isEmpty()) return
+        val contentBox = widget.contentBox(false)
+        val datas = parentDatas.map { it as WrappedBoxLayoutData }
+        placeables.forEachIndexed { index, placeable ->
+            val vec2f = datas[index].alignment.align(contentBox, placeable.wrappedSize)
+            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top))
+        }
+    }
+
+}
+
+data class WrappedBoxLayoutData(
+    val alignment: BoxAlignment = BoxAlignment.Center(),
+    val fillWidth: Boolean = false,
+    val fillHeight: Boolean = false
+) {
+
+    companion object {
+
+        private val default = WrappedBoxLayoutData()
+
+        fun fromMeasurable(measurable: Measurable) =
+            measurable.parentData as? WrappedBoxLayoutData
+
+
+        fun getOrDefault(measurable: Measurable, default: WrappedBoxLayoutData = this.default) =
+            fromMeasurable(measurable) ?: default
+
+
+    }
+}

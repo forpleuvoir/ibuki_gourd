@@ -8,4 +8,6 @@ interface WidgetContainer : Measurable {
 
     fun <W : IGWidget> addWidgetChild(child: W): W
 
+    fun <W : IGWidget> addWidgetChild(child: W, scope: W.() -> Unit): W = addWidgetChild(child.apply(scope))
+
 }

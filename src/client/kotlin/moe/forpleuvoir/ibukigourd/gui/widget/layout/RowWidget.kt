@@ -5,8 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -14,7 +14,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class RowWidget(
-    override val alignment: (Orientation) -> Alignment = PlanarAlignment::Center
+    override val alignment: (Orientation) -> Alignment = BoxAlignment::Center
 ) : WidgetContainerImpl(), RowLayout {
 
     override val widget: IGWidget
@@ -33,7 +33,7 @@ data class RowScope(private val row: RowWidget) : GuiScope<RowWidget>, LinearLay
 }
 
 fun GuiScope<out WidgetContainer>.row(
-    alignment: (Orientation) -> Alignment = PlanarAlignment::Center,
+    alignment: (Orientation) -> Alignment = BoxAlignment::Center,
     modifier: Modifier? = null,
     content: RowScope.() -> Unit
 ) = owner().addWidgetChild(

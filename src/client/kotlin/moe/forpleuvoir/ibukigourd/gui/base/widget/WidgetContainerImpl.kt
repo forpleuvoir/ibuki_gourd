@@ -13,6 +13,9 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     //------------ Container ------------\\
 
+    override val widget: IGWidget
+        get() = this
+
     private val widgetChildren = mutableListOf<IGWidget>()
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren

@@ -45,6 +45,14 @@ interface Size<T : Number> {
             return s1.width == s2.width && s1.height == s2.height
         }
     }
+
+    fun toFloat(): Size<Float> = Size(width.toFloat(), height.toFloat())
+
+    fun toDouble(): Size<Double> = Size(width.toDouble(), height.toDouble())
+
+    fun toInt(): Size<Int> = Size(width.toInt(), height.toInt())
+
+    fun toLong(): Size<Long> = Size(width.toLong(), height.toLong())
 }
 
 interface SizeFloat : Size<Float> {

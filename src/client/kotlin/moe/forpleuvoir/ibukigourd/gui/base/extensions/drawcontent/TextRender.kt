@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.PlanarAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -144,7 +144,7 @@ fun DrawContext.renderText(
 fun DrawContext.renderAlignmentText(
     text: String,
     box: Box,
-    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(0x000000),
@@ -171,7 +171,7 @@ fun DrawContext.renderAlignmentText(
 fun DrawContext.renderAlignmentText(
     text: Text,
     box: Box,
-    align: (Orientation) -> Alignment = PlanarAlignment::CenterLeft,
+    align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
