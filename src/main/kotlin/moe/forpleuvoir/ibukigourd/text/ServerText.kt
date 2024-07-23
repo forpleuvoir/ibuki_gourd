@@ -8,7 +8,7 @@ import net.minecraft.text.TranslationException
 
 class ServerText(
 	content: ServerTranslatableContents,
-	list: List<net.minecraft.text.Text> = emptyList(),
+	list: MutableList<net.minecraft.text.Text> = mutableListOf(),
 	style: Style = Style.EMPTY,
 ) : Text(content, list, style) {
 

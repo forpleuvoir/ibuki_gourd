@@ -33,9 +33,9 @@ object InputHandler : Tickable {
         keyBinds.remove(keyBind)
     }
 
-    override fun tick() {
+    override fun onTick() {
         keyBinds.forEach {
-            it.tick()
+            it.onTick()
         }
     }
 

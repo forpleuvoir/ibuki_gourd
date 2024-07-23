@@ -268,7 +268,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param shadow Boolean
      * @param layerType [TextLayerType]
      * @param rightToLeft Boolean
-     * @param color ARGBColor
+     * @param defaultColor ARGBColor
      * @param backgroundColor Color
      */
     fun DrawContext.textLines(
@@ -279,7 +279,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Color(text.style.color?.rgb ?: 0x000000),
+        defaultColor: ARGBColor = Color( 0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         var top: Float = box.top
@@ -287,7 +287,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             alignmentText(
                 text,
                 Box(box.position.copy(y = top), box.width, textRenderer.fontHeight), align,
-                shadow, layerType, rightToLeft, color, backgroundColor
+                shadow, layerType, rightToLeft, text.style.color?.rgb?.let { Color(it) } ?: defaultColor, backgroundColor
             )
             top += textRenderer.fontHeight + lineSpacing.toFloat()
         }
@@ -303,7 +303,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param shadow Boolean
      * @param layerType [TextLayerType]
      * @param rightToLeft Boolean
-     * @param color ARGBColor
+     * @param defaultColor ARGBColor
      * @param backgroundColor Color
      */
     fun DrawContext.textLines(
@@ -314,13 +314,16 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Color(lines[0].style.color?.rgb ?: 0x000000),
+        defaultColor: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        stringLines(
-            lines.map { it.string },
-            box, lineSpacing,
-            align, shadow, layerType, rightToLeft, color, backgroundColor,
-        )
+        var top: Float = box.top
+        for (text in lines.wrapToTextLines(textRenderer, box.width.toInt())) {
+            alignmentText(
+                text, Box(box.position.copy(y = top), box.width, textRenderer.fontHeight), align,
+                shadow, layerType, rightToLeft, text.style.color?.rgb?.let { Color(it) } ?: defaultColor, backgroundColor
+            )
+            top += textRenderer.fontHeight + lineSpacing.toFloat()
+        }
     }
 }

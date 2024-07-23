@@ -79,7 +79,7 @@ open class IGButtonWidget(
     open var pressTickCounter: Tick = 0
         protected set
 
-    override fun tick() {
+    override fun onTick() {
         if (pressed) {
             pressTickCounter++
             if (longPressTime == pressTickCounter) {

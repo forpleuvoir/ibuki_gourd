@@ -72,7 +72,7 @@ class HistoryRecord(private val maxStackSize: Int = 50, var currentRecord: Recor
         inputtingRecord = Record(text, cursor)
     }
 
-    override fun tick() {
+    override fun onTick() {
         if (!inputting) {
             if (inputtingRecord != null) inputtingRecord = null
         } else {

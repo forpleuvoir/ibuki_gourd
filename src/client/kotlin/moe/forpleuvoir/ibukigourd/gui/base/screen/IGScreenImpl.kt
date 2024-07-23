@@ -83,10 +83,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     //------------ Tickable ------------\\
 
-    override var tick: () -> Unit = ::tick
-
     override fun tick() {
-        super<IGScreen>.tick()
+        tick.invoke()
+    }
+
+    override var tick: () -> Unit = ::onTick
+    override fun onTick() {
+        super.onTick()
     }
 
     //------------ Measurable ------------\\

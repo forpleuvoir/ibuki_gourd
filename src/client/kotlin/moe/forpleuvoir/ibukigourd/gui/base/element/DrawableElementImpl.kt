@@ -25,9 +25,9 @@ abstract class DrawableElementImpl : DrawableElement {
 
     //------------ Tickable ------------\\
 
-    override var tick: () -> Unit = ::tick
+    override var tick: () -> Unit = ::onTick
 
-    override fun tick() {}
+    override fun onTick() {}
 
 
     //------------ IGDrawable ------------\\

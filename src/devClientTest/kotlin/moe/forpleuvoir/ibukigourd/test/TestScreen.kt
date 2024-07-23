@@ -29,12 +29,25 @@ class TestScreen : IGScreenImpl(), BoxLayout {
 
     override fun ScreenScope<out IGScreen>.content() {
         padding = Padding(8f)
+        var deltaCount = 0
+        var fps = 0
+        var renderTime = 0.seconds
+        tick = {
+            onTick()
+            deltaCount++
+            if (deltaCount % 10 == 0) {
+                fps = (1.seconds / latestRenderTime).toInt()
+                deltaCount = 0
+            }
+            renderTime = latestRenderTime
+
+        }
         renderOverlay = { context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float ->
             onRenderOverlay(context, mouseX, mouseY, delta)
             context.batchRenderText {
                 val texts = listOf(
-                    Literal("Screen renderTime:${latestRenderTime}").style { color(Colors.AQUA) },
-                    Literal("Screen FPS:${(1.seconds / latestRenderTime).toInt()}").style { color(Colors.GREEN) }
+                    Literal("Screen renderTime:$renderTime").style { color(Colors.AQUA) },
+                    Literal("Screen FPS:$fps").style { color(0x00FF00) }
                 )
                 context.textLines(texts, contentBox(true), align = BoxAlignment::TopLeft)
             }

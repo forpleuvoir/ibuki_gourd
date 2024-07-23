@@ -44,7 +44,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void ibukigourd$tickStart(CallbackInfo ci) {
-        InputHandler.INSTANCE.tick();
+        InputHandler.INSTANCE.onTick();
         EventBus.Companion.broadcast(new ClientTickEvent.ClientTickStartEvent((MinecraftClient) (Object) this));
     }
 

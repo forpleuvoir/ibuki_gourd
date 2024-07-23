@@ -179,7 +179,7 @@ fun MutableText.wrapToTextLines(
                     if (textRenderer.getWidth(currentLineString.toString() + chr) <= maxWidth) return@run
                 }
                 // 否则，将临时字符串添加到文本列表中，然后清空临时字符串及当前行字符串
-                texts.add(Literal(temp).style { text.style })
+                texts.add(Literal(temp).setStyle(text.style))
                 temp.clear()
                 currentLineString.clear()
             }
@@ -189,12 +189,7 @@ fun MutableText.wrapToTextLines(
                 currentLineString.append(chr)
             }
         }
-        // 将临时字符串添加到最后一个或新的文本对象的末尾，然后加入到文本列表中
-        if (texts.isNotEmpty()) {
-            texts.last().append(Literal(temp).style { text.style })
-        } else {
-            texts.add(Literal(temp).style { text.style })
-        }
+        texts.add(Literal(temp).setStyle(text.style))
     }
     // 最后返回处理后的文本列表
     return texts

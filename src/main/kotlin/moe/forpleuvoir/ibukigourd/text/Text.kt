@@ -14,7 +14,7 @@ import net.minecraft.text.Text as McText
 @OptIn(ExperimentalContracts::class)
 open class Text(
     content: TextContent,
-    siblings: List<McText> = emptyList(),
+    siblings: MutableList<McText> = mutableListOf(),
     style: Style = Style.EMPTY
 ) : MutableText(content, siblings, style) {
 
@@ -51,8 +51,10 @@ open class Text(
     }
 
     fun appendLiteral(text: String): Text {
-        siblings.add(literal(text))
-        return this
+        if (text.isEmpty()) {
+            return this
+        }
+        return this.append(Literal(text))
     }
 
     fun appendTranslate(key: String, fallback: String? = null, vararg args: Any): Text {

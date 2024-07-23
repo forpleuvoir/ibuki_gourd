@@ -13,7 +13,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
     override var tick: () -> Unit
 
-    override fun tick() {
+    override fun onTick() {
         for (child in elementChildren()) {
             child.tick.invoke()
         }

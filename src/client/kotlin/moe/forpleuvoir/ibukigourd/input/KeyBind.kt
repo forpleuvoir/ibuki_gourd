@@ -120,7 +120,7 @@ class KeyBind(
         return NextAction.Continue
     }
 
-    override fun tick() {
+    override fun onTick() {
         if (wasPress) tickCount++
         if (wasPress)
             when (setting.triggerMode) {

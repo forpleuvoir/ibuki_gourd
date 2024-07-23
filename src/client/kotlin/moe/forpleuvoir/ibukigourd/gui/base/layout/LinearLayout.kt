@@ -13,29 +13,6 @@ interface LinearLayout : Layout {
     @Suppress("DuplicatedCode", "LocalVariableName")
     companion object {
 
-        fun create(orientation: Orientation, alignment: (Orientation) -> Alignment, widget: WidgetContainerImpl): LinearLayout {
-            return object : LinearLayout, Layout by widget {
-                override val orientation: Orientation
-                    get() = orientation
-
-                override val alignment: (Orientation) -> Alignment
-                    get() = alignment
-
-                override fun measure(constraints: Constraints): Placeable {
-                    return widget.measure(constraints)
-                }
-
-                override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-                    return widget.measureChildren(measurables, constraints)
-                }
-
-                override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
-                    widget.layout(placeables, parentDatas)
-                }
-
-            }
-        }
-
         private fun LinearLayout.measureVertical(measurables: List<Measurable>, constraints: Constraints): Placeable {
             //垂直布局 宽度固定
             val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraint(constraints)
