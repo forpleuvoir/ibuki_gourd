@@ -6,7 +6,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 interface LinearLayout : Layout {
 
@@ -75,9 +77,8 @@ interface LinearLayout : Layout {
             }
             usedHeight += widget.padding.height
             maxChildWidth += widget.padding.width
-            applyResult(Size(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))).let { placeable ->
+            return applyResult(Size(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))) {
                 layout(placeables.map { it!! }, parentDatas)
-                return placeable
             }
         }
 
@@ -142,9 +143,8 @@ interface LinearLayout : Layout {
             }
             usedWidth += widget.padding.width
             maxChildHeight += widget.padding.height
-            applyResult(Size(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))).let { placeable ->
+            return applyResult(Size(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))) { ->
                 layout(placeables.map { it!! }, parentDatas)
-                return placeable
             }
         }
 
@@ -155,9 +155,9 @@ interface LinearLayout : Layout {
                     val placeable = placeables[index]
                     val gravity = parentDatas[index].gravity
                     val x = when (gravity) {
-                        WrappedLinearLayoutData.Gravity.Start  -> widget.padding.left + placeable.margin.left
-                        WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
-                        WrappedLinearLayoutData.Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
+                        Gravity.Start  -> widget.padding.left + placeable.margin.left
+                        Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
+                        Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
                     }
                     val y = vector2fc.y() + placeable.margin.top
                     placeable.placeAt(x, y, false)
@@ -171,13 +171,23 @@ interface LinearLayout : Layout {
                     val placeable = placeables[index]
                     val gravity = parentDatas[index].gravity
                     val y = when (gravity) {
-                        WrappedLinearLayoutData.Gravity.Start -> widget.padding.top + placeable.margin.top
-                        WrappedLinearLayoutData.Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
-                        WrappedLinearLayoutData.Gravity.End   -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
+                        Gravity.Start  -> widget.padding.top + placeable.margin.top
+                        Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
+                        Gravity.End    -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
                     }
                     val x = vector2fc.x() + placeable.margin.left
                     placeable.placeAt(x, y, false)
                 }
+        }
+
+        @OptIn(ExperimentalContracts::class)
+        private inline fun LinearLayout.applyResult(size: Size<Float>, block: () -> Unit): Placeable {
+            contract {
+                callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+            }
+            widget.transform.set(size.width, size.height)
+            block()
+            return widget
         }
     }
 
@@ -201,11 +211,6 @@ interface LinearLayout : Layout {
         )
     }
 
-    fun applyResult(size: Size<Float>): Placeable {
-        widget.transform.set(size.width, size.height)
-        return widget
-    }
-
 }
 
 interface RowLayout : LinearLayout {
@@ -218,15 +223,17 @@ interface ColumnLayout : LinearLayout {
 
 }
 
+enum class Gravity {
+    Start, Center, End;
+}
+
+
 data class WrappedLinearLayoutData(
     val weight: Int? = null,
     val fill: Boolean = false,
     var gravity: Gravity = Gravity.Center
 ) {
 
-    enum class Gravity {
-        Start, Center, End;
-    }
 
     companion object {
 
