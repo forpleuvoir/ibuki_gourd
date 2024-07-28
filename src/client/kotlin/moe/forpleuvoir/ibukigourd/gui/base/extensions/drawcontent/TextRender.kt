@@ -5,6 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.draw
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -43,12 +45,12 @@ fun DrawContext.renderText(
         ReorderingUtil.reorder(text, rightToLeft),
         x,
         y,
-        color.argb,
+        color,
         shadow,
         positionMatrix,
         vertexConsumers,
         layerType,
-        backgroundColor.argb,
+        backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE
     )
     draw()
@@ -79,12 +81,12 @@ fun DrawContext.renderText(
         text,
         x,
         y,
-        color.argb,
+        color,
         shadow,
         positionMatrix,
         vertexConsumers,
         layerType,
-        backgroundColor.argb,
+        backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
     )
     draw()
@@ -114,17 +116,16 @@ fun DrawContext.renderText(
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
     textRenderer.draw(
-        text,
+        ReorderingUtil.reorder(Literal(text), rightToLeft),
         x,
         y,
-        color.argb,
+        color,
         shadow,
         positionMatrix,
         vertexConsumers,
         layerType,
-        backgroundColor.argb,
+        backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
-        rightToLeft
     )
     draw()
 }

@@ -189,7 +189,11 @@ fun MutableText.wrapToTextLines(
                 currentLineString.append(chr)
             }
         }
-        texts.add(Literal(temp).setStyle(text.style))
+        if (texts.isNotEmpty()) {
+            texts.last().append(Literal(temp).setStyle(text.style))
+        } else {
+            texts.add(Literal(temp).setStyle(text.style))
+        }
     }
     // 最后返回处理后的文本列表
     return texts

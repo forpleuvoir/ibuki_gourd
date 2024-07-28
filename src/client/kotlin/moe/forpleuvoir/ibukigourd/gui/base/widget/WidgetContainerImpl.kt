@@ -51,6 +51,10 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     //------------ Element ------------\\
 
+    override fun onTick() {
+        widgetChildren().forEach { it.tick() }
+    }
+
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit

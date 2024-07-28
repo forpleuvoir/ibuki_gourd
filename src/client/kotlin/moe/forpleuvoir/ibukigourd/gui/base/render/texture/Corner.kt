@@ -21,6 +21,11 @@ data class Corner(
 
     constructor(corner: Int) : this(corner, corner, corner, corner)
 
+    val width: Int get() = right + left
+
+    val height: Int get() = bottom + top
+
+
     companion object {
 
         val Unspecified = Corner(0)

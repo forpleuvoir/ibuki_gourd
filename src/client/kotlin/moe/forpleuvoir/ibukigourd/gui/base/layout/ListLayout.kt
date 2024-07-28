@@ -2,9 +2,8 @@ package moe.forpleuvoir.ibukigourd.gui.base.layout
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -26,57 +25,27 @@ interface ListLayout : Layout {
             //可放置元素
             val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
-            val parentDatas = measurables.map { WrappedLinearLayoutData.getOrDefault(it) }
+            val parentDatas = measurables.map { WrappedListLayoutData.getOrDefault(it) }
             //使用的高度
             var usedHeight = 0f
-            //总权重
-            var totalWidget = 0
-            //拥有权重的子元素
-            var weightChildrenCount = 0
 
             measurables.forEachIndexed { index, child ->
-                val weight = parentDatas[index].weight
-                if (weight != null) {
-                    totalWidget += weight
-                    weightChildrenCount++
-                } else {
-
-                    val placeable = child.measure(
-                        Constraints.of(
-                            if (parentDatas[index].fill) contentMaxWidth - child.margin.width else 0f,
-                            contentMaxWidth - child.margin.width,
-                            0f,
-                            (contentMaxHeight - usedHeight - child.margin.height).coerceAtLeast(0f)
-                        )
+                val placeable = child.measure(
+                    Constraints.of(
+                        if (parentDatas[index].fill) contentMaxWidth - child.margin.width else 0f,
+                        contentMaxWidth - child.margin.width,
+                        0f,
+                        (contentMaxHeight - child.margin.height).coerceAtLeast(0f)
                     )
-                    if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
-                    usedHeight += placeable.size.height + child.margin.height
-                    placeables[index] = placeable
-                }
+                )
+                if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
+                usedHeight += placeable.size.height + child.margin.height
+                placeables[index] = placeable
             }
 
-            val weightUnitHeight = if (totalWidget > 0) (contentMaxHeight - usedHeight) / totalWidget else 0f
-
-            measurables.forEachIndexed { index, child ->
-                val widget = parentDatas[index].weight
-                if (widget != null) {
-                    val distributionHeight = ((weightUnitHeight * widget) - child.margin.height).coerceAtLeast(0f)
-                    val placeable = child.measure(
-                        Constraints.of(
-                            if (parentDatas[index].fill) contentMaxWidth - child.margin.width else 0f,
-                            contentMaxWidth - child.margin.width,
-                            distributionHeight,
-                            distributionHeight
-                        )
-                    )
-                    if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
-                    usedHeight += placeable.size.height + child.margin.height
-                    placeables[index] = placeable
-                }
-            }
-            usedHeight += widget.padding.height
+            usedHeight += widget.padding.height + spacing * measurables.lastIndex
             maxChildWidth += widget.padding.width
-            return applyResult(Size(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))) {
+            return applyResult(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight)) {
                 layout(placeables.map { it!! }, parentDatas)
             }
         }
@@ -93,99 +62,64 @@ interface ListLayout : Layout {
             //可放置元素
             val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
-            val parentDatas = measurables.map { WrappedLinearLayoutData.getOrDefault(it) }
+            val parentDatas = measurables.map { WrappedListLayoutData.getOrDefault(it) }
             //使用的宽度
             var usedWidth = 0f
-            //总权重
-            var totalWidget = 0
-            //拥有权重的子元素
-            var weightChildrenCount = 0
 
             measurables.forEachIndexed { index, child ->
-                val weight = parentDatas[index].weight
-                if (weight != null) {
-                    totalWidget += weight
-                    weightChildrenCount++
-                } else {
-                    val placeable = child.measure(
-                        Constraints.of(
-                            0f,
-                            (contentMaxWidth - usedWidth - child.margin.width).coerceAtLeast(0f),
-                            if (parentDatas[index].fill) contentMaxHeight - child.margin.height else 0f,
-                            contentMaxHeight - child.margin.height
-                        )
+                val placeable = child.measure(
+                    Constraints.of(
+                        0f,
+                        (contentMaxWidth - child.margin.width).coerceAtLeast(0f),
+                        if (parentDatas[index].fill) contentMaxHeight - child.margin.height else 0f,
+                        contentMaxHeight - child.margin.height
                     )
-                    if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
-                    usedWidth += placeable.size.width + child.margin.width
-                    placeables[index] = placeable
-                }
+                )
+                if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
+                usedWidth += placeable.size.width + child.margin.width
+                placeables[index] = placeable
             }
 
-            val weightUnitWidth = if (totalWidget > 0) (contentMaxWidth - usedWidth) / totalWidget else 0f
-
-            measurables.forEachIndexed { index, child ->
-                val widget = parentDatas[index].weight
-                if (widget != null) {
-                    val distributionWidth = ((weightUnitWidth * widget) - child.margin.width).coerceAtLeast(0f)
-                    val placeable = child.measure(
-                        Constraints.of(
-                            distributionWidth,
-                            distributionWidth,
-                            if (parentDatas[index].fill) contentMaxHeight - child.margin.height else 0f,
-                            contentMaxHeight - child.margin.height
-                        )
-                    )
-                    if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
-                    usedWidth += placeable.size.width + child.margin.width
-                    placeables[index] = placeable
-                }
-            }
-            usedWidth += widget.padding.width
+            usedWidth += widget.padding.width + spacing * measurables.lastIndex
             maxChildHeight += widget.padding.height
-            return applyResult(Size(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))) {
+            return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight)) {
                 layout(placeables.map { it!! }, parentDatas)
             }
         }
 
-        private fun ListLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
-            val contentBox = widget.contentBox(false)
-            alignment(orientation).align(contentBox, placeables.map { it.wrappedSize })
-                .forEachIndexed { index, vector2fc ->
-                    val placeable = placeables[index]
-                    val gravity = parentDatas[index].gravity
-                    val x = when (gravity) {
-                        Gravity.Start  -> widget.padding.left + placeable.margin.left
-                        Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
-                        Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
-                    }
-                    val y = vector2fc.y() + placeable.margin.top
-                    placeable.placeAt(x, y, false)
+        private fun ListLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedListLayoutData>) {
+            var y = widget.padding.top - amount()
+            placeables.forEachIndexed { index, child ->
+                val x = when (parentDatas[index].gravity) {
+                    Gravity.Start  -> widget.padding.left + child.margin.left
+                    Gravity.Center -> widget.transform.halfWidth - (child.margin.left + child.size.halfWidth)
+                    Gravity.End    -> widget.transform.width - widget.padding.right - child.size.width - child.margin.right
                 }
+                child.placeAt(x, y, false)
+                y += child.wrappedSize.height + spacing
+            }
         }
 
-        private fun ListLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
-            val contentBox = widget.contentBox(false)
-            alignment(orientation).align(contentBox, placeables.map { it.wrappedSize })
-                .forEachIndexed { index, vector2fc ->
-                    val placeable = placeables[index]
-                    val gravity = parentDatas[index].gravity
-                    val y = when (gravity) {
-                        Gravity.Start  -> widget.padding.top + placeable.margin.top
-                        Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
-                        Gravity.End    -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
-                    }
-                    val x = vector2fc.x() + placeable.margin.left
-                    placeable.placeAt(x, y, false)
+        private fun ListLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedListLayoutData>) {
+            var x = widget.padding.top - amount()
+            placeables.forEachIndexed { index, child ->
+                val y = when (parentDatas[index].gravity) {
+                    Gravity.Start  -> widget.padding.top + child.margin.top
+                    Gravity.Center -> widget.transform.halfHeight - (child.margin.top + child.size.halfHeight)
+                    Gravity.End    -> widget.transform.height - widget.padding.bottom - child.size.height - child.margin.bottom
                 }
+                child.placeAt(x, y, false)
+                x += child.wrappedSize.width + spacing
+            }
         }
 
 
         @OptIn(ExperimentalContracts::class)
-        private inline fun ListLayout.applyResult(size: Size<Float>, block: () -> Unit): Placeable {
+        private inline fun ListLayout.applyResult(width: Float, height: Float, block: () -> Unit): Placeable {
             contract {
                 callsInPlace(block, InvocationKind.EXACTLY_ONCE)
             }
-            widget.transform.set(size.width, size.height)
+            widget.transform.set(width, height)
             block()
             return widget
         }
@@ -193,23 +127,29 @@ interface ListLayout : Layout {
 
     val orientation: Orientation
 
-    val alignment: (Orientation) -> Alignment
-
     val spacing: Float
 
-    override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-        TODO("Not yet implemented")
-    }
+    val amount: () -> Float
+
+    override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable =
+        orientation.peek(
+            { this.measureVertical(measurables, constraints) },
+            { this.measureHorizontal(measurables, constraints) }
+        )
 
     override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
-        TODO("Not yet implemented")
+        if (placeables.isEmpty()) return
+        val datas = parentDatas.map { it as WrappedListLayoutData }
+        orientation.peek(
+            { this.layoutVertical(placeables, datas) },
+            { this.layoutHorizontal(placeables, datas) }
+        )
     }
 
 
 }
 
 data class WrappedListLayoutData(
-    val weight: Int? = null,
     val fill: Boolean = false,
     var gravity: Gravity = Gravity.Center
 ) {

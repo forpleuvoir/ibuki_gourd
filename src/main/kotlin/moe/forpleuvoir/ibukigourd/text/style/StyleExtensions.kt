@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text.style
 
+import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.text.ClickEvent
@@ -13,9 +14,12 @@ fun Style.withColor(color: RGBColor): Style {
 }
 
 val Style.rgbColor: RGBColor?
-    get() {
-        return this.color?.let { Color(it.rgb) }
-    }
+    get() = argbColor
+
+
+val Style.argbColor: ARGBColor?
+    get() = this.color?.let { Color(it.rgb).alpha(255) }
+
 
 fun style(
     color: RGBColor? = null,

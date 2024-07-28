@@ -5,7 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.render.math.copy
+import moe.forpleuvoir.ibukigourd.text.draw
+import moe.forpleuvoir.ibukigourd.text.style.argbColor
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -49,19 +50,19 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
+        color: ARGBColor = text.style.argbColor ?: Color(0xFF000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         textRenderer.draw(
             ReorderingUtil.reorder(text, rightToLeft),
             x,
             y,
-            color.argb,
+            color,
             shadow,
             positionMatrix,
             vertexConsumers,
             layerType,
-            backgroundColor.argb,
+            backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE
         )
     }
@@ -90,12 +91,12 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             text,
             x,
             y,
-            color.argb,
+            color,
             shadow,
             positionMatrix,
             vertexConsumers,
             layerType,
-            backgroundColor.argb,
+            backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
         )
     }
@@ -182,7 +183,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
+        color: ARGBColor = text.style.argbColor ?: Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
     ) {
         val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
@@ -214,14 +215,16 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Color(0),
     ) {
-        var top: Float = box.top
-        for (text in string.wrapToLines(textRenderer, box.width.toInt())) {
-            alignmentText(
-                text, Box(box.position.copy(y = top), box.width, textRenderer.fontHeight), align,
-                shadow, layerType, rightToLeft, color, backgroundColor
+        val texts = string.wrapToLines(textRenderer, box.width.toInt())
+        align(Orientation.Vertical)
+            .align(
+                box,
+                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
             )
-            top += textRenderer.fontHeight + lineSpacing.toFloat()
-        }
+            .forEachIndexed { index, vector ->
+                val text = texts[index]
+                text(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
+            }
     }
 
     /**
@@ -248,14 +251,16 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        var top: Float = box.top
-        for (text in lines.wrapToLines(textRenderer, box.width.toInt())) {
-            alignmentText(
-                text, Box(box.position.copy(y = top), box.width, textRenderer.fontHeight), align,
-                shadow, layerType, rightToLeft, color, backgroundColor
+        val texts = lines.wrapToLines(textRenderer, box.width.toInt())
+        align(Orientation.Vertical)
+            .align(
+                box,
+                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
             )
-            top += textRenderer.fontHeight + lineSpacing.toFloat()
-        }
+            .forEachIndexed { index, vector ->
+                val text = texts[index]
+                text(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
+            }
     }
 
     /**
@@ -279,18 +284,19 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        defaultColor: ARGBColor = Color( 0x000000),
+        defaultColor: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        var top: Float = box.top
-        for (t in text.wrapToTextLines(textRenderer, box.width.toInt())) {
-            alignmentText(
-                text,
-                Box(box.position.copy(y = top), box.width, textRenderer.fontHeight), align,
-                shadow, layerType, rightToLeft, text.style.color?.rgb?.let { Color(it) } ?: defaultColor, backgroundColor
+        val texts = text.wrapToTextLines(textRenderer, box.width.toInt())
+        align(Orientation.Vertical)
+            .align(
+                box,
+                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
             )
-            top += textRenderer.fontHeight + lineSpacing.toFloat()
-        }
+            .forEachIndexed { index, vector ->
+                val t = texts[index]
+                text(t, vector.x(), vector.y(), shadow, layerType, rightToLeft, t.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
+            }
     }
 
     /**
@@ -317,13 +323,16 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         defaultColor: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        var top: Float = box.top
-        for (text in lines.wrapToTextLines(textRenderer, box.width.toInt())) {
-            alignmentText(
-                text, Box(box.position.copy(y = top), box.width, textRenderer.fontHeight), align,
-                shadow, layerType, rightToLeft, text.style.color?.rgb?.let { Color(it) } ?: defaultColor, backgroundColor
+        val texts = lines.wrapToTextLines(textRenderer, box.width.toInt())
+        align(Orientation.Vertical)
+            .align(
+                box,
+                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
             )
-            top += textRenderer.fontHeight + lineSpacing.toFloat()
-        }
+            .forEachIndexed { index, vector ->
+                val text = texts[index]
+                text(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, text.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
+            }
     }
+
 }

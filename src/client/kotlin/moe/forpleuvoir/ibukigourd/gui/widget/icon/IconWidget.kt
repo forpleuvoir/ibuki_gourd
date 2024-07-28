@@ -20,11 +20,6 @@ class IconWidget(
 
     private val aspectRatio: Float = iconTexture.width.toFloat() / iconTexture.height.toFloat()
 
-//    override var constraints: Constraints = Constraints(
-//        0f, iconTexture.width.toFloat(),
-//        0f, iconTexture.height.toFloat()
-//    )
-
     override fun measure(constraints: Constraints): Placeable {
         val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraint(constraints)
         val constraintsAspectRatio = maxWidth / maxHeight

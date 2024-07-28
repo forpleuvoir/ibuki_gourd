@@ -1,54 +1,32 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
-import moe.forpleuvoir.ibukigourd.gui.base.event.MouseReleaseEvent
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.util.soundManager
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.sound.SoundManager
-import net.minecraft.sound.SoundEvents
 
-abstract class IGClickableWidget : WidgetContainerImpl() {
+interface IGClickableWidget : IGWidget {
 
-    open fun onClick(mouseX: Double, mouseY: Double) {}
+    fun onClick(mouseX: Float, mouseY: Float) {}
 
-    open fun onRelease(mouseX: Double, mouseY: Double) {}
+    fun onRelease(mouseX: Float, mouseY: Float) {}
 
 
-    var clickSound: PositionedSoundInstance? = PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f)
+    val clickSound: PositionedSoundInstance?
 
-    var releaseSound: PositionedSoundInstance? = null
+    val releaseSound: PositionedSoundInstance?
 
-    protected fun playClickSound(soundManager: SoundManager) {
+    fun playClickSound(soundManager: SoundManager) {
         clickSound?.let { soundManager.play(it) }
     }
 
-    protected fun playReleaseSound(soundManager: SoundManager) {
+    fun playReleaseSound(soundManager: SoundManager) {
         releaseSound?.let { soundManager.play(it) }
     }
 
-    protected open fun isValidClickButton(button: Mouse): Boolean = button == Mouse.LEFT
+    fun isValidClickButton(button: Mouse): Boolean = button == Mouse.LEFT
 
-    protected open fun clicked(mouseX: Double, mouseY: Double): Boolean {
+    fun clicked(mouseX: Float, mouseY: Float): Boolean {
         return transform.isMouseOvered(mouseX, mouseY)
-    }
-
-    override fun onMousePress(event: MousePressEvent) {
-        if (!visible) return
-        super.onMousePress(event)
-        if (isValidClickButton(event.button) && this.clicked(event.x, event.y)) {
-            event.tryUse().onSuccess {
-                this.playClickSound(soundManager)
-                this.onClick(event.x, event.y)
-            }
-        }
-    }
-
-    override fun onMouseRelease(event: MouseReleaseEvent) {
-        if (this.isValidClickButton(event.button)) {
-            this.onRelease(event.x, event.y)
-            this.playReleaseSound(soundManager)
-        }
     }
 
 }

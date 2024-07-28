@@ -1,41 +1,16 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.event.KeyPressEvent
-import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.util.soundManager
+interface IGPressableWidget : IGClickableWidget {
 
-abstract class IGPressableWidget : IGClickableWidget() {
+    val pressed: Boolean
 
-    open var pressed: Boolean = false
-        protected set
+    fun onPress() {}
 
-    abstract fun onPress()
+    fun onRelease() {}
 
-    open fun onRelease() {}
+    val pressedOrDisabled: Boolean get() = this.active || pressed
 
-    override fun onClick(mouseX: Double, mouseY: Double) {
-        pressed = true
-        this.onPress()
-    }
-
-    override fun onRelease(mouseX: Double, mouseY: Double) {
-        pressed = false
-        onRelease()
-    }
-
-    override fun onKeyPress(event: KeyPressEvent) {
-        if (!this.visible) return
-        event.tryUse { Keyboard.isToggle(event.keyCode) && isFocused }
-            .onSuccess {
-                this.playClickSound(soundManager)
-                this.onPress()
-            }
-    }
-
-
-    protected val pressedOrDisabled: Boolean get() = this.active || pressed
-
-    protected fun <T> status(disabled: T, idle: T, hovered: T, pressed: T): T {
+    fun <T> status(disabled: T, idle: T, hovered: T, pressed: T): T {
         return if (active) {
             if (this.pressed) pressed
             else if (this.wasMouseOver || this.isFocused) hovered
@@ -43,7 +18,7 @@ abstract class IGPressableWidget : IGClickableWidget() {
         } else disabled
     }
 
-    protected inline fun <R> status(disabled: () -> R, idle: () -> R, hovered: () -> R, pressed: () -> R): R {
+    fun <R> status(disabled: () -> R, idle: () -> R, hovered: () -> R, pressed: () -> R): R {
         return if (active) {
             if (this.pressed) pressed()
             else if (this.wasMouseOver || this.isFocused) hovered()

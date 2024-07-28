@@ -23,7 +23,7 @@ object GuiConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD
 
     object Screen : ModConfigContainer("screen") {
 
-        val BG_BLUR_RADIUS by float("bg_blur_radius", 10f)
+        var BG_BLUR_RADIUS by float("bg_blur_radius", 10f)
 
     }
 

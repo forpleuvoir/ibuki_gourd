@@ -3,6 +3,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
 import net.minecraft.text.MutableText
+import java.util.*
 
 typealias McText = net.minecraft.text.Text
 
@@ -30,7 +31,7 @@ fun Translatable(key: String, fallback: String? = null, vararg args: Any): Text 
  */
 fun MutableText.flat(): List<McText> {
     return buildList {
-        add(Text.literal(this@flat.string).styled { this@flat.style })
+        add(MutableText.of(this@flat.content).setStyle(this@flat.style))
         this@flat.siblings.forEach { text ->
             if (text is MutableText) {
                 addAll(text.flat())

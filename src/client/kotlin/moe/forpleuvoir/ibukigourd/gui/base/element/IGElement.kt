@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
+import moe.forpleuvoir.ibukigourd.gui.base.ModifiableUserInteractionHandler
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
@@ -24,26 +25,26 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
     //------------ Vanilla Element ------------\\
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
-        if (active) mouseMove(MouseMoveEvent(mouseX, mouseY).layer(layer))
+        if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()).layer(layer))
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (active) mousePress(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(layer))
+        if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(layer))
         return false
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (active) mouseRelease(MouseReleaseEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(layer))
+        if (active) mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(layer))
         return false
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-        if (active) mouseDragging(MouseDragEvent(mouseX, mouseY, Mouse.fromCode(button), deltaX, deltaY).layer(layer))
+        if (active) mouseDragging(MouseDragEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button), deltaX.toFloat(), deltaY.toFloat()).layer(layer))
         return false
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
-        if (active) mouseScrolling(MouseScrollEvent(mouseX, mouseY, horizontalAmount, verticalAmount).layer(layer))
+        if (active) mouseScrolling(MouseScrollEvent(mouseX.toFloat(), mouseY.toFloat(), verticalAmount.toFloat(), horizontalAmount.toFloat()).layer(layer))
         return false
     }
 

@@ -80,6 +80,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override var focusedWidget: IGWidget? = null
 
+    private val datas: MutableMap<String, Any> = mutableMapOf()
+
+    override fun pushData(key: String, data: Any) {
+        datas[key] = data
+    }
+
+    override fun getData(key: String): Any? = datas[key]
 
     //------------ Tickable ------------\\
 
@@ -88,6 +95,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override var tick: () -> Unit = ::onTick
+
     override fun onTick() {
         super.onTick()
     }
@@ -296,7 +304,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
-        if (active) mouseMove(MouseMoveEvent(mouseX, mouseY).layer(this.layer))
+        if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()).layer(this.layer))
     }
 
     override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
@@ -335,7 +343,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (active) mousePress(MousePressEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(this.layer))
+        if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
         return false
     }
 
@@ -369,7 +377,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (active) mouseRelease(MouseReleaseEvent(mouseX, mouseY, Mouse.fromCode(button)).layer(this.layer))
+        if (active) mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
         return false
     }
 
@@ -387,7 +395,15 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-        if (active && wasDragging) mouseDragging(MouseDragEvent(mouseX, mouseY, Mouse.fromCode(button), deltaX, deltaY).layer(this.layer))
+        if (active && wasDragging) mouseDragging(
+            MouseDragEvent(
+                mouseX.toFloat(),
+                mouseY.toFloat(),
+                Mouse.fromCode(button),
+                deltaX.toFloat(),
+                deltaY.toFloat()
+            ).layer(this.layer)
+        )
         return false
     }
 
@@ -407,7 +423,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
-        if (active) mouseScrolling(MouseScrollEvent(mouseX, mouseY, horizontalAmount, verticalAmount).layer(this.layer))
+        if (active) mouseScrolling(MouseScrollEvent(mouseX.toFloat(), mouseY.toFloat(), verticalAmount.toFloat(), horizontalAmount.toFloat()).layer(this.layer))
         return false
     }
 

@@ -7,8 +7,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.Tick
 import net.minecraft.client.font.TextRenderer
@@ -21,8 +22,8 @@ import kotlin.math.max
 import kotlin.math.sin
 
 open class IGButtonWidget(
-    private val theme: ButtonTheme = ButtonThemes.Button2,
-) : IGPressableWidget(), BoxLayout {
+    private val theme: PressableTheme = PressableTheme.Button2,
+) : IGPressableWidgetContainer(), BoxLayout {
 
 
     companion object {
@@ -159,9 +160,10 @@ value class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButto
 }
 
 fun GuiScope<out WidgetContainer>.button(
+    theme: PressableTheme = PressableTheme.Button2,
     modifier: Modifier? = null,
     content: (IGButtonScope.() -> Unit)? = null
-) = owner().addWidgetChild(IGButtonWidget()) {
+) = owner().addWidgetChild(IGButtonWidget(theme)) {
     padding = Padding(horizontal = 6, vertical = 6)
     content?.let { IGButtonScope(this).it() }
     modifier?.foldIn(Unit) { _, e ->

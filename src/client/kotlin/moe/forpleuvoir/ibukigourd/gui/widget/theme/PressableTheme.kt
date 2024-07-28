@@ -1,0 +1,54 @@
+package moe.forpleuvoir.ibukigourd.gui.widget.theme
+
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_1
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BACKGROUND
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_IDLE
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
+
+interface PressableTheme : WidgetTheme {
+
+    val pressed: WidgetTexture
+
+
+    companion object {
+        private class PressableThemeImpl(
+            override val idle: WidgetTexture,
+            override val hovered: WidgetTexture,
+            override val disabled: WidgetTexture,
+            override val pressed: WidgetTexture
+        ) : PressableTheme
+
+        private fun of(
+            idle: WidgetTexture,
+            hovered: WidgetTexture,
+            disabled: WidgetTexture,
+            pressed: WidgetTexture
+        ): PressableTheme = PressableThemeImpl(idle, hovered, disabled, pressed)
+
+        val Button1 = of(BUTTON_IDLE_1, BUTTON_HOVERED_1, BUTTON_DISABLED_1, BUTTON_PRESSED_1)
+
+        val Button2 = of(BUTTON_IDLE_2, BUTTON_HOVERED_2, BUTTON_DISABLED_2, BUTTON_PRESSED_2)
+
+        val ScrollerBar = of(SCROLLER_BAR_IDLE, SCROLLER_BAR_HOVERED, SCROLLER_BAR_DISABLED, SCROLLER_BAR_PRESSED)
+
+        val ScrollerBackground = of(SCROLLER_BACKGROUND, SCROLLER_BACKGROUND, SCROLLER_BACKGROUND, SCROLLER_BACKGROUND)
+
+
+    }
+
+}
+
+fun IGPressableWidget.theme(theme: PressableTheme): WidgetTexture =
+    status(theme.disabled, theme.idle, theme.pressed, theme.pressed)
+

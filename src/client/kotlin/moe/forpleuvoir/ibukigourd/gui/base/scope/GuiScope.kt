@@ -6,7 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 fun interface GuiScope<T : Any> {
     fun owner(): T
 
-
     companion object {
 
         @JvmName("createScope")

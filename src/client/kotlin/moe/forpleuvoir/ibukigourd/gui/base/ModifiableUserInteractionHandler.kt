@@ -1,6 +1,5 @@
-package moe.forpleuvoir.ibukigourd.gui.base.element
+package moe.forpleuvoir.ibukigourd.gui.base
 
-import moe.forpleuvoir.ibukigourd.gui.base.UserInteractionHandler
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 
 /**

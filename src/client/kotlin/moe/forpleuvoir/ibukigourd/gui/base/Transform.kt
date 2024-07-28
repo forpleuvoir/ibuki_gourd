@@ -3,7 +3,6 @@
 
 package moe.forpleuvoir.ibukigourd.gui.base
 
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.render.MutableSizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
