@@ -10,68 +10,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.Tick
-import net.minecraft.client.font.TextRenderer
-import net.minecraft.client.gui.DrawContext
-import net.minecraft.text.Text
-import net.minecraft.util.Util
-import net.minecraft.util.math.MathHelper
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.sin
 
 open class IGButtonWidget(
     private val theme: PressableTheme = PressableTheme.Button2,
 ) : IGPressableWidgetContainer(), BoxLayout {
-
-
-    companion object {
-        protected fun drawScrollableText(
-            context: DrawContext,
-            textRenderer: TextRenderer,
-            text: Text,
-            startX: Int,
-            startY: Int,
-            endX: Int,
-            endY: Int,
-            color: Int,
-            shadow: Boolean = false
-        ) {
-            drawScrollableText(context, textRenderer, text, (startX + endX) / 2, startX, startY, endX, endY, color, shadow)
-        }
-
-        protected fun drawScrollableText(
-            context: DrawContext,
-            textRenderer: TextRenderer,
-            text: Text,
-            centerX: Int,
-            startX: Int,
-            startY: Int,
-            endX: Int,
-            endY: Int,
-            color: Int,
-            shadow: Boolean = false
-        ) {
-            val textWidth = textRenderer.getWidth(text)
-            val y = (startY + endY - 9) / 2 + 1
-            val width = endX - startX
-            if (textWidth > width) {
-                val l = textWidth - width
-                val d = Util.getMeasuringTimeMs().toDouble() / 1000.0
-                val e = max(l.toDouble() * 0.5, 3.0)
-                val f = sin((Math.PI / 2) * cos((Math.PI * 2) * d / e)) / 2.0 + 0.5
-                val g = MathHelper.lerp(f, 0.0, l.toDouble())
-                context.enableScissor(startX, startY, endX, endY)
-                context.drawText(textRenderer, text, startX - g.toInt(), y, color, shadow)
-                context.disableScissor()
-            } else {
-                val l = MathHelper.clamp(centerX, startX + textWidth / 2, endX - textWidth / 2)
-                context.drawText(textRenderer, text, l - textRenderer.getWidth(text) / 2, y, color, shadow)
-            }
-        }
-
-    }
 
     //------------ IGButton ------------\\
 
@@ -128,21 +71,7 @@ open class IGButtonWidget(
         context.batchRenderTextureColored {
             context.drawWidgetTexture(transform.asWorldBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
         }
-//        this.drawMessage(context, context.client.textRenderer, pressedOrDisabled.pick(Colors.BLACK, Colors.BLACK_BEAN).argb)
     }
-
-    protected open fun drawMessage(context: DrawContext, textRenderer: TextRenderer, color: Int) {
-        this.drawScrollableText(context, textRenderer, color)
-    }
-
-    protected open fun drawScrollableText(context: DrawContext, textRenderer: TextRenderer, color: Int) {
-        val content = contentBox(true)
-        val left: Int = content.left.toInt()
-        val right: Int = content.right.toInt()
-        drawScrollableText(context, textRenderer, Literal("测试中"), left, this.transform.worldY.toInt(), right, this.transform.bottom.toInt(), color)
-    }
-
-    //------------ Measurable ------------\\
 
 }
 

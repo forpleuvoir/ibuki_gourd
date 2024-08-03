@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
@@ -24,7 +23,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
-import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.DrawContext
 
 class ListWidget(
@@ -157,11 +155,6 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                             this as ListWidget
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-                        }.renderBackground { context, mouseX, mouseY, delta ->
-                            val widget = this as IGWidget
-                            context.batchRenderBox {
-                                context.boxOutline(widget.transform.asWorldBox, Colors.BLUEBERRY_BLUE)
-                            }
                         }
                 )
                 val scroller = scroller(
@@ -192,11 +185,6 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                             this as ListWidget
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-                        }.renderBackground { context, mouseX, mouseY, delta ->
-                            val widget = this as IGWidget
-                            context.batchRenderBox {
-                                context.boxOutline(widget.transform.asWorldBox, Colors.BLUEBERRY_BLUE)
-                            }
                         }
                 )
                 val scroller = scroller(

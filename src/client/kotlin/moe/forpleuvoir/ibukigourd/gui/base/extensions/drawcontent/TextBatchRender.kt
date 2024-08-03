@@ -50,7 +50,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = text.style.argbColor ?: Color(0xFF000000),
+        color: ARGBColor = text.style.argbColor ?: Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         textRenderer.draw(

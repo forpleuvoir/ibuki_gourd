@@ -10,22 +10,22 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.getScreenDataOr
 import moe.forpleuvoir.ibukigourd.gui.base.screen.pushScreenData
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.box
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.listWithScroller
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.row
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
+import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -71,7 +71,8 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                 Orientation.Horizontal,
                 2f,
                 amountConsumer = { mc.pushScreenData("list", it) },
-                initialAmount = mc.getScreenDataOr("list", 0f)
+                initialAmount = mc.getScreenDataOr("list", 0f),
+                modifier = Modifier
             ) {
                 repeat(50) {
                     if (it == 29) {
@@ -98,17 +99,18 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                 modifier = Modifier.maxWidth(180f)
             )
             box(Modifier.height(5f))
-
         }
     }
 
-    fun GuiScope<out WidgetContainer>.testColumn() =
-        column(modifier = Modifier.renderOverlay { context, mouseX, mouseY, delta ->
-            this as IGWidget
-            context.batchRenderBox {
-                context.boxOutline(transform.asWorldBox, Colors.AQUA)
-            }
-        }) {
+    fun RowScope.testColumn() =
+        column(
+            modifier = Modifier.renderOverlay { context, mouseX, mouseY, delta ->
+                this as IGWidget
+                context.batchRenderBox {
+                    context.boxOutline(transform.asWorldBox, Colors.AQUA)
+                }
+            }.weight(8)
+        ) {
             listWithScroller(
                 Orientation.Vertical,
                 2f,
@@ -119,6 +121,19 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                     if (it == 29) {
                         button(modifier = Modifier.width(50f)) {
                             icon(IconTextures.CLOSE)
+                        }
+                    } else if (it % 5 == 0) {
+                        button {
+                            var text = ""
+                            press {
+                                text += "\n"
+                                text += "测试宽度测试宽度测试宽度测试宽度"
+                            }
+                            text({ Literal("测试文本$it:$text") }) {
+                                setting {
+                                    if (it == 15) spacing = 8f
+                                }
+                            }
                         }
                     } else {
                         button {

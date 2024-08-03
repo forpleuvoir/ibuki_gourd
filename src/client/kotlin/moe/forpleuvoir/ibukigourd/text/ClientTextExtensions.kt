@@ -5,6 +5,11 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
 
+
+fun Collection<McText>.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float): Float {
+    return this.size * (textRenderer.fontHeight + spacing) - spacing
+}
+
 /**
  * 获取当前[String]集合中的最大宽度
  * @receiver [Collection]<[String]>
@@ -167,6 +172,7 @@ fun MutableText.wrapToTextLines(
     // 声明用于构建每一行字符串的 StringBuilder
     val currentLineString = StringBuilder()
     // 迭代处理每一段文本
+    var newline = false
     flatList.forEach { text ->
         // 声明一个临时的StringBuilder用于存储临时字符
         val temp = StringBuilder()
@@ -180,6 +186,7 @@ fun MutableText.wrapToTextLines(
                 }
                 // 否则，将临时字符串添加到文本列表中，然后清空临时字符串及当前行字符串
                 texts.add(Literal(temp).setStyle(text.style))
+                newline = true
                 temp.clear()
                 currentLineString.clear()
             }
@@ -189,10 +196,11 @@ fun MutableText.wrapToTextLines(
                 currentLineString.append(chr)
             }
         }
-        if (texts.isNotEmpty()) {
+        if (texts.isNotEmpty() && !newline) {
             texts.last().append(Literal(temp).setStyle(text.style))
         } else {
             texts.add(Literal(temp).setStyle(text.style))
+            newline = false
         }
     }
     // 最后返回处理后的文本列表

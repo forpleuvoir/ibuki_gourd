@@ -141,7 +141,7 @@ interface Box : SizeFloat, Cloneable {
         operator fun invoke(startX: Float, startY: Float, endX: Float, endY: Float): Box =
             BoxImpl(startX, startY, endX - startX, endY - startY)
 
-        operator fun invoke(x: Number, y: Number, size: Size<Number>): Box = BoxImpl(x, y, size)
+        operator fun invoke(x: Number, y: Number, size: Size<out Number>): Box = BoxImpl(x, y, size)
 
         operator fun invoke(position: Vector2fc, size: Size<Float>): Box = BoxImpl(position, size)
 

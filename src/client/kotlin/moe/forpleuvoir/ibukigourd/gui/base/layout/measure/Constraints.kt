@@ -25,6 +25,9 @@ data class Constraints constructor(
 
     }
 
+    val widthRange get() = minWidth..maxWidth
+
+    val heightRange get() = minHeight..maxHeight
 
     fun constraint(constraints: Constraints): Constraints {
         val minWidth = max(this.minWidth, constraints.minWidth).coerceIn(constraints.minWidth, constraints.maxWidth)

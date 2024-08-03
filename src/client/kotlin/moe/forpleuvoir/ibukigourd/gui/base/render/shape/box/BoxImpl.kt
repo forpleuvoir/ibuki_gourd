@@ -13,7 +13,7 @@ class BoxImpl(
 
     constructor(x: Number, y: Number, width: Number, height: Number) : this(Vector2f(x, y), width.toFloat(), height.toFloat())
 
-    constructor(x: Number, y: Number, size: Size<Number>) : this(Vector2f(x, y), size.width.toFloat(), size.height.toFloat())
+    constructor(x: Number, y: Number, size: Size<out Number>) : this(Vector2f(x, y), size.width.toFloat(), size.height.toFloat())
 
     constructor(position: Vector2fc, size: Size<Float>) : this(position, size.width, size.height)
 
