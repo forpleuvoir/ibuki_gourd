@@ -73,28 +73,33 @@ open class IGButtonWidget(
         }
     }
 
+    companion object {
+
+        @JvmInline
+        value class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, BoxLayoutScope {
+
+            override fun owner(): IGButtonWidget = button
+
+            fun press(action: (IGButtonWidget) -> Unit) = button.press(action)
+
+            fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = button.longPress(time, action)
+
+            fun release(action: (IGButtonWidget) -> Unit) = button.release(action)
+
+        }
+
+    }
+
 }
 
-@JvmInline
-value class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, BoxLayoutScope {
-
-    override fun owner(): IGButtonWidget = button
-
-    fun press(action: (IGButtonWidget) -> Unit) = button.press(action)
-
-    fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = button.longPress(time, action)
-
-    fun release(action: (IGButtonWidget) -> Unit) = button.release(action)
-
-}
 
 fun GuiScope<out WidgetContainer>.button(
     theme: PressableTheme = PressableTheme.Button2,
     modifier: Modifier? = null,
-    content: (IGButtonScope.() -> Unit)? = null
+    content: (IGButtonWidget.Companion.IGButtonScope.() -> Unit)? = null
 ) = owner().addWidgetChild(IGButtonWidget(theme)) {
     padding = Padding(horizontal = 6, vertical = 6)
-    content?.let { IGButtonScope(this).it() }
+    content?.let { IGButtonWidget.Companion.IGButtonScope(this).it() }
     modifier?.foldIn(Unit) { _, e ->
         e.tryApplyModify(this)
     }

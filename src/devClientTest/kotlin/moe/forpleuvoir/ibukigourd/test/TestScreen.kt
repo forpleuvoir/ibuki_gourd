@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
@@ -20,10 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.box
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.listWithScroller
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
@@ -52,21 +48,37 @@ class TestScreen : IGScreenImpl(), BoxLayout {
 
         }
         renderOverlay = { context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float ->
+            val contentBox = contentBox(true)
             onRenderOverlay(context, mouseX, mouseY, delta)
+            context.batchRenderBox {
+                context.boxOutline(contentBox, Colors.ROSE)
+            }
             context.batchRenderText {
                 val texts = listOf(
                     Literal("Screen renderTime:$renderTime").style { color(Colors.AQUA) },
                     Literal("Screen FPS:$fps").style { color(0x00FF00) }
                 )
-                context.textLines(texts, contentBox(true), align = BoxAlignment::TopLeft)
+                context.textLines(texts, contentBox, align = BoxAlignment::TopLeft)
                 val mouse = listOf(
                     Literal("MouseX:$mouseX").style { color(Colors.RED) },
                     Literal("MouseY:$mouseY").style { color(0x00FF00) },
                 )
-                context.textLines(mouse, contentBox(true), defaultColor = Colors.ALIEN_GREEN.opacity(.3f), align = BoxAlignment::BottomLeft)
+                context.textLines(
+                    mouse,
+                    contentBox.copy(height = contentBox.height + 2f),
+                    defaultColor = Colors.ALIEN_GREEN.opacity(.3f),
+                    align = BoxAlignment::BottomLeft,
+                    backgroundColor = Colors.BLACK.opacity(.3f)
+                )
             }
         }
-        row(modifier = Modifier.padding(20f)) {
+        row(modifier = Modifier.padding(20f).renderOverlay { context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float ->
+            val row = this as RowWidget
+            context.batchRenderBox {
+                context.boxOutline(contentBox(true), Colors.ROSE)
+            }
+        }) {
+            spacing(5f)
             listWithScroller(
                 Orientation.Horizontal,
                 2f,
@@ -86,9 +98,7 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                     }
                 }
             }
-            box(Modifier.height(5f))
             testColumn()
-            box(Modifier.height(5f))
             val s1 = scroller(
                 { 1f },
                 { 10f },
@@ -98,7 +108,6 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                 orientation = Orientation.Horizontal,
                 modifier = Modifier.maxWidth(180f)
             )
-            box(Modifier.height(5f))
         }
     }
 
@@ -111,19 +120,30 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                 }
             }.weight(8)
         ) {
+            spacing(5f)
             listWithScroller(
                 Orientation.Vertical,
                 2f,
                 amountConsumer = { mc.pushScreenData("list1", it) },
-                initialAmount = mc.getScreenDataOr("list1", 0f)
+                initialAmount = mc.getScreenDataOr("list1", 0f),
+                listModifier = { Modifier.width(120f) }
             ) {
+                var c = 0
+                var f = true
                 repeat(50) {
+                    val m = when (c) {
+                        0    -> Modifier.gravityStart()
+                        1    -> Modifier.gravityCenter()
+                        2    -> Modifier.gravityEnd()
+                        else -> Modifier.gravityCenter()
+                    }
+
                     if (it == 29) {
-                        button(modifier = Modifier.width(50f)) {
+                        button(modifier = m.width(50f)) {
                             icon(IconTextures.CLOSE)
                         }
                     } else if (it % 5 == 0) {
-                        button {
+                        button(modifier = m) {
                             var text = ""
                             press {
                                 text += "\n"
@@ -136,10 +156,17 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                             }
                         }
                     } else {
-                        button {
+                        button(modifier = m) {
                             icon(IconTextures.CLOSE)
                         }
                     }
+                    if (c == 2) {
+                        f = false
+                    } else if (c == 0) {
+                        f = true
+                    }
+                    if (f) c++
+                    else c--
                 }
             }
             val icons = listOf(
@@ -166,7 +193,6 @@ class TestScreen : IGScreenImpl(), BoxLayout {
             }
             box(
                 Modifier.size(80f, 80f)
-                    .margin(horizontal = 10f)
                     .renderOverlay { context, mouseX, mouseY, delta ->
                         this as IGWidget
                         context.batchRenderBox {
@@ -178,7 +204,7 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                 icon(IconTextures.SEARCH, modifier = Modifier.alignment(BoxAlignment.TopRight()))
                 icon(IconTextures.MINUS, modifier = Modifier.alignment(BoxAlignment.BottomLeft()))
                 icon(IconTextures.LOCK, modifier = Modifier.alignment(BoxAlignment.BottomRight()))
-                icon(IconTextures.FILTER, modifier = Modifier.alignment(BoxAlignment.Center()))
+                icon(IconTextures.FILTER, modifier = Modifier.alignment(BoxAlignment.CenterCenter()))
             }
             scroller({ 5f }, { 500f }, { 0.1f }, modifier = Modifier.maxHeight(180f))
             button(
@@ -207,11 +233,12 @@ class TestScreen : IGScreenImpl(), BoxLayout {
                         context.boxOutline(transform.asWorldBox, Colors.AQUA)
                     }
                 }) {
+                    spacing(8f)
                     icon(IconTextures.CLOSE, modifier = Modifier.gravityStart().maxWidth(16f))
-                    icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f).margin(Margin(left = 8f)))
-                    icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f).margin(Margin(left = 8f)))
-                    icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f).margin(Margin(left = 8f)))
-                    icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f).margin(Margin(left = 8f)))
+                    icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f))
+                    icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f))
+                    icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f))
+                    icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f))
                 }
             }
 

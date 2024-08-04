@@ -61,6 +61,9 @@ interface Box : SizeFloat, Cloneable {
 
     val asScreenRect: ScreenRect get() = ScreenRect(this.x.toInt(), this.y.toInt(), this.width.toInt(), this.height.toInt())
 
+    fun copy(x: Float = this.x, y: Float = this.y, width: Float = this.width, height: Float = this.height): Box =
+        BoxImpl(x, y, width, height)
+
     fun inBox(target: Box, completeInside: Boolean): Boolean {
         if (!this.exist || !target.exist) return false
         return if (completeInside) {

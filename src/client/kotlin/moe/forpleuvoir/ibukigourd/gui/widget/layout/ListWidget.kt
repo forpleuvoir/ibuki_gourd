@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
+import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
@@ -10,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
@@ -17,7 +19,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.gui.widget.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.ScrollerWidget
+import moe.forpleuvoir.ibukigourd.gui.widget.box
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
@@ -80,10 +84,21 @@ class ListWidget(
 
     private fun renderChildren(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {
+            if ((drawableChild.transform.asWorldBox intersectWith transform.asWorldBox).exist) {
+                drawableChild.active = true
+                drawableChild.visible = true
+            } else {
+                drawableChild.active = false
+                drawableChild.visible = false
+            }
             context.tryRender(drawableChild) {
                 if (drawableChild.visible) drawableChild.vanillaRender(this, mouseX, mouseY, delta)
             }
         }
+    }
+
+    override fun onMousePress(event: MousePressEvent) {
+        if (wasMouseOver) super.onMousePress(event)
     }
 
 }
@@ -129,6 +144,8 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
     amountConsumer: (Float) -> Unit = {},
     initialAmount: Float = 0f,
     modifier: Modifier? = null,
+    listModifier: (BoxScope.() -> Modifier)? = null,
+    scrollerModifier: (BoxScope.() -> Modifier)? = null,
     content: ListWidgetScope.() -> Unit
 ) {
     var scrollerSupplier: () -> ScrollerWidget? = { null }
@@ -143,7 +160,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
         .padding(3)
     orientation.peek(
         {
-            column(
+            box(
                 modifier = m thenNullable modifier
             ) {
                 val list = list(
@@ -156,6 +173,8 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
                         }
+                        .alignment(BoxAlignment.CenterLeft())
+                            thenNullable listModifier?.invoke(this)
                 )
                 val scroller = scroller(
                     amountStep = { list.widgetChildren().minOf { it.transform.height } / 2f },
@@ -167,13 +186,17 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     },
                     initialAmount = initialAmount,
                     orientation = orientation,
-                    modifier = Modifier.width(barThickness).margin(left = 1f),
+                    modifier = Modifier
+                        .width(barThickness)
+                        .margin(left = 1f)
+                        .alignment(BoxAlignment.CenterRight())
+                            thenNullable scrollerModifier?.invoke(this)
                 )
                 scrollerSupplier = { scroller }
             }
         },
         {
-            row(
+            box(
                 modifier = m thenNullable modifier
             ) {
                 val list = list(
@@ -186,6 +209,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
                         }
+                        .alignment(BoxAlignment.TopCenter()) thenNullable listModifier?.invoke(this)
                 )
                 val scroller = scroller(
                     amountStep = { list.widgetChildren().minOf { it.transform.width } / 2f },
@@ -197,7 +221,11 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     },
                     initialAmount = initialAmount,
                     orientation = orientation,
-                    modifier = Modifier.height(barThickness).margin(top = 1f),
+                    modifier = Modifier
+                        .height(barThickness)
+                        .margin(top = 1f)
+                        .alignment(BoxAlignment.BottomCenter())
+                            thenNullable scrollerModifier?.invoke(this)
                 )
                 scrollerSupplier = { scroller }
             }

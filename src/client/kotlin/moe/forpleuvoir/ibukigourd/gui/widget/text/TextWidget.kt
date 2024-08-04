@@ -36,7 +36,7 @@ class TextWidget(
         layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
         rightToLeft: Boolean = false,
         backgroundColor: ARGBColor = Color(0),
-        alignment: (Orientation) -> Alignment = BoxAlignment::Center,
+        alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
         textRenderer: TextRenderer = mc.textRenderer,
     ) : this(text, TextSetting(spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer))
 
@@ -48,7 +48,7 @@ class TextWidget(
         var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
         var rightToLeft: Boolean = false,
         var backgroundColor: ARGBColor = Color(0),
-        var alignment: (Orientation) -> Alignment = BoxAlignment::Center,
+        var alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
         var textRenderer: TextRenderer = mc.textRenderer,
     )
 
@@ -169,7 +169,7 @@ class TextWidget(
         //滚动状态 true = forward, false = back
         val state = (tickCounter / ticks).toInt() and 1 == 0
         val yOffset = yScrollEasing(((tickCounter % ticks) / ticks).coerceIn(0f..1f)) * height
-        val top = transform.worldTop + (index * textRenderer.fontHeight) + (index * setting.spacing)
+        val top = transform.worldTop + (index * (textRenderer.fontHeight + setting.spacing))
         return top - if (state) height - yOffset else yOffset
     }
 
@@ -291,7 +291,7 @@ fun GuiScope<out WidgetContainer>.text(
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = false,
     backgroundColor: ARGBColor = Color(0),
-    alignment: (Orientation) -> Alignment = BoxAlignment::Center,
+    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
     modifier: Modifier? = null,
     scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
@@ -311,7 +311,7 @@ fun GuiScope<out WidgetContainer>.text(
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = false,
     backgroundColor: ARGBColor = Color(0),
-    alignment: (Orientation) -> Alignment = BoxAlignment::Center,
+    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
     modifier: Modifier? = null,
     scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
@@ -331,7 +331,7 @@ fun GuiScope<out WidgetContainer>.text(
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = false,
     backgroundColor: ARGBColor = Color(0),
-    alignment: (Orientation) -> Alignment = BoxAlignment::Center,
+    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
     modifier: Modifier? = null,
     scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}

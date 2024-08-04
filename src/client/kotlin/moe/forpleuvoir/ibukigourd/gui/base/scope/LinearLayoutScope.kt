@@ -2,12 +2,19 @@ package moe.forpleuvoir.ibukigourd.gui.base.scope
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Gravity
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.WrappedLinearLayoutData
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
 
 @GuiDslMark
 interface LinearLayoutScope {
+
+    val layout: LinearLayout
+
+    fun spacing(spacing: Float) {
+        layout.spacing = spacing
+    }
 
     fun Modifier.weight(weight: Int) = this then WidgetModifier {
         when (val parentData = it.parentData) {

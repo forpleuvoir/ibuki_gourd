@@ -7,16 +7,33 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import org.joml.Vector2fc
 
-sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) : Alignment {
+sealed interface BoxAlignment : Alignment {
 
-    class TopLeft(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    val orientation: Orientation
+
+    interface Horizontal : BoxAlignment
+
+    interface Vertical : BoxAlignment
+
+    interface Center : BoxAlignment
+
+    interface Left : Horizontal
+
+    interface Right : Horizontal
+
+    interface Top : Vertical
+
+    interface Bottom : Vertical
+
+
+    class TopLeft(override val orientation: Orientation = Orientation.Vertical) : Top, Left {
 
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             return orientation.mapPositions(parent.position, sizes)
         }
     }
 
-    class TopCenter(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class TopCenter(override val orientation: Orientation = Orientation.Vertical) : Top, Center {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             return orientation.peek(
                 orientation.mapPositions(parent.position, sizes) { pos, rect -> pos.copy(x = parent.center.x() - rect.halfWidth) },
@@ -25,7 +42,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class TopRight(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class TopRight(override val orientation: Orientation = Orientation.Vertical) : Top, Right {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             return orientation.peek(
                 orientation.mapPositions(parent.position, sizes) { pos, rect -> pos.copy(x = parent.right - rect.width) },
@@ -34,7 +51,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class CenterLeft(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class CenterLeft(override val orientation: Orientation = Orientation.Vertical) : Center, Left {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             val size = orientation.contentSize(sizes)
             val y = parent.center.y() - size.halfHeight
@@ -47,7 +64,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class Center(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class CenterCenter(override val orientation: Orientation = Orientation.Vertical) : Center {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             val size = orientation.contentSize(sizes)
             val y = parent.center.y() - size.halfHeight
@@ -60,7 +77,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class CenterRight(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class CenterRight(override val orientation: Orientation = Orientation.Vertical) : Center, Right {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             val size = orientation.contentSize(sizes)
             val y = parent.center.y() - size.halfHeight
@@ -73,7 +90,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class BottomLeft(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class BottomLeft(override val orientation: Orientation = Orientation.Vertical) : Bottom, Left {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             val size = orientation.contentSize(sizes)
             val y = parent.bottom - size.height
@@ -86,7 +103,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class BottomCenter(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class BottomCenter(override val orientation: Orientation = Orientation.Vertical) : Bottom, Center {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             val size = orientation.contentSize(sizes)
             val y = parent.bottom - size.height
@@ -99,7 +116,7 @@ sealed class BoxAlignment(val orientation: Orientation = Orientation.Vertical) :
         }
     }
 
-    class BottomRight(orientation: Orientation = Orientation.Vertical) : BoxAlignment(orientation) {
+    class BottomRight(override val orientation: Orientation = Orientation.Vertical) : Bottom, Right {
         override fun align(parent: Box, sizes: List<Size<Float>>): List<Vector2fc> {
             val size = orientation.contentSize(sizes)
             val y = parent.bottom - size.height

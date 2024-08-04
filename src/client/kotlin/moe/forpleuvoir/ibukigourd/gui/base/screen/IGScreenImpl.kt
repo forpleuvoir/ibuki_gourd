@@ -104,7 +104,6 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override var parentData: Any? = null
 
-
     override var constraints: Constraints
         get() = Constraints(
             transform.width, transform.width,

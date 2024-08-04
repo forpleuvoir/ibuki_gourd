@@ -146,15 +146,16 @@ tasks {
     }
 
     register<Copy>("modJar") {
-        dependsOn("remapJar")
-        mustRunAfter("remapJar")
-        val outPath = "./out/$version"
-        val name = "$modName-$version.jar"
-        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion}-fabric.jar"
+        dependsOn(remapJar)
+        mustRunAfter(remapJar)
+        val outPath = "$rootDir/modJar/$version"
+        val name = remapJar.get().archiveFileName.get()
+        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
         from("build/libs")
         into(outPath)
         include(name)
         doLast {
+            delete("$outPath/$newName")
             file("$outPath/$name").renameTo(file("$outPath/$newName"))
         }
     }

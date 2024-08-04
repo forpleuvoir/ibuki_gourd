@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.layout
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
@@ -28,7 +29,7 @@ interface LinearLayout : Layout {
             //所有元素的parentData
             val parentDatas = measurables.map { WrappedLinearLayoutData.getOrDefault(it) }
             //使用的高度
-            var usedHeight = 0f
+            var usedHeight = spacing * measurables.lastIndex
             //总权重
             var totalWidget = 0
 
@@ -135,7 +136,7 @@ interface LinearLayout : Layout {
                     placeables[index] = placeable
                 }
             }
-            usedWidth += widget.padding.width
+            usedWidth += widget.padding.width + spacing * measurables.lastIndex
             maxChildHeight += widget.padding.height
             return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight)) { ->
                 layout(placeables.map { it!! }, parentDatas)
@@ -144,7 +145,9 @@ interface LinearLayout : Layout {
 
         private fun LinearLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
             val contentBox = widget.contentBox(false)
-            alignment(orientation).align(contentBox, placeables.map { it.wrappedSize })
+            alignment(orientation).align(
+                contentBox,
+                placeables.mapIndexed { i, p -> Size(p.wrappedWidth, p.wrappedHeight + if (i != placeables.lastIndex) spacing else 0f) })
                 .forEachIndexed { index, vector2fc ->
                     val placeable = placeables[index]
                     val gravity = parentDatas[index].gravity
@@ -160,7 +163,9 @@ interface LinearLayout : Layout {
 
         private fun LinearLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
             val contentBox = widget.contentBox(false)
-            alignment(orientation).align(contentBox, placeables.map { it.wrappedSize })
+            alignment(orientation).align(
+                contentBox,
+                placeables.mapIndexed { i, p -> Size(p.wrappedWidth + if (i != placeables.lastIndex) spacing else 0f, p.wrappedHeight) })
                 .forEachIndexed { index, vector2fc ->
                     val placeable = placeables[index]
                     val gravity = parentDatas[index].gravity
@@ -185,6 +190,7 @@ interface LinearLayout : Layout {
         }
     }
 
+    var spacing: Float
 
     val orientation: Orientation
 

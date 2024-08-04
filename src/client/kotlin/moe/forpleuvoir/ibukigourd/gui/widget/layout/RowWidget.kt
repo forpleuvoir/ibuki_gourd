@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
@@ -11,16 +12,24 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class RowWidget(
-    override val alignment: (Orientation) -> Alignment = BoxAlignment::Center
-) : WidgetContainerImpl(), RowLayout
+    override val alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter
+) : WidgetContainerImpl(), RowLayout {
+
+    override var spacing: Float = 0f
+
+}
 
 data class RowScope(private val row: RowWidget) : GuiScope<RowWidget>, LinearLayoutScope {
     override fun owner(): RowWidget = row
 
+    override val layout: LinearLayout
+        get() = owner()
+
+
 }
 
 fun GuiScope<out WidgetContainer>.row(
-    alignment: (Orientation) -> Alignment = BoxAlignment::Center,
+    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     modifier: Modifier? = null,
     content: RowScope.() -> Unit
 ) = owner().addWidgetChild(

@@ -14,7 +14,13 @@ interface Placeable {
      * [size] with [margin]
      */
     val wrappedSize: Size<Float>
-        get() = Size(this.size.width + margin.width, this.size.height + margin.height)
+        get() = Size(wrappedWidth, wrappedHeight)
+
+    val wrappedWidth: Float
+        get() = this.size.width + margin.width
+
+    val wrappedHeight: Float
+        get() = this.size.height + margin.height
 
     fun placeAt(x: Float, y: Float, isWorldAxis: Boolean = false)
 
