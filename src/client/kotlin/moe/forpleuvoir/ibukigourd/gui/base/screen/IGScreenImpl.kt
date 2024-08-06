@@ -36,7 +36,7 @@ import net.minecraft.text.OrderedText
 import kotlin.time.Duration
 import kotlin.time.measureTime
 
-abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
+abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
 
     //------------ IGWidget ------------\\
 
@@ -216,11 +216,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun init() {
-        ScreenScope { this }.content()
+        scope.content()
         measure(Constraints())
     }
 
-    abstract fun ScreenScope<out IGScreen>.content()
+    abstract fun S.content()
+
+    abstract val scope: S
 
     //------------ Drawable ------------\\
 

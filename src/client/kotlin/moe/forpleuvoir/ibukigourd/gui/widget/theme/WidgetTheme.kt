@@ -28,6 +28,8 @@ interface WidgetTheme {
 
         val ListLayout = of(WidgetTextures.LIST_BACKGROUND, WidgetTextures.LIST_BACKGROUND, WidgetTextures.LIST_BACKGROUND)
 
+        val TextField = of(WidgetTextures.TEXT_INPUT, WidgetTextures.TEXT_SELECTED_INPUT, WidgetTextures.TEXT_INPUT)
+
     }
 }
 

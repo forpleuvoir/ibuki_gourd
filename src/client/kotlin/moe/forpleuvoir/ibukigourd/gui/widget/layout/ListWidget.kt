@@ -19,9 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
-import moe.forpleuvoir.ibukigourd.gui.widget.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.ScrollerWidget
-import moe.forpleuvoir.ibukigourd.gui.widget.box
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme

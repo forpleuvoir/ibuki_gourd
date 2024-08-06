@@ -43,14 +43,9 @@ fun GuiScope<out WidgetContainer>.icon(
     texture: WidgetTexture,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier? = null
-) =
-    owner().addWidgetChild(IconWidget(texture, color).apply {
-        val m = if (modifier != null) {
-            Modifier.size(texture.toFloat()).then(modifier)
-        } else {
-            Modifier.size(texture.toFloat())
-        }
-        m.foldIn(Unit) { _, e ->
-            e.tryApplyModify(this)
-        }
-    })
+) = owner().addWidgetChild(IconWidget(texture, color)) {
+    val m = Modifier.size(texture.toFloat()) thenNullable modifier
+    m.foldIn(Unit) { _, e ->
+        e.tryApplyModify(this)
+    }
+}

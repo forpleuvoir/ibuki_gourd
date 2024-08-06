@@ -8,9 +8,13 @@ fun interface ElementModifier : Modifier.Element {
     fun applyModify(element: IGElement)
 
     override fun tryApplyModify(target: Any) {
-        if(target is IGElement) applyModify(target)
+        if (target is IGElement) applyModify(target)
     }
 
+}
+
+fun Modifier.tick(action: IGElement.() -> Unit) = this then ElementModifier { element ->
+    element.tick = { element.action() }
 }
 
 fun Modifier.mouseEnter(action: IGElement.(MouseEnterEvent) -> Unit) = this then ElementModifier { element ->

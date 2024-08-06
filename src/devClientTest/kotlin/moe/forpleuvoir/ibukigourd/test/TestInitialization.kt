@@ -11,14 +11,15 @@ import moe.forpleuvoir.nebula.event.Subscriber
 @EventSubscriber
 object TestInitialization {
 
-    var text: String = ""
-
     @Subscriber
     fun init(event: ModInitializerEvent) {
         log.info("MOD测试")
         InputHandler.apply {
             register(Keyboard.KP_1) {
-                openScreen(TestScreen())
+                openScreen(testScreen())
+            }
+            register(Keyboard.KP_2) {
+                openScreen(testScreen2())
             }
         }
     }
