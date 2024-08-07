@@ -36,7 +36,11 @@ interface LinearLayoutScope {
 
     fun Modifier.gravityEnd() = gravity(Gravity.End)
 
-
+    /**
+     * 填充至最大空间 如果为垂直布局则填充宽度,为水平布局则填充高度
+     * @receiver Modifier
+     * @return Modifier
+     */
     fun Modifier.fill() = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is WrappedLinearLayoutData -> it.parentData = parentData.copy(fill = true)

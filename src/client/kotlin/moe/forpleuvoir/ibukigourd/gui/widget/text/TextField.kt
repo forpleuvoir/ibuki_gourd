@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
-import com.mojang.blaze3d.platform.GlStateManager
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
@@ -21,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.render.math.plus
-import moe.forpleuvoir.ibukigourd.render.useColorLogicOp
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
@@ -32,6 +30,7 @@ import moe.forpleuvoir.nebula.common.pick
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.StringHelper
@@ -48,7 +47,7 @@ open class TextField(
     var bgShaderColor: ARGBColor = Colors.WHITE,
     var selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
     var suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
-    var cursorColor: ARGBColor = Colors.BLACK,
+    var cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     private val textRenderer: TextRenderer = mc.textRenderer
 ) : IGWidgetImpl() {
 
@@ -406,15 +405,30 @@ open class TextField(
             }
     }
 
+    private fun setCursorFromMouse(mouseX: Float) {
+        val str = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth.toInt())
+        val xOffset = mouseX - contentLeft(true)
+        val count = textRenderer.trimToWidth(str, xOffset.toInt()).length
+        val countWidth = textRenderer.getWidth(text.substring(firstCharacterIndex, count)).toFloat()
+        val endCharWidth = textRenderer.getWidth(text[(count + firstCharacterIndex + 1).coerceIn(0..text.lastIndex)].toString())
+        val offset = if (xOffset - countWidth > endCharWidth / 2f) 1 else 0
+        cursor = count + firstCharacterIndex + offset
+    }
+
     override fun onMousePress(event: MousePressEvent) {
         super.onMousePress(event)
         event.tryUse {
             wasMouseOver && event.button == Mouse.LEFT
         }.onSuccess {
             soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
-            val str = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth.toInt())
-            cursor = textRenderer.trimToWidth(str, (event.x - this.transform.left + 3).toInt()).length + firstCharacterIndex
+            setCursorFromMouse(event.x)
         }
+    }
+
+    override fun onMouseDragging(event: MouseDragEvent) {
+        selecting = true
+        setCursorFromMouse(event.x)
+        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
@@ -425,19 +439,12 @@ open class TextField(
             }
     }
 
-    override fun onMouseDragging(event: MouseDragEvent) {
-        selecting = true
-        val string = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth.toInt())
-        cursor = textRenderer.trimToWidth(string, (event.x - this.transform.left + 3f).toInt()).length + firstCharacterIndex
-        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
-    }
-
     //------------ Render ------------\\
 
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(transform.asWorldBox, theme(WidgetTheme.TextField), bgShaderColor)
+            context.drawWidgetTexture(transform.asWorldBox, theme(WidgetTheme.TextInput), bgShaderColor)
         }
     }
 
@@ -445,7 +452,8 @@ open class TextField(
         if (focusedTicks % 15 >= 5 && isFocused) {
             val box = contentBox(true)
             val height = textRenderer.fontHeight.toFloat()
-            val y = box.top + (box.height - height) / 2f - 0.75f
+            val thickness = 0.75f
+            val y = box.top + (box.height - height) / 2f
             val offset = textRenderer.getWidth(
                 text.substring(
                     min(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0),
@@ -453,13 +461,13 @@ open class TextField(
                 )
             )
             if (cursor == text.length) {
-                content.renderBox(Box(box.position.copy(box.left + offset, y + height - 1.25f), 5f, 1f), cursorColor)
+                content.renderBox(Box(box.position.copy(box.left + offset, y + height - 1.25f), 5f, thickness), cursorColor)
                 return
             }
             if (cursor - firstCharacterIndex > 0) {
-                content.renderBox(Box(box.position.copy(box.left + offset - 0.85f, y), 1f, height), cursorColor)
+                content.renderBox(Box(box.position.copy(box.left + offset - 0.85f, y), thickness, height), cursorColor)
             } else {
-                content.renderBox(Box(box.position.copy(y = y), 1f, height), cursorColor)
+                content.renderBox(Box(box.position.copy(y = y), thickness, height), cursorColor)
             }
         }
     }
@@ -492,26 +500,24 @@ open class TextField(
 
 
         //"渲染选中的文本高亮"
-        useColorLogicOp(GlStateManager.LogicOp.OR_REVERSE) {
-            if (selectedText.isNotEmpty() && isFocused) {
-                val (startIndex, endIndex) = (selectionStart - firstCharacterIndex).coerceAtLeast(0) to
-                        (selectionEnd - firstCharacterIndex).coerceAtLeast(0)
-                val start = contentBox.left +
-                        if (startIndex > 0)
-                            textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
-                        else 0f
-                val end = contentBox.left +
-                        if (endIndex > 0)
-                            textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
-                        else 0f
-                val width = (start - end).absoluteValue
-                val rect = if (selectionEnd > selectionStart) {
-                    Box(contentBox.position.copy(start), width, contentBox.height)
-                } else {
-                    Box(contentBox.position.copy(end), width, contentBox.height)
-                }
-                content.renderBox(rect, selectedColor)
+        if (selectedText.isNotEmpty() && isFocused) {
+            val (startIndex, endIndex) = (selectionStart - firstCharacterIndex).coerceAtLeast(0) to
+                    (selectionEnd - firstCharacterIndex).coerceAtLeast(0)
+            val start = contentBox.left +
+                    if (startIndex > 0)
+                        textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
+                    else 0f
+            val end = contentBox.left +
+                    if (endIndex > 0)
+                        textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
+                    else 0f
+            val width = (start - end).absoluteValue
+            val rect = if (selectionEnd > selectionStart) {
+                Box(contentBox.position.copy(start), width, contentBox.height)
+            } else {
+                Box(contentBox.position.copy(end), width, contentBox.height)
             }
+            content.renderBox(rect, selectedColor, RenderLayer.getGuiTextHighlight())
         }
     }
 
@@ -519,6 +525,11 @@ open class TextField(
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.scissor(contentBox(true)) {
             renderText(context)
+        }
+    }
+
+    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+        context.scissor(contentBox(true)) {
             renderCursor(context)
         }
     }
@@ -598,12 +609,12 @@ fun GuiScope<out WidgetContainer>.textField(
     bgShaderColor: ARGBColor = Colors.WHITE,
     selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
-    cursorColor: ARGBColor = Colors.BLACK,
+    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     modifier: Modifier? = null,
     scope: Companion.TextFieldScope.() -> Unit = {}
 ) = owner().addWidgetChild(TextField(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
-    val m = Modifier.padding(6) thenNullable modifier
+    val m = Modifier.padding(5) thenNullable modifier
     m.foldIn(Unit) { _, e ->
         e.tryApplyModify(this)
     }

@@ -6,8 +6,21 @@ import net.minecraft.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
 
 
+@JvmName("textTotalHeight")
 fun Collection<McText>.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float): Float {
     return this.size * (textRenderer.fontHeight + spacing) - spacing
+}
+
+fun McText.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float, maxWidth: Int): Float {
+    return this.wrapToTextLines(textRenderer, maxWidth).size * (textRenderer.fontHeight + spacing) - spacing
+}
+
+fun Collection<String>.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float): Float {
+    return this.size * (textRenderer.fontHeight + spacing) - spacing
+}
+
+fun String.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float, maxWidth: Int): Float {
+    return this.wrapToLines(textRenderer, maxWidth).size * (textRenderer.fontHeight + spacing) - spacing
 }
 
 /**

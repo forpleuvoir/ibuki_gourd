@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.nebula.common.pick
 
 interface IGWidget : DrawableElement, Measurable, Placeable {
 
@@ -29,13 +30,21 @@ interface IGWidget : DrawableElement, Measurable, Placeable {
 
     val contentHeight: Float get() = transform.height - padding.height
 
-    fun contentBox(isWorldAxis: Boolean): Box {
-        val x = if (isWorldAxis) transform.worldX + padding.left else transform.x + padding.left
-        val y = if (isWorldAxis) transform.worldY + padding.top else transform.y + padding.top
-        val width = transform.width - padding.width
-        val height = transform.height - padding.height
-        return Box(x = x, y = y, width = width, height = height)
-    }
+    fun contentLeft(isWorldAxis: Boolean) =
+        isWorldAxis.pick(transform.worldLeft, transform.left) + padding.left
+
+    fun contentRight(isWorldAxis: Boolean) =
+        isWorldAxis.pick(transform.worldRight, transform.right) + padding.right
+
+    fun contentTop(isWorldAxis: Boolean) =
+        isWorldAxis.pick(transform.worldTop, transform.top) + padding.top
+
+    fun contentBottom(isWorldAxis: Boolean) =
+        isWorldAxis.pick(transform.worldBottom, transform.bottom) + padding.bottom
+
+    fun contentBox(isWorldAxis: Boolean): Box =
+        Box(x = contentLeft(isWorldAxis), y = contentTop(isWorldAxis), width = contentWidth, height = contentHeight)
+
 
     //------------ Placeable ------------\\
 

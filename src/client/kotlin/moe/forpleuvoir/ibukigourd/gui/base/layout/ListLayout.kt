@@ -27,7 +27,7 @@ interface ListLayout : Layout {
             //所有元素的parentData
             val parentDatas = measurables.map { WrappedListLayoutData.getOrDefault(it) }
             //使用的高度
-            var usedHeight = 0f
+            var usedHeight = spacing * measurables.lastIndex
 
             measurables.forEachIndexed { index, child ->
                 val placeable = child.measure(
@@ -43,7 +43,7 @@ interface ListLayout : Layout {
                 placeables[index] = placeable
             }
 
-            usedHeight += widget.padding.height + spacing * measurables.lastIndex
+            usedHeight += widget.padding.height
             maxChildWidth += widget.padding.width
             return applyResult(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight)) {
                 layout(placeables.map { it!! }, parentDatas)
@@ -64,7 +64,7 @@ interface ListLayout : Layout {
             //所有元素的parentData
             val parentDatas = measurables.map { WrappedListLayoutData.getOrDefault(it) }
             //使用的宽度
-            var usedWidth = 0f
+            var usedWidth = spacing * measurables.lastIndex
 
             measurables.forEachIndexed { index, child ->
                 val placeable = child.measure(
@@ -80,7 +80,7 @@ interface ListLayout : Layout {
                 placeables[index] = placeable
             }
 
-            usedWidth += widget.padding.width + spacing * measurables.lastIndex
+            usedWidth += widget.padding.width
             maxChildHeight += widget.padding.height
             return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight)) {
                 layout(placeables.map { it!! }, parentDatas)
@@ -96,7 +96,7 @@ interface ListLayout : Layout {
                     Gravity.End    -> widget.transform.width - widget.padding.right - child.size.width - child.margin.right
                 }
                 child.placeAt(x, y, false)
-                y += child.wrappedSize.height + spacing
+                y += child.wrappedHeight + spacing
             }
         }
 
@@ -109,7 +109,7 @@ interface ListLayout : Layout {
                     Gravity.End    -> widget.transform.height - widget.padding.bottom - child.size.height - child.margin.bottom
                 }
                 child.placeAt(x, y, false)
-                x += child.wrappedSize.width + spacing
+                x += child.wrappedWidth + spacing
             }
         }
 

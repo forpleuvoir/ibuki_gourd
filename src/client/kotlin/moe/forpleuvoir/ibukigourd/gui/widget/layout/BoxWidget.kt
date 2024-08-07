@@ -18,7 +18,7 @@ value class BoxScope(private val boxWidget: BoxWidget) : GuiScope<BoxWidget>, Bo
 fun GuiScope<out WidgetContainer>.box(
     modifier: Modifier? = null,
     context: (BoxScope.() -> Unit)? = null
-): WidgetContainerImpl = owner().addWidgetChild(BoxWidget()) {
+): BoxWidget = owner().addWidgetChild(BoxWidget()) {
     context?.let { BoxScope(this).it() }
     modifier?.foldIn(Unit) { _, e ->
         e.tryApplyModify(this)

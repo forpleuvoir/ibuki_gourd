@@ -78,21 +78,14 @@ fun testScreen() = boxScreen(
         spacing(5f)
         listWithScroller(
             Orientation.Horizontal,
-            2f,
+            3f,
             amountConsumer = { mc.pushScreenData("list", it) },
             initialAmount = mc.getScreenDataOr("list", 0f),
-            modifier = Modifier
+            listModifier = { Modifier.weight(1) },
+            modifier = Modifier.height(60f)
         ) {
             repeat(50) {
-                if (it == 29) {
-                    button(modifier = Modifier.width(50f)) {
-                        icon(IconTextures.CLOSE)
-                    }
-                } else {
-                    button {
-                        icon(IconTextures.CLOSE)
-                    }
-                }
+                button(modifier = Modifier.fill()) { text("$it") }
             }
         }
         testColumn()
@@ -124,7 +117,8 @@ fun RowScope.testColumn() = column(
         2f,
         amountConsumer = { mc.pushScreenData("list1", it) },
         initialAmount = mc.getScreenDataOr("list1", 0f),
-        listModifier = { Modifier.width(120f) }
+        listModifier = { Modifier.weight(1) },
+        modifier = Modifier.width(120f)
     ) {
         var c = 0
         var f = true

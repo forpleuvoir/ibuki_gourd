@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
@@ -11,10 +12,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
@@ -25,6 +26,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
+import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.DrawContext
 
 class ListWidget(
@@ -53,7 +55,7 @@ class ListWidget(
             //------------ 更新可滚动的总量 ------------\\
             totalContentSize = widgetChildren().lastIndex * spacing
             for (widgetChild in widgetChildren()) {
-                totalContentSize += orientation.peek(widgetChild.wrappedSize.height, widgetChild.wrappedSize.width)
+                totalContentSize += orientation.peek(widgetChild.wrappedHeight, widgetChild.wrappedWidth)
             }
             this.totalAmount = (totalContentSize - orientation.peek(contentHeight, contentWidth)).coerceAtLeast(0f)
         }
@@ -142,10 +144,10 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
     amountConsumer: (Float) -> Unit = {},
     initialAmount: Float = 0f,
     modifier: Modifier? = null,
-    listModifier: (BoxScope.() -> Modifier)? = null,
-    scrollerModifier: (BoxScope.() -> Modifier)? = null,
+    listModifier: (LinearLayoutScope.() -> Modifier)? = null,
+    scrollerModifier: (LinearLayoutScope.() -> Modifier)? = null,
     content: ListWidgetScope.() -> Unit
-) {
+): WidgetContainerImpl {
     var scrollerSupplier: () -> ScrollerWidget? = { null }
 
     val m = Modifier
@@ -156,9 +158,9 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
             }
         }
         .padding(3)
-    orientation.peek(
+    return orientation.peek(
         {
-            box(
+            column(
                 modifier = m thenNullable modifier
             ) {
                 val list = list(
@@ -166,13 +168,12 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     spacing = spacing,
                     content = content,
                     modifier = Modifier
+                        .fill()
                         .mouseScrolling {
                             this as ListWidget
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-                        }
-                        .alignment(BoxAlignment.CenterLeft())
-                            thenNullable listModifier?.invoke(this)
+                        } thenNullable listModifier?.invoke(this)
                 )
                 val scroller = scroller(
                     amountStep = { list.widgetChildren().minOf { it.transform.height } / 2f },
@@ -185,16 +186,15 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     initialAmount = initialAmount,
                     orientation = orientation,
                     modifier = Modifier
+                        .fill()
                         .width(barThickness)
-                        .margin(left = 1f)
-                        .alignment(BoxAlignment.CenterRight())
-                            thenNullable scrollerModifier?.invoke(this)
+                        .margin(left = 1f) thenNullable scrollerModifier?.invoke(this)
                 )
                 scrollerSupplier = { scroller }
             }
         },
         {
-            box(
+            row(
                 modifier = m thenNullable modifier
             ) {
                 val list = list(
@@ -202,12 +202,18 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     spacing = spacing,
                     content = content,
                     modifier = Modifier
+                        .fill()
+                        .renderOverlay { ctx, _, _, _ ->
+                            this as IGWidget
+                            ctx.batchRenderBox {
+                                ctx.boxOutline(transform.asWorldBox, Colors.BANANA_YELLOW)
+                            }
+                        }
                         .mouseScrolling {
                             this as ListWidget
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-                        }
-                        .alignment(BoxAlignment.TopCenter()) thenNullable listModifier?.invoke(this)
+                        } thenNullable listModifier?.invoke(this)
                 )
                 val scroller = scroller(
                     amountStep = { list.widgetChildren().minOf { it.transform.width } / 2f },
@@ -220,10 +226,9 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     initialAmount = initialAmount,
                     orientation = orientation,
                     modifier = Modifier
+                        .fill()
                         .height(barThickness)
-                        .margin(top = 1f)
-                        .alignment(BoxAlignment.BottomCenter())
-                            thenNullable scrollerModifier?.invoke(this)
+                        .margin(top = 1f) thenNullable scrollerModifier?.invoke(this)
                 )
                 scrollerSupplier = { scroller }
             }

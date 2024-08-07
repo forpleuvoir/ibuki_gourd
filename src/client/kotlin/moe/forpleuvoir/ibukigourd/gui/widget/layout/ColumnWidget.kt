@@ -19,7 +19,7 @@ class ColumnWidget(
 
 }
 
-data class ColumScope(private val column: ColumnWidget) : GuiScope<ColumnWidget>, LinearLayoutScope {
+data class ColumnScope(private val column: ColumnWidget) : GuiScope<ColumnWidget>, LinearLayoutScope {
     override fun owner(): ColumnWidget = column
     override val layout: LinearLayout
         get() = owner()
@@ -29,10 +29,10 @@ data class ColumScope(private val column: ColumnWidget) : GuiScope<ColumnWidget>
 fun GuiScope<out WidgetContainer>.column(
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     modifier: Modifier? = null,
-    content: ColumScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ) = owner().addWidgetChild(
     ColumnWidget(alignment).apply {
-        ColumScope(this).content()
+        ColumnScope(this).content()
         modifier?.foldIn(Unit) { _, e -> e.tryApplyModify(this) }
     }
 )

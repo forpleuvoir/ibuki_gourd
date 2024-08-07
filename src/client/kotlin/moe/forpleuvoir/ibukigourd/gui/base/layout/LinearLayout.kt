@@ -153,7 +153,7 @@ interface LinearLayout : Layout {
                     val gravity = parentDatas[index].gravity
                     val x = when (gravity) {
                         Gravity.Start  -> widget.padding.left + placeable.margin.left
-                        Gravity.Center -> widget.transform.halfWidth - (placeable.margin.left + placeable.size.halfWidth)
+                        Gravity.Center -> widget.transform.halfWidth - placeable.size.halfWidth
                         Gravity.End    -> widget.transform.width - widget.padding.right - placeable.size.width - placeable.margin.right
                     }
                     val y = vector2fc.y() + placeable.margin.top
@@ -171,7 +171,7 @@ interface LinearLayout : Layout {
                     val gravity = parentDatas[index].gravity
                     val y = when (gravity) {
                         Gravity.Start  -> widget.padding.top + placeable.margin.top
-                        Gravity.Center -> widget.transform.halfHeight - (placeable.margin.top + placeable.size.halfHeight)
+                        Gravity.Center -> widget.transform.halfHeight - placeable.size.halfHeight
                         Gravity.End    -> widget.transform.height - widget.padding.bottom - placeable.size.height - placeable.margin.bottom
                     }
                     val x = vector2fc.x() + placeable.margin.left

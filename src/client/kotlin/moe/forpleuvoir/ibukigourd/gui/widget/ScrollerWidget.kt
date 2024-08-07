@@ -109,12 +109,13 @@ open class ScrollerWidget(
         set(value) {
             val fixedValue = value.coerceIn(0f..totalAmount())
             val barPosition = scrollableLength * if (totalAmount() == 0f) 0f else fixedValue / totalAmount()
+
             orientation.peek(
                 {
-                    bar.y = barPosition
+                    bar.y = if (barPosition.isNaN()) 0f else barPosition
                 },
                 {
-                    bar.x = barPosition
+                    bar.x = if (barPosition.isNaN()) 0f else barPosition
                 }
             )
             amountConsumer.invoke(fixedValue)
@@ -156,8 +157,10 @@ open class ScrollerWidget(
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        if (!wasDragging || !barWasDragging || !visible || !pressed) return
-        event.tryUse().onSuccess {
+//        if (!wasDragging || !barWasDragging || !visible || !pressed) return
+        event.tryUse {
+            wasDragging && barWasDragging && visible && pressed
+        }.onSuccess {
             orientation.peek(
                 {
                     bar.y = (bar.y + event.deltaY).coerceIn(barPositionRange)
@@ -184,9 +187,13 @@ open class ScrollerWidget(
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        if (wasMouseOver) {
+        event.tryUse { wasMouseOver }.onSuccess {
             scroller(if (event.verticalAmount != 0f) event.verticalAmount else event.horizontalAmount)
         }
+    }
+
+    companion object {
+
     }
 
 }

@@ -11,7 +11,7 @@ open class TextScope {
 
     val text: MutableText
         get() {
-            check(!::content.isInitialized) { "Content is not initialized" }
+            check(::content.isInitialized) { "Content is not initialized" }
             return content
         }
 
@@ -32,10 +32,11 @@ open class TextScope {
     }
 
     fun literal(content: Any, scope: LiteralScope.() -> Unit = {}) {
-        add(LiteralScope().apply {
+        val a = LiteralScope().apply {
             context(content.toString())
             scope.invoke(this)
-        }.text)
+        }
+        add(a.text)
     }
 
     fun literal(content: Any) {
@@ -71,7 +72,7 @@ class LiteralScope {
 
     val text: MutableText
         get() {
-            check(!::content.isInitialized) { "Content is not initialized" }
+            check(::content.isInitialized) { "Content is not initialized" }
             return Literal(content).setStyle(style)
         }
 

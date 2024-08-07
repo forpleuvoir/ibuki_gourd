@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.util
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.McText
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.screen.Screen
@@ -39,7 +40,7 @@ fun MinecraftClient.sendMessage(message: String) {
     }
 }
 
-fun MinecraftClient.chatMessage(message: net.minecraft.text.Text) {
+fun MinecraftClient.chatMessage(message: McText) {
     inGameHud.chatHud.addMessage(message)
 }
 

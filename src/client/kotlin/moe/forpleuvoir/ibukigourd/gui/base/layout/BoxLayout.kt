@@ -85,11 +85,11 @@ interface BoxLayout : Layout {
 
     override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
         if (placeables.isEmpty()) return
-        val contentBox = widget.contentBox(false)
+        val contentBox = widget.contentBox(true)
         val datas = parentDatas.map { it as WrappedBoxLayoutData }
         placeables.forEachIndexed { index, placeable ->
             val vec2f = datas[index].alignment.align(contentBox, placeable.wrappedSize)
-            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top))
+            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top), true)
         }
     }
 
