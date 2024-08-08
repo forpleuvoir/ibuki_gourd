@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
@@ -26,7 +25,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
-import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.DrawContext
 
 class ListWidget(
@@ -203,12 +201,6 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     content = content,
                     modifier = Modifier
                         .fill()
-                        .renderOverlay { ctx, _, _, _ ->
-                            this as IGWidget
-                            ctx.batchRenderBox {
-                                ctx.boxOutline(transform.asWorldBox, Colors.BANANA_YELLOW)
-                            }
-                        }
                         .mouseScrolling {
                             this as ListWidget
                             if (this.wasMouseOver)

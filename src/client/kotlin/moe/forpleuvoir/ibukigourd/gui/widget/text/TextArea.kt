@@ -84,7 +84,7 @@ class TextArea(
         get() = (lineCount * (fontHeight + spacing)) - spacing
 
 
-    val scrollableAmount: Float
+    private val scrollableAmount: Float
         get() {
             val amount = textContentHeight - contentHeight
             return if (amount > 0f) amount else 0f
@@ -361,6 +361,9 @@ class TextArea(
 
     //------------ IGElement ------------\\
 
+    override val mouseOverCursor: MouseCursor.Cursor
+        get() = MouseCursor.Cursor.IBEAM_CURSOR
+
     override fun onTick() {
         history.onTick()
         if (isFocused) {
@@ -368,15 +371,6 @@ class TextArea(
         } else {
             focusedTicks = 0
         }
-    }
-
-
-    override fun onMouseEnter(event: MouseEnterEvent) {
-        MouseCursor.current = MouseCursor.Cursor.IBEAM_CURSOR
-    }
-
-    override fun onMouseLeave(event: MouseLeaveEvent) {
-        MouseCursor.current = MouseCursor.Cursor.ARROW_CURSOR
     }
 
     override fun onMousePress(event: MousePressEvent) {
@@ -524,7 +518,7 @@ class TextArea(
                     }
                     true
                 }
-                //光标移动到行尾,如果按下了ctrl则移动到文本结尾
+                //光标移动至行尾,如果按下了ctrl则移动到文本结尾
                 Keyboard.END                      -> {
                     if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         this.moveCursor(END, 0)
@@ -628,7 +622,6 @@ class TextArea(
             val endY = contentBox.top + currentLineIndex(end) * (fontHeight + spacing) - amount
             val mindY = (startY + (fontHeight + spacing)).let { if (it == endY) 0f else it }
             if (startY == endY) {
-                val box = Box(contentBox.left + startXOffset, startY, Size(textRenderer.getWidth(selection.getText(this.text)), fontHeight))
                 context.renderBox(
                     Box(contentBox.left + startXOffset, startY, Size(textRenderer.getWidth(selection.getText(this.text)), fontHeight)),
                     selectedColor, RenderLayer.getGuiTextHighlight()

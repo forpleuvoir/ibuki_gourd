@@ -35,7 +35,7 @@ interface LinearLayout : Layout {
 
             measurables.forEachIndexed { index, child ->
                 val weight = parentDatas[index].weight
-                if (weight != null) {
+                if (weight > 0) {
                     totalWidget += weight
                 } else {
 
@@ -57,7 +57,7 @@ interface LinearLayout : Layout {
 
             measurables.forEachIndexed { index, child ->
                 val weight = parentDatas[index].weight
-                if (weight != null) {
+                if (weight > 0) {
                     val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceAtLeast(0f)
                     val placeable = child.measure(
                         Constraints.of(
@@ -99,7 +99,7 @@ interface LinearLayout : Layout {
 
             measurables.forEachIndexed { index, child ->
                 val weight = parentDatas[index].weight
-                if (weight != null) {
+                if (weight > 0) {
                     totalWidget += weight
 
                 } else {
@@ -121,7 +121,7 @@ interface LinearLayout : Layout {
 
             measurables.forEachIndexed { index, child ->
                 val weight = parentDatas[index].weight
-                if (weight != null) {
+                if (weight > 0) {
                     val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceAtLeast(0f)
                     val placeable = child.measure(
                         Constraints.of(
@@ -204,7 +204,7 @@ interface LinearLayout : Layout {
 
     override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
         if (placeables.isEmpty()) return
-        val datas = parentDatas.map { it as WrappedLinearLayoutData }
+        val datas = placeables.map { it as WrappedLinearLayoutData }
         orientation.peek(
             { layoutVertical(placeables, datas) },
             { layoutHorizontal(placeables, datas) }
@@ -224,7 +224,7 @@ interface ColumnLayout : LinearLayout {
 }
 
 data class WrappedLinearLayoutData(
-    val weight: Int? = null,
+    val weight: Int = 0,
     val fill: Boolean = false,
     var gravity: Gravity = Gravity.Center
 ) {

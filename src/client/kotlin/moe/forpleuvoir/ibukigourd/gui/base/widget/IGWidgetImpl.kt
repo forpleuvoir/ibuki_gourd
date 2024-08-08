@@ -11,6 +11,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.ibukigourd.input.mousePosition
+import moe.forpleuvoir.ibukigourd.util.mc
 
 /**
  * 所有组件的基类,实现任何组件都应该继承此类
@@ -19,7 +22,13 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ IbukiGourd Widget ------------\\
 
-    override val transform: Transform = Transform()
+    override val transform: Transform = Transform().apply {
+        subscribeChange({ _, _ ->
+            wasMouseOver = isMouseOvered(mc.mousePosition)
+        }, { _, _ ->
+            wasMouseOver = isMouseOvered(mc.mousePosition)
+        })
+    }
 
     override var padding: Padding = Padding(0)
 
@@ -30,6 +39,14 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
      */
     override var wasMouseOver: Boolean = false
         protected set
+
+    override val mouseOverCursor: MouseCursor.Cursor
+        get() {
+            val parent = parent()
+            return if (parent is IGWidget) {
+                parent.mouseOverCursor
+            } else screen()?.mouseOverCursor ?: MouseCursor.default
+        }
 
     /**
      * 组件是否在拖动中

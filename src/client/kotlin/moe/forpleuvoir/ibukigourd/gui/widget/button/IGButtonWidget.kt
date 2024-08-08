@@ -10,11 +10,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.Tick
 
 open class IGButtonWidget(
     private val theme: PressableTheme = PressableTheme.Button2,
 ) : IGPressableWidgetContainer(), BoxLayout {
+
+    override val mouseOverCursor: MouseCursor.Cursor
+        get() = MouseCursor.Cursor.POINTING_HAND_CURSOR
 
     //------------ IGButton ------------\\
 

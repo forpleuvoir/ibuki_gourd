@@ -15,9 +15,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.input.mouseX
 import moe.forpleuvoir.ibukigourd.input.mouseY
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.pick
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -57,9 +60,15 @@ open class ScrollerWidget(
                 transform.set(maxWidth, minHeight)
             }
         )
-        amount = initialAmount
         return this
     }
+
+    override fun measureCompleted() {
+        amount = initialAmount
+    }
+
+    override val mouseOverCursor: MouseCursor.Cursor
+        get() = bar.isMouseOvered(mc.mousePosition).pick(MouseCursor.Cursor.POINTING_HAND_CURSOR, MouseCursor.default)
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {

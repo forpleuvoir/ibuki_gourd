@@ -68,7 +68,13 @@ enum class Mouse(override val code: Int) : KeyCode {
 
 object MouseCursor {
 
-    var current: Cursor = Cursor.ARROW_CURSOR
+    val default = Cursor.ARROW_CURSOR
+
+    fun clear() {
+        current = default
+    }
+
+    var current: Cursor = default
         set(value) {
             if (value == field) return
             field = value

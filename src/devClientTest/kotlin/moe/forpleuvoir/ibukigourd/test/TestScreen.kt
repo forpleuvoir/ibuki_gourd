@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -51,7 +52,8 @@ fun testScreen() = boxScreen(
                 context.batchRenderText {
                     val texts = listOf(
                         Literal("Screen renderTime:$renderTime").style { color(Colors.AQUA) },
-                        Literal("Screen FPS:$fps").style { color(0x00FF00) }
+                        Literal("Screen FPS:$fps").style { color(0x00FF00) },
+                        Literal("MouseCursor:${MouseCursor.current.name}")
                     )
                     context.textLines(texts, contentBox, align = BoxAlignment::TopLeft)
                     val mouse = listOf(
@@ -81,11 +83,9 @@ fun testScreen() = boxScreen(
             3f,
             amountConsumer = { mc.pushScreenData("list", it) },
             initialAmount = mc.getScreenDataOr("list", 0f),
-            listModifier = { Modifier.weight(1) },
-            modifier = Modifier.height(60f)
         ) {
             repeat(50) {
-                button(modifier = Modifier.fill()) { text("$it") }
+                button() { text("$it") }
             }
         }
         testColumn()

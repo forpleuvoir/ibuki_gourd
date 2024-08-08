@@ -92,7 +92,7 @@ class TextWidget(
         }
 
     private fun onChanged() {
-
+        screen()?.measure(Constraints())
     }
 
     //------------ TextScroll ------------\\

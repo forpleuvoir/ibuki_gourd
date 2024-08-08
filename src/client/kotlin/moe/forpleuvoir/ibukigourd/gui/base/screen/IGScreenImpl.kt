@@ -20,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
@@ -57,6 +58,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override var parent: () -> IGElement? = { this }
 
     override var active: Boolean = true
+
+    override val mouseOverCursor: MouseCursor.Cursor
+        get() = MouseCursor.default
 
     /**
      * 鼠标是否在组件中
@@ -118,7 +122,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun measurableChildren(): List<Measurable> = widgetChildren()
 
     override fun measure(constraints: Constraints): Placeable {
-        return super.measure(constraints = constraints)
+        return super.measure(constraints = constraints).also {
+            measureCompleted(measurableChildren())
+        }
     }
 
     //------------ Container ------------\\
@@ -198,6 +204,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun close() {
         onClose?.invoke()
+        MouseCursor.clear()
         super.close()
     }
 
@@ -236,6 +243,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
+        //更新鼠标样式
+        MouseCursor.current = hoveredWidget()?.mouseOverCursor ?: MouseCursor.default
+
         latestRenderTime = measureTime {
             val ctx = context.toIGDrawContext()
             val (_mouseX, _mouseY) = context.client.mousePosition

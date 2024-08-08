@@ -6,4 +6,10 @@ fun interface MeasurePolicy {
 
     fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable
 
+    fun measureCompleted(measurables: List<Measurable>) {
+        measurables.forEach {
+            it.measureCompleted()
+        }
+    }
+
 }

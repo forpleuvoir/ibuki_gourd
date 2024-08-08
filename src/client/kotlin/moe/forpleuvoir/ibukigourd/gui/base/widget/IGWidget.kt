@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.nebula.common.pick
 
 interface IGWidget : DrawableElement, Measurable, Placeable {
@@ -20,6 +21,8 @@ interface IGWidget : DrawableElement, Measurable, Placeable {
      * 鼠标是否在组件中
      */
     val wasMouseOver: Boolean
+
+    val mouseOverCursor: MouseCursor.Cursor
 
     /**
      * 组件是否在拖动中

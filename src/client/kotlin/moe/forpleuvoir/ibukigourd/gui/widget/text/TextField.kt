@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.render.math.plus
@@ -271,6 +272,9 @@ open class TextField(
 
     //------------ IGElement ------------\\
 
+    override val mouseOverCursor: MouseCursor.Cursor
+        get() = MouseCursor.Cursor.IBEAM_CURSOR
+
     override fun onTick() {
         history.onTick()
         if (isFocused) {
@@ -430,6 +434,7 @@ open class TextField(
         setCursorFromMouse(event.x)
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
     }
+
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
         if (!isActive) return

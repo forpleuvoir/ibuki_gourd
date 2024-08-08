@@ -17,6 +17,7 @@ interface LinearLayoutScope {
     }
 
     fun Modifier.weight(weight: Int) = this then WidgetModifier {
+        check(weight >= 0) { "weight must be >= 0" }
         when (val parentData = it.parentData) {
             is WrappedLinearLayoutData -> it.parentData = parentData.copy(weight = weight)
             null                       -> it.parentData = WrappedLinearLayoutData(weight = weight)
