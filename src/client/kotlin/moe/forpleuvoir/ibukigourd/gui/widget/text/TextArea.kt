@@ -757,7 +757,7 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
     textRenderer: TextRenderer = mc.textRenderer,
     barThickness: Float = 9f,
     amountConsumer: (Float) -> Unit = { },
-    initialAmount: Float = 0f,
+    initialAmount: () -> Float = { 0f },
     modifier: Modifier? = null,
     textAreaModifier: (ColumnScope.() -> Modifier)? = null,
     scrollerModifier: (ColumnScope.() -> Modifier)? = null,

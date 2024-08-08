@@ -28,7 +28,7 @@ open class ScrollerWidget(
     val amountStep: () -> Float,
     val totalAmount: () -> Float,
     val barProportion: () -> Float,
-    private val initialAmount: Float = 0f,
+    private val initialAmount: () -> Float = { 0f },
     private val amountConsumer: (Float) -> Unit = {},
     val orientation: Orientation = Orientation.Vertical,
     private val barTheme: PressableTheme = PressableTheme.ScrollerBar,
@@ -64,7 +64,7 @@ open class ScrollerWidget(
     }
 
     override fun measureCompleted() {
-        amount = initialAmount
+        amount = initialAmount()
     }
 
     override val mouseOverCursor: MouseCursor.Cursor
@@ -220,7 +220,7 @@ fun GuiScope<out WidgetContainer>.scroller(
      * bar百分比 0f..1f
      */
     barProportion: () -> Float,
-    initialAmount: Float = 0f,
+    initialAmount: () -> Float = { 0f },
     amountConsumer: (Float) -> Unit = {},
     orientation: Orientation = Orientation.Vertical,
     barTheme: PressableTheme = PressableTheme.ScrollerBar,

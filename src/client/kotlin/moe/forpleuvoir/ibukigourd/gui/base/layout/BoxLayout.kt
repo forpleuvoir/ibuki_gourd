@@ -79,17 +79,14 @@ interface BoxLayout : Layout {
             maxChildWidth.coerceAtLeast(width).coerceIn(_minWidth, _maxWidth),
             maxChildHeight.coerceAtLeast(height).coerceIn(_minHeight, _maxHeight)
         )
-        layout(placeables, parentDatas)
         return widget
     }
 
-    override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
-        if (placeables.isEmpty()) return
-        val contentBox = widget.contentBox(true)
-        val datas = parentDatas.map { it as WrappedBoxLayoutData }
-        placeables.forEachIndexed { index, placeable ->
-            val vec2f = datas[index].alignment.align(contentBox, placeable.wrappedSize)
-            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top), true)
+    override fun layout(layoutables: List<Layoutable>) {
+        val datas = layoutables.map { WrappedBoxLayoutData.getOrDefault(it) }
+        layoutables.forEachIndexed { index, placeable ->
+            val vec2f = datas[index].alignment.align(widget.contentBox(false), placeable.wrappedSize)
+            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top), false)
         }
     }
 

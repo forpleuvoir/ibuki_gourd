@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.input.mousePosition
@@ -20,7 +21,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
 
-    override fun measurableChildren(): List<Measurable> = widgetChildren
+    override fun layoutableChildren(): List<Layoutable> = widgetChildren
 
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
         it.transform.parent = { this.transform }

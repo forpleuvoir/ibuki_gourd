@@ -10,9 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderGradientBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
@@ -119,12 +119,17 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override val widget: IGWidget
         get() = this
 
-    override fun measurableChildren(): List<Measurable> = widgetChildren()
+    override fun layoutableChildren(): List<Layoutable> = widgetChildren()
 
     override fun measure(constraints: Constraints): Placeable {
         return super.measure(constraints = constraints).also {
-            measureCompleted(measurableChildren())
+            layout()
+            measureCompleted(layoutableChildren())
         }
+    }
+
+    override fun remeasure() {
+        measure(constraints)
     }
 
     //------------ Container ------------\\
@@ -214,7 +219,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun resize(client: MinecraftClient, width: Int, height: Int) {
         transform.set(width.toFloat(), height.toFloat())
-        super.resize(client, width, height)
+        remeasure()
     }
 
     override fun init(client: MinecraftClient, width: Int, height: Int) {
@@ -224,7 +229,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun init() {
         scope.content()
-        measure(Constraints())
+        remeasure()
     }
 
     abstract fun S.content()

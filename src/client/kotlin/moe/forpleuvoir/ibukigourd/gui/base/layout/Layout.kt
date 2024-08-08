@@ -9,15 +9,22 @@ interface Layout : MeasurePolicy, Measurable {
 
     val widget: IGWidget
 
-    fun measurableChildren(): List<Measurable>
+    fun layoutableChildren(): List<Layoutable>
 
-    fun layout(placeables: List<Placeable>, parentDatas: List<Any?>)
+    fun layout() {
+        val layoutables = layoutableChildren()
+        if (layoutables.isEmpty()) return
+        layout(layoutables)
+        layoutableChildren().filter { it is Layout }.forEach { (it as Layout).layout() }
+    }
+
+    fun layout(layoutables: List<Layoutable>)
 
     override fun measure(constraints: Constraints): Placeable =
-        measureChildren(measurableChildren(), this.constraints.constraint(constraints))
+        measureChildren(layoutableChildren(), this.constraints.constraint(constraints))
 
     override fun measureCompleted() {
-        measureCompleted(measurableChildren())
+        measureCompleted(layoutableChildren())
     }
 
 }

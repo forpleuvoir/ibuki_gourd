@@ -4,9 +4,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 interface ListLayout : Layout {
 
@@ -45,9 +42,7 @@ interface ListLayout : Layout {
 
             usedHeight += widget.padding.height
             maxChildWidth += widget.padding.width
-            return applyResult(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight)) {
-                layout(placeables.map { it!! }, parentDatas)
-            }
+            return applyResult(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))
         }
 
         private fun ListLayout.measureHorizontal(measurables: List<Measurable>, constraints: Constraints): Placeable {
@@ -82,9 +77,7 @@ interface ListLayout : Layout {
 
             usedWidth += widget.padding.width
             maxChildHeight += widget.padding.height
-            return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight)) {
-                layout(placeables.map { it!! }, parentDatas)
-            }
+            return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))
         }
 
         private fun ListLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedListLayoutData>) {
@@ -114,13 +107,9 @@ interface ListLayout : Layout {
         }
 
 
-        @OptIn(ExperimentalContracts::class)
-        private inline fun ListLayout.applyResult(width: Float, height: Float, block: () -> Unit): Placeable {
-            contract {
-                callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-            }
+        @Suppress("nothing_to_inline")
+        private inline fun ListLayout.applyResult(width: Float, height: Float): Placeable {
             widget.transform.set(width, height)
-            block()
             return widget
         }
     }
@@ -137,12 +126,11 @@ interface ListLayout : Layout {
             { this.measureHorizontal(measurables, constraints) }
         )
 
-    override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
-        if (placeables.isEmpty()) return
-        val datas = parentDatas.map { it as WrappedListLayoutData }
+    override fun layout(layoutables: List<Layoutable>) {
+        val datas = layoutables.map { WrappedListLayoutData.getOrDefault(it) }
         orientation.peek(
-            { this.layoutVertical(placeables, datas) },
-            { this.layoutHorizontal(placeables, datas) }
+            { this.layoutVertical(layoutables, datas) },
+            { this.layoutHorizontal(layoutables, datas) }
         )
     }
 

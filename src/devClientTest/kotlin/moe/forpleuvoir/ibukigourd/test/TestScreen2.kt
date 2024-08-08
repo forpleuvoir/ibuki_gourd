@@ -30,7 +30,7 @@ fun testScreen2() = rowScreen(
             amountConsumer = {
                 mc.pushScreenData("text3", it)
             },
-            initialAmount = mc.getScreenDataOr("text3", 0f),
+            initialAmount = { mc.getScreenDataOr("text3", 0f) },
             modifier = Modifier.height(240f).width(160f)
         ) {
             textConsumer {

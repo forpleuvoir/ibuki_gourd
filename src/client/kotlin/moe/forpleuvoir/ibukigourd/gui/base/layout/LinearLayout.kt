@@ -6,9 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 interface LinearLayout : Layout {
 
@@ -74,9 +71,7 @@ interface LinearLayout : Layout {
             }
             usedHeight += widget.padding.height
             maxChildWidth += widget.padding.width
-            return applyResult(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight)) {
-                layout(placeables.map { it!! }, parentDatas)
-            }
+            return applyResult(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))
         }
 
         private fun LinearLayout.measureHorizontal(measurables: List<Measurable>, constraints: Constraints): Placeable {
@@ -138,15 +133,12 @@ interface LinearLayout : Layout {
             }
             usedWidth += widget.padding.width + spacing * measurables.lastIndex
             maxChildHeight += widget.padding.height
-            return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight)) { ->
-                layout(placeables.map { it!! }, parentDatas)
-            }
+            return applyResult(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))
         }
 
         private fun LinearLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
-            val contentBox = widget.contentBox(false)
             alignment(orientation).align(
-                contentBox,
+                widget.contentBox(false),
                 placeables.mapIndexed { i, p -> Size(p.wrappedWidth, p.wrappedHeight + if (i != placeables.lastIndex) spacing else 0f) })
                 .forEachIndexed { index, vector2fc ->
                     val placeable = placeables[index]
@@ -162,9 +154,8 @@ interface LinearLayout : Layout {
         }
 
         private fun LinearLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedLinearLayoutData>) {
-            val contentBox = widget.contentBox(false)
             alignment(orientation).align(
-                contentBox,
+                widget.contentBox(false),
                 placeables.mapIndexed { i, p -> Size(p.wrappedWidth + if (i != placeables.lastIndex) spacing else 0f, p.wrappedHeight) })
                 .forEachIndexed { index, vector2fc ->
                     val placeable = placeables[index]
@@ -179,13 +170,9 @@ interface LinearLayout : Layout {
                 }
         }
 
-        @OptIn(ExperimentalContracts::class)
-        private inline fun LinearLayout.applyResult(width: Float, height: Float, block: () -> Unit): Placeable {
-            contract {
-                callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-            }
+        @Suppress("nothing_to_inline")
+        private inline fun LinearLayout.applyResult(width: Float, height: Float): Placeable {
             widget.transform.set(width, height)
-            block()
             return widget
         }
     }
@@ -202,12 +189,11 @@ interface LinearLayout : Layout {
             { measureHorizontal(measurables, constraints) }
         )
 
-    override fun layout(placeables: List<Placeable>, parentDatas: List<Any?>) {
-        if (placeables.isEmpty()) return
-        val datas = placeables.map { it as WrappedLinearLayoutData }
+    override fun layout(layoutables: List<Layoutable>) {
+        val datas = layoutables.map { WrappedLinearLayoutData.getOrDefault(it) }
         orientation.peek(
-            { layoutVertical(placeables, datas) },
-            { layoutHorizontal(placeables, datas) }
+            { layoutVertical(layoutables, datas) },
+            { layoutHorizontal(layoutables, datas) }
         )
     }
 
@@ -232,7 +218,7 @@ data class WrappedLinearLayoutData(
 
     companion object {
 
-        private val default = WrappedLinearLayoutData()
+        val default = WrappedLinearLayoutData()
 
         fun fromMeasurable(measurable: Measurable): WrappedLinearLayoutData? {
             return measurable.parentData as? WrappedLinearLayoutData

@@ -5,7 +5,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTex
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
-import moe.forpleuvoir.ibukigourd.gui.base.layout.WrappedListLayoutData
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
@@ -37,7 +36,7 @@ class ListWidget(
     var amounts: Float = amounts
         set(value) {
             field = value.coerceIn(0f..totalAmount)
-            layout(widgetChildren(), widgetChildren().map { WrappedListLayoutData.getOrDefault(it) })
+            layout()
         }
 
     override val amount: () -> Float = this::amounts
@@ -140,7 +139,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
     spacing: Float = 0f,
     barThickness: Float = 9f,
     amountConsumer: (Float) -> Unit = {},
-    initialAmount: Float = 0f,
+    initialAmount: () -> Float = { 0f },
     modifier: Modifier? = null,
     listModifier: (LinearLayoutScope.() -> Modifier)? = null,
     scrollerModifier: (LinearLayoutScope.() -> Modifier)? = null,

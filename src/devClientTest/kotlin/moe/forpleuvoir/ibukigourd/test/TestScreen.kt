@@ -82,7 +82,7 @@ fun testScreen() = boxScreen(
             Orientation.Horizontal,
             3f,
             amountConsumer = { mc.pushScreenData("list", it) },
-            initialAmount = mc.getScreenDataOr("list", 0f),
+            initialAmount = { mc.getScreenDataOr("list", 0f) },
         ) {
             repeat(50) {
                 button() { text("$it") }
@@ -93,7 +93,7 @@ fun testScreen() = boxScreen(
             { 1f },
             { 10f },
             { 0.1f },
-            BG_BLUR_RADIUS,
+            { BG_BLUR_RADIUS },
             { BG_BLUR_RADIUS = it },
             orientation = Orientation.Horizontal,
             modifier = Modifier.maxWidth(180f)
@@ -116,7 +116,7 @@ fun RowScope.testColumn() = column(
         Orientation.Vertical,
         2f,
         amountConsumer = { mc.pushScreenData("list1", it) },
-        initialAmount = mc.getScreenDataOr("list1", 0f),
+        initialAmount = { mc.getScreenDataOr("list1", 0f) },
         listModifier = { Modifier.weight(1) },
         modifier = Modifier.width(120f)
     ) {
@@ -141,7 +141,16 @@ fun RowScope.testColumn() = column(
                         text += "\n"
                         text += "测试宽度测试宽度测试宽度测试宽度"
                     }
-                    text({ Literal("测试文本$it:$text") }) {
+                    text(
+                        text = { Literal("测试文本$it:$text") },
+                        modifier = Modifier.renderOverlay { ctx, _, _, _ ->
+                            this as IGWidget
+                            if (wasMouseOver)
+                                ctx.batchRenderBox {
+                                    ctx.boxOutline(contentBox(true), Colors.ROSE)
+                                }
+                        }
+                    ) {
                         setting {
                             if (it == 15) spacing = 8f
                         }

@@ -36,6 +36,8 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     override var parentData: Any?
 
+    fun remeasure()
+
 }
 
 fun MinecraftClient.pushScreenData(key: String, data: Any) {
