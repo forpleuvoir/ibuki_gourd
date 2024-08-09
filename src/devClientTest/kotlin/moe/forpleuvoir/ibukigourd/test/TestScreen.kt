@@ -142,12 +142,15 @@ fun RowScope.testColumn() = column(
                         text += "测试宽度测试宽度测试宽度测试宽度"
                     }
                     text(
-                        text = { Literal("测试文本$it:$text") },
+                        text = {
+                            Literal("测试文本$it:$text").style { color(Colors.BRIGHT_NEON_PINK) }
+                        },
                         modifier = Modifier.renderOverlay { ctx, _, _, _ ->
                             this as IGWidget
                             if (wasMouseOver)
                                 ctx.batchRenderBox {
                                     ctx.boxOutline(contentBox(true), Colors.ROSE)
+                                    ctx.boxOutline(transform.asWorldBox, Colors.MEDIUM_TEAL)
                                 }
                         }
                     ) {
@@ -158,7 +161,15 @@ fun RowScope.testColumn() = column(
                 }
             } else {
                 button(modifier = m) {
-                    icon(IconTextures.CLOSE)
+                    icon(IconTextures.CLOSE, modifier = Modifier
+                        .padding(2)
+                        .renderOverlay { ctx, _, _, _ ->
+                            this as IGWidget
+                            if (wasMouseOver)
+                                ctx.batchRenderBox {
+                                    ctx.boxOutline(transform.asWorldBox, Colors.ROSE)
+                                }
+                        })
                 }
             }
             if (c == 2) {

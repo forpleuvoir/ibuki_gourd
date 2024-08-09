@@ -58,7 +58,7 @@ class TextWidget(
         val c = this.constraints.constraint(constraints)
         val width = text().wrapToTextLines(textRenderer).maxOf { textRenderer.getWidth(it) }.toFloat() + padding.width
         val height =
-            text().wrapToTextLines(textRenderer, c.maxWidth.toInt()).size * (textRenderer.fontHeight + setting.spacing) - setting.spacing + padding.height
+            renderText.wrapToTextLines(textRenderer).size * (textRenderer.fontHeight + setting.spacing) - setting.spacing + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
     }
@@ -92,7 +92,9 @@ class TextWidget(
         }
 
     private fun onChanged() {
-        screen()?.remeasure()
+        if (!constraints.fixed()) {
+            screen()?.remeasure()
+        }
     }
 
     //------------ TextScroll ------------\\
@@ -144,14 +146,14 @@ class TextWidget(
         val (minX, maxX) = xScrollRange[index]
         //滚动宽度
         val width = abs(maxX - minX)
-        val shouldScroll = width > contentWidth
+        val shouldScroll = textRenderer.getWidth(renderText[index]) > contentWidth
         if (!shouldScroll) return x
         //从min滚动到max所需要的tick
         val ticks = width / xScrollSpeed
         //滚动状态 true = forward, false = back
         val state = (tickCounter / ticks).toInt() and 1 == 0
         val xOffset = xScrollEasing(((tickCounter % ticks) / ticks).coerceIn(0f..1f)) * width
-        return transform.worldLeft - if (state) width - xOffset else xOffset
+        return transform.worldLeft + padding.left - if (state) width - xOffset else xOffset
     }
 
     private fun textScrolledYPos(index: Int, y: Float): Float {
@@ -162,14 +164,14 @@ class TextWidget(
         val (minY, maxY) = yScrollRange
         //滚动宽度
         val height = abs(maxY - minY)
-        val shouldScroll = height > contentHeight
+        val shouldScroll = renderText.totalHeight(textRenderer, setting.spacing) > contentHeight
         if (!shouldScroll) return y
         //从min滚动到max所需要的tick
         val ticks = height / yScrollSpeed
         //滚动状态 true = forward, false = back
         val state = (tickCounter / ticks).toInt() and 1 == 0
         val yOffset = yScrollEasing(((tickCounter % ticks) / ticks).coerceIn(0f..1f)) * height
-        val top = transform.worldTop + (index * (textRenderer.fontHeight + setting.spacing))
+        val top = transform.worldTop + padding.top + (index * (textRenderer.fontHeight + setting.spacing))
         return top - if (state) height - yOffset else yOffset
     }
 
@@ -271,11 +273,11 @@ fun GuiScope<out WidgetContainer>.text(
 }
 
 fun GuiScope<out WidgetContainer>.text(
-    text: String,
+    str: String,
     setting: TextWidget.TextSetting = TextWidget.TextSetting(),
     modifier: Modifier? = null,
     scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(TextWidget({ Literal(text) }, setting)) {
+) = owner().addWidgetChild(TextWidget({ Literal(str) }, setting)) {
     modifier?.foldIn(Unit) { _, op ->
         op.tryApplyModify(this)
     }
@@ -323,7 +325,7 @@ fun GuiScope<out WidgetContainer>.text(
 }
 
 fun GuiScope<out WidgetContainer>.text(
-    text: String,
+    str: String,
     spacing: Float = 1f,
     scrollAxis: ScrollAxis = ScrollAxis.All,
     shadow: Boolean = false,
@@ -337,7 +339,7 @@ fun GuiScope<out WidgetContainer>.text(
     scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
 ) = owner().addWidgetChild(
     TextWidget(
-        { Literal(text) },
+        { Literal(str) },
         spacing,
         shadow,
         scrollAxis,

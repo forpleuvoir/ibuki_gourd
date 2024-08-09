@@ -25,6 +25,9 @@ object TestInitialization {
             register(Keyboard.KP_2) {
                 openScreen(testScreen2())
             }
+            register(Keyboard.KP_3) {
+                openScreen(testScreen3())
+            }
             register(Keyboard.KP_9) {
                 kotlin.runCatching {
                     mc.chatMessage(

@@ -35,7 +35,6 @@ import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.input.CursorMovement
 import net.minecraft.client.input.CursorMovement.*
@@ -119,10 +118,8 @@ class TextArea(
         }
 
     private fun currentLineIndex(cursor: Int): Int {
-        for (i in lines.indices) {
-            val substring: Substring = lines[i]
-            if (cursor !in substring) continue
-            return i
+        lines.forEachIndexed { index, s ->
+            if (cursor in s) return index
         }
         return -1
     }
@@ -133,30 +130,31 @@ class TextArea(
         get() = this.getOffsetLine(0)
 
     private fun currentLine(cursor: Int): Substring {
-        return lines[(currentLineIndex(cursor)).clamp(0, lines.size - 1)]
+        return lines[(currentLineIndex(cursor)).coerceIn(0, lines.size - 1)]
     }
 
     private fun getOffsetLine(offsetFromCurrent: Int): Substring {
         val i: Int = this.currentLineIndex
 //		check(i < 0) { "Cursor is not within text (cursor = " + cursor + ", length = " + text.length + ")" }
-        return lines[(i + offsetFromCurrent).clamp(0, lines.size - 1)]
+        return lines[(i + offsetFromCurrent).coerceIn(0, lines.size - 1)]
     }
 
 
     fun getLine(index: Int): Substring {
-        return lines[index.clamp(0, lines.size - 1)]
+        return lines[index.coerceIn(0, lines.size - 1)]
     }
 
     var text: String = ""
         set(value) {
             field = truncateForReplacement(value)
             this.selectionEnd = value.length
-            this.cursor = value.length
             this.onTextChanged(field)
             onChange()
         }
 
     var cursor: Int = 0
+
+    val cursorChar: Char get() = text[(cursor - 1).coerceAtLeast(0)]
 
     val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
 
@@ -204,43 +202,58 @@ class TextArea(
             max(selectionEnd, cursor)
         )
 
-    private val previousWordAtCursor: Substring
+    private val previousWordOffsetAtCursor: Int
         get() {
             if (text.isEmpty()) {
-                return Substring.EMPTY
+                return 0
             }
-            var result: Int = cursor.clamp(0, text.length - 1)
-
-            if (result > 0 && text[result - 1] == ' ') {
-                --result
-                return Substring(result, this.getWordEndIndex(result))
+            var target: Int = (cursor - 1).coerceAtLeast(0)
+            //如果上一个字符为标点符号,直到找到下一个非标点符号的字符
+            if (text[target].isPunct) {
+                while (target > 0 && text[target - 1].isPunct) {
+                    target--
+                }
+                return target - cursor
             }
-            while (result > 0 && Character.isWhitespace(text[result - 1])) {
-                --result
+            //如果上一个字符为空白符号,直到找到下一个非空白符号
+            if (Character.isWhitespace(text[target])) {
+                while (target > 0 && Character.isWhitespace(text[target - 1])) {
+                    target--
+                }
+                return target - cursor
             }
-            while (result > 0 && !Character.isWhitespace(text[result - 1])) {
-                --result
+            //如果上一个字符为其他字符,则直到找到下一个标点符号或空白符号的字符
+            while (target > 0 && !Character.isWhitespace(text[target - 1]) && !text[target - 1].isPunct) {
+                target--
             }
-            return Substring(result, this.getWordEndIndex(result))
+            return target - cursor
         }
 
-    private val nextWordAtCursor: Substring
+    private val nextWordOffsetAtCursor: Int
         get() {
             if (text.isEmpty()) {
-                return Substring.EMPTY
+                return 0
             }
-            var result: Int = cursor.clamp(0, text.length - 1)
-            if (result < text.length && text[result] == ' ') {
-                ++result
-                return Substring(result, getWordEndIndex(result))
+            var target: Int = cursor.coerceAtMost(text.lastIndex)
+            //如果上一个字符为标点符号,直到找到下一个非标点符号的字符
+            if (text[target].isPunct) {
+                while (target < text.lastIndex && text[target + 1].isPunct) {
+                    target++
+                }
+                return target - (cursor - 1)
             }
-            while (result < text.length && !Character.isWhitespace(text[result])) {
-                ++result
+            //如果上一个字符为空白符号,直到找到下一个非空白符号
+            if (Character.isWhitespace(text[target])) {
+                while (target < text.lastIndex && Character.isWhitespace(text[target + 1])) {
+                    target++
+                }
+                return target - (cursor - 1)
             }
-            while (result < text.length && Character.isWhitespace(text[result])) {
-                ++result
+            //如果上一个字符为其他字符,则直到找到下一个标点符号或空白符号的字符
+            while (target < text.lastIndex && !Character.isWhitespace(text[target + 1]) && !text[target + 1].isPunct) {
+                target++
             }
-            return Substring(result, getWordEndIndex(result))
+            return target - (cursor - 1)
         }
 
     private var focusedTicks = 0
@@ -262,7 +275,7 @@ class TextArea(
 
     private fun delete(offset: Int) {
         if (!this.hasSelection) {
-            selectionEnd = (cursor + offset).clamp(0, text.length)
+            selectionEnd = (cursor + offset).coerceIn(0, text.length)
         }
         replaceSelection("")
     }
@@ -281,7 +294,7 @@ class TextArea(
                 cursor = text.length + amount
             }
         }
-        cursor = cursor.clamp(0, text.length)
+        cursor = cursor.coerceIn(0, text.length)
         this.onCursorChanged()
         if (!selecting) {
             selectionEnd = cursor
@@ -296,14 +309,6 @@ class TextArea(
         val substring: Substring = this.getOffsetLine(offset)
         val amount = textRenderer.trimToWidth(text.substring(substring.beginIndex, substring.endIndex), i).length
         moveCursor(ABSOLUTE, substring.beginIndex + amount)
-    }
-
-    private fun getWordEndIndex(startIndex: Int): Int {
-        var result: Int = startIndex
-        while (result < text.length && !Character.isWhitespace(text[result])) {
-            ++result
-        }
-        return result
     }
 
     private fun moveCursor(mouseX: Float, mouseY: Float) {
@@ -385,7 +390,7 @@ class TextArea(
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        event.tryUse { wasMouseOver && wasDragging }.onSuccess {
+        event.tryUse { wasDragging }.onSuccess {
             selecting = true
             moveCursor(event.x, event.y)
             selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
@@ -430,6 +435,13 @@ class TextArea(
                 replaceSelection("")
                 return@tryUse true
             }
+            //选中当前单词
+            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
+                this.moveCursor(RELATIVE, previousWordOffsetAtCursor)
+                selecting = true
+                this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
+                return@tryUse true
+            }
             //另起一行
             if (InputHandler.hasKeyPressed(Keyboard.RIGHT_SHIFT, Keyboard.ENTER)) {
                 this.moveCursor(ABSOLUTE, this.currentLine.endIndex)
@@ -467,22 +479,22 @@ class TextArea(
                 }
                 //光标左移
                 Keyboard.LEFT                     -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-                        val substring: Substring = this.previousWordAtCursor
-                        this.moveCursor(ABSOLUTE, substring.beginIndex)
+                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                        this.previousWordOffsetAtCursor
                     } else {
-                        this.moveCursor(RELATIVE, -1)
+                        -1
                     }
+                    this.moveCursor(RELATIVE, offset)
                     true
                 }
                 //光标右移
                 Keyboard.RIGHT                    -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-                        val substring: Substring = this.nextWordAtCursor
-                        this.moveCursor(ABSOLUTE, substring.beginIndex)
+                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                        this.nextWordOffsetAtCursor
                     } else {
-                        this.moveCursor(RELATIVE, 1)
+                        1
                     }
+                    this.moveCursor(RELATIVE, offset)
                     true
                 }
                 //光标上移
@@ -530,8 +542,7 @@ class TextArea(
                 //删除选中,如果没有选中则删除光标前的一个字符,如果按下了ctrl则删除光标前的一个单词
                 Keyboard.BACKSPACE                -> {
                     if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-                        val substring: Substring = this.previousWordAtCursor
-                        delete(substring.beginIndex - cursor)
+                        delete(this.previousWordOffsetAtCursor)
                     } else {
                         delete(-1)
                     }
@@ -540,8 +551,7 @@ class TextArea(
                 //删除选中,如果没有选中则删除光标后的一个字符,如果按下了ctrl则删除光标后的一个单词
                 Keyboard.DELETE                   -> {
                     if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-                        val substring: Substring = this.nextWordAtCursor
-                        delete(substring.beginIndex - cursor)
+                        delete(this.nextWordOffsetAtCursor)
                     } else {
                         delete(1)
                     }
@@ -565,8 +575,7 @@ class TextArea(
     }
 
     override fun onCharTyped(event: CharTypedEvent) {
-        if (!(this.isFocused && StringHelper.isValidChar(event.char))) return
-        event.tryUse().onSuccess {
+        event.tryUse { this.isFocused && StringHelper.isValidChar(event.char) }.onSuccess {
             replaceSelection(event.char.toString())
         }
     }
@@ -757,7 +766,7 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
     textRenderer: TextRenderer = mc.textRenderer,
     barThickness: Float = 9f,
     amountConsumer: (Float) -> Unit = { },
-    initialAmount: () -> Float = { 0f },
+    initialAmount: () -> Float? = { null },
     modifier: Modifier? = null,
     textAreaModifier: (ColumnScope.() -> Modifier)? = null,
     scrollerModifier: (ColumnScope.() -> Modifier)? = null,

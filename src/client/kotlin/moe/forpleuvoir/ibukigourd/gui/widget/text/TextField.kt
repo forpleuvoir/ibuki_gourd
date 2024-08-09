@@ -28,15 +28,15 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.pick
-import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.input.CursorMovement
+import net.minecraft.client.input.CursorMovement.*
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.StringHelper
 import net.minecraft.util.Util
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -59,6 +59,9 @@ open class TextField(
             if (value != field && textPredicate(value)) {
                 field = value
                 onTextChanged(field)
+                if (!constraints.fixed()) {
+                    screen()?.remeasure()
+                }
             }
         }
 
@@ -79,13 +82,13 @@ open class TextField(
 
     private var selectionStart: Int = 0
         set(value) {
-            field = value.clamp(0, text.length)
+            field = value.coerceIn(0, text.length)
         }
 
     private var selectionEnd: Int = 0
         set(value) {
             val textLength = text.length
-            field = value.clamp(0, textLength)
+            field = value.coerceIn(0, textLength)
             if (firstCharacterIndex > textLength) {
                 firstCharacterIndex = textLength
             }
@@ -100,7 +103,7 @@ open class TextField(
             } else if (field <= firstCharacterIndex) {
                 firstCharacterIndex -= firstCharacterIndex - field
             }
-            firstCharacterIndex = firstCharacterIndex.clamp(0, textLength)
+            firstCharacterIndex = firstCharacterIndex.coerceIn(0, textLength)
         }
 
     var cursor: Int
@@ -110,7 +113,6 @@ open class TextField(
             if (!selecting) {
                 selectionEnd = selectionStart
             }
-            onTextChanged(text)
         }
 
     private var maxLength = 255
@@ -118,7 +120,6 @@ open class TextField(
             field = value
             if (text.length > value) {
                 text = text.substring(0, value)
-                this.onTextChanged(text)
             }
         }
 
@@ -164,23 +165,9 @@ open class TextField(
 
 
     private fun erase(offset: Int) {
-        if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-            this.eraseWords(offset)
-        } else {
-            this.eraseCharacters(offset)
-        }
+        this.eraseCharacters(offset)
     }
 
-    private fun eraseWords(wordOffset: Int) {
-        if (text.isEmpty()) {
-            return
-        }
-        if (selectionEnd != selectionStart) {
-            write("")
-            return
-        }
-        this.eraseCharacters(this.getWordSkipPosition(wordOffset) - selectionStart)
-    }
 
     private fun eraseCharacters(characterOffset: Int) {
         var k: Int
@@ -205,46 +192,78 @@ open class TextField(
         cursor = j
     }
 
-    private fun getWordSkipPosition(wordOffset: Int): Int {
-        return getWordSkipPosition(wordOffset, cursor)
-    }
+    private val previousWordOffsetAtCursor: Int
+        get() {
+            if (text.isEmpty()) {
+                return 0
+            }
+            var target: Int = (cursor - 1).coerceAtLeast(0)
+            //如果上一个字符为标点符号,直到找到下一个非标点符号的字符
+            if (text[target].isPunct) {
+                while (target > 0 && text[target - 1].isPunct) {
+                    target--
+                }
+                return target - cursor
+            }
+            //如果上一个字符为空白符号,直到找到下一个非空白符号
+            if (Character.isWhitespace(text[target])) {
+                while (target > 0 && Character.isWhitespace(text[target - 1])) {
+                    target--
+                }
+                return target - cursor
+            }
+            //如果上一个字符为其他字符,则直到找到下一个标点符号或空白符号的字符
+            while (target > 0 && !Character.isWhitespace(text[target - 1]) && !text[target - 1].isPunct) {
+                target--
+            }
+            return target - cursor
+        }
 
-    private fun getWordSkipPosition(wordOffset: Int, cursorPosition: Int, skipOverSpaces: Boolean = false): Int {
-        var resultCursor = cursorPosition
-        val leftOffset = wordOffset < 0
-        val offset = abs(wordOffset)
-        repeat(offset) {
-            if (leftOffset) {
-                if (!skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
-                    --resultCursor
-                    return@repeat
-                }
-                while (skipOverSpaces && resultCursor > 0 && text[resultCursor - 1] == ' ') {
-                    --resultCursor
-                }
-                while (resultCursor > 0 && text[resultCursor - 1] != ' ') {
-                    --resultCursor
-                }
-                return@repeat
+    private val nextWordOffsetAtCursor: Int
+        get() {
+            if (text.isEmpty()) {
+                return 0
             }
-            val length = text.length
-            if (!skipOverSpaces && resultCursor < text.length && text[resultCursor] == ' ') {
-                ++resultCursor
-                return@repeat
+            var target: Int = cursor.coerceAtMost(text.lastIndex)
+            //如果上一个字符为标点符号,直到找到下一个非标点符号的字符
+            if (text[target].isPunct) {
+                while (target < text.lastIndex && text[target + 1].isPunct) {
+                    target++
+                }
+                return target - (cursor - 1)
             }
-            if (text.indexOf(32.toChar(), resultCursor).also { resultCursor = it } == -1) {
-                resultCursor = length
-                return@repeat
+            //如果上一个字符为空白符号,直到找到下一个非空白符号
+            if (Character.isWhitespace(text[target])) {
+                while (target < text.lastIndex && Character.isWhitespace(text[target + 1])) {
+                    target++
+                }
+                return target - (cursor - 1)
             }
-            while (skipOverSpaces && resultCursor < length && text[resultCursor] == ' ') {
-                ++resultCursor
+            //如果上一个字符为其他字符,则直到找到下一个标点符号或空白符号的字符
+            while (target < text.lastIndex && !Character.isWhitespace(text[target + 1]) && !text[target + 1].isPunct) {
+                target++
+            }
+            return target - (cursor - 1)
+        }
+
+    private fun moveCursor(movement: CursorMovement, amount: Int) {
+        when (movement) {
+            ABSOLUTE -> {
+                cursor = amount
+            }
+
+            RELATIVE -> {
+                cursor += amount
+            }
+
+            END      -> {
+                cursor = text.length + amount
             }
         }
-        return resultCursor
-    }
-
-    fun moveCursor(offset: Int) {
-        cursor = getCursorPosWithOffset(offset)
+        cursor = cursor.coerceIn(0, text.length)
+        if (!selecting) {
+            selectionEnd = cursor
+        }
     }
 
     private fun getCursorPosWithOffset(offset: Int): Int {
@@ -263,10 +282,14 @@ open class TextField(
 
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraint(constraints)
-        val width = text.isNotEmpty().pick(textRenderer.getWidth(text), hintText?.let { textRenderer.getWidth(it) } ?: 0).toFloat() + padding.width
+        val width = text.isNotEmpty().pick(textRenderer.getWidth(text), hintText?.let { textRenderer.getWidth(it) } ?: 0).toFloat() + padding.width + 5f
         val height = textRenderer.fontHeight + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
+    }
+
+    override fun measureCompleted() {
+        cursor = cursor
     }
 
 
@@ -292,6 +315,14 @@ open class TextField(
             if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
                 setCursorToEnd()
                 this.selectionEnd = 0
+                return@tryUse true
+            }
+            //选中当前单词
+            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
+                this.moveCursor(RELATIVE, previousWordOffsetAtCursor)
+                selecting = true
+                this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
+                selecting = false
                 return@tryUse true
             }
             //复制选中文本
@@ -346,34 +377,41 @@ open class TextField(
                 }
                 //光标左移,如果按下左控制键则跳过一个单词
                 Keyboard.LEFT      -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-                        cursor = this.getWordSkipPosition(-1)
+                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                        previousWordOffsetAtCursor
                     } else {
-                        moveCursor(-1)
+                        -1
                     }
+                    moveCursor(RELATIVE, offset)
                     true
                 }
                 //光标右移,如果按下左控制键则跳过一个单词
                 Keyboard.RIGHT     -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
-                        cursor = this.getWordSkipPosition(1)
+                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                        nextWordOffsetAtCursor
                     } else {
-                        moveCursor(1)
+                        1
                     }
+                    moveCursor(RELATIVE, offset)
                     true
                 }
                 //删除一个字符
                 Keyboard.BACKSPACE -> {
-                    selecting = false
-                    erase(-1)
-                    selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                        erase(this.previousWordOffsetAtCursor)
+                    } else {
+                        erase(-1)
+                    }
                     true
                 }
                 //删除一个字符
                 Keyboard.DELETE    -> {
-                    selecting = false
+                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                        selecting = true
+                        this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
+                        selecting = false
+                    }
                     erase(1)
-                    selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
                     true
                 }
                 //将光标移动到文本开头
@@ -410,11 +448,15 @@ open class TextField(
     }
 
     private fun setCursorFromMouse(mouseX: Float) {
+        if (text.isEmpty()) {
+            cursor = 0
+            return
+        }
         val str = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth.toInt())
-        val xOffset = mouseX - contentLeft(true)
+        val xOffset = (mouseX - contentLeft(true)).coerceAtLeast(0f)
         val count = textRenderer.trimToWidth(str, xOffset.toInt()).length
-        val countWidth = textRenderer.getWidth(text.substring(firstCharacterIndex, count)).toFloat()
-        val endCharWidth = textRenderer.getWidth(text[(count + firstCharacterIndex + 1).coerceIn(0..text.lastIndex)].toString())
+        val countWidth = textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + count)).toFloat()
+        val endCharWidth = textRenderer.getWidth(text[(count + firstCharacterIndex + 1).coerceIn(0..text.lastIndex.coerceAtLeast(0))].toString())
         val offset = if (xOffset - countWidth > endCharWidth / 2f) 1 else 0
         cursor = count + firstCharacterIndex + offset
     }
@@ -430,9 +472,11 @@ open class TextField(
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        selecting = true
-        setCursorFromMouse(event.x)
-        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+        event.tryUse { wasDragging }.onSuccess {
+            selecting = true
+            setCursorFromMouse(event.x)
+            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+        }
     }
 
 
@@ -440,7 +484,7 @@ open class TextField(
         if (!isActive) return
         event.tryUse { wasMouseOver }
             .onSuccess {
-                moveCursor((event.verticalAmount < 0f).pick(1, -1))
+                moveCursor(RELATIVE, (event.verticalAmount < 0f).pick(1, -1))
             }
     }
 

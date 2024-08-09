@@ -37,4 +37,6 @@ data class Constraints constructor(
         return Constraints(minWidth, maxWidth, minHeight, maxHeight)
     }
 
+    fun fixed(): Boolean =
+        minWidth == maxWidth && minHeight == maxHeight
 }
