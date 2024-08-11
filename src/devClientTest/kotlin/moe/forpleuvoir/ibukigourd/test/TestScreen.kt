@@ -7,8 +7,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
-import moe.forpleuvoir.ibukigourd.gui.base.screen.getScreenDataOr
-import moe.forpleuvoir.ibukigourd.gui.base.screen.pushScreenData
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.boxScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
@@ -81,11 +79,9 @@ fun testScreen() = boxScreen(
         listWithScroller(
             Orientation.Horizontal,
             3f,
-            amountConsumer = { mc.pushScreenData("list", it) },
-            initialAmount = { mc.getScreenDataOr("list", 0f) },
         ) {
             repeat(50) {
-                button() { text("$it") }
+                button { text("$it") }
             }
         }
         testColumn()
@@ -115,8 +111,6 @@ fun RowScope.testColumn() = column(
     listWithScroller(
         Orientation.Vertical,
         2f,
-        amountConsumer = { mc.pushScreenData("list1", it) },
-        initialAmount = { mc.getScreenDataOr("list1", 0f) },
         listModifier = { Modifier.weight(1) },
         modifier = Modifier.width(120f)
     ) {

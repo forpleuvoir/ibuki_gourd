@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
@@ -19,8 +20,10 @@ import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.input.mouseX
 import moe.forpleuvoir.ibukigourd.input.mouseY
+import moe.forpleuvoir.ibukigourd.render.math.x
+import moe.forpleuvoir.ibukigourd.render.math.y
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -67,7 +70,7 @@ open class ScrollerWidget(
         initialAmount()?.let {
             amount = it
         } ?: run {
-            amount = amount
+            amount = _amount
         }
     }
 
@@ -95,19 +98,20 @@ open class ScrollerWidget(
 
     //------------ Scroller ------------\\
 
-    private val bar = Transform(parent = { this.transform })
+    private val bar = Transform(parent = { this.transform }).apply {
+        subscribePositionChange { _, current ->
+            progress = orientation.peek(current.y, current.x) / scrollableLength
+        }
+    }
 
     private var barWasDragging = false
 
-    var progress: Float
+    var progress: Float = 0f
         set(value) {
-            val fixedValue = value.coerceIn(0f..totalAmount())
-            amount = (totalAmount() * fixedValue).coerceIn(0f..totalAmount())
+            field = value.coerceIn(0f..1f)
+            _amount = totalAmount() * field
         }
-        get() {
-            if (scrollableLength == 0f) return 1f
-            return (orientation.peek(bar.y, bar.x) / scrollableLength).coerceIn(0f..1f)
-        }
+
 
     private val scrollableLength: Float
         get() = orientation.peek(
@@ -117,12 +121,16 @@ open class ScrollerWidget(
 
     private val barPositionRange: ClosedFloatingPointRange<Float> get() = 0f..scrollableLength
 
+    private var _amount: Float = 0f
+        set(value) {
+            field = value.coerceIn(0f..totalAmount())
+        }
+
     var amount: Float
-        get() = (totalAmount() * progress).coerceIn(0f..totalAmount())
+        get() = _amount
         set(value) {
             val fixedValue = value.coerceIn(0f..totalAmount())
-            val barPosition = scrollableLength * if (totalAmount() == 0f) 0f else fixedValue / totalAmount()
-
+            val barPosition = scrollableLength * (fixedValue / totalAmount())
             orientation.peek(
                 {
                     bar.y = (barPosition.isNaN()).pick(0f, barPosition).coerceIn(barPositionRange)
@@ -187,7 +195,6 @@ open class ScrollerWidget(
     }
 
     override fun onPress() {
-        if (!visible) return
         if (wasMouseOver) {
             setFromMouse(mc.mouseX, mc.mouseY)
         }
@@ -205,15 +212,18 @@ open class ScrollerWidget(
         }
     }
 
-    companion object {
+    companion object
 
-    }
+    fun interface ScrollerScope : GuiScope<ScrollerWidget>
 
 }
 
+typealias ScrollerScope = ScrollerWidget.ScrollerScope
+
+
 fun GuiScope<out WidgetContainer>.scroller(
     /**
-     * 进度步进
+     * 进度步幅
      */
     amountStep: () -> Float,
     /**
@@ -229,10 +239,10 @@ fun GuiScope<out WidgetContainer>.scroller(
     orientation: Orientation = Orientation.Vertical,
     barTheme: PressableTheme = PressableTheme.ScrollerBar,
     bgTheme: PressableTheme = PressableTheme.ScrollerBackground,
-    modifier: Modifier? = null
-) = owner().addWidgetChild(ScrollerWidget(amountStep, totalAmount, barProportion, initialAmount, amountConsumer, orientation, barTheme, bgTheme)) {
-    modifier?.foldIn(Unit) { _, e ->
-        e.tryApplyModify(this)
-    }
+    modifier: Modifier = Modifier,
+    scope: ScrollerScope.() -> Unit = {}
+) = addWidgetChild(ScrollerWidget(amountStep, totalAmount, barProportion, initialAmount, amountConsumer, orientation, barTheme, bgTheme)) {
+    modifier.foldInApply()
+    ScrollerScope { this }.scope()
 }
 

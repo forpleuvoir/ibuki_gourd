@@ -12,7 +12,9 @@ interface BoxLayout : Layout {
         val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraint(constraints)
         var maxChildWidth = 0f
         var maxChildHeight = 0f
-        val parentDatas = measurables.map { WrappedBoxLayoutData.getOrDefault(it) }
+
+        val parentDatas = WrappedBoxLayoutData.wrappedDatas(measurables)
+
         var maxLeft = 0f
         var maxCenterWidth = 0f
         var maxRight = 0f
@@ -20,18 +22,19 @@ interface BoxLayout : Layout {
         var maxCenterHeight = 0f
         var maxBottom = 0f
 
-        val placeables = measurables.mapIndexed { index, child ->
-            var childConstraints = Constraints.of(0f, _maxWidth - widget.padding.width, 0f, _maxHeight - widget.padding.height)
+        val childConstraints = Constraints.of(0f, _maxWidth - widget.padding.width, 0f, _maxHeight - widget.padding.height)
+        measurables.forEachIndexed { index, child ->
             val data = parentDatas[index]
+            var _childConstraints = childConstraints
             if (data.fillWidth) {
                 val w = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
-                childConstraints = childConstraints.copy(minWidth = w, maxWidth = w)
+                _childConstraints = _childConstraints.copy(minWidth = w, maxWidth = w)
             }
             if (data.fillHeight) {
                 val h = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
-                childConstraints = childConstraints.copy(minHeight = h, maxHeight = h)
+                _childConstraints = _childConstraints.copy(minHeight = h, maxHeight = h)
             }
-            val placeable = child.measure(childConstraints).also {
+            val placeable = child.measure(_childConstraints).also {
                 if (it.wrappedWidth > maxChildWidth) maxChildWidth = it.wrappedWidth
                 if (it.wrappedHeight > maxChildHeight) maxChildHeight = it.wrappedHeight
             }
@@ -64,8 +67,6 @@ interface BoxLayout : Layout {
                     else                   -> Unit
                 }
             }
-
-            placeable
         }
         //计算内容宽度
         val width = maxLeft + maxCenterWidth + maxRight + widget.padding.width
@@ -83,7 +84,7 @@ interface BoxLayout : Layout {
     }
 
     override fun layout(layoutables: List<Layoutable>) {
-        val datas = layoutables.map { WrappedBoxLayoutData.getOrDefault(it) }
+        val datas = WrappedBoxLayoutData.wrappedDatas(layoutables)
         layoutables.forEachIndexed { index, placeable ->
             val vec2f = datas[index].alignment.align(widget.contentBox(false), placeable.wrappedSize)
             placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top), false)
@@ -98,17 +99,10 @@ data class WrappedBoxLayoutData(
     val fillHeight: Boolean = false
 ) {
 
-    companion object {
+    companion object : WrappedLayoutDataUtil<WrappedBoxLayoutData> {
 
-        private val default = WrappedBoxLayoutData()
-
-        fun fromMeasurable(measurable: Measurable) =
-            measurable.parentData as? WrappedBoxLayoutData
-
-
-        fun getOrDefault(measurable: Measurable, default: WrappedBoxLayoutData = this.default) =
-            fromMeasurable(measurable) ?: default
-
+        override fun default() = WrappedBoxLayoutData()
 
     }
+
 }

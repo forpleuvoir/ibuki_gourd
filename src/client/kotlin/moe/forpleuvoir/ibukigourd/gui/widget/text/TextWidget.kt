@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
@@ -24,7 +25,7 @@ import kotlin.math.abs
 
 class TextWidget(
     val text: () -> Text,
-    val setting: TextSetting
+    val setting: Setting
 ) : IGWidgetImpl() {
 
     constructor(
@@ -38,9 +39,9 @@ class TextWidget(
         backgroundColor: ARGBColor = Color(0),
         alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
         textRenderer: TextRenderer = mc.textRenderer,
-    ) : this(text, TextSetting(spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer))
+    ) : this(text, Setting(spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer))
 
-    data class TextSetting(
+    data class Setting(
         var spacing: Float = 0f,
         var shadow: Boolean = false,
         var scrollAxis: ScrollAxis = ScrollAxis.All,
@@ -209,79 +210,74 @@ class TextWidget(
         }
     }
 
-    companion object {
-        data class TextWidgetScope(private val textWidget: TextWidget) : GuiScope<TextWidget> {
+    companion object
 
-            override fun owner(): TextWidget = textWidget
+    fun interface TextWidgetScope : GuiScope<TextWidget> {
 
-            inline fun setting(block: TextSetting.() -> Unit) {
-                owner().setting.block()
-            }
-
-            fun scrollAxis(scrollAxis: ScrollAxis) {
-                owner().scrollAxis = scrollAxis
-            }
-
-            fun hoverScroll(hoverScroll: ScrollAxis) {
-                owner().hoverScroll = hoverScroll
-            }
-
-            fun xScrollSpeed(speed: Float) {
-                owner().xScrollSpeed = speed
-            }
-
-            fun xScrollEasing(ease: Ease) {
-                owner().xScrollEasing = ease
-            }
-
-            fun yScrollSpeed(speed: Float) {
-                owner().yScrollSpeed = speed
-            }
-
-            fun yScrollEasing(ease: Ease) {
-                owner().yScrollEasing = ease
-            }
-
-
+        fun setting(block: Setting.() -> Unit) {
+            owner().setting.block()
         }
+
+        fun scrollAxis(scrollAxis: ScrollAxis) {
+            owner().scrollAxis = scrollAxis
+        }
+
+        fun hoverScroll(hoverScroll: ScrollAxis) {
+            owner().hoverScroll = hoverScroll
+        }
+
+        fun xScrollSpeed(speed: Float) {
+            owner().xScrollSpeed = speed
+        }
+
+        fun xScrollEasing(ease: Ease) {
+            owner().xScrollEasing = ease
+        }
+
+        fun yScrollSpeed(speed: Float) {
+            owner().yScrollSpeed = speed
+        }
+
+        fun yScrollEasing(ease: Ease) {
+            owner().yScrollEasing = ease
+        }
+
+
     }
 }
 
+typealias TextWidgetScope = TextWidget.TextWidgetScope
+
+typealias TextSetting = TextWidget.Setting
 
 fun GuiScope<out WidgetContainer>.text(
     text: () -> Text,
-    setting: TextWidget.TextSetting = TextWidget.TextSetting(),
-    modifier: Modifier? = null,
-    scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(TextWidget(text, setting)) {
-    modifier?.foldIn(Unit) { _, op ->
-        op.tryApplyModify(this)
-    }
-    TextWidget.Companion.TextWidgetScope(this).scope()
+    setting: TextSetting = TextSetting(),
+    modifier: Modifier = Modifier,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(TextWidget(text, setting)) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
 }
 
 fun GuiScope<out WidgetContainer>.text(
     text: Text,
-    setting: TextWidget.TextSetting = TextWidget.TextSetting(),
-    modifier: Modifier? = null,
-    scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(TextWidget({ text }, setting)) {
-    modifier?.foldIn(Unit) { _, op ->
-        op.tryApplyModify(this)
-    }
-    TextWidget.Companion.TextWidgetScope(this).scope()
+    setting: TextSetting = TextSetting(),
+    modifier: Modifier = Modifier,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(TextWidget({ text }, setting)) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
 }
 
 fun GuiScope<out WidgetContainer>.text(
     str: String,
-    setting: TextWidget.TextSetting = TextWidget.TextSetting(),
-    modifier: Modifier? = null,
-    scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(TextWidget({ Literal(str) }, setting)) {
-    modifier?.foldIn(Unit) { _, op ->
-        op.tryApplyModify(this)
-    }
-    TextWidget.Companion.TextWidgetScope(this).scope()
+    setting: TextSetting = TextSetting(),
+    modifier: Modifier = Modifier,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(TextWidget({ Literal(str) }, setting)) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
 }
 
 fun GuiScope<out WidgetContainer>.text(
@@ -295,13 +291,11 @@ fun GuiScope<out WidgetContainer>.text(
     backgroundColor: ARGBColor = Color(0),
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier? = null,
-    scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(TextWidget(text, spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer)) {
-    modifier?.foldIn(Unit) { _, op ->
-        op.tryApplyModify(this)
-    }
-    TextWidget.Companion.TextWidgetScope(this).scope()
+    modifier: Modifier = Modifier,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(TextWidget(text, spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer)) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
 }
 
 fun GuiScope<out WidgetContainer>.text(
@@ -315,13 +309,11 @@ fun GuiScope<out WidgetContainer>.text(
     backgroundColor: ARGBColor = Color(0),
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier? = null,
-    scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(TextWidget({ text }, spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer)) {
-    modifier?.foldIn(Unit) { _, op ->
-        op.tryApplyModify(this)
-    }
-    TextWidget.Companion.TextWidgetScope(this).scope()
+    modifier: Modifier = Modifier,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(TextWidget({ text }, spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer)) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
 }
 
 fun GuiScope<out WidgetContainer>.text(
@@ -335,9 +327,9 @@ fun GuiScope<out WidgetContainer>.text(
     backgroundColor: ARGBColor = Color(0),
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier? = null,
-    scope: TextWidget.Companion.TextWidgetScope.() -> Unit = {}
-) = owner().addWidgetChild(
+    modifier: Modifier = Modifier,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(
     TextWidget(
         { Literal(str) },
         spacing,
@@ -351,8 +343,6 @@ fun GuiScope<out WidgetContainer>.text(
         textRenderer
     )
 ) {
-    modifier?.foldIn(Unit) { _, op ->
-        op.tryApplyModify(this)
-    }
-    TextWidget.Companion.TextWidgetScope(this).scope()
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
 }

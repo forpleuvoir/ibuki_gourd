@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer

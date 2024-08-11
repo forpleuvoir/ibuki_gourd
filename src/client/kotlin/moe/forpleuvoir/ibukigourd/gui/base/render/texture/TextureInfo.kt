@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
+import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -10,10 +11,10 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.util.Identifier
 
 data class TextureInfo(
-    val width: Int = 256,
-    val height: Int = 256,
+    override val width: Int = 256,
+    override val height: Int = 256,
     val texture: Identifier
-) : Serializable {
+) : Serializable, SizeInt {
     companion object {
         fun deserialization(serializeElement: SerializeElement?, default: TextureInfo): TextureInfo {
             return serializeElement?.run {

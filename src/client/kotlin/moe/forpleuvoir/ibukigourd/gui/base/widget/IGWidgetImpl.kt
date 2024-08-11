@@ -4,7 +4,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -85,8 +84,6 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
                 { parent()?.screen?.let { it() } }
             }
         }
-
-    override var parent: () -> IGElement? = { null }
 
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 

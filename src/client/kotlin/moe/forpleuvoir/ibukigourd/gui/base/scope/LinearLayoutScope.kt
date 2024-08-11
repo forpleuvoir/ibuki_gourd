@@ -10,10 +10,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
 @GuiDslMark
 interface LinearLayoutScope {
 
-    val layout: LinearLayout
+    val linearLayout: LinearLayout
 
     fun spacing(spacing: Float) {
-        layout.spacing = spacing
+        linearLayout.spacing = spacing
     }
 
     fun Modifier.weight(weight: Int) = this then WidgetModifier {

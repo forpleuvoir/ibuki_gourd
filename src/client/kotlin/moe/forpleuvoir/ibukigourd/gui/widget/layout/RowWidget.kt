@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
@@ -17,24 +18,24 @@ class RowWidget(
 
     override var spacing: Float = 0f
 
+    companion object
+
+    fun interface RowScope : GuiScope<RowWidget>, LinearLayoutScope {
+
+        override val linearLayout: LinearLayout
+            get() = owner()
+
+    }
+
 }
 
-data class RowScope(private val row: RowWidget) : GuiScope<RowWidget>, LinearLayoutScope {
-    override fun owner(): RowWidget = row
-
-    override val layout: LinearLayout
-        get() = owner()
-
-
-}
+typealias RowScope = RowWidget.RowScope
 
 fun GuiScope<out WidgetContainer>.row(
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    modifier: Modifier? = null,
+    modifier: Modifier = Modifier,
     content: RowScope.() -> Unit
-) = owner().addWidgetChild(
-    RowWidget(alignment).apply {
-        RowScope(this).content()
-        modifier?.foldIn(Unit) { _, e -> e.tryApplyModify(this) }
-    }
-)
+) = addWidgetChild(RowWidget(alignment)) {
+    RowScope { this }.content()
+    modifier.foldInApply()
+}

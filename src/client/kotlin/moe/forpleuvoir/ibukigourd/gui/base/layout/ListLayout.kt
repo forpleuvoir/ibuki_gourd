@@ -19,10 +19,8 @@ interface ListLayout : Layout {
             var maxChildWidth = 0f
             //内容的最大高度
             val contentMaxHeight = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
-            //可放置元素
-            val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
-            val parentDatas = measurables.map { WrappedListLayoutData.getOrDefault(it) }
+            val parentDatas = WrappedListLayoutData.wrappedDatas(measurables)
             //使用的高度
             var usedHeight = spacing * measurables.lastIndex
 
@@ -37,7 +35,6 @@ interface ListLayout : Layout {
                 )
                 if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
                 usedHeight += placeable.size.height + child.margin.height
-                placeables[index] = placeable
             }
 
             usedHeight += widget.padding.height
@@ -54,10 +51,8 @@ interface ListLayout : Layout {
             var maxChildHeight = 0f
             //内容的最大高度
             val contentMaxWidth = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
-            //可放置元素
-            val placeables = arrayOfNulls<Placeable>(measurables.size)
             //所有元素的parentData
-            val parentDatas = measurables.map { WrappedListLayoutData.getOrDefault(it) }
+            val parentDatas = WrappedListLayoutData.wrappedDatas(measurables)
             //使用的宽度
             var usedWidth = spacing * measurables.lastIndex
 
@@ -72,7 +67,6 @@ interface ListLayout : Layout {
                 )
                 if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
                 usedWidth += placeable.size.width + child.margin.width
-                placeables[index] = placeable
             }
 
             usedWidth += widget.padding.width
@@ -127,7 +121,7 @@ interface ListLayout : Layout {
         )
 
     override fun layout(layoutables: List<Layoutable>) {
-        val datas = layoutables.map { WrappedListLayoutData.getOrDefault(it) }
+        val datas = WrappedListLayoutData.wrappedDatas(layoutables)
         orientation.peek(
             { this.layoutVertical(layoutables, datas) },
             { this.layoutHorizontal(layoutables, datas) }
@@ -142,17 +136,8 @@ data class WrappedListLayoutData(
     var gravity: Gravity = Gravity.Center
 ) {
 
-    companion object {
-
-        private val default = WrappedListLayoutData()
-
-        fun fromMeasurable(measurable: Measurable): WrappedListLayoutData? {
-            return measurable.parentData as? WrappedListLayoutData
-        }
-
-        fun getOrDefault(measurable: Measurable, default: WrappedListLayoutData = this.default): WrappedListLayoutData {
-            return fromMeasurable(measurable) ?: default
-        }
+    companion object : WrappedLayoutDataUtil<WrappedListLayoutData> {
+        override fun default() = WrappedListLayoutData()
 
     }
 

@@ -46,7 +46,7 @@ class WidgetTexture(
 
         other as WidgetTexture
 
-        return textureInfo == other.textureInfo
+        return textureInfo == other.textureInfo && super.equals(other)
     }
 
     override fun hashCode(): Int {

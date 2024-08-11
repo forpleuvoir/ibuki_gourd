@@ -13,7 +13,6 @@ import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange
-import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.GameRenderer
@@ -243,8 +242,8 @@ fun DrawContext.renderSaturationGradientBox(
     check(saturationRange.endInclusive in 0f..1f && saturationRange.start in 0f..1f) {
         "Saturation range must be between 0 and 1,but was ${saturationRange.start} and ${saturationRange.endInclusive}"
     }
-    val colorStart = HSVColor(hue, (if (reverse) saturationRange.endInclusive else saturationRange.start).clamp(alphaFRange), value, alpha)
-    val colorEnd = HSVColor(hue, (if (!reverse) saturationRange.endInclusive else saturationRange.start).clamp(alphaFRange), value, alpha)
+    val colorStart = HSVColor(hue, (if (reverse) saturationRange.endInclusive else saturationRange.start).coerceIn(alphaFRange), value, alpha)
+    val colorEnd = HSVColor(hue, (if (!reverse) saturationRange.endInclusive else saturationRange.start).coerceIn(alphaFRange), value, alpha)
     renderGradientBox(x, y, width, height, colorStart, colorEnd, orientation, layer, shaderSupplier)
 }
 
@@ -307,8 +306,8 @@ fun DrawContext.renderValueGradientBox(
     check(valueRange.endInclusive in 0f..1f && valueRange.start in 0f..1f) {
         "Value range must be between 0 and 1,but was ${valueRange.start} and ${valueRange.endInclusive}"
     }
-    val colorStart = HSVColor(hue, saturation, (if (reverse) valueRange.endInclusive else valueRange.start).clamp(alphaFRange), alpha)
-    val colorEnd = HSVColor(hue, saturation, (if (!reverse) valueRange.endInclusive else valueRange.start).clamp(alphaFRange), alpha)
+    val colorStart = HSVColor(hue, saturation, (if (reverse) valueRange.endInclusive else valueRange.start).coerceIn(alphaFRange), alpha)
+    val colorEnd = HSVColor(hue, saturation, (if (!reverse) valueRange.endInclusive else valueRange.start).coerceIn(alphaFRange), alpha)
     renderGradientBox(x, y, width, height, colorStart, colorEnd, orientation, layer, shaderSupplier)
 }
 

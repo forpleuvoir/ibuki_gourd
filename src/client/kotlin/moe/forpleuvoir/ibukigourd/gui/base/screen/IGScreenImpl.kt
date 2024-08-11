@@ -256,8 +256,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             val (_mouseX, _mouseY) = context.client.mousePosition
             renderBackground(ctx, _mouseX, _mouseY, delta)
             render.invoke(ctx, _mouseX, _mouseY, delta)
-            for (layer in layers) {
-                ctx.layer = layer
+            for (index in layers.lastIndex downTo 0) {
+                ctx.layer = layers[index]
                 for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
                     ctx.tryRender(drawableChild) {
                         if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)

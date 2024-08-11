@@ -16,8 +16,7 @@ import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange
-import moe.forpleuvoir.nebula.common.pick
-import moe.forpleuvoir.nebula.common.util.clamp
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.GameRenderer
@@ -249,13 +248,13 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
                 var currentY = y
 
                 val colorStart = HSVColor(hue, saturation, value, alpha, false)
-                hue = (hue + hueOffset).clamp(hueRange)
+                hue = (hue + hueOffset).coerceIn(hueRange)
                 val colorEnd = HSVColor(hue, saturation, value, alpha, false)
 
                 repeat(precision) {
                     box(x, currentY, width, lengthSlice, colorStart, colorEnd, colorEnd, colorStart)
                     colorStart.hue = hue
-                    hue = (hue + hueOffset).clamp(hueRange)
+                    hue = (hue + hueOffset).coerceIn(hueRange)
                     colorEnd.hue = hue
                     currentY += lengthSlice
                 }
@@ -264,13 +263,13 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
                 var currentX = x
 
                 val colorStart = HSVColor(hue, saturation, value, alpha, false)
-                hue = (hue + hueOffset).clamp(hueRange)
+                hue = (hue + hueOffset).coerceIn(hueRange)
                 val colorEnd = HSVColor(hue, saturation, value, alpha, false)
 
                 repeat(precision) {
                     box(currentX, y, lengthSlice, height, colorStart, colorStart, colorEnd, colorEnd)
                     colorStart.hue = hue
-                    hue = (hue + hueOffset).clamp(hueRange)
+                    hue = (hue + hueOffset).coerceIn(hueRange)
                     colorEnd.hue = hue
                     currentX += lengthSlice
                 }
@@ -333,8 +332,8 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         check(saturationRange.endInclusive in 0f..1f && saturationRange.start in 0f..1f) {
             "Saturation range must be between 0 and 1,but was ${saturationRange.start} and ${saturationRange.endInclusive}"
         }
-        val colorStart = HSVColor(hue, (if (reverse) saturationRange.endInclusive else saturationRange.start).clamp(alphaFRange), value, alpha)
-        val colorEnd = HSVColor(hue, (if (!reverse) saturationRange.endInclusive else saturationRange.start).clamp(alphaFRange), value, alpha)
+        val colorStart = HSVColor(hue, (if (reverse) saturationRange.endInclusive else saturationRange.start).coerceIn(alphaFRange), value, alpha)
+        val colorEnd = HSVColor(hue, (if (!reverse) saturationRange.endInclusive else saturationRange.start).coerceIn(alphaFRange), value, alpha)
         gradientBox(x, y, width, height, colorStart, colorEnd, orientation)
     }
 
@@ -391,8 +390,8 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         check(valueRange.endInclusive in 0f..1f && valueRange.start in 0f..1f) {
             "Value range must be between 0 and 1,but was ${valueRange.start} and ${valueRange.endInclusive}"
         }
-        val colorStart = HSVColor(hue, saturation, (if (reverse) valueRange.endInclusive else valueRange.start).clamp(alphaFRange), alpha)
-        val colorEnd = HSVColor(hue, saturation, (if (!reverse) valueRange.endInclusive else valueRange.start).clamp(alphaFRange), alpha)
+        val colorStart = HSVColor(hue, saturation, (if (reverse) valueRange.endInclusive else valueRange.start).coerceIn(alphaFRange), alpha)
+        val colorEnd = HSVColor(hue, saturation, (if (!reverse) valueRange.endInclusive else valueRange.start).coerceIn(alphaFRange), alpha)
         gradientBox(x, y, width, height, colorStart, colorEnd, orientation)
     }
 

@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.render.math.bezier
 
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.math.pow
 
 object BackEasing : Easing {

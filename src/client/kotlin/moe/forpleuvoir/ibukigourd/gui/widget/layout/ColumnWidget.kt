@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
@@ -17,22 +18,22 @@ class ColumnWidget(
 
     override var spacing: Float = 0f
 
+    fun interface ColumnScope : GuiScope<ColumnWidget>, LinearLayoutScope {
+        override val linearLayout: LinearLayout
+            get() = owner()
+
+    }
+
 }
 
-data class ColumnScope(private val column: ColumnWidget) : GuiScope<ColumnWidget>, LinearLayoutScope {
-    override fun owner(): ColumnWidget = column
-    override val layout: LinearLayout
-        get() = owner()
+typealias ColumnScope = ColumnWidget.ColumnScope
 
-}
 
 fun GuiScope<out WidgetContainer>.column(
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    modifier: Modifier? = null,
+    modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit
-) = owner().addWidgetChild(
-    ColumnWidget(alignment).apply {
-        ColumnScope(this).content()
-        modifier?.foldIn(Unit) { _, e -> e.tryApplyModify(this) }
-    }
-)
+) = addWidgetChild(ColumnWidget(alignment)) {
+    ColumnScope { this }.content()
+    modifier.foldInApply()
+}

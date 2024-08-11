@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField.Companion
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -27,7 +26,7 @@ import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.input.CursorMovement
@@ -114,6 +113,8 @@ open class TextField(
                 selectionEnd = selectionStart
             }
         }
+
+    val cursorChar: Char get() = runCatching { text[cursor] }.getOrElse { ' ' }
 
     private var maxLength = 255
         set(value) {
@@ -289,7 +290,7 @@ open class TextField(
     }
 
     override fun measureCompleted() {
-        cursor = cursor
+        firstCharacterIndex = 0
     }
 
 
@@ -509,8 +510,14 @@ open class TextField(
                     max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
                 )
             )
-            if (cursor == text.length) {
-                content.renderBox(Box(box.position.copy(box.left + offset, y + height - 1.25f), 5f, thickness), cursorColor)
+            if (Character.isWhitespace(cursorChar)) {
+                content.renderBox(
+                    Box(
+                        box.position.copy(box.left + offset, y + height - 1.25f),
+                        textRenderer.getWidth(cursorChar.toString()).toFloat(),
+                        thickness
+                    ), cursorColor
+                )
                 return
             }
             if (cursor - firstCharacterIndex > 0) {
@@ -585,72 +592,74 @@ open class TextField(
 
     companion object {
 
-        fun interface TextFieldScope : GuiScope<TextField> {
+    }
 
-            var text: String
-                get() = owner().text
-                set(value) {
-                    owner().text = value
-                }
+    fun interface TextFieldScope : GuiScope<TextField> {
 
-            var hintText: Text?
-                get() = owner().hintText
-                set(value) {
-                    owner().hintText = value
-                }
-
-            var textColor: ARGBColor
-                get() = owner().textColor
-                set(value) {
-                    owner().textColor = value
-                }
-
-            var hintColor: ARGBColor
-                get() = owner().hintColor
-                set(value) {
-                    owner().hintColor = value
-                }
-
-            var bgShaderColor: ARGBColor
-                get() = owner().bgShaderColor
-                set(value) {
-                    owner().bgShaderColor = value
-                }
-
-            var selectedColor: ARGBColor
-                get() = owner().selectedColor
-                set(value) {
-                    owner().selectedColor = value
-                }
-
-            var suggestionColor: ARGBColor
-                get() = owner().suggestionColor
-                set(value) {
-                    owner().suggestionColor = value
-                }
-            var cursorColor: ARGBColor
-                get() = owner().cursorColor
-                set(value) {
-                    owner().cursorColor = value
-                }
-
-            fun suggestion(suggestion: (text: String) -> String) {
-                owner().suggestion = suggestion
+        var text: String
+            get() = owner().text
+            set(value) {
+                owner().text = value
             }
 
-            fun textConsumer(consumer: (text: String) -> Unit) {
-                owner().onTextChanged = consumer
+        var hintText: Text?
+            get() = owner().hintText
+            set(value) {
+                owner().hintText = value
             }
 
-            fun textPredicate(predicate: (text: String) -> Boolean) {
-                owner().textPredicate = predicate
+        var textColor: ARGBColor
+            get() = owner().textColor
+            set(value) {
+                owner().textColor = value
             }
 
+        var hintColor: ARGBColor
+            get() = owner().hintColor
+            set(value) {
+                owner().hintColor = value
+            }
+
+        var bgShaderColor: ARGBColor
+            get() = owner().bgShaderColor
+            set(value) {
+                owner().bgShaderColor = value
+            }
+
+        var selectedColor: ARGBColor
+            get() = owner().selectedColor
+            set(value) {
+                owner().selectedColor = value
+            }
+
+        var suggestionColor: ARGBColor
+            get() = owner().suggestionColor
+            set(value) {
+                owner().suggestionColor = value
+            }
+        var cursorColor: ARGBColor
+            get() = owner().cursorColor
+            set(value) {
+                owner().cursorColor = value
+            }
+
+        fun suggestion(suggestion: (text: String) -> String) {
+            owner().suggestion = suggestion
+        }
+
+        fun textConsumer(consumer: (text: String) -> Unit) {
+            owner().onTextChanged = consumer
+        }
+
+        fun textPredicate(predicate: (text: String) -> Boolean) {
+            owner().textPredicate = predicate
         }
 
     }
 
 }
+
+typealias TextFieldScope = TextField.TextFieldScope
 
 fun GuiScope<out WidgetContainer>.textField(
     textColor: ARGBColor = Color(0x303030),
@@ -660,12 +669,9 @@ fun GuiScope<out WidgetContainer>.textField(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier? = null,
-    scope: Companion.TextFieldScope.() -> Unit = {}
+    modifier: Modifier = Modifier,
+    scope: TextFieldScope.() -> Unit = {}
 ) = owner().addWidgetChild(TextField(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
-    val m = Modifier.padding(5) thenNullable modifier
-    m.foldIn(Unit) { _, e ->
-        e.tryApplyModify(this)
-    }
-    Companion.TextFieldScope { this }.scope()
+    Modifier.padding(5).then(modifier).foldInApply()
+    TextFieldScope { this }.scope()
 }

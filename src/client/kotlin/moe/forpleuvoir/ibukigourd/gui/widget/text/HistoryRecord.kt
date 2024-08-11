@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 
 class HistoryRecord(private val maxStackSize: Int = 50, var currentRecord: Record) : Tickable {
 

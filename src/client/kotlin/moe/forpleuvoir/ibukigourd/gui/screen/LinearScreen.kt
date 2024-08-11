@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 
 data class LinearScreenScope(
     val screen: IGScreen,
-    override val layout: LinearLayout
+    override val linearLayout: LinearLayout
 ) : ScreenScope<IGScreen>, LinearLayoutScope {
     override fun owner(): IGScreen = screen
 
@@ -21,7 +21,7 @@ data class LinearScreenScope(
 fun linearScreen(
     orientation: Orientation,
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    modifier: (LinearScreenScope.() -> Modifier)? = null,
+    modifier: Modifier = Modifier,
     content: LinearScreenScope.() -> Unit
 ): IGScreenImpl<LinearScreenScope> {
     return object : IGScreenImpl<LinearScreenScope>(), LinearLayout {
@@ -37,18 +37,18 @@ fun linearScreen(
         override val alignment: (Orientation) -> Alignment = alignment
 
     }.apply {
-        modifier?.invoke(this.scope)?.foldIn(Unit) { _, e -> e.tryApplyModify(this) }
+        modifier.foldInApply()
     }
 }
 
 fun rowScreen(
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    modifier: (LinearScreenScope.() -> Modifier)? = null,
+    modifier: Modifier = Modifier,
     content: LinearScreenScope.() -> Unit
 ): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Vertical, alignment, modifier, content)
 
 fun columnScreen(
     alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    modifier: (LinearScreenScope.() -> Modifier)? = null,
+    modifier: Modifier = Modifier,
     content: LinearScreenScope.() -> Unit
 ): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Horizontal, alignment, modifier, content)

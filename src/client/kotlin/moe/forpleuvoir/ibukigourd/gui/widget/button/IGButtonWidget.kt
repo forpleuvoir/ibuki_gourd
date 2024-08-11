@@ -1,12 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
-import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.BoxLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
@@ -77,34 +78,24 @@ open class IGButtonWidget(
         }
     }
 
-    companion object {
+}
 
-        @JvmInline
-        value class IGButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, BoxLayoutScope {
+fun interface ButtonScope : GuiScope<IGButtonWidget>, BoxLayoutScope {
 
-            override fun owner(): IGButtonWidget = button
+    fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)
 
-            fun press(action: (IGButtonWidget) -> Unit) = button.press(action)
+    fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = owner().longPress(time, action)
 
-            fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = button.longPress(time, action)
-
-            fun release(action: (IGButtonWidget) -> Unit) = button.release(action)
-
-        }
-
-    }
+    fun release(action: (IGButtonWidget) -> Unit) = owner().release(action)
 
 }
 
 
 fun GuiScope<out WidgetContainer>.button(
     theme: PressableTheme = PressableTheme.Button2,
-    modifier: Modifier? = null,
-    content: (IGButtonWidget.Companion.IGButtonScope.() -> Unit)? = null
-) = owner().addWidgetChild(IGButtonWidget(theme)) {
-    padding = Padding(horizontal = 6, vertical = 6)
-    content?.let { IGButtonWidget.Companion.IGButtonScope(this).it() }
-    modifier?.foldIn(Unit) { _, e ->
-        e.tryApplyModify(this)
-    }
+    modifier: Modifier = Modifier,
+    content: ButtonScope.() -> Unit = { }
+) = addWidgetChild(IGButtonWidget(theme)) {
+    Modifier.padding(6).then(modifier).foldInApply()
+    ButtonScope { this }.content()
 }

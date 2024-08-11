@@ -14,7 +14,7 @@ data class BoxScreenScope(val screen: IGScreen) : ScreenScope<IGScreen>, BoxLayo
 }
 
 fun boxScreen(
-    modifier: (BoxScreenScope.() -> Modifier)? = null,
+    modifier: BoxScreenScope.() -> Modifier = { Modifier },
     content: BoxScreenScope.() -> Unit
 ): IGScreenImpl<BoxScreenScope> {
     return object : IGScreenImpl<BoxScreenScope>(), BoxLayout {
@@ -24,6 +24,6 @@ fun boxScreen(
         override val scope: BoxScreenScope = BoxScreenScope(this)
 
     }.apply {
-        modifier?.invoke(this.scope)?.foldIn(Unit) { _, e -> e.tryApplyModify(this) }
+        scope.modifier().foldInApply()
     }
 }

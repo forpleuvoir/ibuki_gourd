@@ -8,7 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 
 interface IGWidget : DrawableElement, Layoutable {
 

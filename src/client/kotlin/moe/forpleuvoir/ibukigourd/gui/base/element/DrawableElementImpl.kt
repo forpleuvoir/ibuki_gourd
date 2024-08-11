@@ -62,7 +62,15 @@ abstract class DrawableElementImpl : DrawableElement {
 
     override var parent: () -> IGElement? = { null }
 
-    override var layer: GuiLayer = GuiLayer.default
+    private var _layer: GuiLayer? = null
+
+    override var layer: GuiLayer
+        set(value) {
+            _layer = value
+        }
+        get() {
+            return _layer ?: (parent()?.layer ?: GuiLayer.default)
+        }
 
     override var active: Boolean = true
 

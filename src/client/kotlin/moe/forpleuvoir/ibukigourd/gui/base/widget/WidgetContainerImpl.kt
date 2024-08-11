@@ -26,7 +26,6 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
         it.transform.parent = { this.transform }
         it.parent = { this }
-        it.layer = this.layer
         widgetChildren.add(it)
     }
 

@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.render.math.*
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.ifc
+import moe.forpleuvoir.nebula.common.util.primitive.ifc
 import org.joml.Vector2fc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind

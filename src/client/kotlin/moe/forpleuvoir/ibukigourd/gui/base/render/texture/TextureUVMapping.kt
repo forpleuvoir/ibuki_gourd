@@ -41,7 +41,7 @@ open class TextureUVMapping(
 
         other as TextureUVMapping
 
-        return corner == other.corner
+        return corner == other.corner && super.equals(other)
     }
 
     override fun hashCode(): Int {

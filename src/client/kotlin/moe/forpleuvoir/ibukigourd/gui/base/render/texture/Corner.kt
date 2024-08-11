@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
+import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
@@ -11,7 +12,7 @@ data class Corner(
     val right: Int,
     val top: Int,
     val bottom: Int,
-) {
+) : SizeInt {
     constructor(vertical: Int, horizontal: Int) : this(
         left = vertical,
         right = vertical,
@@ -21,9 +22,9 @@ data class Corner(
 
     constructor(corner: Int) : this(corner, corner, corner, corner)
 
-    val width: Int get() = right + left
+    override val width: Int get() = right + left
 
-    val height: Int get() = bottom + top
+    override val height: Int get() = bottom + top
 
 
     companion object {

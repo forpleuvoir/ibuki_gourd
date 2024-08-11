@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.asVector2fc
-import moe.forpleuvoir.nebula.common.pick
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gui.ScreenRect
 import org.joml.Vector2fc
 import org.joml.Vector2ic

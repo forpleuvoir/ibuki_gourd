@@ -35,6 +35,7 @@ import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.input.CursorMovement
 import net.minecraft.client.input.CursorMovement.*
@@ -42,6 +43,9 @@ import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.StringHelper
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -93,9 +97,24 @@ class TextArea(
 
     var amountConsumer: (Float) -> Unit = {}
 
+    var postAmountChanged: Boolean = true
+
+    @OptIn(ExperimentalContracts::class)
+    inline fun disablePostAmountChanged(block: () -> Unit) {
+        contract {
+            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        }
+        val oldState = postAmountChanged
+        postAmountChanged = false
+        block()
+        postAmountChanged = oldState
+    }
+
     var amount: Float = 0f
         set(value) {
-            field = value.coerceIn(0f, scrollableAmount)
+            field = value.isNaN().pick(0f, value).coerceIn(0f, scrollableAmount)
+            if (postAmountChanged)
+                amountConsumer(field)
         }
 
     val width by transform::width
@@ -147,14 +166,13 @@ class TextArea(
     var text: String = ""
         set(value) {
             field = truncateForReplacement(value)
-            this.selectionEnd = value.length
             this.onTextChanged(field)
             onChange()
         }
 
     var cursor: Int = 0
 
-    val cursorChar: Char get() = text[(cursor - 1).coerceAtLeast(0)]
+    val cursorChar: Char get() = runCatching { text[cursor] }.getOrElse { ' ' }
 
     val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
 
@@ -189,7 +207,6 @@ class TextArea(
             }
         }
         this.amount = amount
-        amountConsumer(amount)
     }
 
     var selection: Substring
@@ -320,6 +337,9 @@ class TextArea(
     }
 
     private fun onChange() {
+        if (!constraints.fixed()) {
+            screen()?.remeasure()
+        }
         this.reWrap()
         this.onCursorChanged()
     }
@@ -501,6 +521,8 @@ class TextArea(
                 Keyboard.UP                       -> {
                     if (!InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         moveCursorLine(-1)
+                    } else {
+                        amount -= fontHeight + spacing
                     }
                     true
                 }
@@ -508,6 +530,8 @@ class TextArea(
                 Keyboard.DOWN                     -> {
                     if (!InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         moveCursorLine(1)
+                    } else {
+                        amount += fontHeight + spacing
                     }
                     true
                 }
@@ -657,8 +681,11 @@ class TextArea(
             val xOffset = textRenderer.getWidth(text.substring(currentLine.beginIndex, cursor)).let { if (cursor == text.length) it.toFloat() else it - .85f }
             val y = contentBox.top + currentLineIndex * (fontHeight + spacing) - amount - spacing
             if (y !in contentBox.top - fontHeight..contentBox.bottom) return
-            if (cursor == text.length)
-                context.renderBox(Box(contentBox.left + xOffset, y + fontHeight, Size(7f, thickness)), cursorColor)
+            if (Character.isWhitespace(cursorChar))
+                context.renderBox(
+                    Box(contentBox.left + xOffset, y + fontHeight, Size(textRenderer.getWidth(cursorChar.toString()).toFloat(), thickness)),
+                    cursorColor
+                )
             else
                 context.renderBox(Box(contentBox.left + xOffset, y + spacing, Size(thickness, textRenderer.fontHeight.toFloat())), cursorColor)
         }
@@ -669,77 +696,79 @@ class TextArea(
 
         const val UNLIMITED_LENGTH = Int.MAX_VALUE
 
-        fun interface TextAreaScope : GuiScope<TextArea> {
+    }
 
-            var text: String
-                get() = owner().text
-                set(value) {
-                    owner().text = value
-                }
+    fun interface TextAreaScope : GuiScope<TextArea> {
 
-            var hintText: Text?
-                get() = owner().hintText
-                set(value) {
-                    owner().hintText = value
-                }
-
-            var textColor: ARGBColor
-                get() = owner().textColor
-                set(value) {
-                    owner().textColor = value
-                }
-
-            var hintColor: ARGBColor
-                get() = owner().hintColor
-                set(value) {
-                    owner().hintColor = value
-                }
-
-            var bgShaderColor: ARGBColor
-                get() = owner().bgShaderColor
-                set(value) {
-                    owner().bgShaderColor = value
-                }
-
-            var selectedColor: ARGBColor
-                get() = owner().selectedColor
-                set(value) {
-                    owner().selectedColor = value
-                }
-
-            var suggestionColor: ARGBColor
-                get() = owner().suggestionColor
-                set(value) {
-                    owner().suggestionColor = value
-                }
-            var cursorColor: ARGBColor
-                get() = owner().cursorColor
-                set(value) {
-                    owner().cursorColor = value
-                }
-
-            var spacing: Float
-                get() = owner().spacing
-                set(value) {
-                    owner().spacing = value
-                }
-
-            fun suggestion(suggestion: ((text: String, preWord: String) -> Iterable<Text>)) {
-                owner().suggestion = suggestion
+        var text: String
+            get() = owner().text
+            set(value) {
+                owner().text = value
             }
 
-            fun textConsumer(consumer: (String) -> Unit) {
-                owner().onTextChanged = consumer
+        var hintText: Text?
+            get() = owner().hintText
+            set(value) {
+                owner().hintText = value
             }
 
-            fun amountConsumer(consumer: (Float) -> Unit) {
-                owner().amountConsumer = consumer
+        var textColor: ARGBColor
+            get() = owner().textColor
+            set(value) {
+                owner().textColor = value
             }
+
+        var hintColor: ARGBColor
+            get() = owner().hintColor
+            set(value) {
+                owner().hintColor = value
+            }
+
+        var bgShaderColor: ARGBColor
+            get() = owner().bgShaderColor
+            set(value) {
+                owner().bgShaderColor = value
+            }
+
+        var selectedColor: ARGBColor
+            get() = owner().selectedColor
+            set(value) {
+                owner().selectedColor = value
+            }
+
+        var suggestionColor: ARGBColor
+            get() = owner().suggestionColor
+            set(value) {
+                owner().suggestionColor = value
+            }
+        var cursorColor: ARGBColor
+            get() = owner().cursorColor
+            set(value) {
+                owner().cursorColor = value
+            }
+
+        var spacing: Float
+            get() = owner().spacing
+            set(value) {
+                owner().spacing = value
+            }
+
+        fun suggestion(suggestion: ((text: String, preWord: String) -> Iterable<Text>)) {
+            owner().suggestion = suggestion
         }
 
+        fun textConsumer(consumer: (String) -> Unit) {
+            owner().onTextChanged = consumer
+        }
+
+        fun amountConsumer(consumer: (Float) -> Unit) {
+            owner().amountConsumer = consumer
+        }
     }
 
 }
+
+typealias TextAreaScope = TextArea.TextAreaScope
 
 fun GuiScope<out WidgetContainer>.textArea(
     maxLength: Int = Int.MAX_VALUE,
@@ -751,14 +780,11 @@ fun GuiScope<out WidgetContainer>.textArea(
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     spacing: Float = 1f,
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier? = null,
-    scope: TextArea.Companion.TextAreaScope.() -> Unit = {}
+    modifier: Modifier = Modifier,
+    scope: TextAreaScope.() -> Unit = {}
 ) = owner().addWidgetChild(TextArea(maxLength, textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, spacing, textRenderer)) {
-    val m = Modifier.padding(5.5f) thenNullable modifier
-    m.foldIn(Unit) { _, modifier ->
-        modifier.tryApplyModify(this)
-    }
-    TextArea.Companion.TextAreaScope { this }.scope()
+    Modifier.padding(5.5f).then(modifier).foldInApply()
+    TextAreaScope { this }.scope()
 }
 
 fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
@@ -767,10 +793,10 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
     barThickness: Float = 9f,
     amountConsumer: (Float) -> Unit = { },
     initialAmount: () -> Float? = { null },
-    modifier: Modifier? = null,
-    textAreaModifier: (ColumnScope.() -> Modifier)? = null,
-    scrollerModifier: (ColumnScope.() -> Modifier)? = null,
-    scope: TextArea.Companion.TextAreaScope.() -> Unit = {}
+    modifier: Modifier = Modifier,
+    textAreaModifier: ColumnScope.() -> Modifier = { Modifier },
+    scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
+    scope: TextAreaScope.() -> Unit = {}
 ): ColumnWidget {
     var textSupplier: () -> TextArea? = { null }
     return column(modifier = Modifier
@@ -782,7 +808,7 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
                     ctx.drawWidgetTexture(widget.transform.asWorldBox, it.theme(WidgetTheme.TextInput))
                 }
             }
-        } thenNullable modifier
+        } then modifier
     ) {
         var scrollerSupplier: () -> ScrollerWidget? = { null }
         val tModifier = Modifier
@@ -793,11 +819,11 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
             .mouseScrolling {
                 this as IGWidget
                 if (this.wasMouseOver) scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-            } thenNullable textAreaModifier?.invoke(this)
+            } then textAreaModifier()
         val text = textArea(maxLength, textRenderer = textRenderer, modifier = tModifier) {
             scope()
             amountConsumer {
-                scrollerSupplier.invoke()?.amount = it
+                scrollerSupplier()?.amount = it
             }
         }
         textSupplier = { text }
@@ -805,13 +831,15 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
             amountStep = { textRenderer.fontHeight / 2f },
             totalAmount = { (text.textContentHeight - text.contentHeight).coerceAtLeast(0f) },
             barProportion = { (text.contentHeight / text.textContentHeight).coerceIn(0f..1f) },
-            amountConsumer = { text.amount = it;amountConsumer.invoke(it) },
+            amountConsumer = {
+                text.disablePostAmountChanged { text.amount = it };amountConsumer.invoke(it)
+            },
             initialAmount = initialAmount,
             orientation = Orientation.Vertical,
             modifier = Modifier
                 .fill()
                 .width(barThickness)
-                .margin(left = 1f, top = -3f) thenNullable scrollerModifier?.invoke(this)
+                .margin(left = 1f, top = -3f) then scrollerModifier()
         )
         scrollerSupplier = { scroller }
     }

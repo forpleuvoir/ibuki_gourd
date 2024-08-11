@@ -15,10 +15,6 @@ interface Modifier {
     infix fun then(other: Modifier): Modifier =
         if (other === Modifier) this else CombinedModifier(this, other)
 
-    infix fun thenNullable(other: Modifier?): Modifier =
-        if (other != null) then(other) else this
-
-
     companion object : Modifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
 

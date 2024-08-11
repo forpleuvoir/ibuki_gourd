@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.render.arrange
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.copy
-import moe.forpleuvoir.nebula.common.sumOf
+import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import org.joml.Vector2fc
 
 sealed interface Orientation {

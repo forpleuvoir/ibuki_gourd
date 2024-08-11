@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDr
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -98,40 +99,44 @@ class ListWidget(
         if (wasMouseOver) super.onMousePress(event)
     }
 
-}
+    companion object
 
-data class ListWidgetScope(private val list: ListWidget) : GuiScope<ListWidget>, ListLayoutScope {
-    override fun owner(): ListWidget = list
+    fun interface ListWidgetScope : GuiScope<ListWidget>, ListLayoutScope {
 
-    fun enableScissor() {
-        list.enableScissor = true
-    }
-
-    fun disableScissor() {
-        list.enableScissor = false
-    }
-
-    infix fun amountBy(delegatedAmount: DelegatedValue<Float>) {
-        delegatedAmount.onSetValue = {
-            list.amounts = it
-            list.amounts
-        }
-        delegatedAmount.onGetValue = {
-            list.amounts
+        fun enableScissor() {
+            owner().enableScissor = true
         }
 
+        fun disableScissor() {
+            owner().enableScissor = false
+        }
+
+        infix fun amountBy(delegatedAmount: DelegatedValue<Float>) {
+            delegatedAmount.onSetValue = {
+                owner().amounts = it
+                owner().amounts
+            }
+            delegatedAmount.onGetValue = {
+                owner().amounts
+            }
+
+        }
+
     }
 
 }
+
+typealias ListWidgetScope = ListWidget.ListWidgetScope
+
 
 fun GuiScope<out WidgetContainer>.list(
     orientation: Orientation = Orientation.Vertical,
     spacing: Float = 0f,
-    modifier: Modifier? = null,
+    modifier: Modifier = Modifier,
     content: ListWidgetScope.() -> Unit
-) = this.owner().addWidgetChild(ListWidget(amounts = 0f, orientation = orientation, spacing = spacing)) {
-    ListWidgetScope(this).content()
-    modifier?.foldIn(Unit) { _, e -> e.tryApplyModify(this) }
+) = addWidgetChild(ListWidget(amounts = 0f, orientation = orientation, spacing = spacing)) {
+    ListWidgetScope { this }.content()
+    modifier.foldInApply()
 }
 
 fun GuiScope<out WidgetContainer>.listWithScroller(
@@ -139,10 +144,10 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
     spacing: Float = 0f,
     barThickness: Float = 9f,
     amountConsumer: (Float) -> Unit = {},
-    initialAmount: () -> Float = { 0f },
-    modifier: Modifier? = null,
-    listModifier: (LinearLayoutScope.() -> Modifier)? = null,
-    scrollerModifier: (LinearLayoutScope.() -> Modifier)? = null,
+    initialAmount: () -> Float? = { null },
+    modifier: Modifier = Modifier,
+    listModifier: LinearLayoutScope.() -> Modifier = { Modifier },
+    scrollerModifier: LinearLayoutScope.() -> Modifier = { Modifier },
     content: ListWidgetScope.() -> Unit
 ): WidgetContainerImpl {
     var scrollerSupplier: () -> ScrollerWidget? = { null }
@@ -158,7 +163,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
     return orientation.peek(
         {
             column(
-                modifier = m thenNullable modifier
+                modifier = m then modifier
             ) {
                 val list = list(
                     orientation = orientation,
@@ -170,7 +175,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                             this as ListWidget
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-                        } thenNullable listModifier?.invoke(this)
+                        } then listModifier()
                 )
                 val scroller = scroller(
                     amountStep = { list.widgetChildren().minOf { it.transform.height } / 2f },
@@ -185,14 +190,14 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     modifier = Modifier
                         .fill()
                         .width(barThickness)
-                        .margin(left = 1f) thenNullable scrollerModifier?.invoke(this)
+                        .margin(left = 1f) then scrollerModifier()
                 )
                 scrollerSupplier = { scroller }
             }
         },
         {
             row(
-                modifier = m thenNullable modifier
+                modifier = m then modifier
             ) {
                 val list = list(
                     orientation = orientation,
@@ -204,7 +209,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                             this as ListWidget
                             if (this.wasMouseOver)
                                 scrollerSupplier.invoke()?.scroller(it.verticalAmount)
-                        } thenNullable listModifier?.invoke(this)
+                        } then listModifier()
                 )
                 val scroller = scroller(
                     amountStep = { list.widgetChildren().minOf { it.transform.width } / 2f },
@@ -219,7 +224,7 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     modifier = Modifier
                         .fill()
                         .height(barThickness)
-                        .margin(top = 1f) thenNullable scrollerModifier?.invoke(this)
+                        .margin(top = 1f) then scrollerModifier()
                 )
                 scrollerSupplier = { scroller }
             }

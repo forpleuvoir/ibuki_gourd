@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.ModifiableUserInteractionHandler
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
@@ -80,6 +81,14 @@ interface IGElement : Element, ModifiableUserInteractionHandler {
 
 
     //------------ Extensions ------------\\
+
+    fun Modifier.foldInApply() {
+        this.foldIn(Unit) { _, m -> m.tryApplyModify(this@IGElement) }
+    }
+
+    fun Modifier.foldOutApply() {
+        this.foldOut(Unit) { m, _ -> m.tryApplyModify(this@IGElement) }
+    }
 
     /**
      * Executes the use function on the current GUIEvent instance with the given Element.

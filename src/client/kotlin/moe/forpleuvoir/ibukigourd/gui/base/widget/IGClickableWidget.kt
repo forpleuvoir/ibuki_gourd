@@ -25,7 +25,7 @@ interface IGClickableWidget : IGWidget {
 
     fun isValidClickButton(button: Mouse): Boolean = button == Mouse.LEFT
 
-    fun clicked(mouseX: Float, mouseY: Float): Boolean {
+    fun allowClicked(mouseX: Float, mouseY: Float): Boolean {
         return transform.isMouseOvered(mouseX, mouseY)
     }
 
