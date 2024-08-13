@@ -25,7 +25,15 @@ class IGDrawContext(
 
     }
 
-    lateinit var layer: GuiLayer
+    private var _layer: GuiLayer? = null
+
+    var layer: GuiLayer
+        get() {
+            return _layer ?: GuiLayer.default
+        }
+        set(value) {
+            _layer = value
+        }
 
     private val afterRenderList: MutableList<Pair<Int, IGDrawContext.() -> Unit>> = mutableListOf()
 
@@ -47,9 +55,7 @@ class IGDrawContext(
     }
 
     fun canRender(drawable: IGDrawable): Boolean {
-        return if (::layer.isInitialized) {
-            drawable.layer == this@IGDrawContext.layer
-        } else false
+        return drawable.layer == this@IGDrawContext.layer
     }
 
     @OptIn(ExperimentalContracts::class)

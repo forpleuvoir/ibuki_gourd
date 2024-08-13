@@ -12,7 +12,7 @@ interface ListLayout : Layout {
 
         private fun ListLayout.measureVertical(measurables: List<Measurable>, constraints: Constraints): Placeable {
             //垂直布局 宽度固定
-            val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraint(constraints)
+            val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraintAs(constraints)
             //所有子元素的最大宽度限制固定
             val contentMaxWidth = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
             //最宽的子元素宽度
@@ -44,7 +44,7 @@ interface ListLayout : Layout {
 
         private fun ListLayout.measureHorizontal(measurables: List<Measurable>, constraints: Constraints): Placeable {
             //水平布局 高度固定
-            val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraint(constraints)
+            val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraintAs(constraints)
             //所有子元素的最大高度限制固定
             val contentMaxHeight = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
             //最高的子元素高度

@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
@@ -37,13 +36,11 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
         val (_mouseX, _mouseY) = context.client.mousePosition
         ctx.tryRender {
             renderBackground(this, _mouseX, _mouseY, delta)
-            vanillaRender(this, _mouseX, _mouseY, delta)
+            render(this, _mouseX, _mouseY, delta)
         }
 
         for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
-            ctx.tryRender(drawableChild) {
-                if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
-            }
+            if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
         }
 
         ctx.tryRender { renderOverlay(this, _mouseX, _mouseY, delta) }
@@ -70,8 +67,6 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
 
 
     //------------ IGElement ------------\\
-
-    override var layer: GuiLayer
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit
 

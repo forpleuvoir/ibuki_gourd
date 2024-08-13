@@ -7,7 +7,7 @@ import org.joml.Vector2fc
 
 interface AbsoluteLayout : Layout {
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-        val (_, _maxWidth, _, _maxHeight) = this.constraints.constraint(constraints)
+        val (_, _maxWidth, _, _maxHeight) = this.constraints.constraintAs(constraints)
         measurables.forEachIndexed { index, child ->
             val childConstraints = Constraints.of(
                 0f, _maxWidth - child.margin.width,
@@ -21,7 +21,7 @@ interface AbsoluteLayout : Layout {
     override fun layout(layoutables: List<Layoutable>) {
         val datas = WrappedAbsoluteLayoutData.wrappedDatas(layoutables)
         layoutables.forEachIndexed { index, layoutable ->
-            layoutable.placeAt(datas[index].asVec2)
+            layoutable.placeAt(datas[index].asVec2, true)
         }
     }
 

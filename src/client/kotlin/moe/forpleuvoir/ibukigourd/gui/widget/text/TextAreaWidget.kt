@@ -375,7 +375,7 @@ class TextArea(
     //------------ Measure ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraint(constraints)
+        val c = this.constraints.constraintAs(constraints)
         val height = text.totalHeight(textRenderer, spacing, c.maxWidth.toInt())
         val width = text.wrapToLines(textRenderer).maxWidth(textRenderer).toFloat()
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))

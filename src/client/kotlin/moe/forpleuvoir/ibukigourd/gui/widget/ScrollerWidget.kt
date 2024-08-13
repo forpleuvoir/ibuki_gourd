@@ -46,7 +46,7 @@ open class ScrollerWidget(
     )
 
     override fun measure(constraints: Constraints): Placeable {
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraint(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
         transform.subscribeSizeChange { _, (width, height) ->
             orientation.peek(
                 {

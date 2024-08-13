@@ -7,13 +7,25 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.maxWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
-import moe.forpleuvoir.ibukigourd.gui.screen.boxScreen
+import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.Colors
 
-fun testScreen3() = boxScreen {
+fun testScreen3() = rowScreen {
+    dropMenu {
+        content {
+            text("测试1")
+        }
+        items {
+            repeat(13) {
+                text("测试内容$it")
+            }
+        }
+    }
+
     button(
         modifier = Modifier.maxWidth(80f).maxHeight(80f)
     ) {
@@ -38,5 +50,6 @@ fun testScreen3() = boxScreen {
                 .padding(4f)
         )
     }
+
 
 }

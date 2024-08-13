@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.scope
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
+import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 
@@ -19,6 +20,18 @@ fun interface GuiScope<T : Any> {
         fun <W : IGWidget> GuiScope<out WidgetContainer>.addWidgetChild(child: W) = owner().addWidgetChild(child)
 
         fun <W : IGWidget> GuiScope<out WidgetContainer>.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
+
+        fun GuiScope<out IGWidget>.layer(layer: GuiLayer) {
+            owner().layer = layer
+        }
+
+        fun GuiScope<out IGWidget>.active(active: Boolean) {
+            owner().active = active
+        }
+
+        fun GuiScope<out IGWidget>.visible(visible: Boolean) {
+            owner().visible = visible
+        }
 
     }
 

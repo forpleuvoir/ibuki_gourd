@@ -21,7 +21,7 @@ interface Layout : MeasurePolicy, Measurable {
     fun layout(layoutables: List<Layoutable>)
 
     override fun measure(constraints: Constraints): Placeable =
-        measureChildren(layoutableChildren(), this.constraints.constraint(constraints))
+        measureChildren(layoutableChildren(), this.constraints.constraintAs(constraints))
 
     override fun measureCompleted() {
         measureCompleted(layoutableChildren())

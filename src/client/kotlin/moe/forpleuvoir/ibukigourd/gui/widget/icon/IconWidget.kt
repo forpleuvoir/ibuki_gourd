@@ -21,7 +21,7 @@ class IconWidget(
 
     private var changedRemeasure: Boolean = true
 
-    private var iconTexture: WidgetTexture = iconTexture
+    var iconTexture: WidgetTexture = iconTexture
         set(value) {
             if (field != value) {
                 val remeasure = (field as TextureUVMapping) != (value as TextureUVMapping) && changedRemeasure
@@ -31,7 +31,7 @@ class IconWidget(
         }
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraint(constraints)
+        val c = this.constraints.constraintAs(constraints)
         val width = iconTexture.width + padding.width
         val height = iconTexture.height + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))

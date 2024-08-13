@@ -65,6 +65,7 @@ interface IGWidget : DrawableElement, Layoutable {
             transform.x = x
             transform.y = y
         }
+        placeCompleted()
     }
 
 }

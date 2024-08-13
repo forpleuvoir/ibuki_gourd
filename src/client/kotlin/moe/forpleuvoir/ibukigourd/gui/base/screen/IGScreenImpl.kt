@@ -77,7 +77,19 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     //------------ IGScreen ------------\\
 
-    override var layer: GuiLayer = GuiLayer.default
+    private var _layer: GuiLayer? = null
+
+    override var layer: GuiLayer
+        set(value) {
+            _layer = value
+        }
+        get() {
+            return _layer ?: GuiLayer.default
+        }
+
+    override fun clearLayer() {
+        _layer = null
+    }
 
     override var layers: List<GuiLayer> = GuiLayer.defaultLayers
         internal set
@@ -259,9 +271,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             for (index in layers.lastIndex downTo 0) {
                 ctx.layer = layers[index]
                 for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
-                    ctx.tryRender(drawableChild) {
-                        if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
-                    }
+                    if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
                 }
             }
 
@@ -345,15 +355,17 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                if (child is IGWidget) {
-                    val mouseOver = child.wasMouseOver
-                    child.mouseMove.invoke(event)
-                    if (!mouseOver && child.wasMouseOver) {
-                        child.mouseEnter(MouseEnterEvent(event.x, event.y).layer(layer))
-                    } else if (mouseOver && !child.wasMouseOver) {
-                        child.mouseLeave(MouseLeaveEvent(event.x, event.y).layer(layer))
-                    }
-                } else child.mouseMove.invoke(event)
+                if (child.active) {
+                    if (child is IGWidget) {
+                        val mouseOver = child.wasMouseOver
+                        child.mouseMove.invoke(event)
+                        if (!mouseOver && child.wasMouseOver) {
+                            child.mouseEnter(MouseEnterEvent(event.x, event.y).layer(layer))
+                        } else if (mouseOver && !child.wasMouseOver) {
+                            child.mouseLeave(MouseLeaveEvent(event.x, event.y).layer(layer))
+                        }
+                    } else child.mouseMove.invoke(event)
+                }
             }
         }
     }
@@ -369,14 +381,14 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         wasDragging = wasMouseOver
 
         for (layer in layers) {
-            event.layer = layer
+            event.layer(layer)
 
             if (wasMouseOver) {
                 focused(FocusedEvent().layer(layer))
             }
 
             for (child in elementChildren()) {
-                child.mousePress.invoke(event)
+                if (child.active) child.mousePress.invoke(event)
             }
         }
     }
@@ -385,7 +397,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun onFocused(event: FocusedEvent) {
         for (child in elementChildren()) {
-            child.focused.invoke(event)
+            if (child.active) child.focused.invoke(event)
         }
         event.tryUse().onSuccess {
             isFocused = true
@@ -405,7 +417,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                child.mouseRelease.invoke(event)
+                if (child.active) child.mouseRelease.invoke(event)
             }
         }
     }
@@ -430,9 +442,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             event.layer = layer
             for (child in elementChildren()) {
                 if (child is IGWidget) {
-                    if (child.wasDragging) child.mouseDragging.invoke(event)
+                    if (child.wasDragging && child.active) child.mouseDragging.invoke(event)
                 } else {
-                    child.mouseDragging.invoke(event)
+                    if (child.active) child.mouseDragging.invoke(event)
                 }
             }
         }
@@ -449,7 +461,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                child.mouseScrolling.invoke(event)
+                if (child.active) child.mouseScrolling.invoke(event)
             }
         }
     }
@@ -465,7 +477,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                child.keyPress.invoke(event)
+                if (child.active) child.keyPress.invoke(event)
             }
         }
         event.tryUse {
@@ -486,7 +498,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                child.keyRelease(event)
+                if (child.active) child.keyRelease(event)
             }
         }
     }
@@ -502,7 +514,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                child.charTyped(event)
+                if (child.active) child.charTyped(event)
             }
         }
     }

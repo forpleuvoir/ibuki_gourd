@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.GuiContext
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.ModifiableUserInteractionHandler
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
@@ -13,13 +14,13 @@ import net.minecraft.client.gui.ScreenRect
 import net.minecraft.client.gui.navigation.GuiNavigation
 import net.minecraft.client.gui.navigation.GuiNavigationPath
 
-interface IGElement : Element, ModifiableUserInteractionHandler {
+interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     val screen: () -> IGScreen?
 
     var parent: () -> IGElement?
 
-    var layer: GuiLayer
+    override var layer: GuiLayer
 
     var active: Boolean
 

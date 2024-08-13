@@ -15,6 +15,11 @@ abstract class ExpandableWidgetContainer : IGClickableWidgetContainer(), Expanda
             }
         }
 
+    fun toggle() {
+        expandState = !expandState
+    }
+
+
     private var _onExpand: (() -> Unit)? = null
 
     override fun onExpand(action: () -> Unit) {
@@ -31,8 +36,6 @@ abstract class ExpandableWidgetContainer : IGClickableWidgetContainer(), Expanda
 
     protected abstract fun onClose()
 
-    override fun onClick(mouseX: Float, mouseY: Float) {
-        expandState = !expandState
-    }
+    override fun onClick(mouseX: Float, mouseY: Float) = toggle()
 
 }

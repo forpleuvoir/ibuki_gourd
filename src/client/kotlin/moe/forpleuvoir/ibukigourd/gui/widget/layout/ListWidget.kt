@@ -25,6 +25,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gui.DrawContext
 
 class ListWidget(
@@ -36,7 +37,7 @@ class ListWidget(
 
     var amounts: Float = amounts
         set(value) {
-            field = value.coerceIn(0f..totalAmount)
+            field = (value.isNaN().pick(0f, value)).coerceIn(0f..totalAmount)
             layout()
         }
 
@@ -89,9 +90,7 @@ class ListWidget(
                 drawableChild.active = false
                 drawableChild.visible = false
             }
-            context.tryRender(drawableChild) {
-                if (drawableChild.visible) drawableChild.vanillaRender(this, mouseX, mouseY, delta)
-            }
+            if (drawableChild.visible) drawableChild.vanillaRender(context, mouseX, mouseY, delta)
         }
     }
 

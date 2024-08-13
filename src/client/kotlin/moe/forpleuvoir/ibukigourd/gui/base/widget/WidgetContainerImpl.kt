@@ -41,9 +41,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
         }
 
         for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {
-            ctx.tryRender(drawableChild) {
-                if (drawableChild.visible) drawableChild.vanillaRender(this, _mouseX, _mouseY, delta)
-            }
+            if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
         }
 
         ctx.tryRender { renderOverlay(this, _mouseX, _mouseY, delta) }
@@ -64,6 +62,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
         super.onMouseMove(event)
 
         for (child in widgetChildren()) {
+            if (!child.active) continue
             val mouseOver = child.wasMouseOver
             child.mouseMove.invoke(event)
             if (!mouseOver && child.wasMouseOver) {
@@ -77,12 +76,14 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
     override fun onMousePress(event: MousePressEvent) {
         super.onMousePress(event)
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.mousePress.invoke(event)
         }
     }
 
     override fun onFocused(event: FocusedEvent) {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.focused.invoke(event)
         }
         super.onFocused(event)
@@ -91,36 +92,42 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
     override fun onMouseRelease(event: MouseReleaseEvent) {
         super.onMouseRelease(event)
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.mouseRelease.invoke(event)
         }
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.mouseDragging.invoke(event)
         }
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.mouseScrolling.invoke(event)
         }
     }
 
     override fun onKeyPress(event: KeyPressEvent) {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.keyPress.invoke(event)
         }
     }
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.keyRelease.invoke(event)
         }
     }
 
     override fun onCharTyped(event: CharTypedEvent) {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             child.charTyped.invoke(event)
         }
     }

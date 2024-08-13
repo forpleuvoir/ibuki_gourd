@@ -282,7 +282,7 @@ open class TextField(
     //------------ Measure ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraint(constraints)
+        val c = this.constraints.constraintAs(constraints)
         val width = text.isNotEmpty().pick(textRenderer.getWidth(text), hintText?.let { textRenderer.getWidth(it) } ?: 0).toFloat() + padding.width + 5f
         val height = textRenderer.fontHeight + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))

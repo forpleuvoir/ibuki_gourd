@@ -56,10 +56,11 @@ class TextWidget(
     //------------ Override ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraint(constraints)
+        val c = this.constraints.constraintAs(constraints)
         val width = text().wrapToTextLines(textRenderer).maxOf { textRenderer.getWidth(it) }.toFloat() + padding.width
-        val height =
-            renderText.wrapToTextLines(textRenderer).size * (textRenderer.fontHeight + setting.spacing) - setting.spacing + padding.height
+        val height = text().wrapToTextLines(
+            textRenderer, if (setting.autoNewLine) (width - padding.width).toInt() else 0
+        ).size * (textRenderer.fontHeight + setting.spacing) - setting.spacing + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
     }

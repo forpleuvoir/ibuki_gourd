@@ -72,6 +72,10 @@ abstract class DrawableElementImpl : DrawableElement {
             return _layer ?: (parent()?.layer ?: GuiLayer.default)
         }
 
+    override fun clearLayer() {
+        _layer = null
+    }
+
     override var active: Boolean = true
 
     abstract override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean

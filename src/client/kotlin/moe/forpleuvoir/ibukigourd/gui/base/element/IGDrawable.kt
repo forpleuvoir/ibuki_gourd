@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
+import moe.forpleuvoir.ibukigourd.gui.base.GuiContext
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
@@ -8,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.input.mouseY
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.Drawable
 
-interface IGDrawable : Drawable {
+interface IGDrawable : Drawable, GuiContext {
 
     //------------ Vanilla Drawable ------------\\
 
@@ -21,7 +22,9 @@ interface IGDrawable : Drawable {
 
     //------------ IGDrawable ------------\\
 
-    var layer: GuiLayer
+    override var layer: GuiLayer
+
+    override fun clearLayer()
 
     /**
      * 可见
