@@ -2,14 +2,13 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.maxHeight
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.maxWidth
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderOverlay
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
 import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.dropMenu
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -20,7 +19,7 @@ fun testScreen3() = rowScreen {
             text("测试1")
         }
         items {
-            repeat(13) {
+            repeat(35) {
                 text("测试内容$it")
             }
         }
@@ -51,5 +50,63 @@ fun testScreen3() = rowScreen {
         )
     }
 
+    column(
+        arrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .padding(3f)
+            .width(240f)
+            .renderBackground { ctx, _, _, _ ->
+                this as IGWidget
+                ctx.batchRenderBox {
+                    if (wasMouseOver) {
+                        ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                    }
+                    ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                }
+            }
+    ) {
+        button { text("按钮1") }
+        button { text("按钮2") }
+        button { text("按钮3") }
+    }
 
+    column(
+        arrangement = Arrangement.SpaceAround,
+        modifier = Modifier
+            .padding(3f)
+            .width(240f)
+            .renderBackground { ctx, _, _, _ ->
+                this as IGWidget
+                ctx.batchRenderBox {
+                    if (wasMouseOver) {
+                        ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                    }
+                    ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                }
+            }
+    ) {
+        button { text("按钮1") }
+        button { text("按钮2") }
+        button { text("按钮3") }
+    }
+
+    column(
+        arrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .padding(3f)
+            .width(240f)
+            .renderBackground { ctx, _, _, _ ->
+                this as IGWidget
+                ctx.batchRenderBox {
+                    if (wasMouseOver) {
+                        ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                    }
+                    ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                }
+            }
+    ) {
+        button { text("按钮1") }
+        button { text("按钮2") }
+        button { text("按钮3") }
+    }
 }

@@ -2,8 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
@@ -20,7 +19,7 @@ data class LinearScreenScope(
 
 fun linearScreen(
     orientation: Orientation,
-    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
+    arrangement: Arrangement = Arrangement.Center,
     modifier: Modifier = Modifier,
     content: LinearScreenScope.() -> Unit
 ): IGScreenImpl<LinearScreenScope> {
@@ -34,7 +33,7 @@ fun linearScreen(
 
         override val orientation: Orientation = orientation
 
-        override val alignment: (Orientation) -> Alignment = alignment
+        override val arrangement: Arrangement = arrangement
 
     }.apply {
         modifier.foldInApply()
@@ -42,13 +41,13 @@ fun linearScreen(
 }
 
 fun rowScreen(
-    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
+    arrangement: Arrangement = Arrangement.Center,
     modifier: Modifier = Modifier,
     content: LinearScreenScope.() -> Unit
-): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Vertical, alignment, modifier, content)
+): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Vertical, arrangement, modifier, content)
 
 fun columnScreen(
-    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
+    arrangement: Arrangement = Arrangement.Center,
     modifier: Modifier = Modifier,
     content: LinearScreenScope.() -> Unit
-): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Horizontal, alignment, modifier, content)
+): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Horizontal, arrangement, modifier, content)

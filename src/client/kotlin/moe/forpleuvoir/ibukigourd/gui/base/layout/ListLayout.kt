@@ -133,7 +133,7 @@ interface ListLayout : Layout {
 
 data class WrappedListLayoutData(
     val fill: Boolean = false,
-    var gravity: Gravity = Gravity.Center
+    var gravity: Gravity = Gravity.Start
 ) {
 
     companion object : WrappedLayoutDataUtil<WrappedListLayoutData> {

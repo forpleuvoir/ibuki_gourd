@@ -1,8 +1,18 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.arrange
 
-enum class Arrangement {
-    SpaceEvenly,
-    SpaceAround,
-    SpaceBetween,
-    Center;
+sealed interface Arrangement {
+
+    data object SpaceBetween : Arrangement
+
+    data object SpaceAround : Arrangement
+
+    data object SpaceEvenly : Arrangement
+
+    data object Start : Arrangement
+
+    data object Center : Arrangement
+
+    data object End : Arrangement
+
 }
+

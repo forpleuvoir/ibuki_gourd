@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.dropmenu
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
@@ -11,8 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
@@ -31,14 +31,15 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Colors
 
 class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
 
     //------------ Override ------------\\
 
-    override var spacing: Float = 1f
+    override var spacing: Float = 0f
 
-    override val alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter
+    override val arrangement: Arrangement = Arrangement.SpaceBetween
 
     private var _layerRecord: GuiLayer = layer
 
@@ -64,8 +65,11 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
         context.batchRenderTextureColored {
             val texture = expandState.pick(WidgetTextures.DROP_MENU_EXPEND_BACKGROUND, WidgetTextures.DROP_MENU_BACKGROUND)
             val box = expandState.pick({
-                transform.asWorldBox.copy(height = transform.height + expandedContent.transform.height)
+                transform.asWorldBox.copy(height = transform.height + expandedContent.transform.height + _list.spacing)
             }, {
+                //渲染分割线
+
+
                 transform.asWorldBox
             })
             context.drawWidgetTexture(box(), texture)
@@ -84,8 +88,19 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
         super.measureChildren(measurables, constraints)
         val c = constraints.constraintAs(this.constraints)
         expandedContent.measure(Constraints.of(0f, c.maxWidth, 0f, mc.window.scaledHeight.toFloat()))
-        if (transform.width < expandedContent.wrappedWidth)
-            super.measureChildren(measurables, constraints.copy(minWidth = expandedContent.wrappedWidth, maxWidth = expandedContent.wrappedWidth))
+        if (transform.width < expandedContent.wrappedWidth) {
+            head.constraints = head.constraints.copy(
+                minWidth = expandedContent.wrappedWidth,
+                maxWidth = expandedContent.wrappedWidth
+            )
+            super.measureChildren(
+                measurables,
+                constraints.copy(
+                    minWidth = expandedContent.wrappedWidth + padding.width,
+                    maxWidth = expandedContent.wrappedWidth + padding.width + padding.width
+                )
+            )
+        }
         return this
     }
 
@@ -96,11 +111,11 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
                 expandedContent.transform.width,
                 expandedContent.transform.width,
                 0f,
-                mc.window.scaledHeight.toFloat() - transform.worldBottom
+                mc.window.scaledHeight.toFloat() - transform.worldBottom - _list.spacing
             )
         )
         expandedContent.layout()
-        expandedContent.placeAt(0f, transform.height)
+        expandedContent.placeAt(padding.left, head.transform.bottom + _list.spacing)
     }
 
     //------------ DropMenu ------------\\
@@ -108,52 +123,65 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
     private lateinit var head: ColumnWidget
 
     fun init() {
-        head = scope.column {
+        head = scope.column(Arrangement.SpaceBetween, Modifier.renderBackground { ctx, _, _, _ ->
+            this as IGWidget
+            ctx.batchRenderBox {
+                if (wasMouseOver) {
+                    ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                }
+                ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+            }
+        }) {
             _content = box(scope._contentModifier(this), scope._content)
             _arrow = icon(WidgetTextures.DROP_MENU_ARROW_DOWN)
         }
         expandedContent = scope.run {
-            var scrollerSupplier: () -> ScrollerWidget? = { null }
             column(
-                modifier = Modifier.padding(3, 3, 0, 3)
+                arrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.padding(0)
                     .mousePress {
                         this as IGWidget
                         this.onMousePress(it)
                         it.tryUse { wasDragging }
                         it.tryUse { !wasMouseOver }.onSuccess { this@DropMenuWidget.toggle() }
-                    }.renderBackground { ctx, _, _, _ ->
+                    }
+                    .renderBackground { ctx, _, _, _ ->
                         this as IGWidget
-
+                        ctx.batchRenderBox {
+                            if (wasMouseOver) {
+                                ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                            }
+                            ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                        }
                     }
             ) {
                 layer(GuiLayer.pop)
                 active(expandState.isExpanded)
                 visible(expandState.isExpanded)
-                val list = list(
+                _list = list(
                     orientation = Orientation.Vertical,
-                    spacing = spacing,
+                    spacing = 2f,
                     content = scope._itemsContent,
                     modifier = Modifier
                         .fill()
                         .mouseScrolling {
                             this as ListWidget
                             if (this.wasMouseOver)
-                                scrollerSupplier.invoke()?.scroller(it.verticalAmount)
+                                _scroller.scroller(it.verticalAmount)
                         } then scope._itemsModifier(this)
                 )
-                val scroller = scroller(
-                    amountStep = { list.widgetChildren().minOf { it.transform.height } / 2f },
-                    totalAmount = { list.totalAmount },
-                    barProportion = { (list.contentHeight / list.totalContentSize).coerceIn(0f..1f) },
+                _scroller = scroller(
+                    amountStep = { _list.widgetChildren().minOf { it.transform.height } / 2f },
+                    totalAmount = { _list.totalAmount },
+                    barProportion = { (_list.contentHeight / _list.totalContentSize).coerceIn(0f..1f) },
                     amountConsumer = {
-                        list.amounts = it
+                        _list.amounts = it
                     },
                     orientation = Orientation.Vertical,
                     modifier = Modifier
                         .width(9f)
-                        .margin(left = 1f)
+                        .margin(left = 1f, top = 2f, right = -1f)
                 )
-                scrollerSupplier = { scroller }
             }
         }
     }
@@ -163,6 +191,10 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
     private lateinit var _arrow: IconWidget
 
     private lateinit var expandedContent: WidgetContainerImpl
+
+    private lateinit var _list: ListWidget
+
+    private lateinit var _scroller: ScrollerWidget
 
     companion object {}
 
@@ -206,5 +238,5 @@ fun GuiScope<out WidgetContainer>.dropMenu(
 ) = addWidgetChild(DropMenuWidget()) {
     this.scope.scope()
     init()
-    Modifier.padding(3).then(modifier).foldInApply()
+    Modifier.padding(4).then(modifier).foldInApply()
 }

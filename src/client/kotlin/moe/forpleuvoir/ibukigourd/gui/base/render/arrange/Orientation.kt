@@ -61,7 +61,7 @@ sealed interface Orientation {
     /**
      * 使用提供的转换函数计算给定位置的新位置。
      * @param position 要转换的原始位置。类型必须为 [Vector2fc]。
-     * @param sizes 用于映射每个位置的矩形列表。类型必须为 [List]<[Box]>。
+     * @param sizes 用于映射每个位置的[Size]列表。类型必须为 [List]<[Size]<[Float]>>。
      * @param map 转换函数。接受位置和矩形，返回新位置。类型必须为 ([Vector2fc], [Box]) -> [Vector2fc]
      * @return 转换后的新位置列表。每个新位置的类型都是 [Vector2fc]。
      */
