@@ -6,23 +6,57 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
+import moe.forpleuvoir.ibukigourd.gui.widget.button.booleanButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.lockButton
 import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.util.delegate
+import moe.forpleuvoir.ibukigourd.util.textRenderer
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun testScreen3() = rowScreen {
-    dropMenu {
-        content {
-            text("测试1")
-        }
-        items {
-            repeat(35) {
-                text("测试内容$it")
+    column {
+        var selectText = "本居小铃"
+        val list = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
+        dropMenu {
+            separatorColor(Color(0xFFCCCCCC))
+            content {
+                text({ Literal(selectText) })
+            }
+            items {
+                list.forEach { str ->
+                    flatButton(modifier = Modifier.width(list.maxWidth(textRenderer) + 2f), hoveredColor = { Colors.CYAN.opacity(.35f) }) {
+                        arrangement(Arrangement.Start)
+                        var curText = str
+                        press {
+                            this@dropMenu.toggle()
+                            curText = selectText
+                            selectText = str
+                        }
+                        text({ Literal(curText) })
+                    }
+                }
+                textField {
+                    text = "我去还这样嵌套?"
+                }
+                repeat(50) {
+                    text("aa$it")
+                }
             }
         }
+        flatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
+            text({ Literal(selectText) })
+        }
+        val status = delegate(true)
+        booleanButton(status)
+        lockButton(status)
     }
 
     button(
@@ -42,8 +76,8 @@ fun testScreen3() = rowScreen {
                     this as IGWidget
                     if (wasMouseOver)
                         ctx.batchRenderBox {
-                            ctx.boxOutline(contentBox(true), Colors.ROSE)
-                            ctx.boxOutline(transform.asWorldBox, Colors.MEDIUM_TEAL)
+                            pushBoxOutline(contentBox(true), Colors.ROSE)
+                            pushBoxOutline(transform.asWorldBox, Colors.MEDIUM_TEAL)
                         }
                 }
                 .padding(4f)
@@ -59,9 +93,9 @@ fun testScreen3() = rowScreen {
                 this as IGWidget
                 ctx.batchRenderBox {
                     if (wasMouseOver) {
-                        ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                        pushBoxOutline(transform, Colors.AQUA)
                     }
-                    ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                    pushBox(transform, Colors.AQUA.alpha(.25f))
                 }
             }
     ) {
@@ -79,9 +113,9 @@ fun testScreen3() = rowScreen {
                 this as IGWidget
                 ctx.batchRenderBox {
                     if (wasMouseOver) {
-                        ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                        pushBoxOutline(transform, Colors.AQUA)
                     }
-                    ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                    pushBox(transform, Colors.AQUA.alpha(.25f))
                 }
             }
     ) {
@@ -99,9 +133,9 @@ fun testScreen3() = rowScreen {
                 this as IGWidget
                 ctx.batchRenderBox {
                     if (wasMouseOver) {
-                        ctx.boxOutline(transform.asWorldBox, Colors.AQUA)
+                        pushBoxOutline(transform, Colors.AQUA)
                     }
-                    ctx.box(transform.asWorldBox, Colors.AQUA.alpha(.25f))
+                    pushBox(transform, Colors.AQUA.alpha(.25f))
                 }
             }
     ) {

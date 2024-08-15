@@ -114,9 +114,20 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
      * @param block The block of code to be executed.
      * @return Result<Boolean> Success(true) if the event was used, Failure(false) otherwise.
      */
-    fun GUIEvent.tryUse(block: () -> Boolean = { true }): Result<Boolean> {
+    fun GUIEvent.tryUse(block: () -> Boolean): Result<Boolean> {
         if (canUse(this@IGElement)) {
             if (block()) {
+                this.use(this@IGElement)
+                return Result.success(true)
+            }
+            return Result.failure(Exception("Block returned false."))
+        }
+        return Result.failure(Exception("Event cannot be used."))
+    }
+
+    fun GUIEvent.tryUse(condition: Boolean = true): Result<Boolean> {
+        if (canUse(this@IGElement)) {
+            if (condition) {
                 this.use(this@IGElement)
                 return Result.success(true)
             }

@@ -197,6 +197,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
 
+    override fun clearWidgetChildren() = widgetChildren.clear()
+
     @Deprecated("should use addWidgetChild(child) instead", ReplaceWith("addWidgetChild"))
     override fun <T> addSelectableChild(child: T): T where T : Element, T : Selectable = child
 
@@ -396,12 +398,16 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override var focused: (event: FocusedEvent) -> Unit = ::onFocused
 
     override fun onFocused(event: FocusedEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.focused.invoke(event)
+        for (layer in layers) {
+            event.layer(layer)
+            for (child in elementChildren()) {
+                if (child.active) child.focused.invoke(event)
+            }
         }
         event.tryUse().onSuccess {
             isFocused = true
         }
+
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -441,11 +447,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                if (child is IGWidget) {
-                    if (child.wasDragging && child.active) child.mouseDragging.invoke(event)
-                } else {
-                    if (child.active) child.mouseDragging.invoke(event)
-                }
+                if (child.active) child.mouseDragging.invoke(event)
             }
         }
     }
@@ -480,11 +482,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
                 if (child.active) child.keyPress.invoke(event)
             }
         }
-        event.tryUse {
-            event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc()
-        }.onSuccess {
-            close()
-        }
+        event.tryUse(event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc())
+            .onSuccess { close() }
     }
 
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {

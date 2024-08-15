@@ -24,16 +24,15 @@ fun DrawContext.batchRenderText(
     textRenderer: TextRenderer = this.client.textRenderer,
     block: TextBatchRenderScope.() -> Unit
 ) {
-    TextBatchRenderScope(textRenderer).apply(block)
+    TextBatchRenderScope(textRenderer, this).apply(block)
     draw()
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-open class TextBatchRenderScope internal constructor(private val textRenderer: TextRenderer) {
+open class TextBatchRenderScope internal constructor(private val textRenderer: TextRenderer, private val context: DrawContext) {
 
     /**
      * 渲染文本
-     * @receiver DrawContext
      * @param text Text
      * @param x Float
      * @param y Float
@@ -43,7 +42,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.text(
+    fun pushText(
         text: Text,
         x: Float,
         y: Float,
@@ -59,8 +58,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             y,
             color,
             shadow,
-            positionMatrix,
-            vertexConsumers,
+            context.positionMatrix,
+            context.vertexConsumers,
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE
@@ -69,7 +68,6 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
 
     /**
      * 渲染有序文本
-     * @receiver DrawContext
      * @param text OrderedText
      * @param x Float
      * @param y Float
@@ -78,7 +76,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.text(
+    fun pushText(
         text: OrderedText,
         x: Float,
         y: Float,
@@ -93,8 +91,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             y,
             color,
             shadow,
-            positionMatrix,
-            vertexConsumers,
+            context.positionMatrix,
+            context.vertexConsumers,
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
@@ -103,7 +101,6 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
 
     /**
      * 渲染文本
-     * @receiver DrawContext
      * @param text String
      * @param x Float
      * @param y Float
@@ -113,7 +110,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.text(
+    fun pushText(
         text: String,
         x: Float,
         y: Float,
@@ -129,8 +126,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             y,
             color.argb,
             shadow,
-            positionMatrix,
-            vertexConsumers,
+            context.positionMatrix,
+            context.vertexConsumers,
             layerType,
             backgroundColor.argb,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
@@ -140,7 +137,6 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
 
     /**
      * 渲染对齐文本
-     * @receiver DrawContext
      * @param text String
      * @param box Box 需要对齐的[Box]
      * @param align ([Orientation]) -> [Alignment] 对齐方式
@@ -150,7 +146,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.alignmentText(
+    fun pushAlignmentText(
         text: String,
         box: Box,
         align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
@@ -161,12 +157,11 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
-        text(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
+        pushText(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
     /**
      * 渲染对齐文本
-     * @receiver DrawContext
      * @param text Text
      * @param box Box 需要对齐的[Box]
      * @param align ([Orientation]) -> [Alignment] 对齐方式
@@ -176,7 +171,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.alignmentText(
+    fun pushAlignmentText(
         text: Text,
         box: Box,
         align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
@@ -187,13 +182,12 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Color(0),
     ) {
         val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
-        text(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
+        pushText(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
 
     /**
      * 渲染多行文本,会以换行符分'/n'割字符串
-     * @receiver DrawContext
      * @param string String
      * @param box Box
      * @param lineSpacing Number
@@ -204,7 +198,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.stringLines(
+    fun pushStringLines(
         string: String,
         box: Box,
         lineSpacing: Number = 1,
@@ -223,13 +217,12 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             )
             .forEachIndexed { index, vector ->
                 val text = texts[index]
-                text(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
+                pushText(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
             }
     }
 
     /**
      * 渲染多行文本
-     * @receiver DrawContext
      * @param lines List<String>
      * @param box Box
      * @param lineSpacing Number
@@ -240,7 +233,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param color ARGBColor
      * @param backgroundColor ARGBColor
      */
-    fun DrawContext.stringLines(
+    fun pushStringLines(
         lines: List<String>,
         box: Box,
         lineSpacing: Number = 1,
@@ -259,13 +252,12 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             )
             .forEachIndexed { index, vector ->
                 val text = texts[index]
-                text(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
+                pushText(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
             }
     }
 
     /**
      * 绘制多行文本
-     * @receiver TextRenderer
      * @param text [Text]
      * @param box Rectangle
      * @param lineSpacing Number
@@ -276,7 +268,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param defaultColor ARGBColor
      * @param backgroundColor Color
      */
-    fun DrawContext.textLines(
+    fun pushTextLines(
         text: Text,
         box: Box,
         lineSpacing: Number = 1,
@@ -295,13 +287,12 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             )
             .forEachIndexed { index, vector ->
                 val t = texts[index]
-                text(t, vector.x(), vector.y(), shadow, layerType, rightToLeft, t.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
+                pushText(t, vector.x(), vector.y(), shadow, layerType, rightToLeft, t.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
             }
     }
 
     /**
      * 绘制多行文本
-     * @receiver TextRenderer
      * @param lines List<[Text]>
      * @param box Rectangle
      * @param lineSpacing Number
@@ -312,7 +303,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param defaultColor ARGBColor
      * @param backgroundColor Color
      */
-    fun DrawContext.textLines(
+    fun pushTextLines(
         lines: List<Text>,
         box: Box,
         lineSpacing: Number = 1,
@@ -331,7 +322,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             )
             .forEachIndexed { index, vector ->
                 val text = texts[index]
-                text(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, text.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
+                pushText(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, text.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
             }
     }
 

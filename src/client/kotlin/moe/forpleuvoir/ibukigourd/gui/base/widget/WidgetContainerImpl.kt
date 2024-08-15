@@ -21,6 +21,10 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
 
+    override fun clearWidgetChildren() {
+        widgetChildren.clear()
+    }
+
     override fun layoutableChildren(): List<Layoutable> = widgetChildren
 
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {

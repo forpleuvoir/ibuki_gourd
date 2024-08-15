@@ -608,7 +608,7 @@ class TextArea(
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(transform.asWorldBox, theme(WidgetTheme.TextInput), bgShaderColor)
+            pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
         }
     }
 
@@ -630,7 +630,7 @@ class TextArea(
         if (text.isEmpty() && !isFocused) {
             if (hintText != null) {
                 context.batchRenderText(textRenderer) {
-                    context.textLines(hintText!!, contentBox, spacing, BoxAlignment::TopLeft, defaultColor = hintColor)
+                    pushTextLines(hintText!!, contentBox, spacing, BoxAlignment::TopLeft, defaultColor = hintColor)
                 }
             }
             return
@@ -641,7 +641,7 @@ class TextArea(
                 var y = contentBox.top - amount
                 lines.forEach {
                     if (y in contentBox.top - fontHeight..contentBox.bottom)
-                        context.text(text.substring(it.beginIndex, it.endIndex), contentBox.left, y, color = textColor)
+                        pushText(text.substring(it.beginIndex, it.endIndex), contentBox.left, y, color = textColor)
                     y += fontHeight + spacing
                 }
             }
@@ -661,14 +661,14 @@ class TextArea(
                 )
             } else if (mindY == 0f) {
                 context.batchRenderBox(RenderLayer.getGuiTextHighlight()) {
-                    context.box(Box(contentBox.left + startXOffset, startY, Size(contentBox.width - startXOffset, fontHeight + spacing)), selectedColor)
-                    context.box(Box(contentBox.left, endY, Size(endXOffset, fontHeight)), selectedColor)
+                    pushBox(Box(contentBox.left + startXOffset, startY, Size(contentBox.width - startXOffset, fontHeight + spacing)), selectedColor)
+                    pushBox(Box(contentBox.left, endY, Size(endXOffset, fontHeight)), selectedColor)
                 }
             } else {
                 context.batchRenderBox(RenderLayer.getGuiTextHighlight()) {
-                    context.box(Box(contentBox.left + startXOffset, startY, Size(contentBox.width - startXOffset, fontHeight + spacing)), selectedColor)
-                    context.box(Box(contentBox.left, mindY, Size(contentBox.width, endY - startY - (fontHeight + spacing))), selectedColor)
-                    context.box(Box(contentBox.left, endY, Size(endXOffset, fontHeight)), selectedColor)
+                    pushBox(Box(contentBox.left + startXOffset, startY, Size(contentBox.width - startXOffset, fontHeight + spacing)), selectedColor)
+                    pushBox(Box(contentBox.left, mindY, Size(contentBox.width, endY - startY - (fontHeight + spacing))), selectedColor)
+                    pushBox(Box(contentBox.left, endY, Size(endXOffset, fontHeight)), selectedColor)
                 }
             }
         }
@@ -805,7 +805,7 @@ fun GuiScope<out WidgetContainer>.textAreaWidthScroller(
             val widget = this as IGWidget
             ctx.batchRenderTextureColored {
                 textSupplier()?.let {
-                    ctx.drawWidgetTexture(widget.transform.asWorldBox, it.theme(WidgetTheme.TextInput))
+                    pushWidgetTexture(widget.transform, it.theme(WidgetTheme.TextInput))
                 }
             }
         } then modifier

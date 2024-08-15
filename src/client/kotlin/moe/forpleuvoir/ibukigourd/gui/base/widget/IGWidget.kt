@@ -9,6 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.nebula.common.util.primitive.pick
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 interface IGWidget : DrawableElement, Layoutable {
 
@@ -68,4 +71,12 @@ interface IGWidget : DrawableElement, Layoutable {
         placeCompleted()
     }
 
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun IGWidget.wasMouseOver(block: () -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    }
+    if (wasMouseOver) block()
 }

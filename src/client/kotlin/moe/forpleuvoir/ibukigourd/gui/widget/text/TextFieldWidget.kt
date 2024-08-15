@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
@@ -494,7 +495,7 @@ open class TextField(
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(transform.asWorldBox, theme(WidgetTheme.TextInput), bgShaderColor)
+            pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
         }
     }
 
@@ -521,7 +522,7 @@ open class TextField(
                 return
             }
             if (cursor - firstCharacterIndex > 0) {
-                content.renderBox(Box(box.position.copy(box.left + offset - 0.85f, y), thickness, height), cursorColor)
+                content.renderBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
             } else {
                 content.renderBox(Box(box.position.copy(y = y), thickness, height), cursorColor)
             }
@@ -535,12 +536,12 @@ open class TextField(
             content.batchRenderText(textRenderer) {
                 //"渲染提示文本"
                 if (text.isEmpty() && hintText != null && !isFocused) {
-                    alignmentText(hintText!!, contentBox, color = hintColor)
+                    pushAlignmentText(hintText!!, contentBox, color = hintColor)
                 }
                 //"渲染文本本体"
                 val renderText = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox.width.toInt())
                 renderText.takeIf { it.isNotEmpty() }?.let {
-                    alignmentText(it, contentBox, color = textColor)
+                    pushAlignmentText(it, contentBox, color = textColor)
                 }
                 //"渲染文本建议"
                 suggestion?.invoke(text)?.let { suggestion ->
@@ -548,7 +549,7 @@ open class TextField(
                         val renderTextWidth = textRenderer.getWidth(renderText).toFloat()
                         val box =
                             Box(contentBox.position + Vector2f(renderTextWidth), contentBox.width - renderTextWidth, contentBox.height)
-                        alignmentText(suggestion, box, color = suggestionColor)
+                        pushAlignmentText(suggestion, box, color = suggestionColor)
                     }
                 }
             }

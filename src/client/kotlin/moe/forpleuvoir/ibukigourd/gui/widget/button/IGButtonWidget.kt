@@ -1,22 +1,15 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.layout.BoxLayout
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
+import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.Tick
 
-open class IGButtonWidget(
-    private val theme: PressableTheme = PressableTheme.Button2,
-) : IGPressableWidgetContainer(), BoxLayout {
+open class IGButtonWidget : IGPressableWidgetContainer(), ColumnLayout {
 
     override val mouseOverCursor: MouseCursor.Cursor
         get() = MouseCursor.Cursor.POINTING_HAND_CURSOR
@@ -72,30 +65,32 @@ open class IGButtonWidget(
         return this
     }
 
-    override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.batchRenderTextureColored {
-            context.drawWidgetTexture(transform.asWorldBox, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
+    override var spacing: Float = 0f
+
+    final override var arrangement: Arrangement = Arrangement.Center
+        private set
+
+    companion object {}
+
+    data class ButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, LinearLayoutScope {
+
+        override fun owner(): IGButtonWidget = button
+
+        override val linearLayout: LinearLayout get() = owner()
+
+        fun arrangement(arrangement: Arrangement) {
+            owner().arrangement = arrangement
         }
+
+        fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)
+
+        fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = owner().longPress(time, action)
+
+        fun release(action: (IGButtonWidget) -> Unit) = owner().release(action)
+
     }
 
-}
-
-fun interface ButtonScope : GuiScope<IGButtonWidget>, BoxLayoutScope {
-
-    fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)
-
-    fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = owner().longPress(time, action)
-
-    fun release(action: (IGButtonWidget) -> Unit) = owner().release(action)
 
 }
 
-
-fun GuiScope<out WidgetContainer>.button(
-    theme: PressableTheme = PressableTheme.Button2,
-    modifier: Modifier = Modifier,
-    content: ButtonScope.() -> Unit = { }
-) = addWidgetChild(IGButtonWidget(theme)) {
-    Modifier.padding(6).then(modifier).foldInApply()
-    ButtonScope { this }.content()
-}
+typealias ButtonScope = IGButtonWidget.ButtonScope

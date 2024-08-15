@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -45,7 +46,7 @@ fun testScreen() = boxScreen(
                 val contentBox = screen.contentBox(true)
                 onRenderOverlay(context, mouseX, mouseY, delta)
                 context.batchRenderBox {
-                    context.boxOutline(contentBox, Colors.ROSE)
+                    pushBoxOutline(contentBox, Colors.ROSE)
                 }
                 context.batchRenderText {
                     val texts = listOf(
@@ -53,12 +54,12 @@ fun testScreen() = boxScreen(
                         Literal("Screen FPS:$fps").style { color(0x00FF00) },
                         Literal("MouseCursor:${MouseCursor.current.name}")
                     )
-                    context.textLines(texts, contentBox, align = BoxAlignment::TopLeft)
+                    pushTextLines(texts, contentBox, align = BoxAlignment::TopLeft)
                     val mouse = listOf(
                         Literal("MouseX:$mouseX").style { color(Colors.RED) },
                         Literal("MouseY:$mouseY").style { color(0x00FF00) },
                     )
-                    context.textLines(
+                    pushTextLines(
                         mouse,
                         contentBox.copy(height = contentBox.height + 2f),
                         defaultColor = Colors.ALIEN_GREEN.opacity(.3f),
@@ -72,7 +73,7 @@ fun testScreen() = boxScreen(
     row(modifier = Modifier.padding(20f).renderOverlay { context, _, _, _ ->
         this as RowWidget
         context.batchRenderBox {
-            context.boxOutline(contentBox(true), Colors.ROSE)
+            pushBoxOutline(contentBox(true), Colors.ROSE)
         }
     }) {
         spacing(5f)
@@ -103,7 +104,7 @@ fun RowScope.testColumn() = column(
     modifier = Modifier.renderOverlay { context, _, _, _ ->
         this as IGWidget
         context.batchRenderBox {
-            context.boxOutline(transform.asWorldBox, Colors.AQUA)
+            pushBoxOutline(transform, Colors.AQUA)
         }
     }.weight(8)
 ) {
@@ -116,6 +117,9 @@ fun RowScope.testColumn() = column(
     ) {
         var c = 0
         var f = true
+        textField {
+            text = "我去还这样嵌套?"
+        }
         repeat(50) {
             val m = when (c) {
                 0 -> Modifier.gravityStart()
@@ -143,8 +147,8 @@ fun RowScope.testColumn() = column(
                             this as IGWidget
                             if (wasMouseOver)
                                 ctx.batchRenderBox {
-                                    ctx.boxOutline(contentBox(true), Colors.ROSE)
-                                    ctx.boxOutline(transform.asWorldBox, Colors.MEDIUM_TEAL)
+                                    pushBoxOutline(contentBox(true), Colors.ROSE)
+                                    pushBoxOutline(transform, Colors.MEDIUM_TEAL)
                                 }
                         }
                     ) {
@@ -161,7 +165,7 @@ fun RowScope.testColumn() = column(
                             this as IGWidget
                             if (wasMouseOver)
                                 ctx.batchRenderBox {
-                                    ctx.boxOutline(transform.asWorldBox, Colors.ROSE)
+                                    pushBoxOutline(transform, Colors.ROSE)
                                 }
                         })
                 }
@@ -186,7 +190,7 @@ fun RowScope.testColumn() = column(
         modifier = Modifier.renderOverlay { context, _, _, _ ->
             this as IGWidget
             context.batchRenderBox {
-                context.boxOutline(transform.asWorldBox, Colors.AQUA)
+                pushBoxOutline(transform, Colors.AQUA)
             }
         }
     ) {
@@ -202,7 +206,7 @@ fun RowScope.testColumn() = column(
             .renderOverlay { context, _, _, _ ->
                 this as IGWidget
                 context.batchRenderBox {
-                    if (wasMouseOver) context.boxOutline(transform.asWorldBox, Colors.AQUA)
+                    if (wasMouseOver) pushBoxOutline(transform, Colors.AQUA)
                 }
             }
     ) {
@@ -218,7 +222,7 @@ fun RowScope.testColumn() = column(
             this as IGWidget
             measureTime {
                 context.batchRenderBox {
-                    if (wasMouseOver) context.boxOutline(transform.asWorldBox, Colors.AQUA)
+                    if (wasMouseOver) pushBoxOutline(transform, Colors.AQUA)
                 }
             }.let {
 //                        println(it)
@@ -232,19 +236,12 @@ fun RowScope.testColumn() = column(
         longPress(10) {
             println("长按了按钮")
         }
-        column(modifier = Modifier.fillHeight().renderOverlay { context, _, _, _ ->
-            this as IGWidget
-            context.batchRenderBox {
-                context.boxOutline(transform.asWorldBox, Colors.AQUA)
-            }
-        }) {
-            spacing(8f)
-            icon(IconTextures.CLOSE, modifier = Modifier.gravityStart().maxWidth(16f))
-            icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f))
-            icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f))
-            icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f))
-            icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f))
-        }
+        spacing(8f)
+        icon(IconTextures.CLOSE, modifier = Modifier.gravityStart().maxWidth(16f))
+        icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f))
+        icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f))
+        icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f))
+        icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f))
     }
 
 }

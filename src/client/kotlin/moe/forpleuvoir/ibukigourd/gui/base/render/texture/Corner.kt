@@ -8,19 +8,19 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.getOr
 
 data class Corner(
-    val left: Int,
-    val right: Int,
-    val top: Int,
-    val bottom: Int,
+    val left: Int = 0,
+    val right: Int = 0,
+    val top: Int = 0,
+    val bottom: Int = 0
 ) : SizeInt {
-    constructor(vertical: Int, horizontal: Int) : this(
-        left = vertical,
-        right = vertical,
-        top = horizontal,
-        bottom = horizontal
+    constructor(vertical: Int = 0, horizontal: Int = 0) : this(
+        left = horizontal,
+        right = horizontal,
+        top = vertical,
+        bottom = vertical
     )
 
-    constructor(corner: Int) : this(corner, corner, corner, corner)
+    constructor(corner: Int = 0) : this(corner, corner, corner, corner)
 
     override val width: Int get() = right + left
 

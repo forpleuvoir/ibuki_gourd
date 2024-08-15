@@ -79,14 +79,14 @@ open class ScrollerWidget(
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(transform.asWorldBox, theme(bgTheme))
+            pushWidgetTexture(transform, theme(bgTheme))
         }
     }
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         updateBarLength()
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(bar.asWorldBox, theme(barTheme))
+            pushWidgetTexture(bar, theme(barTheme))
         }
     }
 
@@ -178,7 +178,6 @@ open class ScrollerWidget(
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-//        if (!wasDragging || !barWasDragging || !visible || !pressed) return
         event.tryUse {
             wasDragging && barWasDragging && visible && pressed
         }.onSuccess {
@@ -197,8 +196,8 @@ open class ScrollerWidget(
     override fun onPress() {
         if (wasMouseOver) {
             setFromMouse(mc.mouseX, mc.mouseY)
-        }
         barWasDragging = bar.isMouseOvered(mc.mouseX, mc.mouseY)
+        }
     }
 
 

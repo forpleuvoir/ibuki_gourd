@@ -196,7 +196,7 @@ class TextWidget(
                 //------------ 开始渲染 ------------\\
                 batchRenderText(textRenderer) {
                     setting.alignment(Orientation.Vertical).align(contentBox, list).forEachIndexed { index, vec ->
-                        text(
+                        pushText(
                             renderText[index],
                             textScrolledXPos(index, vec.x()),
                             textScrolledYPos(index, vec.y()),

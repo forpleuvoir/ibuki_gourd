@@ -131,6 +131,12 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var DROP_MENU_ARROW_DOWN = WidgetTexture(Corner(0), 153, 0, 160, 4, TEXTURE_INFO)
         private set
 
+    var DROP_MENU_SEPARATOR_VERTICAL = WidgetTexture(Corner(vertical = 2), 146, 11, 147, 16, TEXTURE_INFO)
+        private set
+
+    var DROP_MENU_SEPARATOR_HORIZONTAL = WidgetTexture(Corner(horizontal = 2), 144, 13, 149, 14, TEXTURE_INFO)
+        private set
+
     var CHECK_BOX_TRUE_IDLE = WidgetTexture(Corner(0), 162, 2, 174, 14, TEXTURE_INFO)
         private set
 
@@ -155,34 +161,34 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var CHECK_BOX_FALSE_DISABLED = WidgetTexture(Corner(0), 178, 34, 190, 46, TEXTURE_INFO)
         private set
 
-    var LOCK_TRUE_IDLE = WidgetTexture(Corner(0), 163, 51, 173, 61, TEXTURE_INFO)
+    var LOCK_ON_IDLE = WidgetTexture(Corner(0), 163, 51, 173, 61, TEXTURE_INFO)
         private set
 
-    var LOCK_TRUE_HOVERED = WidgetTexture(Corner(0), 163, 67, 173, 77, TEXTURE_INFO)
+    var LOCK_ON_HOVERED = WidgetTexture(Corner(0), 163, 67, 173, 77, TEXTURE_INFO)
         private set
 
-    var LOCK_TRUE_PRESSED = WidgetTexture(Corner(0), 163, 83, 173, 93, TEXTURE_INFO)
+    var LOCK_ON_PRESSED = WidgetTexture(Corner(0), 163, 83, 173, 93, TEXTURE_INFO)
         private set
 
-    var LOCK_TRUE_DISABLED = WidgetTexture(Corner(0), 163, 83, 173, 93, TEXTURE_INFO)
+    var LOCK_ON_DISABLED = WidgetTexture(Corner(0), 163, 83, 173, 93, TEXTURE_INFO)
         private set
 
-    var LOCK_FALSE_IDLE = WidgetTexture(Corner(0), 179, 51, 189, 61, TEXTURE_INFO)
+    var UNLOCK_IDLE = WidgetTexture(Corner(0), 179, 51, 189, 61, TEXTURE_INFO)
         private set
 
-    var LOCK_FALSE_HOVERED = WidgetTexture(Corner(0), 179, 67, 189, 77, TEXTURE_INFO)
+    var UNLOCK_HOVERED = WidgetTexture(Corner(0), 179, 67, 189, 77, TEXTURE_INFO)
         private set
 
-    var LOCK_FALSE_PRESSED = WidgetTexture(Corner(0), 179, 83, 189, 93, TEXTURE_INFO)
+    var UNLOCK_PRESSED = WidgetTexture(Corner(0), 179, 83, 189, 93, TEXTURE_INFO)
         private set
 
-    var LOCK_FALSE_DISABLED = WidgetTexture(Corner(0), 179, 83, 189, 93, TEXTURE_INFO)
+    var UNLOCK_DISABLED = WidgetTexture(Corner(0), 179, 83, 189, 93, TEXTURE_INFO)
         private set
 
-    var SWITCH_BUTTON_ON_BACKGROUND = WidgetTexture(Corner(4), 192, 16, 208, 32, TEXTURE_INFO)
+    var SWITCH_BUTTON_BACKGROUND_CONTENT = WidgetTexture(Corner(4), 192, 16, 208, 32, TEXTURE_INFO)
         private set
 
-    var SWITCH_BUTTON_OFF_BACKGROUND = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
+    var SWITCH_BUTTON_BACKGROUND_BOUND = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
         private set
 
     var TABS_BACKGROUND = WidgetTexture(Corner(4), 208, 0, 224, 16, TEXTURE_INFO)

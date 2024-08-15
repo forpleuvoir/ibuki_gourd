@@ -40,7 +40,7 @@ class IconWidget(
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            context.drawWidgetTexture(contentBox(true), iconTexture, color)
+            pushWidgetTexture(contentBox(true), iconTexture, color)
         }
     }
 
@@ -59,6 +59,10 @@ class IconWidget(
             set(value) {
                 owner().color = value
             }
+
+        fun iconTexture(iconTexture: WidgetTexture) {
+            owner().iconTexture = iconTexture
+        }
 
     }
 

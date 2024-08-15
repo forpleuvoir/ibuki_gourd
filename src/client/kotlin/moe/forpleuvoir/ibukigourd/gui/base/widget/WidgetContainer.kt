@@ -21,6 +21,8 @@ interface WidgetContainer : Measurable {
 
     fun widgetChildren(): List<IGWidget>
 
+    fun clearWidgetChildren()
+
     fun <W : IGWidget> addWidgetChild(child: W): W
 
     fun <W : IGWidget> addWidgetChild(child: W, scope: W.() -> Unit): W = addWidgetChild(child.apply(scope))

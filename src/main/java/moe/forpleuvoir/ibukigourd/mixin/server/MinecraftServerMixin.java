@@ -4,7 +4,7 @@ import com.mojang.datafixers.DataFixer;
 import moe.forpleuvoir.ibukigourd.IbukiGourd;
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent;
-import moe.forpleuvoir.ibukigourd.util.ModLogger;
+import moe.forpleuvoir.ibukigourd.task.ServerTickTaskScheduler;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.server.MinecraftServer;
@@ -67,6 +67,16 @@ public class MinecraftServerMixin {
     @Inject(method = "save", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getOverworld()Lnet/minecraft/server/world/ServerWorld;", shift = At.Shift.AFTER))
     private void ibukigourd$saveEverything(boolean bl, boolean bl2, boolean bl3, CallbackInfoReturnable<Boolean> cir) {
         EventBus.Companion.broadcast(new ServerSavingEvent((MinecraftServer) (Object) this));
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    public void ibukigourd$startTick(CallbackInfo ci) {
+        ServerTickTaskScheduler.INSTANCE.startTick((MinecraftServer) (Object) this);
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void ibukigourd$endTick(CallbackInfo ci) {
+        ServerTickTaskScheduler.INSTANCE.endTick((MinecraftServer) (Object) this);
     }
 
 }

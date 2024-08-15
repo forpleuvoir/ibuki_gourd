@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
@@ -83,15 +84,21 @@ class ListWidget(
 
     private fun renderChildren(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {
-            if ((drawableChild.transform.asWorldBox intersectWith transform.asWorldBox).exist) {
-                drawableChild.active = true
-                drawableChild.visible = true
-            } else {
-                drawableChild.active = false
-                drawableChild.visible = false
-            }
-            if (drawableChild.visible) drawableChild.vanillaRender(context, mouseX, mouseY, delta)
+            onRenderChild(drawableChild, context, mouseX, mouseY, delta)
         }
+    }
+
+    var onRenderChild: (child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = this::renderChild
+
+    fun renderChild(child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+        if ((child.transform.asWorldBox intersectWith transform.asWorldBox).exist) {
+            child.active = true
+            child.visible = true
+        } else {
+            child.active = false
+            child.visible = false
+        }
+        if (child.visible) child.vanillaRender(context, mouseX, mouseY, delta)
     }
 
     override fun onMousePress(event: MousePressEvent) {
@@ -108,6 +115,10 @@ class ListWidget(
 
         fun disableScissor() {
             owner().enableScissor = false
+        }
+
+        fun onRenderChild(render: (child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit) {
+            owner().onRenderChild = render
         }
 
         infix fun amountBy(delegatedAmount: DelegatedValue<Float>) {
@@ -155,13 +166,14 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
         .renderBackground { context, mouseX, mouseY, delta ->
             val widget = this as IGWidget
             context.batchRenderTextureColored {
-                context.drawWidgetTexture(widget.transform.asWorldBox, widget.theme(WidgetTheme.ListLayout))
+                pushWidgetTexture(widget.transform, widget.theme(WidgetTheme.ListLayout))
             }
         }
         .padding(3)
     return orientation.peek(
         {
             column(
+                arrangement = Arrangement.SpaceBetween,
                 modifier = m then modifier
             ) {
                 val list = list(
@@ -170,10 +182,10 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     content = content,
                     modifier = Modifier
                         .fill()
-                        .mouseScrolling {
+                        .mouseScrolling { event ->
                             this as ListWidget
-                            if (this.wasMouseOver)
-                                scrollerSupplier.invoke()?.scroller(it.verticalAmount)
+                            onMouseScrolling(event)
+                            event.tryUse(wasMouseOver).onSuccess { scrollerSupplier.invoke()?.scroller(event.verticalAmount) }
                         } then listModifier()
                 )
                 val scroller = scroller(
@@ -204,10 +216,10 @@ fun GuiScope<out WidgetContainer>.listWithScroller(
                     content = content,
                     modifier = Modifier
                         .fill()
-                        .mouseScrolling {
+                        .mouseScrolling { event ->
                             this as ListWidget
-                            if (this.wasMouseOver)
-                                scrollerSupplier.invoke()?.scroller(it.verticalAmount)
+                            onMouseScrolling(event)
+                            event.tryUse(wasMouseOver).onSuccess { scrollerSupplier.invoke()?.scroller(event.verticalAmount) }
                         } then listModifier()
                 )
                 val scroller = scroller(
