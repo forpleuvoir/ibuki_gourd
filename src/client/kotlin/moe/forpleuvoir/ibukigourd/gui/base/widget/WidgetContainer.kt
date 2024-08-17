@@ -1,19 +1,17 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 
 interface WidgetContainer : Measurable {
 
-    fun hoveredWidget(): IGWidget? {
-        widgetChildren().forEach { widget ->
-            if (widget is WidgetContainer && widget.wasMouseOver) {
-                widget.hoveredWidget()?.let {
-                    return it
-                }
-                return widget
+    fun hoveredWidget(layer: GuiLayer): IGWidget? {
+        for (child in widgetChildren()) {
+            if (child is WidgetContainer) {
+                child.hoveredWidget(layer)?.let { return it }
             }
-            if (widget.wasMouseOver) {
-                return widget
+            if (child.wasMouseOver && child.layer == layer) {
+                return child
             }
         }
         return null

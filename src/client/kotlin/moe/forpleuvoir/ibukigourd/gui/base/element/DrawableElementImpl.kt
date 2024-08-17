@@ -78,54 +78,26 @@ abstract class DrawableElementImpl : DrawableElement {
 
     override var active: Boolean = true
 
-    abstract override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean
-
-    abstract override fun setFocused(focused: Boolean)
-
-    abstract override fun isFocused(): Boolean
-
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
-
-    abstract override fun onMouseEnter(event: MouseEnterEvent)
 
     override var mouseLeave: (event: MouseLeaveEvent) -> Unit = ::onMouseLeave
 
-    abstract override fun onMouseLeave(event: MouseLeaveEvent)
-
     override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
-
-    abstract override fun onMouseMove(event: MouseMoveEvent)
 
     override var mousePress: (event: MousePressEvent) -> Unit = ::onMousePress
 
-    abstract override fun onMousePress(event: MousePressEvent)
-
     override var focused: (event: FocusedEvent) -> Unit = ::onFocused
-
-    abstract override fun onFocused(event: FocusedEvent)
 
     override var mouseRelease: (event: MouseReleaseEvent) -> Unit = ::onMouseRelease
 
-    abstract override fun onMouseRelease(event: MouseReleaseEvent)
-
     override var mouseDragging: (event: MouseDragEvent) -> Unit = ::onMouseDragging
-
-    abstract override fun onMouseDragging(event: MouseDragEvent)
 
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit = ::onMouseScrolling
 
-    abstract override fun onMouseScrolling(event: MouseScrollEvent)
-
     override var keyPress: (event: KeyPressEvent) -> Unit = ::onKeyPress
-
-    abstract override fun onKeyPress(event: KeyPressEvent)
 
     override var keyRelease: (event: KeyReleaseEvent) -> Unit = ::onKeyRelease
 
-    abstract override fun onKeyRelease(event: KeyReleaseEvent)
-
     override var charTyped: (event: CharTypedEvent) -> Unit = ::onCharTyped
-
-    abstract override fun onCharTyped(event: CharTypedEvent)
 
 }

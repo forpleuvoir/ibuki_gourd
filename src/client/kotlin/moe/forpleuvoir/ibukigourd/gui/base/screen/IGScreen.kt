@@ -13,6 +13,8 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     var focusedWidget: IGWidget?
 
+    var hoveredWidget: IGWidget?
+
     var pauseGame: Boolean
 
     var closeOnEsc: Boolean

@@ -114,6 +114,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun onTick() {
         super.onTick()
+        updateHoveredWidget()
     }
 
     //------------ Measurable ------------\\
@@ -259,14 +260,27 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     var latestRenderTime: Duration = Duration.ZERO
         protected set
 
+
+    override var hoveredWidget: IGWidget? = null
+
+    private fun updateHoveredWidget() {
+        for (layer in layers) {
+            val widget = hoveredWidget(layer)
+            if (widget != null) {
+                hoveredWidget = widget
+                break
+            }
+        }
+    }
+
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
         //更新鼠标样式
-        MouseCursor.current = hoveredWidget()?.mouseOverCursor ?: MouseCursor.default
-
+        MouseCursor.current = hoveredWidget?.mouseOverCursor ?: MouseCursor.default
         latestRenderTime = measureTime {
             val ctx = context.toIGDrawContext()
+
             val (_mouseX, _mouseY) = context.client.mousePosition
             renderBackground(ctx, _mouseX, _mouseY, delta)
             render.invoke(ctx, _mouseX, _mouseY, delta)
@@ -323,6 +337,12 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     //------------ Vanilla Element Override & IGElement------------\\
 
+//    override fun hoveredWidget(layer: GuiLayer): IGWidget? {
+//
+//        return super.hoveredWidget(layer)
+//    }
+
+
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
@@ -357,17 +377,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             event.layer = layer
             for (child in elementChildren()) {
-                if (child.active) {
-                    if (child is IGWidget) {
-                        val mouseOver = child.wasMouseOver
-                        child.mouseMove.invoke(event)
-                        if (!mouseOver && child.wasMouseOver) {
-                            child.mouseEnter(MouseEnterEvent(event.x, event.y).layer(layer))
-                        } else if (mouseOver && !child.wasMouseOver) {
-                            child.mouseLeave(MouseLeaveEvent(event.x, event.y).layer(layer))
-                        }
-                    } else child.mouseMove.invoke(event)
-                }
+                if (!child.active) continue
+                else child.mouseMove.invoke(event)
+
             }
         }
     }
@@ -530,7 +542,6 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             if (focusedWidget == this) focusedWidget = null
         }
     }
-
 
     //------------ Unsupported ------------\\
 

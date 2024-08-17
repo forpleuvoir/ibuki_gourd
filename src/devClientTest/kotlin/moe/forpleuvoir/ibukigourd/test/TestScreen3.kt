@@ -1,10 +1,15 @@
 package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.booleanButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.button
@@ -12,21 +17,29 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.lockButton
 import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.dropMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.delegate
 import moe.forpleuvoir.ibukigourd.util.textRenderer
-import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 
-fun testScreen3() = rowScreen {
+fun testScreen3() = rowScreen(
+    modifier = Modifier.renderOverlay { ctx, _, _, _ ->
+        this as IGScreenImpl<*>
+        ctx.batchRenderText {
+            pushTextLines(
+                Literal(focusedWidget.toString()), transform.asWorldBox, align = BoxAlignment::TopLeft
+            )
+        }
+    }
+) {
     column {
         var selectText = "本居小铃"
         val list = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
         dropMenu {
-            separatorColor(Color(0xFFCCCCCC))
             content {
                 text({ Literal(selectText) })
             }
@@ -44,7 +57,7 @@ fun testScreen3() = rowScreen {
                     }
                 }
                 textField {
-                    text = "我去还这样嵌套?"
+                    text = "短一点"
                 }
                 repeat(50) {
                     text("aa$it")
@@ -84,63 +97,56 @@ fun testScreen3() = rowScreen {
         )
     }
 
-    column(
-        arrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .padding(3f)
-            .width(240f)
-            .renderBackground { ctx, _, _, _ ->
-                this as IGWidget
-                ctx.batchRenderBox {
-                    if (wasMouseOver) {
-                        pushBoxOutline(transform, Colors.AQUA)
-                    }
-                    pushBox(transform, Colors.AQUA.alpha(.25f))
-                }
+    column {
+        row {
+            Arrangement.values.forEach { arrangement ->
+                columnTest(arrangement)
             }
-    ) {
-        button { text("按钮1") }
-        button { text("按钮2") }
-        button { text("按钮3") }
+        }
+        column {
+            Arrangement.values.forEach { arrangement ->
+                rowTest(arrangement)
+            }
+        }
     }
+}
 
-    column(
-        arrangement = Arrangement.SpaceAround,
-        modifier = Modifier
-            .padding(3f)
-            .width(240f)
-            .renderBackground { ctx, _, _, _ ->
-                this as IGWidget
-                ctx.batchRenderBox {
-                    if (wasMouseOver) {
-                        pushBoxOutline(transform, Colors.AQUA)
-                    }
-                    pushBox(transform, Colors.AQUA.alpha(.25f))
+private fun GuiScope<out WidgetContainer>.columnTest(arrangement: Arrangement) = column(
+    arrangement = arrangement,
+    modifier = Modifier
+        .padding(3f)
+        .width(240f)
+        .renderBackground { ctx, _, _, _ ->
+            this as IGWidget
+            ctx.batchRenderBox {
+                if (wasMouseOver) {
+                    pushBoxOutline(transform, Colors.AQUA)
                 }
+                pushBox(transform, Colors.AQUA.alpha(.25f))
             }
-    ) {
-        button { text("按钮1") }
-        button { text("按钮2") }
-        button { text("按钮3") }
-    }
+        }
+) {
+    button { text("按钮1") }
+    button { text("按钮2") }
+    button { text("按钮3") }
+}
 
-    column(
-        arrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier
-            .padding(3f)
-            .width(240f)
-            .renderBackground { ctx, _, _, _ ->
-                this as IGWidget
-                ctx.batchRenderBox {
-                    if (wasMouseOver) {
-                        pushBoxOutline(transform, Colors.AQUA)
-                    }
-                    pushBox(transform, Colors.AQUA.alpha(.25f))
+private fun GuiScope<out WidgetContainer>.rowTest(arrangement: Arrangement) = row(
+    arrangement = arrangement,
+    modifier = Modifier
+        .padding(3f)
+        .height(240f)
+        .renderBackground { ctx, _, _, _ ->
+            this as IGWidget
+            ctx.batchRenderBox {
+                if (wasMouseOver) {
+                    pushBoxOutline(transform, Colors.AQUA)
                 }
+                pushBox(transform, Colors.AQUA.alpha(.25f))
             }
-    ) {
-        button { text("按钮1") }
-        button { text("按钮2") }
-        button { text("按钮3") }
-    }
+        }
+) {
+    button { text("按钮1") }
+    button { text("按钮2") }
+    button { text("按钮3") }
 }

@@ -105,6 +105,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
                 mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
             }
         }
+
     }
 
     override fun onMousePress(event: MousePressEvent) {

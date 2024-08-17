@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.scroller
+import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -61,10 +62,22 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
         layer = _layerRecord
     }
 
+    override fun hoveredWidget(layer: GuiLayer): IGWidget? {
+        for (child in widgetChildren()) {
+            if (child is WidgetContainer && child.wasMouseOver) {
+                child.hoveredWidget(layer)?.let { return it }
+                return child.takeIf { it.layer == layer }
+            }
+            if (child.wasMouseOver && child.layer == layer) {
+                return child
+            }
+        }
+        return null
+    }
 
     //------------ Render ------------\\
 
-    private var separatorColor: ARGBColor = Color(0xFFA0A0A0)
+    private var separatorColor: ARGBColor = Color(0xFFCCCCCC)
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
@@ -107,6 +120,9 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
         val c = constraints.constraintAs(this.constraints)
         _scroller.constraints = _scroller.constraints.copy(minWidth = _arrow.transform.width + 3f, maxHeight = 0f)
         expandedContent.measure(Constraints.of(0f, c.maxWidth, 0f, mc.window.scaledHeight.toFloat()))
+        if (!_list.constraints.widthRange.isEmpty()) {
+            _list.constraints = _list.constraints.copy(minWidth = _list.transform.width, maxWidth = _list.transform.width)
+        }
         _scroller.constraints = _scroller.constraints.copy(maxHeight = _list.transform.height)
         if (transform.width < expandedContent.wrappedWidth) {
             head.constraints = head.constraints.copy(
@@ -270,8 +286,10 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
         }
 
         fun refresh() {
-            dropMenu.init()
-            dropMenu.screen()?.remeasure()
+            mc.scheduleStartTick(1) {
+                dropMenu.init()
+                dropMenu.screen()?.remeasure()
+            }
         }
 
         fun separatorColor(separatorColor: ARGBColor) {

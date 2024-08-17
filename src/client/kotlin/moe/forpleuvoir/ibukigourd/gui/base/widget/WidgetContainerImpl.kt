@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
@@ -67,13 +66,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
         for (child in widgetChildren()) {
             if (!child.active) continue
-            val mouseOver = child.wasMouseOver
             child.mouseMove.invoke(event)
-            if (!mouseOver && child.wasMouseOver) {
-                child.mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
-            } else if (mouseOver && !child.wasMouseOver) {
-                child.mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
-            }
         }
     }
 

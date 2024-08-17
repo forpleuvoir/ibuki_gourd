@@ -192,3 +192,4 @@ operator fun Vector2f.remAssign(vector2fc: Vector2fc) {
     this.x %= vector2fc.x()
     this.y %= vector2fc.y()
 }
+
