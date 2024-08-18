@@ -46,13 +46,13 @@ interface Size<T : Number> {
         }
     }
 
-    fun toFloat(): Size<Float> = Size(width.toFloat(), height.toFloat())
+    fun toFloat(): SizeFloat = Size(width.toFloat(), height.toFloat())
 
-    fun toDouble(): Size<Double> = Size(width.toDouble(), height.toDouble())
+    fun toDouble(): SizeDouble = Size(width.toDouble(), height.toDouble())
 
-    fun toInt(): Size<Int> = Size(width.toInt(), height.toInt())
+    fun toInt(): SizeInt = Size(width.toInt(), height.toInt())
 
-    fun toLong(): Size<Long> = Size(width.toLong(), height.toLong())
+    fun toLong(): SizeLong = Size(width.toLong(), height.toLong())
 }
 
 interface SizeFloat : Size<Float> {

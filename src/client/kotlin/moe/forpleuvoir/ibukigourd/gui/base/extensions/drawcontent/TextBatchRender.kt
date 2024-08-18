@@ -1,14 +1,12 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
 
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.text.draw
+import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.text.style.argbColor
-import moe.forpleuvoir.ibukigourd.text.wrapToLines
-import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -149,40 +147,41 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
     fun pushAlignmentText(
         text: String,
         box: Box,
-        align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+        alignment: Alignment = Alignment.CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
         color: ARGBColor = Color(0x000000),
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
-        val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
-        pushText(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
+        val offset = alignment.align(box, text.size(textRenderer).toFloat())
+        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, rightToLeft, color, backgroundColor)
     }
 
     /**
      * 渲染对齐文本
      * @param text Text
      * @param box Box 需要对齐的[Box]
-     * @param align ([Orientation]) -> [Alignment] 对齐方式
+     * @param alignment ([Orientation]) -> [Alignment] 对齐方式
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
-     * @param color ARGBColor
+     * @param defaultColor ARGBColor
      * @param backgroundColor ARGBColor
      */
     fun pushAlignmentText(
         text: Text,
         box: Box,
-        align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+        alignment: Alignment = Alignment.CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = text.style.argbColor ?: Color(0xFF000000),
+        defaultColor: ARGBColor = text.style.argbColor ?: Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
     ) {
-        val position = align(Orientation.Vertical).align(box, Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat()))
-        pushText(text, position.x(), position.y(), shadow, layerType, rightToLeft, color, backgroundColor)
+        val offset = alignment.align(box, text.size(textRenderer).toFloat())
+        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+
     }
 
 
@@ -195,30 +194,28 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
-     * @param color ARGBColor
+     * @param defaultColor ARGBColor
      * @param backgroundColor ARGBColor
      */
     fun pushStringLines(
         string: String,
         box: Box,
-        lineSpacing: Number = 1,
-        align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Colors.BLACK,
+        defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Color(0),
     ) {
         val texts = string.wrapToLines(textRenderer, box.width.toInt())
-        align(Orientation.Vertical)
-            .align(
-                box,
-                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
-            )
-            .forEachIndexed { index, vector ->
-                val text = texts[index]
-                pushText(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
-            }
+        val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        horizontalOffsets.zip(verticalOffsets) { x, y ->
+            Vector2f(box.x + x, box.y + y)
+        }.forEachIndexed { index, offset ->
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+        }
     }
 
     /**
@@ -230,30 +227,28 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
-     * @param color ARGBColor
+     * @param defaultColor ARGBColor
      * @param backgroundColor ARGBColor
      */
     fun pushStringLines(
         lines: List<String>,
         box: Box,
-        lineSpacing: Number = 1,
-        align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Colors.BLACK,
+        defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val texts = lines.wrapToLines(textRenderer, box.width.toInt())
-        align(Orientation.Vertical)
-            .align(
-                box,
-                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
-            )
-            .forEachIndexed { index, vector ->
-                val text = texts[index]
-                pushText(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, color, backgroundColor = backgroundColor)
-            }
+        val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        horizontalOffsets.zip(verticalOffsets) { x, y ->
+            Vector2f(box.x + x, box.y + y)
+        }.forEachIndexed { index, offset ->
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+        }
     }
 
     /**
@@ -271,8 +266,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
     fun pushTextLines(
         text: Text,
         box: Box,
-        lineSpacing: Number = 1,
-        align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
@@ -280,15 +275,13 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val texts = text.wrapToTextLines(textRenderer, box.width.toInt())
-        align(Orientation.Vertical)
-            .align(
-                box,
-                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
-            )
-            .forEachIndexed { index, vector ->
-                val t = texts[index]
-                pushText(t, vector.x(), vector.y(), shadow, layerType, rightToLeft, t.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
-            }
+        val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        horizontalOffsets.zip(verticalOffsets) { x, y ->
+            Vector2f(box.x + x, box.y + y)
+        }.forEachIndexed { index, offset ->
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+        }
     }
 
     /**
@@ -306,8 +299,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
     fun pushTextLines(
         lines: List<Text>,
         box: Box,
-        lineSpacing: Number = 1,
-        align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
@@ -315,15 +308,13 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val texts = lines.wrapToTextLines(textRenderer, box.width.toInt())
-        align(Orientation.Vertical)
-            .align(
-                box,
-                texts.map { Size(textRenderer.getWidth(it).toFloat(), textRenderer.fontHeight.toFloat() + lineSpacing.toFloat()) }
-            )
-            .forEachIndexed { index, vector ->
-                val text = texts[index]
-                pushText(text, vector.x(), vector.y(), shadow, layerType, rightToLeft, text.style.argbColor ?: defaultColor, backgroundColor = backgroundColor)
-            }
+        val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        horizontalOffsets.zip(verticalOffsets) { x, y ->
+            Vector2f(box.x + x, box.y + y)
+        }.forEachIndexed { index, offset ->
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+        }
     }
 
 }

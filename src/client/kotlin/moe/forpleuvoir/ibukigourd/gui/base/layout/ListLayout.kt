@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 
 interface ListLayout : Layout {
 
@@ -77,10 +77,10 @@ interface ListLayout : Layout {
         private fun ListLayout.layoutVertical(placeables: List<Placeable>, parentDatas: List<WrappedListLayoutData>) {
             var y = widget.padding.top - amount()
             placeables.forEachIndexed { index, child ->
-                val x = when (parentDatas[index].gravity) {
-                    Gravity.Start  -> widget.padding.left + child.margin.left
-                    Gravity.Center -> widget.transform.halfWidth - (child.margin.left + child.size.halfWidth)
-                    Gravity.End    -> widget.transform.width - widget.padding.right - child.size.width - child.margin.right
+                val x = when (parentDatas[index].bias) {
+                    Bias.Start  -> widget.padding.left + child.margin.left
+                    Bias.Center -> widget.transform.halfWidth - (child.margin.left + child.size.halfWidth)
+                    Bias.End    -> widget.transform.width - widget.padding.right - child.size.width - child.margin.right
                 }
                 child.placeAt(x, y, false)
                 y += child.wrappedHeight + spacing
@@ -90,10 +90,10 @@ interface ListLayout : Layout {
         private fun ListLayout.layoutHorizontal(placeables: List<Placeable>, parentDatas: List<WrappedListLayoutData>) {
             var x = widget.padding.top - amount()
             placeables.forEachIndexed { index, child ->
-                val y = when (parentDatas[index].gravity) {
-                    Gravity.Start  -> widget.padding.top + child.margin.top
-                    Gravity.Center -> widget.transform.halfHeight - (child.margin.top + child.size.halfHeight)
-                    Gravity.End    -> widget.transform.height - widget.padding.bottom - child.size.height - child.margin.bottom
+                val y = when (parentDatas[index].bias) {
+                    Bias.Start  -> widget.padding.top + child.margin.top
+                    Bias.Center -> widget.transform.halfHeight - (child.margin.top + child.size.halfHeight)
+                    Bias.End    -> widget.transform.height - widget.padding.bottom - child.size.height - child.margin.bottom
                 }
                 child.placeAt(x, y, false)
                 x += child.wrappedWidth + spacing
@@ -133,7 +133,7 @@ interface ListLayout : Layout {
 
 data class WrappedListLayoutData(
     val fill: Boolean = false,
-    var gravity: Gravity = Gravity.Start
+    var bias: Bias = Bias.Start
 ) {
 
     companion object : WrappedLayoutDataUtil<WrappedListLayoutData> {

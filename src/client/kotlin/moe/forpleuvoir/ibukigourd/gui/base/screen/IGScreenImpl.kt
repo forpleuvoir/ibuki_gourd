@@ -12,10 +12,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderGradient
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.input.Keyboard

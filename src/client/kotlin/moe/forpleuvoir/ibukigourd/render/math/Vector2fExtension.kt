@@ -22,9 +22,9 @@ fun Vector2dc.asFloat(): Vector2fc = Vector2f(x().toFloat(), y().toFloat())
 
 fun Vector2ic.asFloat(): Vector2fc = Vector2f(x.toFloat(), y.toFloat())
 
-operator fun Vector2fc.component1(): Float = x
+operator fun Vector2fc.component1(): Float = x()
 
-operator fun Vector2fc.component2(): Float = y
+operator fun Vector2fc.component2(): Float = y()
 
 /**
  * 创建一个向量[Vector2f]对象

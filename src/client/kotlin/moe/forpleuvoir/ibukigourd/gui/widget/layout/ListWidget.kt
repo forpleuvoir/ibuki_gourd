@@ -5,14 +5,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTex
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope

@@ -18,12 +18,11 @@ fun Vector3fc.isNotEmpty() = this.x() != 0f && this.y() != 0f && this.z() != 0f
 
 fun Vector2fc.asVector3fc(): Vector3fc = Vector3f(x, y, 0f)
 
-operator fun Vector3fc.component1(): Float = x
+operator fun Vector3fc.component1(): Float = x()
 
-operator fun Vector3fc.component2(): Float = y
+operator fun Vector3fc.component2(): Float = y()
 
-operator fun Vector3fc.component3(): Float = z
-
+operator fun Vector3fc.component3(): Float = z()
 
 /**
  * 创建一个向量[Vector3f]对象

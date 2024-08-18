@@ -1,10 +1,28 @@
 package moe.forpleuvoir.ibukigourd.text
 
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
+import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.textRenderer as tRenderer
 
+fun McText.size(textRenderer: TextRenderer = tRenderer): SizeInt {
+    return Size(textRenderer.getWidth(this), textRenderer.fontHeight)
+}
+
+fun String.size(textRenderer: TextRenderer = tRenderer): SizeInt {
+    return Size(textRenderer.getWidth(this), textRenderer.fontHeight)
+}
+
+fun Collection<McText>.size(textRenderer: TextRenderer = tRenderer, spacing: Float): SizeFloat {
+    return Size(this.maxWidth(textRenderer).toFloat(), this.size * (textRenderer.fontHeight + spacing) - spacing)
+}
+
+fun Collection<String>.size(textRenderer: TextRenderer = tRenderer, spacing: Float): SizeFloat {
+    return Size(this.maxWidth(textRenderer).toFloat(), this.size * (textRenderer.fontHeight + spacing) - spacing)
+}
 
 @JvmName("textTotalHeight")
 fun Collection<McText>.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float): Float {

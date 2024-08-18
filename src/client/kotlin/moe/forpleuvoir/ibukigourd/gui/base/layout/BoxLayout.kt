@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.plus
 

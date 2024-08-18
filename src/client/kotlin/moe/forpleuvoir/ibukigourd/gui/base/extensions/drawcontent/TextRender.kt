@@ -1,12 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
 
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.draw
+import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -145,7 +144,7 @@ fun DrawContext.renderText(
 fun DrawContext.renderAlignmentText(
     text: String,
     box: Box,
-    align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+    alignment: Alignment = Alignment.Center,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(0x000000),
@@ -153,8 +152,9 @@ fun DrawContext.renderAlignmentText(
     textRenderer: TextRenderer = this.client.textRenderer,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
-    val position = align(Orientation.Vertical).align(box, Box(Vector2f(), textRenderer.getWidth(text), textRenderer.fontHeight))
-    renderText(text, position.x(), position.y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+    alignment.align(box, text.size(textRenderer).toFloat()).apply {
+        renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+    }
 }
 
 /**
@@ -172,7 +172,7 @@ fun DrawContext.renderAlignmentText(
 fun DrawContext.renderAlignmentText(
     text: Text,
     box: Box,
-    align: (Orientation) -> Alignment = BoxAlignment::CenterLeft,
+    alignment: Alignment = Alignment.Center,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
@@ -180,6 +180,7 @@ fun DrawContext.renderAlignmentText(
     textRenderer: TextRenderer = this.client.textRenderer,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
-    val position = align(Orientation.Vertical).align(box, Box(Vector2f(), textRenderer.getWidth(text), textRenderer.fontHeight))
-    renderText(text, position.x(), position.y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+    alignment.align(box, text.size(textRenderer).toFloat()).apply {
+        renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+    }
 }

@@ -2,10 +2,10 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -46,7 +46,6 @@ fun testScreen3() = rowScreen(
             items {
                 list.forEach { str ->
                     flatButton(modifier = Modifier.width(list.maxWidth(textRenderer) + 2f), hoveredColor = { Colors.CYAN.opacity(.35f) }) {
-                        arrangement(Arrangement.Start)
                         var curText = str
                         press {
                             this@dropMenu.toggle()

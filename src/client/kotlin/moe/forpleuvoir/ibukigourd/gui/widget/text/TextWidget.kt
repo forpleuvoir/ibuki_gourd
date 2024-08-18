@@ -2,13 +2,13 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl

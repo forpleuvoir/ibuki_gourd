@@ -2,10 +2,10 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.BoxAlignment
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.boxScreen

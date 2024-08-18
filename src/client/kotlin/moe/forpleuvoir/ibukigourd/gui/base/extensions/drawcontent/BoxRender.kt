@@ -2,9 +2,9 @@
 
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
 import moe.forpleuvoir.ibukigourd.render.color

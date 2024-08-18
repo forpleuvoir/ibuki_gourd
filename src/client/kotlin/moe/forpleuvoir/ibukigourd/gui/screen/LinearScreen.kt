@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen

@@ -7,13 +7,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.active
@@ -40,8 +40,6 @@ import moe.forpleuvoir.nebula.common.color.Colors
 class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
 
     //------------ Override ------------\\
-
-    override var spacing: Float = 0f
 
     override val arrangement: Arrangement = Arrangement.SpaceBetween
 

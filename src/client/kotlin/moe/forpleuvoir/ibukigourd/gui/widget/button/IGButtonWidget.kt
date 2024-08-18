@@ -1,8 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
-import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
-import moe.forpleuvoir.ibukigourd.gui.base.render.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
@@ -65,8 +64,6 @@ open class IGButtonWidget : IGPressableWidgetContainer(), ColumnLayout {
         return this
     }
 
-    override var spacing: Float = 0f
-
     final override var arrangement: Arrangement = Arrangement.Center
         private set
 
@@ -75,8 +72,6 @@ open class IGButtonWidget : IGPressableWidgetContainer(), ColumnLayout {
     data class ButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, LinearLayoutScope {
 
         override fun owner(): IGButtonWidget = button
-
-        override val linearLayout: LinearLayout get() = owner()
 
         fun arrangement(arrangement: Arrangement) {
             owner().arrangement = arrangement

@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.gui.base.render.arrange
+package moe.forpleuvoir.ibukigourd.gui.base.layout.arrange
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
@@ -8,9 +8,7 @@ import org.joml.Vector2fc
 
 sealed interface Orientation {
 
-    open class Vertical private constructor() : Orientation {
-
-        companion object : Vertical()
+    data object Vertical : Orientation {
 
         override fun contentSize(sizes: List<Size<Float>>): Size<Float> =
             Size(sizes.maxOf { it.width }, sizes.sumOf { it.height })
@@ -26,9 +24,7 @@ sealed interface Orientation {
         }
     }
 
-    open class Horizontal private constructor() : Orientation {
-
-        companion object : Horizontal()
+    data object Horizontal : Orientation {
 
         override fun contentSize(sizes: List<Size<Float>>): Size<Float> =
             Size(sizes.sumOf { it.width }, sizes.maxOf { it.height })

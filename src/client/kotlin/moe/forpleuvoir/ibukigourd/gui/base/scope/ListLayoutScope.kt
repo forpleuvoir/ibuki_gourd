@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.scope
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Gravity
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Bias
 import moe.forpleuvoir.ibukigourd.gui.base.layout.WrappedListLayoutData
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
@@ -9,18 +9,18 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
 @GuiDslMark
 interface ListLayoutScope {
 
-    fun Modifier.gravity(gravity: Gravity) = this then WidgetModifier {
+    fun Modifier.gravity(bias: Bias) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is WrappedListLayoutData -> it.parentData = parentData.copy(gravity = gravity)
-            null                     -> it.parentData = WrappedListLayoutData(gravity = gravity)
+            is WrappedListLayoutData -> it.parentData = parentData.copy(bias = bias)
+            null                     -> it.parentData = WrappedListLayoutData(bias = bias)
         }
     }
 
-    fun Modifier.gravityCenter() = gravity(Gravity.Center)
+    fun Modifier.gravityCenter() = gravity(Bias.Center)
 
-    fun Modifier.gravityStart() = gravity(Gravity.Start)
+    fun Modifier.gravityStart() = gravity(Bias.Start)
 
-    fun Modifier.gravityEnd() = gravity(Gravity.End)
+    fun Modifier.gravityEnd() = gravity(Bias.End)
 
     fun Modifier.fill() = this then WidgetModifier {
         when (val parentData = it.parentData) {

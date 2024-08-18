@@ -536,7 +536,7 @@ open class TextField(
             content.batchRenderText(textRenderer) {
                 //"渲染提示文本"
                 if (text.isEmpty() && hintText != null && !isFocused) {
-                    pushAlignmentText(hintText!!, contentBox, color = hintColor)
+                    pushAlignmentText(hintText!!, contentBox, defaultColor = hintColor)
                 }
                 //"渲染文本本体"
                 val renderText = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox.width.toInt())

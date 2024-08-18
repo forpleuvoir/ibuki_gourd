@@ -64,10 +64,7 @@ fun GuiScope<out WidgetContainer>.booleanButton(
         press { statusDelegate.setValue(!statusDelegate.getValue()) }
         text(text = {
             val status = statusDelegate.getValue()
-            Literal(status.toString())
-                .style {
-                    color(status.pick(Colors.GREEN, Colors.RED))
-                }
+            Literal(status.toString()).style { color(status.pick(Colors.GREEN, Colors.RED)) }
         })
     }
 ) = button(modifier = modifier, content = content)
