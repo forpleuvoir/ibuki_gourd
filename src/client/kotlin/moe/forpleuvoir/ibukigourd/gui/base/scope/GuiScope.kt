@@ -36,3 +36,5 @@ fun interface GuiScope<T : Any> {
     }
 
 }
+
+typealias WidgetContainerScope = GuiScope<out WidgetContainer>

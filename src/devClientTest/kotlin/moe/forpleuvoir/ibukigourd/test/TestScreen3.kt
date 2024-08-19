@@ -11,15 +11,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
-import moe.forpleuvoir.ibukigourd.gui.widget.button.booleanButton
-import moe.forpleuvoir.ibukigourd.gui.widget.button.button
-import moe.forpleuvoir.ibukigourd.gui.widget.button.flatButton
-import moe.forpleuvoir.ibukigourd.gui.widget.button.lockButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.LockButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.dropMenu
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.row
-import moe.forpleuvoir.ibukigourd.gui.widget.text.text
-import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
+import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.delegate
@@ -63,15 +62,15 @@ fun testScreen3() = rowScreen(
                 }
             }
         }
-        flatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
-            text({ Literal(selectText) })
+        FlatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
+            Text({ Literal(selectText) })
         }
         val status = delegate(true)
-        booleanButton(status)
-        lockButton(status)
+        SwitchButton(status)
+        LockButton(status)
     }
 
-    button(
+    Button(
         modifier = Modifier.maxWidth(80f).maxHeight(80f)
     ) {
         var text = ""
@@ -81,7 +80,7 @@ fun testScreen3() = rowScreen(
             text += "测试宽度$count"
             count++
         }
-        text(
+        Text(
             text = { Literal("测试文本:$text").style { color(Colors.BRIGHT_NEON_PINK) } },
             modifier = Modifier
                 .renderOverlay { ctx, _, _, _ ->
@@ -97,7 +96,7 @@ fun testScreen3() = rowScreen(
     }
 
     column {
-        row {
+        Row {
             Arrangement.values.forEach { arrangement ->
                 columnTest(arrangement)
             }
@@ -125,12 +124,12 @@ private fun GuiScope<out WidgetContainer>.columnTest(arrangement: Arrangement) =
             }
         }
 ) {
-    button { text("按钮1") }
-    button { text("按钮2") }
-    button { text("按钮3") }
+    Button { Text("按钮1") }
+    Button { Text("按钮2") }
+    Button { Text("按钮3") }
 }
 
-private fun GuiScope<out WidgetContainer>.rowTest(arrangement: Arrangement) = row(
+private fun GuiScope<out WidgetContainer>.rowTest(arrangement: Arrangement) = Row(
     arrangement = arrangement,
     modifier = Modifier
         .padding(3f)
@@ -145,7 +144,7 @@ private fun GuiScope<out WidgetContainer>.rowTest(arrangement: Arrangement) = ro
             }
         }
 ) {
-    button { text("按钮1") }
-    button { text("按钮2") }
-    button { text("按钮3") }
+    Button { Text("按钮1") }
+    Button { Text("按钮2") }
+    Button { Text("按钮3") }
 }

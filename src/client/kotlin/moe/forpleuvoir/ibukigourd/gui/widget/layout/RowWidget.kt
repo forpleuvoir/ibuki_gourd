@@ -1,35 +1,28 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Bias
 import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class RowWidget(
-    override val arrangement: Arrangement = Arrangement.Center,
-    override var bias: Bias = Bias.of()
-) : WidgetContainerImpl(), RowLayout {
+    override val arrangement: Arrangement.Vertical,
+    override val alignment: Alignment.Horizontal,
+) : WidgetContainerImpl(), RowLayout
 
+fun interface RowScope : GuiScope<RowWidget>, RowLayoutScope
 
-    companion object
-
-    fun interface RowScope : GuiScope<RowWidget>, LinearLayoutScope
-
-}
-
-typealias RowScope = RowWidget.RowScope
-
-fun GuiScope<out WidgetContainer>.row(
-    arrangement: Arrangement = Arrangement.Center,
-    bias: Bias = Bias.of(),
+fun WidgetContainerScope.Row(
     modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowScope.() -> Unit
-) = addWidgetChild(RowWidget(arrangement, bias)) {
+): RowWidget = addWidgetChild(RowWidget(verticalArrangement, horizontalAlignment)) {
     RowScope { this }.content()
     modifier.foldInApply()
 }

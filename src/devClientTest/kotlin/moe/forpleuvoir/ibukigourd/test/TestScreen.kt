@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -9,13 +10,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.boxScreen
-import moe.forpleuvoir.ibukigourd.gui.widget.button.button
+import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
-import moe.forpleuvoir.ibukigourd.gui.widget.scroller
-import moe.forpleuvoir.ibukigourd.gui.widget.text.text
-import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.*
+import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -70,23 +72,21 @@ fun testScreen() = boxScreen(
             }
     }
 ) {
-    row(modifier = Modifier.padding(20f).renderOverlay { context, _, _, _ ->
+    Row(modifier = Modifier.padding(20f).renderOverlay { context, _, _, _ ->
         this as RowWidget
         context.batchRenderBox {
             pushBoxOutline(contentBox(true), Colors.ROSE)
         }
     }) {
-        spacing(5f)
-        listWithScroller(
-            Orientation.Horizontal,
-            3f,
+        ColumnListWrapped(
+            spacing = 3f,
         ) {
             repeat(50) {
-                button { text("$it") }
+                Button { Text("$it") }
             }
         }
-        testColumn()
-        scroller(
+        TestColumn()
+        Scroller(
             { 1f },
             { 10f },
             { 0.1f },
@@ -100,7 +100,7 @@ fun testScreen() = boxScreen(
 
 }
 
-fun RowScope.testColumn() = column(
+fun RowScope.TestColumn() = Column(
     modifier = Modifier.renderOverlay { context, _, _, _ ->
         this as IGWidget
         context.batchRenderBox {
@@ -108,38 +108,36 @@ fun RowScope.testColumn() = column(
         }
     }.weight(8)
 ) {
-    spacing(5f)
-    listWithScroller(
-        Orientation.Vertical,
-        2f,
+    RowListWrapped(
+        modifier = Modifier.width(120f),
+        spacing = 2f,
         listModifier = { Modifier.weight(1) },
-        modifier = Modifier.width(120f)
     ) {
         var c = 0
         var f = true
-        textField {
+        TextField {
             text = "我去还这样嵌套?"
         }
         repeat(50) {
             val m = when (c) {
-                0 -> Modifier.gravityStart()
-                1 -> Modifier.gravityCenter()
-                2 -> Modifier.gravityEnd()
-                else -> Modifier.gravityCenter()
+                0    -> Modifier.align(Alignment.Left)
+                1    -> Modifier.align(Alignment.CenterHorizontally)
+                2    -> Modifier.align(Alignment.Right)
+                else -> Modifier.align(Alignment.CenterHorizontally)
             }
 
             if (it == 29) {
-                button(modifier = m.width(50f)) {
-                    icon(IconTextures.CLOSE)
+                Button(modifier = m.width(50f)) {
+                    Icon(IconTextures.CLOSE)
                 }
             } else if (it % 5 == 0) {
-                button(modifier = m) {
+                Button(modifier = m) {
                     var text = ""
                     press {
                         text += "\n"
                         text += "测试宽度测试宽度测试宽度测试宽度"
                     }
-                    text(
+                    Text(
                         text = {
                             Literal("测试文本$it:$text").style { color(Colors.BRIGHT_NEON_PINK) }
                         },
@@ -158,8 +156,9 @@ fun RowScope.testColumn() = column(
                     }
                 }
             } else {
-                button(modifier = m) {
-                    icon(IconTextures.CLOSE, modifier = Modifier
+                Button(modifier = m) {
+                    Icon(
+                        IconTextures.CLOSE, modifier = Modifier
                         .padding(2)
                         .renderOverlay { ctx, _, _, _ ->
                             this as IGWidget
@@ -186,7 +185,7 @@ fun RowScope.testColumn() = column(
         IconTextures.MINUS,
     )
 
-    box(
+    Box(
         modifier = Modifier.renderOverlay { context, _, _, _ ->
             this as IGWidget
             context.batchRenderBox {
@@ -194,14 +193,14 @@ fun RowScope.testColumn() = column(
             }
         }
     ) {
-        column {
+        Column {
             icons.forEach {
-                icon(it)
-                box(Modifier.width(5f))
+                Icon(it)
+                Box(Modifier.width(5f))
             }
         }
     }
-    box(
+    Box(
         Modifier.size(80f, 80f)
             .renderOverlay { context, _, _, _ ->
                 this as IGWidget
@@ -210,14 +209,14 @@ fun RowScope.testColumn() = column(
                 }
             }
     ) {
-        icon(IconTextures.CLOSE, modifier = Modifier.alignment(BoxAlignment.TopLeft()))
-        icon(IconTextures.SEARCH, modifier = Modifier.alignment(BoxAlignment.TopRight()))
-        icon(IconTextures.MINUS, modifier = Modifier.alignment(BoxAlignment.BottomLeft()))
-        icon(IconTextures.LOCK, modifier = Modifier.alignment(BoxAlignment.BottomRight()))
-        icon(IconTextures.FILTER, modifier = Modifier.alignment(BoxAlignment.CenterCenter()))
+        Icon(IconTextures.CLOSE, modifier = Modifier.alignment(BoxAlignment.TopLeft()))
+        Icon(IconTextures.SEARCH, modifier = Modifier.alignment(BoxAlignment.TopRight()))
+        Icon(IconTextures.MINUS, modifier = Modifier.alignment(BoxAlignment.BottomLeft()))
+        Icon(IconTextures.LOCK, modifier = Modifier.alignment(BoxAlignment.BottomRight()))
+        Icon(IconTextures.FILTER, modifier = Modifier.alignment(BoxAlignment.CenterCenter()))
     }
-    scroller({ 5f }, { 500f }, { 0.1f }, modifier = Modifier.maxHeight(180f))
-    button(
+    Scroller({ 5f }, { 500f }, { 0.1f }, modifier = Modifier.maxHeight(180f))
+    Button(
         modifier = Modifier.height(40f).renderOverlay { context, _, _, _ ->
             this as IGWidget
             measureTime {
@@ -237,11 +236,11 @@ fun RowScope.testColumn() = column(
             println("长按了按钮")
         }
         spacing(8f)
-        icon(IconTextures.CLOSE, modifier = Modifier.gravityStart().maxWidth(16f))
-        icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f))
-        icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f))
-        icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f))
-        icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f))
+        Icon(IconTextures.CLOSE, modifier = Modifier.gravityStart().maxWidth(16f))
+        Icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f))
+        Icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f))
+        Icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f))
+        Icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f))
     }
 
 }

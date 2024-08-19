@@ -6,22 +6,22 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.byRemember
 import moe.forpleuvoir.ibukigourd.gui.base.screen.remember
 import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
-import moe.forpleuvoir.ibukigourd.gui.widget.text.textAreaWidthScroller
-import moe.forpleuvoir.ibukigourd.gui.widget.text.textField
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.util.mc
 
 fun testScreen2() = rowScreen(
     modifier = Modifier.padding(20)
 ) {
     spacing(5f)
-    textField {
+    TextField {
         textConsumer {
             mc.remember("text1", it)
         }
         text = mc.byRemember("text1", "Hello world!")
     }
     column {
-        textAreaWidthScroller() {
+        TextAreaWrapped() {
             textConsumer {
                 this@rowScreen.remember(this, it)
             }

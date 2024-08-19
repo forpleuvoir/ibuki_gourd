@@ -26,11 +26,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
+import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.ScrollerWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconWidget
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
-import moe.forpleuvoir.ibukigourd.gui.widget.scroller
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ListWidget
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ListWidgetScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.list
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -214,13 +216,13 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
                 ) {
                     scope.itemsContent(this)
                 }
-                box(modifier = Modifier.width(5f))
-                _scroller = scroller(
+                Box(modifier = Modifier.width(5f))
+                _scroller = Scroller(
                     amountStep = { _list.widgetChildren().minOf { it.transform.height } / 2f },
                     totalAmount = { _list.totalAmount },
-                    barProportion = { (_list.contentHeight / _list.totalContentSize).coerceIn(0f..1f) },
+                    barProportion = { (_list.contentHeight / _list.totalSpace).coerceIn(0f..1f) },
                     amountConsumer = {
-                        _list.amounts = it
+                        _list.amount = it
                     },
                     orientation = Orientation.Vertical,
                     modifier = Modifier
@@ -272,9 +274,9 @@ class DropMenuWidget : ExpandableWidgetContainer(), RowLayout {
 
         internal lateinit var contentModifier: LinearLayoutScope. () -> Modifier
 
-        internal lateinit var content: ColumnScope.() -> Unit
+        internal lateinit var content: ColumnLayoutScope.() -> Unit
 
-        fun content(modifier: LinearLayoutScope. () -> Modifier = { Modifier }, content: ColumnScope.() -> Unit) {
+        fun content(modifier: LinearLayoutScope. () -> Modifier = { Modifier }, content: ColumnLayoutScope.() -> Unit) {
             contentModifier = modifier
             this.content = content
         }

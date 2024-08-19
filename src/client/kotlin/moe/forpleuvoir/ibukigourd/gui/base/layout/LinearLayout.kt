@@ -40,13 +40,13 @@ interface RowLayout : LinearLayout {
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //垂直布局 宽度固定
-        val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
         //所有子元素的最大宽度限制固定
-        val contentMaxWidth = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
+        val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //最宽的子元素宽度
         var maxChildWidth = 0f
         //内容的最大高度
-        val contentMaxHeight = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
+        val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
         //所有元素的parentData
         val parentDatas = WrappedRowLayoutData.wrappedDatas(measurables)
         //使用的高度
@@ -93,7 +93,7 @@ interface RowLayout : LinearLayout {
         }
         usedHeight += widget.padding.height
         maxChildWidth += widget.padding.width
-        widget.transform.set(maxChildWidth.coerceIn(_minWidth, _maxWidth), usedHeight.coerceIn(_minHeight, _maxHeight))
+        widget.transform.set(maxChildWidth.coerceIn(minWidth, maxWidth), usedHeight.coerceIn(minHeight, maxHeight))
         return widget
     }
 
@@ -136,13 +136,13 @@ interface ColumnLayout : LinearLayout {
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //水平布局 高度固定
-        val (_minWidth, _maxWidth, _minHeight, _maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
         //所有子元素的最大高度限制固定
-        val contentMaxHeight = (_maxHeight - widget.padding.height).coerceAtLeast(0f)
+        val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
         //最高的子元素高度
         var maxChildHeight = 0f
         //内容的最大高度
-        val contentMaxWidth = (_maxWidth - widget.padding.width).coerceAtLeast(0f)
+        val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //所有元素的parentData
         val parentDatas = WrappedColumnLayoutData.wrappedDatas(measurables)
         //使用的宽度
@@ -189,7 +189,7 @@ interface ColumnLayout : LinearLayout {
         }
         usedWidth += widget.padding.width
         maxChildHeight += widget.padding.height
-        widget.transform.set(usedWidth.coerceIn(_minWidth, _maxWidth), maxChildHeight.coerceIn(_minHeight, _maxHeight))
+        widget.transform.set(usedWidth.coerceIn(minWidth, maxWidth), maxChildHeight.coerceIn(minHeight, maxHeight))
         return widget
     }
 

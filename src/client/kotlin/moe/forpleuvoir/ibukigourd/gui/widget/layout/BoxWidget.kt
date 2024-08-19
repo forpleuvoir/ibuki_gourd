@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class BoxWidget : WidgetContainerImpl(), BoxLayout {
@@ -20,7 +20,7 @@ class BoxWidget : WidgetContainerImpl(), BoxLayout {
 
 typealias BoxScope = BoxWidget.BoxScope
 
-fun GuiScope<out WidgetContainer>.box(
+fun WidgetContainerScope.Box(
     modifier: Modifier = Modifier,
     context: BoxScope.() -> Unit = { }
 ): BoxWidget = addWidgetChild(BoxWidget()) {

@@ -1,10 +1,10 @@
 [versions]
 #Fabric check these on https://fabricmc.net/versions.html
-minecraftVersion = "1.21"
-yarnMappingsVersion = "1.21+build.2"
-fabricLoaderVersion = "0.15.11"
-fabricApiVersion = "0.100.1+1.21"
-fabricLoomVersion = "1.6-SNAPSHOT"
+minecraftVersion = "1.21.1"
+yarnMappingsVersion = "1.21.1+build.3"
+fabricLoaderVersion = "0.16.2"
+fabricApiVersion = "0.102.1+1.21.1"
+fabricLoomVersion = "1.7-SNAPSHOT"
 #mods
 modMenuVersion = "11.0.0-beta.2"
 fabricKotlinVersion = "1.11.0+kotlin.2.0.0"

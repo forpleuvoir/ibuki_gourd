@@ -11,13 +11,13 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 @Environment(EnvType.CLIENT)
 object IbukiGourdClient : ClientModInitializer {
 
-	private val log = logger()
+    private val log = logger()
 
-	override fun onInitializeClient() {
-		ClientCommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
-			log.info("client command register...")
-			EventBus.broadcast(ClientCommandRegisterEvent(dispatcher, registryAccess))
-		}
-	}
+    override fun onInitializeClient() {
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
+            log.info("client command register...")
+            EventBus.broadcast(ClientCommandRegisterEvent(dispatcher, registryAccess))
+        }
+    }
 
 }

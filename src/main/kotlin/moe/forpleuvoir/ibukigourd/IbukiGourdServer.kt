@@ -9,5 +9,4 @@ object IbukiGourdServer : DedicatedServerModInitializer {
 	override fun onInitializeServer() {
 
 	}
-
 }

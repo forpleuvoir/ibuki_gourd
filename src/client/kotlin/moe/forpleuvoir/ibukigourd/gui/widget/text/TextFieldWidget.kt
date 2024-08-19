@@ -10,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -41,8 +41,10 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
+typealias McTextFieldWidget = net.minecraft.client.gui.widget.TextFieldWidget
+
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
-open class TextField(
+open class TextFieldWidget(
     var textColor: ARGBColor = Color(0x303030),
     var hintColor: ARGBColor = Color(0x707070),
     var bgShaderColor: ARGBColor = Colors.WHITE,
@@ -591,11 +593,9 @@ open class TextField(
         }
     }
 
-    companion object {
+    companion object
 
-    }
-
-    fun interface TextFieldScope : GuiScope<TextField> {
+    fun interface TextFieldScope : GuiScope<TextFieldWidget> {
 
         var text: String
             get() = owner().text
@@ -660,9 +660,10 @@ open class TextField(
 
 }
 
-typealias TextFieldScope = TextField.TextFieldScope
+typealias TextFieldScope = TextFieldWidget.TextFieldScope
 
-fun GuiScope<out WidgetContainer>.textField(
+fun WidgetContainerScope.TextField(
+    modifier: Modifier = Modifier,
     textColor: ARGBColor = Color(0x303030),
     hintColor: ARGBColor = Color(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -670,9 +671,8 @@ fun GuiScope<out WidgetContainer>.textField(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier = Modifier,
     scope: TextFieldScope.() -> Unit = {}
-) = owner().addWidgetChild(TextField(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
+) = owner().addWidgetChild(TextFieldWidget(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
     Modifier.padding(5).then(modifier).foldInApply()
     TextFieldScope { this }.scope()
 }

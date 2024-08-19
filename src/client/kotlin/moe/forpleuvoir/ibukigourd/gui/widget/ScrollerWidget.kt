@@ -12,8 +12,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
@@ -220,7 +220,7 @@ open class ScrollerWidget(
 typealias ScrollerScope = ScrollerWidget.ScrollerScope
 
 
-fun GuiScope<out WidgetContainer>.scroller(
+fun WidgetContainerScope.Scroller(
     /**
      * 进度步幅
      */

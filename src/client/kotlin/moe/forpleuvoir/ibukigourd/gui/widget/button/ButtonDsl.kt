@@ -10,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChi
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.icon
-import moe.forpleuvoir.ibukigourd.gui.widget.text.text
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -22,7 +22,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
-fun GuiScope<out WidgetContainer>.button(
+fun GuiScope<out WidgetContainer>.Button(
     theme: PressableTheme = PressableTheme.Button2,
     modifier: Modifier = Modifier,
     content: ButtonScope.() -> Unit = { }
@@ -38,7 +38,7 @@ fun GuiScope<out WidgetContainer>.button(
     ButtonScope(this).content()
 }
 
-fun GuiScope<out WidgetContainer>.flatButton(
+fun GuiScope<out WidgetContainer>.FlatButton(
     disabledColor: () -> ARGBColor = { Color(0) },
     idleColor: () -> ARGBColor = { Color(0) },
     hoveredColor: () -> ARGBColor = { Color(0) },
@@ -57,19 +57,19 @@ fun GuiScope<out WidgetContainer>.flatButton(
     ButtonScope(this).content()
 }
 
-fun GuiScope<out WidgetContainer>.booleanButton(
+fun GuiScope<out WidgetContainer>.SwitchButton(
     statusDelegate: DelegatedValue<Boolean> = delegate(false),
     modifier: Modifier = Modifier,
     content: ButtonScope.() -> Unit = {
         press { statusDelegate.setValue(!statusDelegate.getValue()) }
-        text(text = {
+        Text(text = {
             val status = statusDelegate.getValue()
             Literal(status.toString()).style { color(status.pick(Colors.GREEN, Colors.RED)) }
         })
     }
-) = button(modifier = modifier, content = content)
+) = Button(modifier = modifier, content = content)
 
-fun GuiScope<out WidgetContainer>.lockButton(
+fun GuiScope<out WidgetContainer>.LockButton(
     statusDelegate: DelegatedValue<Boolean> = delegate(false),
     modifier: Modifier = Modifier,
     content: ButtonScope.() -> Unit = {}
@@ -86,7 +86,7 @@ fun GuiScope<out WidgetContainer>.lockButton(
     )
     val scope = ButtonScope(this)
     scope.content()
-    val lock = scope.icon(list.maxBy { it.width + it.height }) {
+    val lock = scope.Icon(list.maxBy { it.width + it.height }) {
         changedRemeasure = false
     }
     Modifier

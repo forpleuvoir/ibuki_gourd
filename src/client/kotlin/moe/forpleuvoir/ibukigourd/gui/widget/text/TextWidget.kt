@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -11,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
 import moe.forpleuvoir.ibukigourd.render.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
@@ -251,7 +250,7 @@ typealias TextWidgetScope = TextWidget.TextWidgetScope
 
 typealias TextSetting = TextWidget.Setting
 
-fun GuiScope<out WidgetContainer>.text(
+fun WidgetContainerScope.Text(
     text: () -> Text,
     setting: TextSetting = TextSetting(),
     modifier: Modifier = Modifier,
@@ -261,7 +260,7 @@ fun GuiScope<out WidgetContainer>.text(
     TextWidgetScope { this }.scope()
 }
 
-fun GuiScope<out WidgetContainer>.text(
+fun WidgetContainerScope.Text(
     text: Text,
     setting: TextSetting = TextSetting(),
     modifier: Modifier = Modifier,
@@ -271,7 +270,7 @@ fun GuiScope<out WidgetContainer>.text(
     TextWidgetScope { this }.scope()
 }
 
-fun GuiScope<out WidgetContainer>.text(
+fun WidgetContainerScope.Text(
     str: String,
     setting: TextSetting = TextSetting(),
     modifier: Modifier = Modifier,
@@ -281,7 +280,7 @@ fun GuiScope<out WidgetContainer>.text(
     TextWidgetScope { this }.scope()
 }
 
-fun GuiScope<out WidgetContainer>.text(
+fun WidgetContainerScope.Text(
     text: () -> Text,
     spacing: Float = 1f,
     scrollAxis: ScrollAxis = ScrollAxis.All,
@@ -299,7 +298,7 @@ fun GuiScope<out WidgetContainer>.text(
     TextWidgetScope { this }.scope()
 }
 
-fun GuiScope<out WidgetContainer>.text(
+fun WidgetContainerScope.Text(
     text: Text,
     spacing: Float = 1f,
     scrollAxis: ScrollAxis = ScrollAxis.All,
@@ -317,7 +316,7 @@ fun GuiScope<out WidgetContainer>.text(
     TextWidgetScope { this }.scope()
 }
 
-fun GuiScope<out WidgetContainer>.text(
+fun WidgetContainerScope.Text(
     str: String,
     spacing: Float = 1f,
     scrollAxis: ScrollAxis = ScrollAxis.All,

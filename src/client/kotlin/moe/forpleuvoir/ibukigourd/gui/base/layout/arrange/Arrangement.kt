@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout.arrange
 
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement.HorizontalOrVertical
-
 object Arrangement {
 
     interface Linear {
@@ -33,6 +31,9 @@ object Arrangement {
 
     val Center: HorizontalOrVertical = SpacedAligned(0f) { space, size -> (space - size) / 2 }
 
+    /**
+     * A#A#A
+     */
     val SpaceBetween = HorizontalOrVertical { space, sizes ->
         val unitSpace = ((space - sizes.sum()) / (sizes.lastIndex)).coerceAtLeast(0f)
         var offset = 0f
@@ -44,6 +45,9 @@ object Arrangement {
         }
     }
 
+    /**
+     * #A##A##A#
+     */
     val SpaceAround = HorizontalOrVertical { space, sizes ->
         val unitSpace = ((space - sizes.sum()) / (sizes.size * 2)).coerceAtLeast(0f)
         var offset = 0f
@@ -56,6 +60,9 @@ object Arrangement {
         }
     }
 
+    /**
+     * #A#A#A#
+     */
     val SpaceEvenly = HorizontalOrVertical { space, sizes ->
         val unitSpace = ((space - sizes.sum()) / (sizes.size + 1)).coerceAtLeast(0f)
         var offset = 0f
@@ -84,19 +91,16 @@ object Arrangement {
     fun aligned(alignment: Alignment.Vertical): Vertical =
         SpacedAligned(0f, alignment::align)
 
-    open class SpacedAligned(val space: Float, val alignment: (space: Float, size: Float) -> Float) : HorizontalOrVertical {
+    open class SpacedAligned(override val spacing: Float, val alignment: (space: Float, size: Float) -> Float) : HorizontalOrVertical {
         override fun arrange(space: Float, sizes: List<Float>): List<Float> {
             if (sizes.isEmpty()) return emptyList()
             //子元素所占总空间
-            val childrenSpace = sizes.sum() + (sizes.lastIndex * this.space)
+            val childrenSpace = sizes.sum() + (sizes.lastIndex * this.spacing)
             //总偏移
             val groupOffset = alignment.invoke(space, childrenSpace)
-            var offset = groupOffset
-            return sizes.map { size ->
-                val _offset = offset
-                offset += size + space
-                _offset
-            }
+            return sizes.runningFold(groupOffset) { offset, size ->
+                offset + size + spacing
+            }.dropLast(1)
         }
     }
 

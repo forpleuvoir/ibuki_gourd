@@ -1,9 +1,10 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.Tick
@@ -64,18 +65,17 @@ open class IGButtonWidget : IGPressableWidgetContainer(), ColumnLayout {
         return this
     }
 
-    final override var arrangement: Arrangement = Arrangement.Center
+    final override var arrangement: Arrangement.Horizontal = Arrangement.Center
         private set
+
+    override val alignment: Alignment.Vertical
+        get() = TODO("Not yet implemented")
 
     companion object {}
 
-    data class ButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, LinearLayoutScope {
+    data class ButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, ColumnLayoutScope {
 
         override fun owner(): IGButtonWidget = button
-
-        fun arrangement(arrangement: Arrangement) {
-            owner().arrangement = arrangement
-        }
 
         fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)
 

@@ -9,8 +9,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
@@ -60,7 +60,7 @@ class IconWidget(
                 owner().color = value
             }
 
-        fun iconTexture(iconTexture: WidgetTexture) {
+        fun texture(iconTexture: WidgetTexture) {
             owner().iconTexture = iconTexture
         }
 
@@ -70,7 +70,7 @@ class IconWidget(
 
 typealias IconScope = IconWidget.IconScope
 
-fun GuiScope<out WidgetContainer>.icon(
+fun WidgetContainerScope.Icon(
     texture: WidgetTexture,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
