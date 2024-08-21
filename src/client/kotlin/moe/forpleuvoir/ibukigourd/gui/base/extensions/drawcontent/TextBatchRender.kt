@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.text.*
@@ -137,7 +136,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * 渲染对齐文本
      * @param text String
      * @param box Box 需要对齐的[Box]
-     * @param align ([Orientation]) -> [Alignment] 对齐方式
+     * @param alignment [Alignment]
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
@@ -162,7 +161,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * 渲染对齐文本
      * @param text Text
      * @param box Box 需要对齐的[Box]
-     * @param alignment ([Orientation]) -> [Alignment] 对齐方式
+     * @param alignment [Alignment]
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
@@ -189,8 +188,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * 渲染多行文本,会以换行符分'/n'割字符串
      * @param string String
      * @param box Box
-     * @param lineSpacing Number
-     * @param align (Orientation) -> Alignment
+     * @param horizontalAlignment Alignment.Horizontal
+     * @param verticalArrangement Arrangement.Vertical
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
@@ -222,8 +221,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * 渲染多行文本
      * @param lines List<String>
      * @param box Box
-     * @param lineSpacing Number
-     * @param align (Orientation) -> Alignment
+     * @param horizontalAlignment [Alignment.Horizontal]
+     * @param verticalArrangement [Arrangement.Vertical]
      * @param shadow Boolean
      * @param layerType TextRenderer.TextLayerType
      * @param rightToLeft Boolean
@@ -255,8 +254,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * 绘制多行文本
      * @param text [Text]
      * @param box Rectangle
-     * @param lineSpacing Number
-     * @param align HorizontalAlignment
+     * @param horizontalAlignment Alignment.Horizontal
+     * @param verticalArrangement Arrangement.Vertical
      * @param shadow Boolean
      * @param layerType [TextLayerType]
      * @param rightToLeft Boolean
@@ -288,8 +287,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
      * 绘制多行文本
      * @param lines List<[Text]>
      * @param box Rectangle
-     * @param lineSpacing Number
-     * @param align HorizontalAlignment
+     * @param horizontalAlignment Alignment.Horizontal
+     * @param verticalArrangement Arrangement.Vertical
      * @param shadow Boolean
      * @param layerType [TextLayerType]
      * @param rightToLeft Boolean

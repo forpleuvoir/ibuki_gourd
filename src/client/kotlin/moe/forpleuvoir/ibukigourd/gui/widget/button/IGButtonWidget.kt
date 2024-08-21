@@ -9,7 +9,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.Tick
 
-open class IGButtonWidget : IGPressableWidgetContainer(), ColumnLayout {
+open class IGButtonWidget(
+    override val arrangement: Arrangement.Horizontal,
+    override val alignment: Alignment.Vertical
+) : IGPressableWidgetContainer(), ColumnLayout {
 
     override val mouseOverCursor: MouseCursor.Cursor
         get() = MouseCursor.Cursor.POINTING_HAND_CURSOR
@@ -64,12 +67,6 @@ open class IGButtonWidget : IGPressableWidgetContainer(), ColumnLayout {
         onRelease = action
         return this
     }
-
-    final override var arrangement: Arrangement.Horizontal = Arrangement.Center
-        private set
-
-    override val alignment: Alignment.Vertical
-        get() = TODO("Not yet implemented")
 
     companion object {}
 

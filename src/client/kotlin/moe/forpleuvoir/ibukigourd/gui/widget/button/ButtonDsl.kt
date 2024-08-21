@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderBox
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
@@ -23,10 +25,12 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
 fun GuiScope<out WidgetContainer>.Button(
-    theme: PressableTheme = PressableTheme.Button2,
     modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    theme: PressableTheme = PressableTheme.Button2,
     content: ButtonScope.() -> Unit = { }
-) = addWidgetChild(IGButtonWidget()) {
+) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(6)
         .render { context, _, _, _ ->
             this as IGButtonWidget
@@ -39,13 +43,15 @@ fun GuiScope<out WidgetContainer>.Button(
 }
 
 fun GuiScope<out WidgetContainer>.FlatButton(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     disabledColor: () -> ARGBColor = { Color(0) },
     idleColor: () -> ARGBColor = { Color(0) },
     hoveredColor: () -> ARGBColor = { Color(0) },
     pressedColor: () -> ARGBColor = { Color(0) },
-    modifier: Modifier = Modifier,
     content: ButtonScope.() -> Unit = { }
-) = addWidgetChild(IGButtonWidget()) {
+) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(1)
         .render { context, _, _, _ ->
             this as IGButtonWidget
@@ -60,6 +66,8 @@ fun GuiScope<out WidgetContainer>.FlatButton(
 fun GuiScope<out WidgetContainer>.SwitchButton(
     statusDelegate: DelegatedValue<Boolean> = delegate(false),
     modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ButtonScope.() -> Unit = {
         press { statusDelegate.setValue(!statusDelegate.getValue()) }
         Text(text = {
@@ -67,13 +75,15 @@ fun GuiScope<out WidgetContainer>.SwitchButton(
             Literal(status.toString()).style { color(status.pick(Colors.GREEN, Colors.RED)) }
         })
     }
-) = Button(modifier = modifier, content = content)
+) = Button(modifier, horizontalArrangement, verticalAlignment, content = content)
 
 fun GuiScope<out WidgetContainer>.LockButton(
     statusDelegate: DelegatedValue<Boolean> = delegate(false),
     modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ButtonScope.() -> Unit = {}
-) = addWidgetChild(IGButtonWidget()) {
+) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     val list = listOf(
         PressableTheme.LOCK.pressed,
         PressableTheme.LOCK.idle,

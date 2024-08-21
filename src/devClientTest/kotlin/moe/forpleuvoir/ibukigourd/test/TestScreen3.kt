@@ -2,66 +2,63 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.screen.rowScreen
+import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.LockButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
-import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.dropMenu
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.delegate
-import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 
-fun testScreen3() = rowScreen(
+fun testScreen3() = RowScreen(
     modifier = Modifier.renderOverlay { ctx, _, _, _ ->
         this as IGScreenImpl<*>
         ctx.batchRenderText {
             pushTextLines(
-                Literal(focusedWidget.toString()), transform.asWorldBox, align = BoxAlignment::TopLeft
+                Literal(focusedWidget.toString()), transform.asWorldBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
             )
         }
     }
 ) {
-    column {
+    Column {
         var selectText = "本居小铃"
         val list = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
-        dropMenu {
-            content {
-                text({ Literal(selectText) })
-            }
-            items {
-                list.forEach { str ->
-                    flatButton(modifier = Modifier.width(list.maxWidth(textRenderer) + 2f), hoveredColor = { Colors.CYAN.opacity(.35f) }) {
-                        var curText = str
-                        press {
-                            this@dropMenu.toggle()
-                            curText = selectText
-                            selectText = str
-                        }
-                        text({ Literal(curText) })
-                    }
-                }
-                textField {
-                    text = "短一点"
-                }
-                repeat(50) {
-                    text("aa$it")
-                }
-            }
-        }
+//        DropMenu {
+//            content {
+//                text({ Literal(selectText) })
+//            }
+//            items {
+//                list.forEach { str ->
+//                    flatButton(modifier = Modifier.width(list.maxWidth(textRenderer) + 2f), hoveredColor = { Colors.CYAN.opacity(.35f) }) {
+//                        var curText = str
+//                        press {
+//                            this@dropMenu.toggle()
+//                            curText = selectText
+//                            selectText = str
+//                        }
+//                        text({ Literal(curText) })
+//                    }
+//                }
+//                textField {
+//                    text = "短一点"
+//                }
+//                repeat(50) {
+//                    text("aa$it")
+//                }
+//            }
+//        }
         FlatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
             Text({ Literal(selectText) })
         }
@@ -95,22 +92,36 @@ fun testScreen3() = rowScreen(
         )
     }
 
-    column {
+    val list = listOf(
+        Arrangement.SpaceBetween,
+        Arrangement.SpaceAround,
+        Arrangement.SpaceEvenly,
+    )
+    val lv = listOf(
+        Arrangement.Top,
+        Arrangement.Center,
+        Arrangement.Bottom
+    )
+    val lh = listOf(
+        Arrangement.Left,
+        Arrangement.Center,
+        Arrangement.Right
+    )
+    Column {
         Row {
-            Arrangement.values.forEach { arrangement ->
-                columnTest(arrangement)
+            list + lh.forEach { arrangement ->
+                ColumnTest(arrangement)
             }
         }
-        column {
-            Arrangement.values.forEach { arrangement ->
-                rowTest(arrangement)
+        Column {
+            list + lv.forEach { arrangement ->
+                RowTest(arrangement)
             }
         }
     }
 }
 
-private fun GuiScope<out WidgetContainer>.columnTest(arrangement: Arrangement) = column(
-    arrangement = arrangement,
+private fun GuiScope<out WidgetContainer>.ColumnTest(arrangement: Arrangement.Horizontal) = Column(
     modifier = Modifier
         .padding(3f)
         .width(240f)
@@ -122,15 +133,16 @@ private fun GuiScope<out WidgetContainer>.columnTest(arrangement: Arrangement) =
                 }
                 pushBox(transform, Colors.AQUA.alpha(.25f))
             }
-        }
+        },
+    horizontalArrangement = arrangement
 ) {
     Button { Text("按钮1") }
     Button { Text("按钮2") }
     Button { Text("按钮3") }
 }
 
-private fun GuiScope<out WidgetContainer>.rowTest(arrangement: Arrangement) = Row(
-    arrangement = arrangement,
+private fun GuiScope<out WidgetContainer>.RowTest(arrangement: Arrangement.Vertical) = Row(
+    verticalArrangement = arrangement,
     modifier = Modifier
         .padding(3f)
         .height(240f)

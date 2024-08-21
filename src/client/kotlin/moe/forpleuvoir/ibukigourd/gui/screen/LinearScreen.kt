@@ -1,53 +1,60 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
-import moe.forpleuvoir.ibukigourd.gui.base.layout.LinearLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
-import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen.ColumnScreenScope
+import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen.RowScreenScope
 
-data class LinearScreenScope(
-    val screen: IGScreen,
-    override val linearLayout: LinearLayout
-) : ScreenScope<IGScreen>, LinearLayoutScope {
-    override fun owner(): IGScreen = screen
+class RowScreen(
+    private val content: RowScreenScope.() -> Unit,
+    override val arrangement: Arrangement.Vertical,
+    override val alignment: Alignment.Horizontal,
+) : IGScreenImpl<RowScreen.RowScreenScope>(), RowLayout {
+
+    override fun RowScreenScope.content() = content.invoke(this)
+
+    override val scope: RowScreenScope = RowScreenScope { this }
+
+    fun interface RowScreenScope : ScreenScope<RowScreen>, RowLayoutScope
 
 }
 
-fun linearScreen(
-    orientation: Orientation,
-    arrangement: Arrangement = Arrangement.Center,
+typealias RowScreenScope = RowScreen.RowScreenScope
+
+fun RowScreen(
     modifier: Modifier = Modifier,
-    content: LinearScreenScope.() -> Unit
-): IGScreenImpl<LinearScreenScope> {
-    return object : IGScreenImpl<LinearScreenScope>(), LinearLayout {
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    content: RowScreenScope.() -> Unit
+) = RowScreen(content, verticalArrangement, horizontalAlignment).apply { modifier.foldInApply() }
 
-        override fun LinearScreenScope.content() = content()
 
-        override val scope: LinearScreenScope = LinearScreenScope(this, this)
+class ColumnScreen(
+    private val content: ColumnScreenScope.() -> Unit,
+    override val arrangement: Arrangement.Horizontal,
+    override val alignment: Alignment.Vertical,
+) : IGScreenImpl<ColumnScreen.ColumnScreenScope>(), ColumnLayout {
 
-        override var spacing: Float = 0f
+    override fun ColumnScreenScope.content() = content.invoke(this)
 
-        override val orientation: Orientation = orientation
+    override val scope: ColumnScreenScope = ColumnScreenScope { this }
 
-        override val arrangement: Arrangement = arrangement
+    fun interface ColumnScreenScope : ScreenScope<ColumnScreen>, ColumnLayoutScope
 
-    }.apply {
-        modifier.foldInApply()
-    }
 }
 
-fun rowScreen(
-    arrangement: Arrangement = Arrangement.Center,
-    modifier: Modifier = Modifier,
-    content: LinearScreenScope.() -> Unit
-): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Vertical, arrangement, modifier, content)
+typealias ColumnScreenScope = ColumnScreen.ColumnScreenScope
 
-fun columnScreen(
-    arrangement: Arrangement = Arrangement.Center,
+fun ColumnScreen(
     modifier: Modifier = Modifier,
-    content: LinearScreenScope.() -> Unit
-): IGScreenImpl<LinearScreenScope> = linearScreen(Orientation.Horizontal, arrangement, modifier, content)
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    content: ColumnScreenScope.() -> Unit
+) = ColumnScreen(content, horizontalArrangement, verticalAlignment).apply { modifier.foldInApply() }

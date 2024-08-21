@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.test
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
@@ -15,7 +15,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.*
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
@@ -25,7 +26,6 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.measureTime
 
 fun testScreen() = boxScreen(
     {
@@ -56,7 +56,7 @@ fun testScreen() = boxScreen(
                         Literal("Screen FPS:$fps").style { color(0x00FF00) },
                         Literal("MouseCursor:${MouseCursor.current.name}")
                     )
-                    pushTextLines(texts, contentBox, align = BoxAlignment::TopLeft)
+                    pushTextLines(texts, contentBox, Alignment.Left, Arrangement.Top)
                     val mouse = listOf(
                         Literal("MouseX:$mouseX").style { color(Colors.RED) },
                         Literal("MouseY:$mouseY").style { color(0x00FF00) },
@@ -64,8 +64,8 @@ fun testScreen() = boxScreen(
                     pushTextLines(
                         mouse,
                         contentBox.copy(height = contentBox.height + 2f),
+                        Alignment.Left, Arrangement.Bottom,
                         defaultColor = Colors.ALIEN_GREEN.opacity(.3f),
-                        align = BoxAlignment::BottomLeft,
                         backgroundColor = Colors.BLACK.opacity(.3f)
                     )
                 }
@@ -120,9 +120,9 @@ fun RowScope.TestColumn() = Column(
         }
         repeat(50) {
             val m = when (c) {
-                0    -> Modifier.align(Alignment.Left)
-                1    -> Modifier.align(Alignment.CenterHorizontally)
-                2    -> Modifier.align(Alignment.Right)
+                0 -> Modifier.align(Alignment.Left)
+                1 -> Modifier.align(Alignment.CenterHorizontally)
+                2 -> Modifier.align(Alignment.Right)
                 else -> Modifier.align(Alignment.CenterHorizontally)
             }
 
@@ -149,24 +149,20 @@ fun RowScope.TestColumn() = Column(
                                     pushBoxOutline(transform, Colors.MEDIUM_TEAL)
                                 }
                         }
-                    ) {
-                        setting {
-                            if (it == 15) spacing = 8f
-                        }
-                    }
+                    )
                 }
             } else {
                 Button(modifier = m) {
                     Icon(
                         IconTextures.CLOSE, modifier = Modifier
-                        .padding(2)
-                        .renderOverlay { ctx, _, _, _ ->
-                            this as IGWidget
-                            if (wasMouseOver)
-                                ctx.batchRenderBox {
-                                    pushBoxOutline(transform, Colors.ROSE)
-                                }
-                        })
+                            .padding(2)
+                            .renderOverlay { ctx, _, _, _ ->
+                                this as IGWidget
+                                if (wasMouseOver)
+                                    ctx.batchRenderBox {
+                                        pushBoxOutline(transform, Colors.ROSE)
+                                    }
+                            })
                 }
             }
             if (c == 2) {
@@ -209,24 +205,21 @@ fun RowScope.TestColumn() = Column(
                 }
             }
     ) {
-        Icon(IconTextures.CLOSE, modifier = Modifier.alignment(BoxAlignment.TopLeft()))
-        Icon(IconTextures.SEARCH, modifier = Modifier.alignment(BoxAlignment.TopRight()))
-        Icon(IconTextures.MINUS, modifier = Modifier.alignment(BoxAlignment.BottomLeft()))
-        Icon(IconTextures.LOCK, modifier = Modifier.alignment(BoxAlignment.BottomRight()))
-        Icon(IconTextures.FILTER, modifier = Modifier.alignment(BoxAlignment.CenterCenter()))
+        Icon(IconTextures.CLOSE, modifier = Modifier.align(Alignment.TopLeft))
+        Icon(IconTextures.SEARCH, modifier = Modifier.align(Alignment.TopRight))
+        Icon(IconTextures.MINUS, modifier = Modifier.align(Alignment.BottomLeft))
+        Icon(IconTextures.LOCK, modifier = Modifier.align(Alignment.BottomRight))
+        Icon(IconTextures.FILTER, modifier = Modifier.align(Alignment.Center))
     }
     Scroller({ 5f }, { 500f }, { 0.1f }, modifier = Modifier.maxHeight(180f))
     Button(
         modifier = Modifier.height(40f).renderOverlay { context, _, _, _ ->
             this as IGWidget
-            measureTime {
-                context.batchRenderBox {
-                    if (wasMouseOver) pushBoxOutline(transform, Colors.AQUA)
-                }
-            }.let {
-//                        println(it)
+            context.batchRenderBox {
+                if (wasMouseOver) pushBoxOutline(transform, Colors.AQUA)
             }
-        }
+        },
+        horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
     ) {
         press {
             println("按下了测试按钮")
@@ -235,12 +228,11 @@ fun RowScope.TestColumn() = Column(
         longPress(10) {
             println("长按了按钮")
         }
-        spacing(8f)
-        Icon(IconTextures.CLOSE, modifier = Modifier.gravityStart().maxWidth(16f))
-        Icon(IconTextures.SEARCH, modifier = Modifier.gravityCenter().maxWidth(16f))
-        Icon(IconTextures.MINUS, modifier = Modifier.gravityEnd().maxWidth(16f))
-        Icon(IconTextures.LOCK, modifier = Modifier.gravityCenter().maxWidth(16f))
-        Icon(IconTextures.FILTER, modifier = Modifier.gravityStart().maxWidth(16f))
+        Icon(IconTextures.CLOSE, modifier = Modifier.align(Alignment.Top).maxWidth(16f))
+        Icon(IconTextures.SEARCH, modifier = Modifier.align(Alignment.CenterVertically).maxWidth(16f))
+        Icon(IconTextures.MINUS, modifier = Modifier.align(Alignment.Bottom).maxWidth(16f))
+        Icon(IconTextures.LOCK, modifier = Modifier.align(Alignment.CenterVertically).maxWidth(16f))
+        Icon(IconTextures.FILTER, modifier = Modifier.align(Alignment.Top).maxWidth(16f))
     }
 
 }

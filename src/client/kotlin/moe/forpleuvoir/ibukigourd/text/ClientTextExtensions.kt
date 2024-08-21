@@ -16,6 +16,7 @@ fun String.size(textRenderer: TextRenderer = tRenderer): SizeInt {
     return Size(textRenderer.getWidth(this), textRenderer.fontHeight)
 }
 
+@JvmName("textSize")
 fun Collection<McText>.size(textRenderer: TextRenderer = tRenderer, spacing: Float): SizeFloat {
     return Size(this.maxWidth(textRenderer).toFloat(), this.size * (textRenderer.fontHeight + spacing) - spacing)
 }

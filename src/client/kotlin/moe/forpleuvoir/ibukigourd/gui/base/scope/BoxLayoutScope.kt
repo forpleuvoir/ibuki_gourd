@@ -1,13 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.base.scope
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.WrappedBoxLayoutData
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BoxAlignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
 
 interface BoxLayoutScope {
 
-    fun Modifier.alignment(alignment: BoxAlignment) = this then WidgetModifier {
+    fun Modifier.align(alignment: Alignment) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is WrappedBoxLayoutData -> it.parentData = parentData.copy(alignment = alignment)
             null                    -> it.parentData = WrappedBoxLayoutData(alignment = alignment)

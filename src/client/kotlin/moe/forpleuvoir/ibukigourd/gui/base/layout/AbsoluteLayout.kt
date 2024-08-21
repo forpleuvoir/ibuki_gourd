@@ -7,14 +7,10 @@ import org.joml.Vector2fc
 
 interface AbsoluteLayout : Layout {
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-        val (_, _maxWidth, _, _maxHeight) = this.constraints.constraintAs(constraints)
-        measurables.forEachIndexed { index, child ->
-            val childConstraints = Constraints.of(
-                0f, _maxWidth - child.margin.width,
-                0f, _maxHeight - child.margin.height
-            )
-            child.measure(childConstraints)
+        measurables.forEach { child ->
+            child.measure(Constraints())
         }
+        widget.transform.set(0f, 0f)
         return widget
     }
 

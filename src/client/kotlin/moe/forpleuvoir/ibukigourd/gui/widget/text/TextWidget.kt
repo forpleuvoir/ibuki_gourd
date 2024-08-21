@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
@@ -29,26 +29,26 @@ class TextWidget(
 
     constructor(
         text: () -> Text,
-        spacing: Float = 1f,
+        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         scrollAxis: ScrollAxis = ScrollAxis.All,
         autoNewLine: Boolean = false,
         layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
         rightToLeft: Boolean = false,
         backgroundColor: ARGBColor = Color(0),
-        alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
         textRenderer: TextRenderer = mc.textRenderer,
-    ) : this(text, Setting(spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer))
+    ) : this(text, Setting(horizontalAlignment, verticalArrangement, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, textRenderer))
 
     data class Setting(
-        var spacing: Float = 0f,
+        val horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        val verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         var shadow: Boolean = false,
         var scrollAxis: ScrollAxis = ScrollAxis.All,
         var autoNewLine: Boolean = false,
         var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
         var rightToLeft: Boolean = false,
         var backgroundColor: ARGBColor = Color(0),
-        var alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
         var textRenderer: TextRenderer = mc.textRenderer,
     )
 
@@ -57,9 +57,10 @@ class TextWidget(
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
         val width = text().wrapToTextLines(textRenderer).maxOf { textRenderer.getWidth(it) }.toFloat() + padding.width
+        val spacing = setting.verticalArrangement.spacing
         val height = text().wrapToTextLines(
             textRenderer, if (setting.autoNewLine) (width - padding.width).toInt() else 0
-        ).size * (textRenderer.fontHeight + setting.spacing) - setting.spacing + padding.height
+        ).size * (textRenderer.fontHeight + spacing) - spacing + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
     }
@@ -130,7 +131,7 @@ class TextWidget(
     private val yScrollRange: Pair<Float, Float>
         get() {
             val contentBox = contentBox(false)
-            val textHeight = renderText.totalHeight(textRenderer, setting.spacing)
+            val textHeight = renderText.totalHeight(textRenderer, setting.verticalArrangement.spacing)
             val minY = contentBox.bottom - textHeight
             val maxY = contentBox.top
             return minY to maxY
@@ -165,14 +166,14 @@ class TextWidget(
         val (minY, maxY) = yScrollRange
         //滚动宽度
         val height = abs(maxY - minY)
-        val shouldScroll = renderText.totalHeight(textRenderer, setting.spacing) > contentHeight
+        val shouldScroll = renderText.totalHeight(textRenderer, setting.verticalArrangement.spacing) > contentHeight
         if (!shouldScroll) return y
         //从min滚动到max所需要的tick
         val ticks = height / yScrollSpeed
         //滚动状态 true = forward, false = back
         val state = (tickCounter / ticks).toInt() and 1 == 0
         val yOffset = yScrollEasing(((tickCounter % ticks) / ticks).coerceIn(0f..1f)) * height
-        val top = transform.worldTop + padding.top + (index * (textRenderer.fontHeight + setting.spacing))
+        val top = transform.worldTop + padding.top + (index * (textRenderer.fontHeight + setting.verticalArrangement.spacing))
         return top - if (state) height - yOffset else yOffset
     }
 
@@ -184,7 +185,7 @@ class TextWidget(
         val renderText = renderText
         val list = renderText.map { text ->
             if (text != renderText.last()) {
-                Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight + setting.spacing)
+                Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight + setting.verticalArrangement.spacing)
             } else
                 Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat())
         }
@@ -194,17 +195,19 @@ class TextWidget(
                 matrixStack.translate(0.0f, 0.4f, 0f)
                 //------------ 开始渲染 ------------\\
                 batchRenderText(textRenderer) {
-                    setting.alignment(Orientation.Vertical).align(contentBox, list).forEachIndexed { index, vec ->
-                        pushText(
-                            renderText[index],
-                            textScrolledXPos(index, vec.x()),
-                            textScrolledYPos(index, vec.y()),
-                            setting.shadow,
-                            setting.layerType,
-                            setting.rightToLeft,
-                            backgroundColor = setting.backgroundColor
-                        )
-                    }
+                    list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }
+                        .zip(setting.verticalArrangement.arrange(contentBox.height, list.map { it.height }).map { contentBox.top + it })
+                        .forEachIndexed { index, (x, y) ->
+                            pushText(
+                                renderText[index],
+                                textScrolledXPos(index, x),
+                                textScrolledYPos(index, y),
+                                setting.shadow,
+                                setting.layerType,
+                                setting.rightToLeft,
+                                backgroundColor = setting.backgroundColor
+                            )
+                        }
                 }
             }
         }
@@ -252,8 +255,8 @@ typealias TextSetting = TextWidget.Setting
 
 fun WidgetContainerScope.Text(
     text: () -> Text,
-    setting: TextSetting = TextSetting(),
     modifier: Modifier = Modifier,
+    setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
 ) = addWidgetChild(TextWidget(text, setting)) {
     modifier.foldInApply()
@@ -262,8 +265,8 @@ fun WidgetContainerScope.Text(
 
 fun WidgetContainerScope.Text(
     text: Text,
-    setting: TextSetting = TextSetting(),
     modifier: Modifier = Modifier,
+    setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
 ) = addWidgetChild(TextWidget({ text }, setting)) {
     modifier.foldInApply()
@@ -272,8 +275,8 @@ fun WidgetContainerScope.Text(
 
 fun WidgetContainerScope.Text(
     str: String,
-    setting: TextSetting = TextSetting(),
     modifier: Modifier = Modifier,
+    setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
 ) = addWidgetChild(TextWidget({ Literal(str) }, setting)) {
     modifier.foldInApply()
@@ -282,64 +285,90 @@ fun WidgetContainerScope.Text(
 
 fun WidgetContainerScope.Text(
     text: () -> Text,
-    spacing: Float = 1f,
+    modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     scrollAxis: ScrollAxis = ScrollAxis.All,
     shadow: Boolean = false,
     autoNewLine: Boolean = false,
     layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
     rightToLeft: Boolean = false,
     backgroundColor: ARGBColor = Color(0),
-    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
     textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier = Modifier,
-    scope: TextWidgetScope.() -> Unit = {}
-) = addWidgetChild(TextWidget(text, spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer)) {
-    modifier.foldInApply()
-    TextWidgetScope { this }.scope()
-}
-
-fun WidgetContainerScope.Text(
-    text: Text,
-    spacing: Float = 1f,
-    scrollAxis: ScrollAxis = ScrollAxis.All,
-    shadow: Boolean = false,
-    autoNewLine: Boolean = false,
-    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-    rightToLeft: Boolean = false,
-    backgroundColor: ARGBColor = Color(0),
-    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier = Modifier,
-    scope: TextWidgetScope.() -> Unit = {}
-) = addWidgetChild(TextWidget({ text }, spacing, shadow, scrollAxis, autoNewLine, layerType, rightToLeft, backgroundColor, alignment, textRenderer)) {
-    modifier.foldInApply()
-    TextWidgetScope { this }.scope()
-}
-
-fun WidgetContainerScope.Text(
-    str: String,
-    spacing: Float = 1f,
-    scrollAxis: ScrollAxis = ScrollAxis.All,
-    shadow: Boolean = false,
-    autoNewLine: Boolean = false,
-    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
-    rightToLeft: Boolean = false,
-    backgroundColor: ARGBColor = Color(0),
-    alignment: (Orientation) -> Alignment = BoxAlignment::CenterCenter,
-    textRenderer: TextRenderer = mc.textRenderer,
-    modifier: Modifier = Modifier,
     scope: TextWidgetScope.() -> Unit = {}
 ) = addWidgetChild(
     TextWidget(
-        { Literal(str) },
-        spacing,
+        text,
+        horizontalAlignment,
+        verticalArrangement,
         shadow,
         scrollAxis,
         autoNewLine,
         layerType,
         rightToLeft,
         backgroundColor,
-        alignment,
+        textRenderer
+    )
+) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
+}
+
+fun WidgetContainerScope.Text(
+    text: Text,
+    modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    scrollAxis: ScrollAxis = ScrollAxis.All,
+    shadow: Boolean = false,
+    autoNewLine: Boolean = false,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = false,
+    backgroundColor: ARGBColor = Color(0),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(
+    TextWidget(
+        { text },
+        horizontalAlignment,
+        verticalArrangement,
+        shadow,
+        scrollAxis,
+        autoNewLine,
+        layerType,
+        rightToLeft,
+        backgroundColor,
+        textRenderer
+    )
+) {
+    modifier.foldInApply()
+    TextWidgetScope { this }.scope()
+}
+
+fun WidgetContainerScope.Text(
+    str: String,
+    modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    scrollAxis: ScrollAxis = ScrollAxis.All,
+    shadow: Boolean = false,
+    autoNewLine: Boolean = false,
+    layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.NORMAL,
+    rightToLeft: Boolean = false,
+    backgroundColor: ARGBColor = Color(0),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextWidgetScope.() -> Unit = {}
+) = addWidgetChild(
+    TextWidget(
+        { Literal(str) },
+        horizontalAlignment,
+        verticalArrangement,
+        shadow,
+        scrollAxis,
+        autoNewLine,
+        layerType,
+        rightToLeft,
+        backgroundColor,
         textRenderer
     )
 ) {

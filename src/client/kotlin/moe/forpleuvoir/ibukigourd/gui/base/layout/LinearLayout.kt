@@ -5,11 +5,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 
-interface LinearLayout : Layout {
+interface LinearLayout<A : Arrangement.Linear, B : Alignment.Linear> : Layout {
 
-    val arrangement: Arrangement.Linear
+    val arrangement: A
 
-    val alignment: Alignment.Linear
+    val alignment: B
 
 }
 
@@ -19,8 +19,7 @@ interface WrappedLinearLayoutData {
     val alignment: Alignment.Linear?
 }
 
-
-interface RowLayout : LinearLayout {
+interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
 
     data class WrappedRowLayoutData(
         override val weight: Int = 0,
@@ -33,10 +32,6 @@ interface RowLayout : LinearLayout {
 
         fun getAlignment(layout: RowLayout) = this.alignment ?: layout.alignment
     }
-
-    override val arrangement: Arrangement.Vertical
-
-    override val alignment: Alignment.Horizontal
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //垂直布局 宽度固定
@@ -116,7 +111,7 @@ interface RowLayout : LinearLayout {
 
 }
 
-interface ColumnLayout : LinearLayout {
+interface ColumnLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
 
     data class WrappedColumnLayoutData(
         override val weight: Int = 0,
@@ -129,10 +124,6 @@ interface ColumnLayout : LinearLayout {
 
         fun getAlignment(layout: ColumnLayout) = this.alignment ?: layout.alignment
     }
-
-    override val arrangement: Arrangement.Horizontal
-
-    override val alignment: Alignment.Vertical
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //水平布局 高度固定

@@ -22,7 +22,7 @@ fun WidgetContainerScope.Row(
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowScope.() -> Unit
-): RowWidget = addWidgetChild(RowWidget(verticalArrangement, horizontalAlignment)) {
+) = addWidgetChild(RowWidget(verticalArrangement, horizontalAlignment)) {
     RowScope { this }.content()
     modifier.foldInApply()
 }

@@ -34,15 +34,22 @@ interface Alignment {
     }
 
     companion object {
-        val TopStart: Alignment = BiasAlignment(-1f, -1f)
+        //------------ 2D Alignment ------------\\
+
+        val TopLeft: Alignment = BiasAlignment(-1f, -1f)
         val TopCenter: Alignment = BiasAlignment(0f, -1f)
-        val TopEnd: Alignment = BiasAlignment(1f, -1f)
+        val TopRight: Alignment = BiasAlignment(1f, -1f)
         val CenterLeft: Alignment = BiasAlignment(-1f, 0f)
         val Center: Alignment = BiasAlignment(0f, 0f)
         val CenterRight: Alignment = BiasAlignment(1f, 0f)
-        val BottomStart: Alignment = BiasAlignment(-1f, 1f)
+        val BottomLeft: Alignment = BiasAlignment(-1f, 1f)
         val BottomCenter: Alignment = BiasAlignment(0f, 1f)
-        val BottomEnd: Alignment = BiasAlignment(1f, 1f)
+        val BottomRight: Alignment = BiasAlignment(1f, 1f)
+
+        fun biasedBy(horizontalBias: Float, verticalBias: Float): Alignment = BiasAlignment(horizontalBias, verticalBias)
+
+
+        //------------ 1D Alignment ------------\\
 
         val Top: Vertical = BiasAlignment.Vertical(-1f)
         val CenterVertically: Vertical = BiasAlignment.Vertical(0f)
@@ -51,8 +58,6 @@ interface Alignment {
         val Left: Horizontal = BiasAlignment.Horizontal(-1f)
         val CenterHorizontally: Horizontal = BiasAlignment.Horizontal(0f)
         val Right: Horizontal = BiasAlignment.Horizontal(1f)
-
-        fun biasedBy(horizontalBias: Float, verticalBias: Float): Alignment = BiasAlignment(horizontalBias, verticalBias)
     }
 
 }
