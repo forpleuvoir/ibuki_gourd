@@ -150,7 +150,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        color: ARGBColor = Color(0x000000),
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val offset = alignment.align(box, text.size(textRenderer).toFloat())
@@ -270,7 +270,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
-        defaultColor: ARGBColor = Color(0x000000),
+        defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val texts = text.wrapToTextLines(textRenderer, box.width.toInt())

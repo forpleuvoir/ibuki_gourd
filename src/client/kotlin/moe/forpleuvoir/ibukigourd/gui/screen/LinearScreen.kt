@@ -13,10 +13,10 @@ import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen.ColumnScreenScope
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen.RowScreenScope
 
 class RowScreen(
-    private val content: RowScreenScope.() -> Unit,
     override val arrangement: Arrangement.Vertical,
     override val alignment: Alignment.Horizontal,
-) : IGScreenImpl<RowScreen.RowScreenScope>(), RowLayout {
+    private val content: RowScreenScope.() -> Unit
+) : IGScreenImpl<RowScreenScope>(), RowLayout {
 
     override fun RowScreenScope.content() = content.invoke(this)
 
@@ -33,14 +33,14 @@ fun RowScreen(
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowScreenScope.() -> Unit
-) = RowScreen(content, verticalArrangement, horizontalAlignment).apply { modifier.foldInApply() }
+) = RowScreen(verticalArrangement, horizontalAlignment, content).apply { modifier.foldInApply() }
 
 
 class ColumnScreen(
-    private val content: ColumnScreenScope.() -> Unit,
     override val arrangement: Arrangement.Horizontal,
     override val alignment: Alignment.Vertical,
-) : IGScreenImpl<ColumnScreen.ColumnScreenScope>(), ColumnLayout {
+    private val content: ColumnScreenScope.() -> Unit
+) : IGScreenImpl<ColumnScreenScope>(), ColumnLayout {
 
     override fun ColumnScreenScope.content() = content.invoke(this)
 
@@ -57,4 +57,4 @@ fun ColumnScreen(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ColumnScreenScope.() -> Unit
-) = ColumnScreen(content, horizontalArrangement, verticalAlignment).apply { modifier.foldInApply() }
+) = ColumnScreen(horizontalArrangement, verticalAlignment, content).apply { modifier.foldInApply() }

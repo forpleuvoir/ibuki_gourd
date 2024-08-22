@@ -848,7 +848,7 @@ fun WidgetContainerScope.TextAreaWrapped(
             modifier = Modifier
                 .fill()
                 .width(barThickness)
-                .margin(left = 1f, top = -3f) then scrollerModifier()
+                .margin(left = 1f) then scrollerModifier()
         )
     }
 

@@ -12,7 +12,7 @@ data class AbsoluteScreenScope(val screen: IGScreen) : ScreenScope<IGScreen>, Ab
 
 }
 
-fun absoluteScreen(
+fun AbsoluteScreen(
     modifier: Modifier = Modifier,
     content: AbsoluteScreenScope.() -> Unit
 ): IGScreenImpl<AbsoluteScreenScope> {

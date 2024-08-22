@@ -9,7 +9,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
-import moe.forpleuvoir.ibukigourd.gui.screen.boxScreen
+import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
+import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -27,62 +28,86 @@ import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.time.Duration.Companion.seconds
 
-fun testScreen() = boxScreen(
-    {
-        val screen = owner() as IGScreenImpl<*>
-        var deltaCount = 0
-        var fps = 0
-        var renderTime = 0.seconds
-        Modifier.padding(8f)
-            .tick {
-                onTick()
-                deltaCount++
-                if (deltaCount % 10 == 0) {
-                    fps = (1.seconds / screen.latestRenderTime).toInt()
-                    deltaCount = 0
-                }
-                renderTime = screen.latestRenderTime
+fun modifier(): Modifier {
+    var deltaCount = 0
+    var fps = 0
+    var renderTime = 0.seconds
+    return Modifier.padding(8f)
+        .tick {
+            this as IGScreenImpl<*>
+            onTick()
+            deltaCount++
+            if (deltaCount % 10 == 0) {
+                fps = (1.seconds / this.latestRenderTime).toInt()
+                deltaCount = 0
+            }
+            renderTime = this.latestRenderTime
 
-            }
-            .renderOverlay { context, mouseX, mouseY, delta ->
-                val contentBox = screen.contentBox(true)
-                onRenderOverlay(context, mouseX, mouseY, delta)
-                context.batchRenderBox {
-                    pushBoxOutline(contentBox, Colors.ROSE)
-                }
-                context.batchRenderText {
-                    val texts = listOf(
-                        Literal("Screen renderTime:$renderTime").style { color(Colors.AQUA) },
-                        Literal("Screen FPS:$fps").style { color(0x00FF00) },
-                        Literal("MouseCursor:${MouseCursor.current.name}")
-                    )
-                    pushTextLines(texts, contentBox, Alignment.Left, Arrangement.Top)
-                    val mouse = listOf(
-                        Literal("MouseX:$mouseX").style { color(Colors.RED) },
-                        Literal("MouseY:$mouseY").style { color(0x00FF00) },
-                    )
-                    pushTextLines(
-                        mouse,
-                        contentBox.copy(height = contentBox.height + 2f),
-                        Alignment.Left, Arrangement.Bottom,
-                        defaultColor = Colors.ALIEN_GREEN.opacity(.3f),
-                        backgroundColor = Colors.BLACK.opacity(.3f)
-                    )
-                }
-            }
-    }
-) {
-    Row(modifier = Modifier.padding(20f).renderOverlay { context, _, _, _ ->
-        this as RowWidget
-        context.batchRenderBox {
-            pushBoxOutline(contentBox(true), Colors.ROSE)
         }
-    }) {
+        .renderOverlay { context, mouseX, mouseY, delta ->
+            this as IGScreenImpl<*>
+            val contentBox = contentBox(true)
+            onRenderOverlay(context, mouseX, mouseY, delta)
+            context.batchRenderBox {
+                pushBoxOutline(contentBox, Colors.ROSE)
+            }
+            context.batchRenderText {
+                val texts = listOf(
+                    Literal("Screen renderTime:$renderTime").style { color(Colors.AQUA) },
+                    Literal("Screen FPS:$fps").style { color(0x00FF00) },
+                    Literal("MouseCursor:${MouseCursor.current.name}")
+                )
+                pushTextLines(texts, contentBox, Alignment.Left, Arrangement.Top)
+                val mouse = listOf(
+                    Literal("MouseX:$mouseX").style { color(Colors.RED) },
+                    Literal("MouseY:$mouseY").style { color(0x00FF00) },
+                )
+                pushTextLines(
+                    mouse,
+                    contentBox.copy(height = contentBox.height + 2f),
+                    Alignment.Left, Arrangement.Bottom,
+                    defaultColor = Colors.ALIEN_GREEN.opacity(.3f),
+                    backgroundColor = Colors.BLACK.opacity(.3f)
+                )
+            }
+        }
+}
+
+fun TestScreen() = BoxScreen(modifier()) {
+    Row(
+        modifier = Modifier
+            .padding(20f)
+            .align(Alignment.Center)
+            .renderOverlay { context, _, _, _ ->
+                this as RowWidget
+                context.batchRenderBox {
+                    pushBoxOutline(contentBox(true), Colors.BLUE)
+                }
+            },
+        verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically),
+    ) {
         ColumnListWrapped(
             spacing = 3f,
+            modifier = Modifier.weight(2),
+            listModifier = { Modifier.weight(1).renderHoveredOutlineBox(Colors.PARCHMENT) }
         ) {
+            var c = 0
+            var f = true
             repeat(50) {
-                Button { Text("$it") }
+                val m = when (c) {
+                    0    -> Modifier.align(Alignment.Top)
+                    1    -> Modifier.align(Alignment.CenterVertically)
+                    2    -> Modifier.align(Alignment.Bottom)
+                    else -> Modifier.align(Alignment.CenterVertically)
+                }
+                Button(m) { Text("$it") }
+                if (c == 2) {
+                    f = false
+                } else if (c == 0) {
+                    f = true
+                }
+                if (f) c++
+                else c--
             }
         }
         TestColumn()
@@ -106,7 +131,8 @@ fun RowScope.TestColumn() = Column(
         context.batchRenderBox {
             pushBoxOutline(transform, Colors.AQUA)
         }
-    }.weight(8)
+    }.weight(5),
+    horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
 ) {
     RowListWrapped(
         modifier = Modifier.width(120f),

@@ -24,7 +24,7 @@ interface WrappedListLayoutData {
 interface VerticalListLayout : ListLayout {
 
     data class WrappedVerticalListLayoutData(
-        override val fill: Boolean = true,
+        override val fill: Boolean = false,
         override val alignment: Alignment.Horizontal? = null
     ) : WrappedListLayoutData {
 
@@ -78,12 +78,12 @@ interface VerticalListLayout : ListLayout {
             //计算每一个组件的Y偏移
             .arrange(widget.contentWidth, layoutables.map { it.wrappedHeight })
             //映射每一个组件的本地Y位置
-            .map { amount + contentBox.top + it }
+            .map { contentBox.top + it - amount }
             //与Y轴数据组合
             .zip(
                 alignments
                     //计算每一个组建的X偏移
-                    .mapIndexed { index, alignment -> alignment.align(layoutables[index].wrappedWidth, contentBox.width) }
+                    .mapIndexed { index, alignment -> alignment.align(contentBox.width, layoutables[index].wrappedWidth) }
                     //映射每一个组件的本地X位置
                     .map { contentBox.left + it }
             )
@@ -99,7 +99,7 @@ interface VerticalListLayout : ListLayout {
 interface HorizontalListLayout : ListLayout {
 
     data class WrappedHorizontalListLayoutData(
-        override val fill: Boolean = true,
+        override val fill: Boolean = false,
         override val alignment: Alignment.Vertical? = null
     ) : WrappedListLayoutData {
 
@@ -153,12 +153,12 @@ interface HorizontalListLayout : ListLayout {
             //计算每一个组件的X偏移
             .arrange(widget.contentWidth, layoutables.map { it.wrappedWidth })
             //映射每一个组件的本地X位置
-            .map { amount + contentBox.left + it }
+            .map { contentBox.left + it - amount }
             //与Y轴数据组合
             .zip(
                 alignments
                     //计算每一个组建的Y偏移
-                    .mapIndexed { index, alignment -> alignment.align(layoutables[index].wrappedHeight, contentBox.height) }
+                    .mapIndexed { index, alignment -> alignment.align(contentBox.height, layoutables[index].wrappedHeight) }
                     //映射每一个组件的本地Y位置
                     .map { contentBox.top + it }
             )

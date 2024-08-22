@@ -100,7 +100,9 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
         val alignments = WrappedRowLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
 
         val verticalOffsets = arrangement.arrange(verticalSpace, layoutables.map { it.wrappedHeight }).map { contentBox.top + it }
-        val horizontalOffsets = layoutables.mapIndexed { i, l -> contentBox.left + alignments[i].align(horizontalSpace, l.wrappedHeight) }
+        val horizontalOffsets = layoutables.mapIndexed { i, l ->
+            contentBox.left + alignments[i].align(horizontalSpace, l.wrappedWidth)
+        }
 
         horizontalOffsets.zip(verticalOffsets).forEachIndexed { i, (x, y) ->
             val p = layoutables[i]
@@ -191,8 +193,15 @@ interface ColumnLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical
 
         val alignments = WrappedColumnLayoutData.wrappedDatas(layoutables, WrappedColumnLayoutData()).map { it.getAlignment(this) }
 
-        val verticalOffsets = layoutables.mapIndexed { i, l -> contentBox.left + alignments[i].align(horizontalSpace, l.wrappedHeight) }
-        val horizontalOffsets = arrangement.arrange(verticalSpace, layoutables.map { it.wrappedHeight }).map { contentBox.top + it }
+        val verticalOffsets = layoutables.mapIndexed { i, l -> contentBox.top + alignments[i].align(verticalSpace, l.wrappedHeight) }
+        val horizontalOffsets = arrangement.arrange(
+            horizontalSpace,
+            layoutables.map {
+                it.wrappedWidth
+            })
+            .map {
+                contentBox.left + it
+            }
 
         horizontalOffsets.zip(verticalOffsets).forEachIndexed { i, (x, y) ->
             val p = layoutables[i]

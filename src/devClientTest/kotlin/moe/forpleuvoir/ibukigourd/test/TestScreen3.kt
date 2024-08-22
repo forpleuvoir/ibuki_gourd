@@ -109,12 +109,12 @@ fun testScreen3() = RowScreen(
     )
     Column {
         Row {
-            list + lh.forEach { arrangement ->
+            (list + lh).forEach { arrangement ->
                 ColumnTest(arrangement)
             }
         }
         Column {
-            list + lv.forEach { arrangement ->
+            (list + lv).forEach { arrangement ->
                 RowTest(arrangement)
             }
         }
@@ -145,7 +145,7 @@ private fun GuiScope<out WidgetContainer>.RowTest(arrangement: Arrangement.Verti
     verticalArrangement = arrangement,
     modifier = Modifier
         .padding(3f)
-        .height(240f)
+        .height(162f)
         .renderBackground { ctx, _, _, _ ->
             this as IGWidget
             ctx.batchRenderBox {
