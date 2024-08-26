@@ -23,7 +23,7 @@ fun TestScreen2() = RowScreen(
         text = mc.byRemember("text1", "Hello world!")
     }
     Column {
-        TextAreaWrapped() {
+        TextAreaWrapped {
             textConsumer {
                 this@RowScreen.remember(this, it)
             }

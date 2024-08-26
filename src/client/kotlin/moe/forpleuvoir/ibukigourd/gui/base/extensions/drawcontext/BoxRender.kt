@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode", "unused")
 
-package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
+package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek

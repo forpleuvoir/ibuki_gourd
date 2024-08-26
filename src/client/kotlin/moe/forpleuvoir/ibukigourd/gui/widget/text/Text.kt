@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -213,9 +213,7 @@ class TextWidget(
         }
     }
 
-    companion object
-
-    fun interface TextWidgetScope : GuiScope<TextWidget> {
+    fun interface Scope : GuiScope<TextWidget> {
 
         fun setting(block: Setting.() -> Unit) {
             owner().setting.block()
@@ -249,7 +247,7 @@ class TextWidget(
     }
 }
 
-typealias TextWidgetScope = TextWidget.TextWidgetScope
+typealias TextWidgetScope = TextWidget.Scope
 
 typealias TextSetting = TextWidget.Setting
 

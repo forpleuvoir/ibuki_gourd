@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.*
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -15,10 +15,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
-import moe.forpleuvoir.ibukigourd.gui.widget.ScrollerWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnWidget
@@ -37,7 +36,6 @@ import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.input.CursorMovement
 import net.minecraft.client.input.CursorMovement.*
@@ -45,9 +43,6 @@ import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.StringHelper
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -58,6 +53,7 @@ import kotlin.math.min
  */
 class TextAreaWidget(
     maxLength: Int = Int.MAX_VALUE,
+    val scrollState: ScrollState = ScrollState(),
     var textColor: ARGBColor = Color(0x303030),
     var hintColor: ARGBColor = Color(0x707070),
     var bgShaderColor: ARGBColor = Colors.WHITE,
@@ -97,27 +93,7 @@ class TextAreaWidget(
 
     val fontHeight by textRenderer::fontHeight
 
-    var amountConsumer: (Float) -> Unit = {}
-
-    var postAmountChanged: Boolean = true
-
-    @OptIn(ExperimentalContracts::class)
-    inline fun disablePostAmountChanged(block: () -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-        }
-        val oldState = postAmountChanged
-        postAmountChanged = false
-        block()
-        postAmountChanged = oldState
-    }
-
-    var amount: Float = 0f
-        set(value) {
-            field = value.isNaN().pick(0f, value).coerceIn(0f, scrollableAmount)
-            if (postAmountChanged)
-                amountConsumer(field)
-        }
+    var amount: Float by scrollState::amount
 
     val width by transform::width
 
@@ -378,8 +354,8 @@ class TextAreaWidget(
 
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
-        val height = text.totalHeight(textRenderer, spacing, c.maxWidth.toInt())
-        val width = text.wrapToLines(textRenderer).maxWidth(textRenderer).toFloat()
+        val height = text.totalHeight(textRenderer, spacing, c.maxWidth.toInt()) + padding.height
+        val width = text.wrapToLines(textRenderer).maxWidth(textRenderer).toFloat() + padding.width
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         reWrap()
         return this
@@ -421,7 +397,7 @@ class TextAreaWidget(
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
         event.tryUse { wasMouseOver }.onSuccess {
-            amount -= event.verticalAmount * (fontHeight + spacing) / 2f
+            scrollState.scroll(event.verticalAmount)
         }
     }
 
@@ -606,13 +582,8 @@ class TextAreaWidget(
         }
     }
 
-    //------------ IGDrawable ------------\\
 
-    override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.batchRenderTextureColored {
-            pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
-        }
-    }
+    //------------ IGDrawable ------------\\
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.scissor(contentBox(true)) {
@@ -655,7 +626,7 @@ class TextAreaWidget(
             }
         //渲染选中文本高亮
         //应该最多渲染三个矩形
-        if (selectedText.isNotEmpty()) {
+        if (selectedText.isNotEmpty() && isFocused) {
             val (start, end) = selection
             val startXOffset = textRenderer.getWidth(text.substring(currentLine(start).beginIndex, start))
             val endXOffset = textRenderer.getWidth(text.substring(currentLine(end).beginIndex, end))
@@ -706,7 +677,7 @@ class TextAreaWidget(
 
     }
 
-    fun interface TextAreaScope : GuiScope<TextAreaWidget> {
+    fun interface Scope : GuiScope<TextAreaWidget> {
 
         var text: String
             get() = owner().text
@@ -770,17 +741,18 @@ class TextAreaWidget(
         }
 
         fun amountConsumer(consumer: (Float) -> Unit) {
-            owner().amountConsumer = consumer
+            owner().scrollState.subscribe(consumer)
         }
     }
 
 }
 
-typealias TextAreaScope = TextAreaWidget.TextAreaScope
+typealias TextAreaScope = TextAreaWidget.Scope
 
 fun WidgetContainerScope.TextArea(
     modifier: Modifier = Modifier,
     maxLength: Int = Int.MAX_VALUE,
+    scrollState: ScrollState = ScrollState(),
     textColor: ARGBColor = Color(0x303030),
     hintColor: ARGBColor = Color(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -790,60 +762,88 @@ fun WidgetContainerScope.TextArea(
     spacing: Float = 1f,
     textRenderer: TextRenderer = mc.textRenderer,
     scope: TextAreaScope.() -> Unit = {}
-) = addWidgetChild(TextAreaWidget(maxLength, textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, spacing, textRenderer)) {
-    Modifier.padding(5.5f).then(modifier).foldInApply()
+) = addWidgetChild(
+    TextAreaWidget(
+        maxLength,
+        scrollState,
+        textColor,
+        hintColor,
+        bgShaderColor,
+        selectedColor,
+        suggestionColor,
+        cursorColor,
+        spacing,
+        textRenderer
+    )
+) {
+    Modifier
+        .padding(5.5f)
+        .measureCompleted {
+            this as TextAreaWidget
+            scrollState {
+                amountStep = textRenderer.fontHeight / 2f
+                maxAmount = textContentHeight - contentHeight
+                barProportion = contentHeight / textContentHeight
+            }
+        }
+        .renderBackground { context, _, _, _ ->
+            this as TextAreaWidget
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, theme(WidgetTheme.TextInput), this@addWidgetChild.bgShaderColor)
+            }
+        }.then(modifier).foldInApply()
     TextAreaScope { this }.scope()
 }
 
 fun WidgetContainerScope.TextAreaWrapped(
-    modifier: Modifier = Modifier,
     maxLength: Int = Int.MAX_VALUE,
     textRenderer: TextRenderer = mc.textRenderer,
     barThickness: Float = 9f,
-    amountConsumer: (Float) -> Unit = { },
-    initialAmount: () -> Float? = { null },
-    textAreaModifier: ColumnScope.() -> Modifier = { Modifier },
+    scrollState: ScrollState = ScrollState(),
+    initialAmount: Float = 0f,
+    modifier: Modifier = Modifier,
+    textAreaModifier: ColumnScope .() -> Modifier = { Modifier },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
     scope: TextAreaScope.() -> Unit = {}
 ): ColumnWidget {
     var textArea: TextAreaWidget? = null
     return Column(
         modifier = Modifier
-        .padding(5.5f, 4f, 5.5f, 5.5f)
-        .renderBackground { ctx, _, _, _ ->
-            val widget = this as IGWidget
-            ctx.batchRenderTextureColored {
-                textArea?.let {
-                    pushWidgetTexture(widget.transform, it.theme(WidgetTheme.TextInput))
+            .padding(5.5f, 4f, 5.5f, 5.5f)
+            .renderBackground { ctx, _, _, _ ->
+                ctx.batchRenderTextureColored {
+                    textArea?.let {
+                        pushWidgetTexture(transform, it.theme(WidgetTheme.TextInput), it.bgShaderColor)
+                    }
                 }
-            }
-        } then modifier
+            } then modifier
     ) {
-        var scroller: ScrollerWidget? = null
-        val tModifier = Modifier
-            .padding(0)
-            .fill()
-            .weight(1)
-            .renderBackground { _, _, _, _ -> }
-            .mouseScrolling {
-                this as IGWidget
-                if (this.wasMouseOver) scroller?.scroller(it.verticalAmount)
-            } then textAreaModifier()
-        val text = TextArea(modifier = tModifier, maxLength, textRenderer = textRenderer) {
+        textArea = TextArea(
+            modifier = Modifier
+                .padding(0)
+                .fill()
+                .weight(1)
+                .renderBackground { _, _, _, _ -> }
+                .measureCompleted {
+                    this as TextAreaWidget
+                    scrollState {
+                        amountStep = textRenderer.fontHeight / 2f
+                        maxAmount = textContentHeight - contentHeight
+                        barProportion = contentHeight / textContentHeight
+                        amount = initialAmount
+                    }
+                }
+                .mouseScrolling {
+                    if (this.wasMouseOver) scrollState.scroll(it.verticalAmount)
+                } then textAreaModifier(),
+            maxLength,
+            scrollState = scrollState,
+            textRenderer = textRenderer
+        ) {
             scope()
-            amountConsumer {
-                scroller?.amount = it
-            }
         }
-        textArea = text
-        scroller = Scroller(
-            amountStep = { textRenderer.fontHeight / 2f },
-            totalAmount = { (text.textContentHeight - text.contentHeight).coerceAtLeast(0f) },
-            barProportion = { (text.contentHeight / text.textContentHeight).coerceIn(0f..1f) },
-            amountConsumer = {
-                text.disablePostAmountChanged { text.amount = it };amountConsumer.invoke(it)
-            },
-            initialAmount = initialAmount,
+        Scroller(
+            scrollState = scrollState,
             orientation = Orientation.Vertical,
             modifier = Modifier
                 .fill()

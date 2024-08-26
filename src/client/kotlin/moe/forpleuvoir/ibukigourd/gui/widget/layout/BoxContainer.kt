@@ -10,20 +10,16 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class BoxWidget : WidgetContainerImpl(), BoxLayout {
 
-    companion object {}
-
-    data class BoxScope(private val boxWidget: BoxWidget) : GuiScope<BoxWidget>, BoxLayoutScope {
-        override fun owner(): BoxWidget = boxWidget
-    }
+    fun interface Scope : GuiScope<BoxWidget>, BoxLayoutScope
 
 }
 
-typealias BoxScope = BoxWidget.BoxScope
+typealias BoxScope = BoxWidget.Scope
 
 fun WidgetContainerScope.Box(
     modifier: Modifier = Modifier,
     context: BoxScope.() -> Unit = { }
 ): BoxWidget = addWidgetChild(BoxWidget()) {
-    BoxScope(this).context()
+    BoxScope { this }.context()
     modifier.foldInApply()
 }

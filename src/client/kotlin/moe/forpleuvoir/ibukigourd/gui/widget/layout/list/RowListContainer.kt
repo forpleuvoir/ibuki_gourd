@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout.list
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
-import moe.forpleuvoir.ibukigourd.gui.base.layout.VerticalListLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.RowListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
@@ -11,61 +11,60 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.VerticalListLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.RowListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
-import moe.forpleuvoir.ibukigourd.gui.widget.ScrollerWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 
-class VerticalListWidget(
-    amounts: Float = 0f,
+class RowListWidget(
+    scrollState: ScrollState = ScrollState(),
     override val alignment: Alignment.Horizontal,
     spacing: Float = 0f,
-) : ListWidget(amounts, alignment, spacing), VerticalListLayout {
+) : ListWidget(scrollState, alignment, spacing), RowListLayout {
 
-    override var totalAmount: Float = 0f
-        private set
-
-    override var totalSpace: Float = 0f
-        private set
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         return super.measureChildren(measurables, constraints).also {
-            totalSpace = widgetChildren().sumOf { it.wrappedHeight + spacing } - spacing
-            totalAmount = (totalSpace - contentHeight).coerceAtLeast(0f)
+            val totalSpace = widgetChildren().sumOf { it.wrappedHeight + spacing } - spacing
+            scrollState {
+                maxAmount = totalSpace - contentHeight
+                barProportion = contentHeight / totalSpace
+                amountStep = widgetChildren().minOf { it.transform.height } / 2f
+            }
         }
     }
 
-    fun interface VerticalListScope : ListWidgetScope<VerticalListWidget, Alignment.Horizontal>, VerticalListLayoutScope
+    fun interface Scope : ListWidget.Scope<RowListWidget, Alignment.Horizontal>, RowListLayoutScope
 
 }
 
-typealias VerticalListScope = VerticalListWidget.VerticalListScope
+typealias RowListScope = RowListWidget.Scope
 
 fun WidgetContainerScope.RowList(
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
     verticalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    content: VerticalListScope.() -> Unit
-) = addWidgetChild(VerticalListWidget(alignment = verticalAlignment, spacing = spacing)) {
-    VerticalListScope { this }.content()
+    content: RowListScope.() -> Unit
+) = addWidgetChild(RowListWidget(scrollState, alignment = verticalAlignment, spacing = spacing)) {
+    RowListScope { this }.content()
     modifier.foldInApply()
 }
 
 fun WidgetContainerScope.RowListWrapped(
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
     barThickness: Float = 9f,
-    amountConsumer: (Float) -> Unit = {},
-    initialAmount: () -> Float? = { null },
     listModifier: ColumnScope.() -> Modifier = { Modifier },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
-    content: VerticalListScope.() -> Unit
+    content: RowListScope.() -> Unit
 ) = Column(
     modifier = Modifier
         .renderBackground { context, _, _, _ ->
@@ -77,27 +76,19 @@ fun WidgetContainerScope.RowListWrapped(
         .padding(3).then(modifier),
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
-    var scroller: ScrollerWidget? = null
-    val list = RowList(
+    RowList(
         modifier = Modifier
             .fill()
             .mouseScrolling { event ->
-                this as ListWidget
                 onMouseScrolling(event)
-                event.tryUse(wasMouseOver).onSuccess { scroller?.scroller(event.verticalAmount) }
+                event.tryUse(wasMouseOver).onSuccess { scrollState.scroll(event.verticalAmount) }
             } then listModifier(),
+        scrollState = scrollState,
         spacing = spacing,
         content = content
     )
-    scroller = Scroller(
-        amountStep = { list.widgetChildren().minOf { it.transform.width } / 2f },
-        totalAmount = { list.totalAmount },
-        barProportion = { (list.contentWidth / list.totalSpace).coerceIn(0f..1f) },
-        amountConsumer = {
-            list.amount = it
-            amountConsumer(it)
-        },
-        initialAmount = initialAmount,
+    Scroller(
+        scrollState = scrollState,
         orientation = Orientation.Vertical,
         modifier = Modifier
             .fill()

@@ -73,6 +73,10 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var parentData: Any? = null
 
+    override var measureCompleted: () -> Unit = ::onMeasureCompleted
+
+    override fun onMeasureCompleted() = Unit
+
 
     //------------ DrawableElement ------------\\
 

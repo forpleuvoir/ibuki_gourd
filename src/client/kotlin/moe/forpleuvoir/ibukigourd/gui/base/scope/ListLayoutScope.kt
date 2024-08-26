@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.scope
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
-import moe.forpleuvoir.ibukigourd.gui.base.layout.HorizontalListLayout
-import moe.forpleuvoir.ibukigourd.gui.base.layout.VerticalListLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnListLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.RowListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
@@ -31,49 +31,49 @@ interface ListLayoutScope<T : Alignment.Linear> {
 
 }
 
-interface HorizontalListLayoutScope : ListLayoutScope<Alignment.Vertical> {
+interface ColumnListLayoutScope : ListLayoutScope<Alignment.Vertical> {
 
     override fun Modifier.fill(fill: Boolean) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is HorizontalListLayout.WrappedHorizontalListLayoutData
+            is ColumnListLayout.WrappedColumnListLayoutData
                 -> it.parentData = parentData.copy(fill = fill)
 
             null
-                -> it.parentData = HorizontalListLayout.WrappedHorizontalListLayoutData(fill = fill)
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(fill = fill)
         }
     }
 
     override fun Modifier.align(alignment: Alignment.Vertical) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is HorizontalListLayout.WrappedHorizontalListLayoutData
+            is ColumnListLayout.WrappedColumnListLayoutData
                 -> it.parentData = parentData.copy(alignment = alignment)
 
             null
-                -> it.parentData = HorizontalListLayout.WrappedHorizontalListLayoutData(alignment = alignment)
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(alignment = alignment)
         }
     }
 
 }
 
-interface VerticalListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
+interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
 
     override fun Modifier.fill(fill: Boolean) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is VerticalListLayout.WrappedVerticalListLayoutData
+            is RowListLayout.WrappedRowListLayoutData
                 -> it.parentData = parentData.copy(fill = fill)
 
             null
-                -> it.parentData = VerticalListLayout.WrappedVerticalListLayoutData(fill = fill)
+                -> it.parentData = RowListLayout.WrappedRowListLayoutData(fill = fill)
         }
     }
 
     override fun Modifier.align(alignment: Alignment.Horizontal) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is VerticalListLayout.WrappedVerticalListLayoutData
+            is RowListLayout.WrappedRowListLayoutData
                 -> it.parentData = parentData.copy(alignment = alignment)
 
             null
-                -> it.parentData = VerticalListLayout.WrappedVerticalListLayoutData(alignment = alignment)
+                -> it.parentData = RowListLayout.WrappedRowListLayoutData(alignment = alignment)
         }
     }
 

@@ -70,9 +70,7 @@ open class IGButtonWidget(
 
     companion object {}
 
-    data class ButtonScope(private val button: IGButtonWidget) : GuiScope<IGButtonWidget>, ColumnLayoutScope {
-
-        override fun owner(): IGButtonWidget = button
+    fun interface ButtonScope : GuiScope<IGButtonWidget>, ColumnLayoutScope {
 
         fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)
 

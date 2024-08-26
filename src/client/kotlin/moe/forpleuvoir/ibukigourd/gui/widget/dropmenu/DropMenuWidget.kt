@@ -1,8 +1,8 @@
 //package moe.forpleuvoir.ibukigourd.gui.widget.dropmenu
 //
 //import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
-//import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
-//import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
+//import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
+//import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.scissor
 //import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 //import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 //import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout

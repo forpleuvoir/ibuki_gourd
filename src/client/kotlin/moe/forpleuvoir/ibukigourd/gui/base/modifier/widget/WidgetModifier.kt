@@ -1,11 +1,14 @@
 package moe.forpleuvoir.ibukigourd.gui.base.modifier.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 fun interface WidgetModifier : Modifier.Element {
     fun applyModify(element: IGWidget)
@@ -13,8 +16,16 @@ fun interface WidgetModifier : Modifier.Element {
     override fun tryApplyModify(target: Any) {
         if (target is IGWidget) applyModify(target)
     }
-
 }
+
+fun interface WidgetContainerModifier : Modifier.Element {
+    fun applyModify(element: WidgetContainerImpl)
+
+    override fun tryApplyModify(target: Any) {
+        if (target is WidgetContainerImpl) applyModify(target)
+    }
+}
+
 
 //------------ Size ------------\\
 
@@ -135,4 +146,42 @@ fun Modifier.margin(horizontal: Number = 0, vertical: Number = 0) = this then Wi
 
 fun Modifier.margin(all: Number) = this then WidgetModifier { widget ->
     widget.margin = Margin(all)
+}
+
+//------------ Render ------------\\
+
+fun Modifier.renderBackground(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
+    drawable.renderBackground = { context, mouseX, mouseY, delta ->
+        drawable.action(context, mouseX, mouseY, delta)
+    }
+}
+
+fun Modifier.render(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
+    drawable.render = { context, mouseX, mouseY, delta ->
+        drawable.action(context, mouseX, mouseY, delta)
+    }
+}
+
+fun Modifier.renderOverlay(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
+    drawable.renderOverlay = { context, mouseX, mouseY, delta ->
+        drawable.action(context, mouseX, mouseY, delta)
+    }
+}
+
+//------------ GuiContext ------------\\
+
+fun Modifier.layer(layer: GuiLayer) = this then WidgetModifier { widget ->
+    widget.layer = layer
+}
+
+//------------ Measure ------------\\
+
+fun Modifier.measureCompleted(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
+    widget.measureCompleted = { widget.action() }
+}
+
+//------------ Layout ------------\\
+
+fun Modifier.layoutCompleted(action: WidgetContainerImpl.() -> Unit) = this then WidgetContainerModifier { widget ->
+    widget.layoutCompleted = { widget.action() }
 }

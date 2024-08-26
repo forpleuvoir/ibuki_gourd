@@ -26,6 +26,12 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
 
     override fun layoutableChildren(): List<Layoutable> = widgetChildren
 
+    override var layoutCompleted: () -> Unit = ::onLayoutCompleted
+
+    override fun onMeasureCompleted() {
+        super<Layout>.onMeasureCompleted()
+    }
+
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
         it.transform.parent = { this.transform }
         it.parent = { this }

@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.icon
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
@@ -77,5 +78,20 @@ fun WidgetContainerScope.Icon(
     scope: IconScope.() -> Unit = {}
 ) = addWidgetChild(IconWidget(texture, color)) {
     IconScope { this }.scope()
+    modifier.foldInApply()
+}
+
+fun WidgetContainerScope.Icon(
+    texture: DelegatedValue<WidgetTexture>,
+    color: ARGBColor = Colors.WHITE,
+    modifier: Modifier = Modifier,
+    scope: IconScope.() -> Unit = {}
+) = addWidgetChild(IconWidget(texture.getValue(), color)) {
+    IconScope { this }.apply {
+        scope()
+        texture.subscribe {
+            texture(it)
+        }
+    }
     modifier.foldInApply()
 }

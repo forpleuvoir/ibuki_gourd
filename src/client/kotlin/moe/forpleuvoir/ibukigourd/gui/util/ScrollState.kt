@@ -1,78 +1,62 @@
 package moe.forpleuvoir.ibukigourd.gui.util
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.Serializable
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import moe.forpleuvoir.nebula.common.api.Notifiable
+import moe.forpleuvoir.nebula.common.util.primitive.pick
+import java.util.function.Consumer
 
-@JvmInline
-value class ScrollState private constructor(val value: Byte) : Serializable {
 
-    companion object : Deserializer<ScrollState> {
+class ScrollState : Notifiable<Float> {
 
-        @JvmStatic
-        val None = ScrollState(0)
+    private var _amount: Float = 0f
+        set(value) {
+            field = value.coerceIn(0f..maxAmount)
+        }
 
-        @JvmStatic
-        val Forward = ScrollState(1)
-
-        @JvmStatic
-        val Back = ScrollState(2)
-
-        override fun deserialization(serializeElement: SerializeElement): ScrollState {
-            return when (serializeElement.asString) {
-                "none", "NONE", "None", "0"          -> None
-                "forward", "FORWARD", "Forward", "1" -> Forward
-                "back", "BACK", "Back", "2"          -> Back
-                else                                 -> throw IllegalArgumentException("Unknown ScrollState: $serializeElement")
+    var amount: Float
+        get() = _amount
+        set(value) {
+            if (_amount != value) {
+                _amount = value.coerceIn(0f, maxAmount)
+                onChange(_amount)
             }
         }
 
+    fun scroll(amount: Float) {
+        this.amount -= amountStep * amount
     }
 
-
-    val isForward: Boolean get() = value == Forward.value
-
-    @OptIn(ExperimentalContracts::class)
-    inline fun isForward(block: () -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    var progress: Float
+        get() = (amount / maxAmount).let { it.isNaN().pick(0f, it) }
+        set(value) {
+            amount = maxAmount * value.coerceIn(0f..1f)
         }
-        if (isForward) block()
+
+    private val observers: MutableList<Consumer<Float>> = ArrayList()
+
+    override fun onChange(value: Float) {
+        observers.forEach { it.accept(value) }
     }
 
-    val isBack: Boolean get() = value == Back.value
+    override fun subscribe(callback: Consumer<Float>) {
+        observers.add(callback)
+    }
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun isY(block: () -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    var maxAmount = 0f
+        set(value) {
+            field = value.coerceAtLeast(0f)
         }
-        if (isBack) block()
-    }
 
-    val isNone: Boolean get() = value == None.value
-
-    @OptIn(ExperimentalContracts::class)
-    inline fun isNone(block: () -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    var amountStep = 0f
+        set(value) {
+            field = value.coerceAtLeast(0f)
         }
-        if (isNone) block()
-    }
 
-    override fun serialization(): SerializeElement {
-        return SerializePrimitive(
-            when (value) {
-                0.toByte() -> "none"
-                1.toByte() -> "forward"
-                2.toByte() -> "back"
-                else       -> "none"
-            }
-        )
-    }
+    var barProportion = 0f
+        set(value) {
+            field = value.coerceIn(0f, 1f)
+        }
+
+    inline operator fun invoke(scope: ScrollState.() -> Unit) =
+        scope.invoke(this)
 
 }

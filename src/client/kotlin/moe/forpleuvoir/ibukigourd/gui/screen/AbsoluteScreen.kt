@@ -7,10 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 
-data class AbsoluteScreenScope(val screen: IGScreen) : ScreenScope<IGScreen>, AbsoluteLayoutScope {
-    override fun owner(): IGScreen = screen
-
-}
+fun interface AbsoluteScreenScope : ScreenScope<IGScreen>, AbsoluteLayoutScope
 
 fun AbsoluteScreen(
     modifier: Modifier = Modifier,
@@ -20,7 +17,7 @@ fun AbsoluteScreen(
 
         override fun AbsoluteScreenScope.content() = content()
 
-        override val scope: AbsoluteScreenScope = AbsoluteScreenScope(this)
+        override val scope: AbsoluteScreenScope = AbsoluteScreenScope { this }
 
     }.apply {
         modifier.foldInApply()

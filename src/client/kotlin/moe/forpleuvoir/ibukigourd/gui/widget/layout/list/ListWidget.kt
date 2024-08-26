@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout.list
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.scissor
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
@@ -10,31 +10,25 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.input.mousePosition
-import moe.forpleuvoir.ibukigourd.util.DelegatedValue
-import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gui.DrawContext
 
 abstract class ListWidget(
-    amounts: Float = 0f,
+    val scrollState: ScrollState,
     override val alignment: Alignment.Linear,
     override val spacing: Float = 0f,
 ) : WidgetContainerImpl(), ListLayout {
 
     var enableScissor: Boolean = true
 
-    var amount: Float = amounts
-        set(value) {
-            field = (value.isNaN().pick(0f, value)).coerceIn(0f..totalAmount)
+    override fun amount(): Float = scrollState.amount
+
+    init {
+        scrollState.subscribe {
             layout()
         }
-
-    override fun amount(): Float = this.amount
-
-    abstract val totalAmount: Float
-
-    abstract val totalSpace: Float
-
+    }
 
     //------------ Render ------------\\
 
@@ -63,7 +57,7 @@ abstract class ListWidget(
         }
     }
 
-    var onRenderChild: (child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = this::renderChild
+    var onRenderChild: (child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::renderChild
 
     fun renderChild(child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         if ((child.transform.asWorldBox intersectWith transform.asWorldBox).exist) {
@@ -80,9 +74,7 @@ abstract class ListWidget(
         if (wasMouseOver) super.onMousePress(event)
     }
 
-    companion object
-
-    interface ListWidgetScope<L : ListWidget, A : Alignment.Linear> : GuiScope<L>, ListLayoutScope<A> {
+    interface Scope<L : ListWidget, A : Alignment.Linear> : GuiScope<L>, ListLayoutScope<A> {
 
         fun enableScissor() {
             owner().enableScissor = true
@@ -94,17 +86,6 @@ abstract class ListWidget(
 
         fun onRenderChild(render: (child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit) {
             owner().onRenderChild = render
-        }
-
-        infix fun amountBy(delegatedAmount: DelegatedValue<Float>) {
-            delegatedAmount.onSetValue = {
-                owner().amount = it
-                owner().amount
-            }
-            delegatedAmount.onGetValue = {
-                owner().amount
-            }
-
         }
 
     }

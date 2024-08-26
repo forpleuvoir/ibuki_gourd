@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding

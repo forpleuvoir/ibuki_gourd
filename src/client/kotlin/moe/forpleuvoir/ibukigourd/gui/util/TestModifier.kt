@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.util
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget

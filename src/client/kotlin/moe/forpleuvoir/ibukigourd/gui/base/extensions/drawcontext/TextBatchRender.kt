@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent
+package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement

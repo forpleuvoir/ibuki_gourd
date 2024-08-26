@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
-import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
@@ -39,7 +38,7 @@ fun GuiScope<out WidgetContainer>.Button(
             }
         }
         .then(modifier).foldInApply()
-    ButtonScope(this).content()
+    ButtonScope { this }.content()
 }
 
 fun GuiScope<out WidgetContainer>.FlatButton(
@@ -60,7 +59,7 @@ fun GuiScope<out WidgetContainer>.FlatButton(
             }
         }
         .then(modifier).foldInApply()
-    ButtonScope(this).content()
+    ButtonScope { this }.content()
 }
 
 fun GuiScope<out WidgetContainer>.SwitchButton(
@@ -94,7 +93,7 @@ fun GuiScope<out WidgetContainer>.LockButton(
         PressableTheme.UNLOCK.hovered,
         PressableTheme.UNLOCK.disabled,
     )
-    val scope = ButtonScope(this)
+    val scope = ButtonScope { this }
     scope.content()
     val lock = scope.Icon(list.maxBy { it.width + it.height }) {
         changedRemeasure = false
@@ -104,7 +103,7 @@ fun GuiScope<out WidgetContainer>.LockButton(
             this as IGButtonWidget
             lock.iconTexture = theme(statusDelegate.getValue().pick(PressableTheme.LOCK, PressableTheme.UNLOCK))
         }
-        .padding(2f).renderHoveredOutlineBox(Colors.AQUA)
+        .padding(2f)
         .then(modifier).foldInApply()
     press { statusDelegate.setValue(!statusDelegate.getValue()) }
 

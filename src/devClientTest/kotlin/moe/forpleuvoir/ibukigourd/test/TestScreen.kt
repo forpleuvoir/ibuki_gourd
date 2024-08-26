@@ -1,15 +1,15 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
+import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -19,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -73,6 +73,16 @@ fun modifier(): Modifier {
         }
 }
 
+val scrollState = ScrollState().apply {
+    amountStep = 1f
+    maxAmount = 10f
+    barProportion = 0.1f
+    amount = BG_BLUR_RADIUS
+    subscribe {
+        BG_BLUR_RADIUS = it
+    }
+}
+
 fun TestScreen() = BoxScreen(modifier()) {
     Row(
         modifier = Modifier
@@ -111,12 +121,9 @@ fun TestScreen() = BoxScreen(modifier()) {
             }
         }
         TestColumn()
+
         Scroller(
-            { 1f },
-            { 10f },
-            { 0.1f },
-            { BG_BLUR_RADIUS },
-            { BG_BLUR_RADIUS = it },
+            scrollState,
             orientation = Orientation.Horizontal,
             modifier = Modifier.maxWidth(180f)
         )
@@ -127,7 +134,6 @@ fun TestScreen() = BoxScreen(modifier()) {
 
 fun RowScope.TestColumn() = Column(
     modifier = Modifier.renderOverlay { context, _, _, _ ->
-        this as IGWidget
         context.batchRenderBox {
             pushBoxOutline(transform, Colors.AQUA)
         }
@@ -141,7 +147,7 @@ fun RowScope.TestColumn() = Column(
     ) {
         var c = 0
         var f = true
-        TextField {
+        TextArea {
             text = "我去还这样嵌套?"
         }
         repeat(50) {
@@ -168,7 +174,6 @@ fun RowScope.TestColumn() = Column(
                             Literal("测试文本$it:$text").style { color(Colors.BRIGHT_NEON_PINK) }
                         },
                         modifier = Modifier.renderOverlay { ctx, _, _, _ ->
-                            this as IGWidget
                             if (wasMouseOver)
                                 ctx.batchRenderBox {
                                     pushBoxOutline(contentBox(true), Colors.ROSE)
@@ -183,7 +188,6 @@ fun RowScope.TestColumn() = Column(
                         IconTextures.CLOSE, modifier = Modifier
                             .padding(2)
                             .renderOverlay { ctx, _, _, _ ->
-                                this as IGWidget
                                 if (wasMouseOver)
                                     ctx.batchRenderBox {
                                         pushBoxOutline(transform, Colors.ROSE)
@@ -209,7 +213,6 @@ fun RowScope.TestColumn() = Column(
 
     Box(
         modifier = Modifier.renderOverlay { context, _, _, _ ->
-            this as IGWidget
             context.batchRenderBox {
                 pushBoxOutline(transform, Colors.AQUA)
             }
@@ -225,7 +228,6 @@ fun RowScope.TestColumn() = Column(
     Box(
         Modifier.size(80f, 80f)
             .renderOverlay { context, _, _, _ ->
-                this as IGWidget
                 context.batchRenderBox {
                     if (wasMouseOver) pushBoxOutline(transform, Colors.AQUA)
                 }
@@ -237,10 +239,10 @@ fun RowScope.TestColumn() = Column(
         Icon(IconTextures.LOCK, modifier = Modifier.align(Alignment.BottomRight))
         Icon(IconTextures.FILTER, modifier = Modifier.align(Alignment.Center))
     }
-    Scroller({ 5f }, { 500f }, { 0.1f }, modifier = Modifier.maxHeight(180f))
+
+    Scroller(scrollState = scrollState, modifier = Modifier.maxHeight(180f))
     Button(
         modifier = Modifier.height(40f).renderOverlay { context, _, _, _ ->
-            this as IGWidget
             context.batchRenderBox {
                 if (wasMouseOver) pushBoxOutline(transform, Colors.AQUA)
             }

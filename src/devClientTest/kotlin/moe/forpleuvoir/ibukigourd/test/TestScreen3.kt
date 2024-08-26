@@ -1,14 +1,13 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderBox
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -81,7 +80,6 @@ fun testScreen3() = RowScreen(
             text = { Literal("测试文本:$text").style { color(Colors.BRIGHT_NEON_PINK) } },
             modifier = Modifier
                 .renderOverlay { ctx, _, _, _ ->
-                    this as IGWidget
                     if (wasMouseOver)
                         ctx.batchRenderBox {
                             pushBoxOutline(contentBox(true), Colors.ROSE)
@@ -126,7 +124,6 @@ private fun GuiScope<out WidgetContainer>.ColumnTest(arrangement: Arrangement.Ho
         .padding(3f)
         .width(240f)
         .renderBackground { ctx, _, _, _ ->
-            this as IGWidget
             ctx.batchRenderBox {
                 if (wasMouseOver) {
                     pushBoxOutline(transform, Colors.AQUA)
@@ -147,7 +144,6 @@ private fun GuiScope<out WidgetContainer>.RowTest(arrangement: Arrangement.Verti
         .padding(3f)
         .height(162f)
         .renderBackground { ctx, _, _, _ ->
-            this as IGWidget
             ctx.batchRenderBox {
                 if (wasMouseOver) {
                     pushBoxOutline(transform, Colors.AQUA)

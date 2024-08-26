@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.render
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.enableScissor
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.enableScissor
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext

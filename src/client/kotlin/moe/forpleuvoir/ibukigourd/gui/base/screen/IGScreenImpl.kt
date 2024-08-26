@@ -8,7 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.renderGradientBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderGradientBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
@@ -134,10 +134,14 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun layoutableChildren(): List<Layoutable> = widgetChildren()
 
+    override var measureCompleted: () -> Unit = ::onMeasureCompleted
+
+    override var layoutCompleted: () -> Unit = ::onLayoutCompleted
+
     override fun measure(constraints: Constraints): Placeable {
         return super.measure(constraints = constraints).also {
+            measureCompleted()
             layout()
-            measureCompleted(layoutableChildren())
         }
     }
 
@@ -268,9 +272,10 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             val widget = hoveredWidget(layer)
             if (widget != null) {
                 hoveredWidget = widget
-                break
+                return
             }
         }
+        hoveredWidget = null
     }
 
     @Suppress("LocalVariableName", "DuplicatedCode")

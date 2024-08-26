@@ -13,9 +13,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 class ColumnWidget(
     override val arrangement: Arrangement.Horizontal,
     override val alignment: Alignment.Vertical
-) : WidgetContainerImpl(), ColumnLayout
+) : WidgetContainerImpl(), ColumnLayout {
+    fun interface Scope : GuiScope<ColumnWidget>, ColumnLayoutScope
+}
 
-fun interface ColumnScope : GuiScope<ColumnWidget>, ColumnLayoutScope
+typealias ColumnScope = ColumnWidget.Scope
 
 fun WidgetContainerScope.Column(
     modifier: Modifier = Modifier,

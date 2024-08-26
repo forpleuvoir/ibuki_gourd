@@ -13,9 +13,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 class RowWidget(
     override val arrangement: Arrangement.Vertical,
     override val alignment: Alignment.Horizontal,
-) : WidgetContainerImpl(), RowLayout
+) : WidgetContainerImpl(), RowLayout {
+    fun interface Scope : GuiScope<RowWidget>, RowLayoutScope
+}
 
-fun interface RowScope : GuiScope<RowWidget>, RowLayoutScope
+typealias RowScope = RowWidget.Scope
 
 fun WidgetContainerScope.Row(
     modifier: Modifier = Modifier,

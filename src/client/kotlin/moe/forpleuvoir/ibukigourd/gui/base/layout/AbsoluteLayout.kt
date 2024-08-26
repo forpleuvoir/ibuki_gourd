@@ -32,7 +32,6 @@ data class WrappedAbsoluteLayoutData(
 
     companion object : WrappedLayoutDataUtil<WrappedAbsoluteLayoutData> {
         override fun default() = WrappedAbsoluteLayoutData()
-
     }
 
 }

@@ -21,18 +21,18 @@ interface WrappedListLayoutData {
 
 }
 
-interface VerticalListLayout : ListLayout {
+interface RowListLayout : ListLayout {
 
-    data class WrappedVerticalListLayoutData(
+    data class WrappedRowListLayoutData(
         override val fill: Boolean = false,
         override val alignment: Alignment.Horizontal? = null
     ) : WrappedListLayoutData {
 
-        companion object : WrappedLayoutDataUtil<WrappedVerticalListLayoutData> {
-            override fun default(): WrappedVerticalListLayoutData = WrappedVerticalListLayoutData()
+        companion object : WrappedLayoutDataUtil<WrappedRowListLayoutData> {
+            override fun default(): WrappedRowListLayoutData = WrappedRowListLayoutData()
         }
 
-        fun getAlignment(layout: VerticalListLayout) = this.alignment ?: layout.alignment
+        fun getAlignment(layout: RowListLayout) = this.alignment ?: layout.alignment
     }
 
     override val alignment: Alignment.Horizontal
@@ -47,7 +47,7 @@ interface VerticalListLayout : ListLayout {
         //内容的最大高度
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
         //所有元素的parentData
-        val parentDatas = WrappedVerticalListLayoutData.wrappedDatas(measurables)
+        val parentDatas = WrappedRowListLayoutData.wrappedDatas(measurables)
         //使用的高度
         var usedHeight = spacing * measurables.lastIndex
 
@@ -73,7 +73,7 @@ interface VerticalListLayout : ListLayout {
     override fun layout(layoutables: List<Layoutable>) {
         val contentBox = widget.contentBox(false)
         val amount = this.amount()
-        val alignments = WrappedVerticalListLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
+        val alignments = WrappedRowListLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
         Arrangement.spacedBy(spacing, Alignment.Top)
             //计算每一个组件的Y偏移
             .arrange(widget.contentWidth, layoutables.map { it.wrappedHeight })
@@ -96,18 +96,18 @@ interface VerticalListLayout : ListLayout {
 
 }
 
-interface HorizontalListLayout : ListLayout {
+interface ColumnListLayout : ListLayout {
 
-    data class WrappedHorizontalListLayoutData(
+    data class WrappedColumnListLayoutData(
         override val fill: Boolean = false,
         override val alignment: Alignment.Vertical? = null
     ) : WrappedListLayoutData {
 
-        companion object : WrappedLayoutDataUtil<WrappedHorizontalListLayoutData> {
-            override fun default(): WrappedHorizontalListLayoutData = WrappedHorizontalListLayoutData()
+        companion object : WrappedLayoutDataUtil<WrappedColumnListLayoutData> {
+            override fun default(): WrappedColumnListLayoutData = WrappedColumnListLayoutData()
         }
 
-        fun getAlignment(layout: HorizontalListLayout) = this.alignment ?: layout.alignment
+        fun getAlignment(layout: ColumnListLayout) = this.alignment ?: layout.alignment
     }
 
     override val alignment: Alignment.Vertical
@@ -122,7 +122,7 @@ interface HorizontalListLayout : ListLayout {
         //内容的最大高度
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //所有元素的parentData
-        val parentDatas = WrappedHorizontalListLayoutData.wrappedDatas(measurables)
+        val parentDatas = WrappedColumnListLayoutData.wrappedDatas(measurables)
         //使用的宽度
         var usedWidth = spacing * measurables.lastIndex
 
@@ -148,7 +148,7 @@ interface HorizontalListLayout : ListLayout {
     override fun layout(layoutables: List<Layoutable>) {
         val contentBox = widget.contentBox(false)
         val amount = this.amount()
-        val alignments = WrappedHorizontalListLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
+        val alignments = WrappedColumnListLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
         Arrangement.spacedBy(spacing, Alignment.Left)
             //计算每一个组件的X偏移
             .arrange(widget.contentWidth, layoutables.map { it.wrappedWidth })

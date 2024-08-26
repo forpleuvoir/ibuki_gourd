@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontent.*
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -292,7 +292,7 @@ open class TextFieldWidget(
         return this
     }
 
-    override fun measureCompleted() {
+    override fun onMeasureCompleted() {
         firstCharacterIndex = 0
     }
 
@@ -593,9 +593,7 @@ open class TextFieldWidget(
         }
     }
 
-    companion object
-
-    fun interface TextFieldScope : GuiScope<TextFieldWidget> {
+    fun interface Scope : GuiScope<TextFieldWidget> {
 
         var text: String
             get() = owner().text
@@ -660,7 +658,7 @@ open class TextFieldWidget(
 
 }
 
-typealias TextFieldScope = TextFieldWidget.TextFieldScope
+typealias TextFieldScope = TextFieldWidget.Scope
 
 fun WidgetContainerScope.TextField(
     modifier: Modifier = Modifier,
