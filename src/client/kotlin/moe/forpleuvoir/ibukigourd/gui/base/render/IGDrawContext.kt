@@ -29,7 +29,7 @@ class IGDrawContext(
 
     var layer: GuiLayer
         get() {
-            return _layer ?: GuiLayer.default
+            return _layer ?: GuiLayer.Default
         }
         set(value) {
             _layer = value

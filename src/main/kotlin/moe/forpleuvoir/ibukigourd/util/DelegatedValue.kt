@@ -4,8 +4,7 @@ import moe.forpleuvoir.nebula.common.api.Notifiable
 import java.util.function.Consumer
 import kotlin.reflect.KProperty
 
-
-fun <T> delegate(value: T) = DelegatedValue(value)
+fun <T> delegateBy(value: T) = DelegatedValue(value)
 
 data class DelegatedValue<T>(private var value: T) : Notifiable<T> {
 

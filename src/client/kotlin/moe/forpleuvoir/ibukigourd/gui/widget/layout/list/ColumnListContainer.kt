@@ -9,11 +9,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.height
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -69,9 +71,8 @@ fun WidgetContainerScope.ColumnListWrapped(
 ) = Row(
     modifier = Modifier
         .renderBackground { context, _, _, _ ->
-            val widget = this as IGWidget
             context.batchRenderTextureColored {
-                pushWidgetTexture(widget.transform, widget.theme(WidgetTheme.ListLayout))
+                pushWidgetTexture(transform, theme(WidgetTheme.ListLayout))
             }
         }
         .padding(3).then(modifier),
@@ -79,11 +80,7 @@ fun WidgetContainerScope.ColumnListWrapped(
 ) {
     ColumnList(
         modifier = Modifier
-            .fill()
-            .mouseScrolling { event ->
-                onMouseScrolling(event)
-                event.tryUse(wasMouseOver).onSuccess { scrollState.scroll(event.verticalAmount) }
-            } then listModifier(),
+            .fill() then listModifier(),
         scrollState = scrollState,
         spacing = spacing,
         content = content

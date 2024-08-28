@@ -25,6 +25,7 @@ open class IGButtonWidget(
         protected set
 
     override fun onTick() {
+        super.onTick()
         if (pressed) {
             pressTickCounter++
             if (longPressTime == pressTickCounter) {

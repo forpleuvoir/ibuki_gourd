@@ -266,7 +266,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      * @param textureInfo TextureInfo
      * @param color Color
      */
-    fun ninePatchTexture(
+    fun pushNinePatchTexture(
         box: Box,
         textureUV: TextureUVMapping,
         textureInfo: TextureInfo,
@@ -277,13 +277,13 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
     }
 
     /**
-     * @see [ninePatchTexture]
+     * @see [pushNinePatchTexture]
      * @param box Box
      * @param widgetTexture WidgetTexture
      * @param color Color
      */
     fun pushWidgetTexture(box: Box, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
-        ninePatchTexture(box, widgetTexture, widgetTexture.textureInfo, color)
+        pushNinePatchTexture(box, widgetTexture, widgetTexture.textureInfo, color)
 
     /**
      * @see [pushWidgetTexture]
@@ -292,7 +292,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      * @param color Color
      */
     fun pushWidgetTexture(transform: Transform, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
-        ninePatchTexture(transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, color)
+        pushNinePatchTexture(transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, color)
 
 }
 

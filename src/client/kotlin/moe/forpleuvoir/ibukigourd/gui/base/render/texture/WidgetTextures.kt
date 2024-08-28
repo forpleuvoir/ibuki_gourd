@@ -119,22 +119,22 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var TEXT_SELECTED_INPUT: WidgetTexture = WidgetTexture(Corner(5), 96, 0, 112, 16, TEXTURE_INFO)
         private set
 
-    var DROP_MENU_BACKGROUND = WidgetTexture(Corner(4), 112, 0, 128, 16, TEXTURE_INFO)
+    var DROP_DOWN_MENU_BACKGROUND = WidgetTexture(Corner(4), 112, 0, 128, 16, TEXTURE_INFO)
         private set
 
-    var DROP_MENU_EXPEND_BACKGROUND = WidgetTexture(Corner(4), 128, 0, 144, 16, TEXTURE_INFO)
+    var DROP_DOWN_MENU_EXPEND_BACKGROUND = WidgetTexture(Corner(4), 128, 0, 144, 16, TEXTURE_INFO)
         private set
 
-    var DROP_MENU_ARROW_UP = WidgetTexture(Corner(0), 144, 0, 151, 4, TEXTURE_INFO)
+    var DROP_DOWN_MENU_ARROW_UP = WidgetTexture(Corner(0), 144, 0, 151, 4, TEXTURE_INFO)
         private set
 
-    var DROP_MENU_ARROW_DOWN = WidgetTexture(Corner(0), 153, 0, 160, 4, TEXTURE_INFO)
+    var DROP_DOWN_MENU_ARROW_DOWN = WidgetTexture(Corner(0), 153, 0, 160, 4, TEXTURE_INFO)
         private set
 
-    var DROP_MENU_SEPARATOR_VERTICAL = WidgetTexture(Corner(vertical = 2), 146, 11, 147, 16, TEXTURE_INFO)
+    var DROP_DOWN_MENU_SEPARATOR_VERTICAL = WidgetTexture(Corner(vertical = 2), 146, 11, 147, 16, TEXTURE_INFO)
         private set
 
-    var DROP_MENU_SEPARATOR_HORIZONTAL = WidgetTexture(Corner(horizontal = 2), 144, 13, 149, 14, TEXTURE_INFO)
+    var DROP_DOWN_MENU_SEPARATOR_HORIZONTAL = WidgetTexture(Corner(horizontal = 2), 144, 13, 149, 14, TEXTURE_INFO)
         private set
 
     var CHECK_BOX_TRUE_IDLE = WidgetTexture(Corner(0), 162, 2, 174, 14, TEXTURE_INFO)

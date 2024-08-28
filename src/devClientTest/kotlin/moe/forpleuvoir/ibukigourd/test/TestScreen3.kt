@@ -14,11 +14,15 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.LockButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
+import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.DropDownMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.delegate
+import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.util.delegateBy
+import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun testScreen3() = RowScreen(
@@ -31,37 +35,39 @@ fun testScreen3() = RowScreen(
         }
     }
 ) {
+    var selectText = "本居小铃"
+    val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
     Column {
-        var selectText = "本居小铃"
-        val list = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
-//        DropMenu {
-//            content {
-//                text({ Literal(selectText) })
-//            }
-//            items {
-//                list.forEach { str ->
-//                    flatButton(modifier = Modifier.width(list.maxWidth(textRenderer) + 2f), hoveredColor = { Colors.CYAN.opacity(.35f) }) {
-//                        var curText = str
-//                        press {
-//                            this@dropMenu.toggle()
-//                            curText = selectText
-//                            selectText = str
-//                        }
-//                        text({ Literal(curText) })
-//                    }
-//                }
-//                textField {
-//                    text = "短一点"
-//                }
-//                repeat(50) {
-//                    text("aa$it")
-//                }
-//            }
-//        }
+        DropDownMenu {
+            Text({ Literal(selectText) })
+            items {
+                listString.forEach { str ->
+                    FlatButton(
+                        modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
+                        hoveredColor = { Colors.CYAN.opacity(.35f) },
+                        horizontalArrangement = Arrangement.Left
+                    ) {
+                        var curText = str
+                        press {
+                            this@DropDownMenu.toggle()
+                            curText = selectText
+                            selectText = str
+                        }
+                        Text({ Literal(curText) })
+                    }
+                }
+                TextField {
+                    text = "短一点"
+                }
+                repeat(50) {
+                    Text("aa$it")
+                }
+            }
+        }
         FlatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
             Text({ Literal(selectText) })
         }
-        val status = delegate(true)
+        val status = delegateBy(true)
         SwitchButton(status)
         LockButton(status)
     }
@@ -117,6 +123,34 @@ fun testScreen3() = RowScreen(
             }
         }
     }
+
+    DropDownMenu {
+        Text({ Literal(selectText) })
+        items {
+            listString.forEach { str ->
+                FlatButton(
+                    modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
+                    hoveredColor = { Colors.CYAN.opacity(.35f) },
+                    horizontalArrangement = Arrangement.Left
+                ) {
+                    var curText = str
+                    press {
+                        this@DropDownMenu.toggle()
+                        curText = selectText
+                        selectText = str
+                    }
+                    Text({ Literal(curText) })
+                }
+            }
+            TextField {
+                text = "短一点"
+            }
+            repeat(50) {
+                Text("aa$it")
+            }
+        }
+    }
+
 }
 
 private fun GuiScope<out WidgetContainer>.ColumnTest(arrangement: Arrangement.Horizontal) = Column(

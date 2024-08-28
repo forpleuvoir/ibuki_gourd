@@ -26,4 +26,15 @@ class BoxImpl(
         )
     }
 
+    override fun equals(other: Any?): Boolean {
+        return Box.equals(this, other as? Box ?: return false)
+    }
+
+    override fun hashCode(): Int {
+        var result = position.hashCode()
+        result = 31 * result + width.hashCode()
+        result = 31 * result + height.hashCode()
+        return result
+    }
+
 }

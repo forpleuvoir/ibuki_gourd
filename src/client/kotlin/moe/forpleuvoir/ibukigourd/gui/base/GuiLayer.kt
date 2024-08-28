@@ -11,11 +11,11 @@ interface GuiLayer {
 
     companion object {
 
-        val default = DefaultLayer
+        val Default = DefaultLayer
 
-        val pop = PopLayer
+        val Pop = PopLayer
 
-        val defaultLayers: List<GuiLayer> = listOf(pop, default)
+        val defaultLayers: List<GuiLayer> = listOf(Pop, Default)
 
     }
 

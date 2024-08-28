@@ -7,9 +7,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
@@ -17,13 +16,13 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.DelegatedValue
-import moe.forpleuvoir.ibukigourd.util.delegate
+import moe.forpleuvoir.ibukigourd.util.delegateBy
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
-fun GuiScope<out WidgetContainer>.Button(
+fun WidgetContainerScope.Button(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -41,7 +40,7 @@ fun GuiScope<out WidgetContainer>.Button(
     ButtonScope { this }.content()
 }
 
-fun GuiScope<out WidgetContainer>.FlatButton(
+fun WidgetContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -62,8 +61,8 @@ fun GuiScope<out WidgetContainer>.FlatButton(
     ButtonScope { this }.content()
 }
 
-fun GuiScope<out WidgetContainer>.SwitchButton(
-    statusDelegate: DelegatedValue<Boolean> = delegate(false),
+fun WidgetContainerScope.SwitchButton(
+    statusDelegate: DelegatedValue<Boolean> = delegateBy(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -76,8 +75,8 @@ fun GuiScope<out WidgetContainer>.SwitchButton(
     }
 ) = Button(modifier, horizontalArrangement, verticalAlignment, content = content)
 
-fun GuiScope<out WidgetContainer>.LockButton(
-    statusDelegate: DelegatedValue<Boolean> = delegate(false),
+fun WidgetContainerScope.LockButton(
+    statusDelegate: DelegatedValue<Boolean> = delegateBy(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,

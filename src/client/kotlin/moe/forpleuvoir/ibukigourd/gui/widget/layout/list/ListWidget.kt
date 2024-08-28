@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout.list
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
+import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.scissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -28,6 +29,11 @@ abstract class ListWidget(
         scrollState.subscribe {
             layout()
         }
+    }
+
+    override fun onMouseScrolling(event: MouseScrollEvent) {
+        super.onMouseScrolling(event)
+        event.tryUse(wasMouseOver).onSuccess { scrollState.scroll(event.verticalAmount) }
     }
 
     //------------ Render ------------\\

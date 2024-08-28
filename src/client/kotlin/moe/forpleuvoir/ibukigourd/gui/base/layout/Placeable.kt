@@ -28,6 +28,8 @@ interface Placeable {
         placeAt(vec2f.x(), vec2f.y(), isWorldAxis)
     }
 
-    fun placeCompleted() {}
+    var placeCompleted: () -> Unit
+
+    fun onPlaceCompleted() {}
 
 }

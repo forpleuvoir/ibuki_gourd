@@ -33,6 +33,8 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var margin: Margin = Margin(0)
 
+    override var placeCompleted: () -> Unit = ::onPlaceCompleted
+
     /**
      * 鼠标是否在组件中
      */

@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.util.DelegatedValue
 
 fun interface WidgetModifier : Modifier.Element {
     fun applyModify(element: IGWidget)
@@ -150,6 +151,17 @@ fun Modifier.margin(all: Number) = this then WidgetModifier { widget ->
 
 //------------ Render ------------\\
 
+fun Modifier.visible(state: Boolean) = this then WidgetModifier { widget ->
+    widget.visible = state
+}
+
+fun Modifier.visible(state: DelegatedValue<Boolean>) = this then WidgetModifier { widget ->
+    widget.visible = state.getValue()
+    state.subscribe {
+        widget.visible = it
+    }
+}
+
 fun Modifier.renderBackground(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
     drawable.renderBackground = { context, mouseX, mouseY, delta ->
         drawable.action(context, mouseX, mouseY, delta)
@@ -184,4 +196,21 @@ fun Modifier.measureCompleted(action: IGWidget.() -> Unit) = this then WidgetMod
 
 fun Modifier.layoutCompleted(action: WidgetContainerImpl.() -> Unit) = this then WidgetContainerModifier { widget ->
     widget.layoutCompleted = { widget.action() }
+}
+
+//------------ Misc ------------\\
+
+fun Modifier.active(state: Boolean) = this then WidgetModifier { widget ->
+    widget.active = state
+}
+
+fun Modifier.active(state: DelegatedValue<Boolean>) = this then WidgetModifier { widget ->
+    widget.active = state.getValue()
+    state.subscribe {
+        widget.active = it
+    }
+}
+
+fun Modifier.placeCompleted(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
+    widget.placeCompleted = { action(widget) }
 }

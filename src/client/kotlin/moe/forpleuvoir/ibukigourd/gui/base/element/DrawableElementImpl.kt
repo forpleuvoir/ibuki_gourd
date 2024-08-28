@@ -69,7 +69,7 @@ abstract class DrawableElementImpl : DrawableElement {
             _layer = value
         }
         get() {
-            return _layer ?: (parent()?.layer ?: GuiLayer.default)
+            return _layer ?: (parent()?.layer ?: GuiLayer.Default)
         }
 
     override fun clearLayer() {

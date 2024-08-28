@@ -59,6 +59,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override var active: Boolean = true
 
+    override var placeCompleted: () -> Unit = ::onPlaceCompleted
+
     override val mouseOverCursor: MouseCursor.Cursor
         get() = MouseCursor.default
 
@@ -84,7 +86,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             _layer = value
         }
         get() {
-            return _layer ?: GuiLayer.default
+            return _layer ?: GuiLayer.Default
         }
 
     override fun clearLayer() {

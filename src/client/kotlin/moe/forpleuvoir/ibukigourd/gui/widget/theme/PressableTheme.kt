@@ -37,7 +37,7 @@ interface PressableTheme : WidgetTheme {
             override val pressed: WidgetTexture
         ) : PressableTheme
 
-        private fun of(
+        fun of(
             idle: WidgetTexture,
             hovered: WidgetTexture,
             disabled: WidgetTexture,
@@ -55,7 +55,6 @@ interface PressableTheme : WidgetTheme {
         val ScrollerBar = of(SCROLLER_BAR_IDLE, SCROLLER_BAR_HOVERED, SCROLLER_BAR_DISABLED, SCROLLER_BAR_PRESSED)
 
         val ScrollerBackground = of(SCROLLER_BACKGROUND, SCROLLER_BACKGROUND, SCROLLER_BACKGROUND, SCROLLER_BACKGROUND)
-
 
     }
 

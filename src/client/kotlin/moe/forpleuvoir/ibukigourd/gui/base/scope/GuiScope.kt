@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import org.joml.Vector2fc
 
 @GuiDslMark
 fun interface GuiScope<T : Any> {
@@ -17,24 +18,37 @@ fun interface GuiScope<T : Any> {
         @Suppress("NOTHING_TO_INLINE")
         inline fun <T : Any> T.create(): GuiScope<T> = create(this)
 
-        fun <W : IGWidget> GuiScope<out WidgetContainer>.addWidgetChild(child: W) = owner().addWidgetChild(child)
+        fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W) = owner().addWidgetChild(child)
 
-        fun <W : IGWidget> GuiScope<out WidgetContainer>.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
+        fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
 
-        fun GuiScope<out IGWidget>.layer(layer: GuiLayer) {
+        fun WidgetScope.layer(layer: GuiLayer) {
             owner().layer = layer
         }
 
-        fun GuiScope<out IGWidget>.active(active: Boolean) {
+        fun WidgetScope.clearLayer() {
+            owner().clearLayer()
+        }
+
+        fun WidgetScope.active(active: Boolean) {
             owner().active = active
         }
 
-        fun GuiScope<out IGWidget>.visible(visible: Boolean) {
+        fun WidgetScope.visible(visible: Boolean) {
             owner().visible = visible
         }
 
+        fun WidgetScope.placeAt(x: Float, y: Float, isWorldAxis: Boolean) {
+            owner().placeAt(x, y, isWorldAxis)
+        }
+
+        fun WidgetScope.placeAt(position: Vector2fc, isWorldAxis: Boolean) {
+            owner().placeAt(position, isWorldAxis)
+        }
     }
 
 }
+
+typealias WidgetScope = GuiScope<out IGWidget>
 
 typealias WidgetContainerScope = GuiScope<out WidgetContainer>

@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.McText
 import net.minecraft.client.MinecraftClient
@@ -8,6 +9,7 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.sound.SoundManager
 import net.minecraft.client.texture.TextureManager
+import net.minecraft.client.util.Window
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.resource.ReloadableResourceManagerImpl
 import net.minecraft.util.Identifier
@@ -17,6 +19,10 @@ internal fun Any.logger(): ModLogger {
 }
 
 val mc: MinecraftClient by lazy { MinecraftClient.getInstance() }
+
+val Window.size get() = Size(this.width, this.height)
+
+val Window.scaledSize get() = Size(this.scaledWidth, this.scaledHeight)
 
 val textRenderer: TextRenderer by lazy { mc.textRenderer }
 
