@@ -800,7 +800,6 @@ fun WidgetContainerScope.TextAreaWrapped(
     textRenderer: TextRenderer = mc.textRenderer,
     barThickness: Float = 9f,
     scrollState: ScrollState = ScrollState(),
-    initialAmount: Float = 0f,
     modifier: Modifier = Modifier,
     textAreaModifier: ColumnScope .() -> Modifier = { Modifier },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
@@ -830,7 +829,6 @@ fun WidgetContainerScope.TextAreaWrapped(
                         amountStep = textRenderer.fontHeight / 2f
                         maxAmount = textContentHeight - contentHeight
                         barProportion = contentHeight / textContentHeight
-                        amount = initialAmount
                     }
                 }
                 .mouseScrolling {

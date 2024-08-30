@@ -23,8 +23,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.overlayMessage
+import moe.forpleuvoir.ibukigourd.util.plus
+import moe.forpleuvoir.ibukigourd.util.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.time.Duration.Companion.seconds
 
@@ -164,15 +167,13 @@ fun RowScope.TestColumn() = Column(
                 }
             } else if (it % 5 == 0) {
                 Button(modifier = m) {
-                    var text = ""
+                    val text = stateOf("测试文本:")
                     press {
-                        text += "\n"
-                        text += "测试宽度测试宽度测试宽度测试宽度"
+                        text + "\n测试宽度测试宽度测试宽度测试宽度"
                     }
                     Text(
-                        text = {
-                            Literal("测试文本$it:$text").style { color(Colors.BRIGHT_NEON_PINK) }
-                        },
+                        str = text,
+                        style = style(color = Colors.BRIGHT_NEON_PINK),
                         modifier = Modifier.renderOverlay { ctx, _, _, _ ->
                             if (wasMouseOver)
                                 ctx.batchRenderBox {

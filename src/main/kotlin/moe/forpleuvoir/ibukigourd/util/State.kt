@@ -4,9 +4,9 @@ import moe.forpleuvoir.nebula.common.api.Notifiable
 import java.util.function.Consumer
 import kotlin.reflect.KProperty
 
-fun <T> delegateBy(value: T) = DelegatedValue(value)
+fun <T> stateOf(value: T) = State(value)
 
-data class DelegatedValue<T>(private var value: T) : Notifiable<T> {
+data class State<T>(private var value: T) : Notifiable<T> {
 
     var onSetValue: (T) -> T = { it }
 
@@ -46,4 +46,28 @@ data class DelegatedValue<T>(private var value: T) : Notifiable<T> {
         observers.add(callback)
     }
 
+}
+
+operator fun State<String>.plus(other: Any?): State<String> {
+    this.setValue(this.getValue() + other.toString())
+    return this
+}
+
+fun State<String>.append(other: Any?): State<String> {
+    this.setValue(this.getValue() + other.toString())
+    return this
+}
+
+operator fun State<String>.plusAssign(other: State<String>) {
+    this.setValue(this.getValue() + other.toString())
+}
+
+operator fun State<Boolean>.not(): State<Boolean> {
+    this.setValue(!this.getValue())
+    return this
+}
+
+fun State<Boolean>.toggle(): State<Boolean> {
+    this.setValue(!this.getValue())
+    return this
 }

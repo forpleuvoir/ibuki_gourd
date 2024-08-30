@@ -7,8 +7,11 @@ interface WidgetContainer : Measurable {
 
     fun hoveredWidget(layer: GuiLayer): IGWidget? {
         for (child in widgetChildren()) {
+            if (!child.active) continue
             if (child is WidgetContainer) {
-                child.hoveredWidget(layer)?.let { return it }
+                child.hoveredWidget(layer)?.let {
+                    return if (it.active) it else null
+                }
             }
             if (child.wasMouseOver && child.layer == layer) {
                 return child

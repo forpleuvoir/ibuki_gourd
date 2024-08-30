@@ -21,7 +21,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ IbukiGourd Widget ------------\\
 
-    override val transform: Transform = Transform().apply {
+    final override val transform: Transform = Transform().apply {
         subscribeChange({ _, _ ->
             wasMouseOver = isMouseOvered(mc.mousePosition)
         }, { _, _ ->
@@ -155,4 +155,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean = wasMouseOver
 
+    override fun toString(): String {
+        return (parent()?.toString() ?: "") + "=>" + this::class.simpleName + "@${hashCode()}"
+    }
 }

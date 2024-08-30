@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
+import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
@@ -22,13 +23,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowList
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListScope
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.util.DelegatedValue
-import moe.forpleuvoir.ibukigourd.util.delegateBy
-import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.soundManager
+import moe.forpleuvoir.ibukigourd.util.*
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
-class DropDownMenuScope(private val owner: IGButtonWidget, private val state: DelegatedValue<Boolean>) : ButtonScope {
+class DropDownMenuScope(private val owner: IGButtonWidget, private val state: State<Boolean>) : ButtonScope {
 
     override fun owner(): IGButtonWidget = owner
 
@@ -47,7 +46,7 @@ class DropDownMenuScope(private val owner: IGButtonWidget, private val state: De
 fun WidgetContainerScope.DropDownMenu(
     scope: DropDownMenuScope.() -> Unit,
 ) {
-    val expandState = delegateBy(false)
+    val expandState = stateOf(false)
     //上面的空余空间,下面的空余空间
     var space = 0f to 0f
     //最大空间的位置 false :up true: down
@@ -57,7 +56,7 @@ fun WidgetContainerScope.DropDownMenu(
     var placedPosition = Vector2f()
     Button(
         modifier = Modifier
-            .padding(5f)
+            .padding(4f)
             .placeCompleted {
                 maxSpaceDir = transform.worldCenter.y() - (mc.window.scaledHeight / 2f) < 0f
                 space = transform.worldTop to mc.window.scaledHeight.toFloat() - transform.worldBottom
@@ -66,48 +65,35 @@ fun WidgetContainerScope.DropDownMenu(
             }
             .render { context, _, _, _ ->
                 context.batchRenderTextureColored {
-                    expandState.getValue().pick({
-                        pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_EXPEND_BACKGROUND)
-                    }, {
-                        pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
-                    })
+                    pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
                 }
             },
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         val dropDownMenuScope = DropDownMenuScope(this.owner(), expandState).apply(scope)
         val scrollState = ScrollState()
-        val rightWidgetState = delegateBy(Box.Unspecified)
-        val icon = delegateBy(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
+        val icon = stateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
 
         expandState.subscribe {
             icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
         }
-//        expandState.subscribe {
-//            if (it) layer(GuiLayer.Pop)
-//            else clearLayer()
-//        }
 
         press {
-            expandState.setValue(!expandState.getValue())
+            expandState.toggle()
         }
 
         Box(Modifier
-            .width(1f)
-            .height(5f)
+            .width(3f)
+            .height(10f)
             .margin(horizontal = 2f)
+            .renderHoveredOutlineBox(Colors.AQUA)
             .renderBackground { context, _, _, _ ->
                 context.batchRenderTextureColored {
                     pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_SEPARATOR_VERTICAL)
                 }
             })
 
-        Icon(
-            icon,
-            modifier = Modifier.placeCompleted {
-                rightWidgetState.setValue(transform.asWorldBox)
-            }
-        )
+        Icon(icon)
 
         Absolute(
             Modifier
@@ -136,6 +122,7 @@ fun WidgetContainerScope.DropDownMenu(
                         }
                     }
             ) {
+                //当顶层组件被放置时调用,用于测量展开部分的尺寸,并且计算放置位置
                 onPlaced = place@{
                     //------------ 计算可放置的X位置 ------------\\
 

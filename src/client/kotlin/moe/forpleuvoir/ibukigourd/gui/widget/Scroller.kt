@@ -46,6 +46,14 @@ open class ScrollerWidget(
                 }
             )
         }
+        transform.subscribeSizeChange { _, (width, height) ->
+            orientation.peek(
+                {
+                    bar.width = width
+                }, {
+                    bar.height = height
+                })
+        }
     }
 
     override var constraints: Constraints = Constraints().copy(
@@ -55,14 +63,6 @@ open class ScrollerWidget(
 
     override fun measure(constraints: Constraints): Placeable {
         val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
-        transform.subscribeSizeChange { _, (width, height) ->
-            orientation.peek(
-                {
-                    bar.width = width
-                }, {
-                    bar.height = height
-                })
-        }
         orientation.peek(
             {
                 transform.set(minWidth, maxHeight)
@@ -72,6 +72,17 @@ open class ScrollerWidget(
             }
         )
         return this
+    }
+
+    override fun onMeasureCompleted() {
+        val progress = scrollState.progress
+        orientation.peek(
+            {
+                bar.y = progress * scrollableLength
+            }, {
+                bar.x = progress * scrollableLength
+            }
+        )
     }
 
     override val mouseOverCursor: MouseCursor.Cursor

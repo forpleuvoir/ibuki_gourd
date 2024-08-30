@@ -32,7 +32,16 @@ abstract class DrawableElementImpl : DrawableElement {
 
     //------------ IGDrawable ------------\\
 
-    override var visible: Boolean = true
+    private var _visible: Boolean? = null
+
+    override var visible: Boolean
+        set(value) {
+            _visible = value
+        }
+        get() {
+            val parentVisible = (parent() as? IGDrawable)?.visible
+            return _visible ?: (parentVisible ?: true)
+        }
 
     override var renderPriority: Int = 0
 
@@ -76,7 +85,15 @@ abstract class DrawableElementImpl : DrawableElement {
         _layer = null
     }
 
-    override var active: Boolean = true
+    private var _active: Boolean? = null
+
+    override var active: Boolean
+        set(value) {
+            _active = value
+        }
+        get() {
+            return _active ?: (parent()?.active ?: true)
+        }
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 

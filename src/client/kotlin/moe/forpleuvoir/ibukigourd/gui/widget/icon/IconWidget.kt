@@ -5,13 +5,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.util.DelegatedValue
+import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
@@ -25,7 +24,7 @@ class IconWidget(
     var iconTexture: WidgetTexture = iconTexture
         set(value) {
             if (field != value) {
-                val remeasure = (field as TextureUVMapping) != (value as TextureUVMapping) && changedRemeasure
+                val remeasure = !(field.uSize == value.uSize && field.vSize == value.vSize) && changedRemeasure
                 field = value
                 if (remeasure) screen()?.remeasure()
             }
@@ -82,7 +81,7 @@ fun WidgetContainerScope.Icon(
 }
 
 fun WidgetContainerScope.Icon(
-    texture: DelegatedValue<WidgetTexture>,
+    texture: State<WidgetTexture>,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
     scope: IconScope.() -> Unit = {}

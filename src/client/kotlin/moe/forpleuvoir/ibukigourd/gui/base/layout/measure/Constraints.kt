@@ -1,24 +1,22 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout.measure
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.scaledSize
 import kotlin.math.max
 import kotlin.math.min
 
 data class Constraints(
     val minWidth: Float = 0f,
-    val maxWidth: Float = mc.window.scaledWidth.toFloat(),
+    val maxWidth: Float = 114514f,
     val minHeight: Float = 0f,
-    val maxHeight: Float = mc.window.scaledHeight.toFloat(),
+    val maxHeight: Float = 114514f,
 ) {
 
     companion object {
         fun of(
             minWidth: Float = 0f,
-            maxWidth: Float = mc.window.scaledWidth.toFloat(),
+            maxWidth: Float = 114514f,
             minHeight: Float = 0f,
-            maxHeight: Float = mc.window.scaledHeight.toFloat(),
+            maxHeight: Float = 114514f,
         ) = Constraints(
             minWidth.coerceAtLeast(0f),
             maxWidth.coerceAtLeast(0f),
@@ -28,7 +26,7 @@ data class Constraints(
 
         fun of(
             minSize: Size<Float> = Size(0f, 0f),
-            maxSize: Size<Float> = mc.window.scaledSize.toFloat(),
+            maxSize: Size<Float> = Size(114514f, 114514f),
         ) = of(minSize.width, maxSize.width, minSize.height, maxSize.height)
 
     }

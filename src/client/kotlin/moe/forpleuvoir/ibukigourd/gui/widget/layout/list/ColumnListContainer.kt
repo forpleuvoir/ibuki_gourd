@@ -30,10 +30,9 @@ class ColumnListWidget(
     spacing: Float = 0f,
 ) : ListWidget(scrollState, alignment, spacing), ColumnListLayout {
 
-
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         return super.measureChildren(measurables, constraints).also {
-            val totalSpace = widgetChildren().sumOf { it.wrappedWidth + spacing } - spacing
+            val totalSpace = widgetChildren().sumOf { child -> child.wrappedWidth + spacing } - spacing
             scrollState {
                 maxAmount = (totalSpace - contentWidth).coerceAtLeast(0f)
                 barProportion = contentWidth / totalSpace

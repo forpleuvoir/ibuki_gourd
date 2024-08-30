@@ -22,27 +22,24 @@ interface KeyCode {
 
         internal val keyMap: Map<Int, KeyCode> by lazy {
             buildMap {
-                this[UNKNOWN.code] = UNKNOWN
                 for (mouseCode in Mouse.entries) this[mouseCode.code] = mouseCode
                 for (keyCode in Keyboard.entries) this[keyCode.code] = keyCode
             }
         }
 
-        @JvmStatic
-        val UNKNOWN: KeyCode = object : KeyCode {
-            override val code: Int = -1
-            override val translationKey: String
-                get() = "key.keyboard.unknown"
-        }
 
         @JvmStatic
-        fun fromCode(code: Int): KeyCode = keyMap[code] ?: UNKNOWN
+        fun fromCode(code: Int): KeyCode = keyMap[code] ?: Keyboard.UNKNOWN
 
     }
 
 }
 
 enum class Keyboard(override val code: Int) : KeyCode {
+    UNKNOWN(-1) {
+        override val translationKey: String
+            get() = "key.keyboard.unknown"
+    },
     KEY_0(48),
     KEY_1(49),
     KEY_2(50),
@@ -162,7 +159,7 @@ enum class Keyboard(override val code: Int) : KeyCode {
     companion object {
 
         @JvmStatic
-        fun fromCode(code: Int): Keyboard = keyMap[code] as Keyboard
+        fun fromCode(code: Int): Keyboard = runCatching { keyMap[code] as Keyboard }.getOrElse { UNKNOWN }
 
         fun isToggle(keyCode: KeyCode): Boolean {
             return keyCode == ENTER || keyCode == SPACE || keyCode == KP_ENTER

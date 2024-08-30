@@ -15,7 +15,7 @@ class ScrollState : Notifiable<Float> {
     var amount: Float
         get() = _amount
         set(value) {
-            if (_amount != value) {
+            if (_amount != value.coerceIn(0f, maxAmount)) {
                 _amount = value.coerceIn(0f, maxAmount)
                 onChange(_amount)
             }
@@ -26,7 +26,7 @@ class ScrollState : Notifiable<Float> {
     }
 
     var progress: Float
-        get() = (amount / maxAmount).let { it.isNaN().pick(0f, it) }
+        get() = (amount / maxAmount).let { (it.isNaN() || it.isInfinite()).pick(0f, it.coerceIn(0f..1f)) }
         set(value) {
             amount = maxAmount * value.coerceIn(0f..1f)
         }
@@ -49,6 +49,7 @@ class ScrollState : Notifiable<Float> {
     var amountStep = 0f
         set(value) {
             field = value.coerceAtLeast(0f)
+            amount = amount
         }
 
     var barProportion = 0f

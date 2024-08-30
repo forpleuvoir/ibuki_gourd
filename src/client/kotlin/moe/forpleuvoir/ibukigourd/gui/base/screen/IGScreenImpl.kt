@@ -563,4 +563,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun getNavigationFocus(): ScreenRect = transform.asScreenRect
 
+    override fun toString(): String {
+        return (this::class.simpleName ?: "Screen") + "@${hashCode()}"
+    }
+
 }

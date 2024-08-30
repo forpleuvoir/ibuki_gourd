@@ -3,12 +3,14 @@ package moe.forpleuvoir.ibukigourd.gui.base.layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.scaledSize
 import org.joml.Vector2fc
 
 interface AbsoluteLayout : Layout {
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         measurables.forEach { child ->
-            child.measure(Constraints())
+            child.measure(Constraints.of(maxSize = mc.window.scaledSize.toFloat()))
         }
         widget.transform.set(0f, 0f)
         return widget

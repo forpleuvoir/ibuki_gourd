@@ -21,25 +21,31 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.util.delegateBy
+import moe.forpleuvoir.ibukigourd.text.style.style
+import moe.forpleuvoir.ibukigourd.util.plus
+import moe.forpleuvoir.ibukigourd.util.stateOf
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun testScreen3() = RowScreen(
     modifier = Modifier.renderOverlay { ctx, _, _, _ ->
         this as IGScreenImpl<*>
+        val lines = listOf(
+            Literal(focusedWidget.toString()),
+            Literal(hoveredWidget.toString())
+        )
         ctx.batchRenderText {
             pushTextLines(
-                Literal(focusedWidget.toString()), transform.asWorldBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
+                lines, transform.asWorldBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
             )
         }
     }
 ) {
-    var selectText = "本居小铃"
+    val selectText = stateOf("本居小铃")
     val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
     Column {
         DropDownMenu {
-            Text({ Literal(selectText) })
+            Text(selectText)
             items {
                 listString.forEach { str ->
                     FlatButton(
@@ -47,13 +53,11 @@ fun testScreen3() = RowScreen(
                         hoveredColor = { Colors.CYAN.opacity(.35f) },
                         horizontalArrangement = Arrangement.Left
                     ) {
-                        var curText = str
                         press {
                             this@DropDownMenu.toggle()
-                            curText = selectText
-                            selectText = str
+                            selectText.setValue(str)
                         }
-                        Text({ Literal(curText) })
+                        Text(str)
                     }
                 }
                 TextField {
@@ -65,9 +69,9 @@ fun testScreen3() = RowScreen(
             }
         }
         FlatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
-            Text({ Literal(selectText) })
+            Text(selectText)
         }
-        val status = delegateBy(true)
+        val status = stateOf(true)
         SwitchButton(status)
         LockButton(status)
     }
@@ -75,15 +79,15 @@ fun testScreen3() = RowScreen(
     Button(
         modifier = Modifier.maxWidth(80f).maxHeight(80f)
     ) {
-        var text = ""
+        val text = stateOf("测试文本:")
         var count = 1
         press {
-            text += "\n"
-            text += "测试宽度$count"
+            text + "\n测试宽度$count"
             count++
         }
         Text(
-            text = { Literal("测试文本:$text").style { color(Colors.BRIGHT_NEON_PINK) } },
+            str = text,
+            style = style(color = Colors.ARMY_BROWN),
             modifier = Modifier
                 .renderOverlay { ctx, _, _, _ ->
                     if (wasMouseOver)
@@ -124,32 +128,32 @@ fun testScreen3() = RowScreen(
         }
     }
 
-    DropDownMenu {
-        Text({ Literal(selectText) })
-        items {
-            listString.forEach { str ->
-                FlatButton(
-                    modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
-                    hoveredColor = { Colors.CYAN.opacity(.35f) },
-                    horizontalArrangement = Arrangement.Left
-                ) {
-                    var curText = str
-                    press {
-                        this@DropDownMenu.toggle()
-                        curText = selectText
-                        selectText = str
-                    }
-                    Text({ Literal(curText) })
-                }
-            }
-            TextField {
-                text = "短一点"
-            }
-            repeat(50) {
-                Text("aa$it")
-            }
-        }
-    }
+//    DropDownMenu {
+//        Text({ Literal(selectText) })
+//        items {
+//            listString.forEach { str ->
+//                FlatButton(
+//                    modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
+//                    hoveredColor = { Colors.CYAN.opacity(.35f) },
+//                    horizontalArrangement = Arrangement.Left
+//                ) {
+//                    var curText = str
+//                    press {
+//                        this@DropDownMenu.toggle()
+//                        curText = selectText
+//                        selectText = str
+//                    }
+//                    Text({ Literal(curText) })
+//                }
+//            }
+//            TextField {
+//                text = "短一点"
+//            }
+//            repeat(50) {
+//                Text("aa$it")
+//            }
+//        }
+//    }
 
 }
 

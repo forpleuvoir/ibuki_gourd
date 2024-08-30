@@ -15,8 +15,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.DelegatedValue
-import moe.forpleuvoir.ibukigourd.util.delegateBy
+import moe.forpleuvoir.ibukigourd.util.State
+import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.toggle
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -62,21 +63,22 @@ fun WidgetContainerScope.FlatButton(
 }
 
 fun WidgetContainerScope.SwitchButton(
-    statusDelegate: DelegatedValue<Boolean> = delegateBy(false),
+    switchState: State<Boolean> = stateOf(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ButtonScope.() -> Unit = {
-        press { statusDelegate.setValue(!statusDelegate.getValue()) }
-        Text(text = {
-            val status = statusDelegate.getValue()
-            Literal(status.toString()).style { color(status.pick(Colors.GREEN, Colors.RED)) }
-        })
+        press { switchState.toggle() }
+        val text = stateOf(Literal(switchState.getValue().toString()).style { color(switchState.getValue().pick(Colors.GREEN, Colors.RED)) })
+        switchState.subscribe {
+            text.setValue(Literal(switchState.getValue().toString()).style { color(switchState.getValue().pick(Colors.GREEN, Colors.RED)) })
+        }
+        Text(text)
     }
 ) = Button(modifier, horizontalArrangement, verticalAlignment, content = content)
 
 fun WidgetContainerScope.LockButton(
-    statusDelegate: DelegatedValue<Boolean> = delegateBy(false),
+    lockState: State<Boolean> = stateOf(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -100,10 +102,10 @@ fun WidgetContainerScope.LockButton(
     Modifier
         .render { context, _, _, _ ->
             this as IGButtonWidget
-            lock.iconTexture = theme(statusDelegate.getValue().pick(PressableTheme.LOCK, PressableTheme.UNLOCK))
+            lock.iconTexture = theme(lockState.getValue().pick(PressableTheme.LOCK, PressableTheme.UNLOCK))
         }
         .padding(2f)
         .then(modifier).foldInApply()
-    press { statusDelegate.setValue(!statusDelegate.getValue()) }
+    press { lockState.setValue(!lockState.getValue()) }
 
 }

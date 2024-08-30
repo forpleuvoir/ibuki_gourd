@@ -8,11 +8,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
-import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
@@ -42,7 +42,6 @@ object TestInitialization {
                     Modifier
                         .padding(5f)
                         .renderOverlay { ctx, _, _, _ ->
-                            this as RowScreen
                             ctx.batchRenderBox {
                                 pushBoxOutline(contentBox(true), Colors.AQUA)
                                 pushBox(0f, transform.center.y(), transform.width, 1f, Colors.RED.opacity(.5f))
@@ -50,9 +49,15 @@ object TestInitialization {
                             }
                         },
                 ) {
-                    Button(Modifier.renderHoveredOutlineBox(Colors.RICE).align(Alignment.TopLeft)) {
-                        Icon(IconTextures.REFRESH, modifier = Modifier.renderHoveredOutlineBox(Colors.RICE))
-                        Text("布局测试", modifier = Modifier.renderHoveredOutlineBox(Colors.RICE))
+                    RowListWrapped(
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        repeat(50) {
+                            Button(Modifier.renderHoveredOutlineBox(Colors.RICE)) {
+                                Icon(IconTextures.REFRESH, modifier = Modifier.renderHoveredOutlineBox(Colors.RICE))
+                                Text("布局测试", modifier = Modifier.renderHoveredOutlineBox(Colors.RICE))
+                            }
+                        }
                     }
                 })
             }
