@@ -58,8 +58,6 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ Drawable ------------\\
 
-    override var visible: Boolean = true
-
     override var renderPriority: Int = 0
 
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) = Unit

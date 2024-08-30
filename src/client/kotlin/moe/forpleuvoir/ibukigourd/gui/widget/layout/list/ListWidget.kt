@@ -67,8 +67,8 @@ abstract class ListWidget(
 
     fun renderChild(child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         if ((child.transform.asWorldBox intersectWith transform.asWorldBox).exist) {
-            child.active = true
-            child.visible = true
+            child.clearActive()
+            child.clearVisible()
         } else {
             child.active = false
             child.visible = false

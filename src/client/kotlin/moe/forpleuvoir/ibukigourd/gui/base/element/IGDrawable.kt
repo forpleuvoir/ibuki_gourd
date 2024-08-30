@@ -31,6 +31,8 @@ interface IGDrawable : Drawable, GuiContext {
      */
     var visible: Boolean
 
+    fun clearVisible()
+
     /**
      * 渲染优先级,越低越先渲染.会导致被更高[renderPriority]的[IGDrawable]覆盖
      */

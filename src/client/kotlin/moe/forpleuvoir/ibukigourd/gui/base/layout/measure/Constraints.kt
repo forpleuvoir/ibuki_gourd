@@ -45,4 +45,10 @@ data class Constraints(
 
     fun fixed(): Boolean =
         minWidth == maxWidth && minHeight == maxHeight
+
+    fun widthFixed(): Boolean =
+        minWidth == maxWidth
+
+    fun heightFixed(): Boolean =
+        minHeight == maxHeight
 }

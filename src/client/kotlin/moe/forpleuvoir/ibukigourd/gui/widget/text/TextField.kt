@@ -61,7 +61,7 @@ open class TextFieldWidget(
             if (value != field && textPredicate(value)) {
                 field = value
                 onTextChanged(field)
-                if (!constraints.fixed()) {
+                if (!constraints.widthFixed()) {
                     screen()?.remeasure()
                 }
             }

@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.gui.widget.dropmenu
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -10,20 +9,20 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
+import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
-import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
+import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Absolute
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowList
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.*
+import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
@@ -31,10 +30,10 @@ class DropDownMenuScope(private val owner: IGButtonWidget, private val state: St
 
     override fun owner(): IGButtonWidget = owner
 
-    internal var items: RowListScope.() -> Unit = {}
+    internal var dropDownContent: BoxScope.() -> Unit = {}
 
-    fun items(items: RowListScope.() -> Unit) {
-        this.items = items
+    fun DropDownContent(dropDownContent: BoxScope.() -> Unit) {
+        this.dropDownContent = dropDownContent
     }
 
     fun toggle() {
@@ -43,8 +42,11 @@ class DropDownMenuScope(private val owner: IGButtonWidget, private val state: St
 
 }
 
+val DropDownMenuSeparatorColor = Color(0xFFCCCCCC)
+
 fun WidgetContainerScope.DropDownMenu(
-    scope: DropDownMenuScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    scope: DropDownMenuScope.() -> Unit
 ) {
     val expandState = stateOf(false)
     //上面的空余空间,下面的空余空间
@@ -54,9 +56,11 @@ fun WidgetContainerScope.DropDownMenu(
     var parentBox = Box.Unspecified
     var onPlaced = {}
     var placedPosition = Vector2f()
+    var playSound: () -> Unit = {}
+    var dropDownContent: BoxScope.() -> Unit = {}
     Button(
         modifier = Modifier
-            .padding(4f)
+            .padding(horizontal = 5f, vertical = 4f)
             .placeCompleted {
                 maxSpaceDir = transform.worldCenter.y() - (mc.window.scaledHeight / 2f) < 0f
                 space = transform.worldTop to mc.window.scaledHeight.toFloat() - transform.worldBottom
@@ -67,13 +71,13 @@ fun WidgetContainerScope.DropDownMenu(
                 context.batchRenderTextureColored {
                     pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
                 }
-            },
+            } then modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         val dropDownMenuScope = DropDownMenuScope(this.owner(), expandState).apply(scope)
-        val scrollState = ScrollState()
+        dropDownContent = dropDownMenuScope.dropDownContent
         val icon = stateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
-
+        playSound = { owner().playClickSound(soundManager) }
         expandState.subscribe {
             icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
         }
@@ -82,100 +86,150 @@ fun WidgetContainerScope.DropDownMenu(
             expandState.toggle()
         }
 
-        Box(Modifier
-            .width(3f)
-            .height(10f)
-            .margin(horizontal = 2f)
-            .renderHoveredOutlineBox(Colors.AQUA)
-            .renderBackground { context, _, _, _ ->
-                context.batchRenderTextureColored {
-                    pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_SEPARATOR_VERTICAL)
-                }
-            })
-
-        Icon(icon)
-
-        Absolute(
-            Modifier
-                .active(expandState)
-                .visible(expandState)
-                .layer(GuiLayer.Pop)
+        Column(
+            Modifier.renderHoveredOutlineBox(Colors.AQUA)
         ) {
-            Column(
+            ColoredBox(
+                DropDownMenuSeparatorColor,
                 Modifier
-                    .padding(3f)
-                    .mousePress {
-                        onMousePress(it)
-                        it.tryUse(!wasMouseOver).onSuccess {
-                            expandState.setValue(false)
-                            this@Button.owner().playClickSound(soundManager)
-                        }
-                        it.tryUse()
-                    }
-                    .placeCompleted {
-                        transform.worldX = placedPosition.x
-                        transform.worldY = placedPosition.y
-                    }
-                    .renderBackground { context, _, _, _ ->
-                        context.batchRenderTextureColored {
-                            pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_EXPEND_BACKGROUND)
-                        }
-                    }
-            ) {
-                //当顶层组件被放置时调用,用于测量展开部分的尺寸,并且计算放置位置
-                onPlaced = place@{
-                    //------------ 计算可放置的X位置 ------------\\
+                    .width(1f)
+                    .matchSibling()
+                    .margin(horizontal = 2.5f)
+            )
 
-                    //先尝试放置于父组件中心
-                    var x = parentBox.center.x() - owner().transform.halfWidth
-                    //将位置限制在可防止范围内
-                    x = x.coerceIn(0f..(mc.window.scaledWidth.toFloat() - owner().transform.width))
+            Icon(icon, modifier = Modifier.padding(vertical = 2.5f))
+        }
 
-                    //------------ 计算可放置的Y位置 ------------\\
-
-                    //尝试放在下面
-                    val (topSpace, bottomSpace) = space
-                    //对比原来的大小是否能放下
-                    val greaterThanBottomSpace = owner().transform.height > bottomSpace
-                    if (!greaterThanBottomSpace) {
-                        //能放下
-                        owner().apply {
-                            measure(Constraints.of(maxHeight = bottomSpace))
-                            //放置于父组件下面
-                            placedPosition = Vector2f(x, parentBox.bottom)
-                        }
-                        return@place
+    }
+    Absolute(
+        Modifier
+            .active(expandState)
+            .visible(expandState)
+            .layer(GuiLayer.Pop)
+    ) {
+        Box(
+            Modifier
+                .padding(3f)
+                .mousePress {
+                    onMousePress(it)
+                    it.tryUse(!wasMouseOver).onSuccess {
+                        expandState.setValue(false)
+                        playSound()
                     }
-                    //放不下,检查最大空间的位置
-                    if (maxSpaceDir) {
-                        //在下面时,强制放在下面
-                        owner().apply {
-                            measure(Constraints.of(maxHeight = bottomSpace))
-                            //放置于父组件下面
-                            placedPosition = Vector2f(x, parentBox.bottom)
-                        }
-                        return@place
-                    } else {
-                        //在上面时,强制放在上面
-                        owner().apply {
-                            measure(Constraints.of(maxHeight = topSpace))
-                            //放置于父组件上面
-                            placedPosition = Vector2f(x, parentBox.top - owner().transform.height)
-                        }
+                    it.tryUse()
+                }
+                .placeCompleted {
+                    transform.worldX = placedPosition.x
+                    transform.worldY = placedPosition.y
+                }
+                .renderBackground { context, _, _, _ ->
+                    context.batchRenderTextureColored {
+                        pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_EXPEND_BACKGROUND)
                     }
                 }
-                RowList(
-                    scrollState = scrollState,
-                    horizontalAlignment = Alignment.Left
-                ) {
-                    dropDownMenuScope.items(this)
+        ) {
+            //当顶层组件被放置时调用,用于测量展开部分的尺寸,并且计算放置位置
+            onPlaced = place@{
+                //------------ 计算可放置的X位置 ------------\\
+
+
+                //------------ 计算可放置的Y位置 ------------\\
+
+                //尝试放在下面
+                val (topSpace, bottomSpace) = space
+                //对比原来的大小是否能放下
+                val greaterThanBottomSpace = owner().transform.height > bottomSpace
+                if (!greaterThanBottomSpace) {
+                    //能放下
+                    owner().apply {
+                        measure(Constraints.of(maxHeight = bottomSpace))
+                        measureCompleted()
+                        //放置于父组件下面
+                        //先尝试放置于父组件中心
+                        var x = parentBox.center.x() - owner().transform.halfWidth
+                        //将位置限制在可防止范围内
+                        x = x.coerceIn(0f..(mc.window.scaledWidth.toFloat() - owner().transform.width))
+
+                        placedPosition = Vector2f(x, parentBox.bottom)
+                    }
+                    return@place
                 }
-                Scroller(
-                    scrollState = scrollState,
-                    modifier = Modifier
-                )
+                //放不下,检查最大空间的位置
+                if (maxSpaceDir) {
+                    //在下面时,强制放在下面
+                    owner().apply {
+                        measure(Constraints.of(maxHeight = bottomSpace))
+                        measureCompleted()
+                        //放置于父组件下面
+                        //先尝试放置于父组件中心
+                        var x = parentBox.center.x() - owner().transform.halfWidth
+                        //将位置限制在可防止范围内
+                        x = x.coerceIn(0f..(mc.window.scaledWidth.toFloat() - owner().transform.width))
+
+                        placedPosition = Vector2f(x, parentBox.bottom)
+                    }
+                    return@place
+                } else {
+                    //在上面时,强制放在上面
+                    owner().apply {
+                        measure(Constraints.of(maxHeight = topSpace))
+                        measureCompleted()
+                        //放置于父组件上面
+                        //先尝试放置于父组件中心
+                        var x = parentBox.center.x() - owner().transform.halfWidth
+                        //将位置限制在可防止范围内
+                        x = x.coerceIn(0f..(mc.window.scaledWidth.toFloat() - owner().transform.width))
+
+                        placedPosition = Vector2f(x, parentBox.top - owner().transform.height)
+                    }
+                }
             }
+            dropDownContent(this)
         }
     }
 
+}
+
+
+fun WidgetContainerScope.Spinner(
+    options: List<String>,
+    initialOption: String = options.first(),
+    onChange: (String) -> Unit = {},
+    selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
+    modifier: Modifier = Modifier,
+) {
+    check(initialOption in options) { "initialOption must be in options" }
+    val maxWidth = options.maxOf { textRenderer.getWidth(it).toFloat() }
+    val selected = stateOf(initialOption)
+    selected.subscribe {
+        onChange(it)
+    }
+    DropDownMenu(modifier) {
+        Text(selected)
+        DropDownContent {
+            RowListWrapped(
+                modifier = Modifier.padding(0f).disableRenderBackground()
+            ) {
+                options.forEachIndexed { index, option ->
+                    if (index != 0) {
+                        ColoredBox(
+                            DropDownMenuSeparatorColor,
+                            Modifier.height(1f).matchSibling()
+                        )
+                    }
+                    FlatButton(
+                        modifier = Modifier.width(maxWidth + 2F),
+                        hoveredColor = selectedColor,
+                        horizontalArrangement = Arrangement.Left,
+                    ) {
+                        Text(option)
+                        press {
+                            selected.setValue(option)
+                            this@DropDownMenu.toggle()
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

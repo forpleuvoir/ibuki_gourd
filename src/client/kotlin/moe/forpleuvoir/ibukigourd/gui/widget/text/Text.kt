@@ -49,8 +49,8 @@ class TextWidget(
     )
 
     data class Setting(
-        val horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-        val verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+        var horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        var verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         var shadow: Boolean = false,
         var scrollAxis: ScrollAxis = ScrollAxis.All,
         var autoNewLine: Boolean = false,

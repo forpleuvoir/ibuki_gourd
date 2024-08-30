@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
 
@@ -28,7 +29,26 @@ interface LinearLayoutScope<T : Alignment.Linear> {
      * @receiver Modifier
      * @return Modifier
      */
-    fun Modifier.fill(fill: Boolean = true): Modifier
+    fun Modifier.fillMode(fillMode: FillMode): Modifier
+
+    /**
+     * 将当前组件设置为填充兄弟组件的空间。
+     *
+     * 该方法会将当前组件的填充模式设置为 `FillMode.MatchSibling`，即使组件在垂直布局中能填充相同宽度或在水平布局中能填充相同高度。
+     *
+     * @return 修改后的 Modifier
+     */
+    fun Modifier.matchSibling(): Modifier = fillMode(FillMode.MatchSibling)
+
+    /**
+     * 将当前组件设置为填充父组件的空间。
+     *
+     * 该方法会将当前组件的填充模式设置为 `FillMode.MatchParent`，
+     * 即使组件在垂直布局中填充整个宽度或在水平布局中填充整个高度。
+     *
+     * @return 修改后的 Modifier
+     */
+    fun Modifier.fill(): Modifier = fillMode(FillMode.MatchParent)
 
     /**
      * 当前组件的对齐方式
@@ -53,10 +73,10 @@ interface ColumnLayoutScope : LinearLayoutScope<Alignment.Vertical> {
         }
     }
 
-    override fun Modifier.fill(fill: Boolean) = this then WidgetModifier {
+    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(fill = fill)
-            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(fill = fill)
+            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(fillMode = fillMode)
+            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(fillMode = fillMode)
         }
     }
 
@@ -79,10 +99,10 @@ interface RowLayoutScope : LinearLayoutScope<Alignment.Horizontal> {
         }
     }
 
-    override fun Modifier.fill(fill: Boolean) = this then WidgetModifier {
+    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
         when (val parentData = it.parentData) {
-            is RowLayout.WrappedRowLayoutData -> it.parentData = parentData.copy(fill = fill)
-            null                              -> it.parentData = RowLayout.WrappedRowLayoutData(fill = fill)
+            is RowLayout.WrappedRowLayoutData -> it.parentData = parentData.copy(fillMode = fillMode)
+            null                              -> it.parentData = RowLayout.WrappedRowLayoutData(fillMode = fillMode)
         }
     }
 

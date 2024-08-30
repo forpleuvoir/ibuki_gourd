@@ -4,9 +4,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.RowListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
 
+/**
+ * 表示线性布局中的列表布局作用域
+ * T 是对齐类型，继承自 Alignment.Linear
+ */
 @GuiDslMark
 interface ListLayoutScope<T : Alignment.Linear> {
 
@@ -16,7 +21,7 @@ interface ListLayoutScope<T : Alignment.Linear> {
      * @receiver Modifier
      * @return Modifier
      */
-    fun Modifier.fill(fill: Boolean = true): Modifier
+    fun Modifier.fillMode(fillMode: FillMode): Modifier
 
     /**
      * 当前组件的对齐方式
@@ -29,17 +34,36 @@ interface ListLayoutScope<T : Alignment.Linear> {
      */
     fun Modifier.align(alignment: T): Modifier
 
+    /**
+     * 将当前组件设置为填充兄弟组件的空间。
+     *
+     * 该方法会将当前组件的填充模式设置为 `FillMode.MatchSibling`，即使组件在垂直布局中能填充相同宽度或在水平布局中能填充相同高度。
+     *
+     * @return 修改后的 Modifier
+     */
+    fun Modifier.matchSibling(): Modifier = fillMode(FillMode.MatchSibling)
+
+    /**
+     * 将当前组件设置为填充父组件的空间。
+     *
+     * 该方法会将当前组件的填充模式设置为 `FillMode.MatchParent`，
+     * 即使组件在垂直布局中填充整个宽度或在水平布局中填充整个高度。
+     *
+     * @return 修改后的 Modifier
+     */
+    fun Modifier.fill(): Modifier = fillMode(FillMode.MatchParent)
+
 }
 
 interface ColumnListLayoutScope : ListLayoutScope<Alignment.Vertical> {
 
-    override fun Modifier.fill(fill: Boolean) = this then WidgetModifier {
+    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is ColumnListLayout.WrappedColumnListLayoutData
-                -> it.parentData = parentData.copy(fill = fill)
+                -> it.parentData = parentData.copy(fillMode = fillMode)
 
             null
-                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(fill = fill)
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(fillMode = fillMode)
         }
     }
 
@@ -57,13 +81,13 @@ interface ColumnListLayoutScope : ListLayoutScope<Alignment.Vertical> {
 
 interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
 
-    override fun Modifier.fill(fill: Boolean) = this then WidgetModifier {
+    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is RowListLayout.WrappedRowListLayoutData
-                -> it.parentData = parentData.copy(fill = fill)
+                -> it.parentData = parentData.copy(fillMode = fillMode)
 
             null
-                -> it.parentData = RowListLayout.WrappedRowListLayoutData(fill = fill)
+                -> it.parentData = RowListLayout.WrappedRowListLayoutData(fillMode = fillMode)
         }
     }
 

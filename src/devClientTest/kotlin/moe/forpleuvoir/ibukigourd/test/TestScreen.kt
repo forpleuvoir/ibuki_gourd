@@ -146,7 +146,7 @@ fun RowScope.TestColumn() = Column(
     RowListWrapped(
         modifier = Modifier.width(120f),
         spacing = 2f,
-        listModifier = { Modifier.weight(1) },
+        listModifier = { Modifier.weight(1) }
     ) {
         var c = 0
         var f = true
@@ -213,7 +213,9 @@ fun RowScope.TestColumn() = Column(
     )
 
     Box(
-        modifier = Modifier.renderOverlay { context, _, _, _ ->
+        modifier = Modifier
+            .matchSibling()
+            .renderOverlay { context, _, _, _ ->
             context.batchRenderBox {
                 pushBoxOutline(transform, Colors.AQUA)
             }

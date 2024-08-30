@@ -1,18 +1,15 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout.list
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.RowListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderBackground
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.RowListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
@@ -30,15 +27,14 @@ class RowListWidget(
     spacing: Float = 0f,
 ) : ListWidget(scrollState, alignment, spacing), RowListLayout {
 
-    override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-        return super.measureChildren(measurables, constraints).also {
-            val totalSpace = widgetChildren().sumOf { child -> child.wrappedHeight + spacing } - spacing
-            scrollState {
-                maxAmount = totalSpace - contentHeight
-                barProportion = contentHeight / totalSpace
-                amountStep = widgetChildren().minOf { it.transform.height } / 2f
-            }
+    override fun onMeasureCompleted() {
+        val totalSpace = widgetChildren().sumOf { it.wrappedHeight + spacing } - spacing
+        scrollState {
+            maxAmount = totalSpace - contentHeight
+            barProportion = contentHeight / totalSpace
+            amountStep = widgetChildren().minOf { it.transform.height } / 2f
         }
+        super<ListWidget>.onMeasureCompleted()
     }
 
     fun interface Scope : ListWidget.Scope<RowListWidget, Alignment.Horizontal>, RowListLayoutScope
@@ -62,6 +58,7 @@ fun WidgetContainerScope.RowListWrapped(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     barThickness: Float = 9f,
     listModifier: ColumnScope.() -> Modifier = { Modifier },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
@@ -77,18 +74,18 @@ fun WidgetContainerScope.RowListWrapped(
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
     RowList(
-        modifier = Modifier
-            .fill() then listModifier(),
+        modifier = Modifier then listModifier(),
         scrollState = scrollState,
         spacing = spacing,
+        horizontalAlignment = horizontalAlignment,
         content = content
     )
     Scroller(
         scrollState = scrollState,
         orientation = Orientation.Vertical,
         modifier = Modifier
-            .fill()
-            .height(barThickness)
+            .matchSibling()
+            .width(barThickness)
             .margin(top = 1f) then scrollerModifier()
     )
 }

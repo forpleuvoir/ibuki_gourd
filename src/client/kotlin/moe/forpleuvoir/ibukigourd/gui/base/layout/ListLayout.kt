@@ -4,6 +4,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
+import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode.Companion.None
 
 interface ListLayout : Layout {
 
@@ -16,16 +18,32 @@ interface ListLayout : Layout {
 }
 
 interface WrappedListLayoutData {
-    val fill: Boolean
-    val alignment: Alignment.Linear?
+    /**
+     * 表示在父组件内部子组件的填充模式。
+     * 可以使用不同的填充模式来确定子组件如何在容器中占据空间。
+     *
+     * 例如：
+     * - `FillMode.None`：不进行填充。
+     * - `FillMode.MatchParent`：填充整个父组件。
+     * - `FillMode.MatchSibling`：填充至与其他兄弟组件相等的尺寸。
+     */
+    val fillMode: FillMode
 
+    /**
+     * 控制子组件如何在父组件中对齐的参数。
+     * 其类型为 `Alignment.Linear?`，表示它可以为空，
+     * 代表子组件的对齐方式可以是线性的或未定义的。
+     *
+     * 例如，可以用来确定子组件是水平居中、左对齐还是右对齐等。
+     */
+    val alignment: Alignment.Linear?
 }
 
 interface RowListLayout : ListLayout {
 
     data class WrappedRowListLayoutData(
-        override val fill: Boolean = false,
-        override val alignment: Alignment.Horizontal? = null
+        override val fillMode: FillMode = None,
+        override val alignment: Alignment.Horizontal? = null,
     ) : WrappedListLayoutData {
 
         companion object : WrappedLayoutDataUtil<WrappedRowListLayoutData> {
@@ -51,18 +69,33 @@ interface RowListLayout : ListLayout {
         //使用的高度
         var usedHeight = spacing * measurables.lastIndex
 
-        measurables.forEachIndexed { index, child ->
-            val placeable = child.measure(
-                Constraints.of(
-                    if (parentDatas[index].fill) contentMaxWidth - child.margin.width else 0f,
-                    contentMaxWidth - child.margin.width,
-                    0f,
-                    (contentMaxHeight - child.margin.height).coerceAtLeast(0f)
+        measurables
+            .filterIndexed { index, _ -> parentDatas[index].fillMode != FillMode.MatchSibling }
+            .forEachIndexed { index, child ->
+                val placeable = child.measure(
+                    Constraints.of(
+                        if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
+                        contentMaxWidth - child.margin.width,
+                        0f,
+                        (contentMaxHeight - child.margin.height).coerceAtLeast(0f)
+                    )
                 )
-            )
-            if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
-            usedHeight += placeable.size.height + child.margin.height
-        }
+                if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
+                usedHeight += placeable.size.height + child.margin.height
+            }
+
+        //matchMaxSpace
+        measurables
+            .filterIndexed { index, _ -> parentDatas[index].fillMode == FillMode.MatchSibling }
+            .forEach { child ->
+                val min = if (maxChildWidth > 0) maxChildWidth - child.margin.width else 0f
+                val max = if (maxChildWidth > 0) maxChildWidth - child.margin.width else contentMaxWidth - child.margin.width
+                val placeable = child.measure(
+                    Constraints.of(min, max, 0f, (contentMaxHeight - child.margin.height).coerceAtLeast(0f))
+                )
+                if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
+                usedHeight += placeable.size.height + child.margin.height
+            }
 
         usedHeight += widget.padding.height
         maxChildWidth += widget.padding.width
@@ -82,7 +115,7 @@ interface RowListLayout : ListLayout {
             //与Y轴数据组合
             .zip(
                 alignments
-                    //计算每一个组建的X偏移
+                    //计算每一个组件的X偏移
                     .mapIndexed { index, alignment -> alignment.align(contentBox.width, layoutables[index].wrappedWidth) }
                     //映射每一个组件的本地X位置
                     .map { contentBox.left + it }
@@ -99,8 +132,8 @@ interface RowListLayout : ListLayout {
 interface ColumnListLayout : ListLayout {
 
     data class WrappedColumnListLayoutData(
-        override val fill: Boolean = false,
-        override val alignment: Alignment.Vertical? = null
+        override val fillMode: FillMode = None,
+        override val alignment: Alignment.Vertical? = null,
     ) : WrappedListLayoutData {
 
         companion object : WrappedLayoutDataUtil<WrappedColumnListLayoutData> {
@@ -126,18 +159,37 @@ interface ColumnListLayout : ListLayout {
         //使用的宽度
         var usedWidth = spacing * measurables.lastIndex
 
-        measurables.forEachIndexed { index, child ->
-            val placeable = child.measure(
-                Constraints.of(
-                    0f,
-                    (contentMaxWidth - child.margin.width).coerceAtLeast(0f),
-                    if (parentDatas[index].fill) contentMaxHeight - child.margin.height else 0f,
-                    contentMaxHeight - child.margin.height
+        measurables
+            .filterIndexed { index, _ -> parentDatas[index].fillMode != FillMode.MatchSibling }
+            .forEachIndexed { index, child ->
+                val placeable = child.measure(
+                    Constraints.of(
+                        0f,
+                        (contentMaxWidth - child.margin.width).coerceAtLeast(0f),
+                        if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
+                        contentMaxHeight - child.margin.height
+                    )
                 )
-            )
-            if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
-            usedWidth += placeable.size.width + child.margin.width
-        }
+                if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
+                usedWidth += placeable.size.width + child.margin.width
+            }
+
+        //matchMaxSpace
+        measurables
+            .filterIndexed { index, _ -> parentDatas[index].fillMode == FillMode.MatchSibling }
+            .forEach { child ->
+                val min = if (maxChildHeight > 0) maxChildHeight - child.margin.height else 0f
+                val max = if (maxChildHeight > 0) maxChildHeight - child.margin.height else contentMaxHeight - child.margin.height
+                val placeable = child.measure(
+                    Constraints.of(
+                        0f,
+                        (contentMaxWidth - child.margin.width).coerceAtLeast(0f),
+                        min, max
+                    )
+                )
+                if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
+                usedWidth += placeable.size.width + child.margin.width
+            }
 
         usedWidth += widget.padding.width
         maxChildHeight += widget.padding.height

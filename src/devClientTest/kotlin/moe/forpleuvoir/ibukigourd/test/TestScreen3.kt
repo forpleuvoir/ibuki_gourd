@@ -6,19 +6,22 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
+import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.LockButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.DropDownMenu
+import moe.forpleuvoir.ibukigourd.gui.widget.dropmenu.Spinner
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.style.style
@@ -46,34 +49,41 @@ fun testScreen3() = RowScreen(
     Column {
         DropDownMenu {
             Text(selectText)
-            items {
-                listString.forEach { str ->
-                    FlatButton(
-                        modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
-                        hoveredColor = { Colors.CYAN.opacity(.35f) },
-                        horizontalArrangement = Arrangement.Left
-                    ) {
-                        press {
-                            this@DropDownMenu.toggle()
-                            selectText.setValue(str)
+            DropDownContent {
+                RowListWrapped(
+                    modifier = Modifier.disableRenderBackground().padding(0f),
+                    horizontalAlignment = Alignment.Left,
+                ) {
+                    listString.forEach { str ->
+                        FlatButton(
+                            modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
+                            hoveredColor = Colors.CYAN.opacity(.35f),
+                            horizontalArrangement = Arrangement.Left
+                        ) {
+                            press {
+                                this@DropDownMenu.toggle()
+                                selectText.setValue(str)
+                            }
+                            Text(str)
                         }
-                        Text(str)
                     }
-                }
-                TextField {
-                    text = "短一点"
-                }
-                repeat(50) {
-                    Text("aa$it")
+                    repeat(23) {
+                        Text("aa$it", modifier = Modifier.width(40f).renderHoveredOutlineBox(Colors.BANANA_YELLOW)) {
+                            setting {
+                                horizontalAlignment = Alignment.Left
+                            }
+                        }
+                    }
                 }
             }
         }
-        FlatButton(hoveredColor = { Colors.AQUA.opacity(.25f) }) {
+        FlatButton(hoveredColor = Colors.AQUA.opacity(.25f)) {
             Text(selectText)
         }
         val status = stateOf(true)
         SwitchButton(status)
         LockButton(status)
+        Spinner(listString)
     }
 
     Button(
@@ -87,7 +97,7 @@ fun testScreen3() = RowScreen(
         }
         Text(
             str = text,
-            style = style(color = Colors.ARMY_BROWN),
+            style = style(color = Colors.COFFEE),
             modifier = Modifier
                 .renderOverlay { ctx, _, _, _ ->
                     if (wasMouseOver)
@@ -115,52 +125,30 @@ fun testScreen3() = RowScreen(
         Arrangement.Center,
         Arrangement.Right
     )
-    Column {
-        Row {
+    Column(Modifier.height(200f)) {
+        Row(
+            modifier = Modifier.weight(1).fill()
+        ) {
             (list + lh).forEach { arrangement ->
                 ColumnTest(arrangement)
             }
         }
-        Column {
+        Column(
+            modifier = Modifier.weight(1).fill()
+        ) {
             (list + lv).forEach { arrangement ->
                 RowTest(arrangement)
             }
         }
     }
 
-//    DropDownMenu {
-//        Text({ Literal(selectText) })
-//        items {
-//            listString.forEach { str ->
-//                FlatButton(
-//                    modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
-//                    hoveredColor = { Colors.CYAN.opacity(.35f) },
-//                    horizontalArrangement = Arrangement.Left
-//                ) {
-//                    var curText = str
-//                    press {
-//                        this@DropDownMenu.toggle()
-//                        curText = selectText
-//                        selectText = str
-//                    }
-//                    Text({ Literal(curText) })
-//                }
-//            }
-//            TextField {
-//                text = "短一点"
-//            }
-//            repeat(50) {
-//                Text("aa$it")
-//            }
-//        }
-//    }
-
 }
 
-private fun GuiScope<out WidgetContainer>.ColumnTest(arrangement: Arrangement.Horizontal) = Column(
+private fun RowScope.ColumnTest(arrangement: Arrangement.Horizontal) = Column(
     modifier = Modifier
         .padding(3f)
-        .width(240f)
+        .fill()
+        .weight(1)
         .renderBackground { ctx, _, _, _ ->
             ctx.batchRenderBox {
                 if (wasMouseOver) {
@@ -176,11 +164,12 @@ private fun GuiScope<out WidgetContainer>.ColumnTest(arrangement: Arrangement.Ho
     Button { Text("按钮3") }
 }
 
-private fun GuiScope<out WidgetContainer>.RowTest(arrangement: Arrangement.Vertical) = Row(
+private fun ColumnScope.RowTest(arrangement: Arrangement.Vertical) = Row(
     verticalArrangement = arrangement,
     modifier = Modifier
         .padding(3f)
-        .height(162f)
+        .fill()
+        .weight(1)
         .renderBackground { ctx, _, _, _ ->
             ctx.batchRenderBox {
                 if (wasMouseOver) {

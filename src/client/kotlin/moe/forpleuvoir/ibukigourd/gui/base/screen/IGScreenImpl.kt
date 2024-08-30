@@ -57,7 +57,19 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override var parent: () -> IGElement? = { this }
 
-    override var active: Boolean = true
+    private var _active: Boolean? = null
+
+    override var active: Boolean
+        set(value) {
+            _active = value
+        }
+        get() {
+            return _active ?: true
+        }
+
+    override fun clearActive() {
+        _active = null
+    }
 
     override var placeCompleted: () -> Unit = ::onPlaceCompleted
 
@@ -259,7 +271,19 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     //------------ Drawable ------------\\
 
-    override var visible: Boolean = true
+    private var _visible: Boolean? = null
+
+    override var visible: Boolean
+        set(value) {
+            _visible = value
+        }
+        get() {
+            return _visible ?: true
+        }
+
+    override fun clearVisible() {
+        _visible = null
+    }
 
     override var renderPriority: Int = 0
 

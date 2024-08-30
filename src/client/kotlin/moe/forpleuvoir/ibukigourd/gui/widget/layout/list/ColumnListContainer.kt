@@ -2,12 +2,9 @@ package moe.forpleuvoir.ibukigourd.gui.widget.layout.list
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnListLayout
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
@@ -30,15 +27,14 @@ class ColumnListWidget(
     spacing: Float = 0f,
 ) : ListWidget(scrollState, alignment, spacing), ColumnListLayout {
 
-    override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-        return super.measureChildren(measurables, constraints).also {
-            val totalSpace = widgetChildren().sumOf { child -> child.wrappedWidth + spacing } - spacing
-            scrollState {
-                maxAmount = (totalSpace - contentWidth).coerceAtLeast(0f)
-                barProportion = contentWidth / totalSpace
-                amountStep = widgetChildren().minOf { it.transform.width } / 2f
-            }
+    override fun onMeasureCompleted() {
+        val totalSpace = widgetChildren().sumOf { child -> child.wrappedWidth + spacing } - spacing
+        scrollState {
+            maxAmount = (totalSpace - contentWidth).coerceAtLeast(0f)
+            barProportion = contentWidth / totalSpace
+            amountStep = widgetChildren().minOf { it.transform.width } / 2f
         }
+        super<ListWidget>.onMeasureCompleted()
     }
 
     fun interface Scope : ListWidget.Scope<ColumnListWidget, Alignment.Vertical>, ColumnListLayoutScope
@@ -63,6 +59,7 @@ fun WidgetContainerScope.ColumnListWrapped(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     barThickness: Float = 9f,
     listModifier: RowScope.() -> Modifier = { Modifier },
     scrollerModifier: RowScope.() -> Modifier = { Modifier },
@@ -78,17 +75,17 @@ fun WidgetContainerScope.ColumnListWrapped(
     verticalArrangement = Arrangement.SpaceBetween
 ) {
     ColumnList(
-        modifier = Modifier
-            .fill() then listModifier(),
+        modifier = Modifier then listModifier(),
         scrollState = scrollState,
         spacing = spacing,
+        verticalAlignment = verticalAlignment,
         content = content
     )
     Scroller(
         scrollState = scrollState,
         orientation = Orientation.Horizontal,
         modifier = Modifier
-            .fill()
+            .matchSibling()
             .height(barThickness)
             .margin(top = 1f) then scrollerModifier()
     )

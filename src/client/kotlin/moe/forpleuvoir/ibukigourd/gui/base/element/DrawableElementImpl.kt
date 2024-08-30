@@ -43,6 +43,10 @@ abstract class DrawableElementImpl : DrawableElement {
             return _visible ?: (parentVisible ?: true)
         }
 
+    override fun clearVisible() {
+        _visible = null
+    }
+
     override var renderPriority: Int = 0
 
     override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
@@ -94,6 +98,10 @@ abstract class DrawableElementImpl : DrawableElement {
         get() {
             return _active ?: (parent()?.active ?: true)
         }
+
+    override fun clearActive() {
+        _active = null
+    }
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 

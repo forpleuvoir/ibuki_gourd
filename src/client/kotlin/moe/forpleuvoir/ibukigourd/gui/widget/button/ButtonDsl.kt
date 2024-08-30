@@ -45,22 +45,45 @@ fun WidgetContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    disabledColor: () -> ARGBColor = { Color(0) },
-    idleColor: () -> ARGBColor = { Color(0) },
-    hoveredColor: () -> ARGBColor = { Color(0) },
-    pressedColor: () -> ARGBColor = { Color(0) },
+    disabledColor: State<ARGBColor> = stateOf(Color(0)),
+    idleColor: State<ARGBColor> = stateOf(Color(0)),
+    hoveredColor: State<ARGBColor> = stateOf(Color(0)),
+    pressedColor: State<ARGBColor> = stateOf(Color(0)),
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(1)
         .render { context, _, _, _ ->
             this as IGButtonWidget
             wasMouseOver {
-                context.renderBox(transform.asWorldBox, status(disabledColor, idleColor, hoveredColor, pressedColor))
+                context.renderBox(
+                    transform.asWorldBox,
+                    status(disabledColor.getValue(), idleColor.getValue(), hoveredColor.getValue(), pressedColor.getValue())
+                )
             }
         }
         .then(modifier).foldInApply()
     ButtonScope { this }.content()
 }
+
+fun WidgetContainerScope.FlatButton(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    disabledColor: ARGBColor = Color(0),
+    idleColor: ARGBColor = Color(0),
+    hoveredColor: ARGBColor = Color(0),
+    pressedColor: ARGBColor = Color(0),
+    content: ButtonScope.() -> Unit = { }
+) = FlatButton(
+    modifier,
+    horizontalArrangement,
+    verticalAlignment,
+    stateOf(disabledColor),
+    stateOf(idleColor),
+    stateOf(hoveredColor),
+    stateOf(pressedColor),
+    content
+)
 
 fun WidgetContainerScope.SwitchButton(
     switchState: State<Boolean> = stateOf(false),
@@ -77,6 +100,15 @@ fun WidgetContainerScope.SwitchButton(
     }
 ) = Button(modifier, horizontalArrangement, verticalAlignment, content = content)
 
+/**
+ * 创建一个锁定按钮组件
+ *
+ * @param lockState 一个包含锁定状态的 [State] 对象，默认为未锁定状态
+ * @param modifier 一个用于修改此组件外观和行为的 [Modifier] 对象
+ * @param horizontalArrangement 水平排列方式，默认为 [Arrangement.Center]
+ * @param verticalAlignment 垂直对齐方式，默认为 [Alignment.CenterVertically]
+ * @param content 按钮内容的 Lambda 表达式，默认为空
+ */
 fun WidgetContainerScope.LockButton(
     lockState: State<Boolean> = stateOf(false),
     modifier: Modifier = Modifier,

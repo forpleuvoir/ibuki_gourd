@@ -657,16 +657,11 @@ class TextAreaWidget(
         if (focusedTicks % 15 >= 5 && isFocused) {
             val contentBox = contentBox(true)
             val thickness = 0.75f
-            val xOffset = textRenderer.getWidth(text.substring(currentLine.beginIndex, cursor)).let { if (cursor == text.length) it.toFloat() else it - .85f }
+            val xOffset =
+                textRenderer.getWidth(text.substring(currentLine.beginIndex, cursor)).let { if (cursor == text.length) it.toFloat() else it - thickness }
             val y = contentBox.top + currentLineIndex * (fontHeight + spacing) - amount - spacing
             if (y !in contentBox.top - fontHeight..contentBox.bottom) return
-            if (Character.isWhitespace(cursorChar))
-                context.renderBox(
-                    Box(contentBox.left + xOffset, y + fontHeight, Size(textRenderer.getWidth(cursorChar.toString()).toFloat(), thickness)),
-                    cursorColor
-                )
-            else
-                context.renderBox(Box(contentBox.left + xOffset, y + spacing, Size(thickness, textRenderer.fontHeight.toFloat())), cursorColor)
+            context.renderBox(Box(contentBox.left + xOffset, y + spacing, Size(thickness, textRenderer.fontHeight.toFloat())), cursorColor)
         }
     }
 
@@ -844,7 +839,7 @@ fun WidgetContainerScope.TextAreaWrapped(
             scrollState = scrollState,
             orientation = Orientation.Vertical,
             modifier = Modifier
-                .fill()
+                .matchSibling()
                 .width(barThickness)
                 .margin(left = 1f) then scrollerModifier()
         )

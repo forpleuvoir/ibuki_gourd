@@ -24,6 +24,8 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     var active: Boolean
 
+    fun clearActive()
+
     //------------ Vanilla Element ------------\\
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) {

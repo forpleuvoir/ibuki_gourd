@@ -36,16 +36,6 @@ open class ScrollerWidget(
     //------------ Override ------------\\
 
     init {
-        scrollState.subscribe {
-            val progress = scrollState.progress
-            orientation.peek(
-                {
-                    bar.y = progress * scrollableLength
-                }, {
-                    bar.x = progress * scrollableLength
-                }
-            )
-        }
         transform.subscribeSizeChange { _, (width, height) ->
             orientation.peek(
                 {
@@ -71,6 +61,15 @@ open class ScrollerWidget(
                 transform.set(maxWidth, minHeight)
             }
         )
+        if (scrollState.barProportion == 1f) {
+            transform.set(0f, 0f)
+            visible = false
+            active = false
+            scrollState.amount = scrollState.amount
+        } else {
+            clearActive()
+            clearVisible()
+        }
         return this
     }
 
@@ -95,7 +94,7 @@ open class ScrollerWidget(
     }
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        updateBarLength()
+        updateBar()
         context.batchRenderTextureColored {
             pushWidgetTexture(bar, theme(barTheme))
         }
@@ -121,10 +120,17 @@ open class ScrollerWidget(
 
     private val barPositionRange: ClosedFloatingPointRange<Float> get() = 0f..scrollableLength
 
-    private fun updateBarLength() {
+    private fun updateBar() {
+        scrollState.amount = scrollState.amount
         orientation.peek(
-            { bar.height = scrollState.barProportion * transform.height },
-            { bar.width = scrollState.barProportion * transform.width }
+            {
+                bar.height = scrollState.barProportion * transform.height
+                bar.y = scrollState.progress * scrollableLength
+            },
+            {
+                bar.width = scrollState.barProportion * transform.width
+                bar.x = scrollState.progress * scrollableLength
+            }
         )
     }
 

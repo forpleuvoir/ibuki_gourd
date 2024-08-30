@@ -10,6 +10,9 @@ class ScrollState : Notifiable<Float> {
     private var _amount: Float = 0f
         set(value) {
             field = value.coerceIn(0f..maxAmount)
+            if (field.isNaN() || field.isInfinite()) {
+                field = 0f
+            }
         }
 
     var amount: Float
@@ -49,7 +52,6 @@ class ScrollState : Notifiable<Float> {
     var amountStep = 0f
         set(value) {
             field = value.coerceAtLeast(0f)
-            amount = amount
         }
 
     var barProportion = 0f
