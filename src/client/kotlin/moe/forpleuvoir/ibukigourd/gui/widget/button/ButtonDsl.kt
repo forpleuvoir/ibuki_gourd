@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChi
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -96,7 +96,7 @@ fun WidgetContainerScope.SwitchButton(
         switchState.subscribe {
             text.setValue(Literal(switchState.getValue().toString()).style { color(switchState.getValue().pick(Colors.GREEN, Colors.RED)) })
         }
-        Text(text)
+        TextField(text)
     }
 ) = Button(modifier, horizontalArrangement, verticalAlignment, content = content)
 

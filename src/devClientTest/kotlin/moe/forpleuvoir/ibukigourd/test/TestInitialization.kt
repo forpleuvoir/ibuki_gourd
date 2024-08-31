@@ -2,22 +2,20 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderOverlay
-import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
-import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
+import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreenScope
+import moe.forpleuvoir.ibukigourd.gui.widget.Proxy
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.openScreen
-import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.toggle
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 
@@ -38,27 +36,37 @@ object TestInitialization {
                 openScreen(testScreen3())
             }
             register(Keyboard.KP_9) {
-                openScreen(BoxScreen(
-                    Modifier
-                        .padding(5f)
-                        .renderOverlay { ctx, _, _, _ ->
-                            ctx.batchRenderBox {
-                                pushBoxOutline(contentBox(true), Colors.AQUA)
-                                pushBox(0f, transform.center.y(), transform.width, 1f, Colors.RED.opacity(.5f))
-                                pushBox(transform.center.x(), 0f, 1f, transform.height, Colors.BLUE.opacity(.5f))
-                            }
-                        },
-                ) {
-                    RowListWrapped(
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        repeat(50) {
-                            Button(Modifier.renderHoveredOutlineBox(Colors.RICE)) {
-                                Icon(IconTextures.REFRESH, modifier = Modifier.renderHoveredOutlineBox(Colors.RICE))
-                                Text("布局测试", modifier = Modifier.renderHoveredOutlineBox(Colors.RICE))
+                openScreen(ColumnScreen {
+                    val proxy: State<ColumnScreenScope.() -> IGWidget> = stateOf {
+                        Button {
+                            Icon(IconTextures.CLOSE)
+                            TextField("关闭")
+                        }
+                    }
+                    Proxy(proxy)
+                    val state = stateOf(false)
+                    state.subscribe { s ->
+                        proxy.setValue {
+                            if (s) {
+                                Button {
+                                    Icon(IconTextures.LOCK)
+                                    TextField("锁定")
+                                }
+                            } else {
+                                Button {
+                                    Icon(IconTextures.CLOSE)
+                                    TextField("关闭")
+                                }
                             }
                         }
                     }
+                    Button {
+                        TextField("切换")
+                        press {
+                            state.toggle()
+                        }
+                    }
+
                 })
             }
         }

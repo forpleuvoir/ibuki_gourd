@@ -3,13 +3,12 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
 
-abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable, Layout {
+abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     //------------ Container ------------\\
 
@@ -37,6 +36,16 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Measurable
         it.parent = { this }
         widgetChildren.add(it)
     }
+
+    override fun <W : IGWidget> setWidgetChildren(index: Int, child: W) = child.also {
+        it.transform.parent = { this.transform }
+        it.parent = { this }
+        widgetChildren[index] = it
+    }
+
+    override fun removeWidgetChild(child: IGWidget) = widgetChildren.remove(child)
+
+    override fun removeWidgetChildAt(index: Int): IGWidget? = widgetChildren.removeAt(index)
 
     //------------ Drawable ------------\\
 

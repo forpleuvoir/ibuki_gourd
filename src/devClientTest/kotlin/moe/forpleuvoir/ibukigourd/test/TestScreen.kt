@@ -18,8 +18,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -113,7 +113,7 @@ fun TestScreen() = BoxScreen(modifier()) {
                     2    -> Modifier.align(Alignment.Bottom)
                     else -> Modifier.align(Alignment.CenterVertically)
                 }
-                Button(m) { Text("$it") }
+                Button(m) { TextField("$it") }
                 if (c == 2) {
                     f = false
                 } else if (c == 0) {
@@ -171,7 +171,7 @@ fun RowScope.TestColumn() = Column(
                     press {
                         text + "\n测试宽度测试宽度测试宽度测试宽度"
                     }
-                    Text(
+                    TextField(
                         str = text,
                         style = style(color = Colors.BRIGHT_NEON_PINK),
                         modifier = Modifier.renderOverlay { ctx, _, _, _ ->

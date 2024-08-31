@@ -9,8 +9,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
-import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen.ColumnScreenScope
-import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen.RowScreenScope
 
 class RowScreen(
     override val arrangement: Arrangement.Vertical,
@@ -20,13 +18,13 @@ class RowScreen(
 
     override fun RowScreenScope.content() = content.invoke(this)
 
-    override val scope: RowScreenScope = RowScreenScope { this }
+    override val scope: Scope = RowScreenScope { this }
 
-    fun interface RowScreenScope : ScreenScope<RowScreen>, RowLayoutScope
+    fun interface Scope : ScreenScope<RowScreen>, RowLayoutScope
 
 }
 
-typealias RowScreenScope = RowScreen.RowScreenScope
+typealias RowScreenScope = RowScreen.Scope
 
 fun RowScreen(
     modifier: Modifier = Modifier,
@@ -44,13 +42,13 @@ class ColumnScreen(
 
     override fun ColumnScreenScope.content() = content.invoke(this)
 
-    override val scope: ColumnScreenScope = ColumnScreenScope { this }
+    override val scope: Scope = ColumnScreenScope { this }
 
-    fun interface ColumnScreenScope : ScreenScope<ColumnScreen>, ColumnLayoutScope
+    fun interface Scope : ScreenScope<ColumnScreen>, ColumnLayoutScope
 
 }
 
-typealias ColumnScreenScope = ColumnScreen.ColumnScreenScope
+typealias ColumnScreenScope = ColumnScreen.Scope
 
 fun ColumnScreen(
     modifier: Modifier = Modifier,

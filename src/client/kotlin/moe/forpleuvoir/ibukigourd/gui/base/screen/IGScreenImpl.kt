@@ -48,7 +48,6 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         }
     }
 
-
     override var padding: Padding = Padding(0)
 
     override var margin: Margin = Margin(0)
@@ -172,8 +171,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     }
 
     override fun remove(child: Element) {
-        if (child is IGDrawable) {
-            drawableChildren.remove(child)
+        if (child is IGElement) {
+            elementChildren.remove(child)
         }
         if (child is IGDrawable) {
             drawableChildren.remove(child)
@@ -226,6 +225,32 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         addDrawableChild(child)
         addElementChild(child)
         widgetChildren.add(it)
+    }
+
+    override fun <W : IGWidget> setWidgetChildren(index: Int, child: W): W = child.also {
+        it.transform.parent = { this.transform }
+        it.parent = { this }
+        val old = widgetChildren[index]
+        val di = drawableChildren.indexOf(old)
+        val ei = elementChildren.indexOf(old)
+        widgetChildren[index] = it
+        drawableChildren[di] = it
+        elementChildren[ei] = it
+    }
+
+    override fun removeWidgetChild(child: IGWidget): Boolean {
+        return elementChildren.remove(child) ||
+                drawableChildren.remove(child) ||
+                widgetChildren.remove(child)
+    }
+
+    override fun removeWidgetChildAt(index: Int): IGWidget? {
+        val old = widgetChildren[index]
+        val di = drawableChildren.indexOf(old)
+        val ei = elementChildren.indexOf(old)
+        elementChildren.removeAt(ei)
+        drawableChildren.removeAt(di)
+        return widgetChildren.removeAt(index)
     }
 
     //------------ Vanilla Screen Override ------------\\
@@ -368,10 +393,10 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     //------------ Vanilla Element Override & IGElement------------\\
 
-//    override fun hoveredWidget(layer: GuiLayer): IGWidget? {
-//
-//        return super.hoveredWidget(layer)
-//    }
+    //    override fun hoveredWidget(layer: GuiLayer): IGWidget? {
+    //
+    //        return super.hoveredWidget(layer)
+    //    }
 
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter

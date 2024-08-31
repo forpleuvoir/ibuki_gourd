@@ -4,7 +4,7 @@ import com.mojang.datafixers.DataFixer;
 import moe.forpleuvoir.ibukigourd.IbukiGourd;
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent;
-import moe.forpleuvoir.ibukigourd.task.ServerTickTaskScheduler;
+import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.server.MinecraftServer;
@@ -71,12 +71,12 @@ public class MinecraftServerMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void ibukigourd$startTick(CallbackInfo ci) {
-        ServerTickTaskScheduler.INSTANCE.startTick((MinecraftServer) (Object) this);
+        TickTaskScheduler.getServer().startTick((MinecraftServer) (Object) this);
     }
 
     @Inject(method = "tick", at = @At("RETURN"))
     public void ibukigourd$endTick(CallbackInfo ci) {
-        ServerTickTaskScheduler.INSTANCE.endTick((MinecraftServer) (Object) this);
+        TickTaskScheduler.getServer().endTick((MinecraftServer) (Object) this);
     }
 
 }

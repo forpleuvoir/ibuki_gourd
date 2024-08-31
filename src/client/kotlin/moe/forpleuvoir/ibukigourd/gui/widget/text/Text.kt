@@ -251,7 +251,7 @@ typealias TextWidgetScope = TextWidget.Scope
 
 typealias TextSetting = TextWidget.Setting
 
-fun WidgetContainerScope.Text(
+fun WidgetContainerScope.TextField(
     text: State<Text>,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
@@ -261,7 +261,7 @@ fun WidgetContainerScope.Text(
     TextWidgetScope { this }.scope()
 }
 
-fun WidgetContainerScope.Text(
+fun WidgetContainerScope.TextField(
     text: Text,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
@@ -272,22 +272,22 @@ fun WidgetContainerScope.Text(
 }
 
 @JvmName("TextString")
-fun WidgetContainerScope.Text(
+fun WidgetContainerScope.TextField(
     str: String,
     style: Style = Style.EMPTY,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = Text(Literal(str).setStyle(style), modifier, setting, scope)
+) = TextField(Literal(str).setStyle(style), modifier, setting, scope)
 
 @JvmName("TextString")
-fun WidgetContainerScope.Text(
+fun WidgetContainerScope.TextField(
     str: State<String>,
     style: Style = Style.EMPTY,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = Text(str.getValue(), style, modifier, setting, scope).apply {
+) = TextField(str.getValue(), style, modifier, setting, scope).apply {
     str.subscribe {
         text.setValue(Literal(it).setStyle(style))
     }

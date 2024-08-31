@@ -1,7 +1,8 @@
-package moe.forpleuvoir.ibukigourd.gui.widget.dropmenu
+package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -9,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
-import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -18,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -47,7 +48,7 @@ val DropDownMenuSeparatorColor = Color(0xFFCCCCCC)
 fun WidgetContainerScope.DropDownMenu(
     modifier: Modifier = Modifier,
     scope: DropDownMenuScope.() -> Unit
-) {
+): IGButtonWidget {
     val expandState = stateOf(false)
     //上面的空余空间,下面的空余空间
     var space = 0f to 0f
@@ -58,7 +59,7 @@ fun WidgetContainerScope.DropDownMenu(
     var placedPosition = Vector2f()
     var playSound: () -> Unit = {}
     var dropDownContent: BoxScope.() -> Unit = {}
-    Button(
+    val returnWidget = Button(
         modifier = Modifier
             .padding(horizontal = 5f, vertical = 4f)
             .placeCompleted {
@@ -86,9 +87,7 @@ fun WidgetContainerScope.DropDownMenu(
             expandState.toggle()
         }
 
-        Column(
-            Modifier.renderHoveredOutlineBox(Colors.AQUA)
-        ) {
+        Column {
             ColoredBox(
                 DropDownMenuSeparatorColor,
                 Modifier
@@ -130,32 +129,12 @@ fun WidgetContainerScope.DropDownMenu(
         ) {
             //当顶层组件被放置时调用,用于测量展开部分的尺寸,并且计算放置位置
             onPlaced = place@{
-                //------------ 计算可放置的X位置 ------------\\
-
-
                 //------------ 计算可放置的Y位置 ------------\\
-
                 //尝试放在下面
                 val (topSpace, bottomSpace) = space
                 //对比原来的大小是否能放下
                 val greaterThanBottomSpace = owner().transform.height > bottomSpace
-                if (!greaterThanBottomSpace) {
-                    //能放下
-                    owner().apply {
-                        measure(Constraints.of(maxHeight = bottomSpace))
-                        measureCompleted()
-                        //放置于父组件下面
-                        //先尝试放置于父组件中心
-                        var x = parentBox.center.x() - owner().transform.halfWidth
-                        //将位置限制在可防止范围内
-                        x = x.coerceIn(0f..(mc.window.scaledWidth.toFloat() - owner().transform.width))
-
-                        placedPosition = Vector2f(x, parentBox.bottom)
-                    }
-                    return@place
-                }
-                //放不下,检查最大空间的位置
-                if (maxSpaceDir) {
+                if (!greaterThanBottomSpace || maxSpaceDir) { //放不下,检查最大空间的位置
                     //在下面时,强制放在下面
                     owner().apply {
                         measure(Constraints.of(maxHeight = bottomSpace))
@@ -187,28 +166,37 @@ fun WidgetContainerScope.DropDownMenu(
             dropDownContent(this)
         }
     }
-
+    return returnWidget
 }
 
-
-fun WidgetContainerScope.Spinner(
-    options: List<String>,
-    initialOption: String = options.first(),
-    onChange: (String) -> Unit = {},
+fun <T> WidgetContainerScope.Spinner(
+    options: List<T>,
+    initialOption: T = options.first(),
+    onChange: (T) -> Unit = {},
     selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
+    selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
+    optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
-) {
+): IGButtonWidget {
     check(initialOption in options) { "initialOption must be in options" }
-    val maxWidth = options.maxOf { textRenderer.getWidth(it).toFloat() }
     val selected = stateOf(initialOption)
     selected.subscribe {
         onChange(it)
     }
-    DropDownMenu(modifier) {
-        Text(selected)
+    return DropDownMenu(modifier) {
+        val proxy: State<DropDownMenuScope.() -> IGWidget> = stateOf {
+            selectedWrapper.invoke(this, selected.getValue())
+        }
+        Proxy(proxy)
+        selected.subscribe {
+            proxy.setValue {
+                selectedWrapper.invoke(this, selected.getValue())
+            }
+        }
         DropDownContent {
             RowListWrapped(
-                modifier = Modifier.padding(0f).disableRenderBackground()
+                modifier = Modifier.padding(0f).disableRenderBackground(),
+                horizontalAlignment = Alignment.Left
             ) {
                 options.forEachIndexed { index, option ->
                     if (index != 0) {
@@ -218,11 +206,10 @@ fun WidgetContainerScope.Spinner(
                         )
                     }
                     FlatButton(
-                        modifier = Modifier.width(maxWidth + 2F),
                         hoveredColor = selectedColor,
                         horizontalArrangement = Arrangement.Left,
                     ) {
-                        Text(option)
+                        optionWrapper(option)
                         press {
                             selected.setValue(option)
                             this@DropDownMenu.toggle()
@@ -233,3 +220,20 @@ fun WidgetContainerScope.Spinner(
         }
     }
 }
+
+
+fun WidgetContainerScope.Spinner(
+    options: List<String>,
+    initialOption: String = options.first(),
+    onChange: (String) -> Unit = {},
+    selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
+    modifier: Modifier = Modifier
+) = Spinner(
+    options,
+    initialOption,
+    onChange,
+    selectedColor,
+    selectedWrapper = { TextField(it) },
+    optionWrapper = { TextField(it) },
+    modifier
+)

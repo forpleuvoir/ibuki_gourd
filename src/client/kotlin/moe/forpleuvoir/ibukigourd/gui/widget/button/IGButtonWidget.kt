@@ -69,8 +69,6 @@ open class IGButtonWidget(
         return this
     }
 
-    companion object {}
-
     fun interface ButtonScope : GuiScope<IGButtonWidget>, ColumnLayoutScope {
 
         fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)

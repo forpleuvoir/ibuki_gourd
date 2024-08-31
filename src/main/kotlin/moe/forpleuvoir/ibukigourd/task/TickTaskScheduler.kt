@@ -3,7 +3,12 @@ package moe.forpleuvoir.ibukigourd.task
 import net.minecraft.server.MinecraftServer
 import java.util.concurrent.ConcurrentLinkedQueue
 
-abstract class TickTaskScheduler<T> {
+open class TickTaskScheduler<T> {
+
+    companion object {
+        @JvmStatic
+        val Server = TickTaskScheduler<MinecraftServer>()
+    }
 
     private val startTasks = ConcurrentLinkedQueue<TickTask<T>>()
     private val startRemoveList = ConcurrentLinkedQueue<TickTask<T>>()
@@ -19,7 +24,7 @@ abstract class TickTaskScheduler<T> {
     }
 
     fun scheduleStartTick(delay: Int = 0, action: (T) -> Unit) {
-        startTasks.add(TickTask(0, 1, 1, action))
+        startTasks.add(TickTask(delay, 1, 1, action))
     }
 
     fun scheduleEndTick(task: TickTask<T>) {
@@ -31,7 +36,7 @@ abstract class TickTaskScheduler<T> {
     }
 
     fun scheduleEndTick(delay: Int = 0, action: (T) -> Unit) {
-        endTasks.add(TickTask(0, 1, 1, action))
+        endTasks.add(TickTask(delay, 1, 1, action))
     }
 
     fun remove(task: TickTask<T>) {
@@ -86,5 +91,3 @@ abstract class TickTaskScheduler<T> {
     }
 
 }
-
-object ServerTickTaskScheduler : TickTaskScheduler<MinecraftServer>()
