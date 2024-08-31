@@ -185,10 +185,13 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var UNLOCK_DISABLED = WidgetTexture(Corner(0), 179, 83, 189, 93, TEXTURE_INFO)
         private set
 
-    var SWITCH_BUTTON_BACKGROUND_CONTENT = WidgetTexture(Corner(4), 192, 16, 208, 32, TEXTURE_INFO)
+    var SWITCH_BUTTON_BACKGROUND_CONTENT = WidgetTexture(Corner(5), 192, 16, 208, 32, TEXTURE_INFO)
         private set
 
-    var SWITCH_BUTTON_BACKGROUND_BOUND = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
+    var SWITCH_BUTTON_BACKGROUND_BORDER = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
+        private set
+
+    var SWITCH_BUTTON = WidgetTexture(Corner(4), 192, 32, 208, 48, TEXTURE_INFO)
         private set
 
     var TABS_BACKGROUND = WidgetTexture(Corner(4), 208, 0, 224, 16, TEXTURE_INFO)

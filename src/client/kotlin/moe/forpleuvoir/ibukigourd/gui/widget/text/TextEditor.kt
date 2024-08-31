@@ -3,15 +3,25 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -22,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.render.math.plus
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -44,7 +55,7 @@ import kotlin.math.min
 typealias McTextFieldWidget = net.minecraft.client.gui.widget.TextFieldWidget
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
-open class TextFieldWidget(
+open class TextEditorWidget(
     var textColor: ARGBColor = Color(0x303030),
     var hintColor: ARGBColor = Color(0x707070),
     var bgShaderColor: ARGBColor = Colors.WHITE,
@@ -494,13 +505,6 @@ open class TextFieldWidget(
 
     //------------ Render ------------\\
 
-
-    override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.batchRenderTextureColored {
-            pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
-        }
-    }
-
     fun renderCursor(content: DrawContext) {
         if (focusedTicks % 15 >= 5 && isFocused) {
             val box = contentBox(true)
@@ -593,7 +597,7 @@ open class TextFieldWidget(
         }
     }
 
-    fun interface Scope : GuiScope<TextFieldWidget> {
+    fun interface Scope : GuiScope<TextEditorWidget> {
 
         var text: String
             get() = owner().text
@@ -658,9 +662,9 @@ open class TextFieldWidget(
 
 }
 
-typealias TextFieldScope = TextFieldWidget.Scope
+typealias TextEditorScope = TextEditorWidget.Scope
 
-fun WidgetContainerScope.TextField(
+fun WidgetContainerScope.TextEditor(
     modifier: Modifier = Modifier,
     textColor: ARGBColor = Color(0x303030),
     hintColor: ARGBColor = Color(0x707070),
@@ -669,8 +673,258 @@ fun WidgetContainerScope.TextField(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: TextFieldScope.() -> Unit = {}
-) = owner().addWidgetChild(TextFieldWidget(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
-    Modifier.padding(5).then(modifier).foldInApply()
-    TextFieldScope { this }.scope()
+    scope: TextEditorScope.() -> Unit = {}
+) = addWidgetChild(TextEditorWidget(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
+    Modifier
+        .padding(5, 5, 5, 4)
+        .renderBackground { context, _, _, _ ->
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
+            }
+        }
+        .then(modifier).foldInApply()
+    TextEditorScope { this }.scope()
 }
+
+data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
+
+fun <T> WidgetContainerScope.NumberEditor(
+    value: State<T>,
+    valueMapper: (T) -> String,
+    textMapper: (String) -> T,
+    plus: (T, T) -> T,
+    minus: (T, T) -> T,
+    step: ValueStep<T>,
+    textPredicate: (String) -> Boolean,
+    modifier: Modifier = Modifier,
+    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    textColor: ARGBColor = Color(0x303030),
+    hintColor: ARGBColor = Color(0x707070),
+    bgShaderColor: ARGBColor = Colors.WHITE,
+    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextEditorScope.() -> Unit = {}
+) where  T : Comparable<T>, T : Number {
+    Column(
+        Modifier
+            .padding(2, 4, 2, 2)
+            .renderBackground { context, _, _, _ ->
+                context.batchRenderTextureColored {
+                    pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
+                }
+            }.then(modifier),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextEditor(
+            modifier = Modifier
+                .padding(3, 3, 3, 2)
+                .disableRenderBackground()
+                .mouseScrolling { event ->
+                    event.tryUse(wasMouseOver).onSuccess {
+                        val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScroller)
+                        else minus(value.getValue(), step.mouseScroller)
+                        value.setValue(s)
+                    }
+                }.then(editorModifier()),
+            textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer
+        ) {
+            scope()
+            text = valueMapper(value.getValue())
+            var notifiable = true
+            textConsumer {
+                notifiable = false
+                value.setValue(textMapper(it))
+                notifiable = true
+            }
+            value.subscribe {
+                if (notifiable) text = valueMapper(value.getValue())
+            }
+            textPredicate(textPredicate)
+        }
+        Row(
+            Modifier.height(12f),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            FlatButton(
+                modifier = Modifier.padding(horizontal = 2f).margin(top = 1f),
+                hoveredColor = Colors.GRAY.opacity(.15f)
+            ) {
+                Box(Modifier.size(5f, 5f)) {
+                    Icon(IconTextures.PLUS, Colors.BLACK)
+                }
+                press {
+                    val s = when {
+                        InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
+                        InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
+                        InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
+                        else                                              -> step.click
+                    }
+                    value.setValue(plus(value.getValue(), s))
+                }
+            }
+            FlatButton(
+                modifier = Modifier.padding(horizontal = 2f),
+                hoveredColor = Colors.GRAY.opacity(.15f)
+            ) {
+                Box(Modifier.size(5f, 5f)) {
+                    Icon(IconTextures.MINUS, Colors.BLACK)
+                }
+                press {
+                    val s = when {
+                        InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
+                        InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
+                        InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
+                        else                                              -> step.click
+                    }
+                    value.setValue(minus(value.getValue(), s))
+                }
+            }
+        }
+    }
+
+}
+
+fun WidgetContainerScope.IntEditor(
+    value: State<Int>,
+    range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
+    step: ValueStep<Int> = ValueStep(1, 5, 10, 15, 1),
+    modifier: Modifier = Modifier,
+    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    textColor: ARGBColor = Color(0x303030),
+    hintColor: ARGBColor = Color(0x707070),
+    bgShaderColor: ARGBColor = Colors.WHITE,
+    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextEditorScope.() -> Unit = {}
+) = NumberEditor(
+    value = value,
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
+    valueMapper = { it.toString() },
+    textMapper = { runCatching { it.toInt() }.getOrElse { 0 } },
+    step = step,
+    textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toInt() in range }.getOrElse { false }) || it.isEmpty() },
+    modifier = modifier,
+    editorModifier = editorModifier,
+    textColor = textColor,
+    hintColor = hintColor,
+    bgShaderColor = bgShaderColor,
+    selectedColor = selectedColor,
+    suggestionColor = suggestionColor,
+    cursorColor = cursorColor,
+    textRenderer = textRenderer,
+    scope = scope
+)
+
+fun WidgetContainerScope.LongEditor(
+    value: State<Long>,
+    range: LongRange = Long.MIN_VALUE..Int.MAX_VALUE,
+    step: ValueStep<Long> = ValueStep(1, 5, 10, 15, 1),
+    modifier: Modifier = Modifier,
+    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    textColor: ARGBColor = Color(0x303030),
+    hintColor: ARGBColor = Color(0x707070),
+    bgShaderColor: ARGBColor = Colors.WHITE,
+    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextEditorScope.() -> Unit = {}
+) = NumberEditor(
+    value = value,
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
+    valueMapper = { it.toString() },
+    textMapper = { runCatching { it.toLong() }.getOrElse { 0L } },
+    step = step,
+    textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toLong() in range }.getOrElse { false }) || it.isEmpty() },
+    modifier = modifier,
+    editorModifier = editorModifier,
+    textColor = textColor,
+    hintColor = hintColor,
+    bgShaderColor = bgShaderColor,
+    selectedColor = selectedColor,
+    suggestionColor = suggestionColor,
+    cursorColor = cursorColor,
+    textRenderer = textRenderer,
+    scope = scope
+)
+
+fun WidgetContainerScope.FloatEditor(
+    value: State<Float>,
+    range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
+    step: ValueStep<Float> = ValueStep(1f, 5f, 10f, 15f, 1f),
+    modifier: Modifier = Modifier,
+    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    textColor: ARGBColor = Color(0x303030),
+    hintColor: ARGBColor = Color(0x707070),
+    bgShaderColor: ARGBColor = Colors.WHITE,
+    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextEditorScope.() -> Unit = {}
+) = NumberEditor(
+    value = value,
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
+    valueMapper = { it.toString() },
+    textMapper = { runCatching { it.toFloat() }.getOrElse { 0f } },
+    step = step,
+    textPredicate = {
+        val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
+        Regex("-?\\d+(\\.\\d+)?").matches(str) && runCatching { str.toFloat() in range }.getOrElse { false }
+    },
+    modifier = modifier,
+    editorModifier = editorModifier,
+    textColor = textColor,
+    hintColor = hintColor,
+    bgShaderColor = bgShaderColor,
+    selectedColor = selectedColor,
+    suggestionColor = suggestionColor,
+    cursorColor = cursorColor,
+    textRenderer = textRenderer,
+    scope = scope
+)
+
+
+fun WidgetContainerScope.DoubleEditor(
+    value: State<Double>,
+    range: ClosedFloatingPointRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
+    step: ValueStep<Double> = ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
+    modifier: Modifier = Modifier,
+    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    textColor: ARGBColor = Color(0x303030),
+    hintColor: ARGBColor = Color(0x707070),
+    bgShaderColor: ARGBColor = Colors.WHITE,
+    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    textRenderer: TextRenderer = mc.textRenderer,
+    scope: TextEditorScope.() -> Unit = {}
+) = NumberEditor(
+    value = value,
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
+    valueMapper = { it.toString() },
+    textMapper = { runCatching { it.toDouble() }.getOrElse { 0.0 } },
+    step = step,
+    textPredicate = {
+        val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
+        Regex("-?\\d+(\\.\\d+)?").matches(str) && runCatching { str.toDouble() in range }.getOrElse { false }
+    },
+    modifier = modifier,
+    editorModifier = editorModifier,
+    textColor = textColor,
+    hintColor = hintColor,
+    bgShaderColor = bgShaderColor,
+    selectedColor = selectedColor,
+    suggestionColor = suggestionColor,
+    cursorColor = cursorColor,
+    textRenderer = textRenderer,
+    scope = scope
+)

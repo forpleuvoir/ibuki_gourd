@@ -147,7 +147,7 @@ fun DrawContext.renderAlignmentText(
     alignment: Alignment = Alignment.Center,
     shadow: Boolean = false,
     layerType: TextLayerType = TextLayerType.NORMAL,
-    color: ARGBColor = Color(0x000000),
+    color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     textRenderer: TextRenderer = this.client.textRenderer,
     rightToLeft: Boolean = textRenderer.isRightToLeft,

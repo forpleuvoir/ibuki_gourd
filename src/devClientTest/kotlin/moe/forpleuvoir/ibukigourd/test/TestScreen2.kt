@@ -9,14 +9,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.byRemember
 import moe.forpleuvoir.ibukigourd.gui.base.screen.remember
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.util.mc
 
 fun TestScreen2() = RowScreen(
     modifier = Modifier.padding(20),
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
-    TextField {
+    TextEditor {
         textConsumer {
             mc.remember("text1", it)
         }

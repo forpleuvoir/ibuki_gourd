@@ -2,20 +2,27 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.width
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreenScope
 import moe.forpleuvoir.ibukigourd.gui.widget.Proxy
+import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
+import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.stateOf
-import moe.forpleuvoir.ibukigourd.util.toggle
+import moe.forpleuvoir.ibukigourd.util.switch
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 
@@ -35,12 +42,22 @@ object TestInitialization {
             register(Keyboard.KP_3) {
                 openScreen(testScreen3())
             }
+            register(Keyboard.KP_4) {
+                openScreen(ColumnScreen {
+                    IntEditor(stateOf(5), modifier = Modifier.width(50f), editorModifier = { Modifier.weight(1) })
+                    Button { TextLabel("高度测试1") }
+                    SwitchButton(stateOf(true))
+                    Spinner(listOf("下拉菜单", "选项1", "选项2", "选项3"))
+                })
+            }
             register(Keyboard.KP_9) {
                 openScreen(ColumnScreen {
                     val proxy: State<ColumnScreenScope.() -> IGWidget> = stateOf {
-                        Button {
+                        Button(
+                            horizontalArrangement = Arrangement.spacedBy(2f, Alignment.CenterHorizontally)
+                        ) {
                             Icon(IconTextures.CLOSE)
-                            TextField("关闭")
+                            TextLabel("关闭")
                         }
                     }
                     Proxy(proxy)
@@ -48,22 +65,26 @@ object TestInitialization {
                     state.subscribe { s ->
                         proxy.setValue {
                             if (s) {
-                                Button {
+                                Button(
+                                    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.CenterHorizontally)
+                                ) {
                                     Icon(IconTextures.LOCK)
-                                    TextField("锁定")
+                                    TextLabel("锁定")
                                 }
                             } else {
-                                Button {
+                                Button(
+                                    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.CenterHorizontally)
+                                ) {
                                     Icon(IconTextures.CLOSE)
-                                    TextField("关闭")
+                                    TextLabel("关闭")
                                 }
                             }
                         }
                     }
                     Button {
-                        TextField("切换")
+                        TextLabel("切换")
                         press {
-                            state.toggle()
+                            state.switch()
                         }
                     }
 

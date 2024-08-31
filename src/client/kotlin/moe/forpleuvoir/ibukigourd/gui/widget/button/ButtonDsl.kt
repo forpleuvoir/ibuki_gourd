@@ -7,20 +7,19 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.size
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextField
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.stateOf
-import moe.forpleuvoir.ibukigourd.util.toggle
+import moe.forpleuvoir.ibukigourd.util.switch
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
 fun WidgetContainerScope.Button(
@@ -30,7 +29,7 @@ fun WidgetContainerScope.Button(
     theme: PressableTheme = PressableTheme.Button2,
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
-    Modifier.padding(6)
+    Modifier.padding(5)
         .render { context, _, _, _ ->
             this as IGButtonWidget
             context.batchRenderTextureColored {
@@ -90,15 +89,24 @@ fun WidgetContainerScope.SwitchButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    content: ButtonScope.() -> Unit = {
-        press { switchState.toggle() }
-        val text = stateOf(Literal(switchState.getValue().toString()).style { color(switchState.getValue().pick(Colors.GREEN, Colors.RED)) })
-        switchState.subscribe {
-            text.setValue(Literal(switchState.getValue().toString()).style { color(switchState.getValue().pick(Colors.GREEN, Colors.RED)) })
-        }
-        TextField(text)
-    }
-) = Button(modifier, horizontalArrangement, verticalAlignment, content = content)
+) = Button(
+    Modifier
+        .size(36f, 15f)
+        .render { context, _, _, _ ->
+            val b = transform.asWorldBox
+            val proportion = 0.55f
+            val box = b.copy(switchState.getValue().pick(b.x + b.width * (1 - proportion), b.x), width = b.width * proportion)
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_BORDER)
+                pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_CONTENT, switchState.getValue().pick(Color(0XFFA9E2A9), Color(0XFFDC9F9F)))
+                pushWidgetTexture(box, WidgetTextures.SWITCH_BUTTON)
+            }
+        }.then(modifier),
+    horizontalArrangement,
+    verticalAlignment
+) {
+    press { switchState.switch() }
+}
 
 /**
  * 创建一个锁定按钮组件

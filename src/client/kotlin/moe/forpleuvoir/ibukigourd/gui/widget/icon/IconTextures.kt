@@ -87,7 +87,7 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
     var PLUS = WidgetTexture(Corner.Unspecified, 35, 19, 45, 29, TEXTURE_INFO)
         private set
 
-    var MINUS = WidgetTexture(Corner.Unspecified, 51, 23, 61, 25, TEXTURE_INFO)
+    var MINUS = WidgetTexture(Corner.Unspecified, 51, 19, 61, 29, TEXTURE_INFO)
         private set
 
     var SETTING = WidgetTexture(Corner.Unspecified, 67, 18, 77, 29, TEXTURE_INFO)

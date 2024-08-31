@@ -67,7 +67,7 @@ operator fun State<Boolean>.not(): State<Boolean> {
     return this
 }
 
-fun State<Boolean>.toggle(): State<Boolean> {
+fun State<Boolean>.switch(): State<Boolean> {
     this.setValue(!this.getValue())
     return this
 }

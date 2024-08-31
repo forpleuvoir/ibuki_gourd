@@ -40,7 +40,7 @@ fun interface WidgetContainerModifier : Modifier.Element {
  */
 fun Modifier.size(width: Float?, height: Float?) = this then WidgetModifier { widget ->
     widget.constraints = Constraints(
-        width ?: widget.constraints.minHeight,
+        width ?: widget.constraints.minWidth,
         width ?: widget.constraints.maxWidth,
         height ?: widget.constraints.minHeight,
         height ?: widget.constraints.maxHeight

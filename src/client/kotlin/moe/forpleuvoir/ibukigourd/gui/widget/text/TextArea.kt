@@ -84,13 +84,6 @@ class TextAreaWidget(
     val textContentHeight: Float
         get() = (lineCount * (fontHeight + spacing)) - spacing
 
-
-    private val scrollableAmount: Float
-        get() {
-            val amount = textContentHeight - contentHeight
-            return if (amount > 0f) amount else 0f
-        }
-
     val fontHeight by textRenderer::fontHeight
 
     var amount: Float by scrollState::amount
