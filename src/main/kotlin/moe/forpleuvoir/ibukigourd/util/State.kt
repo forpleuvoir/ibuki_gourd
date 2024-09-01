@@ -46,6 +46,10 @@ data class State<T>(private var value: T) : Notifiable<T> {
         observers.add(callback)
     }
 
+    override fun toString(): String {
+        return value.toString()
+    }
+
 }
 
 operator fun State<String>.plus(other: Any?): State<String> {

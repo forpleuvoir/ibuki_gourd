@@ -705,86 +705,86 @@ fun <T> WidgetContainerScope.NumberEditor(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: TextEditorScope.() -> Unit = {}
-) where  T : Comparable<T>, T : Number {
-    Column(
-        Modifier
-            .padding(2, 4, 2, 2)
-            .renderBackground { context, _, _, _ ->
-                context.batchRenderTextureColored {
-                    pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
+    scope: ColumnScope.() -> Unit = {},
+    editorScope: TextEditorScope .() -> Unit = {}
+) where  T : Comparable<T>, T : Number = Column(
+    Modifier
+        .padding(2, 4, 2, 2)
+        .renderBackground { context, _, _, _ ->
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
+            }
+        }.then(modifier),
+    horizontalArrangement = Arrangement.SpaceBetween
+) {
+    TextEditor(
+        modifier = Modifier
+            .padding(3, 3, 3, 2)
+            .disableRenderBackground()
+            .mouseScrolling { event ->
+                event.tryUse(wasMouseOver).onSuccess {
+                    val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScroller)
+                    else minus(value.getValue(), step.mouseScroller)
+                    value.setValue(s)
                 }
-            }.then(modifier),
-        horizontalArrangement = Arrangement.SpaceBetween
+            }.then(editorModifier()),
+        textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer
     ) {
-        TextEditor(
-            modifier = Modifier
-                .padding(3, 3, 3, 2)
-                .disableRenderBackground()
-                .mouseScrolling { event ->
-                    event.tryUse(wasMouseOver).onSuccess {
-                        val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScroller)
-                        else minus(value.getValue(), step.mouseScroller)
-                        value.setValue(s)
-                    }
-                }.then(editorModifier()),
-            textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer
-        ) {
-            scope()
-            text = valueMapper(value.getValue())
-            var notifiable = true
-            textConsumer {
-                notifiable = false
-                value.setValue(textMapper(it))
-                notifiable = true
-            }
-            value.subscribe {
-                if (notifiable) text = valueMapper(value.getValue())
-            }
-            textPredicate(textPredicate)
+        text = valueMapper(value.getValue())
+        var notifiable = true
+        textConsumer {
+            notifiable = false
+            value.setValue(textMapper(it))
+            notifiable = true
         }
-        Row(
-            Modifier.height(12f),
-            verticalArrangement = Arrangement.SpaceBetween
+        value.subscribe {
+            if (notifiable) text = valueMapper(value.getValue())
+        }
+        textPredicate(textPredicate)
+        editorScope()
+    }
+    Row(
+        Modifier.height(12f),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        FlatButton(
+            modifier = Modifier.padding(horizontal = 2f).margin(top = 1f),
+            hoveredColor = Colors.GRAY.opacity(.15f)
         ) {
-            FlatButton(
-                modifier = Modifier.padding(horizontal = 2f).margin(top = 1f),
-                hoveredColor = Colors.GRAY.opacity(.15f)
-            ) {
-                Box(Modifier.size(5f, 5f)) {
-                    Icon(IconTextures.PLUS, Colors.BLACK)
-                }
-                press {
-                    val s = when {
-                        InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
-                        InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
-                        InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
-                        else                                              -> step.click
-                    }
-                    value.setValue(plus(value.getValue(), s))
-                }
+            Box(Modifier.size(5f, 5f)) {
+                Icon(IconTextures.PLUS, Colors.BLACK)
             }
-            FlatButton(
-                modifier = Modifier.padding(horizontal = 2f),
-                hoveredColor = Colors.GRAY.opacity(.15f)
-            ) {
-                Box(Modifier.size(5f, 5f)) {
-                    Icon(IconTextures.MINUS, Colors.BLACK)
+            press {
+                val s = when {
+                    InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
+                    InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
+                    InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
+                    else                                              -> step.click
                 }
-                press {
-                    val s = when {
-                        InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
-                        InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
-                        InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
-                        else                                              -> step.click
-                    }
-                    value.setValue(minus(value.getValue(), s))
+                value.setValue(plus(value.getValue(), s))
+            }
+        }
+        FlatButton(
+            modifier = Modifier.padding(horizontal = 2f),
+            hoveredColor = Colors.GRAY.opacity(.15f)
+        ) {
+            Box(Modifier.size(5f, 5f)) {
+                Icon(IconTextures.MINUS, Colors.BLACK)
+            }
+            press {
+                val s = when {
+                    InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
+                    InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
+                    InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
+                    else                                              -> step.click
                 }
+                value.setValue(minus(value.getValue(), s))
             }
         }
     }
-
+    scope()
 }
+
 
 fun WidgetContainerScope.IntEditor(
     value: State<Int>,
@@ -799,7 +799,8 @@ fun WidgetContainerScope.IntEditor(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: TextEditorScope.() -> Unit = {}
+    scope: ColumnScope.() -> Unit = {},
+    editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     plus = { a, b -> a + b },
@@ -817,7 +818,8 @@ fun WidgetContainerScope.IntEditor(
     suggestionColor = suggestionColor,
     cursorColor = cursorColor,
     textRenderer = textRenderer,
-    scope = scope
+    scope = scope,
+    editorScope = editorScope
 )
 
 fun WidgetContainerScope.LongEditor(
@@ -833,7 +835,8 @@ fun WidgetContainerScope.LongEditor(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: TextEditorScope.() -> Unit = {}
+    scope: ColumnScope.() -> Unit = {},
+    editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     plus = { a, b -> a + b },
@@ -851,7 +854,8 @@ fun WidgetContainerScope.LongEditor(
     suggestionColor = suggestionColor,
     cursorColor = cursorColor,
     textRenderer = textRenderer,
-    scope = scope
+    scope = scope,
+    editorScope = editorScope
 )
 
 fun WidgetContainerScope.FloatEditor(
@@ -867,7 +871,8 @@ fun WidgetContainerScope.FloatEditor(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: TextEditorScope.() -> Unit = {}
+    scope: ColumnScope.() -> Unit = {},
+    editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     plus = { a, b -> a + b },
@@ -888,7 +893,8 @@ fun WidgetContainerScope.FloatEditor(
     suggestionColor = suggestionColor,
     cursorColor = cursorColor,
     textRenderer = textRenderer,
-    scope = scope
+    scope = scope,
+    editorScope = editorScope
 )
 
 
@@ -905,7 +911,8 @@ fun WidgetContainerScope.DoubleEditor(
     suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: TextEditorScope.() -> Unit = {}
+    scope: ColumnScope.() -> Unit = {},
+    editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     plus = { a, b -> a + b },
@@ -926,5 +933,6 @@ fun WidgetContainerScope.DoubleEditor(
     suggestionColor = suggestionColor,
     cursorColor = cursorColor,
     textRenderer = textRenderer,
-    scope = scope
+    scope = scope,
+    editorScope = editorScope
 )

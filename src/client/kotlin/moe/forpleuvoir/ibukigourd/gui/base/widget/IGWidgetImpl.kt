@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -80,14 +79,6 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ DrawableElement ------------\\
 
-    override val screen: () -> IGScreen?
-        get() {
-            return if (parent() is IGScreen) {
-                { parent() as IGScreen }
-            } else {
-                { parent()?.screen?.let { it() } }
-            }
-        }
 
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 

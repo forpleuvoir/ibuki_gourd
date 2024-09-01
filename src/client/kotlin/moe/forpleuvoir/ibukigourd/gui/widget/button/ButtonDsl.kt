@@ -89,6 +89,7 @@ fun WidgetContainerScope.SwitchButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    scope: ButtonScope.() -> Unit = {}
 ) = Button(
     Modifier
         .size(36f, 15f)
@@ -106,6 +107,7 @@ fun WidgetContainerScope.SwitchButton(
     verticalAlignment
 ) {
     press { switchState.switch() }
+    scope()
 }
 
 /**
@@ -122,7 +124,7 @@ fun WidgetContainerScope.LockButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    content: ButtonScope.() -> Unit = {}
+    scope: ButtonScope.() -> Unit = {}
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     val list = listOf(
         PressableTheme.LOCK.pressed,
@@ -134,9 +136,8 @@ fun WidgetContainerScope.LockButton(
         PressableTheme.UNLOCK.hovered,
         PressableTheme.UNLOCK.disabled,
     )
-    val scope = ButtonScope { this }
-    scope.content()
-    val lock = scope.Icon(list.maxBy { it.width + it.height }) {
+    val buttonScope = ButtonScope { this }
+    val lock = buttonScope.Icon(list.maxBy { it.width + it.height }) {
         changedRemeasure = false
     }
     Modifier
@@ -147,5 +148,5 @@ fun WidgetContainerScope.LockButton(
         .padding(2f)
         .then(modifier).foldInApply()
     press { lockState.setValue(!lockState.getValue()) }
-
+    buttonScope.scope()
 }

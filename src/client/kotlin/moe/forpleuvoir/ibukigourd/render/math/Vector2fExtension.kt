@@ -26,6 +26,14 @@ operator fun Vector2fc.component1(): Float = x()
 
 operator fun Vector2fc.component2(): Float = y()
 
+fun Vector2fc.coerceIn(min: Vector2fc, max: Vector2fc): Vector2fc = Vector2f(x.coerceIn(min.x(), max.x()), y.coerceIn(min.y(), max.y()))
+
+fun Vector2f.coerceIn(min: Vector2fc, max: Vector2fc): Vector2fc {
+    x = x.coerceIn(min.x(), max.x())
+    y = y.coerceIn(min.y(), max.y())
+    return this
+}
+
 /**
  * 创建一个向量[Vector2f]对象
  *

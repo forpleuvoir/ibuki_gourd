@@ -20,6 +20,17 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     var parent: () -> IGElement?
 
+    fun hasParentInChain(target: IGElement): Boolean {
+        var current: IGElement? = this
+        while (current != null && current.parent() != current) {
+            if (current == target) {
+                return true
+            }
+            current = current.parent()
+        }
+        return current == target
+    }
+
     override var layer: GuiLayer
 
     var active: Boolean

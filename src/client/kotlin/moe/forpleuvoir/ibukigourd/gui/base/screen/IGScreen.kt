@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.util.State
 import net.minecraft.client.MinecraftClient
 
 interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
@@ -13,7 +14,7 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     var focusedWidget: IGWidget?
 
-    var hoveredWidget: IGWidget?
+    var hoveredWidget: State<IGWidget?>
 
     var pauseGame: Boolean
 
@@ -22,6 +23,8 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
     var onClose: (() -> Unit)?
 
     var onDisplayed: (() -> Unit)?
+
+    val scope: ScreenScope<*>
 
     /**
      * GUI层

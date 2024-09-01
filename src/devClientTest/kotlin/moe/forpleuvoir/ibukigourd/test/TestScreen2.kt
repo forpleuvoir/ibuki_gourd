@@ -26,9 +26,9 @@ fun TestScreen2() = RowScreen(
         modifier = Modifier.width(160f).weight(1)
     ) {
         textConsumer {
-            this@RowScreen.remember(this, it)
+            mc.remember(this, it)
         }
-        text = this@RowScreen.byRemember(this, "这是多行文本")
+        text = mc.byRemember(this, "这是多行文本")
     }
 
 

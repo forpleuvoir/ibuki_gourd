@@ -102,7 +102,6 @@ class Transform(
     }
 
 
-
     override val vertexes: Array<out Vector2fc>
         get() = arrayOf(
             position,
@@ -228,12 +227,19 @@ class Transform(
         positionAsNotifiable += Vector2f(x, y)
     }
 
-    fun translateTo(vector2fc: Vector2fc) {
-        positionAsNotifiable.set(vector2fc)
+    fun translateTo(vector2fc: Vector2fc, isWorld: Boolean = false) {
+        if (isWorld) {
+            worldX = vector2fc.x
+            worldY = vector2fc.y
+        } else
+            positionAsNotifiable.set(vector2fc)
     }
 
-    fun translateTo(x: Number = position.x, y: Number = position.y) {
-        positionAsNotifiable.set(x, y)
+    fun translateTo(x: Number = position.x, y: Number = position.y, isWorld: Boolean = false) {
+        if (isWorld) {
+            worldX = x.toFloat()
+            worldY = y.toFloat()
+        } else positionAsNotifiable.set(x, y)
     }
 
 }

@@ -26,6 +26,14 @@ operator fun Vector2ic.component1(): Int = x()
 
 operator fun Vector2ic.component2(): Int = y()
 
+fun Vector2ic.coerceIn(min: Vector2ic, max: Vector2ic): Vector2ic = Vector2i(x.coerceIn(min.x(), max.x()), y.coerceIn(min.y(), max.y()))
+
+fun Vector2i.coerceIn(min: Vector2ic, max: Vector2ic): Vector2ic {
+    x = x.coerceIn(min.x(), max.x())
+    y = y.coerceIn(min.y(), max.y())
+    return this
+}
+
 /**
  * 创建一个向量[Vector2i]对象
  *

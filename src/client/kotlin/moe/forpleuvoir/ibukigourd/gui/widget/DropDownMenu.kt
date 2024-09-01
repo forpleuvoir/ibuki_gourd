@@ -177,6 +177,7 @@ fun <T> WidgetContainerScope.Spinner(
     selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
     optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
+    scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
     check(initialOption in options) { "initialOption must be in options" }
     val selected = stateOf(initialOption)
@@ -218,6 +219,7 @@ fun <T> WidgetContainerScope.Spinner(
                 }
             }
         }
+        scope()
     }
 }
 
@@ -227,7 +229,8 @@ fun WidgetContainerScope.Spinner(
     initialOption: String = options.first(),
     onChange: (String) -> Unit = {},
     selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scope: DropDownMenuScope.() -> Unit = {}
 ) = Spinner(
     options,
     initialOption,
@@ -235,5 +238,6 @@ fun WidgetContainerScope.Spinner(
     selectedColor,
     selectedWrapper = { TextLabel(it) },
     optionWrapper = { TextLabel(it) },
-    modifier
+    modifier,
+    scope
 )

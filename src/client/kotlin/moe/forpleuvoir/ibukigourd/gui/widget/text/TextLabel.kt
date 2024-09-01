@@ -33,7 +33,7 @@ class TextWidget(
 
     constructor(
         text: State<Text>,
-        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        horizontalAlignment: Alignment.Horizontal = Alignment.Left,
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         scrollAxis: ScrollAxis = ScrollAxis.All,
@@ -49,7 +49,7 @@ class TextWidget(
     )
 
     data class Setting(
-        var horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        var horizontalAlignment: Alignment.Horizontal = Alignment.Left,
         var verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         var shadow: Boolean = false,
         var scrollAxis: ScrollAxis = ScrollAxis.All,

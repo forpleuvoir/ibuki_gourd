@@ -26,6 +26,8 @@ import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.State
+import moe.forpleuvoir.ibukigourd.util.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.*
@@ -292,7 +294,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     abstract fun S.content()
 
-    abstract val scope: S
+    abstract override val scope: S
 
     //------------ Drawable ------------\\
 
@@ -315,25 +317,28 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     var latestRenderTime: Duration = Duration.ZERO
         protected set
 
-
-    override var hoveredWidget: IGWidget? = null
+    override var hoveredWidget: State<IGWidget?> = stateOf(null as IGWidget?).apply {
+        subscribe {
+            MouseCursor.current = it?.mouseOverCursor ?: MouseCursor.default
+        }
+    }
 
     private fun updateHoveredWidget() {
         for (layer in layers) {
             val widget = hoveredWidget(layer)
             if (widget != null) {
-                hoveredWidget = widget
+                hoveredWidget.setValue(widget)
                 return
             }
         }
-        hoveredWidget = null
+        hoveredWidget.setValue(null)
     }
 
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-        //更新鼠标样式
-        MouseCursor.current = hoveredWidget?.mouseOverCursor ?: MouseCursor.default
+//        //更新鼠标样式
+//        MouseCursor.current = hoveredWidget.getValue()?.mouseOverCursor ?: MouseCursor.default
         latestRenderTime = measureTime {
             val ctx = context.toIGDrawContext()
 
