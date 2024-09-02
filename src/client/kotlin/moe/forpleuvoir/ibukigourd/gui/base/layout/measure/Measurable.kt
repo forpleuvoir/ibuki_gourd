@@ -13,8 +13,8 @@ interface Measurable {
 
     fun measure(constraints: Constraints): Placeable
 
-    var measureCompleted: () -> Unit
+    var measureCompletion: () -> Unit
 
-    fun onMeasureCompleted()
+    fun onMeasureCompletion()
 
 }

@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
@@ -31,7 +30,6 @@ import moe.forpleuvoir.ibukigourd.util.plus
 import moe.forpleuvoir.ibukigourd.util.stateOf
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 
 fun testScreen3() = RowScreen(
     modifier = Modifier.renderOverlay { ctx, _, _, _ ->
@@ -208,7 +206,6 @@ private fun ColumnScope.RowTest(arrangement: Arrangement.Vertical) = Row(
     Button {
         TextLabel("按钮1")
         HoverTip(
-            optionalDirection = notifiableList(Direction.Left),
             bgColor = stateOf(Colors.PINK)
         ) { TextLabel("我踏马要写一大段测试文本,\n而且我还要换行.我TM换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换") }
     }

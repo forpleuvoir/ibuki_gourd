@@ -32,7 +32,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var margin: Margin = Margin(0)
 
-    override var placeCompleted: () -> Unit = ::onPlaceCompleted
+    override var placeCompletion: () -> Unit = ::onPlaceCompletion
 
     /**
      * 鼠标是否在组件中
@@ -72,9 +72,9 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var parentData: Any? = null
 
-    override var measureCompleted: () -> Unit = ::onMeasureCompleted
+    override var measureCompletion: () -> Unit = ::onMeasureCompletion
 
-    override fun onMeasureCompleted() = Unit
+    override fun onMeasureCompletion() = Unit
 
 
     //------------ DrawableElement ------------\\
@@ -132,19 +132,19 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ Vanilla Element ------------\\
 
-    override fun isFocused(): Boolean = screen()?.focusedWidget == this
+    override fun isFocused(): Boolean = screen()?.focusedWidget?.getValue() == this
 
     override fun setFocused(focused: Boolean) {
         if (focused) {
-            screen()?.focusedWidget = this
+            screen()?.focusedWidget?.setValue(this)
         } else {
-            if (screen()?.focusedWidget == this) screen()?.focusedWidget = null
+            if (screen()?.focusedWidget == this) screen()?.focusedWidget?.setValue(null)
         }
     }
 
     override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean = wasMouseOver
 
     override fun toString(): String {
-        return (parent()?.toString() ?: "") + "=>" + this::class.simpleName + "@${hashCode()}"
+        return this::class.simpleName + "@${hashCode()}"
     }
 }

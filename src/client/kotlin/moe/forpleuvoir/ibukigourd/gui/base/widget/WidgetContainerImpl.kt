@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.forEachWithIterator
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
@@ -25,10 +26,10 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     override fun layoutableChildren(): List<Layoutable> = widgetChildren
 
-    override var layoutCompleted: () -> Unit = ::onLayoutCompleted
+    override var layoutCompletion: () -> Unit = ::onLayoutCompletion
 
-    override fun onMeasureCompleted() {
-        super<Layout>.onMeasureCompleted()
+    override fun onMeasureCompletion() {
+        super<Layout>.onMeasureCompletion()
     }
 
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
@@ -58,7 +59,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
             render.invoke(this, _mouseX, _mouseY, delta)
         }
 
-        for (drawableChild in widgetChildren().sortedBy { it.renderPriority }) {
+        widgetChildren().sortedBy { it.renderPriority }.forEachWithIterator { drawableChild ->
             if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
         }
 
@@ -79,68 +80,59 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
     override fun onMouseMove(event: MouseMoveEvent) {
         super.onMouseMove(event)
 
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.mouseMove.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.mouseMove.invoke(event)
         }
     }
 
     override fun onMousePress(event: MousePressEvent) {
         super.onMousePress(event)
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.mousePress.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.mousePress.invoke(event)
         }
     }
 
     override fun onFocused(event: FocusedEvent) {
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.focused.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.focused.invoke(event)
         }
         super.onFocused(event)
     }
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
         super.onMouseRelease(event)
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.mouseRelease.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.mouseRelease.invoke(event)
         }
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.mouseDragging.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.mouseDragging.invoke(event)
         }
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.mouseScrolling.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.mouseScrolling.invoke(event)
         }
     }
 
     override fun onKeyPress(event: KeyPressEvent) {
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.keyPress.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.keyPress.invoke(event)
         }
     }
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.keyRelease.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.keyRelease.invoke(event)
         }
     }
 
     override fun onCharTyped(event: CharTypedEvent) {
-        for (child in widgetChildren()) {
-            if (!child.active) continue
-            child.charTyped.invoke(event)
+        widgetChildren().forEachWithIterator {
+            if (it.active) it.charTyped.invoke(event)
         }
     }
 }

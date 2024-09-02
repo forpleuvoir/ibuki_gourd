@@ -303,7 +303,7 @@ open class TextEditorWidget(
         return this
     }
 
-    override fun onMeasureCompleted() {
+    override fun onMeasureCompletion() {
         firstCharacterIndex = 0
     }
 

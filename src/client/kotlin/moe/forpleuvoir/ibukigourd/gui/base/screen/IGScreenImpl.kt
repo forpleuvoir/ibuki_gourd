@@ -1,5 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.screen
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
@@ -72,7 +75,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         _active = null
     }
 
-    override var placeCompleted: () -> Unit = ::onPlaceCompleted
+    override var placeCompletion: () -> Unit = ::onPlaceCompletion
 
     override val mouseOverCursor: MouseCursor.Cursor
         get() = MouseCursor.default
@@ -109,7 +112,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override var layers: List<GuiLayer> = GuiLayer.defaultLayers
         internal set
 
-    override var focusedWidget: IGWidget? = null
+    override var focusedWidget: State<IGWidget?> = stateOf(null)
 
     private val datas: MutableMap<String, Any> = mutableMapOf()
 
@@ -118,6 +121,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     }
 
     override fun getData(key: String): Any? = datas[key]
+
+    override val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 
     //------------ Tickable ------------\\
 
@@ -129,7 +134,6 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun onTick() {
         super.onTick()
-        updateHoveredWidget()
     }
 
     //------------ Measurable ------------\\
@@ -149,13 +153,13 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun layoutableChildren(): List<Layoutable> = widgetChildren()
 
-    override var measureCompleted: () -> Unit = ::onMeasureCompleted
+    override var measureCompletion: () -> Unit = ::onMeasureCompletion
 
-    override var layoutCompleted: () -> Unit = ::onLayoutCompleted
+    override var layoutCompletion: () -> Unit = ::onLayoutCompletion
 
     override fun measure(constraints: Constraints): Placeable {
         return super.measure(constraints = constraints).also {
-            measureCompleted()
+            measureCompletion()
             layout()
         }
     }
@@ -270,6 +274,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun close() {
         onClose?.invoke()
         MouseCursor.clear()
+        coroutineScope.cancel()
         super.close()
     }
 
@@ -327,7 +332,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         for (layer in layers) {
             val widget = hoveredWidget(layer)
             if (widget != null) {
-                hoveredWidget.setValue(widget)
+                if (hoveredWidget.getValue() != widget) {
+                    hoveredWidget.setValue(widget)
+                }
                 return
             }
         }
@@ -337,8 +344,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-//        //更新鼠标样式
-//        MouseCursor.current = hoveredWidget.getValue()?.mouseOverCursor ?: MouseCursor.default
+        updateHoveredWidget()
         latestRenderTime = measureTime {
             val ctx = context.toIGDrawContext()
 
@@ -347,7 +353,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             render.invoke(ctx, _mouseX, _mouseY, delta)
             for (index in layers.lastIndex downTo 0) {
                 ctx.layer = layers[index]
-                for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
+                drawableChildren().sortedBy { it.renderPriority }.forEachWithIterator { drawableChild ->
                     if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
                 }
             }
@@ -437,10 +443,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (!child.active) continue
-                else child.mouseMove.invoke(event)
-
+            elementChildren().forEachWithIterator {
+                if (it.active) it.mouseMove.invoke(event)
             }
         }
     }
@@ -462,8 +466,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
                 focused(FocusedEvent().layer(layer))
             }
 
-            for (child in elementChildren()) {
-                if (child.active) child.mousePress.invoke(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.mousePress.invoke(event)
             }
         }
     }
@@ -473,8 +477,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onFocused(event: FocusedEvent) {
         for (layer in layers) {
             event.layer(layer)
-            for (child in elementChildren()) {
-                if (child.active) child.focused.invoke(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.focused.invoke(event)
             }
         }
         event.tryUse().onSuccess {
@@ -495,8 +499,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (child.active) child.mouseRelease.invoke(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.mouseRelease.invoke(event)
             }
         }
     }
@@ -519,8 +523,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onMouseDragging(event: MouseDragEvent) {
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (child.active) child.mouseDragging.invoke(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.mouseDragging.invoke(event)
             }
         }
     }
@@ -535,8 +539,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onMouseScrolling(event: MouseScrollEvent) {
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (child.active) child.mouseScrolling.invoke(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.mouseScrolling.invoke(event)
             }
         }
     }
@@ -551,8 +555,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onKeyPress(event: KeyPressEvent) {
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (child.active) child.keyPress.invoke(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.keyPress.invoke(event)
             }
         }
         event.tryUse(event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc())
@@ -569,8 +573,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onKeyRelease(event: KeyReleaseEvent) {
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (child.active) child.keyRelease(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.keyRelease.invoke(event)
             }
         }
     }
@@ -585,8 +589,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onCharTyped(event: CharTypedEvent) {
         for (layer in layers) {
             event.layer = layer
-            for (child in elementChildren()) {
-                if (child.active) child.charTyped(event)
+            elementChildren().forEachWithIterator {
+                if (it.active) it.charTyped.invoke(event)
             }
         }
     }
@@ -594,13 +598,13 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean =
         transform.isMouseOvered(mouseX, mouseY)
 
-    override fun isFocused(): Boolean = focusedWidget == this
+    override fun isFocused(): Boolean = focusedWidget.getValue() == this
 
     override fun setFocused(focused: Boolean) {
         if (focused) {
-            focusedWidget = this
+            focusedWidget.setValue(this)
         } else {
-            if (focusedWidget == this) focusedWidget = null
+            if (focusedWidget.getValue() == this) focusedWidget.setValue(null)
         }
     }
 
@@ -621,4 +625,14 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         return (this::class.simpleName ?: "Screen") + "@${hashCode()}"
     }
 
+    companion object {
+
+        inline fun <T> List<T>.forEachWithIterator(action: (T) -> Unit) {
+            val iterator = this.listIterator()
+            while (iterator.hasNext()) {
+                action(iterator.next())
+            }
+        }
+
+    }
 }

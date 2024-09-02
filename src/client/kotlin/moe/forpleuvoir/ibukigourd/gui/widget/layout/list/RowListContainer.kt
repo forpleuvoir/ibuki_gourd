@@ -27,14 +27,14 @@ class RowListWidget(
     spacing: Float = 0f,
 ) : ListWidget(scrollState, alignment, spacing), RowListLayout {
 
-    override fun onMeasureCompleted() {
+    override fun onMeasureCompletion() {
         val totalSpace = widgetChildren().sumOf { it.wrappedHeight + spacing } - spacing
         scrollState {
             maxAmount = totalSpace - contentHeight
             barProportion = contentHeight / totalSpace
             amountStep = widgetChildren().minOf { it.transform.height } / 2f
         }
-        super<ListWidget>.onMeasureCompleted()
+        super<ListWidget>.onMeasureCompletion()
     }
 
     fun interface Scope : ListWidget.Scope<RowListWidget, Alignment.Horizontal>, RowListLayoutScope

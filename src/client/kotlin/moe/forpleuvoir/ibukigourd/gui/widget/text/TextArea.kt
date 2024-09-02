@@ -766,7 +766,7 @@ fun WidgetContainerScope.TextArea(
 ) {
     Modifier
         .padding(5.5f)
-        .measureCompleted {
+        .measureCompletion {
             this as TextAreaWidget
             scrollState {
                 amountStep = textRenderer.fontHeight / 2f
@@ -811,7 +811,7 @@ fun WidgetContainerScope.TextAreaWrapped(
                 .fill()
                 .weight(1)
                 .renderBackground { _, _, _, _ -> }
-                .measureCompleted {
+                .measureCompletion {
                     this as TextAreaWidget
                     scrollState {
                         amountStep = textRenderer.fontHeight / 2f

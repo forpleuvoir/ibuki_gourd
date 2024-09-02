@@ -5,6 +5,8 @@ import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.keyPress
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.keyRelease
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.width
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -57,20 +59,23 @@ object TestInitialization {
                                 TextLabel("悬浮测试")
                             }
                         }
-                    }) {
-                        HoverTip(
-                            modifier = Modifier.margin(3f),
-                            optionalDirection = notifiableList(Direction.Top)
-                        ) {
-                            Button {
-                                TextLabel("悬浮测试")
+                    })
+                    val keepState = stateOf(false)
+                    Button(Modifier
+                        .keyPress {
+                            if (it.keyCode == Keyboard.LEFT_CONTROL) {
+                                keepState.setValue(true)
+                            }
+                        }.keyRelease {
+                            if (it.keyCode == Keyboard.LEFT_CONTROL) {
+                                keepState.setValue(false)
                             }
                         }
-                    }
-                    Button {
+                    ) {
                         TextLabel("高度测试1")
                         HoverTip(
                             modifier = Modifier.margin(3f),
+                            keepShow = keepState,
                             optionalDirection = notifiableList(Direction.Bottom)
                         ) {
                             Button {

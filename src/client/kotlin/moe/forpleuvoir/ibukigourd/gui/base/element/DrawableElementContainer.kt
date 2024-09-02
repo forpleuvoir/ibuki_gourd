@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.forEachWithIterator
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
@@ -13,8 +14,8 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var tick: () -> Unit
 
     override fun onTick() {
-        for (child in elementChildren()) {
-            child.tick.invoke()
+        elementChildren().forEachWithIterator {
+            it.tick.invoke()
         }
     }
 
@@ -39,7 +40,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
             render(this, _mouseX, _mouseY, delta)
         }
 
-        for (drawableChild in drawableChildren().sortedBy { it.renderPriority }) {
+        drawableChildren().sortedBy { it.renderPriority }.forEachWithIterator { drawableChild ->
             if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
         }
 
@@ -79,72 +80,72 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var mouseMove: (event: MouseMoveEvent) -> Unit
 
     override fun onMouseMove(event: MouseMoveEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.mouseMove.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.mouseMove.invoke(event)
         }
     }
 
     override var mousePress: (event: MousePressEvent) -> Unit
 
     override fun onMousePress(event: MousePressEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.mousePress.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.mousePress.invoke(event)
         }
     }
 
     override var focused: (event: FocusedEvent) -> Unit
 
     override fun onFocused(event: FocusedEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.focused.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.focused.invoke(event)
         }
     }
 
     override var mouseRelease: (event: MouseReleaseEvent) -> Unit
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.mouseRelease.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.mouseRelease.invoke(event)
         }
     }
 
     override var mouseDragging: (event: MouseDragEvent) -> Unit
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.mouseDragging.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.mouseDragging.invoke(event)
         }
     }
 
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.mouseScrolling.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.mouseScrolling.invoke(event)
         }
     }
 
     override var keyPress: (event: KeyPressEvent) -> Unit
 
     override fun onKeyPress(event: KeyPressEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.keyPress.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.keyPress.invoke(event)
         }
     }
 
     override var keyRelease: (event: KeyReleaseEvent) -> Unit
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.keyRelease.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.keyRelease.invoke(event)
         }
     }
 
     override var charTyped: (event: CharTypedEvent) -> Unit
 
     override fun onCharTyped(event: CharTypedEvent) {
-        for (child in elementChildren()) {
-            if (child.active) child.charTyped.invoke(event)
+        elementChildren().forEachWithIterator {
+            if (it.active) it.charTyped.invoke(event)
         }
     }
 

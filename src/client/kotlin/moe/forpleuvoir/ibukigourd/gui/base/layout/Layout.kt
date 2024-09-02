@@ -10,10 +10,10 @@ interface Layout : Measurable {
 
     fun layoutableChildren(): List<Layoutable>
 
-    var layoutCompleted: () -> Unit
+    var layoutCompletion: () -> Unit
 
-    fun onLayoutCompleted() {
-        layoutableChildren().filter { it is Layout }.forEach { (it as Layout).layoutCompleted() }
+    fun onLayoutCompletion() {
+        layoutableChildren().filter { it is Layout }.forEach { (it as Layout).layoutCompletion() }
     }
 
     fun layout() {
@@ -21,7 +21,7 @@ interface Layout : Measurable {
         if (layoutables.isEmpty()) return
         layout(layoutables)
         layoutables.filter { it is Layout }.forEach { (it as Layout).layout() }
-        layoutCompleted()
+        layoutCompletion()
     }
 
     fun layout(layoutables: List<Layoutable>)
@@ -33,9 +33,9 @@ interface Layout : Measurable {
     override fun measure(constraints: Constraints): Placeable =
         measureChildren(layoutableChildren(), this.constraints.constraintAs(constraints))
 
-    override fun onMeasureCompleted() {
+    override fun onMeasureCompletion() {
         layoutableChildren().forEach {
-            it.measureCompleted()
+            it.measureCompletion()
         }
     }
 

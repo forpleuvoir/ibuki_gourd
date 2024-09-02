@@ -197,14 +197,14 @@ fun Modifier.layer(layer: State<GuiLayer>) = this then WidgetModifier { widget -
 
 //------------ Measure ------------\\
 
-fun Modifier.measureCompleted(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
-    widget.measureCompleted = { widget.action() }
+fun Modifier.measureCompletion(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
+    widget.measureCompletion = { widget.action() }
 }
 
 //------------ Layout ------------\\
 
 fun Modifier.layoutCompleted(action: WidgetContainerImpl.() -> Unit) = this then WidgetContainerModifier { widget ->
-    widget.layoutCompleted = { widget.action() }
+    widget.layoutCompletion = { widget.action() }
 }
 
 //------------ Misc ------------\\
@@ -220,6 +220,6 @@ fun Modifier.active(state: State<Boolean>) = this then WidgetModifier { widget -
     }
 }
 
-fun Modifier.placeCompleted(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
-    widget.placeCompleted = { action(widget) }
+fun Modifier.placeCompletion(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
+    widget.placeCompletion = { action(widget) }
 }

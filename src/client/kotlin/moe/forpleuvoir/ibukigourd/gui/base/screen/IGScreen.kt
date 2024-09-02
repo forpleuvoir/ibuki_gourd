@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.screen
 
+import kotlinx.coroutines.*
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
@@ -7,12 +8,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.util.State
 import net.minecraft.client.MinecraftClient
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     //------------ IGScreen ------------\\
 
-    var focusedWidget: IGWidget?
+    var focusedWidget: State<IGWidget?>
 
     var hoveredWidget: State<IGWidget?>
 
@@ -43,6 +46,22 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
     override var parentData: Any?
 
     fun remeasure()
+
+    //------------ Coroutine ------------\\
+
+    val coroutineScope: CoroutineScope
+
+    fun launch(
+        context: CoroutineContext = EmptyCoroutineContext,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> Unit
+    ): Job = coroutineScope.launch(context, start, block)
+
+    fun <T> async(
+        context: CoroutineContext = EmptyCoroutineContext,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> T
+    ): Deferred<T> = coroutineScope.async(context, start, block)
 
 }
 

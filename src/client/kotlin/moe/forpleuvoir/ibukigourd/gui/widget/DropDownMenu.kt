@@ -62,7 +62,7 @@ fun WidgetContainerScope.DropDownMenu(
     return Button(
         modifier = Modifier
             .padding(horizontal = 5f, vertical = 4f)
-            .placeCompleted {
+            .placeCompletion {
                 maxSpaceDir = transform.worldCenter.y() - (mc.window.scaledHeight / 2f) < 0f
                 space = transform.worldTop to mc.window.scaledHeight.toFloat() - transform.worldBottom
                 parentBox = transform.asWorldBox
@@ -115,7 +115,7 @@ fun WidgetContainerScope.DropDownMenu(
                             }
                             it.tryUse()
                         }
-                        .placeCompleted {
+                        .placeCompletion {
                             transform.worldX = placedPosition.x
                             transform.worldY = placedPosition.y
                         }
@@ -136,7 +136,7 @@ fun WidgetContainerScope.DropDownMenu(
                             //在下面时,强制放在下面
                             owner().apply {
                                 measure(Constraints.of(maxHeight = bottomSpace))
-                                measureCompleted()
+                                measureCompletion()
                                 //放置于父组件下面
                                 //先尝试放置于父组件中心
                                 var x = parentBox.center.x() - owner().transform.halfWidth
@@ -150,7 +150,7 @@ fun WidgetContainerScope.DropDownMenu(
                             //在上面时,强制放在上面
                             owner().apply {
                                 measure(Constraints.of(maxHeight = topSpace))
-                                measureCompleted()
+                                measureCompletion()
                                 //放置于父组件上面
                                 //先尝试放置于父组件中心
                                 var x = parentBox.center.x() - owner().transform.halfWidth

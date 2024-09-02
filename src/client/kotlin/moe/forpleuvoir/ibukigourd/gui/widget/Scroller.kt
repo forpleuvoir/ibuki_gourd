@@ -73,7 +73,7 @@ open class ScrollerWidget(
         return this
     }
 
-    override fun onMeasureCompleted() {
+    override fun onMeasureCompletion() {
         val progress = scrollState.progress
         orientation.peek(
             {
