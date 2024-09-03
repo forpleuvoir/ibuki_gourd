@@ -5,20 +5,17 @@ import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.keyPress
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.keyRelease
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.widget.Proxy
-import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
+import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
@@ -28,6 +25,7 @@ import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.stateOf
 import moe.forpleuvoir.ibukigourd.util.switch
+import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
@@ -103,6 +101,14 @@ object TestInitialization {
                             }
                         }
                     }
+                    Row {
+                        val state = stateOf(15)
+                        IntSlider(state, -50..100, colorA = HSVColor(210f, .3f, .7f), colorB = HSVColor(210f, .1f, 1f), modifier = Modifier.size(120f, 16f))
+                        LongSlider(stateOf(30), -50L..100L, modifier = Modifier.size(120f, 16f))
+                        FloatSlider(stateOf(30f), -50f..100f, modifier = Modifier.size(120f, 16f))
+                        DoubleSlider(stateOf(30.0), -50.0..100.0, modifier = Modifier.size(120f, 16f))
+                    }
+
                 })
             }
             register(Keyboard.KP_9) {

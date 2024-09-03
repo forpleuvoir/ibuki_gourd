@@ -194,7 +194,11 @@ open class ScrollerWidget(
         }
     }
 
-    fun interface Scope : GuiScope<ScrollerWidget>
+    fun interface Scope : GuiScope<ScrollerWidget> {
+
+        fun updateBar() = owner().updateBar()
+
+    }
 
 }
 

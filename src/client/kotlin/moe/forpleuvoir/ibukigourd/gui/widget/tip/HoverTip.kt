@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Absolute
@@ -41,6 +42,7 @@ fun WidgetScope.HoverTip(
     showDelay: Duration = 200.milliseconds,
     closeDelay: Duration = 0.seconds,
     keepShow: State<Boolean> = stateOf(false),
+    parentTransform: (IGWidget) -> Transform = { it.transform },
     modifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
@@ -48,12 +50,12 @@ fun WidgetScope.HoverTip(
     content: BoxScope.() -> Unit,
 ): BoxWidget {
     var tip: BoxWidget? = null
-    val parent = owner()
+    val parentWidget = owner()
     val showState = stateOf(false)
     var currentJob: Job? = null
     var hoverState = false
     keepShow.subscribe {
-        if (!it && !(screen.hoveredWidget.getValue()?.hasParentInChain(parent) == true && parent.wasMouseOver)) {
+        if (!it && !(screen.hoveredWidget.getValue()?.hasParentInChain(parentWidget) == true && parentWidget.wasMouseOver)) {
             showState.setValue(false)
             hoverState = false
             currentJob?.cancel()
@@ -68,38 +70,41 @@ fun WidgetScope.HoverTip(
         if (showState.getValue() && keepShow.getValue()) return@subscribe
         //更新悬浮状态
         val oldState = hoverState
-        hoverState = it?.hasParentInChain(parent) == true && parent.wasMouseOver
+        hoverState = it?.hasParentInChain(parentWidget) == true && parentWidget.wasMouseOver
         //状态更新时
         if (hoverState != oldState) {
             //取消之前的任务
             currentJob?.cancel()
             //当前悬浮状态为False,触发关闭任务
-            currentJob = if (hoverState) {
-                screen.launch {
+            if (hoverState) {
+                if (showDelay == Duration.ZERO) showState.setValue(true)
+                currentJob = screen.launch {
                     delay(showDelay)
                     showState.setValue(hoverState)
                 }
             } else {
-                screen.launch {
+                currentJob = screen.launch {
+                    if (closeDelay == Duration.ZERO) showState.setValue(false)
                     delay(closeDelay)
                     showState.setValue(hoverState)
                 }
             }
         }
     }
-    tip = Tip(showState, modifier, bgColor, optionalDirection, screen, content)
+    tip = Tip(showState, parentTransform, modifier, bgColor, optionalDirection, screen, content)
     return tip
 }
 
 fun WidgetScope.Tip(
     showState: State<Boolean>,
+    parentTransform: (IGWidget) -> Transform = { it.transform },
     modifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
     screen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit,
 ): BoxWidget {
-    val parent = owner()
+    val parentWidget = owner()
     var box: BoxWidget? = null
     screen.scope.Absolute {
         val direction = stateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
@@ -119,8 +124,8 @@ fun WidgetScope.Tip(
                 .padding(4f)
                 .layer(GuiLayer.Pop)
                 .render { context, _, _, _ ->
-                    direction.setValue(checkDirection(transform, margin, parent.transform, optionalDirection))
-                    calcPosition(transform, margin, parent.transform, direction.getValue())
+                    direction.setValue(checkDirection(transform, margin, parentTransform(parentWidget), optionalDirection))
+                    calcPosition(transform, margin, parentTransform(parentWidget), direction.getValue())
                         .let { (x, y) -> transform.translateTo(x, y, false) }
                     val x = transform.worldX.coerceIn(0f, mc.window.scaledWidth.toFloat() - transform.width)
                     val y = transform.worldY.coerceIn(0f, mc.window.scaledHeight.toFloat() - transform.height)
@@ -128,23 +133,23 @@ fun WidgetScope.Tip(
                     //计算箭头位置
                     val (pos, texture) = when (direction.getValue()) {
                         Top    -> Vector2f(
-                            parent.transform.worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
+                            parentTransform(parentWidget).worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
                             transform.worldBottom - 2
                         ) to WidgetTextures.TIP_ARROW_TOP
 
                         Right  -> Vector2f(
                             transform.worldLeft + 2 - WidgetTextures.TIP_ARROW_BOTTOM.width,
-                            parent.transform.worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
+                            parentTransform(parentWidget).worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
                         ) to WidgetTextures.TIP_ARROW_RIGHT
 
                         Bottom -> Vector2f(
-                            parent.transform.worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
+                            parentTransform(parentWidget).worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
                             transform.worldTop + 2 - WidgetTextures.TIP_ARROW_BOTTOM.height
                         ) to WidgetTextures.TIP_ARROW_BOTTOM
 
                         Left   -> Vector2f(
                             transform.worldRight - 2,
-                            parent.transform.worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
+                            parentTransform(parentWidget).worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
                         ) to WidgetTextures.TIP_ARROW_LEFT
                     }
                     context.batchRenderTextureColored {
@@ -153,7 +158,7 @@ fun WidgetScope.Tip(
                     }
                 }
                 .placeCompletion {
-                    if (transform.parent() != parent.transform) transform.parent = { parent.transform }
+                    if (transform.parent() != parentWidget.transform) transform.parent = { parentWidget.transform }
                 } then modifier
         ) {
             content()

@@ -110,6 +110,12 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var SCROLLER_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 64, 16, 80, 32, TEXTURE_INFO)
         private set
 
+    var SLIDER_BORDER: WidgetTexture = WidgetTexture(Corner(4), 80, 16, 96, 32, TEXTURE_INFO)
+        private set
+
+    var SLIDER_CONTENT: WidgetTexture = WidgetTexture(Corner(4), 96, 16, 112, 32, TEXTURE_INFO)
+        private set
+
     var LIST_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 32, 0, 48, 16, TEXTURE_INFO)
         private set
 
