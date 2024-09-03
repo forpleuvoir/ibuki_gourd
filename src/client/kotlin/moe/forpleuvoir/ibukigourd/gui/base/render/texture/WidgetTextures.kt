@@ -110,7 +110,7 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var SCROLLER_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 64, 16, 80, 32, TEXTURE_INFO)
         private set
 
-    var SLIDER_BORDER: WidgetTexture = WidgetTexture(Corner(4), 80, 16, 96, 32, TEXTURE_INFO)
+    var SLIDER_BORDER: WidgetTexture = WidgetTexture(Corner(3, 4, 4, 3), 80, 16, 96, 32, TEXTURE_INFO)
         private set
 
     var SLIDER_CONTENT: WidgetTexture = WidgetTexture(Corner(4), 96, 16, 112, 32, TEXTURE_INFO)
@@ -191,10 +191,10 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var UNLOCK_DISABLED = WidgetTexture(Corner(0), 179, 83, 189, 93, TEXTURE_INFO)
         private set
 
-    var SWITCH_BUTTON_BACKGROUND_CONTENT = WidgetTexture(Corner(5), 192, 16, 208, 32, TEXTURE_INFO)
+    var SWITCH_BUTTON_BACKGROUND_BORDER = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
         private set
 
-    var SWITCH_BUTTON_BACKGROUND_BORDER = WidgetTexture(Corner(4), 192, 0, 208, 16, TEXTURE_INFO)
+    var SWITCH_BUTTON_BACKGROUND_CONTENT = WidgetTexture(Corner(horizontal = 5, vertical = 4), 192, 16, 208, 32, TEXTURE_INFO)
         private set
 
     var SWITCH_BUTTON = WidgetTexture(Corner(4), 192, 32, 208, 48, TEXTURE_INFO)

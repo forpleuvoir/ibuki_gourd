@@ -353,7 +353,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             render.invoke(ctx, _mouseX, _mouseY, delta)
             for (index in layers.lastIndex downTo 0) {
                 ctx.layer = layers[index]
-                drawableChildren().sortedBy { it.renderPriority }.forEachWithIterator { drawableChild ->
+                drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
                     if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
                 }
             }
@@ -443,7 +443,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.mouseMove.invoke(event)
             }
         }
@@ -466,7 +466,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
                 focused(FocusedEvent().layer(layer))
             }
 
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.mousePress.invoke(event)
             }
         }
@@ -477,7 +477,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onFocused(event: FocusedEvent) {
         for (layer in layers) {
             event.layer(layer)
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.focused.invoke(event)
             }
         }
@@ -499,7 +499,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.mouseRelease.invoke(event)
             }
         }
@@ -523,7 +523,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onMouseDragging(event: MouseDragEvent) {
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.mouseDragging.invoke(event)
             }
         }
@@ -539,7 +539,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onMouseScrolling(event: MouseScrollEvent) {
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.mouseScrolling.invoke(event)
             }
         }
@@ -555,7 +555,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onKeyPress(event: KeyPressEvent) {
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.keyPress.invoke(event)
             }
         }
@@ -573,7 +573,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onKeyRelease(event: KeyReleaseEvent) {
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.keyRelease.invoke(event)
             }
         }
@@ -589,7 +589,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun onCharTyped(event: CharTypedEvent) {
         for (layer in layers) {
             event.layer = layer
-            elementChildren().forEachWithIterator {
+            elementChildren().foreachWithIterator {
                 if (it.active) it.charTyped.invoke(event)
             }
         }
@@ -627,8 +627,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     companion object {
 
-        inline fun <T> List<T>.forEachWithIterator(action: (T) -> Unit) {
-            val iterator = this.listIterator()
+        inline fun <T> Iterable<T>.foreachWithIterator(action: (T) -> Unit) {
+            val iterator = this.iterator()
             while (iterator.hasNext()) {
                 action(iterator.next())
             }

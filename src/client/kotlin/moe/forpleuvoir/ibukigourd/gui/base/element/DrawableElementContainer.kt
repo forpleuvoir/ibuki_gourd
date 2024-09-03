@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.forEachWithIterator
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.foreachWithIterator
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.DrawContext
 
@@ -14,7 +14,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var tick: () -> Unit
 
     override fun onTick() {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             it.tick.invoke()
         }
     }
@@ -40,7 +40,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
             render(this, _mouseX, _mouseY, delta)
         }
 
-        drawableChildren().sortedBy { it.renderPriority }.forEachWithIterator { drawableChild ->
+        drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
             if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
         }
 
@@ -80,7 +80,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var mouseMove: (event: MouseMoveEvent) -> Unit
 
     override fun onMouseMove(event: MouseMoveEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.mouseMove.invoke(event)
         }
     }
@@ -88,7 +88,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var mousePress: (event: MousePressEvent) -> Unit
 
     override fun onMousePress(event: MousePressEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.mousePress.invoke(event)
         }
     }
@@ -96,7 +96,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var focused: (event: FocusedEvent) -> Unit
 
     override fun onFocused(event: FocusedEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.focused.invoke(event)
         }
     }
@@ -104,7 +104,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var mouseRelease: (event: MouseReleaseEvent) -> Unit
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.mouseRelease.invoke(event)
         }
     }
@@ -112,7 +112,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var mouseDragging: (event: MouseDragEvent) -> Unit
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.mouseDragging.invoke(event)
         }
     }
@@ -120,7 +120,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.mouseScrolling.invoke(event)
         }
     }
@@ -128,7 +128,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var keyPress: (event: KeyPressEvent) -> Unit
 
     override fun onKeyPress(event: KeyPressEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.keyPress.invoke(event)
         }
     }
@@ -136,7 +136,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var keyRelease: (event: KeyReleaseEvent) -> Unit
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.keyRelease.invoke(event)
         }
     }
@@ -144,7 +144,7 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override var charTyped: (event: CharTypedEvent) -> Unit
 
     override fun onCharTyped(event: CharTypedEvent) {
-        elementChildren().forEachWithIterator {
+        elementChildren().foreachWithIterator {
             if (it.active) it.charTyped.invoke(event)
         }
     }

@@ -150,3 +150,5 @@ fun WidgetContainerScope.LockButton(
     press { lockState.setValue(!lockState.getValue()) }
     buttonScope.scope()
 }
+
+//TODO 彩色按钮待实现
