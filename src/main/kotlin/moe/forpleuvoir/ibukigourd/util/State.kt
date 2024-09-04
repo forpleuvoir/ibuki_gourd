@@ -4,9 +4,22 @@ import moe.forpleuvoir.nebula.common.api.Notifiable
 import java.util.function.Consumer
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 
 fun <T> stateOf(value: T) = State(value)
+
+fun <T> stateBy(value: () -> T) = State(value()).apply { onGetValue = { value() } }
+
+fun <T> stateOf(value: KMutableProperty0<T>) =
+    State(value.get()).apply {
+        subscribe {
+            value.set(it)
+        }
+    }
+
+fun <A, B> stateOf(state: State<B>, map: (B) -> A): State<A> =
+    stateOf(map(state.getValue())).apply { bind(state, map) }
 
 data class State<T>(private var value: T) : Notifiable<T> {
 

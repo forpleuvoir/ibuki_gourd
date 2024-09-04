@@ -12,6 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
+import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.State
@@ -57,6 +58,7 @@ fun <T> WidgetContainerScope.NumberSlider(
             .minHeight(16f)
             .mousePress { event ->
                 onMousePress(event)
+                if (event.button != Mouse.LEFT) return@mousePress
                 pressed = wasMouseOver
                 event.tryUse(wasMouseOver).onSuccess {
                     soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))

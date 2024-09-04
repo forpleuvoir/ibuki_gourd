@@ -4,13 +4,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
+import moe.forpleuvoir.ibukigourd.gui.widget.FloatSlider
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -22,7 +22,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
+import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -77,16 +77,6 @@ fun modifier(): Modifier {
         }
 }
 
-val scrollState = ScrollState().apply {
-    amountStep = 1f
-    maxAmount = 10f
-    barProportion = 0.1f
-    amount = BG_BLUR_RADIUS
-    subscribe {
-        BG_BLUR_RADIUS = it
-    }
-}
-
 fun TestScreen() = BoxScreen(modifier()) {
     Row(
         modifier = Modifier
@@ -132,11 +122,11 @@ fun TestScreen() = BoxScreen(modifier()) {
             }
         }
         TestColumn()
-
-        Scroller(
-            scrollState,
-            orientation = Orientation.Horizontal,
-            modifier = Modifier.maxWidth(180f)
+        FloatSlider(
+            stateOf(GuiConfig.Screen::BG_BLUR_RADIUS),
+            0f..25f,
+            textMapper = { Literal("背景模糊:%.2f".format(it)) },
+            modifier = Modifier.minWidth(120f)
         )
     }
 
@@ -224,10 +214,10 @@ fun RowScope.TestColumn() = Column(
         modifier = Modifier
             .matchSibling()
             .renderOverlay { context, _, _, _ ->
-            context.batchRenderBox {
-                pushBoxOutline(transform, Colors.AQUA)
+                context.batchRenderBox {
+                    pushBoxOutline(transform, Colors.AQUA)
+                }
             }
-        }
     ) {
         Column {
             icons.forEach {
@@ -251,7 +241,15 @@ fun RowScope.TestColumn() = Column(
         Icon(IconTextures.FILTER, modifier = Modifier.align(Alignment.Center))
     }
 
-    Scroller(scrollState = scrollState, modifier = Modifier.maxHeight(180f))
+    Scroller(
+        scrollState = ScrollState().apply {
+            amountStep = 1f
+            maxAmount = 10f
+            barProportion = 0.1f
+            amount = 0f
+        },
+        modifier = Modifier.maxHeight(180f)
+    )
     Button(
         modifier = Modifier.height(40f).renderOverlay { context, _, _, _ ->
             context.batchRenderBox {

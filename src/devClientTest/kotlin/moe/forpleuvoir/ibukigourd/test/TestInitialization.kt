@@ -81,14 +81,14 @@ object TestInitialization {
                             }
                         }
                     }
-                    SwitchButton(stateOf(true)) {
+                    val switchState = stateOf(false)
+
+                    SwitchButton(switchState) {
                         HoverTip(
                             modifier = Modifier.margin(3f),
                             optionalDirection = notifiableList(Direction.Left)
                         ) {
-                            Button {
-                                TextLabel("悬浮测试")
-                            }
+                            TextLabel(stateOf(switchState) { it.toString() })
                         }
                     }
                     Spinner(listOf("下拉菜单", "选项1", "选项2", "选项3")) {

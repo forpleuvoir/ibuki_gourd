@@ -117,7 +117,7 @@ fun WidgetContainerScope.SwitchButton(
  * @param modifier 一个用于修改此组件外观和行为的 [Modifier] 对象
  * @param horizontalArrangement 水平排列方式，默认为 [Arrangement.Center]
  * @param verticalAlignment 垂直对齐方式，默认为 [Alignment.CenterVertically]
- * @param content 按钮内容的 Lambda 表达式，默认为空
+ * @param scope 按钮内容的 Lambda 表达式，默认为空
  */
 fun WidgetContainerScope.LockButton(
     lockState: State<Boolean> = stateOf(false),
@@ -152,3 +152,11 @@ fun WidgetContainerScope.LockButton(
 }
 
 //TODO 彩色按钮待实现
+fun WidgetContainerScope.ColorButton(
+    color: State<ARGBColor>,
+    modifier: Modifier = Modifier,
+    scope: ButtonScope.() -> Unit = {}
+) = Button(
+    modifier = Modifier.then(modifier),
+    content = scope
+)
