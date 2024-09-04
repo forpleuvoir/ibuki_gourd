@@ -22,3 +22,4 @@ fun WidgetContainerScope.Widget(
     modifier.foldInApply()
     GuiScope { this }.scope()
 }
+

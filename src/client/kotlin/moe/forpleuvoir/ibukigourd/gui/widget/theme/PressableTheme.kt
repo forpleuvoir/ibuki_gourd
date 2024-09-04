@@ -3,12 +3,16 @@ package moe.forpleuvoir.ibukigourd.gui.widget.theme
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_1
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_3
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_1
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_3
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_1
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_3
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_1
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_2
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_3
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_DISABLED
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_HOVERED
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_IDLE
@@ -23,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_IDLE
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_PRESSED
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
 interface PressableTheme : WidgetTheme {
 
@@ -48,6 +53,8 @@ interface PressableTheme : WidgetTheme {
 
         val Button2 = of(BUTTON_IDLE_2, BUTTON_HOVERED_2, BUTTON_DISABLED_2, BUTTON_PRESSED_2)
 
+        val Button3 = of(BUTTON_IDLE_3, BUTTON_HOVERED_3, BUTTON_DISABLED_3, BUTTON_PRESSED_3)
+
         val LOCK = of(LOCK_ON_IDLE, LOCK_ON_HOVERED, LOCK_ON_DISABLED, LOCK_ON_PRESSED)
 
         val UNLOCK = of(UNLOCK_IDLE, UNLOCK_HOVERED, UNLOCK_DISABLED, UNLOCK_PRESSED)
@@ -63,3 +70,15 @@ interface PressableTheme : WidgetTheme {
 fun IGPressableWidget.theme(theme: PressableTheme): WidgetTexture =
     status(theme.disabled, theme.idle, theme.pressed, theme.pressed)
 
+fun IGWidget.theme(
+    theme: PressableTheme,
+    active: Boolean = this.active,
+    hover: Boolean = this.wasMouseOver || this.isFocused,
+    pressed: Boolean
+): WidgetTexture {
+    return if (active) {
+        if (pressed) theme.pressed
+        else if (hover) theme.hovered
+        else theme.idle
+    } else theme.disabled
+}

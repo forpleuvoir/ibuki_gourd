@@ -1,11 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.getOr
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 open class UVMapping(
@@ -15,45 +15,43 @@ open class UVMapping(
     val vEnd: Int,
 ) : SizeInt, Serializable {
 
-    companion object {
+    companion object : Deserializer<UVMapping> {
 
         fun uv(u: Int, v: Int, uSize: Int, vSize: Int) =
             UVMapping(u, v, u + uSize, v + vSize)
 
-        fun deserialization(serializeElement: SerializeElement?, default: UVMapping): UVMapping {
-            return serializeElement?.run {
-                checkType {
-                    check<SerializeObject> {
-                        it.run {
-                            val uStart: Int
-                            val uEnd: Int
-                            if (containsKey("u") && containsKey("u_size")) {
-                                uStart = get("u")!!.asInt
-                                uEnd = get("u_size")!!.asInt + uStart
-                            } else if (containsKey("u") && containsKey("width")) {
-                                uStart = get("u")!!.asInt
-                                uEnd = get("width")!!.asInt + uStart
-                            } else {
-                                uStart = getOr("uStart", default.uStart).toInt()
-                                uEnd = getOr("uEnd", default.uEnd).toInt()
-                            }
-                            val vStart: Int
-                            val vEnd: Int
-                            if (containsKey("v") && containsKey("v_size")) {
-                                vStart = get("v")!!.asInt
-                                vEnd = get("v_size")!!.asInt + vStart
-                            } else if (containsKey("v") && containsKey("height")) {
-                                vStart = get("u")!!.asInt
-                                vEnd = get("height")!!.asInt + vStart
-                            } else {
-                                vStart = getOr("vStart", default.vStart).toInt()
-                                vEnd = getOr("vEnd", default.vEnd).toInt()
-                            }
-                            UVMapping(uStart, vStart, uEnd, vEnd)
+        override fun deserialization(serializeElement: SerializeElement): UVMapping {
+            return serializeElement.checkType {
+                check<SerializeObject> {
+                    it.run {
+                        val uStart: Int
+                        val uEnd: Int
+                        if (containsKey("u") && containsKey("u_size")) {
+                            uStart = get("u")!!.asInt
+                            uEnd = get("u_size")!!.asInt + uStart
+                        } else if (containsKey("u") && containsKey("width")) {
+                            uStart = get("u")!!.asInt
+                            uEnd = get("width")!!.asInt + uStart
+                        } else {
+                            uStart = this["u_start"]!!.asInt
+                            uEnd = this["u_end"]!!.asInt
                         }
+                        val vStart: Int
+                        val vEnd: Int
+                        if (containsKey("v") && containsKey("v_size")) {
+                            vStart = get("v")!!.asInt
+                            vEnd = get("v_size")!!.asInt + vStart
+                        } else if (containsKey("v") && containsKey("height")) {
+                            vStart = get("u")!!.asInt
+                            vEnd = get("height")!!.asInt + vStart
+                        } else {
+                            vStart = this["v_start"]!!.asInt
+                            vEnd = this["v_end"]!!.asInt
+                        }
+                        UVMapping(uStart, vStart, uEnd, vEnd)
                     }
-                }.getOrDefault(default)
-            } ?: default
+                }
+            }.getOrThrow()
         }
     }
 

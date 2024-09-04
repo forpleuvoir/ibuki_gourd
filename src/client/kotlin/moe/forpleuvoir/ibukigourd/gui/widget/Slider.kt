@@ -7,10 +7,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
+import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.State
@@ -79,17 +80,14 @@ fun <T> WidgetContainerScope.NumberSlider(
                 }, {
                     transform.asWorldBox.copy(x = box1.right, width = transform.width - box1.width)
                 })
-                context.batchRenderTextureColored {
-                    pushWidgetTexture(transform, WidgetTextures.SLIDER_BORDER)
-                }
                 context.useScissor(box1) {
                     batchRenderTextureColored {
-                        pushWidgetTexture(transform, WidgetTextures.SLIDER_CONTENT, colorA)
+                        pushWidgetTexture(transform, theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed), colorA)
                     }
                 }
                 context.useScissor(box2) {
                     batchRenderTextureColored {
-                        pushWidgetTexture(transform, WidgetTextures.SLIDER_CONTENT, colorB)
+                        pushWidgetTexture(transform, theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed), colorB)
                     }
                 }
                 context.renderAlignmentText(textMapper(value.getValue()), transform.asWorldBox.copy(y = transform.worldY + 1f))

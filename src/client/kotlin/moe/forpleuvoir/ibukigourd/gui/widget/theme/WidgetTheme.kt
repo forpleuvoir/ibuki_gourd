@@ -33,9 +33,13 @@ interface WidgetTheme {
     }
 }
 
-fun IGWidget.theme(theme: WidgetTheme): WidgetTexture {
+fun IGWidget.theme(
+    theme: WidgetTheme,
+    active: Boolean = this.active,
+    hovered: Boolean = this.wasMouseOver || this.isFocused,
+): WidgetTexture {
     return if (active) {
-        if (this.wasMouseOver || this.isFocused) theme.hovered
+        if (hovered) theme.hovered
         else theme.idle
     } else theme.disabled
 }

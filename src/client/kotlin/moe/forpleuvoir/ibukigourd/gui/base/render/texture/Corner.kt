@@ -1,11 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.getOr
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 data class Corner(
     val left: Int = 0,
@@ -27,42 +29,48 @@ data class Corner(
     override val height: Int get() = bottom + top
 
 
-    companion object {
+    companion object : Serializer<Corner>, Deserializer<Corner> {
 
         val Unspecified = Corner(0)
 
-        fun deserialization(serializeElement: SerializeElement?, default: Corner): Corner {
-            return serializeElement?.run {
-                checkType<Corner>()
-                    .check<SerializeObject> {
-                        val left: Int
-                        val right: Int
-                        if (it.containsKey("vertical")) {
-                            left = it["vertical"]!!.asInt
-                            right = it["vertical"]!!.asInt
-                        } else {
-                            left = it.getOr("left", default.left).toInt()
-                            right = it.getOr("right", default.right).toInt()
-                        }
-                        val top: Int
-                        val bottom: Int
-                        if (it.containsKey("horizontal")) {
-                            top = it["horizontal"]!!.asInt
-                            bottom = it["horizontal"]!!.asInt
-                        } else {
-                            top = it.getOr("top", default.top).toInt()
-                            bottom = it.getOr("bottom", default.bottom).toInt()
-                        }
-                        Corner(left, right, top, bottom)
+        override fun deserialization(serializeElement: SerializeElement): Corner {
+            return serializeElement.checkType<Corner>()
+                .check<SerializeObject> {
+                    val left: Int
+                    val right: Int
+                    if (it.containsKey("vertical")) {
+                        left = it["vertical"]!!.asInt
+                        right = left
+                    } else {
+                        left = it["left"]!!.asInt
+                        right = it["right"]!!.asInt
                     }
-                    .check<SerializePrimitive> {
-                        Corner(it.asInt)
-                    }.getOrDefault(default)
-            } ?: default
+                    val top: Int
+                    val bottom: Int
+                    if (it.containsKey("horizontal")) {
+                        top = it["horizontal"]!!.asInt
+                        bottom = top
+                    } else {
+                        top = it["top"]!!.asInt
+                        bottom = it["bottom"]!!.asInt
+                    }
+                    Corner(left, right, top, bottom)
+                }
+                .check<SerializePrimitive> {
+                    Corner(it.asInt)
+                }.getOrThrow()
+        }
+
+        override fun serialization(target: Corner): SerializeElement {
+            return serializeObject {
+                "left" to target.left
+                "right" to target.right
+                "top" to target.top
+                "bottom" to target.bottom
+            }
         }
 
     }
-
 
     override fun toString(): String {
         return "Corner(left=$left, right=$right, top=$top, bottom=$bottom)"

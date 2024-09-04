@@ -134,21 +134,21 @@ fun WidgetScope.Tip(
                     val (pos, texture) = when (direction.getValue()) {
                         Top    -> Vector2f(
                             parentTransform(parentWidget).worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
-                            transform.worldBottom - 2
+                            transform.worldBottom
                         ) to WidgetTextures.TIP_ARROW_TOP
 
                         Right  -> Vector2f(
-                            transform.worldLeft + 2 - WidgetTextures.TIP_ARROW_BOTTOM.width,
+                            transform.worldLeft - WidgetTextures.TIP_ARROW_RIGHT.width,
                             parentTransform(parentWidget).worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
                         ) to WidgetTextures.TIP_ARROW_RIGHT
 
                         Bottom -> Vector2f(
                             parentTransform(parentWidget).worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
-                            transform.worldTop + 2 - WidgetTextures.TIP_ARROW_BOTTOM.height
+                            transform.worldTop - WidgetTextures.TIP_ARROW_BOTTOM.height
                         ) to WidgetTextures.TIP_ARROW_BOTTOM
 
                         Left   -> Vector2f(
-                            transform.worldRight - 2,
+                            transform.worldRight,
                             parentTransform(parentWidget).worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
                         ) to WidgetTextures.TIP_ARROW_LEFT
                     }

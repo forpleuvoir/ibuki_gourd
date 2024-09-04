@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
@@ -19,19 +20,24 @@ class WidgetTexture(
         textureInfo
     )
 
-    companion object {
-        fun deserialization(serializeElement: SerializeElement?, default: WidgetTexture): WidgetTexture {
-            return serializeElement?.run {
-                checkType<WidgetTexture>()
-                    .check<SerializeObject> {
-                        WidgetTexture(
-                            textureUVMapping = TextureUVMapping.deserialization(this, default),
-                            textureInfo = TextureInfo.deserialization(it["texture_info"], default.textureInfo)
-                        )
-                    }.getOrDefault(default)
-            } ?: default
+    companion object : Deserializer<WidgetTexture> {
+
+        override fun deserialization(serializeElement: SerializeElement): WidgetTexture {
+            return serializeElement.checkType<WidgetTexture>()
+                .check<SerializeObject> {
+                    WidgetTexture(
+                        textureUVMapping = TextureUVMapping.deserialization(it),
+                        textureInfo = TextureInfo.deserialization(it["texture_info"]!!)
+                    )
+                }.getOrThrow()
         }
 
+    }
+
+    override fun serialization(): SerializeElement {
+        return super.serialization().asObject.apply {
+            this["texture_info"] = textureInfo.serialization()
+        }
     }
 
 

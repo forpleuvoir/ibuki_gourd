@@ -27,6 +27,7 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     private val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
 
     @Subscriber
+    @Suppress("UNUSED_PARAMETER")
     fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(this)
     }
@@ -80,19 +81,30 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var BUTTON_DISABLED_2: WidgetTexture = WidgetTexture(Corner(4), 16, 32, 32, 48, TEXTURE_INFO)
         private set
 
+    var BUTTON_IDLE_3: WidgetTexture = WidgetTexture(Corner(4), 0, 48, 16, 64, TEXTURE_INFO)
+        private set
+
+    var BUTTON_HOVERED_3: WidgetTexture = WidgetTexture(Corner(4), 0, 64, 16, 80, TEXTURE_INFO)
+        private set
+
+    var BUTTON_PRESSED_3: WidgetTexture = WidgetTexture(Corner(4), 0, 80, 16, 96, TEXTURE_INFO)
+        private set
+
+    var BUTTON_DISABLED_3: WidgetTexture = WidgetTexture(Corner(4), 0, 80, 16, 96, TEXTURE_INFO)
+
     var TIP: WidgetTexture = WidgetTexture(Corner(4), 48, 32, 64, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(0), 73, 41, 80, 48, TEXTURE_INFO)
+    var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(left = -2), 75, 41, 80, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(0), 64, 41, 71, 48, TEXTURE_INFO)
+    var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(right = -2), 64, 41, 69, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(0), 73, 32, 80, 39, TEXTURE_INFO)
+    var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(top = -2), 73, 34, 80, 39, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(0), 64, 32, 71, 39, TEXTURE_INFO)
+    var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(bottom = -2), 64, 32, 71, 37, TEXTURE_INFO)
         private set
 
     var SCROLLER_BAR_IDLE: WidgetTexture = WidgetTexture(Corner(4), 48, 0, 64, 16, TEXTURE_INFO)

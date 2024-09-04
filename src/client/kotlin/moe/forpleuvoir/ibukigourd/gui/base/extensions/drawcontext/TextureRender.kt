@@ -225,8 +225,8 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
         textureWidth: Int = 256,
         textureHeight: Int = 256
     ) = pushNinePatchTexture(
-        box.position.x(),
-        box.position.y(),
+        box.x,
+        box.y,
         box.width,
         box.height,
         textureUV.corner,
@@ -284,6 +284,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      */
     fun pushWidgetTexture(box: Box, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
         pushNinePatchTexture(box, widgetTexture, widgetTexture.textureInfo, color)
+
 
     /**
      * @see [pushWidgetTexture]

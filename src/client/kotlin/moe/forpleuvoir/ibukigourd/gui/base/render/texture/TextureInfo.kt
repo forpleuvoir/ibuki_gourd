@@ -2,11 +2,11 @@ package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
 import moe.forpleuvoir.ibukigourd.util.identifier
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.getOr
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.util.Identifier
 
@@ -15,19 +15,18 @@ data class TextureInfo(
     override val height: Int = 256,
     val texture: Identifier
 ) : Serializable, SizeInt {
-    companion object {
-        fun deserialization(serializeElement: SerializeElement?, default: TextureInfo): TextureInfo {
-            return serializeElement?.run {
-                checkType {
-                    check<SerializeObject> {
-                        TextureInfo(
-                            it.getOr("width", default.width).toInt(),
-                            it.getOr("height", default.height).toInt(),
-                            runCatching { identifier(it["texture"]!!.asString) }.getOrDefault(default.texture)
-                        )
-                    }
-                }.getOrDefault(default)
-            } ?: default
+
+    companion object : Deserializer<TextureInfo> {
+        override fun deserialization(serializeElement: SerializeElement): TextureInfo {
+            return serializeElement.checkType {
+                check<SerializeObject> {
+                    TextureInfo(
+                        it["width"]!!.asInt,
+                        it["height"]!!.asInt,
+                        identifier(it["texture"]!!.asString)
+                    )
+                }
+            }.getOrThrow()
         }
     }
 

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
@@ -13,21 +14,25 @@ open class TextureUVMapping(
         uvMapping.uStart, uvMapping.vStart, uvMapping.uEnd, uvMapping.vEnd
     )
 
-    companion object {
+    companion object : Deserializer<TextureUVMapping> {
 
-        fun deserialization(serializeElement: SerializeElement?, default: TextureUVMapping): TextureUVMapping {
-            return serializeElement?.run {
-                checkType {
-                    check<SerializeObject> {
-                        TextureUVMapping(
-                            corner = Corner.deserialization(it["corner"], default.corner),
-                            uvMapping = UVMapping.deserialization(it, default)
-                        )
-                    }
-                }.getOrDefault(default)
-            } ?: default
+        override fun deserialization(serializeElement: SerializeElement): TextureUVMapping {
+            return serializeElement.checkType {
+                check<SerializeObject> {
+                    TextureUVMapping(
+                        corner = Corner.deserialization(it["corner"]!!),
+                        uvMapping = UVMapping.deserialization(it)
+                    )
+                }
+            }.getOrThrow()
         }
 
+    }
+
+    override fun serialization(): SerializeElement {
+        return super.serialization().asObject.apply {
+            this["corner"] = Corner.serialization(corner)
+        }
     }
 
     override fun toString(): String {
