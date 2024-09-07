@@ -82,17 +82,20 @@ fun <T> WidgetContainerScope.NumberSlider(
                 }, {
                     transform.asWorldBox.copy(x = box1.right, width = transform.width - box1.width)
                 })
-                context.useScissor(box1) {
-                    batchRenderTextureColored {
-                        pushWidgetTexture(transform, theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed), colorA)
+                val theme = theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed)
+                context.apply {
+                    useScissor(box1) {
+                        batchRenderTextureColored {
+                            pushWidgetTexture(transform, theme, colorA)
+                        }
                     }
-                }
-                context.useScissor(box2) {
-                    batchRenderTextureColored {
-                        pushWidgetTexture(transform, theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed), colorB)
+                    useScissor(box2) {
+                        batchRenderTextureColored {
+                            pushWidgetTexture(transform, theme, colorB)
+                        }
                     }
+                    renderAlignmentText(textMapper(value.getValue()), transform.asWorldBox.copy(y = transform.worldY + 1f))
                 }
-                context.renderAlignmentText(textMapper(value.getValue()), transform.asWorldBox.copy(y = transform.worldY + 1f))
             }.then(modifier)
     ) {
         scope()
@@ -104,6 +107,7 @@ fun WidgetContainerScope.IntSlider(
     value: State<Int>,
     range: IntRange,
     textMapper: (Int) -> Text = { Literal(it.toString()) },
+    valueMapper: (progress: Double) -> Int = { (range.first + (range.last - range.first) * it).toInt() },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = HSVColor(210f, .3f, .7f),
     colorB: ARGBColor = HSVColor(210f, .1f, 1f),
@@ -114,7 +118,7 @@ fun WidgetContainerScope.IntSlider(
     minValue = range.first,
     maxValue = range.last,
     textMapper = textMapper,
-    valueMapper = { (range.first + (range.last - range.first) * it).toInt() },
+    valueMapper = valueMapper,
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
@@ -126,6 +130,7 @@ fun WidgetContainerScope.LongSlider(
     value: State<Long>,
     range: LongRange,
     textMapper: (Long) -> Text = { Literal(it.toString()) },
+    valueMapper: (progress: Double) -> Long = { (range.first + (range.last - range.first) * it).toLong() },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = HSVColor(210f, .3f, .7f),
     colorB: ARGBColor = HSVColor(210f, .1f, 1f),
@@ -136,7 +141,7 @@ fun WidgetContainerScope.LongSlider(
     minValue = range.first,
     maxValue = range.last,
     textMapper = textMapper,
-    valueMapper = { (range.first + (range.last - range.first) * it).toLong() },
+    valueMapper = valueMapper,
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
@@ -148,6 +153,7 @@ fun WidgetContainerScope.FloatSlider(
     value: State<Float>,
     range: ClosedFloatingPointRange<Float>,
     textMapper: (Float) -> Text = { Literal("%.2f".format(it)) },
+    valueMapper: (progress: Double) -> Float = { (range.start + (range.endInclusive - range.start) * it).toFloat() },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = HSVColor(210f, .3f, .7f),
     colorB: ARGBColor = HSVColor(210f, .1f, 1f),
@@ -158,7 +164,7 @@ fun WidgetContainerScope.FloatSlider(
     minValue = range.start,
     maxValue = range.endInclusive,
     textMapper = textMapper,
-    valueMapper = { (range.start + (range.endInclusive - range.start) * it).toFloat() },
+    valueMapper = valueMapper,
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
@@ -170,6 +176,7 @@ fun WidgetContainerScope.DoubleSlider(
     value: State<Double>,
     range: ClosedFloatingPointRange<Double>,
     textMapper: (Double) -> Text = { Literal("%.2f".format(it)) },
+    valueMapper: (progress: Double) -> Double = { (range.start + (range.endInclusive - range.start) * it) },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = HSVColor(210f, .3f, .7f),
     colorB: ARGBColor = HSVColor(210f, .1f, 1f),
@@ -180,7 +187,7 @@ fun WidgetContainerScope.DoubleSlider(
     minValue = range.start,
     maxValue = range.endInclusive,
     textMapper = textMapper,
-    valueMapper = { (range.start + (range.endInclusive - range.start) * it) },
+    valueMapper = valueMapper,
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,

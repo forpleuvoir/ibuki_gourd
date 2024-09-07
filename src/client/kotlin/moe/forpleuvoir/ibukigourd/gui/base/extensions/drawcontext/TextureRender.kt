@@ -9,10 +9,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.VertexFormat
-import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.render.*
 
 fun DrawContext.batchRenderTextureColored(
     beforeAction: () -> Unit = {
@@ -24,6 +21,7 @@ fun DrawContext.batchRenderTextureColored(
     setShader(shaderSupplier)
     beforeAction()
     val bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
+    vertexConsumers.getBuffer(RenderLayer.getGui())
     block.invoke(TextureBatchRenderScope(bufferBuilder, this), this)
     bufferBuilder.draw()
 }

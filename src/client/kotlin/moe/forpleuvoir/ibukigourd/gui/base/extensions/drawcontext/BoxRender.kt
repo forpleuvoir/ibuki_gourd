@@ -8,14 +8,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
 import moe.forpleuvoir.ibukigourd.render.color
-import moe.forpleuvoir.ibukigourd.render.setShader
 import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange
-import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.RenderLayer
 import org.joml.Vector2fc
 
@@ -29,10 +26,8 @@ import org.joml.Vector2fc
 fun DrawContext.renderBox(
     box: Box,
     color: ARGBColor,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
-    setShader(shaderSupplier)
     val bufferBuilder = vertexConsumers.getBuffer(layer)
     for (vertex in box.vertexes) {
         bufferBuilder.vertex(matrices, vertex).color(color)
@@ -48,10 +43,8 @@ fun DrawContext.renderBox(
  */
 fun DrawContext.renderBox(
     coloredBox: ColoredBox,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
-    setShader(shaderSupplier)
     val bufferBuilder = vertexConsumers.getBuffer(layer)
     for (vertex in coloredBox.coloredVertexes) {
         bufferBuilder.vertex(matrices, vertex).color(vertex.color)
@@ -75,10 +68,8 @@ fun DrawContext.renderBox(
     width: Float,
     height: Float,
     color: ARGBColor,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
-    setShader(shaderSupplier)
     val bufferBuilder = vertexConsumers.getBuffer(layer)
     bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(color)
     bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(color)
@@ -99,9 +90,8 @@ fun DrawContext.renderBox(
     size: Size<Float>,
     color: ARGBColor,
     layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
 ) {
-    renderBox(position.x(), position.y(), size.width, size.height, color, layer, shaderSupplier)
+    renderBox(position.x(), position.y(), size.width, size.height, color, layer)
 }
 
 /**
@@ -126,10 +116,8 @@ fun DrawContext.renderBox(
     topRightColor: ARGBColor,
     bottomLeftColor: ARGBColor,
     bottomRightColor: ARGBColor,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
-    setShader(shaderSupplier)
     val bufferBuilder = vertexConsumers.getBuffer(layer)
     bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(topLeftColor)
     bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
@@ -158,8 +146,7 @@ fun DrawContext.renderGradientBox(
     startColor: ARGBColor,
     endColor: ARGBColor,
     orientation: Orientation = Orientation.Horizontal,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
     orientation.peek(
         renderBox(
@@ -171,8 +158,7 @@ fun DrawContext.renderGradientBox(
             topRightColor = startColor,
             bottomLeftColor = endColor,
             bottomRightColor = endColor,
-            layer,
-            shaderSupplier
+            layer
         ),
         renderBox(
             x,
@@ -183,8 +169,7 @@ fun DrawContext.renderGradientBox(
             topRightColor = endColor,
             bottomLeftColor = startColor,
             bottomRightColor = endColor,
-            layer,
-            shaderSupplier
+            layer
         )
     )
 }
@@ -203,10 +188,9 @@ fun DrawContext.renderGradientBox(
     startColor: ARGBColor,
     endColor: ARGBColor,
     orientation: Orientation = Orientation.Horizontal,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
-    renderGradientBox(box.x, box.y, box.width, box.height, startColor, endColor, orientation, layer, shaderSupplier)
+    renderGradientBox(box.x, box.y, box.width, box.height, startColor, endColor, orientation, layer)
 }
 
 /**
@@ -235,8 +219,7 @@ fun DrawContext.renderSaturationGradientBox(
     hue: Float = 360f,
     value: Float = 1f,
     alpha: Float = 1f,
-    layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
+    layer: RenderLayer = RenderLayer.getGui()
 ) {
     check(saturationRange.endInclusive >= saturationRange.start) { "Saturation range must be in ascending order" }
     check(saturationRange.endInclusive in 0f..1f && saturationRange.start in 0f..1f) {
@@ -244,7 +227,7 @@ fun DrawContext.renderSaturationGradientBox(
     }
     val colorStart = HSVColor(hue, (if (reverse) saturationRange.endInclusive else saturationRange.start).coerceIn(alphaFRange), value, alpha)
     val colorEnd = HSVColor(hue, (if (!reverse) saturationRange.endInclusive else saturationRange.start).coerceIn(alphaFRange), value, alpha)
-    renderGradientBox(x, y, width, height, colorStart, colorEnd, orientation, layer, shaderSupplier)
+    renderGradientBox(x, y, width, height, colorStart, colorEnd, orientation, layer)
 }
 
 /**
@@ -268,9 +251,8 @@ fun DrawContext.renderSaturationGradientBox(
     value: Float = 1f,
     alpha: Float = 1f,
     layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
 ) {
-    renderSaturationGradientBox(box.x, box.y, box.width, box.height, orientation, reverse, saturationRange, hue, value, alpha, layer, shaderSupplier)
+    renderSaturationGradientBox(box.x, box.y, box.width, box.height, orientation, reverse, saturationRange, hue, value, alpha, layer)
 }
 
 /**
@@ -300,7 +282,6 @@ fun DrawContext.renderValueGradientBox(
     saturation: Float = 1f,
     alpha: Float = 1f,
     layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
 ) {
     check(valueRange.endInclusive >= valueRange.start) { "Value range must be in ascending order" }
     check(valueRange.endInclusive in 0f..1f && valueRange.start in 0f..1f) {
@@ -308,7 +289,7 @@ fun DrawContext.renderValueGradientBox(
     }
     val colorStart = HSVColor(hue, saturation, (if (reverse) valueRange.endInclusive else valueRange.start).coerceIn(alphaFRange), alpha)
     val colorEnd = HSVColor(hue, saturation, (if (!reverse) valueRange.endInclusive else valueRange.start).coerceIn(alphaFRange), alpha)
-    renderGradientBox(x, y, width, height, colorStart, colorEnd, orientation, layer, shaderSupplier)
+    renderGradientBox(x, y, width, height, colorStart, colorEnd, orientation, layer)
 }
 
 /**
@@ -333,7 +314,5 @@ fun DrawContext.renderValueGradientBox(
     saturation: Float = 1f,
     alpha: Float = 1f,
     layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
-) {
-    renderValueGradientBox(box.x, box.y, box.width, box.height, orientation, reverse, valueRange, hue, saturation, alpha,layer, shaderSupplier)
-}
+) = renderValueGradientBox(box.x, box.y, box.width, box.height, orientation, reverse, valueRange, hue, saturation, alpha, layer)
+

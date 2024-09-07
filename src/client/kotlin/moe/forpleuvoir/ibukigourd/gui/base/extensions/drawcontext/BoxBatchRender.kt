@@ -12,15 +12,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.pointsInCircleRange
 import moe.forpleuvoir.ibukigourd.render.color
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.plus
-import moe.forpleuvoir.ibukigourd.render.setShader
 import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange
-import moe.forpleuvoir.nebula.common.util.primitive.pick
-import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.VertexConsumer
 import org.joml.Vector2fc
@@ -29,10 +25,8 @@ import kotlin.math.min
 
 fun DrawContext.batchRenderBox(
     layer: RenderLayer = RenderLayer.getGui(),
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionColorProgram,
     block: BoxBatchRenderScope.() -> Unit
 ) {
-    setShader(shaderSupplier)
     block(BoxBatchRenderScope(vertexConsumers.getBuffer(layer), this))
     draw()
 }
@@ -231,119 +225,6 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         endColor: ARGBColor,
         orientation: Orientation = Orientation.Horizontal
     ) = pushGradientBox(transform.asWorldBox, startColor, endColor, orientation)
-
-    /**
-     * 渲染一个随色相渐变的[Box]
-     * @param x Float
-     * @param y Float
-     * @param width Float
-     * @param height Float
-     * @param precision Int 精度,精度越高效果越好,性能消耗越大
-     * @param orientation Orientation
-     * @param reverse Boolean
-     * @param hueRange ClosedFloatingPointRange<Float> 色相范围(0..360)
-     * @param saturation Float
-     * @param value Float
-     * @param alpha Float
-     */
-    fun pushHueGradientBox(
-        x: Float,
-        y: Float,
-        width: Float,
-        height: Float,
-        precision: Int,
-        orientation: Orientation = Orientation.Horizontal,
-        reverse: Boolean = false,
-        hueRange: ClosedFloatingPointRange<Float> = 0f..360f,
-        saturation: Float = 1f,
-        value: Float = 1f,
-        alpha: Float = 1f,
-    ) {
-        check(hueRange.start < hueRange.endInclusive) { "Hue range must be in ascending order" }
-        check(hueRange.start in 0f..360f && hueRange.endInclusive in 0f..360f) {
-            "Hue range must be between 0 and 360, but was ${hueRange.start} and ${hueRange.endInclusive}"
-        }
-        val hueSlice = abs(hueRange.endInclusive - hueRange.start) / precision
-        var hue = if (reverse) hueRange.endInclusive else hueRange.start
-        val hueOffset = reverse.pick(-hueSlice, hueSlice)
-        orientation.peek(
-            {
-                val lengthSlice = height / precision
-                var currentY = y
-
-                val colorStart = HSVColor(hue, saturation, value, alpha, false)
-                hue = (hue + hueOffset).coerceIn(hueRange)
-                val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-
-                repeat(precision) {
-                    pushBox(x, currentY, width, lengthSlice, colorStart, colorEnd, colorEnd, colorStart)
-                    colorStart.hue = hue
-                    hue = (hue + hueOffset).coerceIn(hueRange)
-                    colorEnd.hue = hue
-                    currentY += lengthSlice
-                }
-            }, {
-                val lengthSlice = width / precision
-                var currentX = x
-
-                val colorStart = HSVColor(hue, saturation, value, alpha, false)
-                hue = (hue + hueOffset).coerceIn(hueRange)
-                val colorEnd = HSVColor(hue, saturation, value, alpha, false)
-
-                repeat(precision) {
-                    pushBox(currentX, y, lengthSlice, height, colorStart, colorStart, colorEnd, colorEnd)
-                    colorStart.hue = hue
-                    hue = (hue + hueOffset).coerceIn(hueRange)
-                    colorEnd.hue = hue
-                    currentX += lengthSlice
-                }
-            }
-        )
-    }
-
-    /**
-     * @see [pushHueGradientBox]
-     * @param box Box
-     * @param precision Int
-     * @param orientation Orientation
-     * @param reverse Boolean
-     * @param hueRange ClosedFloatingPointRange<Float>
-     * @param saturation Float
-     * @param value Float
-     * @param alpha Float
-     */
-    fun pushHueGradientBox(
-        box: Box,
-        precision: Int,
-        orientation: Orientation = Orientation.Horizontal,
-        reverse: Boolean = false,
-        hueRange: ClosedFloatingPointRange<Float> = 0f..360f,
-        saturation: Float = 1f,
-        value: Float = 1f,
-        alpha: Float = 1f,
-    ) = pushHueGradientBox(box.x, box.y, box.width, box.height, precision, orientation, reverse, hueRange, saturation, value, alpha)
-
-    /**
-     * @see [pushHueGradientBox]
-     * @param transform: Transform
-     * @param precision Int
-     * @param orientation Orientation
-     * @param reverse Boolean
-     * @param hueRange ClosedFloatingPointRange<Float>
-     * @param saturation Float
-     * @param value Float
-     * @param alpha Float
-     */
-    fun pushHueGradientBox(
-        transform: Transform,
-        precision: Int,
-        orientation: Orientation = Orientation.Horizontal,
-        reverse: Boolean = false,
-        hueRange: ClosedFloatingPointRange<Float> = 0f..360f,
-        saturation: Float = 1f,
-        value: Float = 1f,
-        alpha: Float = 1f,
-    ) = pushHueGradientBox(transform.asWorldBox, precision, orientation, reverse, hueRange, saturation, value, alpha)
 
 
     /**
