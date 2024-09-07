@@ -57,6 +57,9 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
         }.onFailure { log.error("widget textures load fail", it) }
     }
 
+    var ALPHA: WidgetTexture = WidgetTexture(Corner(0), 144, 32, 160, 48, TEXTURE_INFO)
+        private set
+
     var BUTTON_IDLE_1: WidgetTexture = WidgetTexture(Corner(4), 0, 0, 16, 16, TEXTURE_INFO)
         private set
 
@@ -126,6 +129,12 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
         private set
 
     var SLIDER_CONTENT: WidgetTexture = WidgetTexture(Corner(4), 96, 16, 112, 32, TEXTURE_INFO)
+        private set
+
+    var COLOR_SLIDER_BG: WidgetTexture = WidgetTexture(Corner(2), 80, 32, 88, 40, TEXTURE_INFO)
+        private set
+
+    var COLOR_SLIDER_ARROW: WidgetTexture = WidgetTexture(Corner(1), 91, 32, 96, 40, TEXTURE_INFO)
         private set
 
     var LIST_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 32, 0, 48, 16, TEXTURE_INFO)

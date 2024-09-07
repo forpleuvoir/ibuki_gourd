@@ -120,9 +120,9 @@ fun DrawContext.renderBox(
 ) {
     val bufferBuilder = vertexConsumers.getBuffer(layer)
     bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(topLeftColor)
-    bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
-    bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
     bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(bottomLeftColor)
+    bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
+    bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
     draw()
 }
 
@@ -149,28 +149,32 @@ fun DrawContext.renderGradientBox(
     layer: RenderLayer = RenderLayer.getGui()
 ) {
     orientation.peek(
-        renderBox(
-            x,
-            y,
-            width,
-            height,
-            topLeftColor = startColor,
-            topRightColor = startColor,
-            bottomLeftColor = endColor,
-            bottomRightColor = endColor,
-            layer
-        ),
-        renderBox(
-            x,
-            y,
-            width,
-            height,
-            topLeftColor = startColor,
-            topRightColor = endColor,
-            bottomLeftColor = startColor,
-            bottomRightColor = endColor,
-            layer
-        )
+        {
+            renderBox(
+                x,
+                y,
+                width,
+                height,
+                topLeftColor = startColor,
+                topRightColor = startColor,
+                bottomLeftColor = endColor,
+                bottomRightColor = endColor,
+                layer
+            )
+        },
+        {
+            renderBox(
+                x,
+                y,
+                width,
+                height,
+                topLeftColor = startColor,
+                topRightColor = endColor,
+                bottomLeftColor = startColor,
+                bottomRightColor = endColor,
+                layer
+            )
+        }
     )
 }
 

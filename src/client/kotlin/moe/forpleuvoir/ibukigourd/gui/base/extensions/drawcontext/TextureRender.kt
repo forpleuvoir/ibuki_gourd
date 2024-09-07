@@ -12,18 +12,17 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.*
 
 fun DrawContext.batchRenderTextureColored(
-    beforeAction: () -> Unit = {
-        enableBlend()
-    },
+    beforeAction: () -> Unit = { enableBlend() },
     shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionTexColorProgram,
     block: TextureBatchRenderScope.(DrawContext) -> Unit
 ) {
     setShader(shaderSupplier)
     beforeAction()
     val bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
-    vertexConsumers.getBuffer(RenderLayer.getGui())
     block.invoke(TextureBatchRenderScope(bufferBuilder, this), this)
-    bufferBuilder.draw()
+    bufferBuilder.endNullable()?.let {
+        BufferRenderer.drawWithGlobalProgram(it)
+    }
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
@@ -292,6 +291,85 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      */
     fun pushWidgetTexture(transform: Transform, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
         pushNinePatchTexture(transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, color)
+
+
+    fun pushTileTexture(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        u: Int,
+        v: Int,
+        uSize: Int,
+        vSize: Int,
+        tileScale: Float = 1f,
+        color: ARGBColor = Colors.WHITE,
+        textureWidth: Int = 256,
+        textureHeight: Int = 256,
+    ) {
+        if (width > 0f && height > 0f && uSize > 0 && vSize > 0 && tileScale > 0) {
+            var currentX = x
+            var currentY = y
+            val tileWidth = uSize * tileScale
+            val tileHeight = vSize * tileScale
+            while (currentY < y + height) {
+                while (currentX < x + width) {
+                    pushTexture(currentX, currentY, tileWidth, tileHeight, u, v, uSize, vSize, color, textureWidth, textureHeight)
+                    currentX += tileWidth
+                }
+                currentY += tileHeight
+                currentX = x
+            }
+        }
+    }
+
+
+    fun pushTileTexture(
+        box: Box,
+        uvMapping: UVMapping,
+        color: ARGBColor = Colors.WHITE,
+        tileScale: Float = 1f,
+        textureWidth: Int = 256,
+        textureHeight: Int = 256
+    ) = pushTileTexture(
+        box.x,
+        box.y,
+        box.width,
+        box.height,
+        uvMapping.uStart,
+        uvMapping.vStart,
+        uvMapping.uSize,
+        uvMapping.vSize,
+        tileScale,
+        color,
+        textureWidth,
+        textureHeight
+    )
+
+    fun pushTileTexture(
+        box: Box,
+        widgetTexture: WidgetTexture,
+        color: ARGBColor = Colors.WHITE,
+        tileScale: Float = 1f
+    ) {
+        setShaderTexture(widgetTexture.textureInfo.texture)
+        pushTileTexture(
+            box,
+            widgetTexture,
+            color,
+            tileScale,
+            widgetTexture.textureInfo.width,
+            widgetTexture.textureInfo.height
+        )
+    }
+
+
+    fun pushTileTexture(
+        transform: Transform,
+        widgetTexture: WidgetTexture,
+        color: ARGBColor = Colors.WHITE,
+        tileScale: Float = 1f
+    ) = pushTileTexture(transform.asWorldBox, widgetTexture, color, tileScale)
 
 }
 

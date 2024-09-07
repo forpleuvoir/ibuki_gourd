@@ -1,7 +1,10 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.*
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -586,13 +589,13 @@ open class TextEditorWidget(
 
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.scissor(contentBox(true)) {
+        context.useScissor(contentBox(true)) {
             renderText(context)
         }
     }
 
     override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.scissor(contentBox(true)) {
+        context.useScissor(contentBox(true)) {
             renderCursor(context)
         }
     }
@@ -691,6 +694,7 @@ data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val
 fun <T> WidgetContainerScope.NumberEditor(
     value: State<T>,
     valueMapper: (T) -> String,
+    valueRange: ClosedRange<T>,
     textMapper: (String) -> T,
     plus: (T, T) -> T,
     minus: (T, T) -> T,
@@ -717,6 +721,7 @@ fun <T> WidgetContainerScope.NumberEditor(
         }.then(modifier),
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
+    value.onSetValue = { it.coerceIn(valueRange) }
     TextEditor(
         modifier = Modifier
             .padding(3, 3, 3, 2)
@@ -803,6 +808,7 @@ fun WidgetContainerScope.IntEditor(
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
+    valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
     valueMapper = { it.toString() },
@@ -839,6 +845,7 @@ fun WidgetContainerScope.LongEditor(
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
+    valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
     valueMapper = { it.toString() },
@@ -875,6 +882,7 @@ fun WidgetContainerScope.FloatEditor(
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
+    valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
     valueMapper = { it.toString() },
@@ -915,6 +923,7 @@ fun WidgetContainerScope.DoubleEditor(
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
+    valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
     valueMapper = { it.toString() },

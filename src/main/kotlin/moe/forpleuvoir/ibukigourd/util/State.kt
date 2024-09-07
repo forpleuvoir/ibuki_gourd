@@ -21,6 +21,11 @@ fun <T> stateOf(value: KMutableProperty0<T>) =
 fun <A, B> stateOf(state: State<B>, map: (B) -> A): State<A> =
     stateOf(map(state.getValue())).apply { bind(state, map) }
 
+fun <A, B> stateOf(state: State<B>, mapA: (B) -> A, mapB: (A) -> B): State<A> =
+    stateOf(mapA(state.getValue())).apply {
+        State.bind(this, state, mapB, mapA)
+    }
+
 data class State<T>(private var value: T) : Notifiable<T> {
 
     var onSetValue: (T) -> T = { it }
