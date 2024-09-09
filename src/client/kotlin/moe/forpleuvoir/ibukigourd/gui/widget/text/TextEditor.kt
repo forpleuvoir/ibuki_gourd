@@ -520,21 +520,9 @@ open class TextEditorWidget(
                     max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
                 )
             )
-            if (Character.isWhitespace(cursorChar)) {
-                content.renderBox(
-                    Box(
-                        box.position.copy(box.left + offset, y + height - 1.25f),
-                        textRenderer.getWidth(cursorChar.toString()).toFloat(),
-                        thickness
-                    ), cursorColor
-                )
-                return
-            }
-            if (cursor - firstCharacterIndex > 0) {
-                content.renderBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
-            } else {
-                content.renderBox(Box(box.position.copy(y = y), thickness, height), cursorColor)
-            }
+
+            content.renderBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
+
         }
     }
 
@@ -753,7 +741,7 @@ fun <T> WidgetContainerScope.NumberEditor(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         FlatButton(
-            modifier = Modifier.padding(horizontal = 2f).margin(top = 1f),
+            modifier = Modifier.padding(right = 2f).margin(top = 1f),
             hoveredColor = Colors.GRAY.opacity(.15f)
         ) {
             Box(Modifier.size(5f, 5f)) {
@@ -770,7 +758,7 @@ fun <T> WidgetContainerScope.NumberEditor(
             }
         }
         FlatButton(
-            modifier = Modifier.padding(horizontal = 2f),
+            modifier = Modifier.padding(right = 2f),
             hoveredColor = Colors.GRAY.opacity(.15f)
         ) {
             Box(Modifier.size(5f, 5f)) {

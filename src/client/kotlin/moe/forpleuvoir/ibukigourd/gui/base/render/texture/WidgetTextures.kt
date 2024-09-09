@@ -134,7 +134,7 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var COLOR_SLIDER_BG: WidgetTexture = WidgetTexture(Corner(2), 80, 32, 88, 40, TEXTURE_INFO)
         private set
 
-    var COLOR_SLIDER_ARROW: WidgetTexture = WidgetTexture(Corner(1), 91, 32, 96, 40, TEXTURE_INFO)
+    var COLOR_SLIDER_ARROW: WidgetTexture = WidgetTexture(Corner(vertical = 2, horizontal = 1), 91, 32, 96, 40, TEXTURE_INFO)
         private set
 
     var LIST_BACKGROUND: WidgetTexture = WidgetTexture(Corner(4), 32, 0, 48, 16, TEXTURE_INFO)

@@ -46,7 +46,7 @@ interface BoxLayout : Layout {
         val datas = WrappedBoxLayoutData.wrappedDatas(layoutables)
         layoutables.forEachIndexed { index, placeable ->
             val vec2f = datas[index].alignment.align(widget.contentBox(false), placeable.wrappedSize)
-            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top) + Vector2f(widget.padding.left, widget.padding.right), false)
+            placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top) + Vector2f(widget.padding.left, widget.padding.top), false)
         }
     }
 

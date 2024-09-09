@@ -1,13 +1,20 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.util.State
+import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.nebula.common.color.ARGBColor
 
 fun WidgetContainerScope.Widget(
     modifier: Modifier,
@@ -23,3 +30,23 @@ fun WidgetContainerScope.Widget(
     GuiScope { this }.scope()
 }
 
+fun WidgetContainerScope.ColoredBox(
+    color: ARGBColor,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = { }
+) = ColoredBox(stateOf(color), modifier, scope)
+
+fun WidgetContainerScope.ColoredBox(
+    color: State<ARGBColor>,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = { }
+) = Widget(Modifier.render { context, _, _, _ ->
+    context.useScissor(transform.asWorldBox) {
+        batchRenderTextureColored {
+            pushTileTexture(transform, WidgetTextures.ALPHA)
+        }
+        batchRenderBox {
+            pushBox(transform, color.getValue())
+        }
+    }
+} then modifier, scope)

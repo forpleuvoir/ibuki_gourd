@@ -13,9 +13,8 @@ vec3 hsv_to_rgb(vec3 hsv){
 }
 
 void main() {
-    vec4 color = vec4(hsv_to_rgb(vertexColor.xyz), vertexColor.w);
-    if (color.a == 0.0) {
+    if (vertexColor.a == 0.0) {
         discard;
     }
-    fragColor = color * ColorModulator;
+    fragColor =  vec4(hsv_to_rgb(vertexColor.xyz), vertexColor.w) * ColorModulator;
 }
