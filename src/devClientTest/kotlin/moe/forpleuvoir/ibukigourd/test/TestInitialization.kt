@@ -30,6 +30,9 @@ object TestInitialization {
             register(Keyboard.KP_5) {
                 openScreen(testScreen5())
             }
+            register(Keyboard.KP_6) {
+                openScreen(testScreen6())
+            }
             register(Keyboard.KP_9) {
                 openScreen(testScreen9())
             }

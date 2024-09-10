@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.stateOf
 import moe.forpleuvoir.ibukigourd.util.switch
@@ -39,6 +40,9 @@ fun testScreen9() = ColumnScreen {
                 ) {
                     Icon(IconTextures.LOCK)
                     TextLabel("锁定")
+                    HoverTip {
+                        TextLabel("点击复制颜色")
+                    }
                 }
             } else {
                 Button(
@@ -49,6 +53,9 @@ fun testScreen9() = ColumnScreen {
                 ) {
                     Icon(IconTextures.CLOSE)
                     TextLabel("关闭")
+                    HoverTip {
+                        TextLabel("点击复制颜色")
+                    }
                 }
             }
         }

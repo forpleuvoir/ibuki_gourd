@@ -4,6 +4,8 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
+import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.config.item.impl.color
 import moe.forpleuvoir.nebula.config.item.impl.float
 import moe.forpleuvoir.nebula.config.manager.component.autoSave
 import moe.forpleuvoir.nebula.config.manager.components
@@ -24,6 +26,8 @@ object GuiConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD
     object Screen : ModConfigContainer("screen") {
 
         var BG_BLUR_RADIUS by float("bg_blur_radius", 10f)
+
+        var WIDGET_TEST_OUTLINE_COLOR by color("widget_test_outline_color", Colors.AQUA)
 
     }
 

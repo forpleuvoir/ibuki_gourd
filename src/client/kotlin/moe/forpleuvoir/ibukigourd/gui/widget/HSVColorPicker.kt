@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.render.IGRenderLayers
 import moe.forpleuvoir.ibukigourd.util.State
@@ -23,14 +24,15 @@ import moe.forpleuvoir.nebula.common.color.HSVColor
 
 fun WidgetContainerScope.HSVColorPicker(
     colorState: State<ARGBColor>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scope: RowScope.() -> Unit = {}
 ) = Row(
     modifier = Modifier.size(260f, 84f).then(modifier),
-    verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically),
+    verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 2f).weight(1)
+            modifier.padding(vertical = 4f).weight(1)
         ) {
             HueColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
@@ -43,7 +45,7 @@ fun WidgetContainerScope.HSVColorPicker(
     }
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 2f).weight(1)
+            modifier.padding(vertical = 4f).weight(1)
         ) {
             SaturationColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
@@ -56,7 +58,7 @@ fun WidgetContainerScope.HSVColorPicker(
     }
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 2f).weight(1)
+            modifier.padding(vertical = 4f).weight(1)
         ) {
             ValueColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
@@ -69,7 +71,7 @@ fun WidgetContainerScope.HSVColorPicker(
     }
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 2f).weight(1)
+            modifier.padding(vertical = 4f).weight(1)
         ) {
             AlphaColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
@@ -80,6 +82,7 @@ fun WidgetContainerScope.HSVColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
     }
+    scope()
 }
 
 

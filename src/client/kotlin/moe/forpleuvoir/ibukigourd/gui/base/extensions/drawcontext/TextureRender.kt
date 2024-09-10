@@ -57,19 +57,19 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
         textureHeight: Int = 256,
     ) {
         val matrix4f = context.positionMatrix
+        val textureU = u.toFloat() / textureWidth.toFloat()
+        val textureV = v.toFloat() / textureHeight.toFloat()
+        val textureUEnd = (u + uSize).toFloat() / textureWidth.toFloat()
+        val textureVEnd = (v + vSize).toFloat() / textureHeight.toFloat()
         bufferBuilder.apply {
-            vertex(matrix4f, x, y + height, 0f)
-                .texture(u.toFloat() / textureWidth, (v.toFloat() + vSize) / textureHeight)
-                .color(color)
-            vertex(matrix4f, x + width, y + height, 0f)
-                .texture((u.toFloat() + uSize) / textureWidth, (v.toFloat() + vSize) / textureHeight)
-                .color(color)
-            vertex(matrix4f, x + width, y, 0f)
-                .texture((u.toFloat() + uSize) / textureWidth, v.toFloat() / textureHeight)
-                .color(color)
-            vertex(matrix4f, x, y, 0f)
-                .texture(u.toFloat() / textureWidth, v.toFloat() / textureHeight)
-                .color(color)
+            //top left
+            vertex(matrix4f, x, y, 0f).texture(textureU, textureV).color(color)
+            //bottom left
+            vertex(matrix4f, x, y + height, 0f).texture(textureU, textureVEnd).color(color)
+            //bottom right
+            vertex(matrix4f, x + width, y + height, 0f).texture(textureUEnd, textureVEnd).color(color)
+            //top right
+            vertex(matrix4f, x + width, y, 0f).texture(textureUEnd, textureV).color(color)
         }
     }
 

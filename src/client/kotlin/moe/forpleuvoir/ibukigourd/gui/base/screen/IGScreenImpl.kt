@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderGradientBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
@@ -26,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
+import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -385,7 +387,14 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override var renderOverlay: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderOverlay
 
-    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) = Unit
+    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+        hoveredWidget.getValue()?.let { widget ->
+            WIDGET_TEST_OUTLINE_COLOR
+                .takeIf { it.alpha > 0 }
+                ?.let { context.batchRenderBox { pushBoxOutline(widget.transform, it) } }
+        }
+
+    }
 
     //------------ Vanilla Drawable Override ------------\\
 

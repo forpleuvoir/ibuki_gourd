@@ -579,11 +579,6 @@ open class TextEditorWidget(
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.useScissor(contentBox(true)) {
             renderText(context)
-        }
-    }
-
-    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.useScissor(contentBox(true)) {
             renderCursor(context)
         }
     }

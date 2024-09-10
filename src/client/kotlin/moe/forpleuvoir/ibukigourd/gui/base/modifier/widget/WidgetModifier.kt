@@ -151,6 +151,17 @@ fun Modifier.margin(all: Number) = this then WidgetModifier { widget ->
 
 //------------ Render ------------\\
 
+fun Modifier.renderPriority(priority: Int) = this then WidgetModifier { widget ->
+    widget.renderPriority = priority
+}
+
+fun Modifier.renderPriority(priority: State<Int>) = this then WidgetModifier { widget ->
+    widget.renderPriority = priority.getValue()
+    priority.subscribe {
+        widget.renderPriority = it
+    }
+}
+
 fun Modifier.visible(state: Boolean) = this then WidgetModifier { widget ->
     widget.visible = state
 }
