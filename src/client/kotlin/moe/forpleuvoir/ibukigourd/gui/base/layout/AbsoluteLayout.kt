@@ -33,6 +33,9 @@ data class WrappedAbsoluteLayoutData(
     val asVec2: Vector2fc = Vector2f(x, y)
 
     companion object : WrappedLayoutDataUtil<WrappedAbsoluteLayoutData> {
+        override fun fromMeasurable(measurable: Measurable): WrappedAbsoluteLayoutData? =
+            measurable.parentData as? WrappedAbsoluteLayoutData
+
         override fun default() = WrappedAbsoluteLayoutData()
     }
 

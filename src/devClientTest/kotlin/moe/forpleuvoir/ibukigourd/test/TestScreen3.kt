@@ -26,8 +26,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.style.style
-import moe.forpleuvoir.ibukigourd.util.plus
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.plus
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 
@@ -44,7 +44,7 @@ fun testScreen3() = RowScreen(
         }
     }
 ) {
-    val selectText = stateOf("本居小铃")
+    val selectText = mutableStateOf("本居小铃")
     val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
     Column {
         DropDownMenu {
@@ -80,7 +80,7 @@ fun testScreen3() = RowScreen(
         FlatButton(hoveredColor = Colors.AQUA.opacity(.25f)) {
             TextLabel(selectText)
         }
-        val status = stateOf(true)
+        val status = mutableStateOf(true)
         SwitchButton(status)
         LockButton(status)
         val map = mapOf(
@@ -113,7 +113,7 @@ fun testScreen3() = RowScreen(
     Button(
         modifier = Modifier.maxWidth(80f).maxHeight(80f)
     ) {
-        val text = stateOf("测试文本:")
+        val text = mutableStateOf("测试文本:")
         var count = 1
         press {
             text + "\n测试宽度$count"
@@ -206,7 +206,7 @@ private fun ColumnScope.RowTest(arrangement: Arrangement.Vertical) = Row(
     Button {
         TextLabel("按钮1")
         HoverTip(
-            bgColor = stateOf(Colors.PINK)
+            bgColor = mutableStateOf(Colors.PINK)
         ) { TextLabel("我踏马要写一大段测试文本,\n而且我还要换行.我TM换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换") }
     }
     Button { TextLabel("按钮2") }

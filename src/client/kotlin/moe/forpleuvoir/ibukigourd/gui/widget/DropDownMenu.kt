@@ -17,17 +17,24 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Absolute
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.util.*
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.soundManager
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
-class DropDownMenuScope(private val owner: IGButtonWidget, private val state: State<Boolean>) : ButtonScope {
+class DropDownMenuScope(private val owner: IGButtonWidget, private val state: MutableState<Boolean>) : ButtonScope {
 
     override fun owner(): IGButtonWidget = owner
 
@@ -49,7 +56,7 @@ fun WidgetContainerScope.DropDownMenu(
     modifier: Modifier = Modifier,
     scope: DropDownMenuScope.() -> Unit
 ): IGButtonWidget {
-    val expandState = stateOf(false)
+    val expandState = mutableStateOf(false)
     //上面的空余空间,下面的空余空间
     var space = 0f to 0f
     //最大空间的位置 false :up true: down
@@ -77,7 +84,7 @@ fun WidgetContainerScope.DropDownMenu(
     ) {
         val dropDownMenuScope = DropDownMenuScope(this.owner(), expandState).apply(scope)
         dropDownContent = dropDownMenuScope.dropDownContent
-        val icon = stateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
+        val icon = mutableStateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
         playSound = { owner().playClickSound(soundManager) }
         expandState.subscribe {
             icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
@@ -180,12 +187,12 @@ fun <T> WidgetContainerScope.Spinner(
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
     check(initialOption in options) { "initialOption must be in options" }
-    val selected = stateOf(initialOption)
+    val selected = mutableStateOf(initialOption)
     selected.subscribe {
         onChange(it)
     }
     return DropDownMenu(modifier) {
-        val proxy: State<DropDownMenuScope.() -> IGWidget> = stateOf {
+        val proxy: MutableState<DropDownMenuScope.() -> IGWidget> = mutableStateOf {
             selectedWrapper.invoke(this, selected.getValue())
         }
         Proxy(proxy)

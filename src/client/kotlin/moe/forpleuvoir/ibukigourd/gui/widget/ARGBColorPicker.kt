@@ -16,9 +16,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.*
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.soundManager
+import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.render.RenderLayer
@@ -26,30 +29,30 @@ import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 
 fun WidgetContainerScope.ColorPicker(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     resultModifier: ColumnScope.() -> Modifier = { Modifier },
     scope: RowScope.() -> Unit = {}
 ) = Row(
     Modifier.size(260f, 105f).then(modifier),
 ) {
-    val picker: State<ColumnScope.() -> IGWidget> = stateOf {
-        val color = stateOf(colorState.getValue())
+    val picker: MutableState<ColumnScope.() -> IGWidget> = mutableStateOf {
+        val color = mutableStateOf(colorState.getValue())
         color.subscribe {
             colorState.setValue(it)
         }
         HSVColorPicker(color, Modifier.weight(1).fill())
     }
-    val isHSV = stateOf(true).apply {
+    val isHSV = mutableStateOf(true).apply {
         subscribe { hsv ->
             if (hsv) picker.setValue {
-                val color = stateOf(colorState.getValue())
+                val color = mutableStateOf(colorState.getValue())
                 color.subscribe {
                     colorState.setValue(it)
                 }
                 HSVColorPicker(color, Modifier.weight(1).fill())
             } else picker.setValue {
-                val color = stateOf(colorState.getValue())
+                val color = mutableStateOf(colorState.getValue())
                 color.subscribe {
                     colorState.setValue(it)
                 }
@@ -59,7 +62,7 @@ fun WidgetContainerScope.ColorPicker(
     }
     Column {
         Button(
-            Modifier.active(stateOf(isHSV) { !it })
+            Modifier.active(mutableStateOf(isHSV) { !it })
         ) {
             TextLabel("HSV")
             press { isHSV.switch() }
@@ -74,7 +77,7 @@ fun WidgetContainerScope.ColorPicker(
             Modifier.weight(1),
             horizontalArrangement = Arrangement.Right
         ) {
-            TextLabel(stateOf(colorState) { Literal(it.hexStr).style { color(it.rgb) } })
+            TextLabel(mutableStateOf(colorState) { Literal(it.hexStr).style { color(it.rgb) } })
         }
     }
     Column(
@@ -89,62 +92,62 @@ fun WidgetContainerScope.ColorPicker(
 
 
 fun WidgetContainerScope.ARGBColorPicker(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: RowScope.() -> Unit = {}
 ) = Row(
-    modifier = Modifier.size(260f, 84f).then(modifier),
+    modifier = Modifier.size(200f, 82f).then(modifier),
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 4f).weight(1)
+            modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
             RedColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            stateOf(colorState, { it.red }) { Color(colorState.getValue().argb).red(it) },
+            mutableStateOf(colorState, { it.red }) { Color(colorState.getValue().argb).red(it) },
             range = 0..255,
-            modifier = Modifier.width(40f),
+            modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
     }
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 4f).weight(1)
+            modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
             GreenColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            stateOf(colorState, { it.green }) { Color(colorState.getValue().argb).green(it) },
+            mutableStateOf(colorState, { it.green }) { Color(colorState.getValue().argb).green(it) },
             range = 0..255,
-            modifier = Modifier.width(40f),
+            modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
     }
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 4f).weight(1)
+            modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
             BlueColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            stateOf(colorState, { it.blue }) { Color(colorState.getValue().argb).blue(it) },
+            mutableStateOf(colorState, { it.blue }) { Color(colorState.getValue().argb).blue(it) },
             range = 0..255,
-            modifier = Modifier.width(40f),
+            modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
     }
     Column(Modifier.weight(1)) {
         Box(
-            modifier.padding(vertical = 4f).weight(1)
+            modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
             AlphaColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            stateOf(colorState, { it.alpha }) { Color(colorState.getValue().argb).alpha(it) },
+            mutableStateOf(colorState, { it.alpha }) { Color(colorState.getValue().argb).alpha(it) },
             range = 0..255,
-            modifier = Modifier.width(40f),
+            modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -165,15 +168,15 @@ fun WidgetContainerScope.ColorResult(
         }
     }.then(modifier)
 ) {
-//    HoverTip {
-//        TextLabel(stateOf(color) { "点击复制颜色:${it.hexStr}" })
-//    }
+    HoverTip {
+        TextLabel(stateOf(color) { "点击复制颜色:${it.hexStr}" })
+    }
     scope()
 }
 
 
 fun WidgetContainerScope.RedColorSlider(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = ColorComponentSlider(
@@ -185,7 +188,7 @@ fun WidgetContainerScope.RedColorSlider(
 )
 
 fun WidgetContainerScope.GreenColorSlider(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = ColorComponentSlider(
@@ -197,7 +200,7 @@ fun WidgetContainerScope.GreenColorSlider(
 )
 
 fun WidgetContainerScope.BlueColorSlider(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = ColorComponentSlider(
@@ -209,7 +212,7 @@ fun WidgetContainerScope.BlueColorSlider(
 )
 
 fun WidgetContainerScope.AlphaColorSlider(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = ColorComponentSlider(
@@ -222,16 +225,16 @@ fun WidgetContainerScope.AlphaColorSlider(
 
 
 fun WidgetContainerScope.ColorComponentSlider(
-    colorState: State<ARGBColor>,
+    colorState: MutableState<ARGBColor>,
     colorComponentGetter: (ARGBColor) -> Float,
     colorComponentSetter: (ARGBColor, Float) -> ARGBColor,
     renderColorComponentSetter: (ARGBColor, Float) -> ARGBColor,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ): IGWidgetImpl {
-    val valueState = stateOf(colorComponentGetter(colorState.getValue()))
+    val valueState = mutableStateOf(colorComponentGetter(colorState.getValue()))
     var progress = valueState.getValue().toDouble()
-    State.bind(colorState, valueState, {
+    MutableState.bind(colorState, valueState, {
         colorComponentGetter(it).apply {
             progress = this.toDouble()
         }

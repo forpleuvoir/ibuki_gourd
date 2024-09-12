@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.util.State
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import net.minecraft.client.MinecraftClient
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -15,9 +15,9 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     //------------ IGScreen ------------\\
 
-    var focusedWidget: State<IGWidget?>
+    var focusedWidget: MutableState<IGWidget?>
 
-    var hoveredWidget: State<IGWidget?>
+    var hoveredWidget: MutableState<IGWidget?>
 
     var pauseGame: Boolean
 

@@ -59,6 +59,8 @@ data class WrappedBoxLayoutData(
 ) {
 
     companion object : WrappedLayoutDataUtil<WrappedBoxLayoutData> {
+        override fun fromMeasurable(measurable: Measurable): WrappedBoxLayoutData? =
+            measurable.parentData as? WrappedBoxLayoutData
 
         override fun default() = WrappedBoxLayoutData()
 

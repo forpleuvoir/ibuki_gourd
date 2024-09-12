@@ -35,9 +35,9 @@ import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.render.math.plus
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -675,7 +675,7 @@ fun WidgetContainerScope.TextEditor(
 data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
 
 fun <T> WidgetContainerScope.NumberEditor(
-    value: State<T>,
+    value: MutableState<T>,
     valueMapper: (T) -> String,
     valueRange: ClosedRange<T>,
     textMapper: (String) -> T,
@@ -775,7 +775,7 @@ fun <T> WidgetContainerScope.NumberEditor(
 
 
 fun WidgetContainerScope.IntEditor(
-    value: State<Int>,
+    value: MutableState<Int>,
     range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
     step: ValueStep<Int> = ValueStep(1, 5, 10, 15, 1),
     modifier: Modifier = Modifier,
@@ -812,7 +812,7 @@ fun WidgetContainerScope.IntEditor(
 )
 
 fun WidgetContainerScope.LongEditor(
-    value: State<Long>,
+    value: MutableState<Long>,
     range: LongRange = Long.MIN_VALUE..Int.MAX_VALUE,
     step: ValueStep<Long> = ValueStep(1, 5, 10, 15, 1),
     modifier: Modifier = Modifier,
@@ -849,7 +849,7 @@ fun WidgetContainerScope.LongEditor(
 )
 
 fun WidgetContainerScope.FloatEditor(
-    value: State<Float>,
+    value: MutableState<Float>,
     range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
     step: ValueStep<Float> = ValueStep(1f, 5f, 10f, 15f, 1f),
     modifier: Modifier = Modifier,
@@ -890,7 +890,7 @@ fun WidgetContainerScope.FloatEditor(
 
 
 fun WidgetContainerScope.DoubleEditor(
-    value: State<Double>,
+    value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
     step: ValueStep<Double> = ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
     modifier: Modifier = Modifier,

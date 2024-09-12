@@ -15,8 +15,12 @@ import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
-import moe.forpleuvoir.ibukigourd.util.State
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
 
@@ -24,7 +28,7 @@ data class TabScope(
     val owner: ColumnWidget
 ) : ColumnScope {
 
-    internal lateinit var content: State<BoxScope.() -> IGWidget>
+    internal lateinit var content: MutableState<BoxScope.() -> IGWidget>
 
     override fun owner(): ColumnWidget = owner
 
@@ -33,7 +37,7 @@ data class TabScope(
     fun addTab(tab: IGWidget, content: BoxScope.() -> IGWidget) {
         tabs[tab] = content
         if (!tab.active && !this::content.isInitialized) {
-            this.content = stateOf(content)
+            this.content = mutableStateOf(content)
         }
     }
 
@@ -51,10 +55,13 @@ data class TabScope(
             check(tabs.isNotEmpty()) { "Tabs cannot be empty when initializing." }
             val (tab, content) = tabs.entries.first()
             tab.active = false
-            this.content = stateOf(content)
+            this.content = mutableStateOf(content)
         }
     }
 
+    val tabColor: MutableState<ARGBColor> = mutableStateOf(Colors.WHITE)
+
+    val inactiveColor: MutableState<ARGBColor> = mutableStateOf(Colors.GRAY)
 }
 
 
@@ -81,7 +88,7 @@ fun WidgetContainerScope.Tabs(
                 .padding(5)
                 .render { context, _, _, _ ->
                     context.batchRenderTextureColored {
-                        pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND)
+                        pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
                     }
                 }
         ) {
@@ -91,6 +98,8 @@ fun WidgetContainerScope.Tabs(
 }
 
 fun TabScope.Tab(
+    activeColor: State<ARGBColor> = stateOf(tabColor),
+    inactiveColor: State<ARGBColor> = stateOf(this.inactiveColor),
     modifier: Modifier = Modifier,
     scope: ButtonScope.() -> Unit = {},
     content: BoxScope.() -> IGWidget
@@ -99,7 +108,7 @@ fun TabScope.Tab(
         .padding(top = 5, right = 5, left = 5, bottom = 0)
         .render { context, _, _, _ ->
             context.batchRenderTextureColored {
-                pushWidgetTexture(transform, tabButtonTexture(Top, active))
+                pushWidgetTexture(transform, tabButtonTexture(Top, active), active.pick(inactiveColor.getValue(), activeColor.getValue()))
             }
         }.then(modifier)
 ) {

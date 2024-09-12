@@ -12,8 +12,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChi
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.util.State
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 
 fun WidgetContainerScope.Widget(

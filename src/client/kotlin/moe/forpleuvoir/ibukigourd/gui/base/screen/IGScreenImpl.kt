@@ -31,8 +31,8 @@ import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_C
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.State
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.*
@@ -114,7 +114,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override var layers: List<GuiLayer> = GuiLayer.defaultLayers
         internal set
 
-    override var focusedWidget: State<IGWidget?> = stateOf(null)
+    override var focusedWidget: MutableState<IGWidget?> = mutableStateOf(null)
 
     private val datas: MutableMap<String, Any> = mutableMapOf()
 
@@ -324,7 +324,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     var latestRenderTime: Duration = Duration.ZERO
         protected set
 
-    override var hoveredWidget: State<IGWidget?> = stateOf(null as IGWidget?).apply {
+    override var hoveredWidget: MutableState<IGWidget?> = mutableStateOf(null as IGWidget?).apply {
         subscribe {
             MouseCursor.current = it?.mouseOverCursor ?: MouseCursor.default
         }

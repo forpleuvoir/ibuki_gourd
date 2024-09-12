@@ -15,9 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
-import moe.forpleuvoir.ibukigourd.util.State
-import moe.forpleuvoir.ibukigourd.util.stateOf
-import moe.forpleuvoir.ibukigourd.util.switch
+import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.primitive.pick
@@ -44,10 +42,10 @@ fun WidgetContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    disabledColor: State<ARGBColor> = stateOf(Color(0)),
-    idleColor: State<ARGBColor> = stateOf(Color(0)),
-    hoveredColor: State<ARGBColor> = stateOf(Color(0)),
-    pressedColor: State<ARGBColor> = stateOf(Color(0)),
+    disabledColor: State<out ARGBColor> = stateOf(Color(0)),
+    idleColor: State<out ARGBColor> = stateOf(Color(0)),
+    hoveredColor: State<out ARGBColor> = stateOf(Color(0)),
+    pressedColor: State<out ARGBColor> = stateOf(Color(0)),
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(1)
@@ -85,7 +83,7 @@ fun WidgetContainerScope.FlatButton(
 )
 
 fun WidgetContainerScope.SwitchButton(
-    switchState: State<Boolean> = stateOf(false),
+    switchState: MutableState<Boolean> = mutableStateOf(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -113,14 +111,14 @@ fun WidgetContainerScope.SwitchButton(
 /**
  * 创建一个锁定按钮组件
  *
- * @param lockState 一个包含锁定状态的 [State] 对象，默认为未锁定状态
+ * @param lockState 一个包含锁定状态的 [MutableState] 对象，默认为未锁定状态
  * @param modifier 一个用于修改此组件外观和行为的 [Modifier] 对象
  * @param horizontalArrangement 水平排列方式，默认为 [Arrangement.Center]
  * @param verticalAlignment 垂直对齐方式，默认为 [Alignment.CenterVertically]
  * @param scope 按钮内容的 Lambda 表达式，默认为空
  */
 fun WidgetContainerScope.LockButton(
-    lockState: State<Boolean> = stateOf(false),
+    lockState: MutableState<Boolean> = mutableStateOf(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -147,13 +145,13 @@ fun WidgetContainerScope.LockButton(
         }
         .padding(2f)
         .then(modifier).foldInApply()
-    press { lockState.setValue(!lockState.getValue()) }
+    press { lockState.switch() }
     buttonScope.scope()
 }
 
 //TODO 彩色按钮待实现
 fun WidgetContainerScope.ColorButton(
-    color: State<ARGBColor>,
+    color: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: ButtonScope.() -> Unit = {}
 ) = Button(

@@ -16,10 +16,10 @@ import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
 import moe.forpleuvoir.ibukigourd.render.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.text.*
-import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.stateBy
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.stateBy
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -267,10 +267,7 @@ fun WidgetContainerScope.TextLabel(
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = addWidgetChild(TextWidget(stateOf(text), setting)) {
-    modifier.foldInApply()
-    TextWidgetScope { this }.scope()
-}
+) = TextLabel(stateOf(text), modifier, setting, scope)
 
 fun WidgetContainerScope.TextLabel(
     text: () -> Text,
@@ -295,7 +292,7 @@ fun WidgetContainerScope.TextLabel(
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
 ) = TextLabel(
-    stateOf(Literal(str()).setStyle(style)).apply { onGetValue = { Literal(str()).setStyle(style) } },
+    stateBy { Literal(str()).setStyle(style) },
     modifier = modifier,
     setting = setting,
     scope = scope
@@ -308,8 +305,4 @@ fun WidgetContainerScope.TextLabel(
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = TextLabel(str.getValue(), style, modifier, setting, scope).apply {
-    str.subscribe {
-        text.setValue(Literal(it).setStyle(style))
-    }
-}
+) = TextLabel(stateOf(str) { Literal(it).setStyle(style) }, modifier, setting, scope)

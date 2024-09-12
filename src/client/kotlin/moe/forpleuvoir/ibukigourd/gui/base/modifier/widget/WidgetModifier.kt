@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
-import moe.forpleuvoir.ibukigourd.util.State
+import moe.forpleuvoir.ibukigourd.util.state.State
 
 fun interface WidgetModifier : Modifier.Element {
     fun applyModify(element: IGWidget)

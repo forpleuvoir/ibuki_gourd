@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.util.State
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
@@ -81,7 +81,7 @@ fun WidgetContainerScope.Icon(
 }
 
 fun WidgetContainerScope.Icon(
-    texture: State<WidgetTexture>,
+    texture: MutableState<WidgetTexture>,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
     scope: IconScope.() -> Unit = {}

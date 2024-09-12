@@ -47,6 +47,8 @@ interface RowListLayout : ListLayout {
     ) : WrappedListLayoutData {
 
         companion object : WrappedLayoutDataUtil<WrappedRowListLayoutData> {
+            override fun fromMeasurable(measurable: Measurable): WrappedRowListLayoutData? =
+                measurable.parentData as? WrappedRowListLayoutData
             override fun default(): WrappedRowListLayoutData = WrappedRowListLayoutData()
         }
 
@@ -137,6 +139,8 @@ interface ColumnListLayout : ListLayout {
     ) : WrappedListLayoutData {
 
         companion object : WrappedLayoutDataUtil<WrappedColumnListLayoutData> {
+            override fun fromMeasurable(measurable: Measurable): WrappedColumnListLayoutData? =
+                measurable.parentData as? WrappedColumnListLayoutData
             override fun default(): WrappedColumnListLayoutData = WrappedColumnListLayoutData()
         }
 

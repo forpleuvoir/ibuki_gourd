@@ -11,12 +11,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
-import moe.forpleuvoir.ibukigourd.util.State
-import moe.forpleuvoir.ibukigourd.util.stateOf
-import moe.forpleuvoir.ibukigourd.util.switch
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.switch
 
 fun testScreen9() = ColumnScreen {
-    val proxy: State<ColumnScope.() -> IGWidget> = stateOf {
+    val proxy: MutableState<ColumnScope.() -> IGWidget> = mutableStateOf {
         Button(
             horizontalArrangement = Arrangement.spacedBy(
                 2f,
@@ -28,7 +28,7 @@ fun testScreen9() = ColumnScreen {
         }
     }
     Proxy(proxy)
-    val state = stateOf(false)
+    val state = mutableStateOf(false)
     state.subscribe { s ->
         proxy.setValue {
             if (s) {

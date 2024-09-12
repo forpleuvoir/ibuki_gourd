@@ -51,6 +51,8 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
         override val alignment: Alignment.Horizontal? = null
     ) : WrappedLinearLayoutData {
         companion object : WrappedLayoutDataUtil<WrappedRowLayoutData> {
+            override fun fromMeasurable(measurable: Measurable): WrappedRowLayoutData? =
+                measurable.parentData as? WrappedRowLayoutData
             override fun default() = WrappedRowLayoutData()
         }
 
@@ -172,6 +174,8 @@ interface ColumnLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical
         override val alignment: Alignment.Vertical? = null
     ) : WrappedLinearLayoutData {
         companion object : WrappedLayoutDataUtil<WrappedColumnLayoutData> {
+            override fun fromMeasurable(measurable: Measurable): WrappedColumnLayoutData? =
+                measurable.parentData as? WrappedColumnLayoutData
             override fun default() = WrappedColumnLayoutData()
         }
 

@@ -27,8 +27,8 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.overlayMessage
-import moe.forpleuvoir.ibukigourd.util.plus
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.plus
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.time.Duration.Companion.seconds
 
@@ -123,7 +123,7 @@ fun TestScreen() = BoxScreen(modifier()) {
         }
         TestColumn()
         FloatSlider(
-            stateOf(GuiConfig.Screen::BG_BLUR_RADIUS),
+            mutableStateOf(GuiConfig.Screen::BG_BLUR_RADIUS),
             0f..25f,
             textMapper = { Literal("背景模糊:%.2f".format(it)) },
             modifier = Modifier.minWidth(120f)
@@ -165,7 +165,7 @@ fun RowScope.TestColumn() = Column(
                 }
             } else if (it % 5 == 0) {
                 Button(modifier = m) {
-                    val text = stateOf("测试文本:")
+                    val text = mutableStateOf("测试文本:")
                     press {
                         text + "\n测试宽度测试宽度测试宽度测试宽度"
                     }

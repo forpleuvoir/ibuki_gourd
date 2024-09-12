@@ -15,8 +15,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.soundManager
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.client.sound.PositionedSoundInstance
@@ -24,7 +24,7 @@ import net.minecraft.sound.SoundEvents
 import kotlin.math.abs
 
 fun <T> WidgetContainerScope.NumberSlider(
-    value: State<T>,
+    value: MutableState<T>,
     minValue: T,
     maxValue: T,
     valueMapper: (progress: Double) -> T,
@@ -104,7 +104,7 @@ fun <T> WidgetContainerScope.NumberSlider(
 }
 
 fun WidgetContainerScope.IntSlider(
-    value: State<Int>,
+    value: MutableState<Int>,
     range: IntRange,
     textMapper: (Int) -> Text = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Int = { (range.first + (range.last - range.first) * it).toInt() },
@@ -127,7 +127,7 @@ fun WidgetContainerScope.IntSlider(
 )
 
 fun WidgetContainerScope.LongSlider(
-    value: State<Long>,
+    value: MutableState<Long>,
     range: LongRange,
     textMapper: (Long) -> Text = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Long = { (range.first + (range.last - range.first) * it).toLong() },
@@ -150,7 +150,7 @@ fun WidgetContainerScope.LongSlider(
 )
 
 fun WidgetContainerScope.FloatSlider(
-    value: State<Float>,
+    value: MutableState<Float>,
     range: ClosedFloatingPointRange<Float>,
     textMapper: (Float) -> Text = { Literal("%.2f".format(it)) },
     valueMapper: (progress: Double) -> Float = { (range.start + (range.endInclusive - range.start) * it).toFloat() },
@@ -173,7 +173,7 @@ fun WidgetContainerScope.FloatSlider(
 )
 
 fun WidgetContainerScope.DoubleSlider(
-    value: State<Double>,
+    value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double>,
     textMapper: (Double) -> Text = { Literal("%.2f".format(it)) },
     valueMapper: (progress: Double) -> Double = { (range.start + (range.endInclusive - range.start) * it) },

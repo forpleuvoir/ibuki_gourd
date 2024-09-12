@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import java.util.*
 
 interface WidgetContainer : Measurable {
 
@@ -42,4 +43,49 @@ interface WidgetContainer : Measurable {
 
     fun removeWidgetChildAt(index: Int): IGWidget?
 
+    fun flat(): List<IGWidget> = widgetChildren().flatMap { if (it is WidgetContainer) it.flat() else listOf(it) }
+
+    fun findTargetDFS(target: IGWidget): Boolean {
+        // 检查当前节点是否为空
+        if (widgetChildren().isEmpty()) return false
+        // 检查当前节点是否为目标节点
+        if (this is IGWidget && this == target) return true
+
+        // 遍历所有子节点
+        for (child in widgetChildren()) {
+            if (child == target) {
+                return true
+            }
+            // 如果子节点是 WidgetContainer，则递归查找其子节点
+            if (child is WidgetContainer) {
+                if (child.findTargetDFS(target)) return true
+            }
+        }
+
+        return false
+    }
+
+    fun findTargetBFS(target: IGWidget): Boolean {
+        val queue: Queue<Any> = LinkedList()
+        queue.add(this)
+
+        while (queue.isNotEmpty()) {
+            val current = queue.poll()
+
+            // 检查当前节点是否为目标节点
+            if (current == target) {
+                return true
+            }
+
+            // 获取子节点并加入队列
+            if (current is WidgetContainer) {
+                val children = current.widgetChildren()
+                for (child in children) {
+                    queue.add(child)
+                }
+            }
+        }
+
+        return false
+    }
 }

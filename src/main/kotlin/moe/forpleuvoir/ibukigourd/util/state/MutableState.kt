@@ -1,32 +1,31 @@
-package moe.forpleuvoir.ibukigourd.util
+package moe.forpleuvoir.ibukigourd.util.state
 
-import moe.forpleuvoir.nebula.common.api.Notifiable
 import java.util.function.Consumer
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 
-fun <T> stateOf(value: T) = State(value)
+fun <T> mutableStateOf(value: T) = MutableState(value)
 
-fun <T> stateBy(value: () -> T) = State(value()).apply { onGetValue = { value() } }
+fun <T> mutableStateBy(value: () -> T) = MutableState(value()).apply { onGetValue = { value() } }
 
-fun <T> stateOf(value: KMutableProperty0<T>) =
-    State(value.get()).apply {
+fun <T> mutableStateOf(value: KMutableProperty0<T>) =
+    MutableState(value.get()).apply {
         subscribe {
             value.set(it)
         }
     }
 
-fun <A, B> stateOf(state: State<B>, map: (B) -> A): State<A> =
-    stateOf(map(state.getValue())).apply { bind(state, map) }
+fun <A, B> mutableStateOf(state: State<B>, map: (B) -> A): MutableState<A> =
+    mutableStateOf(map(state.getValue())).apply { bind(state, map) }
 
-fun <A, B> stateOf(state: State<B>, mapA: (B) -> A, mapB: (A) -> B): State<A> =
-    stateOf(mapA(state.getValue())).apply {
-        State.bind(this, state, mapB, mapA)
+fun <A, B> mutableStateOf(state: MutableState<B>, mapA: (B) -> A, mapB: (A) -> B): MutableState<A> =
+    mutableStateOf(mapA(state.getValue())).apply {
+        MutableState.bind(this, state, mapB, mapA)
     }
 
-data class State<T>(private var value: T) : Notifiable<T> {
+data class MutableState<T>(private var value: T) : State<T> {
 
     var onSetValue: (T) -> T = { it }
 
@@ -42,10 +41,6 @@ data class State<T>(private var value: T) : Notifiable<T> {
         enableNotification = false
         action()
         enableNotification = true
-    }
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return onGetValue(value)
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
@@ -64,7 +59,7 @@ data class State<T>(private var value: T) : Notifiable<T> {
         }
     }
 
-    fun getValue(): T {
+    override fun getValue(): T {
         return onGetValue(value)
     }
 
@@ -91,7 +86,7 @@ data class State<T>(private var value: T) : Notifiable<T> {
 
     companion object {
 
-        fun <A, B> bind(a: State<A>, b: State<B>, mapA2B: (A) -> B, mapB2A: (B) -> A) {
+        fun <A, B> bind(a: MutableState<A>, b: MutableState<B>, mapA2B: (A) -> B, mapB2A: (B) -> A) {
             a.subscribe {
                 a.disableNotification {
                     b.setValue(mapA2B(it))
@@ -108,26 +103,21 @@ data class State<T>(private var value: T) : Notifiable<T> {
 
 }
 
-operator fun State<String>.plus(other: Any?): State<String> {
+operator fun MutableState<String>.plus(other: Any?): MutableState<String> {
     this.setValue(this.getValue() + other.toString())
     return this
 }
 
-fun State<String>.append(other: Any?): State<String> {
+fun MutableState<String>.append(other: Any?): MutableState<String> {
     this.setValue(this.getValue() + other.toString())
     return this
 }
 
-operator fun State<String>.plusAssign(other: State<String>) {
+operator fun MutableState<String>.plusAssign(other: MutableState<String>) {
     this.setValue(this.getValue() + other.toString())
 }
 
-operator fun State<Boolean>.not(): State<Boolean> {
-    this.setValue(!this.getValue())
-    return this
-}
-
-fun State<Boolean>.switch(): State<Boolean> {
+fun MutableState<Boolean>.switch(): MutableState<Boolean> {
     this.setValue(!this.getValue())
     return this
 }

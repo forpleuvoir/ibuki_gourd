@@ -5,23 +5,28 @@ import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
-import moe.forpleuvoir.ibukigourd.util.State
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import kotlin.time.Duration
 
 
 fun <T : WidgetContainerScope> T.Proxy(
     proxyState: State<T.() -> IGWidget>
-): State<IGWidget> {
-    val currentWidget = stateOf(proxyState.getValue().invoke(this))
+): MutableState<IGWidget> {
+    val currentWidget = mutableStateOf(proxyState.getValue().invoke(this))
     proxyState.subscribe { proxy ->
-        val index = owner().widgetChildren().indexOf(currentWidget.getValue())
-        val new = proxy.invoke(this)
-        val widget = owner().setWidgetChildren(index, new)
-        owner().removeWidgetChildAt(owner().widgetChildren().lastIndex)
-        currentWidget.setValue(new)
-        widget.screen()?.remeasure()
+        kotlin.runCatching {
+            val index = owner().widgetChildren().indexOf(currentWidget.getValue())
+            val new = proxy.invoke(this)
+            val widget = owner().setWidgetChildren(index, new)
+            owner().removeWidgetChildAt(owner().widgetChildren().lastIndex)
+            currentWidget.setValue(new)
+            widget.screen()?.remeasure()
+        }.onFailure {
+            it.printStackTrace()
+        }
     }
     return currentWidget
 }
@@ -29,8 +34,8 @@ fun <T : WidgetContainerScope> T.Proxy(
 fun <T : WidgetContainerScope> T.Proxy(
     proxyState: State<T.() -> IGWidget>,
     delay: Int
-): State<IGWidget> {
-    val currentWidget = stateOf(proxyState.getValue().invoke(this))
+): MutableState<IGWidget> {
+    val currentWidget = mutableStateOf(proxyState.getValue().invoke(this))
     proxyState.subscribe { proxy ->
         mc.scheduleEndTick(delay) {
             val index = owner().widgetChildren().indexOf(currentWidget.getValue())
@@ -47,8 +52,8 @@ fun <T : WidgetContainerScope> T.Proxy(
 fun <T : WidgetContainerScope> T.Proxy(
     proxyState: State<T.() -> IGWidget>,
     delay: Duration
-): State<IGWidget> {
-    val currentWidget = stateOf(proxyState.getValue().invoke(this))
+): MutableState<IGWidget> {
+    val currentWidget = mutableStateOf(proxyState.getValue().invoke(this))
     var currentJob: Job? = null
     proxyState.subscribe { proxy ->
         currentJob?.cancel()
