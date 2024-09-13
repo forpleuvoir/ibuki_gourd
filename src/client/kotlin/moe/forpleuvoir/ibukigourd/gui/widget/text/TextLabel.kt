@@ -18,7 +18,7 @@ import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.State
-import moe.forpleuvoir.ibukigourd.util.state.stateBy
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -269,13 +269,6 @@ fun WidgetContainerScope.TextLabel(
     scope: TextWidgetScope.() -> Unit = {}
 ) = TextLabel(stateOf(text), modifier, setting, scope)
 
-fun WidgetContainerScope.TextLabel(
-    text: () -> Text,
-    modifier: Modifier = Modifier,
-    setting: TextSetting = TextSetting(),
-    scope: TextWidgetScope.() -> Unit = {}
-) = TextLabel(stateBy(text), modifier = modifier, setting = setting, scope = scope)
-
 @JvmName("TextString")
 fun WidgetContainerScope.TextLabel(
     str: String,
@@ -285,19 +278,6 @@ fun WidgetContainerScope.TextLabel(
     scope: TextWidgetScope.() -> Unit = {}
 ) = TextLabel(Literal(str).setStyle(style), modifier, setting, scope)
 
-fun WidgetContainerScope.TextLabel(
-    str: () -> String,
-    style: Style = Style.EMPTY,
-    modifier: Modifier = Modifier,
-    setting: TextSetting = TextSetting(),
-    scope: TextWidgetScope.() -> Unit = {}
-) = TextLabel(
-    stateBy { Literal(str()).setStyle(style) },
-    modifier = modifier,
-    setting = setting,
-    scope = scope
-)
-
 @JvmName("TextString")
 fun WidgetContainerScope.TextLabel(
     str: State<String>,
@@ -305,4 +285,4 @@ fun WidgetContainerScope.TextLabel(
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = TextLabel(stateOf(str) { Literal(it).setStyle(style) }, modifier, setting, scope)
+) = TextLabel(mutableStateOf(str) { Literal(it).setStyle(style) }, modifier, setting, scope)

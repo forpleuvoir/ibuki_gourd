@@ -25,7 +25,7 @@ object GuiConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD
 
     object Screen : ModConfigContainer("screen") {
 
-        var BG_BLUR_RADIUS by float("bg_blur_radius", 10f)
+        var BG_BLUR_RADIUS by float("bg_blur_radius", 10f, 0f, 100f)
 
         var WIDGET_TEST_OUTLINE_COLOR by color("widget_test_outline_color", Colors.AQUA)
 

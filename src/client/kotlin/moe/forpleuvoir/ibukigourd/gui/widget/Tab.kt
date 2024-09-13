@@ -68,32 +68,30 @@ data class TabScope(
 fun WidgetContainerScope.Tabs(
     modifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
-) {
-    Row(modifier) {
-        var tabScope: TabScope? = null
-        Column(
-            Modifier
-                .renderPriority(1)
-                .matchSibling()
-                .padding(horizontal = 4),
-            horizontalArrangement = Arrangement.Left
-        ) {
-            tabScope = TabScope(this.owner()).apply {
-                scope()
-                initialized()
-            }
+) = Row(modifier) {
+    var tabScope: TabScope? = null
+    Column(
+        Modifier
+            .renderPriority(1)
+            .matchSibling()
+            .padding(horizontal = 4),
+        horizontalArrangement = Arrangement.Left
+    ) {
+        tabScope = TabScope(this.owner()).apply {
+            scope()
+            initialized()
         }
-        Box(
-            modifier = Modifier
-                .padding(5)
-                .render { context, _, _, _ ->
-                    context.batchRenderTextureColored {
-                        pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
-                    }
+    }
+    Box(
+        modifier = Modifier
+            .padding(5)
+            .render { context, _, _, _ ->
+                context.batchRenderTextureColored {
+                    pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
                 }
-        ) {
-            Proxy(tabScope!!.content)
-        }
+            }
+    ) {
+        Proxy(tabScope!!.content)
     }
 }
 

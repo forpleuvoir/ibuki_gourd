@@ -1,0 +1,6 @@
+{
+  "#gui": "#配置",
+  "ibukigourd.gui.button.rest": "重置",
+  "ibukigourd.ibukigourd_gui.screen.bg_blur_radius": "界面背景模糊半径",
+  "ibukigourd.ibukigourd_gui.screen.bg_blur_radius.description": "默认的界面背景模糊半径,如果界面修改过渲染方式此项将不会生效"
+}

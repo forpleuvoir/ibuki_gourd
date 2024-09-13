@@ -12,18 +12,20 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
-import moe.forpleuvoir.ibukigourd.util.state.*
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
@@ -31,61 +33,44 @@ import net.minecraft.sound.SoundEvents
 fun WidgetContainerScope.ColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
+    colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
     resultModifier: ColumnScope.() -> Modifier = { Modifier },
-    scope: RowScope.() -> Unit = {}
-) = Row(
-    Modifier.size(260f, 105f).then(modifier),
-) {
-    val picker: MutableState<ColumnScope.() -> IGWidget> = mutableStateOf {
+    scope: TabScope.() -> Unit = {}
+) = Tabs {
+    tabColor.setValue(Color(255, 204, 240))
+    inactiveColor.setValue(Color(179, 242, 255))
+    Tab(
+        modifier = modifier,
+        scope = {
+            TextLabel("HSV")
+        }
+    ) {
         val color = mutableStateOf(colorState.getValue())
         color.subscribe {
             colorState.setValue(it)
         }
-        HSVColorPicker(color, Modifier.weight(1).fill())
-    }
-    val isHSV = mutableStateOf(true).apply {
-        subscribe { hsv ->
-            if (hsv) picker.setValue {
-                val color = mutableStateOf(colorState.getValue())
-                color.subscribe {
-                    colorState.setValue(it)
-                }
-                HSVColorPicker(color, Modifier.weight(1).fill())
-            } else picker.setValue {
-                val color = mutableStateOf(colorState.getValue())
-                color.subscribe {
-                    colorState.setValue(it)
-                }
-                ARGBColorPicker(color, Modifier.weight(1).fill())
-            }
+        Column(
+            horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
+        ) {
+            HSVColorPicker(color, modifier = colorPickerModifier())
+            ColorResult(color, Modifier.size(78f, 78f).then(resultModifier()))
         }
     }
-    Column {
-        Button(
-            Modifier.active(mutableStateOf(isHSV) { !it })
-        ) {
-            TextLabel("HSV")
-            press { isHSV.switch() }
-        }
-        Button(
-            Modifier.active(isHSV)
-        ) {
+    Tab(
+        scope = {
             TextLabel("RGB")
-            press { isHSV.switch() }
+        }
+    ) {
+        val color = mutableStateOf(colorState.getValue())
+        color.subscribe {
+            colorState.setValue(it)
         }
         Column(
-            Modifier.weight(1),
-            horizontalArrangement = Arrangement.Right
+            horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
         ) {
-            TextLabel(mutableStateOf(colorState) { Literal(it.hexStr).style { color(it.rgb) } })
+            ARGBColorPicker(color, modifier = colorPickerModifier())
+            ColorResult(color, Modifier.size(78f, 78f).then(resultModifier()))
         }
-    }
-    Column(
-        horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally),
-        modifier = Modifier.weight(1).fill()
-    ) {
-        Proxy(picker)
-        ColorResult(colorState, modifier = Modifier.size(84f, 84f).then(resultModifier()))
     }
     scope()
 }
@@ -111,6 +96,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Red")
+        }
     }
     Column(Modifier.weight(1)) {
         Box(
@@ -124,6 +113,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Green")
+        }
     }
     Column(Modifier.weight(1)) {
         Box(
@@ -137,6 +130,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Blue")
+        }
     }
     Column(Modifier.weight(1)) {
         Box(
@@ -150,6 +147,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Alpha")
+        }
     }
     scope()
 }
@@ -169,7 +170,8 @@ fun WidgetContainerScope.ColorResult(
     }.then(modifier)
 ) {
     HoverTip {
-        TextLabel(stateOf(color) { "点击复制颜色:${it.hexStr}" })
+        //TODO i18n
+        TextLabel(mutableStateOf(color) { "点击复制颜色:${it.hexStr}" })
     }
     scope()
 }

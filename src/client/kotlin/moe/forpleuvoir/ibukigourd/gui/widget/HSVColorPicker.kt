@@ -7,17 +7,21 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.render.IGRenderLayers
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
+import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 
 fun WidgetContainerScope.HSVColorPicker(
     colorState: MutableState<ARGBColor>,
@@ -39,6 +43,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Hue")
+        }
     }
     Column(Modifier.weight(1)) {
         Box(
@@ -52,6 +60,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Saturation")
+        }
     }
     Column(Modifier.weight(1)) {
         Box(
@@ -65,6 +77,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Value")
+        }
     }
     Column(Modifier.weight(1)) {
         Box(
@@ -78,6 +94,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
+        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
+            //TODO i18n
+            TextLabel("Alpha")
+        }
     }
     scope()
 }

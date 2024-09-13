@@ -1,0 +1,6 @@
+{
+  "#gui": "#config",
+  "ibukigourd.gui.button.rest": "Rest",
+  "ibukigourd.ibukigourd_gui.screen.bg_blur_radius": "Screen background blur radius",
+  "ibukigourd.ibukigourd_gui.screen.bg_blur_radius.description": "The default screen background blur radius, if the screen has override the rendering mode, this item will not take effect"
+}

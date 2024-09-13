@@ -710,7 +710,7 @@ fun <T> WidgetContainerScope.NumberEditor(
             .padding(3, 3, 3, 2)
             .disableRenderBackground()
             .mouseScrolling { event ->
-                event.tryUse(wasMouseOver).onSuccess {
+                event.tryUse(wasMouseOver && isFocused).onSuccess {
                     val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScroller)
                     else minus(value.getValue(), step.mouseScroller)
                     value.setValue(s)
