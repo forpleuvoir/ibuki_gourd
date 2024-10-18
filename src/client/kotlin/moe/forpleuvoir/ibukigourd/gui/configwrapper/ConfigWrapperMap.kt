@@ -3,10 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.nebula.config.Config
-import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
-import moe.forpleuvoir.nebula.config.item.impl.ConfigFloat
-import moe.forpleuvoir.nebula.config.item.impl.ConfigInt
-import moe.forpleuvoir.nebula.config.item.impl.ConfigLong
+import moe.forpleuvoir.nebula.config.item.impl.*
 import kotlin.reflect.KClass
 
 object ConfigWrapperMap {
@@ -32,6 +29,10 @@ object ConfigWrapperMap {
         register<ConfigLong> { c, m -> LongConfigWrapper(c, m) }
         register<ConfigFloat> { c, m -> FloatConfigWrapper(c, m) }
         register<ConfigDouble> { c, m -> DoubleConfigWrapper(c, m) }
+        //------------ Primitive ------------\\
+        register<ConfigString> { c, m -> StringConfigWrapper(c, m) }
+        register<ConfigBoolean> { c, m -> BooleanConfigWrapper(c, m) }
+        register<ConfigEnum<*>> { c, m -> EnumConfigWrapper(c, m) }
     }
 
 }

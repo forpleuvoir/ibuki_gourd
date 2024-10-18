@@ -55,7 +55,7 @@ class TipContainerWidget : WidgetContainerImpl(), AbsoluteLayout {
     /**
      * 清除已经 失效的Tip
      */
-    fun clearInvalidTips() {
+    private fun clearInvalidTips() {
         screen()?.let { screen ->
             val list = screen.flat()
             val removeList = widgetChildren().filter {
@@ -83,6 +83,7 @@ fun ScreenScope<*>.TipContainer(content: TipContainerScope.() -> Unit): TipConta
     }?.let {
         it as TipContainerWidget
     } ?: addWidgetChild(TipContainerWidget())).apply {
+        layer = GuiLayer.Pop
         TipContainerScope { this }.content()
     }
 }
@@ -115,7 +116,6 @@ fun WidgetScope.Tip(
                 .visible(showState)
                 .margin(4f)
                 .padding(4f)
-                .layer(GuiLayer.Pop)
                 .render { context, _, _, _ ->
                     direction.setValue(checkDirection(transform, margin, parentTransform(parentWidget), optionalDirection))
                     calcPosition(transform, margin, parentTransform(parentWidget), direction.getValue())

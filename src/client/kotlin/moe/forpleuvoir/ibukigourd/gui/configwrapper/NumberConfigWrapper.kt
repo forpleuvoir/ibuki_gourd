@@ -32,12 +32,12 @@ fun WidgetContainerScope.IntConfigWrapper(
         }
     }
     ConfigTextLabel(config)
-    Column {
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
         IntSlider(intValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
         IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
-        ConfigResetButton(config) { c ->
-            intValue.setValue(c.getValue())
-        }
+        ConfigResetButton(config, intValue)
     }
 }
 
@@ -54,12 +54,12 @@ fun WidgetContainerScope.LongConfigWrapper(
         }
     }
     ConfigTextLabel(config)
-    Column {
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
         LongSlider(longValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
         LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
-        ConfigResetButton(config) { c ->
-            longValue.setValue(c.getValue())
-        }
+        ConfigResetButton(config, longValue)
     }
 }
 
@@ -76,12 +76,12 @@ fun WidgetContainerScope.FloatConfigWrapper(
         }
     }
     ConfigTextLabel(config)
-    Column {
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
         FloatSlider(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
         FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
-        ConfigResetButton(config) { c ->
-            floatValue.setValue(c.getValue())
-        }
+        ConfigResetButton(config, floatValue)
     }
 }
 
@@ -98,11 +98,11 @@ fun WidgetContainerScope.DoubleConfigWrapper(
         }
     }
     ConfigTextLabel(config)
-    Column {
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
         DoubleSlider(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
         DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
-        ConfigResetButton(config) { c ->
-            doubleValue.setValue(c.getValue())
-        }
+        ConfigResetButton(config, doubleValue)
     }
 }

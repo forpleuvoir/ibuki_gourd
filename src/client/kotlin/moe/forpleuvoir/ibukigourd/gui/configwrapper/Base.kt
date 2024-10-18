@@ -8,29 +8,40 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.tick
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowList
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 
 fun WidgetContainerScope.ConfigContainerWrapper(
-    configContainer: ConfigContainer
+    configContainer: ConfigContainer,
+    modifier: Modifier = Modifier,
+    listModifier: ColumnScope.() -> Modifier = { Modifier },
+    scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
+) = RowListWrapped(
+    modifier = modifier,
+    listModifier = listModifier,
+    scrollerModifier = scrollerModifier,
 ) {
-    RowList {
-        configContainer.configs().filterIsInstance<Config<*, *>>().forEach { config ->
-            ConfigWrapperMap.wrapper(config, this, Modifier.fill())
-        }
+    configContainer.configs().filterIsInstance<Config<*, *>>().forEach { config ->
+        ConfigWrapperMap.wrapper(config, this, Modifier.fill())
     }
 }
 
-fun <T : ConfigBase<*, *>> WidgetContainerScope.ConfigResetButton(
+
+fun <V, T : ConfigBase<V, *>> WidgetContainerScope.ConfigResetButton(
     config: T,
+    valueState: MutableState<V>,
     modifier: Modifier = Modifier,
-    onRest: (T) -> Unit = {}
+    onRest: (T) -> Unit = {
+        valueState.setValue(config.getValue())
+    }
 ): IGButtonWidget {
     val resettable = mutableStateOf(!config.isDefault())
     return Button(

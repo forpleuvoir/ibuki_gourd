@@ -1,4 +1,27 @@
 package moe.forpleuvoir.ibukigourd.test
 
-object TestConfig {
+import moe.forpleuvoir.ibukigourd.IbukiGourd
+import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
+import moe.forpleuvoir.ibukigourd.config.ModConfig
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.nebula.config.item.impl.*
+
+
+@ModConfig("test")
+object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}_test") {
+
+    var testInt = int("test_int", 0, 0, 233)
+
+    var testLong = long("test_long", 0, 0, 233)
+
+    var testFloat = float("test_float", 0f, 0f, 233f)
+
+    var testDouble = double("test_double", 0.0, 0.0, 233.0)
+
+    var testString = string("test_string", "test")
+
+    var testBoolean = boolean("test_boolean", true)
+
+    var testDirection = enum("test_direction", Direction.Top)
+
 }

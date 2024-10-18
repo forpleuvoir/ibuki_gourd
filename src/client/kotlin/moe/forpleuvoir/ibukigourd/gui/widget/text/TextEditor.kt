@@ -74,12 +74,21 @@ open class TextEditorWidget(
         set(value) {
             if (value != field && textPredicate(value)) {
                 field = value
-                onTextChanged(field)
+                if (enableTextNotification) onTextChanged(field)
                 if (!constraints.widthFixed()) {
                     screen()?.remeasure()
                 }
             }
         }
+
+    var enableTextNotification = true
+
+
+    fun disableTextNotification(block: () -> Unit) {
+        enableTextNotification = false
+        block()
+        enableTextNotification = true
+    }
 
     private val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
 
@@ -520,9 +529,7 @@ open class TextEditorWidget(
                     max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
                 )
             )
-
             content.renderBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
-
         }
     }
 
@@ -579,6 +586,8 @@ open class TextEditorWidget(
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.useScissor(contentBox(true)) {
             renderText(context)
+        }
+        context.useScissor(transform.asWorldBox) {
             renderCursor(context)
         }
     }
@@ -644,6 +653,9 @@ open class TextEditorWidget(
             owner().textPredicate = predicate
         }
 
+        fun disableTextNotification(block: () -> Unit) {
+            owner().disableTextNotification(block)
+        }
     }
 
 }
