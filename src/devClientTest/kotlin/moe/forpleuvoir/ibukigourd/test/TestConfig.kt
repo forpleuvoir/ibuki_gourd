@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.*
 
 
@@ -23,5 +24,7 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
     var testBoolean = boolean("test_boolean", true)
 
     var testDirection = enum("test_direction", Direction.Top)
+
+    var testColor = color("test_color", Colors.BLUE_LOTUS)
 
 }

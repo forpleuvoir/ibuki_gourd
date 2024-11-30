@@ -1,5 +1,8 @@
 package moe.forpleuvoir.ibukigourd.util.state
 
+import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.HSVColor
 import java.util.function.Consumer
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -121,3 +124,19 @@ fun MutableState<Boolean>.switch(): MutableState<Boolean> {
     this.setValue(!this.getValue())
     return this
 }
+
+@JvmName("colorToARGBColorState")
+fun MutableState<Color>.toARGBColorState() =
+    mutableStateOf(this.getValue() as ARGBColor).apply {
+        subscribe {
+            this.setValue(Color(it.argb))
+        }
+    }
+
+@JvmName("hsvColorToARGBColorState")
+fun MutableState<HSVColor>.toARGBColorState() =
+    mutableStateOf(this.getValue() as ARGBColor).apply {
+        subscribe {
+            this.setValue(HSVColor(it.argb))
+        }
+    }

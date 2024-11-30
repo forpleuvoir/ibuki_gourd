@@ -91,7 +91,7 @@ fun WidgetContainerScope.Tabs(
                 }
             }
     ) {
-        Proxy(tabScope!!.content)
+        Proxy(tabScope!!.content, 0)
     }
 }
 

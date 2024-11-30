@@ -54,6 +54,7 @@ fun <T> WidgetContainerScope.NumberSlider(
     }
     return Widget(
         modifier = Modifier
+            .name("NumberSlider")
             .minWidth(40f)
             .minHeight(16f)
             .mousePress { event ->
@@ -122,7 +123,7 @@ fun WidgetContainerScope.IntSlider(
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
-    modifier = modifier,
+    modifier = Modifier.name("IntSlider").then(modifier),
     scope = scope
 )
 
@@ -145,7 +146,7 @@ fun WidgetContainerScope.LongSlider(
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
-    modifier = modifier,
+    modifier = Modifier.name("LongSlider").then(modifier),
     scope = scope
 )
 
@@ -168,7 +169,7 @@ fun WidgetContainerScope.FloatSlider(
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
-    modifier = modifier,
+    modifier = Modifier.name("FloatSlider").then(modifier),
     scope = scope
 )
 
@@ -191,6 +192,6 @@ fun WidgetContainerScope.DoubleSlider(
     colorA = colorA,
     colorB = colorB,
     orientation = orientation,
-    modifier = modifier,
+    modifier = Modifier.name("DoubleSlider").then(modifier),
     scope = scope
 )

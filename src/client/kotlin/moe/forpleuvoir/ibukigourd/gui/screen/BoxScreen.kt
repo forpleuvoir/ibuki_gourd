@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.BoxLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.name
 import moe.forpleuvoir.ibukigourd.gui.base.scope.BoxLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
@@ -20,6 +21,6 @@ fun BoxScreen(
         override val scope: BoxScreenScope = BoxScreenScope { this }
 
     }.apply {
-        modifier.foldInApply()
+        Modifier.name("BoxScreen").then(modifier).foldInApply()
     }
 }

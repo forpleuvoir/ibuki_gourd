@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
+import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement.CustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -20,13 +21,9 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ IbukiGourd Widget ------------\\
 
-    final override val transform: Transform = Transform().apply {
-        subscribeChange({ _, _ ->
-            wasMouseOver = isMouseOvered(mc.mousePosition)
-        }, { _, _ ->
-            wasMouseOver = isMouseOvered(mc.mousePosition)
-        })
-    }
+    override val customData: MutableMap<String, Any> = mutableMapOf()
+
+    final override val transform: Transform = Transform()
 
     override var padding: Padding = Padding(0)
 
@@ -37,8 +34,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
     /**
      * 鼠标是否在组件中
      */
-    override var wasMouseOver: Boolean = false
-        protected set
+    override val wasMouseOver: Boolean get() = transform.isMouseOvered(mc.mousePosition)
 
     override val mouseOverCursor: MouseCursor.Cursor
         get() {
@@ -90,13 +86,11 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
         if (event.position in transform.asWorldBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
-                wasMouseOver = true
                 mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
             if (wasMouseOver) {
-                wasMouseOver = false
                 mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
             }
         }
@@ -145,6 +139,6 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
     override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean = wasMouseOver
 
     override fun toString(): String {
-        return this::class.simpleName + "@${hashCode()}"
+        return this.name + "@${hashCode()}"
     }
 }

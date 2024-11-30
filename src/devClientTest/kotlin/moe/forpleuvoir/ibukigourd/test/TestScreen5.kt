@@ -19,7 +19,6 @@ fun testScreen5() = RowScreen(
         }
     }
     ColorPicker(color)
-
 }
 
 

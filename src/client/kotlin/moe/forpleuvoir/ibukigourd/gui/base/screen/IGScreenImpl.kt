@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_C
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
@@ -47,6 +48,8 @@ import kotlin.time.measureTime
 abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
 
     //------------ IGWidget ------------\\
+
+    override val customData: MutableMap<String, Any> = mutableMapOf()
 
     override val transform: Transform = Transform(Vector2f(0f, 0f), this.width.toFloat(), this.height.toFloat(), true).apply {
         subscribeSizeChange { _, (width, height) ->
@@ -85,8 +88,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     /**
      * 鼠标是否在组件中
      */
-    override var wasMouseOver: Boolean = false
-        protected set
+    override val wasMouseOver: Boolean
+        get() = transform.isMouseOvered(mc.mousePosition)
 
     /**
      * 组件是否在拖动中
@@ -439,13 +442,11 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         if (event.position in transform.asWorldBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
-                wasMouseOver = true
                 mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
             if (wasMouseOver) {
-                wasMouseOver = false
                 mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
             }
         }

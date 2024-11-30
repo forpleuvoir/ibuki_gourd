@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.name
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -14,7 +15,7 @@ fun RowScreen(
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowScope.() -> Unit
-) = BoxScreen {
+) = BoxScreen(Modifier.name("RowScreen").then(modifier)) {
     Row(Modifier.fill().then(modifier), verticalArrangement, horizontalAlignment) { content() }
 }
 
@@ -24,7 +25,7 @@ fun ColumnScreen(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ColumnScope.() -> Unit
-) = BoxScreen {
+) = BoxScreen(Modifier.name("ColumnScreen").then(modifier)) {
     Column(Modifier.fill().then(modifier), horizontalArrangement, verticalAlignment) {
         content()
     }

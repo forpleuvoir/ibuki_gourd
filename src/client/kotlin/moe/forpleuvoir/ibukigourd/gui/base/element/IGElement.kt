@@ -20,6 +20,17 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     var parent: () -> IGElement?
 
+    val customData: MutableMap<String, Any>
+
+    object CustomData {
+
+        const val NAME = "name"
+
+        val IGElement.name: String
+            get() = customData[NAME] as? String ?: this::class.simpleName ?: "UNKNOWN_ELEMENT"
+
+    }
+
     fun hasParentInChain(target: IGElement): Boolean {
         var current: IGElement? = this
         while (current != null && current.parent() != current) {
@@ -171,3 +182,4 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
 
 }
+

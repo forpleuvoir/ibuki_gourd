@@ -1,8 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.base.modifier.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement.CustomData.NAME
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+
+fun Modifier.name(name: String) = this then WidgetModifier {
+    it.customData[NAME] = name
+}
 
 fun Modifier.tick(action: IGWidget.() -> Unit) = this then WidgetModifier { element ->
     element.tick = { element.action() }

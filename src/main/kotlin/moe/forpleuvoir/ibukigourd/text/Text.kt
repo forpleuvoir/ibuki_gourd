@@ -3,6 +3,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
 import moe.forpleuvoir.ibukigourd.text.style.StyleScope
+import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.text.*
 import net.minecraft.util.Formatting
 import java.util.function.UnaryOperator
@@ -94,5 +95,9 @@ open class Text(
 
     override fun formatted(formatting: Formatting): Text {
         return super.formatted(formatting) as Text
+    }
+
+    fun withColor(rgbColor: RGBColor): Text {
+        return super.withColor(rgbColor.rgb) as Text
     }
 }

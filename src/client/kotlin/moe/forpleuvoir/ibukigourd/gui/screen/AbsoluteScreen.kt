@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.AbsoluteLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.name
 import moe.forpleuvoir.ibukigourd.gui.base.scope.AbsoluteLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
@@ -20,6 +21,6 @@ fun AbsoluteScreen(
         override val scope: AbsoluteScreenScope = AbsoluteScreenScope { this }
 
     }.apply {
-        modifier.foldInApply()
+        Modifier.name("AbsoluteScreen").then(modifier).foldInApply()
     }
 }

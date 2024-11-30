@@ -23,13 +23,38 @@ import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.toARGBColorState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 
+@JvmName("ColorPicker")
+fun WidgetContainerScope.ColorPicker(
+    colorState: MutableState<Color>,
+    modifier: Modifier = Modifier,
+    colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
+    resultModifier: ColumnScope.() -> Modifier = { Modifier },
+    scope: TabScope.() -> Unit = {}
+) = ColorPicker(
+    colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope
+)
+
+@JvmName("HsvColorPicker")
+fun WidgetContainerScope.ColorPicker(
+    colorState: MutableState<HSVColor>,
+    modifier: Modifier = Modifier,
+    colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
+    resultModifier: ColumnScope.() -> Modifier = { Modifier },
+    scope: TabScope.() -> Unit = {}
+) = ColorPicker(
+    colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope
+)
+
+@JvmName("ARGBColorPicker")
 fun WidgetContainerScope.ColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
@@ -68,7 +93,7 @@ fun WidgetContainerScope.ColorPicker(
         Column(
             horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
         ) {
-            ARGBColorPicker(color, modifier = colorPickerModifier())
+            this.ARGBColorPicker(color, modifier = colorPickerModifier())
             ColorResult(color, Modifier.size(78f, 78f).then(resultModifier()))
         }
     }
@@ -251,6 +276,7 @@ fun WidgetContainerScope.ColorComponentSlider(
             it.toFloat()
         },
         modifier = Modifier
+            .name("ColorComponentSlider")
             .render { context, _, _, _ ->
                 colorComponentSliderRender(
                     context,

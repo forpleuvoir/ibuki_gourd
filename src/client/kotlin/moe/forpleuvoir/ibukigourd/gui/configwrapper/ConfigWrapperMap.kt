@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.impl.*
 import kotlin.reflect.KClass
@@ -33,6 +34,11 @@ object ConfigWrapperMap {
         register<ConfigString> { c, m -> StringConfigWrapper(c, m) }
         register<ConfigBoolean> { c, m -> BooleanConfigWrapper(c, m) }
         register<ConfigEnum<*>> { c, m -> EnumConfigWrapper(c, m) }
+        //------------ Other ------------\\
+        @Suppress("UNCHECKED_CAST")
+        register<ConfigColor> { c, m -> ColorConfigWrapper(c as ConfigRGBColor<ARGBColor>, m) }
+        @Suppress("UNCHECKED_CAST")
+        register<ConfigHSVColor> { c, m -> ColorConfigWrapper(c as ConfigRGBColor<ARGBColor>, m) }
     }
 
 }
