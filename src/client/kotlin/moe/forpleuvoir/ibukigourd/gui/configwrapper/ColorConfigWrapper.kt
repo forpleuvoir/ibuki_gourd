@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopTip
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -47,7 +47,7 @@ fun WidgetContainerScope.ColorButton(
     val text = mutableStateOf(color) { Literal(it.hexStr).withColor(it) }
     TextLabel(text)
     val showState = mutableStateOf(false)
-    PopTip(showState, optionalDirection = listOf(Direction.Left, Direction.Top, Direction.Right, Direction.Bottom).notification()) {
+    PopupTip(showState, optionalDirection = listOf(Direction.Left, Direction.Top, Direction.Right, Direction.Bottom).notification()) {
         ColorPicker(color)
     }
     press {

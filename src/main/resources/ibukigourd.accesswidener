@@ -27,6 +27,7 @@ accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minec
 accessible method net/minecraft/client/gui/DrawContext setScissor (Lnet/minecraft/client/gui/ScreenRect;)V
 #Sceen
 extendable method net/minecraft/client/gui/screen/Screen init (Lnet/minecraft/client/MinecraftClient;II)V
+accessible method net/minecraft/client/gui/screen/Screen init ()V
 #GameRenderer
 accessible field  net/minecraft/client/render/GameRenderer blurPostProcessor Lnet/minecraft/client/gl/PostEffectProcessor;
 

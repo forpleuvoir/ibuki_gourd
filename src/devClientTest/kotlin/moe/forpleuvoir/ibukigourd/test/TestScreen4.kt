@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.test
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderOverlay
@@ -10,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.size
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.width
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
@@ -17,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopTip
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
@@ -52,11 +54,20 @@ fun testScreen4() = ColumnScreen(
     val showState = mutableStateOf(false)
     Button {
         TextLabel("高度测试1")
-        PopTip(
+        PopupTip(
             showState,
             modifier = Modifier.margin(3f),
         ) {
-            ARGBColorPicker(mutableStateOf(Color(0)))
+            Row {
+                ARGBColorPicker(mutableStateOf(Color(0)))
+                LongSlider(mutableStateOf(30), -50L..100L, modifier = Modifier.size(120f, 16f))
+                Scroller(ScrollState().apply {
+                    amountStep = 1f
+                    maxAmount = 10f
+                    barProportion = 0.1f
+                    amount = 0f
+                }, orientation = Orientation.Horizontal, modifier = Modifier.width(120f))
+            }
         }
         press {
             showState.switch()

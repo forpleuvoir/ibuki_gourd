@@ -1,23 +1,34 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.tip
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.mousePress
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.screen.AbsoluteScreen
+import moe.forpleuvoir.ibukigourd.gui.screen.AbsoluteScreenScope
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.util.Direction.Top
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.NotifiableArrayList
 import moe.forpleuvoir.nebula.common.util.collection.notification
+import moe.forpleuvoir.nebula.common.util.primitive.pick
+import net.minecraft.client.gui.screen.Screen
 
-fun WidgetScope.PopTip(
+fun WidgetScope.PopupTip(
     showState: MutableState<Boolean>,
     parentTransform: (IGWidget) -> Transform = { it.transform },
     modifier: Modifier = Modifier,
@@ -25,17 +36,79 @@ fun WidgetScope.PopTip(
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
     screen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit,
-) = Tip(
-    showState,
-    parentTransform,
-    Modifier.mousePress {
-        onMousePress(it)
-        it.tryUse(!wasMouseOver).onSuccess {
-            showState.setValue(false)
+) = PopupScreen(showState, modifier, screen) {
+    val parentWidget = this@PopupTip.owner()
+    var box: BoxWidget? = null
+    val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
+
+    optionalDirection.subscribe {
+        if (it.isEmpty()) {
+            direction.setValue(Top)
+        } else if (direction.getValue() !in it) {
+            direction.setValue(it.first())
         }
-    }.then(modifier),
-    bgColor,
-    optionalDirection,
-    screen,
-    content
-)
+    }
+    box = Box(
+        Modifier
+            .name("PopupTip")
+            .mousePress {
+                onMousePress(it)
+                it.tryUse(!wasMouseOver).onSuccess {
+                    showState.setValue(false)
+                }
+                it.tryUse()
+            }
+            .margin(4f)
+            .padding(4f)
+            .render(tipRender(direction, parentTransform, parentWidget, optionalDirection, bgColor))
+            .placeCompletion {
+                if (transform.parent() != parentWidget.transform) transform.parent = { parentWidget.transform }
+            } then modifier
+    ) {
+        content()
+    }
+}
+
+fun WidgetScope.PopupScreen(
+    showState: MutableState<Boolean>,
+    modifier: Modifier = Modifier,
+    screen: IGScreen = mc.currentScreen as IGScreen,
+    content: AbsoluteScreenScope.() -> Unit,
+): IGScreenImpl<AbsoluteScreenScope> {
+    val popupScreen = AbsoluteScreen(
+        Modifier
+            .name("PopupScreen")
+            .renderBackground { context, x, y, d ->
+                screen()?.parentScreen?.render(context, 0, 0, d)
+                context.batchRenderBox {
+                    pushBoxOutline(transform, Colors.AQUA)
+                }
+            }
+            .then(modifier)
+    ) {
+        owner().parentScreen = screen as Screen
+        owner().screen()?.let { s ->
+            s.onResize = { client, width, height ->
+                s.parentScreen?.resize(client, width, height)
+            }
+            s.onFirstInit = { client, width, height ->
+                s.parentScreen?.init(client, width, height)
+            }
+            s.onInit = {
+                s.parentScreen?.init()
+            }
+        }
+        //------------ Content ------------\\
+        content()
+    }
+
+    showState.subscribe {
+        if (it) {
+            openScreen(popupScreen)
+        } else {
+            popupScreen.close()
+        }
+    }
+    return popupScreen
+
+}

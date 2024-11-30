@@ -8,12 +8,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.screen.Screen
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     //------------ IGScreen ------------\\
+
+    var parentScreen: Screen?
 
     var focusedWidget: MutableState<IGWidget?>
 
@@ -26,6 +29,12 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
     var onClose: (() -> Unit)?
 
     var onDisplayed: (() -> Unit)?
+
+    var onResize: ((client: MinecraftClient, width: Int, height: Int) -> Unit)?
+
+    var onFirstInit: ((client: MinecraftClient, width: Int, height: Int) -> Unit)?
+
+    var onInit: (() -> Unit)?
 
     val scope: ScreenScope<*>
 

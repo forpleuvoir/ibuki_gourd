@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
+import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement.CustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
@@ -65,6 +66,8 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override val screen: () -> IGScreen? = { this }
 
     override var parent: () -> IGElement? = { this }
+
+    override var parentScreen: Screen? = null
 
     private var _active: Boolean? = null
 
@@ -277,27 +280,37 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override var onClose: (() -> Unit)? = null
 
     override fun close() {
+        if (client?.currentScreen != this) return
         onClose?.invoke()
         MouseCursor.clear()
         coroutineScope.cancel()
-        super.close()
+        client?.setScreen(parentScreen)
     }
 
     override var onDisplayed: (() -> Unit)? = null
 
     override fun onDisplayed() = onDisplayed?.invoke() ?: Unit
 
+    override var onResize: ((MinecraftClient, Int, Int) -> Unit)? = null
+
     override fun resize(client: MinecraftClient, width: Int, height: Int) {
+        onResize?.invoke(client, width, height)
         transform.set(width.toFloat(), height.toFloat())
         remeasure()
     }
 
+    override var onFirstInit: ((MinecraftClient, Int, Int) -> Unit)? = null
+
     override fun init(client: MinecraftClient, width: Int, height: Int) {
+        onFirstInit?.invoke(client, width, height)
         transform.set(width.toFloat(), height.toFloat())
         super.init(client, width, height)
     }
 
+    override var onInit: (() -> Unit)? = null
+
     override fun init() {
+        onInit?.invoke()
         scope.content()
         remeasure()
     }
@@ -468,12 +481,12 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun onMousePress(event: MousePressEvent) {
         wasDragging = wasMouseOver
-
+        val focusedEvent = FocusedEvent()
         for (layer in layers) {
             event.layer(layer)
 
             if (wasMouseOver) {
-                focused(FocusedEvent().layer(layer))
+                focused(focusedEvent.layer(layer))
             }
 
             elementChildren().foreachWithIterator {
@@ -632,7 +645,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     override fun getNavigationFocus(): ScreenRect = transform.asScreenRect
 
     override fun toString(): String {
-        return (this::class.simpleName ?: "Screen") + "@${hashCode()}"
+        return this.name + "@${hashCode()}"
     }
 
     companion object {

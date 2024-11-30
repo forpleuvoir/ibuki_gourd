@@ -2,11 +2,13 @@ package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.AbsoluteLayout
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.measureCompletion
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.name
 import moe.forpleuvoir.ibukigourd.gui.base.scope.AbsoluteLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.util.mc
 
 fun interface AbsoluteScreenScope : ScreenScope<IGScreen>, AbsoluteLayoutScope
 
@@ -21,6 +23,11 @@ fun AbsoluteScreen(
         override val scope: AbsoluteScreenScope = AbsoluteScreenScope { this }
 
     }.apply {
-        Modifier.name("AbsoluteScreen").then(modifier).foldInApply()
+        Modifier
+            .name("AbsoluteScreen")
+            .measureCompletion {
+                transform.set(mc.window.scaledWidth.toFloat(), mc.window.scaledHeight.toFloat())
+            }
+            .then(modifier).foldInApply()
     }
 }

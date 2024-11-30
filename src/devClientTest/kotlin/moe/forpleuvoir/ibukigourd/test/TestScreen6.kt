@@ -7,11 +7,13 @@ import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigContainerWrapper
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 
 fun testScreen6() = RowScreen(
+    modifier = Modifier,
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
-
+    owner().screen()?.onClose = {
+        TestConfig.asyncSave()
+    }
     ConfigContainerWrapper(TestConfig, modifier = Modifier.fill(), listModifier = { Modifier.fill() })
-
 }
 
 
