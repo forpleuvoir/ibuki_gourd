@@ -36,7 +36,7 @@ fun WidgetScope.PopupTip(
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
     screen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit,
-) = PopupScreen(showState, modifier, screen) {
+) = PopupScreen(showState, Modifier, screen) {
     val parentWidget = this@PopupTip.owner()
     var box: BoxWidget? = null
     val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
@@ -69,46 +69,59 @@ fun WidgetScope.PopupTip(
     }
 }
 
-fun WidgetScope.PopupScreen(
+fun PopupScreen(
     showState: MutableState<Boolean>,
     modifier: Modifier = Modifier,
-    screen: IGScreen = mc.currentScreen as IGScreen,
+    parentScreen: IGScreen = mc.currentScreen as IGScreen,
     content: AbsoluteScreenScope.() -> Unit,
-): IGScreenImpl<AbsoluteScreenScope> {
-    val popupScreen = AbsoluteScreen(
-        Modifier
-            .name("PopupScreen")
-            .renderBackground { context, x, y, d ->
-                screen()?.parentScreen?.render(context, 0, 0, d)
-                context.batchRenderBox {
-                    pushBoxOutline(transform, Colors.AQUA)
+) {
+    var screen: IGScreenImpl<*>? = null
+    val popupScreen = {
+        screen = AbsoluteScreen(
+            Modifier
+                .name("PopupScreen")
+                .renderBackground { context, x, y, d ->
+                    screen()?.parentScreen?.render(context, 0, 0, d)
+                    context.batchRenderBox {
+                        pushBoxOutline(transform, Colors.AQUA)
+                    }
+                }
+                .mouseRelease {
+                    screen()?.parentScreen?.mouseReleased(it.x.toDouble(), it.y.toDouble(), it.button.code)
+                    onMouseRelease(it)
+                }
+                .keyRelease {
+                    screen()?.parentScreen?.keyReleased(it.keyCode.code, it.scanCode, it.modifiers)
+                    onKeyRelease(it)
+                }
+                .then(modifier)
+        ) {
+            owner().parentScreen = parentScreen as Screen
+            owner().screen()?.let { s ->
+                s.onResize = { client, width, height ->
+                    s.parentScreen?.resize(client, width, height)
+                }
+                s.onFirstInit = { client, width, height ->
+                    s.parentScreen?.init(client, width, height)
+                }
+                s.onInit = {
+                    s.parentScreen?.init()
                 }
             }
-            .then(modifier)
-    ) {
-        owner().parentScreen = screen as Screen
-        owner().screen()?.let { s ->
-            s.onResize = { client, width, height ->
-                s.parentScreen?.resize(client, width, height)
+            owner().onClose = {
+                showState.setValue(false)
             }
-            s.onFirstInit = { client, width, height ->
-                s.parentScreen?.init(client, width, height)
-            }
-            s.onInit = {
-                s.parentScreen?.init()
-            }
+            //------------ Content ------------\\
+            content()
         }
-        //------------ Content ------------\\
-        content()
+        screen
     }
 
     showState.subscribe {
         if (it) {
-            openScreen(popupScreen)
+            openScreen(popupScreen())
         } else {
-            popupScreen.close()
+            screen?.close()
         }
     }
-    return popupScreen
-
 }

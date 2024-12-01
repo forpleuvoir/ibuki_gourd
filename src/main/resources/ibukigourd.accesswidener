@@ -28,6 +28,7 @@ accessible method net/minecraft/client/gui/DrawContext setScissor (Lnet/minecraf
 #Sceen
 extendable method net/minecraft/client/gui/screen/Screen init (Lnet/minecraft/client/MinecraftClient;II)V
 accessible method net/minecraft/client/gui/screen/Screen init ()V
+accessible field net/minecraft/client/gui/screen/Screen screenInitialized Z
 #GameRenderer
 accessible field  net/minecraft/client/render/GameRenderer blurPostProcessor Lnet/minecraft/client/gl/PostEffectProcessor;
 

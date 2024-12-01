@@ -26,6 +26,7 @@ fun AbsoluteScreen(
         Modifier
             .name("AbsoluteScreen")
             .measureCompletion {
+                onMeasureCompletion()
                 transform.set(mc.window.scaledWidth.toFloat(), mc.window.scaledHeight.toFloat())
             }
             .then(modifier).foldInApply()

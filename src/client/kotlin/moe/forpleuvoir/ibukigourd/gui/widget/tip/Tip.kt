@@ -139,8 +139,8 @@ fun tipRender(
     direction.setValue(checkDirection(transform, margin, parentTransform(parentWidget), optionalDirection))
     calcPosition(transform, margin, parentTransform(parentWidget), direction.getValue())
         .let { (x, y) -> transform.translateTo(x, y, false) }
-    val x = transform.worldX.coerceIn(0f, mc.window.scaledWidth.toFloat() - transform.width)
-    val y = transform.worldY.coerceIn(0f, mc.window.scaledHeight.toFloat() - transform.height)
+    val x = transform.worldX.coerceIn(0f, (mc.window.scaledWidth.toFloat() - transform.width).coerceAtLeast(0f))
+    val y = transform.worldY.coerceIn(0f, (mc.window.scaledHeight.toFloat() - transform.height).coerceAtLeast(0f))
     transform.translateTo(x, y, true)
     //计算箭头位置
     val (pos, texture) = when (direction.getValue()) {

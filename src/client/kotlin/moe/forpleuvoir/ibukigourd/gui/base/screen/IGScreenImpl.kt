@@ -23,10 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
-import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.input.mousePosition
+import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
@@ -76,7 +73,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             _active = value
         }
         get() {
-            return _active ?: true
+            return _active != false
         }
 
     override fun clearActive() {
@@ -281,6 +278,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun close() {
         if (client?.currentScreen != this) return
+        InputHandler.unpressAll()
         onClose?.invoke()
         MouseCursor.clear()
         coroutineScope.cancel()
@@ -318,6 +316,11 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     abstract fun S.content()
 
     abstract override val scope: S
+
+    override fun clearAndInit() {
+        if (screenInitialized) return
+        super.clearAndInit()
+    }
 
     //------------ Drawable ------------\\
 

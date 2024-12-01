@@ -82,6 +82,9 @@ open class ScrollerWidget(
                 bar.x = progress * scrollableLength
             }
         )
+        if (scrollState.barProportion == 1f && (transform.height != 0f || transform.width != 0f)) {
+            screen()?.remeasure()
+        }
     }
 
     override val mouseOverCursor: MouseCursor.Cursor
@@ -94,6 +97,7 @@ open class ScrollerWidget(
     }
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+        if (scrollState.barProportion == 0f) return
         updateBar()
         context.batchRenderTextureColored {
             pushWidgetTexture(bar, theme(barTheme))
@@ -132,6 +136,7 @@ open class ScrollerWidget(
                 bar.x = scrollState.progress * scrollableLength
             }
         )
+
     }
 
     protected open fun setFromMouse(mouseX: Float, mouseY: Float) {
