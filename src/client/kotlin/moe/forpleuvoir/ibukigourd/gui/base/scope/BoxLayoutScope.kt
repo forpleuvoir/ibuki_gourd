@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.scope
 import moe.forpleuvoir.ibukigourd.gui.base.layout.WrappedBoxLayoutData
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.WidgetModifier
 
 interface BoxLayoutScope {
 

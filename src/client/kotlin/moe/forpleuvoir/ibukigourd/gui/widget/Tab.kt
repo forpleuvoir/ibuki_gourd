@@ -3,9 +3,9 @@ package moe.forpleuvoir.ibukigourd.gui.widget
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderPriority
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope

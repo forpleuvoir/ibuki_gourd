@@ -2,9 +2,9 @@ package moe.forpleuvoir.ibukigourd.gui.util
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderBackground
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderOverlay
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 

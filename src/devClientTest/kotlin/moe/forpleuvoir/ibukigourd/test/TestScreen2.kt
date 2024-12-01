@@ -3,8 +3,8 @@ package moe.forpleuvoir.ibukigourd.test
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.screen.byRemember
 import moe.forpleuvoir.ibukigourd.gui.base.screen.remember
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen

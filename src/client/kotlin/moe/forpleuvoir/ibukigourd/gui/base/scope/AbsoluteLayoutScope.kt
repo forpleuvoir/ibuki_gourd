@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.scope
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.WrappedAbsoluteLayoutData
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.WidgetModifier
 
 interface AbsoluteLayoutScope {
 

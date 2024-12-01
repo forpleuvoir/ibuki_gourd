@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTex
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
@@ -123,7 +123,7 @@ fun TestScreen() = BoxScreen(modifier()) {
         }
         TestColumn()
         FloatSlider(
-            mutableStateOf(GuiConfig.Screen::BG_BLUR_RADIUS),
+            mutableStateOf(GuiConfig.Screen::DEFAULT_BG_BLUR_RADIUS),
             0f..25f,
             textMapper = { Literal("背景模糊:%.2f".format(it)) },
             modifier = Modifier.minWidth(120f)

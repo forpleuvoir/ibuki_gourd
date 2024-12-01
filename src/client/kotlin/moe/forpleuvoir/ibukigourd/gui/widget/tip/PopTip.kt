@@ -3,10 +3,11 @@ package moe.forpleuvoir.ibukigourd.gui.widget.tip
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.gui.base.screen.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.screen.AbsoluteScreen
 import moe.forpleuvoir.ibukigourd.gui.screen.AbsoluteScreenScope
@@ -15,6 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.util.Direction.Top
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
+import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.PopupScreen.DEFAULT_BG_BLUR_RADIUS
+import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -31,12 +34,13 @@ import net.minecraft.client.gui.screen.Screen
 fun WidgetScope.PopupTip(
     showState: MutableState<Boolean>,
     parentTransform: (IGWidget) -> Transform = { it.transform },
+    screenModifier: Modifier = Modifier,
     modifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
     screen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit,
-) = PopupScreen(showState, Modifier, screen) {
+) = PopupScreen(showState, screenModifier, screen) {
     val parentWidget = this@PopupTip.owner()
     var box: BoxWidget? = null
     val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
@@ -80,8 +84,13 @@ fun PopupScreen(
         screen = AbsoluteScreen(
             Modifier
                 .name("PopupScreen")
+                .bgBlurRadius(DEFAULT_BG_BLUR_RADIUS)
                 .renderBackground { context, x, y, d ->
                     screen()?.parentScreen?.render(context, 0, 0, d)
+
+                    mc.gameRenderer.renderBlur((this as IGScreen).bgBlurRadius, d)
+                    mc.framebuffer.beginWrite(false)
+
                     context.batchRenderBox {
                         pushBoxOutline(transform, Colors.AQUA)
                     }

@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.gui.base.modifier.widget
+package moe.forpleuvoir.ibukigourd.gui.base.modifier.impl
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin

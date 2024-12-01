@@ -6,10 +6,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.margin
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.renderBackground
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope

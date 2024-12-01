@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.RowListLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.WidgetModifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.WidgetModifier
 
 /**
  * 表示线性布局中的列表布局作用域

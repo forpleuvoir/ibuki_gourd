@@ -1,10 +1,10 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
-import moe.forpleuvoir.ibukigourd.config.descriptionText
+import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.active
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.tick
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.active
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.tick
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
@@ -67,6 +67,6 @@ fun <T : ConfigBase<*, *>> WidgetContainerScope.ConfigTextLabel(
     modifier: Modifier = Modifier
 ) = TextLabel(config.translateText, modifier) {
     HoverTip {
-        TextLabel(config.descriptionText)
+        TextLabel(config.comment)
     }
 }

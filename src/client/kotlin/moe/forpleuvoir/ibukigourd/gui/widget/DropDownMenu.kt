@@ -4,8 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTex
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
@@ -22,7 +21,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -58,26 +56,11 @@ fun WidgetContainerScope.DropDownMenu(
     scope: DropDownMenuScope.() -> Unit
 ): IGButtonWidget {
     val expandState = mutableStateOf(false)
-    //上面的空余空间,下面的空余空间
-    var space = 0f to 0f
-    //最大空间的位置 false :up true: down
-    var maxSpaceDir = false
-    var parentBox = Box.Unspecified
-    var onPlaced = {}
-    var place = {}
-    var placedPosition = Vector2f()
     var playSound: () -> Unit
     var dropDownContent: BoxScope.() -> Unit
     return Button(
         modifier = Modifier
             .padding(horizontal = 5f, vertical = 4f)
-//            .placeCompletion {
-//                maxSpaceDir = transform.worldCenter.y() - (mc.window.scaledHeight / 2f) < 0f
-//                space = transform.worldTop to mc.window.scaledHeight.toFloat() - transform.worldBottom
-//                parentBox = transform.asWorldBox
-//                onPlaced()
-//                place()
-//            }
             .render { context, _, _, _ ->
                 context.batchRenderTextureColored {
                     pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
@@ -113,7 +96,8 @@ fun WidgetContainerScope.DropDownMenu(
         PopupTip(
             expandState,
             optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
-            modifier = Modifier
+            screenModifier = Modifier.bgBlurRadius(0f),
+            screen = screen
         ) {
             dropDownContent(this)
         }

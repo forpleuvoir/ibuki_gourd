@@ -5,9 +5,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.render
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.widget.size
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope

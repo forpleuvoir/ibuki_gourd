@@ -15,5 +15,5 @@ fun Config<*, *>.translationKey(
 val Config<*, *>.translateText: Text
     get() = Translatable(translationKey())
 
-val Config<*, *>.descriptionText: Text
-    get() = Translatable(translationKey() + ".description")
+val Config<*, *>.comment: Text
+    get() = Translatable(translationKey() + ".comment")

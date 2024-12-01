@@ -24,7 +24,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDr
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.input.*
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
@@ -391,7 +390,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         if (client!!.world == null) {
             this.renderPanoramaBackground(context, delta)
         }
-        renderBlur(BG_BLUR_RADIUS, delta)
+        renderBlur(bgBlurRadius, delta)
         renderDarkening(context)
     }
 
