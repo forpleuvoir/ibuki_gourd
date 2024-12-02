@@ -39,6 +39,9 @@ import net.minecraft.client.gui.navigation.GuiNavigationPath
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.tooltip.TooltipPositioner
 import net.minecraft.text.OrderedText
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.time.Duration
 import kotlin.time.measureTime
 
@@ -125,6 +128,19 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     }
 
     override fun getData(key: String): Any? = datas[key]
+
+    private val tasks: MutableList<() -> Unit> = mutableListOf()
+
+    private var eventProcessing = false
+
+    override fun execute(task: () -> Unit) {
+        tasks.add(task)
+    }
+
+    private fun executeTasks() {
+        tasks.forEach { it.invoke() }
+        tasks.clear()
+    }
 
     override val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 
@@ -431,11 +447,17 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     //------------ Vanilla Element Override & IGElement------------\\
 
-    //    override fun hoveredWidget(layer: GuiLayer): IGWidget? {
-    //
-    //        return super.hoveredWidget(layer)
-    //    }
-
+    @OptIn(ExperimentalContracts::class)
+    private inline fun <T> eventProcessing(action: () -> T): T {
+        contract {
+            callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+        }
+        eventProcessing = true
+        val result = action()
+        eventProcessing = false
+        executeTasks()
+        return result
+    }
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 
@@ -445,7 +467,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
 
-    override fun mouseMoved(mouseX: Double, mouseY: Double) {
+    override fun mouseMoved(mouseX: Double, mouseY: Double) = eventProcessing {
         if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()).layer(this.layer))
     }
 
@@ -474,9 +496,9 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         }
     }
 
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
         if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
-        return false
+        false
     }
 
     override var mousePress: (event: MousePressEvent) -> Unit = ::onMousePress
@@ -512,7 +534,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     }
 
-    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
+    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
         if (active) mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
         return false
     }
@@ -530,7 +552,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         }
     }
 
-    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
+    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean = eventProcessing {
         if (active && wasDragging) mouseDragging(
             MouseDragEvent(
                 mouseX.toFloat(),
@@ -554,7 +576,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         }
     }
 
-    override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean = eventProcessing {
         if (active) mouseScrolling(MouseScrollEvent(mouseX.toFloat(), mouseY.toFloat(), verticalAmount.toFloat(), horizontalAmount.toFloat()).layer(this.layer))
         return false
     }
@@ -570,7 +592,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         }
     }
 
-    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
         if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
         return true
     }
@@ -588,7 +610,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             .onSuccess { close() }
     }
 
-    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
         if (active) keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
         return false
     }
@@ -604,7 +626,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         }
     }
 
-    override fun charTyped(chr: Char, modifiers: Int): Boolean {
+    override fun charTyped(chr: Char, modifiers: Int): Boolean = eventProcessing {
         if (active) charTyped.invoke(CharTypedEvent(chr, modifiers).layer(this.layer))
         return false
     }
@@ -654,8 +676,12 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
         inline fun <T> Iterable<T>.foreachWithIterator(action: (T) -> Unit) {
             val iterator = this.iterator()
-            while (iterator.hasNext()) {
-                action(iterator.next())
+            runCatching {
+                while (iterator.hasNext()) {
+                    action(iterator.next())
+                }
+            }.onFailure {
+                it.printStackTrace()
             }
         }
 

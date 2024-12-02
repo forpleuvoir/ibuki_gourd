@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.maxWidth
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -35,7 +35,7 @@ fun WidgetContainerScope.ColorConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        ColorButton(colorValue, Modifier.maxWidth(60f))
+        ColorButton(colorValue, Modifier.minWidth(80f))
         ConfigResetButton(configColor, colorValue)
     }
 }

@@ -4,20 +4,23 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.widget.DoubleSlider
-import moe.forpleuvoir.ibukigourd.gui.widget.FloatSlider
-import moe.forpleuvoir.ibukigourd.gui.widget.IntSlider
-import moe.forpleuvoir.ibukigourd.gui.widget.LongSlider
+import moe.forpleuvoir.ibukigourd.gui.widget.*
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
 import moe.forpleuvoir.nebula.config.item.impl.ConfigFloat
 import moe.forpleuvoir.nebula.config.item.impl.ConfigInt
 import moe.forpleuvoir.nebula.config.item.impl.ConfigLong
+
+private const val editorWidth = 120f
 
 fun WidgetContainerScope.IntConfigWrapper(
     config: ConfigInt,
@@ -35,8 +38,16 @@ fun WidgetContainerScope.IntConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        IntSlider(intValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
-        IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+        val state = mutableStateOf(true)
+        SwitchableProxy(
+            { IntSlider(intValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
+            { IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            state
+        )
+        Button {
+            press { state.switch() }
+            Icon(IconTextures.SWITCH)
+        }
         ConfigResetButton(config, intValue)
     }
 }
@@ -57,8 +68,16 @@ fun WidgetContainerScope.LongConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        LongSlider(longValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
-        LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+        val state = mutableStateOf(true)
+        SwitchableProxy(
+            { LongSlider(longValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
+            { LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            state
+        )
+        Button {
+            press { state.switch() }
+            Icon(IconTextures.SWITCH)
+        }
         ConfigResetButton(config, longValue)
     }
 }
@@ -79,8 +98,16 @@ fun WidgetContainerScope.FloatConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        FloatSlider(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
-        FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+        val state = mutableStateOf(true)
+        SwitchableProxy(
+            { FloatSlider(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
+            { FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            state
+        )
+        Button {
+            press { state.switch() }
+            Icon(IconTextures.SWITCH)
+        }
         ConfigResetButton(config, floatValue)
     }
 }
@@ -101,8 +128,16 @@ fun WidgetContainerScope.DoubleConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        DoubleSlider(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(120f))
-        DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+        val state = mutableStateOf(true)
+        SwitchableProxy(
+            { DoubleSlider(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
+            { DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            state
+        )
+        Button {
+            press { state.switch() }
+            Icon(IconTextures.SWITCH)
+        }
         ConfigResetButton(config, doubleValue)
     }
 }

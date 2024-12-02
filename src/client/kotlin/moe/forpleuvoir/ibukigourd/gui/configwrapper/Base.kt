@@ -28,6 +28,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
     modifier = modifier,
     listModifier = listModifier,
     scrollerModifier = scrollerModifier,
+    spacing = 4f
 ) {
     configContainer.configs().filterIsInstance<Config<*, *>>().forEach { config ->
         ConfigWrapperMap.wrapper(config, this, Modifier.fill())

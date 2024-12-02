@@ -51,6 +51,11 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getDataOr(key: String, default: T): T = getData(key) as? T ?: default
 
+    /**
+     * 用于处理删除元素之类的操作,会在GUI事件执行完成之后处理任务
+     */
+    fun execute(task: () -> Unit)
+
     //------------ Override ------------\\
 
     override var parentData: Any?

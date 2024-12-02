@@ -27,7 +27,7 @@ fun testScreen9() = ColumnScreen {
             TextLabel("关闭")
         }
     }
-    Proxy(proxy, 0)
+    Proxy(proxy)
     val state = mutableStateOf(false)
     state.subscribe { s ->
         proxy.setValue {
@@ -65,6 +65,9 @@ fun testScreen9() = ColumnScreen {
         press {
             state.switch()
         }
+    }
+    Button {
+        TextLabel("占位置的")
     }
 
 }
