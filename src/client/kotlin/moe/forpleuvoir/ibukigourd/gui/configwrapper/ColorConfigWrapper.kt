@@ -47,7 +47,7 @@ fun WidgetContainerScope.ColorButton(
     val text = mutableStateOf(color) { Literal(it.hexStr).withColor(it) }
     TextLabel(text)
     val showState = mutableStateOf(false)
-    PopupTip(showState, optionalDirection = listOf(Direction.Left, Direction.Top, Direction.Right, Direction.Bottom).notification()) {
+    PopupTip(showState, optionalDirection = Direction.clockwiseFromLeft.notification()) {
         ColorPicker(color)
     }
     press {

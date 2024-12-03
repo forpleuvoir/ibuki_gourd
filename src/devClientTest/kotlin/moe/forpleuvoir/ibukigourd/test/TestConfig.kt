@@ -5,7 +5,9 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
 import moe.forpleuvoir.ibukigourd.config.item.impl.DurationObject
 import moe.forpleuvoir.ibukigourd.config.item.impl.durationObject
+import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.*
 import kotlin.time.DurationUnit
@@ -31,5 +33,9 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
     var testColor = color("test_color", Colors.BLUE_LOTUS)
 
     var testDuration = durationObject("test_duration", DurationObject(30, DurationUnit.SECONDS))
+
+    var testKeyBind = keyBind("test_key_bind", KeyBind {
+        println("按下了测试按键")
+    })
 
 }

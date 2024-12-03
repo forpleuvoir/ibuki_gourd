@@ -4,8 +4,9 @@ import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.active
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.tick
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
@@ -15,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.nebula.common.util.valueOf
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -48,8 +50,7 @@ fun <V, T : ConfigBase<V, *>> WidgetContainerScope.ConfigResetButton(
     return Button(
         Modifier
             .active(resettable)
-            .tick {
-                onTick()
+            .renderOverlay { context, f, f1, f2 ->
                 resettable.setValue(!config.isDefault())
             }
             .then(modifier)
@@ -71,3 +72,22 @@ fun <T : ConfigBase<*, *>> WidgetContainerScope.ConfigTextLabel(
         TextLabel(config.comment)
     }
 }
+
+fun <E : Enum<E>> ColumnScope.EnumSelector(
+    selected: MutableState<String>,
+    enumValue: MutableState<E>,
+    modifier: Modifier = Modifier
+) = Spinner(
+    options = enumValue.getValue()::class.java.enumConstants.map { it.name },
+    selected = selected,
+    onChange = {
+        Enum.valueOf(enumValue.getValue()::class, it)?.let { it1 -> enumValue.setValue(it1) }
+    },
+    selectedWrapper = {
+        TextLabel(it, modifier = Modifier.weight(1))
+    },
+    optionWrapper = {
+        TextLabel(it, modifier = Modifier)
+    },
+    modifier = modifier,
+)

@@ -117,9 +117,6 @@ fun PopupScreen(
                     s.parentScreen?.init()
                 }
             }
-            owner().onClose = {
-                showState.setValue(false)
-            }
             //------------ Content ------------\\
             content()
         }

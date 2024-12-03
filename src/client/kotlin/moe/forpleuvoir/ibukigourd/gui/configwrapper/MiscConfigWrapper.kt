@@ -7,26 +7,21 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.LongSlider
-import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
 import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
-import moe.forpleuvoir.nebula.common.util.valueOf
+import moe.forpleuvoir.nebula.common.util.collection.notification
 import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
 import moe.forpleuvoir.nebula.config.item.impl.ConfigEnum
 import moe.forpleuvoir.nebula.config.item.impl.ConfigString
@@ -62,7 +57,7 @@ fun WidgetContainerScope.StringConfigWrapper(
             }
             PopupTip(
                 showState,
-                optionalDirection = notifiableList(Direction.Left, Direction.Top, Direction.Right, Direction.Bottom).apply {}
+                optionalDirection = Direction.clockwiseFromLeft.notification()
             ) {
                 Row {
                     ConfigTextLabel(config)
@@ -107,26 +102,6 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
         ConfigResetButton(config, enumValue)
     }
 }
-
-private fun <E : Enum<E>> ColumnScope.EnumSelector(
-    selected: MutableState<String>,
-    enumValue: MutableState<E>,
-    modifier: Modifier = Modifier
-) = Spinner(
-    options = enumValue.getValue()::class.java.enumConstants.map { it.name },
-    selected = selected,
-    onChange = {
-        Enum.valueOf(enumValue.getValue()::class, it)?.let { it1 -> enumValue.setValue(it1) }
-    },
-    selectedWrapper = {
-        TextLabel(it, modifier = Modifier)
-    },
-    optionWrapper = {
-        TextLabel(it, modifier = Modifier)
-    },
-    modifier = modifier,
-)
-
 
 fun WidgetContainerScope.BooleanConfigWrapper(
     config: ConfigBoolean,

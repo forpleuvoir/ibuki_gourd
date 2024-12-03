@@ -346,7 +346,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             _visible = value
         }
         get() {
-            return _visible ?: true
+            return _visible != false
         }
 
     override fun clearVisible() {
@@ -380,7 +380,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-        updateHoveredWidget()
+        if (mc.currentScreen == this) updateHoveredWidget()
         latestRenderTime = measureTime {
             val ctx = context.toIGDrawContext()
 

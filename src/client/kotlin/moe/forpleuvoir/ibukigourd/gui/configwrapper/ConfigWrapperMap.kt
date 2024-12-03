@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigDurationObject
+import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBind
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -43,7 +44,7 @@ object ConfigWrapperMap {
         register<ConfigDurationObject> { c, m -> ConfigDurationWrapper(c, m) }
         //TODO ConfigStringList
         //TODO ConfigStringMap
-        //TODO ConfigKeyBind
+        register<ConfigKeyBind> { c, m -> ConfigKeyBindWrapper(c, m) }
 
 
     }

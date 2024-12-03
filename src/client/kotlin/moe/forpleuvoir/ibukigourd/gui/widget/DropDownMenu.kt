@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -22,7 +23,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
@@ -56,7 +56,6 @@ fun WidgetContainerScope.DropDownMenu(
     scope: DropDownMenuScope.() -> Unit
 ): IGButtonWidget {
     val expandState = mutableStateOf(false)
-    var playSound: () -> Unit
     var dropDownContent: BoxScope.() -> Unit
     return Button(
         modifier = Modifier
@@ -71,7 +70,6 @@ fun WidgetContainerScope.DropDownMenu(
         val dropDownMenuScope = DropDownMenuScope(this.owner(), expandState).apply(scope)
         dropDownContent = dropDownMenuScope.dropDownContent
         val icon = mutableStateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
-        playSound = { owner().playClickSound(soundManager) }
         expandState.subscribe {
             icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
         }
@@ -81,6 +79,7 @@ fun WidgetContainerScope.DropDownMenu(
         }
 
         Column(
+            modifier = Modifier.width(13f).renderHoveredOutlineBox(Colors.ORANGE),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             ColoredBox(
