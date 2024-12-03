@@ -3,9 +3,12 @@ package moe.forpleuvoir.ibukigourd.test
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
+import moe.forpleuvoir.ibukigourd.config.item.impl.DurationObject
+import moe.forpleuvoir.ibukigourd.config.item.impl.durationObject
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.*
+import kotlin.time.DurationUnit
 
 
 @ModConfig("test")
@@ -26,5 +29,7 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
     var testDirection = enum("test_direction", Direction.Top)
 
     var testColor = color("test_color", Colors.BLUE_LOTUS)
+
+    var testDuration = durationObject("test_duration", DurationObject(30, DurationUnit.SECONDS))
 
 }

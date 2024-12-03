@@ -46,7 +46,7 @@ class KeyBind(
     )
 
     var action: KeyBind.() -> Unit = action
-        private set
+        internal set
 
     /**
      * 当前按键是否被按下

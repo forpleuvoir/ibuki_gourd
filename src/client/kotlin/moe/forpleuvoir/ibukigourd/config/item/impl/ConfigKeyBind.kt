@@ -31,6 +31,10 @@ class ConfigKeyBind(
         return configValue.serialization()
     }
 
+    override fun matched(regex: Regex): Boolean {
+        return super.matched(regex) || configValue.matched(regex)
+    }
+
 }
 
 fun ConfigContainer.keyBind(key: String, defaultValue: KeyBind) = addConfig(ConfigKeyBind(key, defaultValue))

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
+import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigDurationObject
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -39,6 +40,12 @@ object ConfigWrapperMap {
         register<ConfigColor> { c, m -> ColorConfigWrapper(c as ConfigRGBColor<ARGBColor>, m) }
         @Suppress("UNCHECKED_CAST")
         register<ConfigHSVColor> { c, m -> ColorConfigWrapper(c as ConfigRGBColor<ARGBColor>, m) }
+        register<ConfigDurationObject> { c, m -> ConfigDurationWrapper(c, m) }
+        //TODO ConfigStringList
+        //TODO ConfigStringMap
+        //TODO ConfigKeyBind
+
+
     }
 
 }
