@@ -18,13 +18,12 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.util.valueOf
 import moe.forpleuvoir.nebula.config.Config
-import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 
 fun WidgetContainerScope.ConfigContainerWrapper(
     configContainer: ConfigContainer,
     modifier: Modifier = Modifier,
-    listModifier: ColumnScope.() -> Modifier = { Modifier },
+    listModifier: ColumnScope.() -> Modifier = { Modifier.weight(1) },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
 ) = RowListWrapped(
     modifier = modifier,
@@ -38,7 +37,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
 }
 
 
-fun <V, T : ConfigBase<V, *>> WidgetContainerScope.ConfigResetButton(
+fun <V, T : Config<V, *>> WidgetContainerScope.ConfigResetButton(
     config: T,
     modifier: Modifier = Modifier,
     onRest: (T) -> Unit
@@ -61,7 +60,7 @@ fun <V, T : ConfigBase<V, *>> WidgetContainerScope.ConfigResetButton(
     }
 }
 
-fun <T : ConfigBase<*, *>> WidgetContainerScope.ConfigTextLabel(
+fun <T : Config<*, *>> WidgetContainerScope.ConfigTextLabel(
     config: T,
     modifier: Modifier = Modifier
 ) = TextLabel(config.translateText, modifier) {

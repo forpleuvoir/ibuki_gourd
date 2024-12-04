@@ -6,7 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
-import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
@@ -25,7 +24,7 @@ fun WidgetScope.HoverTip(
     showDelay: Duration = 200.milliseconds,
     closeDelay: Duration = 0.seconds,
     keepShow: MutableState<Boolean> = mutableStateOf(false),
-    parentTransform: (IGWidget) -> Transform = { it.transform },
+    parentTransform: () -> Transform = { owner().transform },
     modifier: Modifier = Modifier,
     bgColor: MutableState<ARGBColor> = mutableStateOf(Colors.WHITE),
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),

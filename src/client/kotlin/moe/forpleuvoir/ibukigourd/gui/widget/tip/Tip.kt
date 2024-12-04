@@ -19,14 +19,17 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Absolute
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.render.math.component1
 import moe.forpleuvoir.ibukigourd.render.math.component2
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -92,7 +95,7 @@ fun ScreenScope<*>.TipContainer(content: TipContainerScope.() -> Unit): TipConta
 
 fun WidgetScope.Tip(
     showState: State<Boolean>,
-    parentTransform: (IGWidget) -> Transform = { it.transform },
+    parentTransform: () -> Transform = { owner().transform },
     modifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
@@ -118,9 +121,10 @@ fun WidgetScope.Tip(
                 .visible(showState)
                 .margin(4f)
                 .padding(4f)
-                .render(tipRender(direction, parentTransform, parentWidget, optionalDirection, bgColor))
+                .renderBackground(updatePosition(direction, parentTransform, optionalDirection))
+                .render(tipRender(direction, parentTransform, bgColor))
                 .placeCompletion {
-                    if (transform.parent() != parentWidget.transform) transform.parent = { parentWidget.transform }
+                    if (transform.parent() != parentTransform()) transform.parent = parentTransform
                 } then modifier
         ) {
             content()
@@ -131,43 +135,99 @@ fun WidgetScope.Tip(
 
 fun tipRender(
     direction: MutableState<Direction>,
-    parentTransform: (IGWidget) -> Transform,
-    parentWidget: IGWidget,
-    optionalDirection: NotifiableArrayList<Direction>,
+    parentTransform: () -> Transform,
     bgColor: State<ARGBColor>
 ): IGWidget.(IGDrawContext, Float, Float, Float) -> Unit = { context, _, _, _ ->
-    direction.setValue(checkDirection(transform, margin, parentTransform(parentWidget), optionalDirection))
-    calcPosition(transform, margin, parentTransform(parentWidget), direction.getValue())
-        .let { (x, y) -> transform.translateTo(x, y, false) }
-    val x = transform.worldX.coerceIn(0f, (mc.window.scaledWidth.toFloat() - transform.width).coerceAtLeast(0f))
-    val y = transform.worldY.coerceIn(0f, (mc.window.scaledHeight.toFloat() - transform.height).coerceAtLeast(0f))
-    transform.translateTo(x, y, true)
     //计算箭头位置
     val (pos, texture) = when (direction.getValue()) {
         Top    -> Vector2f(
-            parentTransform(parentWidget).worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
+            parentTransform().worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
             transform.worldBottom
         ) to WidgetTextures.TIP_ARROW_TOP
 
         Right  -> Vector2f(
             transform.worldLeft - WidgetTextures.TIP_ARROW_RIGHT.width,
-            parentTransform(parentWidget).worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
+            parentTransform().worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
         ) to WidgetTextures.TIP_ARROW_RIGHT
 
         Bottom -> Vector2f(
-            parentTransform(parentWidget).worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
+            parentTransform().worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
             transform.worldTop - WidgetTextures.TIP_ARROW_BOTTOM.height
         ) to WidgetTextures.TIP_ARROW_BOTTOM
 
         Left   -> Vector2f(
             transform.worldRight,
-            parentTransform(parentWidget).worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
+            parentTransform().worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
         ) to WidgetTextures.TIP_ARROW_LEFT
     }
     context.batchRenderTextureColored {
         pushWidgetTexture(transform, WidgetTextures.TIP, color = bgColor.getValue())
         pushWidgetTexture(Box(pos, Size(texture.width, texture.height).toFloat()), texture, color = bgColor.getValue())
     }
+}
+
+fun WidgetScope.OpenPopupTip(
+    parentTransform: () -> Transform = { owner().transform },
+    screenModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
+    bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
+    optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
+    screen: IGScreen = mc.currentScreen as IGScreen,
+    content: BoxScope.() -> Unit,
+) = openScreen(PopupTip(parentTransform, screenModifier, modifier, bgColor, optionalDirection, screen, content))
+
+fun WidgetScope.PopupTip(
+    parentTransform: () -> Transform = { owner().transform },
+    screenModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
+    bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
+    optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
+    screen: IGScreen = mc.currentScreen as IGScreen,
+    content: BoxScope.() -> Unit,
+) = PopupScreen(screenModifier, screen) {
+
+    val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
+    optionalDirection.subscribe {
+        if (it.isEmpty()) {
+            direction.setValue(Top)
+        } else if (direction.getValue() !in it) {
+            direction.setValue(it.first())
+        }
+    }
+    Absolute {
+        Box(
+            Modifier
+                .name("PopupTip")
+                .mousePress {
+                    onMousePress(it)
+                    it.tryUse(!wasMouseOver).onSuccess {
+                        screen()?.close()
+                    }
+                }
+                .margin(4f)
+                .padding(4f)
+                .renderBackground(updatePosition(direction, parentTransform, optionalDirection))
+                .render(tipRender(direction, parentTransform, bgColor))
+                .placeCompletion {
+                    if (transform.parent() != parentTransform()) transform.parent = parentTransform
+                } then modifier
+        ) {
+            content()
+        }
+    }
+}
+
+fun updatePosition(
+    direction: MutableState<Direction>,
+    parentTransform: () -> Transform,
+    optionalDirection: NotifiableArrayList<Direction>
+): IGWidget.(IGDrawContext, Float, Float, Float) -> Unit = { context, _, _, _ ->
+    direction.setValue(checkDirection(transform, margin, parentTransform(), optionalDirection))
+    calcPosition(transform, margin, parentTransform(), direction.getValue())
+        .let { (x, y) -> transform.translateTo(x, y, false) }
+    val x = transform.worldX.coerceIn(0f, (mc.window.scaledWidth.toFloat() - transform.width).coerceAtLeast(0f))
+    val y = transform.worldY.coerceIn(0f, (mc.window.scaledHeight.toFloat() - transform.height).coerceAtLeast(0f))
+    transform.translateTo(x, y, true)
 }
 
 

@@ -93,7 +93,7 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
     var MINUS = WidgetTexture(Corner.Unspecified, 51, 19, 61, 29, TEXTURE_INFO)
         private set
 
-    var SETTING = WidgetTexture(Corner.Unspecified, 67, 18, 77, 29, TEXTURE_INFO)
+    var SETTING = WidgetTexture(Corner.Unspecified, 67, 19, 77, 29, TEXTURE_INFO)
         private set
 
     var SWITCH = WidgetTexture(Corner.Unspecified, 83, 19, 93, 29, TEXTURE_INFO)

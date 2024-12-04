@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.test
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
@@ -11,7 +10,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
@@ -19,11 +17,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.ibukigourd.util.state.switch
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 
@@ -51,26 +50,15 @@ fun testScreen4() = ColumnScreen(
             }
         }
     })
-    val showState = mutableStateOf(false)
     Button {
         TextLabel("高度测试1")
-        PopupTip(
-            showState,
-            modifier = Modifier.margin(3f),
-        ) {
-            Row {
-                ARGBColorPicker(mutableStateOf(Color(0)))
-                LongSlider(mutableStateOf(30), -50L..100L, modifier = Modifier.size(120f, 16f))
-                Scroller(ScrollState().apply {
-                    amountStep = 1f
-                    maxAmount = 10f
-                    barProportion = 0.1f
-                    amount = 0f
-                }, orientation = Orientation.Horizontal, modifier = Modifier.width(120f))
-            }
-        }
         press {
-            showState.switch()
+            OpenDialog(
+                stateOf(Literal("测试一下Dialog")),
+            ) {
+                val c: MutableState<Color> = mutableStateOf(Colors.BRIGHT_GRAPE)
+                ColorPicker(c)
+            }
         }
     }
     val switchState = mutableStateOf(false)

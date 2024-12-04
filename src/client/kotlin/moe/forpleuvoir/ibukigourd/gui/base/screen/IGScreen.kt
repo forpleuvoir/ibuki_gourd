@@ -29,6 +29,8 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     var onClose: (() -> Unit)?
 
+    fun close()
+
     var onDisplayed: (() -> Unit)?
 
     var onResize: ((client: MinecraftClient, width: Int, height: Int) -> Unit)?

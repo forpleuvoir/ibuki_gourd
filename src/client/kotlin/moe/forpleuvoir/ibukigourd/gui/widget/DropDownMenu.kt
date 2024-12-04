@@ -20,7 +20,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.OpenPopupTip
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -72,9 +72,20 @@ fun WidgetContainerScope.DropDownMenu(
         expandState.subscribe {
             icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
         }
-
         press {
             expandState.switch()
+            OpenPopupTip(
+                optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
+                screenModifier = Modifier
+                    .bgBlurRadius(0f)
+                    .onClose { expandState.setValue(false) },
+                screen = screen
+            ) {
+                expandState.subscribe {
+                    if (!it) this.owner().screen()?.close()
+                }
+                dropDownContent(this)
+            }
         }
 
         Column(
@@ -91,14 +102,6 @@ fun WidgetContainerScope.DropDownMenu(
             Icon(icon, modifier = Modifier.padding(vertical = 2.5f))
         }
 
-        PopupTip(
-            expandState,
-            optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
-            screenModifier = Modifier.bgBlurRadius(0f),
-            screen = screen
-        ) {
-            dropDownContent(this)
-        }
 
     }
 }

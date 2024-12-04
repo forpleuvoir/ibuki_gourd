@@ -25,6 +25,9 @@ object ConfigWrapperMap {
 
     fun <T : Config<*, *>, S : WidgetContainerScope> wrapper(config: T, scope: S, modifier: Modifier = Modifier) {
         maps[config::class]?.invoke(scope, config, modifier)
+        if (maps[config::class] == null) {
+            scope.UnspecifiedConfigWrapper(config, modifier)
+        }
     }
 
     init {

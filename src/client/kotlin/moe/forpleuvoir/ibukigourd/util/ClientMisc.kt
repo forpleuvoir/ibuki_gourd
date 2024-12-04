@@ -33,7 +33,10 @@ val textureManager: TextureManager by lazy { mc.textureManager }
 val resourceManager: ReloadableResourceManagerImpl by lazy { mc.resourceManager as ReloadableResourceManagerImpl }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun openScreen(screen: Screen?) = mc.setScreen(screen)
+inline fun <S : Screen?> openScreen(screen: S): S {
+    mc.setScreen(screen)
+    return screen
+}
 
 internal fun identifier(path: String): Identifier = identifier(IbukiGourd.MOD_ID, path)
 

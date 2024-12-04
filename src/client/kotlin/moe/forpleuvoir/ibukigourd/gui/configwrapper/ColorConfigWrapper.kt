@@ -2,19 +2,20 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.util.disableRender
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.OpenPopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.util.collection.notification
 import moe.forpleuvoir.nebula.config.item.impl.ConfigRGBColor
@@ -48,11 +49,13 @@ fun WidgetContainerScope.ColorButton(
 ) = Button(Modifier.name("ColorButton").then(modifier)) {
     val text = mutableStateOf(color) { Literal(it.hexStr).withColor(it) }
     TextLabel(text)
-    val showState = mutableStateOf(false)
-    PopupTip(showState, optionalDirection = Direction.clockwiseFromLeft.notification()) {
-        ColorPicker(color)
-    }
     press {
-        showState.switch()
+        OpenPopupTip(
+            modifier = Modifier.disableRender(),
+            screenModifier = Modifier.bgBlurRadius(0f),
+            optionalDirection = Direction.clockwiseFromLeft.notification()
+        ) {
+            ColorPicker(color)
+        }
     }
 }

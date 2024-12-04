@@ -251,5 +251,14 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var TAB_INACTIVE_RIGHT = WidgetTexture(Corner(top = 4, right = 5, left = 4, bottom = 4), 240, 48, 256, 64, TEXTURE_INFO)
         private set
 
+    var DIALOG_BG = WidgetTexture(Corner(4), 112, 16, 128, 32, TEXTURE_INFO)
+        private set
+
+    var DIALOG_CONTENT_OUTLINE = WidgetTexture(Corner(4), 128, 16, 144, 32, TEXTURE_INFO)
+        private set
+
+    var DIALOG_CONTENT_INNER = WidgetTexture(Corner(4), 128, 32, 144, 48, TEXTURE_INFO)
+        private set
+
 }
 

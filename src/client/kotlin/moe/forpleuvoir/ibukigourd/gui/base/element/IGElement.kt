@@ -123,47 +123,39 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
         this.use(this@IGElement)
 
     /**
-     * Tries to use the current GUIEvent instance with the given block of code.
-     * If the GUIEvent can be used and the block returns true, the 'use' function is executed on the element, and true is returned.
-     * If the GUIEvent cannot be used or the block returns false, false is returned.
+     * 尝试使用当前的 GUIEvent 实例与给定的代码块。
+     * 如果 GUIEvent 可以使用并且代码块返回 true，则在该元素上执行 'use' 函数，并返回 true。
+     * 如果 GUIEvent 不能使用或代码块返回 false，则返回 false。
      * ```kotlin
-     * event.tryUse{
-     *     //if used return true
+     * event.tryUse {
+     *     // 如果使用成功，返回 true
      *     true
-     * }.onSuccess{
-     *     //do something
+     * }.onSuccess {
+     *     // 执行一些操作
      * }
      * ```
-     * @receiver GUIEvent The current GUIEvent instance.
-     * @param block The block of code to be executed.
-     * @return Result<Boolean> Success(true) if the event was used, Failure(false) otherwise.
+     * @receiver GUIEvent 当前的 GUIEvent 实例。
+     * @param block 要执行的代码块。
+     * @return Result<Boolean> 成功（true）如果事件已使用，失败（false）否则。
      */
-    fun GUIEvent.tryUse(block: () -> Boolean): Result<Boolean> {
-        if (canUse(this@IGElement)) {
-            if (block()) {
-                this.use(this@IGElement)
-                return Result.success(true)
-            }
-            return Result.failure(Exception("Block returned false."))
+    fun GUIEvent.tryUse(condition: () -> Boolean): Result<Unit> {
+        if (canUse(this@IGElement) && condition()) {
+            this.use(this@IGElement)
+            return Result.success(Unit)
         }
         return Result.failure(Exception("Event cannot be used."))
     }
 
-    fun GUIEvent.tryUse(condition: Boolean = true): Result<Boolean> {
-        if (canUse(this@IGElement)) {
-            if (condition) {
-                this.use(this@IGElement)
-                return Result.success(true)
-            }
-            return Result.failure(Exception("Block returned false."))
+    fun GUIEvent.tryUse(condition: Boolean = true): Result<Unit> {
+        if (canUse(this@IGElement) && condition) {
+            this.use(this@IGElement)
+            return Result.success(Unit)
         }
         return Result.failure(Exception("Event cannot be used."))
     }
 
     /**
-     * Determines if the GUIEvent instance can be used with the given Element.
-     *
-     * @return true if the GUIEvent can be used with the Element, false otherwise.
+     * 检查 GUIEvent 是否可以使用
      */
     fun GUIEvent.canUse(): Boolean =
         this.canUse(this@IGElement)
