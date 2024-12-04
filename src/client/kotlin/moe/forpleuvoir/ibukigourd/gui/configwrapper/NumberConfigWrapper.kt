@@ -48,7 +48,9 @@ fun WidgetContainerScope.IntConfigWrapper(
             press { state.switch() }
             Icon(IconTextures.SWITCH)
         }
-        ConfigResetButton(config, intValue)
+        ConfigResetButton(config) {
+            intValue.setValue(config.getValue())
+        }
     }
 }
 
@@ -78,7 +80,9 @@ fun WidgetContainerScope.LongConfigWrapper(
             press { state.switch() }
             Icon(IconTextures.SWITCH)
         }
-        ConfigResetButton(config, longValue)
+        ConfigResetButton(config) {
+            longValue.setValue(config.getValue())
+        }
     }
 }
 
@@ -108,7 +112,9 @@ fun WidgetContainerScope.FloatConfigWrapper(
             press { state.switch() }
             Icon(IconTextures.SWITCH)
         }
-        ConfigResetButton(config, floatValue)
+        ConfigResetButton(config) {
+            floatValue.setValue(config.getValue())
+        }
     }
 }
 
@@ -138,6 +144,8 @@ fun WidgetContainerScope.DoubleConfigWrapper(
             press { state.switch() }
             Icon(IconTextures.SWITCH)
         }
-        ConfigResetButton(config, doubleValue)
+        ConfigResetButton(config) {
+            doubleValue.setValue(config.getValue())
+        }
     }
 }

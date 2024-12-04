@@ -6,8 +6,10 @@ import moe.forpleuvoir.ibukigourd.config.ModConfig
 import moe.forpleuvoir.ibukigourd.config.item.impl.DurationObject
 import moe.forpleuvoir.ibukigourd.config.item.impl.durationObject
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
+import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.input.KeyBind
+import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.*
 import kotlin.time.DurationUnit
@@ -37,5 +39,7 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
     var testKeyBind = keyBind("test_key_bind", KeyBind {
         println("按下了测试按键")
     })
+
+    var testKeyBindBoolean = keyBindBoolean("test_key_bind_boolean", KeyBind(Keyboard.H), false)
 
 }

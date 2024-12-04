@@ -40,11 +40,8 @@ fun WidgetContainerScope.ConfigContainerWrapper(
 
 fun <V, T : ConfigBase<V, *>> WidgetContainerScope.ConfigResetButton(
     config: T,
-    valueState: MutableState<V>,
     modifier: Modifier = Modifier,
-    onRest: (T) -> Unit = {
-        valueState.setValue(config.getValue())
-    }
+    onRest: (T) -> Unit
 ): IGButtonWidget {
     val resettable = mutableStateOf(!config.isDefault())
     return Button(

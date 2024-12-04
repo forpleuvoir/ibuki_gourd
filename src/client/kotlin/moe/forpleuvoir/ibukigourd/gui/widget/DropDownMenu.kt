@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
-import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -79,7 +78,7 @@ fun WidgetContainerScope.DropDownMenu(
         }
 
         Column(
-            modifier = Modifier.width(13f).renderHoveredOutlineBox(Colors.ORANGE),
+            modifier = Modifier.width(13f),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             ColoredBox(

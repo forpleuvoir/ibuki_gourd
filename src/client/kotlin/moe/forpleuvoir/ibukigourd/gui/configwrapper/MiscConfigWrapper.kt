@@ -75,7 +75,9 @@ fun WidgetContainerScope.StringConfigWrapper(
             press { showState.switch() }
         }
 
-        ConfigResetButton(config, strValue)
+        ConfigResetButton(config) {
+            strValue.setValue(config.getValue())
+        }
     }
 }
 
@@ -99,7 +101,9 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         EnumSelector(selected, enumValue, Modifier.width(80f))
-        ConfigResetButton(config, enumValue)
+        ConfigResetButton(config) {
+            enumValue.setValue(config.getValue())
+        }
     }
 }
 
@@ -120,7 +124,9 @@ fun WidgetContainerScope.BooleanConfigWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         SwitchButton(boolValue, modifier.width(40f))
-        ConfigResetButton(config, boolValue)
+        ConfigResetButton(config) {
+            boolValue.setValue(config.getValue())
+        }
     }
 }
 
@@ -172,7 +178,7 @@ fun WidgetContainerScope.ConfigDurationWrapper(
             press { state.switch() }
             Icon(IconTextures.SWITCH)
         }
-        ConfigResetButton(config, durationValue) {
+        ConfigResetButton(config) {
             durationValue.setValue(config.getValue())
             longValue.setValue(durationValue.getValue().duration)
             unitValue.setValue(durationValue.getValue().unit)

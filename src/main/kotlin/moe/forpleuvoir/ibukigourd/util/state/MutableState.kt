@@ -47,6 +47,7 @@ data class MutableState<T>(private var value: T) : State<T> {
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        if (this.value == value) return
         val oldValue = this.value
         this.value = onSetValue(value)
         if (oldValue != value) {
@@ -55,6 +56,7 @@ data class MutableState<T>(private var value: T) : State<T> {
     }
 
     fun setValue(value: T) {
+        if (this.value == value) return
         val oldValue = this.value
         this.value = onSetValue(value)
         if (oldValue != value) {

@@ -36,7 +36,9 @@ fun WidgetContainerScope.ColorConfigWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         ColorButton(colorValue, Modifier.minWidth(80f))
-        ConfigResetButton(configColor, colorValue)
+        ConfigResetButton(configColor) {
+            colorValue.setValue(configColor.getValue())
+        }
     }
 }
 
