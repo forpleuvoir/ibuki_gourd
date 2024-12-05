@@ -357,22 +357,21 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     var latestRenderTime: Duration = Duration.ZERO
         protected set
 
+    private var cursorSupplier: () -> MouseCursor = { MouseCursor.default }
+
     override var hoveredWidget: MutableState<IGWidget?> = mutableStateOf<IGWidget?>(null).apply {
         subscribe {
-            var cursor: MouseCursor? = null
             var currentNode: IGElement? = it
             while (currentNode != null) {
                 if (currentNode is IGWidget) {
-                    cursor = currentNode.mouseOverCursor
-                    if (cursor != null) break
+                    if (currentNode.mouseOverCursor != null) break
                     if (currentNode is IGScreen) break
                 }
                 currentNode = currentNode.parent()
             }
-            MouseCursor.current = cursor ?: MouseCursor.default
+            cursorSupplier = { (currentNode as? IGWidget)?.mouseOverCursor ?: MouseCursor.default }
         }
     }
-
 
     private fun updateHoveredWidget() {
         for (layer in layers) {
@@ -390,8 +389,12 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-        if (mc.currentScreen == this) updateHoveredWidget()
         latestRenderTime = measureTime {
+
+            if (mc.currentScreen == this) updateHoveredWidget()
+
+            MouseCursor.current = cursorSupplier()
+
             val ctx = context.toIGDrawContext()
 
             val (_mouseX, _mouseY) = context.client.mousePosition
