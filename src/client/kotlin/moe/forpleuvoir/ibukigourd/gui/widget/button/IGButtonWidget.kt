@@ -6,16 +6,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
-import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.Tick
 
 open class IGButtonWidget(
     override val arrangement: Arrangement.Horizontal,
     override val alignment: Alignment.Vertical
 ) : IGPressableWidgetContainer(), ColumnLayout {
-
-    override val mouseOverCursor: MouseCursor.Cursor
-        get() = MouseCursor.Cursor.POINTING_HAND_CURSOR
 
     //------------ IGButton ------------\\
 
@@ -36,7 +32,7 @@ open class IGButtonWidget(
         }
     }
 
-    protected var onPress: (IGButtonWidget) -> Unit = {}
+    protected var onClick: (IGButtonWidget) -> Unit = {}
         private set
 
     protected var longPress: (IGButtonWidget) -> Unit = {}
@@ -46,7 +42,7 @@ open class IGButtonWidget(
         private set
 
     override fun onPress() {
-        onPress(this)
+        onClick(this)
     }
 
     override fun onRelease() {
@@ -59,8 +55,8 @@ open class IGButtonWidget(
         return this
     }
 
-    fun press(action: (IGButtonWidget) -> Unit): IGButtonWidget {
-        onPress = action
+    fun click(action: (IGButtonWidget) -> Unit): IGButtonWidget {
+        onClick = action
         return this
     }
 
@@ -69,9 +65,9 @@ open class IGButtonWidget(
         return this
     }
 
-    fun interface ButtonScope : GuiScope<IGButtonWidget>, ColumnLayoutScope {
+    fun interface Scope : GuiScope<IGButtonWidget>, ColumnLayoutScope {
 
-        fun press(action: (IGButtonWidget) -> Unit) = owner().press(action)
+        fun click(action: (IGButtonWidget) -> Unit) = owner().click(action)
 
         fun longPress(time: Tick, action: (IGButtonWidget) -> Unit) = owner().longPress(time, action)
 
@@ -82,4 +78,4 @@ open class IGButtonWidget(
 
 }
 
-typealias ButtonScope = IGButtonWidget.ButtonScope
+typealias ButtonScope = IGButtonWidget.Scope

@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.screen
 import kotlinx.coroutines.*
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement.CustomData
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
@@ -82,10 +81,7 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
 }
 
-val CustomData.BG_BLUR_RADIUS: String get() = "bgBlurRadius"
 
-val IGScreen.bgBlurRadius: Float
-    get() = customData[CustomData.BG_BLUR_RADIUS] as Float? ?: 0f
 
 
 fun ScreenScope<*>.remember(key: String, value: Any) {

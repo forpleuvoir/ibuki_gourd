@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
@@ -87,9 +88,6 @@ open class ScrollerWidget(
         }
     }
 
-    override val mouseOverCursor: MouseCursor.Cursor
-        get() = bar.isMouseOvered(mc.mousePosition).pick(MouseCursor.Cursor.POINTING_HAND_CURSOR, MouseCursor.default)
-
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
             pushWidgetTexture(transform, theme(bgTheme))
@@ -112,7 +110,7 @@ open class ScrollerWidget(
 
     //------------ Scroller ------------\\
 
-    private val bar = Transform(parent = { this.transform })
+    internal val bar = Transform(parent = { this.transform })
 
     private var barWasDragging = false
 
@@ -218,7 +216,9 @@ fun WidgetContainerScope.Scroller(
     modifier: Modifier = Modifier,
     scope: ScrollerScope.() -> Unit = {}
 ) = addWidgetChild(ScrollerWidget(scrollState, orientation, barTheme, bgTheme)) {
-    modifier.foldInApply()
+    Modifier.mouseOverCursor<ScrollerWidget> {
+        it.bar.isMouseOvered(mc.mousePosition).pick(MouseCursor.POINTING_HAND_CURSOR, MouseCursor.default)
+    }.then(modifier).foldInApply()
     ScrollerScope { this }.scope()
 }
 

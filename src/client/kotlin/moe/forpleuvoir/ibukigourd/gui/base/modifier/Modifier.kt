@@ -15,6 +15,7 @@ interface Modifier {
     infix fun then(other: Modifier): Modifier =
         if (other === Modifier) this else CombinedModifier(this, other)
 
+
     companion object : Modifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
 
@@ -46,6 +47,10 @@ interface Modifier {
     }
 
 }
+
+fun Modifier.attachLeft(other: Modifier): Modifier = other.then(this)
+
+inline fun Modifier.attachLeft(other: Modifier.() -> Modifier): Modifier = Modifier.other().then(this)
 
 class CombinedModifier(
     private val outer: Modifier,

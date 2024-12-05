@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
@@ -321,9 +322,6 @@ open class TextEditorWidget(
 
 
     //------------ IGElement ------------\\
-
-    override val mouseOverCursor: MouseCursor.Cursor
-        get() = MouseCursor.Cursor.IBEAM_CURSOR
 
     override fun onTick() {
         history.onTick()
@@ -674,6 +672,8 @@ fun WidgetContainerScope.TextEditor(
     scope: TextEditorScope.() -> Unit = {}
 ) = addWidgetChild(TextEditorWidget(textColor, hintColor, bgShaderColor, selectedColor, suggestionColor, cursorColor, textRenderer)) {
     Modifier
+        .name("TextEditor")
+        .mouseOverCursor(MouseCursor.IBEAM_CURSOR)
         .padding(5, 5, 5, 4)
         .renderBackground { context, _, _, _ ->
             context.batchRenderTextureColored {
@@ -708,6 +708,7 @@ fun <T> WidgetContainerScope.NumberEditor(
     editorScope: TextEditorScope .() -> Unit = {}
 ) where  T : Comparable<T>, T : Number = Column(
     Modifier
+        .name("NumberEditor")
         .padding(2, 4, 2, 2)
         .renderBackground { context, _, _, _ ->
             context.batchRenderTextureColored {
@@ -754,7 +755,7 @@ fun <T> WidgetContainerScope.NumberEditor(
             Box(Modifier.size(5f, 5f)) {
                 Icon(IconTextures.PLUS, Colors.BLACK)
             }
-            press {
+            click {
                 val s = when {
                     InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
                     InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
@@ -771,7 +772,7 @@ fun <T> WidgetContainerScope.NumberEditor(
             Box(Modifier.size(5f, 5f)) {
                 Icon(IconTextures.MINUS, Colors.BLACK)
             }
-            press {
+            click {
                 val s = when {
                     InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
                     InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
@@ -810,7 +811,7 @@ fun WidgetContainerScope.IntEditor(
     textMapper = { runCatching { it.toInt() }.getOrElse { 0 } },
     step = step,
     textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toInt() in range }.getOrElse { false }) || it.isEmpty() },
-    modifier = modifier,
+    modifier = modifier.attachLeft { name("IntEditor") },
     editorModifier = editorModifier,
     textColor = textColor,
     hintColor = hintColor,
@@ -847,7 +848,7 @@ fun WidgetContainerScope.LongEditor(
     textMapper = { runCatching { it.toLong() }.getOrElse { 0L } },
     step = step,
     textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toLong() in range }.getOrElse { false }) || it.isEmpty() },
-    modifier = modifier,
+    modifier = modifier.attachLeft { name("LongEditor") },
     editorModifier = editorModifier,
     textColor = textColor,
     hintColor = hintColor,
@@ -887,7 +888,7 @@ fun WidgetContainerScope.FloatEditor(
         val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
         Regex("-?\\d+(\\.\\d+)?").matches(str) && runCatching { str.toFloat() in range }.getOrElse { false }
     },
-    modifier = modifier,
+    modifier = modifier.attachLeft { name("FloatEditor") },
     editorModifier = editorModifier,
     textColor = textColor,
     hintColor = hintColor,
@@ -928,7 +929,7 @@ fun WidgetContainerScope.DoubleEditor(
         val str = if (it.endsWith('.') || it.isEmpty()) "${it}0" else it
         Regex("-?\\d+(\\.\\d+)?").matches(str) && runCatching { str.toDouble() in range }.getOrElse { false }
     },
-    modifier = modifier,
+    modifier = modifier.attachLeft { name("DoubleEditor") },
     editorModifier = editorModifier,
     textColor = textColor,
     hintColor = hintColor,

@@ -4,13 +4,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement.CustomData.name
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.mc
 
@@ -35,14 +34,6 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
      * 鼠标是否在组件中
      */
     override val wasMouseOver: Boolean get() = transform.isMouseOvered(mc.mousePosition)
-
-    override val mouseOverCursor: MouseCursor.Cursor
-        get() {
-            val parent = parent()
-            return if (parent is IGWidget) {
-                parent.mouseOverCursor
-            } else screen()?.mouseOverCursor ?: MouseCursor.default
-        }
 
     /**
      * 组件是否在拖动中

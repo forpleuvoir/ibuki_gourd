@@ -7,7 +7,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -24,8 +23,6 @@ interface IGWidget : DrawableElement, Layoutable {
      */
     val wasMouseOver: Boolean
 
-    val mouseOverCursor: MouseCursor.Cursor
-
     /**
      * 组件是否在拖动中
      */
@@ -37,20 +34,20 @@ interface IGWidget : DrawableElement, Layoutable {
 
     val contentSize: Size<Float> get() = Size(contentWidth, contentHeight)
 
-    fun contentLeft(isWorldAxis: Boolean) =
-        isWorldAxis.pick(transform.worldLeft, 0f) + padding.left
+    fun contentLeft(worldCoordinatesMode: Boolean) =
+        worldCoordinatesMode.pick(transform.worldLeft, 0f) + padding.left
 
-    fun contentRight(isWorldAxis: Boolean) =
-        isWorldAxis.pick(transform.worldRight, 0f) + padding.right
+    fun contentRight(worldCoordinatesMode: Boolean) =
+        worldCoordinatesMode.pick(transform.worldRight, 0f) + padding.right
 
-    fun contentTop(isWorldAxis: Boolean) =
-        isWorldAxis.pick(transform.worldTop, 0f) + padding.top
+    fun contentTop(worldCoordinatesMode: Boolean) =
+        worldCoordinatesMode.pick(transform.worldTop, 0f) + padding.top
 
-    fun contentBottom(isWorldAxis: Boolean) =
-        isWorldAxis.pick(transform.worldBottom, 0f) + padding.bottom
+    fun contentBottom(worldCoordinatesMode: Boolean) =
+        worldCoordinatesMode.pick(transform.worldBottom, 0f) + padding.bottom
 
-    fun contentBox(isWorldAxis: Boolean): Box =
-        Box(x = contentLeft(isWorldAxis), y = contentTop(isWorldAxis), width = contentWidth, height = contentHeight)
+    fun contentBox(worldCoordinatesMode: Boolean): Box =
+        Box(x = contentLeft(worldCoordinatesMode), y = contentTop(worldCoordinatesMode), width = contentWidth, height = contentHeight)
 
 
     //------------ Placeable ------------\\
@@ -60,8 +57,8 @@ interface IGWidget : DrawableElement, Layoutable {
 
     override var margin: Margin
 
-    override fun placeAt(x: Float, y: Float, isWorldAxis: Boolean) {
-        if (isWorldAxis) {
+    override fun placeAt(x: Float, y: Float, worldCoordinatesMode: Boolean) {
+        if (worldCoordinatesMode) {
             transform.worldX = x
             transform.worldY = y
         } else {

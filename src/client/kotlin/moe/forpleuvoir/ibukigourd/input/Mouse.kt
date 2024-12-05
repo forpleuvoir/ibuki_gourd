@@ -66,33 +66,36 @@ enum class Mouse(override val code: Int) : KeyCode {
         get() = InputUtil.Type.MOUSE.createFromCode(code).translationKey
 }
 
-object MouseCursor {
+enum class MouseCursor(val value: Int) {
+    ARROW_CURSOR(GLFW_ARROW_CURSOR),
+    IBEAM_CURSOR(GLFW_IBEAM_CURSOR),
+    CROSSHAIR_CURSOR(GLFW_CROSSHAIR_CURSOR),
+    POINTING_HAND_CURSOR(GLFW_POINTING_HAND_CURSOR),
+    RESIZE_EW_CURSOR(GLFW_RESIZE_EW_CURSOR),
+    RESIZE_NS_CURSOR(GLFW_RESIZE_NS_CURSOR),
+    RESIZE_NWSE_CURSOR(GLFW_RESIZE_NWSE_CURSOR),
+    RESIZE_NESW_CURSOR(GLFW_RESIZE_NESW_CURSOR),
+    RESIZE_ALL_CURSOR(GLFW_RESIZE_ALL_CURSOR),
+    NOT_ALLOWED_CURSOR(GLFW_NOT_ALLOWED_CURSOR);
 
-    val default = Cursor.ARROW_CURSOR
+    companion object {
 
-    fun clear() {
-        current = default
-    }
+        val default = ARROW_CURSOR
 
-    var current: Cursor = default
-        set(value) {
-            if (value == field) return
-            field = value
-            glfwSetCursor(mc.window.handle, glfwCreateStandardCursor(value.value))
+        fun clear() {
+            current = default
         }
 
-    enum class Cursor(val value: Int) {
-        ARROW_CURSOR(GLFW_ARROW_CURSOR),
-        IBEAM_CURSOR(GLFW_IBEAM_CURSOR),
-        CROSSHAIR_CURSOR(GLFW_CROSSHAIR_CURSOR),
-        POINTING_HAND_CURSOR(GLFW_POINTING_HAND_CURSOR),
-        RESIZE_EW_CURSOR(GLFW_RESIZE_EW_CURSOR),
-        RESIZE_NS_CURSOR(GLFW_RESIZE_NS_CURSOR),
-        RESIZE_NWSE_CURSOR(GLFW_RESIZE_NWSE_CURSOR),
-        RESIZE_NESW_CURSOR(GLFW_RESIZE_NESW_CURSOR),
-        RESIZE_ALL_CURSOR(GLFW_RESIZE_ALL_CURSOR),
-        NOT_ALLOWED_CURSOR(GLFW_NOT_ALLOWED_CURSOR),
+        var current: MouseCursor = default
+            set(value) {
+                if (value == field) return
+                field = value
+                glfwSetCursor(mc.window.handle, glfwCreateStandardCursor(value.value))
+            }
     }
 
 }
 
+fun interface MouseCursorMapping<T : Any> {
+    operator fun invoke(input: T): MouseCursor
+}

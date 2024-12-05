@@ -52,7 +52,7 @@ fun testScreen4() = ColumnScreen(
     })
     Button {
         TextLabel("高度测试1")
-        press {
+        click {
             OpenDialog(
                 stateOf(Literal("测试一下Dialog")),
             ) {

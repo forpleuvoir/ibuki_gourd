@@ -7,9 +7,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement.CustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
@@ -22,7 +22,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
@@ -83,9 +85,6 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     }
 
     override var placeCompletion: () -> Unit = ::onPlaceCompletion
-
-    override val mouseOverCursor: MouseCursor.Cursor
-        get() = MouseCursor.default
 
     /**
      * 鼠标是否在组件中
@@ -358,11 +357,22 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     var latestRenderTime: Duration = Duration.ZERO
         protected set
 
-    override var hoveredWidget: MutableState<IGWidget?> = mutableStateOf(null as IGWidget?).apply {
+    override var hoveredWidget: MutableState<IGWidget?> = mutableStateOf<IGWidget?>(null).apply {
         subscribe {
-            MouseCursor.current = it?.mouseOverCursor ?: MouseCursor.default
+            var cursor: MouseCursor? = null
+            var currentNode: IGElement? = it
+            while (currentNode != null) {
+                if (currentNode is IGWidget) {
+                    cursor = currentNode.mouseOverCursor
+                    if (cursor != null) break
+                    if (currentNode is IGScreen) break
+                }
+                currentNode = currentNode.parent()
+            }
+            MouseCursor.current = cursor ?: MouseCursor.default
         }
     }
+
 
     private fun updateHoveredWidget() {
         for (layer in layers) {

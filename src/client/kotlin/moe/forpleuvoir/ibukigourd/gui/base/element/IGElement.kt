@@ -22,14 +22,7 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     val customData: MutableMap<String, Any>
 
-    object CustomData {
 
-        const val NAME = "name"
-
-        val IGElement.name: String
-            get() = customData[NAME] as? String ?: this::class.simpleName ?: "UNKNOWN_ELEMENT"
-
-    }
 
     fun hasParentInChain(target: IGElement): Boolean {
         var current: IGElement? = this

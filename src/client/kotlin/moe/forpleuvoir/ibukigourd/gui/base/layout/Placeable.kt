@@ -22,10 +22,10 @@ interface Placeable {
     val wrappedHeight: Float
         get() = this.size.height + margin.height
 
-    fun placeAt(x: Float, y: Float, isWorldAxis: Boolean = false)
+    fun placeAt(x: Float, y: Float, worldCoordinatesMode: Boolean = false)
 
-    fun placeAt(vec2f: Vector2fc, isWorldAxis: Boolean = false) {
-        placeAt(vec2f.x(), vec2f.y(), isWorldAxis)
+    fun placeAt(vec2f: Vector2fc, worldCoordinatesMode: Boolean = false) {
+        placeAt(vec2f.x(), vec2f.y(), worldCoordinatesMode)
     }
 
     var placeCompletion: () -> Unit

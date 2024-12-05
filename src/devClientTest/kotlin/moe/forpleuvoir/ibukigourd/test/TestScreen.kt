@@ -166,7 +166,7 @@ fun RowScope.TestColumn() = Column(
             } else if (it % 5 == 0) {
                 Button(modifier = m) {
                     val text = mutableStateOf("测试文本:")
-                    press {
+                    click {
                         text + "\n测试宽度测试宽度测试宽度测试宽度"
                     }
                     TextLabel(
@@ -258,7 +258,7 @@ fun RowScope.TestColumn() = Column(
         },
         horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
     ) {
-        press {
+        click {
             println("按下了测试按钮")
             mc.overlayMessage("按下了测试按钮")
         }

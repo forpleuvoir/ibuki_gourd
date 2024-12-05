@@ -19,12 +19,12 @@ class IconWidget(
     private var color: ARGBColor = Colors.WHITE
 ) : IGWidgetImpl() {
 
-    private var changedRemeasure: Boolean = true
+    private var remeasureOnChange: Boolean = true
 
     var iconTexture: WidgetTexture = iconTexture
         set(value) {
             if (field != value) {
-                val remeasure = !(field.uSize == value.uSize && field.vSize == value.vSize) && changedRemeasure
+                val remeasure = !(field.uSize == value.uSize && field.vSize == value.vSize) && remeasureOnChange
                 field = value
                 if (remeasure) screen()?.remeasure()
             }
@@ -48,10 +48,10 @@ class IconWidget(
 
     fun interface IconScope : GuiScope<IconWidget> {
 
-        var changedRemeasure: Boolean
-            get() = owner().changedRemeasure
+        var remeasureOnChange: Boolean
+            get() = owner().remeasureOnChange
             set(value) {
-                owner().changedRemeasure = value
+                owner().remeasureOnChange = value
             }
 
         var color: ARGBColor

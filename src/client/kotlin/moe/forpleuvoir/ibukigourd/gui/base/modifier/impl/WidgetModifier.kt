@@ -9,6 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
 import moe.forpleuvoir.ibukigourd.util.state.State
 
 fun interface WidgetModifier : Modifier.Element {
@@ -233,4 +236,14 @@ fun Modifier.active(state: State<Boolean>) = this then WidgetModifier { widget -
 
 fun Modifier.placeCompletion(action: IGWidget.() -> Unit) = this then WidgetModifier { widget ->
     widget.placeCompletion = { action(widget) }
+}
+
+//------------ CustomData ------------\\
+
+fun <W : IGWidget> Modifier.mouseOverCursor(mapping: MouseCursorMapping<W>) = this then WidgetModifier { widget ->
+    widget.customData[WidgetCustomData.MOUSE_OVER_CURSOR] = mapping
+}
+
+fun Modifier.mouseOverCursor(cursor: MouseCursor) = this then WidgetModifier { widget ->
+    widget.customData[WidgetCustomData.MOUSE_OVER_CURSOR] = cursor
 }

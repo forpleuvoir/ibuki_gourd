@@ -117,7 +117,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                 }
             }.then(buttonModifier)
     ) {
-        press {
+        click {
             inputting = !inputting
             text.setValue(Literal("按下按键设置"))
         }
@@ -129,7 +129,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
 
     Button {
         Icon(IconTextures.SETTING)
-        press {
+        click {
             settingsPopupState.switch()
             OpenDialog(
                 stateOf(config.translateText),

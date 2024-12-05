@@ -111,7 +111,7 @@ fun TabScope.Tab(
         }.then(modifier)
 ) {
     this@Tab.addTab(this.owner(), content)
-    press {
+    click {
         this@Tab.apply {
             setCurrent(this@Button.owner())
             this.content.setValue(content)

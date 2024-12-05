@@ -88,7 +88,7 @@ fun WidgetContainerScope.StringConfigWrapper(
         }
         Button {
             Icon(IconTextures.EDIT)
-            press {
+            click {
                 OpenDialog(stateOf(config.translateText)) {
                     TextAreaWrapped(
                         modifier = Modifier
@@ -205,7 +205,7 @@ fun WidgetContainerScope.ConfigDurationWrapper(
             state
         )
         Button {
-            press { state.switch() }
+            click { state.switch() }
             Icon(IconTextures.SWITCH)
         }
         ConfigResetButton(config) {

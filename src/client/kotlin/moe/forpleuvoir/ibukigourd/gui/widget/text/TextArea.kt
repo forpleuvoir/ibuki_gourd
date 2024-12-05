@@ -357,9 +357,6 @@ class TextAreaWidget(
 
     //------------ IGElement ------------\\
 
-    override val mouseOverCursor: MouseCursor.Cursor
-        get() = MouseCursor.Cursor.IBEAM_CURSOR
-
     override fun onTick() {
         history.onTick()
         if (isFocused) {
@@ -765,6 +762,7 @@ fun WidgetContainerScope.TextArea(
     )
 ) {
     Modifier
+        .mouseOverCursor(MouseCursor.IBEAM_CURSOR)
         .padding(5.5f)
         .measureCompletion {
             this as TextAreaWidget

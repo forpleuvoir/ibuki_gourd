@@ -38,12 +38,12 @@ fun interface GuiScope<T : Any> {
             owner().visible = visible
         }
 
-        fun WidgetScope.placeAt(x: Float, y: Float, isWorldAxis: Boolean) {
-            owner().placeAt(x, y, isWorldAxis)
+        fun WidgetScope.placeAt(x: Float, y: Float, worldCoordinatesMode: Boolean) {
+            owner().placeAt(x, y, worldCoordinatesMode)
         }
 
-        fun WidgetScope.placeAt(position: Vector2fc, isWorldAxis: Boolean) {
-            owner().placeAt(position, isWorldAxis)
+        fun WidgetScope.placeAt(position: Vector2fc, worldCoordinatesMode: Boolean) {
+            owner().placeAt(position, worldCoordinatesMode)
         }
     }
 

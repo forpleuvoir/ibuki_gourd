@@ -5,9 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
@@ -15,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
+import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -28,6 +27,8 @@ fun WidgetContainerScope.Button(
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(5)
+        .name("Button")
+        .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { context, _, _, _ ->
             this as IGButtonWidget
             context.batchRenderTextureColored {
@@ -49,6 +50,8 @@ fun WidgetContainerScope.FlatButton(
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(1)
+        .name("FlatButton")
+        .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { context, _, _, _ ->
             this as IGButtonWidget
             wasMouseOver {
@@ -90,6 +93,8 @@ fun WidgetContainerScope.SwitchButton(
     scope: ButtonScope.() -> Unit = {}
 ) = Button(
     Modifier
+        .name("SwitchButton")
+        .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .size(36f, 15f)
         .render { context, _, _, _ ->
             val b = transform.asWorldBox
@@ -104,7 +109,7 @@ fun WidgetContainerScope.SwitchButton(
     horizontalArrangement,
     verticalAlignment
 ) {
-    press { switchState.switch() }
+    click { switchState.switch() }
     scope()
 }
 
@@ -136,16 +141,18 @@ fun WidgetContainerScope.LockButton(
     )
     val buttonScope = ButtonScope { this }
     val lock = buttonScope.Icon(list.maxBy { it.width + it.height }) {
-        changedRemeasure = false
+        remeasureOnChange = false
     }
     Modifier
+        .name("LockButton")
+        .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { context, _, _, _ ->
             this as IGButtonWidget
             lock.iconTexture = theme(lockState.getValue().pick(PressableTheme.LOCK, PressableTheme.UNLOCK))
         }
         .padding(2f)
         .then(modifier).foldInApply()
-    press { lockState.switch() }
+    this.click { lockState.switch() }
     buttonScope.scope()
 }
 

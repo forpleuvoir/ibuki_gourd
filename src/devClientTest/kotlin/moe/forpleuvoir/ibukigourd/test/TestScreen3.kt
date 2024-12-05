@@ -60,7 +60,7 @@ fun testScreen3() = RowScreen(
                             hoveredColor = Colors.CYAN.opacity(.35f),
                             horizontalArrangement = Arrangement.Left
                         ) {
-                            press {
+                            click {
                                 this@DropDownMenu.toggle()
                                 selectText.setValue(str)
                             }
@@ -115,7 +115,7 @@ fun testScreen3() = RowScreen(
     ) {
         val text = mutableStateOf("测试文本:")
         var count = 1
-        press {
+        click {
             text + "\n测试宽度$count"
             count++
         }

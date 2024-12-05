@@ -62,7 +62,7 @@ fun testScreen9() = ColumnScreen {
     }
     Button {
         TextLabel("切换")
-        press {
+        click {
             state.switch()
         }
     }

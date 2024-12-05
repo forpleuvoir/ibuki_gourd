@@ -49,7 +49,7 @@ fun WidgetContainerScope.ColorButton(
 ) = Button(Modifier.name("ColorButton").then(modifier)) {
     val text = mutableStateOf(color) { Literal(it.hexStr).withColor(it) }
     TextLabel(text)
-    press {
+    click {
         OpenPopupTip(
             modifier = Modifier.disableRender(),
             screenModifier = Modifier.bgBlurRadius(0f),

@@ -72,7 +72,7 @@ fun WidgetContainerScope.DropDownMenu(
         expandState.subscribe {
             icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
         }
-        press {
+        click {
             expandState.switch()
             OpenPopupTip(
                 optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
@@ -147,7 +147,7 @@ fun <T> WidgetContainerScope.Spinner(
                         horizontalArrangement = Arrangement.Left,
                     ) {
                         optionWrapper(option)
-                        press {
+                        click {
                             selected.setValue(option)
                             this@DropDownMenu.toggle()
                         }

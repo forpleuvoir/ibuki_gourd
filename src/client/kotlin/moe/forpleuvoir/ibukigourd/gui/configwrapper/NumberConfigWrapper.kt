@@ -45,7 +45,7 @@ fun WidgetContainerScope.IntConfigWrapper(
             state
         )
         Button {
-            press { state.switch() }
+            click { state.switch() }
             Icon(IconTextures.SWITCH)
         }
         ConfigResetButton(config) {
@@ -77,7 +77,7 @@ fun WidgetContainerScope.LongConfigWrapper(
             state
         )
         Button {
-            press { state.switch() }
+            click { state.switch() }
             Icon(IconTextures.SWITCH)
         }
         ConfigResetButton(config) {
@@ -109,7 +109,7 @@ fun WidgetContainerScope.FloatConfigWrapper(
             state
         )
         Button {
-            press { state.switch() }
+            click { state.switch() }
             Icon(IconTextures.SWITCH)
         }
         ConfigResetButton(config) {
@@ -141,7 +141,7 @@ fun WidgetContainerScope.DoubleConfigWrapper(
             state
         )
         Button {
-            press { state.switch() }
+            click { state.switch() }
             Icon(IconTextures.SWITCH)
         }
         ConfigResetButton(config) {

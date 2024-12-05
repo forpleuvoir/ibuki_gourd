@@ -51,7 +51,7 @@ fun <V, T : Config<V, *>> WidgetContainerScope.ConfigResetButton(
             }
             .then(modifier)
     ) {
-        press {
+        click {
             config.restDefault()
             resettable.setValue(!config.isDefault())
             onRest(config)

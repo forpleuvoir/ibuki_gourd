@@ -29,7 +29,7 @@ class Transform(
     /**
      * 是否为世界坐标轴
      */
-    isWorldAxis: Boolean = false,
+    worldCoordinatesMode: Boolean = false,
     var parent: () -> Transform? = { null },
 ) : Box, MutableSizeFloat {
 
@@ -110,7 +110,7 @@ class Transform(
             position.copy(x + width)
         )
 
-    var isWorldAxis: Boolean = isWorldAxis
+    var worldCoordinatesMode: Boolean = worldCoordinatesMode
         set(value) {
             field = value
             if (value) parent()?.let { positionAsNotifiable += it.worldPosition }
@@ -120,7 +120,7 @@ class Transform(
 
     val worldPosition: Vector2fc
         get() {
-            if (isWorldAxis) return position
+            if (this@Transform.worldCoordinatesMode) return position
             return position + (parent()?.worldPosition ?: Vector2f(0, 0))
         }
 
@@ -143,7 +143,7 @@ class Transform(
     var worldX
         get() = worldPosition.x
         set(value) {
-            if (isWorldAxis) positionAsNotifiable.x = value
+            if (this@Transform.worldCoordinatesMode) positionAsNotifiable.x = value
             else {
                 val delta = value - worldPosition.x
                 positionAsNotifiable.x += delta
@@ -165,7 +165,7 @@ class Transform(
     var worldY
         get() = worldPosition.y
         set(value) {
-            if (isWorldAxis) positionAsNotifiable.y = value
+            if (this@Transform.worldCoordinatesMode) positionAsNotifiable.y = value
             else {
                 val delta = value - worldPosition.y
                 positionAsNotifiable.y += delta
@@ -227,16 +227,16 @@ class Transform(
         positionAsNotifiable += Vector2f(x, y)
     }
 
-    fun translateTo(vector2fc: Vector2fc, isWorld: Boolean = false) {
-        if (isWorld) {
+    fun translateTo(vector2fc: Vector2fc, worldCoordinatesMode: Boolean = false) {
+        if (worldCoordinatesMode) {
             worldX = vector2fc.x
             worldY = vector2fc.y
         } else
             positionAsNotifiable.set(vector2fc)
     }
 
-    fun translateTo(x: Number = position.x, y: Number = position.y, isWorld: Boolean = false) {
-        if (isWorld) {
+    fun translateTo(x: Number = position.x, y: Number = position.y, worldCoordinatesMode: Boolean = false) {
+        if (worldCoordinatesMode) {
             worldX = x.toFloat()
             worldY = y.toFloat()
         } else positionAsNotifiable.set(x, y)
