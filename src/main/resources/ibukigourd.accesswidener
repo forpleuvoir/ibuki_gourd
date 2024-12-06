@@ -9,14 +9,14 @@ extendable method net/minecraft/text/TranslatableTextContent forEachPart (Ljava/
 accessible field net/minecraft/text/TranslatableTextContent languageCache Lnet/minecraft/util/Language;
 accessible field net/minecraft/text/TranslatableTextContent translations Ljava/util/List;
 #Style
-accessible method net/minecraft/text/Style <init> (Lnet/minecraft/text/TextColor;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/text/ClickEvent;Lnet/minecraft/text/HoverEvent;Ljava/lang/String;Lnet/minecraft/util/Identifier;)V
+accessible method net/minecraft/text/Style <init> (Lnet/minecraft/text/TextColor;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/text/ClickEvent;Lnet/minecraft/text/HoverEvent;Ljava/lang/String;Lnet/minecraft/util/Identifier;)V
 
 #Client
 #TextRenderer
 accessible method net/minecraft/client/font/TextRenderer tweakTransparency (I)I
-accessible method net/minecraft/client/font/TextRenderer drawLayer (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)F
-accessible method net/minecraft/client/font/TextRenderer drawLayer (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)F
-accessible method net/minecraft/client/font/TextRenderer drawInternal (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I
+accessible method net/minecraft/client/font/TextRenderer drawLayer (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;IIZ)F
+accessible method net/minecraft/client/font/TextRenderer drawLayer (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;IIZ)F
+accessible method net/minecraft/client/font/TextRenderer drawInternal (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;IIZ)I
 
 #Tessellator
 accessible field net/minecraft/client/render/Tessellator allocator Lnet/minecraft/client/util/BufferAllocator;
@@ -30,7 +30,8 @@ extendable method net/minecraft/client/gui/screen/Screen init (Lnet/minecraft/cl
 accessible method net/minecraft/client/gui/screen/Screen init ()V
 accessible field net/minecraft/client/gui/screen/Screen screenInitialized Z
 #GameRenderer
-accessible field  net/minecraft/client/render/GameRenderer blurPostProcessor Lnet/minecraft/client/gl/PostEffectProcessor;
+accessible field  net/minecraft/client/render/GameRenderer field_53899 Lnet/minecraft/util/Identifier;
+accessible field  net/minecraft/client/render/GameRenderer pool Lnet/minecraft/client/util/Pool;
 
 #Server
 #MinecraftServer

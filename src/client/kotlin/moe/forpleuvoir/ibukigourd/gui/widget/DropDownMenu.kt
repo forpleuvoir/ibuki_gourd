@@ -53,58 +53,57 @@ fun WidgetContainerScope.DropDownMenu(
     modifier: Modifier = Modifier,
     screen: IGScreen = mc.currentScreen as IGScreen,
     scope: DropDownMenuScope.() -> Unit
-): IGButtonWidget {
+): IGButtonWidget = Button(
+    modifier = Modifier
+        .padding(horizontal = 5f, vertical = 4f)
+        .render { context, _, _, _ ->
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
+            }
+        } then modifier,
+    horizontalArrangement = Arrangement.SpaceBetween,
+) {
     val expandState = mutableStateOf(false)
     var dropDownContent: BoxScope.() -> Unit
-    return Button(
-        modifier = Modifier
-            .padding(horizontal = 5f, vertical = 4f)
-            .render { context, _, _, _ ->
-                context.batchRenderTextureColored {
-                    pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
-                }
-            } then modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        val dropDownMenuScope = DropDownMenuScope(this.owner(), expandState).apply(scope)
-        dropDownContent = dropDownMenuScope.dropDownContent
-        val icon = mutableStateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
-        expandState.subscribe {
-            icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
-        }
-        click {
-            expandState.switch()
-            OpenPopupTip(
-                optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
-                screenModifier = Modifier
-                    .bgBlurRadius(0f)
-                    .onClose { expandState.setValue(false) },
-                screen = screen
-            ) {
-                expandState.subscribe {
-                    if (!it) this.owner().screen()?.close()
-                }
-                dropDownContent(this)
-            }
-        }
-
-        Column(
-            modifier = Modifier.width(13f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ColoredBox(
-                DropDownMenuSeparatorColor,
-                Modifier
-                    .width(1f)
-                    .matchSibling()
-                    .margin(horizontal = 2.5f)
-            )
-            Icon(icon, modifier = Modifier.padding(vertical = 2.5f))
-        }
-
-
+    val dropDownMenuScope = DropDownMenuScope(this.owner(), expandState).apply(scope)
+    dropDownContent = dropDownMenuScope.dropDownContent
+    val icon = mutableStateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
+    expandState.subscribe {
+        icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
     }
+    click {
+        expandState.switch()
+        OpenPopupTip(
+            optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
+            screenModifier = Modifier
+                .bgBlurRadius(0f)
+                .onClose { expandState.setValue(false) },
+            screen = screen
+        ) {
+            expandState.subscribe {
+                if (!it) this.owner().screen()?.close()
+            }
+            dropDownContent(this)
+        }
+    }
+
+    Column(
+        modifier = Modifier.width(13f),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        ColoredBox(
+            DropDownMenuSeparatorColor,
+            Modifier
+                .width(1f)
+                .matchSibling()
+                .margin(horizontal = 2.5f)
+        )
+        Icon(icon, modifier = Modifier.padding(vertical = 2.5f))
+    }
+
+
 }
+
 
 fun <T> WidgetContainerScope.Spinner(
     options: Iterable<T>,

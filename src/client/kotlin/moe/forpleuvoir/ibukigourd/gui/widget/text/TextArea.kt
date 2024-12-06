@@ -762,6 +762,7 @@ fun WidgetContainerScope.TextArea(
     )
 ) {
     Modifier
+        .name("TextArea")
         .mouseOverCursor(MouseCursor.IBEAM_CURSOR)
         .padding(5.5f)
         .measureCompletion {

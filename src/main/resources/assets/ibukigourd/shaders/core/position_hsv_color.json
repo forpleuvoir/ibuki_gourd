@@ -1,6 +1,6 @@
 {
-  "vertex": "position_color",
-  "fragment": "ibukigourd:position_hsv_color",
+  "vertex": "minecraft:core/position_color",
+  "fragment": "ibukigourd:core/position_hsv_color",
   "samplers": [
   ],
   "uniforms": [

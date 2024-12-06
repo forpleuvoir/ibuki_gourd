@@ -10,15 +10,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gl.ShaderProgram
+import net.minecraft.client.gl.ShaderProgramKey
 import net.minecraft.client.render.*
+import net.minecraft.client.render.GameRenderer.field_53899
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
 import org.joml.Vector2fc
 import org.joml.Vector3f
 import org.joml.Vector3fc
-import java.util.function.Supplier
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -41,9 +41,7 @@ inline fun BufferBuilder.draw() {
     BufferRenderer.drawWithGlobalProgram(this.end())
 }
 
-inline fun setShader(shaderSupplier: Supplier<ShaderProgram?>) = RenderSystem.setShader(shaderSupplier)
-
-inline fun setShader(noinline shaderSupplier: (() -> ShaderProgram?)?) = shaderSupplier?.let { RenderSystem.setShader(it) }
+inline fun setShader(shaderProgramKey: ShaderProgramKey) = RenderSystem.setShader(shaderProgramKey)
 
 inline fun setShaderTexture(texture: Identifier) = RenderSystem.setShaderTexture(0, texture)
 
@@ -245,9 +243,12 @@ fun setScissor(box: Box?) {
 inline fun disableScissor() = RenderSystem.disableScissor()
 
 fun GameRenderer.renderBlur(radius: Float, delta: Float) {
-    if (this.blurPostProcessor != null && radius >= 1.0f) {
-        this.blurPostProcessor!!.setUniforms("Radius", radius)
-        this.blurPostProcessor!!.render(delta)
+    if (radius > 1.0F) {
+        this.client.shaderLoader.loadPostEffect(field_53899, DefaultFramebufferSet.MAIN_ONLY)?.apply {
+            setUniforms("Radius", radius)
+            @Suppress("DEPRECATION")
+            render(client.framebuffer, pool)
+        }
     }
 }
 

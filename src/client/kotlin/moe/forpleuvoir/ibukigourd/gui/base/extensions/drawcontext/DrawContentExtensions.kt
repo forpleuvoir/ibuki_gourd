@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.util.math.MatrixStack
 import org.joml.Matrix4f
@@ -10,11 +9,6 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 val DrawContext.positionMatrix: Matrix4f get() = matrices.peek().positionMatrix
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun DrawContext.setShaderColor(color: ARGBColor) {
-    setShaderColor(color.redF, color.greenF, color.blueF, color.alphaF)
-}
 
 @OptIn(ExperimentalContracts::class)
 inline fun DrawContext.useMatrixStack(block: DrawContext.(MatrixStack) -> Unit) {

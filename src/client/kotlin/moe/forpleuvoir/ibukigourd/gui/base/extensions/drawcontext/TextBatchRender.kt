@@ -4,8 +4,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.text.draw
+import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.style.argbColor
+import moe.forpleuvoir.ibukigourd.text.wrapToLines
+import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -59,7 +62,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             context.vertexConsumers,
             layerType,
             backgroundColor,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE
+            LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            true
         )
     }
 
@@ -93,6 +97,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            true
         )
     }
 
@@ -118,7 +123,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Color(0),
     ) {
         textRenderer.draw(
-            text,
+            if (rightToLeft) textRenderer.mirror(text) else text,
             x,
             y,
             color.argb,
@@ -128,7 +133,6 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             layerType,
             backgroundColor.argb,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
-            rightToLeft
         )
     }
 

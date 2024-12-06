@@ -31,6 +31,7 @@ fun DrawContext.batchRenderBox(
     draw()
 }
 
+@ConsistentCopyVisibility
 @Suppress("MemberVisibilityCanBePrivate")
 data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexConsumer, private val context: DrawContext) {
 

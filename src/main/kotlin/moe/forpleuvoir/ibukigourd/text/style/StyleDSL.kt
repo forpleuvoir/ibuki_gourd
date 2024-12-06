@@ -15,9 +15,11 @@ fun MutableText.style(style: StyleScope.() -> Unit): MutableText {
 
 class StyleScope {
 
-    val style: Style get() = style(color, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent)
+    val style: Style get() = style(color, shadowColor, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent)
 
     private var color: RGBColor? = null
+
+    private var shadowColor: RGBColor? = null
 
     private var bold: Boolean? = null
 
@@ -44,6 +46,16 @@ class StyleScope {
 
     fun color(rgbColor: Int): StyleScope {
         this.color = Color(rgbColor).alpha(1f)
+        return this
+    }
+
+    fun shadowColor(rgbColor: RGBColor): StyleScope {
+        this.shadowColor = rgbColor
+        return this
+    }
+
+    fun shadowColor(rgbColor: Int): StyleScope {
+        this.shadowColor = Color(rgbColor).alpha(1f)
         return this
     }
 

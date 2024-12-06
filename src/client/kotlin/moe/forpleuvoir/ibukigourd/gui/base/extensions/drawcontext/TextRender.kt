@@ -50,7 +50,8 @@ fun DrawContext.renderText(
         vertexConsumers,
         layerType,
         backgroundColor,
-        LightmapTextureManager.MAX_LIGHT_COORDINATE
+        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        true
     )
     draw()
 }
@@ -87,6 +88,7 @@ fun DrawContext.renderText(
         layerType,
         backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        true
     )
     draw()
 }
@@ -115,7 +117,7 @@ fun DrawContext.renderText(
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
     textRenderer.draw(
-        ReorderingUtil.reorder(Literal(text), rightToLeft),
+        Literal(if (rightToLeft) textRenderer.mirror(text) else text).asOrderedText(),
         x,
         y,
         color,
@@ -125,6 +127,7 @@ fun DrawContext.renderText(
         layerType,
         backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        true
     )
     draw()
 }

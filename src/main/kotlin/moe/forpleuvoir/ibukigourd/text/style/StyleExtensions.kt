@@ -23,6 +23,7 @@ val Style.argbColor: ARGBColor?
 
 fun style(
     color: RGBColor? = null,
+    shadowColor: RGBColor? = null,
     bold: Boolean? = null,
     italic: Boolean? = null,
     underlined: Boolean? = null,
@@ -32,9 +33,20 @@ fun style(
     hoverEvent: HoverEvent? = null,
     insertion: String? = null,
     font: Identifier? = null
-): Style {
-    return Style(color?.let { TextColor.fromRgb(it.rgb) }, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent, insertion, font)
-}
+) = Style(
+    color?.let { TextColor.fromRgb(it.rgb) },
+    shadowColor?.rgb,
+    bold,
+    italic,
+    underlined,
+    strikethrough,
+    obfuscated,
+    clickEvent,
+    hoverEvent,
+    insertion,
+    font
+)
+
 
 fun Style.color(rgbColor: RGBColor): Style {
     return this.withColor(rgbColor)

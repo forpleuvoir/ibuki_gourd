@@ -7,22 +7,28 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
 import moe.forpleuvoir.ibukigourd.render.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
-import net.minecraft.client.gl.ShaderProgram
+import net.minecraft.client.gl.ShaderProgramKey
+import net.minecraft.client.gl.ShaderProgramKeys.POSITION_TEX_COLOR
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.*
+import net.minecraft.client.render.BufferBuilder
+import net.minecraft.client.render.BufferRenderer
+import net.minecraft.client.render.VertexFormat
+import net.minecraft.client.render.VertexFormats
 
 fun DrawContext.batchRenderTextureColored(
-    beforeAction: () -> Unit = { enableBlend() },
-    shaderSupplier: (() -> ShaderProgram?)? = GameRenderer::getPositionTexColorProgram,
+    beginAction: () -> Unit = { enableBlend() },
+    endAction: () -> Unit = { disableBlend() },
+    shaderSupplier: ShaderProgramKey = POSITION_TEX_COLOR,
     block: TextureBatchRenderScope.(DrawContext) -> Unit
 ) {
     setShader(shaderSupplier)
-    beforeAction()
+    beginAction()
     val bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
     block.invoke(TextureBatchRenderScope(bufferBuilder, this), this)
     bufferBuilder.endNullable()?.let {
         BufferRenderer.drawWithGlobalProgram(it)
     }
+    endAction()
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")

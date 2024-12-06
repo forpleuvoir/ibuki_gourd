@@ -17,8 +17,9 @@ fun TextRenderer.draw(
     vertexConsumers: VertexConsumerProvider,
     layerType: TextLayerType,
     backgroundColor: ARGBColor,
-    light: Int
-): Int = this.drawInternal(text, x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light)
+    light: Int,
+    swapZIndex: Boolean
+): Int = this.drawInternal(text, x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light, swapZIndex)
 
 
 fun TextRenderer.drawInternal(
@@ -31,15 +32,16 @@ fun TextRenderer.drawInternal(
     vertexConsumerProvider: VertexConsumerProvider,
     layerType: TextLayerType,
     backgroundColor: ARGBColor,
-    light: Int
+    light: Int,
+    swapZIndex: Boolean
 ): Int {
     var xPos = x
     val matrix4f = Matrix4f(matrix)
     if (shadow) {
-        this.drawLayer(text, xPos, y, color.argb, true, matrix, vertexConsumerProvider, layerType, backgroundColor.argb, light)
+        this.drawLayer(text, xPos, y, color.argb, true, matrix, vertexConsumerProvider, layerType, backgroundColor.argb, light, swapZIndex)
         matrix4f.translate(0f, 0f, 0.03f)
     }
 
-    xPos = this.drawLayer(text, xPos, y, color.argb, false, matrix4f, vertexConsumerProvider, layerType, backgroundColor.argb, light)
+    xPos = this.drawLayer(text, xPos, y, color.argb, false, matrix4f, vertexConsumerProvider, layerType, backgroundColor.argb, light, swapZIndex)
     return xPos.toInt() + (if (shadow) 1 else 0)
 }

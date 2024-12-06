@@ -391,9 +391,10 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         if (!visible) return
         latestRenderTime = measureTime {
 
-            if (mc.currentScreen == this) updateHoveredWidget()
-
-            MouseCursor.current = cursorSupplier()
+            if (mc.currentScreen == this) {
+                updateHoveredWidget()
+                MouseCursor.current = cursorSupplier()
+            }
 
             val ctx = context.toIGDrawContext()
 
@@ -420,7 +421,6 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
             this.renderPanoramaBackground(context, delta)
         }
         renderBlur(bgBlurRadius, delta)
-        renderDarkening(context)
     }
 
     protected fun renderBlur(radius: Float, delta: Float) {
