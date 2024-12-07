@@ -1,7 +1,10 @@
-package moe.forpleuvoir.ibukigourd.gui.base.render.texture
+package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import com.google.common.io.CharStreams
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
+import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
@@ -40,7 +43,7 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
         log.info("widget textures loading...")
         runCatching {
             manager.getResource(TEXTURE_INFO_RESOURCES).ifPresent { resource ->
-                JsonParser.parse(CharStreams.toString(resource.inputStream.reader())).asObject.apply {
+                JsonParser.Companion.parse(CharStreams.toString(resource.inputStream.reader())).asObject.apply {
                     this.javaClass.declaredFields
                         .asSequence()
                         .filter { field ->
@@ -49,7 +52,7 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
                             widgetTexture.isAccessible = true
                             val name = widgetTexture.name
                             val oldValue = widgetTexture.get(WidgetTextures) as WidgetTexture
-                            val newValue = WidgetTexture.deserialization(this[name], oldValue)
+                            val newValue = WidgetTexture.Companion.deserialization(this[name], oldValue)
                             if (oldValue != newValue) widgetTexture.set(WidgetTextures, newValue)
                         }
                 }
@@ -94,6 +97,19 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
         private set
 
     var BUTTON_DISABLED_3: WidgetTexture = WidgetTexture(Corner(4), 0, 80, 16, 96, TEXTURE_INFO)
+        private set
+
+    var COLOR_BUTTON_BORDER_IDLE: WidgetTexture = WidgetTexture(Corner(4), 16, 48, 32, 64, TEXTURE_INFO)
+        private set
+
+    var COLOR_BUTTON_BORDER_HOVERED: WidgetTexture = WidgetTexture(Corner(4), 16, 64, 32, 80, TEXTURE_INFO)
+        private set
+
+    var COLOR_BUTTON_BORDER_PRESSED: WidgetTexture = WidgetTexture(Corner(4), 16, 80, 32, 96, TEXTURE_INFO)
+        private set
+
+    var COLOR_BUTTON_BORDER_DISABLED: WidgetTexture = WidgetTexture(Corner(4), 16, 80, 32, 96, TEXTURE_INFO)
+        private set
 
     var TIP: WidgetTexture = WidgetTexture(Corner(4), 48, 32, 64, 48, TEXTURE_INFO)
         private set
@@ -261,4 +277,3 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
         private set
 
 }
-

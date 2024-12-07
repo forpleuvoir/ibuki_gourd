@@ -74,7 +74,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
     @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
         //判断鼠标是否在组件内
-        if (event.position in transform.asWorldBox) {
+        if (event.position in transform.asWorldCoordinateBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
                 mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))

@@ -7,9 +7,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button

@@ -454,7 +454,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
         renderBackground(context, mouseX.toInt(), mouseY.toInt(), delta)
 
     override fun renderInGameBackground(context: DrawContext) {
-        context.renderGradientBox(transform.asWorldBox, Color(0xC0101010), Color(0xD0101010), Orientation.Vertical)
+        context.renderGradientBox(transform.asWorldCoordinateBox, Color(0xC0101010), Color(0xD0101010), Orientation.Vertical)
     }
 
 
@@ -489,7 +489,7 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
     @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
         //判断鼠标是否在组件内
-        if (event.position in transform.asWorldBox) {
+        if (event.position in transform.asWorldCoordinateBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
                 mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))

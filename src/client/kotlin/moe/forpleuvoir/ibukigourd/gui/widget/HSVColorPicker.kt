@@ -172,4 +172,4 @@ fun HSVColor.toShaderColor(): ARGBColor =
     )
 
 fun ARGBColor.toHSVColor(): HSVColor =
-    if (this is HSVColor) this else HSVColor(this.argb)
+    this as? HSVColor ?: HSVColor(this.argb)

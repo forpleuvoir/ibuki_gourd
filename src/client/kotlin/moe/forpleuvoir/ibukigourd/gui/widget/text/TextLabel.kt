@@ -190,7 +190,7 @@ class TextWidget(
                 Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat())
         }
 
-        context.useScissor(transform.asWorldBox) {
+        context.useScissor(transform.asWorldCoordinateBox) {
             useMatrixStack { matrixStack ->
                 matrixStack.translate(0.0f, 0.4f, 0f)
                 //------------ 开始渲染 ------------\\

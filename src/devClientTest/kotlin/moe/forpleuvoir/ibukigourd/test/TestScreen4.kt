@@ -35,7 +35,7 @@ fun testScreen4() = ColumnScreen(
         )
         ctx.batchRenderText {
             pushTextLines(
-                lines, transform.asWorldBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
+                lines, transform.asWorldCoordinateBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
             )
         }
     }

@@ -1,33 +1,37 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.theme
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_1
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_2
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_DISABLED_3
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_1
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_2
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_HOVERED_3
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_1
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_2
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_IDLE_3
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_1
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_2
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.BUTTON_PRESSED_3
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_DISABLED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_HOVERED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_IDLE
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.LOCK_ON_PRESSED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BACKGROUND
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_DISABLED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_HOVERED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_IDLE
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.SCROLLER_BAR_PRESSED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_DISABLED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_HOVERED
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_IDLE
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures.UNLOCK_PRESSED
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_DISABLED_1
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_DISABLED_2
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_DISABLED_3
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_HOVERED_1
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_HOVERED_2
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_HOVERED_3
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_IDLE_1
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_IDLE_2
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_IDLE_3
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_PRESSED_1
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_PRESSED_2
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.BUTTON_PRESSED_3
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.COLOR_BUTTON_BORDER_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.COLOR_BUTTON_BORDER_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.COLOR_BUTTON_BORDER_IDLE
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.COLOR_BUTTON_BORDER_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.LOCK_ON_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.LOCK_ON_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.LOCK_ON_IDLE
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.LOCK_ON_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.SCROLLER_BACKGROUND
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.SCROLLER_BAR_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.SCROLLER_BAR_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.SCROLLER_BAR_IDLE
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.SCROLLER_BAR_PRESSED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.UNLOCK_DISABLED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.UNLOCK_HOVERED
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.UNLOCK_IDLE
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures.UNLOCK_PRESSED
 
 interface PressableTheme : WidgetTheme {
 
@@ -55,6 +59,8 @@ interface PressableTheme : WidgetTheme {
 
         val Button3 = of(BUTTON_IDLE_3, BUTTON_HOVERED_3, BUTTON_DISABLED_3, BUTTON_PRESSED_3)
 
+        val ColorButton = of(COLOR_BUTTON_BORDER_IDLE, COLOR_BUTTON_BORDER_HOVERED, COLOR_BUTTON_BORDER_DISABLED, COLOR_BUTTON_BORDER_PRESSED)
+
         val LOCK = of(LOCK_ON_IDLE, LOCK_ON_HOVERED, LOCK_ON_DISABLED, LOCK_ON_PRESSED)
 
         val UNLOCK = of(UNLOCK_IDLE, UNLOCK_HOVERED, UNLOCK_DISABLED, UNLOCK_PRESSED)
@@ -68,7 +74,7 @@ interface PressableTheme : WidgetTheme {
 }
 
 fun IGPressableWidget.theme(theme: PressableTheme): WidgetTexture =
-    status(theme.disabled, theme.idle, theme.pressed, theme.pressed)
+    status(theme.disabled, theme.idle, theme.hovered, theme.pressed)
 
 fun IGWidget.theme(
     theme: PressableTheme,

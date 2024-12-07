@@ -585,7 +585,7 @@ open class TextEditorWidget(
         context.useScissor(contentBox(true)) {
             renderText(context)
         }
-        context.useScissor(transform.asWorldBox) {
+        context.useScissor(transform.asWorldCoordinateBox) {
             renderCursor(context)
         }
     }

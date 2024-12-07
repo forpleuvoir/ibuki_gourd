@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.theme
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 
 interface WidgetTheme {
 

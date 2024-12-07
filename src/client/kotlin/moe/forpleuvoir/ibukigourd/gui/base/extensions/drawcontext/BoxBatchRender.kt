@@ -52,7 +52,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
      * @param color ARGBColor
      */
     fun pushBox(transform: Transform, color: ARGBColor) =
-        pushBox(transform.asWorldBox, color)
+        pushBox(transform.asWorldCoordinateBox, color)
 
     /**
      * 渲染一个[ColoredBox]
@@ -173,7 +173,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         color: ARGBColor,
         borderSize: Float = 1f,
         inner: Boolean = false
-    ) = pushBoxOutline(transform.asWorldBox, color, borderSize, inner)
+    ) = pushBoxOutline(transform.asWorldCoordinateBox, color, borderSize, inner)
 
     /**
      * 渲染一个渐变[Box]
@@ -225,7 +225,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         startColor: ARGBColor,
         endColor: ARGBColor,
         orientation: Orientation = Orientation.Horizontal
-    ) = pushGradientBox(transform.asWorldBox, startColor, endColor, orientation)
+    ) = pushGradientBox(transform.asWorldCoordinateBox, startColor, endColor, orientation)
 
 
     /**
@@ -300,7 +300,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         hue: Float = 360f,
         value: Float = 1f,
         alpha: Float = 1f,
-    ) = pushSaturationGradientBox(transform.asWorldBox, orientation, reverse, saturationRange, hue, value, alpha)
+    ) = pushSaturationGradientBox(transform.asWorldCoordinateBox, orientation, reverse, saturationRange, hue, value, alpha)
 
     /**
      * 渲染一个随明度渐变的[Box]
@@ -376,7 +376,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         hue: Float = 360f,
         saturation: Float = 1f,
         alpha: Float = 1f,
-    ) = pushValueGradientBox(transform.asWorldBox, orientation, reverse, valueRange, hue, saturation, alpha)
+    ) = pushValueGradientBox(transform.asWorldCoordinateBox, orientation, reverse, valueRange, hue, saturation, alpha)
 
 
     private data class RoundBox(
@@ -431,6 +431,6 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         color: ARGBColor,
         round: Int,
         pixelSize: Float = 1f,
-    ) = pushRoundBox(transform.asWorldBox, color, round, pixelSize)
+    ) = pushRoundBox(transform.asWorldCoordinateBox, color, round, pixelSize)
 
 }

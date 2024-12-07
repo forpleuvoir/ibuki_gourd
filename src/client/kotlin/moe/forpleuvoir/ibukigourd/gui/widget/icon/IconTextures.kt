@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi

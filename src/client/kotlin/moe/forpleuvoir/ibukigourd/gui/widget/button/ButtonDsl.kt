@@ -6,13 +6,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
+import moe.forpleuvoir.ibukigourd.gui.widget.toHSVColor
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -32,7 +33,7 @@ fun WidgetContainerScope.Button(
         .render { context, _, _, _ ->
             this as IGButtonWidget
             context.batchRenderTextureColored {
-                pushWidgetTexture(transform, status(theme.disabled, theme.idle, theme.hovered, theme.pressed))
+                pushWidgetTexture(transform, theme(theme))
             }
         }
         .then(modifier).foldInApply()
@@ -56,7 +57,7 @@ fun WidgetContainerScope.FlatButton(
             this as IGButtonWidget
             wasMouseOver {
                 context.renderBox(
-                    transform.asWorldBox,
+                    transform.asWorldCoordinateBox,
                     status(disabledColor.getValue(), idleColor.getValue(), hoveredColor.getValue(), pressedColor.getValue())
                 )
             }
@@ -97,7 +98,7 @@ fun WidgetContainerScope.SwitchButton(
         .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .size(36f, 15f)
         .render { context, _, _, _ ->
-            val b = transform.asWorldBox
+            val b = transform.asWorldCoordinateBox
             val proportion = 0.55f
             val box = b.copy(switchState.getValue().pick(b.x + b.width * (1 - proportion), b.x), width = b.width * proportion)
             context.batchRenderTextureColored {
@@ -156,12 +157,29 @@ fun WidgetContainerScope.LockButton(
     buttonScope.scope()
 }
 
-//TODO 彩色按钮待实现
 fun WidgetContainerScope.ColorButton(
-    color: MutableState<ARGBColor>,
+    color: State<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: ButtonScope.() -> Unit = {}
 ) = Button(
-    modifier = Modifier.then(modifier),
+    modifier = Modifier
+        .name("ColorButton")
+        .render { context, f, f1, f2 ->
+            this as IGButtonWidget
+            val hsvColor = color.getValue().toHSVColor()
+
+            val trimEdgesBox = transform.asWorldCoordinateBox.trimEdges(2f)
+
+            context.useScissor(trimEdgesBox) {
+                batchRenderTextureColored {
+                    pushTileTexture(trimEdgesBox, WidgetTextures.ALPHA)
+                }
+                renderBox(trimEdgesBox, pressed.pick(hsvColor.reverse(), hsvColor))
+            }
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, theme(PressableTheme.ColorButton), hsvColor.clone().alpha(1f).saturation(hsvColor.saturation * 0.2f))
+            }
+
+        }.then(modifier),
     content = scope
 )

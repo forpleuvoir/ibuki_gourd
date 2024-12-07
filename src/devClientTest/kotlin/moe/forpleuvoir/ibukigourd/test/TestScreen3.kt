@@ -39,7 +39,7 @@ fun testScreen3() = RowScreen(
         )
         ctx.batchRenderText {
             pushTextLines(
-                lines, transform.asWorldBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
+                lines, transform.asWorldCoordinateBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
             )
         }
     }
@@ -127,7 +127,7 @@ fun testScreen3() = RowScreen(
                     if (wasMouseOver)
                         ctx.batchRenderBox {
                             pushBoxOutline(contentBox(true), Colors.ROSE)
-                            pushBoxOutline(transform.asWorldBox, Colors.MEDIUM_TEAL)
+                            pushBoxOutline(transform.asWorldCoordinateBox, Colors.MEDIUM_TEAL)
                         }
                 }
                 .padding(4f)

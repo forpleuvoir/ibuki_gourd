@@ -124,7 +124,7 @@ class Transform(
             return position + (parent()?.worldPosition ?: Vector2f(0, 0))
         }
 
-    val asWorldBox: Box get() = Box(worldPosition, width, height)
+    val asWorldCoordinateBox: Box get() = Box(worldPosition, width, height)
 
     val asBox: Box get() = Box(position, width, height)
 

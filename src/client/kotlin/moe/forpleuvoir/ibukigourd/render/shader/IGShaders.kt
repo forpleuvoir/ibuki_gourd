@@ -1,25 +1,22 @@
 package moe.forpleuvoir.ibukigourd.render.shader
 
-import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.util.identifier
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
 import net.minecraft.client.gl.Defines
 import net.minecraft.client.gl.ShaderProgramKey
-import net.minecraft.client.gl.ShaderProgramKeys
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 
-@EventSubscriber
+//@EventSubscriber
 object IGShaders {
 
-    @Subscriber
-    @Suppress("UNUSED_PARAMETER")
-    fun init(event: ModInitializerEvent) {
-        REGISTERED_SHADERS.forEach { shaderProgramKey ->
-            ShaderProgramKeys.getAll().add(shaderProgramKey)
-        }
-    }
+//    @Subscriber
+//    @Suppress("UNUSED_PARAMETER")
+//    fun init(event: ModInitializerEvent) {
+//        val shaderProgramKeys = ShaderProgramKeys.getAll()
+//        REGISTERED_SHADERS.forEach { shaderProgramKey ->
+//            shaderProgramKeys.add(shaderProgramKey)
+//        }
+//    }
 
     private val REGISTERED_SHADERS = mutableListOf<ShaderProgramKey>()
 

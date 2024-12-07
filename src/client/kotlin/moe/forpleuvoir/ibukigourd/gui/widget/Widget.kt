@@ -6,12 +6,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -41,7 +41,7 @@ fun WidgetContainerScope.ColoredBox(
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = { }
 ) = Widget(Modifier.render { context, _, _, _ ->
-    context.useScissor(transform.asWorldBox) {
+    context.useScissor(transform.asWorldCoordinateBox) {
         batchRenderTextureColored {
             pushTileTexture(transform, WidgetTextures.ALPHA)
         }

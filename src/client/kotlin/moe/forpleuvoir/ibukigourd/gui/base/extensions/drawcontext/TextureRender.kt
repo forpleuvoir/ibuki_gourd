@@ -296,7 +296,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      * @param color Color
      */
     fun pushWidgetTexture(transform: Transform, widgetTexture: WidgetTexture, color: ARGBColor = Colors.WHITE) =
-        pushNinePatchTexture(transform.asWorldBox, widgetTexture, widgetTexture.textureInfo, color)
+        pushNinePatchTexture(transform.asWorldCoordinateBox, widgetTexture, widgetTexture.textureInfo, color)
 
 
     fun pushTileTexture(
@@ -375,7 +375,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         tileScale: Float = 1f
-    ) = pushTileTexture(transform.asWorldBox, widgetTexture, color, tileScale)
+    ) = pushTileTexture(transform.asWorldCoordinateBox, widgetTexture, color, tileScale)
 
 }
 

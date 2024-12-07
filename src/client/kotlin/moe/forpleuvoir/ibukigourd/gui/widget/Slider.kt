@@ -74,14 +74,14 @@ fun <T> WidgetContainerScope.NumberSlider(
             }
             .render { context, _, _, _ ->
                 val box1 = orientation.peek({
-                    transform.asWorldBox.copy(height = transform.height * progress.toFloat())
+                    transform.asWorldCoordinateBox.copy(height = transform.height * progress.toFloat())
                 }, {
-                    transform.asWorldBox.copy(width = transform.width * progress.toFloat())
+                    transform.asWorldCoordinateBox.copy(width = transform.width * progress.toFloat())
                 })
                 val box2 = orientation.peek({
-                    transform.asWorldBox.copy(y = box1.bottom, height = transform.height - box1.height)
+                    transform.asWorldCoordinateBox.copy(y = box1.bottom, height = transform.height - box1.height)
                 }, {
-                    transform.asWorldBox.copy(x = box1.right, width = transform.width - box1.width)
+                    transform.asWorldCoordinateBox.copy(x = box1.right, width = transform.width - box1.width)
                 })
                 val theme = theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed)
                 context.apply {
@@ -95,7 +95,7 @@ fun <T> WidgetContainerScope.NumberSlider(
                             pushWidgetTexture(transform, theme, colorB)
                         }
                     }
-                    renderAlignmentText(textMapper(value.getValue()), transform.asWorldBox.copy(y = transform.worldY + 1f))
+                    renderAlignmentText(textMapper(value.getValue()), transform.asWorldCoordinateBox.copy(y = transform.worldY + 1f))
                 }
             }.then(modifier)
     ) {
