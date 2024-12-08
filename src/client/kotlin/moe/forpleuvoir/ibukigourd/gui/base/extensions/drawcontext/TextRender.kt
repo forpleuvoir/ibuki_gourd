@@ -38,7 +38,7 @@ fun DrawContext.renderText(
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     textRenderer: TextRenderer = this.client.textRenderer,
-    rightToLeft: Boolean = textRenderer.isRightToLeft,
+    rightToLeft: Boolean = textRenderer.isRightToLeft
 ) {
     textRenderer.draw(
         ReorderingUtil.reorder(text, rightToLeft),
@@ -51,7 +51,7 @@ fun DrawContext.renderText(
         layerType,
         backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
-        true
+        rightToLeft
     )
     draw()
 }
@@ -76,6 +76,7 @@ fun DrawContext.renderText(
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
     textRenderer: TextRenderer = this.client.textRenderer,
+    rightToLeft: Boolean = textRenderer.isRightToLeft
 ) {
     textRenderer.draw(
         text,
@@ -88,7 +89,7 @@ fun DrawContext.renderText(
         layerType,
         backgroundColor,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
-        true
+        rightToLeft
     )
     draw()
 }
@@ -137,7 +138,7 @@ fun DrawContext.renderText(
  * @receiver DrawContext
  * @param text String
  * @param box Box 需要对齐的[Box]
- * @param align ([Orientation]) -> [Alignment] 对齐方式
+ * @param alignment ([Orientation]) -> [Alignment] 对齐方式
  * @param shadow Boolean
  * @param layerType TextRenderer.TextLayerType
  * @param rightToLeft Boolean
@@ -165,7 +166,7 @@ fun DrawContext.renderAlignmentText(
  * @receiver DrawContext
  * @param text Text
  * @param box Box 需要对齐的[Box]
- * @param align ([Orientation]) -> [Alignment] 对齐方式
+ * @param alignment ([Orientation]) -> [Alignment] 对齐方式
  * @param shadow Boolean
  * @param layerType TextRenderer.TextLayerType
  * @param rightToLeft Boolean

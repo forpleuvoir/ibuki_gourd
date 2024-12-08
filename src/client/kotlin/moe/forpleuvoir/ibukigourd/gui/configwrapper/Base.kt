@@ -2,13 +2,16 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.active
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
@@ -23,7 +26,7 @@ import moe.forpleuvoir.nebula.config.container.ConfigContainer
 fun WidgetContainerScope.ConfigContainerWrapper(
     configContainer: ConfigContainer,
     modifier: Modifier = Modifier,
-    listModifier: ColumnScope.() -> Modifier = { Modifier.weight(1) },
+    listModifier: ColumnScope.() -> Modifier = { Modifier.weight(1).fill() },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
 ) = RowListWrapped(
     modifier = modifier,
@@ -60,14 +63,21 @@ fun <V, T : Config<V, *>> WidgetContainerScope.ConfigResetButton(
     }
 }
 
-fun <T : Config<*, *>> WidgetContainerScope.ConfigTextLabel(
+fun <T : Config<*, *>> ColumnScope.ConfigTextLabel(
     config: T,
-    modifier: Modifier = Modifier
-) = TextLabel(config.translateText, modifier) {
-    HoverTip {
-        TextLabel(config.comment)
+    modifier: Modifier = Modifier,
+    textModifier: Modifier = Modifier
+) = Column(
+    modifier = modifier.attachLeft { weight(1) },
+    horizontalArrangement = Arrangement.Left
+) {
+    TextLabel(config.translateText, textModifier) {
+        HoverTip {
+            TextLabel(config.comment)
+        }
     }
 }
+
 
 fun <E : Enum<E>> ColumnScope.EnumSelector(
     selected: MutableState<String>,

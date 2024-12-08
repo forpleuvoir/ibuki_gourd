@@ -100,4 +100,8 @@ open class Text(
     fun withColor(rgbColor: RGBColor): Text {
         return super.withColor(rgbColor.rgb) as Text
     }
+
+    fun withShadowColor(rgbColor: RGBColor): Text {
+        return style { shadowColor(rgbColor) }
+    }
 }

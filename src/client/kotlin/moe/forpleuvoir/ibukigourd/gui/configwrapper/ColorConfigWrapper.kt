@@ -1,10 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BiasAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRender
@@ -18,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notification
 import moe.forpleuvoir.nebula.config.item.impl.ConfigRGBColor
 
@@ -54,7 +58,18 @@ fun WidgetContainerScope.ColorConfigButton(
     TextLabel(text)
     click {
         OpenPopupTip(
-            modifier = Modifier.disableRender(),
+            modifier = Modifier
+                .disableRender()
+                .renderOverlay { context, _, _, _ ->
+                    //TODO i18n
+                    context.renderAlignmentText(
+                        Literal("点击空白处返回"),
+                        screen()!!.transform,
+                        color = HSVColor(0f, 0f, 0.85f),
+                        alignment = BiasAlignment.Horizontal(0f) + BiasAlignment.Vertical(0.8f),
+                        shadow = true
+                    )
+                },
             screenModifier = Modifier.bgBlurRadius(0f),
             optionalDirection = Direction.clockwiseFromLeft.notification()
         ) {

@@ -111,6 +111,9 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var COLOR_BUTTON_BORDER_DISABLED: WidgetTexture = WidgetTexture(Corner(4), 16, 80, 32, 96, TEXTURE_INFO)
         private set
 
+    var COLOR_BUTTON_HOVERED_OUTLINE: WidgetTexture = WidgetTexture(Corner(4), 32, 64, 48, 80, TEXTURE_INFO)
+        private set
+
     var TIP: WidgetTexture = WidgetTexture(Corner(4), 48, 32, 64, 48, TEXTURE_INFO)
         private set
 

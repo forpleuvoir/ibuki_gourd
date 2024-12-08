@@ -74,6 +74,8 @@ open class ScrollerWidget(
         return this
     }
 
+    var remeasureFlag = false
+
     override fun onMeasureCompletion() {
         val progress = scrollState.progress
         orientation.peek(
@@ -83,8 +85,20 @@ open class ScrollerWidget(
                 bar.x = progress * scrollableLength
             }
         )
+
         if (scrollState.barProportion == 1f && (transform.height != 0f || transform.width != 0f)) {
             screen()?.remeasure()
+            remeasureFlag = false
+            return
+        }
+
+        if (transform.height == 0f || transform.width == 0f) {
+            if (!remeasureFlag) {
+                remeasureFlag = true
+                screen()?.remeasure()
+            }
+        } else {
+            remeasureFlag = false
         }
     }
 
@@ -126,11 +140,11 @@ open class ScrollerWidget(
         scrollState.amount = scrollState.amount
         orientation.peek(
             {
-                bar.height = scrollState.barProportion * transform.height
+                bar.height = (scrollState.barProportion * transform.height).coerceAtLeast(9f)
                 bar.y = scrollState.progress * scrollableLength
             },
             {
-                bar.width = scrollState.barProportion * transform.width
+                bar.width = (scrollState.barProportion * transform.width).coerceAtLeast(9f)
                 bar.x = scrollState.progress * scrollableLength
             }
         )

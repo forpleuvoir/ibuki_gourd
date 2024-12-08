@@ -14,7 +14,7 @@ fun testScreen6() = RowScreen(
         },
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
-    ConfigContainerWrapper(TestConfig, modifier = Modifier.fill(), listModifier = { Modifier.fill() })
+    ConfigContainerWrapper(TestConfig, modifier = Modifier.fill().weight(1))
 }
 
 

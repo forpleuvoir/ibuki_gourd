@@ -178,6 +178,7 @@ fun WidgetContainerScope.ColorButton(
             }
             context.batchRenderTextureColored {
                 pushWidgetTexture(transform, theme(PressableTheme.ColorButton), hsvColor.clone().alpha(1f).saturation(hsvColor.saturation * 0.2f))
+                if (wasMouseOver) pushWidgetTexture(transform, WidgetTextures.COLOR_BUTTON_HOVERED_OUTLINE, if (pressed) hsvColor else hsvColor.reverse())
             }
 
         }.then(modifier),

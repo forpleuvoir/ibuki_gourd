@@ -204,9 +204,9 @@ class TextWidget(
                                 textScrolledYPos(index, y),
                                 setting.shadow,
                                 setting.layerType,
-                                setting.rightToLeft,
                                 color = setting.defaultColor,
-                                backgroundColor = setting.backgroundColor
+                                backgroundColor = setting.backgroundColor,
+                                setting.rightToLeft
                             )
                         }
                 }

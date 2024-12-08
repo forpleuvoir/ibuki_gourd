@@ -1,13 +1,12 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BiasAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mousePress
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen
@@ -22,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.color.HSVColor
 
 fun OpenDialog(
     title: State<Text>,
@@ -83,7 +83,18 @@ fun Dialog(
                         pushWidgetTexture(transform, WidgetTextures.DIALOG_CONTENT_OUTLINE, contentOutlineColor.getValue())
                         pushWidgetTexture(transform, WidgetTextures.DIALOG_CONTENT_INNER, contentInnerColor.getValue())
                     }
-                }.then(contentModifier())
+                }
+                .renderOverlay { context, _, _, _ ->
+                    //TODO i18n
+                    context.renderAlignmentText(
+                        "点击空白处返回",
+                        screen()!!.transform,
+                        color = HSVColor(0f, 0f, 0.85f),
+                        alignment = BiasAlignment.Horizontal(0f) + BiasAlignment.Vertical(0.95f),
+                        shadow = true
+                    )
+                }
+                .then(contentModifier())
         ) {
             content()
         }

@@ -1,6 +1,6 @@
 # IBUKI GOURD
 
-[简体中文](https://github.com/forpleuvoir/ibuki_gourd/blob/dev/README.md)
+[简体中文](/README.md)
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
@@ -11,7 +11,7 @@
 Dependent:
 
 - [Fabric API](https://github.com/FabricMC/fabric)
-- [Fabric Language Kotlin](https://github.com/FabricMC/fabric)
+- [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
 
 ## Usage
 

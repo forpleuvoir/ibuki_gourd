@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.render.VertexConsumerProvider
@@ -18,8 +19,8 @@ fun TextRenderer.draw(
     layerType: TextLayerType,
     backgroundColor: ARGBColor,
     light: Int,
-    swapZIndex: Boolean
-): Int = this.drawInternal(text, x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light, swapZIndex)
+    mirror: Boolean
+): Int = this.drawInternal(text, x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light, mirror)
 
 
 fun TextRenderer.drawInternal(
@@ -29,19 +30,13 @@ fun TextRenderer.drawInternal(
     color: ARGBColor,
     shadow: Boolean,
     matrix: Matrix4f,
-    vertexConsumerProvider: VertexConsumerProvider,
+    vertexConsumers: VertexConsumerProvider,
     layerType: TextLayerType,
     backgroundColor: ARGBColor,
     light: Int,
-    swapZIndex: Boolean
+    mirror: Boolean
 ): Int {
     var xPos = x
-    val matrix4f = Matrix4f(matrix)
-    if (shadow) {
-        this.drawLayer(text, xPos, y, color.argb, true, matrix, vertexConsumerProvider, layerType, backgroundColor.argb, light, swapZIndex)
-        matrix4f.translate(0f, 0f, 0.03f)
-    }
-
-    xPos = this.drawLayer(text, xPos, y, color.argb, false, matrix4f, vertexConsumerProvider, layerType, backgroundColor.argb, light, swapZIndex)
-    return xPos.toInt() + (if (shadow) 1 else 0)
+    xPos = this.drawLayer(text, x, y, color.argb, shadow, matrix, vertexConsumers, layerType, backgroundColor.argb, light, mirror)
+    return xPos.toInt() + shadow.pick(1, 0)
 }

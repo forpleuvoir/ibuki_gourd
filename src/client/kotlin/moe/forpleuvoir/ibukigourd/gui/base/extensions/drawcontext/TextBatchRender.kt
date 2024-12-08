@@ -48,9 +48,9 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         y: Float,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         color: ARGBColor = text.style.argbColor ?: Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+        rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
             ReorderingUtil.reorder(text, rightToLeft),
@@ -63,7 +63,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
-            true
+            rightToLeft
         )
     }
 
@@ -85,6 +85,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         layerType: TextLayerType = TextLayerType.NORMAL,
         color: ARGBColor = Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
+        rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
             text,
@@ -97,7 +98,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
-            true
+            rightToLeft
         )
     }
 
@@ -118,9 +119,9 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         y: Float,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         color: ARGBColor = Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
+        rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
             if (rightToLeft) textRenderer.mirror(text) else text,
@@ -158,7 +159,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     ) {
         val offset = alignment.align(box, text.size(textRenderer).toFloat())
-        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, rightToLeft, color, backgroundColor)
+        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, color, backgroundColor, rightToLeft)
     }
 
     /**
@@ -183,7 +184,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         backgroundColor: ARGBColor = Color(0),
     ) {
         val offset = alignment.align(box, text.size(textRenderer).toFloat())
-        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, defaultColor, backgroundColor, rightToLeft)
 
     }
 
@@ -217,7 +218,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
         }
     }
 
@@ -250,7 +251,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
         }
     }
 
@@ -283,7 +284,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
         }
     }
 
@@ -316,7 +317,7 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, rightToLeft, defaultColor, backgroundColor)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
         }
     }
 
