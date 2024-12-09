@@ -21,7 +21,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
@@ -47,7 +46,7 @@ import kotlin.contracts.contract
 import kotlin.time.Duration
 import kotlin.time.measureTime
 
-abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
+abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
 
     //------------ IGWidget ------------\\
 
@@ -240,7 +239,11 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
 
-    override fun clearWidgetChildren() = widgetChildren.clear()
+    override fun clearWidgetChildren() {
+        elementChildren.removeAll { it is IGWidget }
+        drawableChildren.removeAll { it is IGWidget }
+        widgetChildren.clear()
+    }
 
     @Deprecated("should use addWidgetChild(child) instead", ReplaceWith("addWidgetChild"))
     override fun <T> addSelectableChild(child: T): T where T : Element, T : Selectable = child
@@ -323,17 +326,18 @@ abstract class IGScreenImpl<S : ScreenScope<*>> : Screen(Literal("ibuki gourd sc
 
     override fun init() {
         onInit?.invoke()
-        scope.content()
-        remeasure()
+        recompose()
     }
-
-    abstract fun S.content()
-
-    abstract override val scope: S
 
     override fun clearAndInit() {
         if (screenInitialized) return
         super.clearAndInit()
+    }
+
+    override fun recompose() {
+        clearWidgetChildren()
+        compose()
+        remeasure()
     }
 
     //------------ Drawable ------------\\

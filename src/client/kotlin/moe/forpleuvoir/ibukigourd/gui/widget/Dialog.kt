@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BiasAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
@@ -33,7 +34,7 @@ fun OpenDialog(
     contentInnerColor: State<ARGBColor> = stateOf(Colors.WHITE),
     parentScreen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit
-) = openScreen(Dialog(title, modifier, contentModifier, screenModifier, bgColor, contentOutlineColor, contentInnerColor, parentScreen, content))
+): IGScreenImpl = openScreen(Dialog(title, modifier, contentModifier, screenModifier, bgColor, contentOutlineColor, contentInnerColor, parentScreen, content))
 
 fun Dialog(
     title: State<Text>,
@@ -45,7 +46,7 @@ fun Dialog(
     contentInnerColor: State<ARGBColor> = stateOf(Colors.WHITE),
     parentScreen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit
-) = PopupScreen(
+): IGScreenImpl = PopupScreen(
     modifier = Modifier.name("Dialog") then screenModifier,
     parentScreen = parentScreen
 ) {
@@ -94,10 +95,8 @@ fun Dialog(
                         shadow = true
                     )
                 }
-                .then(contentModifier())
-        ) {
-            content()
-        }
-
+                .then(contentModifier()),
+            content
+        )
     }
 }

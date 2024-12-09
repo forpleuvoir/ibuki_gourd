@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.AbsoluteLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class AbsoluteWidget : WidgetContainerImpl(), AbsoluteLayout {
@@ -17,8 +18,8 @@ fun WidgetContainerScope.Absolute(
     modifier: Modifier = Modifier,
     context: AbsoluteScope.() -> Unit
 ): AbsoluteWidget = owner().addWidgetChild(AbsoluteWidget()) {
-    AbsoluteScope { this }.context()
     modifier.foldInApply()
+    AbsoluteScope { this }.Compose(context)
 }
 
 

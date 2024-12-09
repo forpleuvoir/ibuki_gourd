@@ -16,7 +16,7 @@ fun RowScreen(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowScope.() -> Unit
 ) = BoxScreen(Modifier.name("RowScreen").then(modifier)) {
-    Row(Modifier.fill().then(modifier), verticalArrangement, horizontalAlignment) { content() }
+    Row(Modifier.fill().then(modifier), verticalArrangement, horizontalAlignment, content)
 }
 
 
@@ -26,7 +26,5 @@ fun ColumnScreen(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ColumnScope.() -> Unit
 ) = BoxScreen(Modifier.name("ColumnScreen").then(modifier)) {
-    Column(Modifier.fill().then(modifier), horizontalArrangement, verticalAlignment) {
-        content()
-    }
+    Column(Modifier.fill().then(modifier), horizontalArrangement, verticalAlignment, content)
 }

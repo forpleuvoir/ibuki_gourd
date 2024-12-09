@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.RowListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -50,8 +51,8 @@ fun WidgetContainerScope.RowList(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowListScope.() -> Unit
 ) = addWidgetChild(RowListWidget(scrollState, alignment = horizontalAlignment, spacing = spacing)) {
-    RowListScope { this }.content()
     modifier.foldInApply()
+    RowListScope { this }.Compose(content)
 }
 
 fun WidgetContainerScope.RowListWrapped(
@@ -74,7 +75,7 @@ fun WidgetContainerScope.RowListWrapped(
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
     RowList(
-        modifier = Modifier then listModifier(),
+        modifier = listModifier(),
         scrollState = scrollState,
         spacing = spacing,
         horizontalAlignment = horizontalAlignment,

@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -37,7 +38,7 @@ fun WidgetContainerScope.Button(
             }
         }
         .then(modifier).foldInApply()
-    ButtonScope { this }.content()
+    ButtonScope { this }.Compose(content)
 }
 
 fun WidgetContainerScope.FlatButton(
@@ -63,7 +64,7 @@ fun WidgetContainerScope.FlatButton(
             }
         }
         .then(modifier).foldInApply()
-    ButtonScope { this }.content()
+    ButtonScope { this }.Compose(content)
 }
 
 fun WidgetContainerScope.FlatButton(
@@ -111,7 +112,7 @@ fun WidgetContainerScope.SwitchButton(
     verticalAlignment
 ) {
     click { switchState.switch() }
-    scope()
+    Compose(scope)
 }
 
 /**
@@ -154,7 +155,7 @@ fun WidgetContainerScope.LockButton(
         .padding(2f)
         .then(modifier).foldInApply()
     this.click { lockState.switch() }
-    buttonScope.scope()
+    buttonScope.Compose(scope)
 }
 
 fun WidgetContainerScope.ColorButton(

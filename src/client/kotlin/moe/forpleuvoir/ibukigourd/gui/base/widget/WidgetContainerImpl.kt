@@ -16,6 +16,14 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
     override val widget: IGWidget
         get() = this
 
+    override lateinit var compose: () -> Unit
+
+    override fun recompose() {
+        clearWidgetChildren()
+        compose()
+        screen()?.remeasure()
+    }
+
     private val widgetChildren = mutableListOf<IGWidget>()
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren

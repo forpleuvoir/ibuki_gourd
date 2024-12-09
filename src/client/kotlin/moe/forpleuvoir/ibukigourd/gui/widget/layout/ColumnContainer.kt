@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class ColumnWidget(
@@ -25,6 +26,6 @@ fun WidgetContainerScope.Column(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ColumnScope.() -> Unit
 ): ColumnWidget = addWidgetChild(ColumnWidget(horizontalArrangement, verticalAlignment)) {
-    ColumnScope { this }.content()
     modifier.foldInApply()
+    ColumnScope { this }.Compose(content)
 }

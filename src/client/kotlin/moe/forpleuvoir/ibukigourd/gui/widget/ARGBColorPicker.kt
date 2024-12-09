@@ -39,9 +39,7 @@ fun WidgetContainerScope.ColorPicker(
     colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
     resultModifier: ColumnScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
-) = ColorPicker(
-    colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope
-)
+) = ColorPicker(colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope)
 
 @JvmName("HsvColorPicker")
 fun WidgetContainerScope.ColorPicker(
@@ -50,9 +48,7 @@ fun WidgetContainerScope.ColorPicker(
     colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
     resultModifier: ColumnScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
-) = ColorPicker(
-    colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope
-)
+) = ColorPicker(colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope)
 
 @JvmName("ARGBColorPicker")
 fun WidgetContainerScope.ColorPicker(

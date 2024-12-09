@@ -76,8 +76,8 @@ fun WidgetContainerScope.Icon(
     modifier: Modifier = Modifier,
     scope: IconScope.() -> Unit = {}
 ) = addWidgetChild(IconWidget(texture, color)) {
-    IconScope { this }.scope()
     modifier.foldInApply()
+    IconScope { this }.scope()
 }
 
 fun WidgetContainerScope.Icon(
@@ -86,11 +86,11 @@ fun WidgetContainerScope.Icon(
     modifier: Modifier = Modifier,
     scope: IconScope.() -> Unit = {}
 ) = addWidgetChild(IconWidget(texture.getValue(), color)) {
+    modifier.foldInApply()
     IconScope { this }.apply {
         scope()
         texture.subscribe {
             texture(it)
         }
     }
-    modifier.foldInApply()
 }

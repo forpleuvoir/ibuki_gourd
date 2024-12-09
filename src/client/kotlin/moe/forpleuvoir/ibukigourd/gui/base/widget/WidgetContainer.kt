@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import java.util.*
 
 interface WidgetContainer : Measurable {
@@ -28,6 +29,10 @@ interface WidgetContainer : Measurable {
         // 未找到符合条件的组件，返回 null
         return null
     }
+
+    var compose: () -> Unit
+
+    fun recompose()
 
     fun widgetChildren(): List<IGWidget>
 
@@ -88,4 +93,14 @@ interface WidgetContainer : Measurable {
 
         return false
     }
+}
+
+fun WidgetContainer.Compose(compose: () -> Unit) {
+    this.compose = compose
+    this.compose()
+}
+
+fun <T : GuiScope<out WidgetContainer>> T.Compose(compose: T.() -> Unit) {
+    this.owner().compose = { compose(this) }
+    this.owner().compose()
 }

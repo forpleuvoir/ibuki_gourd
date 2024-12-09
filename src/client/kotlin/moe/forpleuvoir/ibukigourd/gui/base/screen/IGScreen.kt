@@ -38,8 +38,6 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     var onInit: (() -> Unit)?
 
-    val scope: ScreenScope<*>
-
     /**
      * GUI层
      */

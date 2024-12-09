@@ -38,7 +38,7 @@ fun modifier(): Modifier {
     var renderTime = 0.seconds
     return Modifier.padding(8f)
         .tick {
-            this as IGScreenImpl<*>
+            this as IGScreenImpl
             onTick()
             deltaCount++
             if (deltaCount % 10 == 0) {
@@ -49,7 +49,7 @@ fun modifier(): Modifier {
 
         }
         .renderOverlay { context, mouseX, mouseY, delta ->
-            this as IGScreenImpl<*>
+            this as IGScreenImpl
             val contentBox = contentBox(true)
             onRenderOverlay(context, mouseX, mouseY, delta)
             context.batchRenderBox {

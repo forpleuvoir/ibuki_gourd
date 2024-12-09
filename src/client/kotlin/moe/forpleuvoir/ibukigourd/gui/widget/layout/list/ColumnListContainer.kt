@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnListLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -50,8 +51,8 @@ fun WidgetContainerScope.ColumnList(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: ColumnListScope.() -> Unit
 ) = addWidgetChild(ColumnListWidget(scrollState, alignment = verticalAlignment, spacing = spacing)) {
-    ColumnListScope { this }.content()
     modifier.foldInApply()
+    ColumnListScope { this }.Compose(content)
 }
 
 

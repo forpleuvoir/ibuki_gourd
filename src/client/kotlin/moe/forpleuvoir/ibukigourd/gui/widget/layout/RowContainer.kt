@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class RowWidget(
@@ -25,6 +26,6 @@ fun WidgetContainerScope.Row(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: RowScope.() -> Unit
 ) = addWidgetChild(RowWidget(verticalArrangement, horizontalAlignment)) {
-    RowScope { this }.content()
     modifier.foldInApply()
+    RowScope { this }.Compose(content)
 }

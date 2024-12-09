@@ -12,10 +12,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.AbsoluteLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -79,11 +78,10 @@ data class WrappedTipData(val parent: IGWidget) {
     }
 }
 
-
 typealias TipContainerScope = TipContainerWidget.Scope
 
-fun ScreenScope<*>.TipContainer(content: TipContainerScope.() -> Unit): TipContainerWidget {
-    return (owner().widgetChildren().find {
+private fun IGScreen.TipContainer(content: TipContainerScope.() -> Unit): TipContainerWidget {
+    return (this.widgetChildren().find {
         it is TipContainerWidget
     }?.let {
         it as TipContainerWidget
@@ -104,7 +102,7 @@ fun WidgetScope.Tip(
 ): BoxWidget {
     val parentWidget = owner()
     var box: BoxWidget? = null
-    screen.scope.TipContainer {
+    screen.TipContainer {
         val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
 
         optionalDirection.subscribe {
@@ -174,7 +172,7 @@ fun WidgetScope.OpenPopupTip(
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
     screen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit,
-) = openScreen(PopupTip(parentTransform, screenModifier, modifier, bgColor, optionalDirection, screen, content))
+): IGScreenImpl = openScreen(PopupTip(parentTransform, screenModifier, modifier, bgColor, optionalDirection, screen, content))
 
 fun WidgetScope.PopupTip(
     parentTransform: () -> Transform = { owner().transform },
@@ -184,8 +182,7 @@ fun WidgetScope.PopupTip(
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
     screen: IGScreen = mc.currentScreen as IGScreen,
     content: BoxScope.() -> Unit,
-) = PopupScreen(screenModifier, screen) {
-
+): IGScreenImpl = PopupScreen(screenModifier, screen) {
     val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
     optionalDirection.subscribe {
         if (it.isEmpty()) {
@@ -210,10 +207,9 @@ fun WidgetScope.PopupTip(
                 .render(tipRender(direction, parentTransform, bgColor))
                 .placeCompletion {
                     if (transform.parent() != parentTransform()) transform.parent = parentTransform
-                } then modifier
-        ) {
-            content()
-        }
+                } then modifier,
+            content
+        )
     }
 }
 
