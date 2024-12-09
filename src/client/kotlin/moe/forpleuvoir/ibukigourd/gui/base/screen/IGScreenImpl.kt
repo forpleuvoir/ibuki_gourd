@@ -30,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
@@ -398,6 +399,9 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
             if (mc.currentScreen == this) {
                 updateHoveredWidget()
                 MouseCursor.current = cursorSupplier()
+            } else {
+                hoveredWidget.setValue(null)
+                focusedWidget.setValue(null)
             }
 
             val ctx = context.toIGDrawContext()
@@ -701,6 +705,9 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 it.printStackTrace()
             }
         }
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline fun <T : Screen> T.open(): T = openScreen(this)
 
     }
 }

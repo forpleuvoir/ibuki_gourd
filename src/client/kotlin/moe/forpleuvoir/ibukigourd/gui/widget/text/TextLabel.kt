@@ -84,7 +84,6 @@ class TextWidget(
     init {
         text.subscribe {
             onChanged()
-            renderText = it.wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
         }
     }
 
@@ -93,7 +92,8 @@ class TextWidget(
 
     private var renderText: List<McText> = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
 
-    private fun onChanged() {
+    fun onChanged() {
+        renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
         if (!constraints.fixed()) {
             screen()?.remeasure()
         }

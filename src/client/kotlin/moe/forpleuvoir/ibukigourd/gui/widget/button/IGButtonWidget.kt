@@ -75,7 +75,6 @@ open class IGButtonWidget(
 
     }
 
-
 }
 
 typealias ButtonScope = IGButtonWidget.Scope

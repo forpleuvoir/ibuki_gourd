@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.*
@@ -53,12 +54,12 @@ fun testScreen4() = ColumnScreen(
     Button {
         TextLabel("高度测试1")
         click {
-            OpenDialog(
+            SimpleDialog(
                 stateOf(Literal("测试一下Dialog")),
             ) {
                 val c: MutableState<Color> = mutableStateOf(Colors.BRIGHT_GRAPE)
                 ColorPicker(c)
-            }
+            }.open()
         }
     }
     val switchState = mutableStateOf(false)

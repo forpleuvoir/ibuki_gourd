@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
@@ -12,7 +13,7 @@ fun <T : WidgetContainerScope> T.Proxy(
     val currentWidget = mutableStateOf(proxyState.getValue().invoke(this))
     proxyState.subscribe { proxy ->
         runCatching {
-            currentWidget.getValue().screen()?.execute {
+            currentWidget.getValue().execute {
                 val index = owner().widgetChildren().indexOf(currentWidget.getValue())
                 val new = proxy.invoke(this)
                 val widget = owner().setWidgetChildren(index, new)

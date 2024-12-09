@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -20,7 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.OpenPopupTip
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -73,7 +74,7 @@ fun WidgetContainerScope.DropDownMenu(
     }
     click {
         expandState.switch()
-        OpenPopupTip(
+        PopupTip(
             optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
             screenModifier = Modifier
                 .bgBlurRadius(0f)
@@ -84,7 +85,7 @@ fun WidgetContainerScope.DropDownMenu(
                 if (!it) this.owner().screen()?.close()
             }
             dropDownContent(this)
-        }
+        }.open()
     }
 
     Column(

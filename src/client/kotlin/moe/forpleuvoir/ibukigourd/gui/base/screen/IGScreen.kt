@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.screen
 import kotlinx.coroutines.*
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
@@ -79,26 +80,28 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
 }
 
+fun IGElement.execute(task: () -> Unit) {
+    if (this is IGScreen) execute(task)
+    else screen()?.execute(task)
+}
 
-
-
-fun ScreenScope<*>.remember(key: String, value: Any) {
+fun ScreenScope.remember(key: String, value: Any) {
     owner().pushData(key, value)
 }
 
 @Suppress("nothing_to_inline")
-inline fun ScreenScope<*>.remember(key: Any, value: Any) = remember(key.toString(), value)
+inline fun ScreenScope.remember(key: Any, value: Any) = remember(key.toString(), value)
 
-fun ScreenScope<*>.byRemember(key: String): Any? = owner().getData(key)
+fun ScreenScope.byRemember(key: String): Any? = owner().getData(key)
 
 @Suppress("nothing_to_inline")
-inline fun ScreenScope<*>.byRemember(key: Any): Any? = byRemember(key.toString())
+inline fun ScreenScope.byRemember(key: Any): Any? = byRemember(key.toString())
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> ScreenScope<*>.byRemember(key: String, default: T): T = owner().getData(key) as? T ?: default
+fun <T : Any> ScreenScope.byRemember(key: String, default: T): T = owner().getData(key) as? T ?: default
 
 @Suppress("nothing_to_inline")
-inline fun <T : Any> ScreenScope<*>.byRemember(key: Any, default: T): T = byRemember(key.toString(), default)
+inline fun <T : Any> ScreenScope.byRemember(key: Any, default: T): T = byRemember(key.toString(), default)
 
 
 fun MinecraftClient.remember(key: String, data: Any) {

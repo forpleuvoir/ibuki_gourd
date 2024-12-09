@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.DEFAULT_BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.util.mc
 
-fun interface AbsoluteScreenScope : ScreenScope<IGScreenImpl>, AbsoluteLayoutScope
+fun interface AbsoluteScreenScope : ScreenScope, AbsoluteLayoutScope
 
 fun AbsoluteScreen(
     modifier: Modifier = Modifier,

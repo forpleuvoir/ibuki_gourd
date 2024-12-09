@@ -153,3 +153,46 @@ fun <T> MutableList<T>.moveElement(fromIndex: Int, toIndex: Int) {
     val movingElement = this.removeAt(fromIndex)
     this.add(toIndex, movingElement)
 }
+
+fun <T> Iterable<T>.forEachWithLimit(limit: Int, action: (T) -> Unit) {
+    var count = 0
+    for (element in this) {
+        if (count >= limit) break
+        action(element)
+        count++
+    }
+}
+
+fun <K, V> Map<K, V>.forEachWithLimit(limit: Int, action: (K, V) -> Unit) {
+    var count = 0
+    for (element in this) {
+        if (count >= limit) break
+        action(element.key, element.value)
+        count++
+    }
+}
+
+fun <K, V> MutableMap<K, V>.changeKey(oldKey: K, newKey: K) {
+    if (this.containsKey(oldKey)) {
+        val value = this[oldKey]
+        this.remove(oldKey)
+        this[newKey] = value as V
+    }
+}
+
+fun <K, V> LinkedHashMap<K, V>.changeKeyPreservingOrder(oldKey: K, newKey: K) {
+    val iterator = this.entries.iterator()
+    val newMap = LinkedHashMap<K, V>()
+
+    while (iterator.hasNext()) {
+        val entry = iterator.next()
+        if (entry.key == oldKey) {
+            newMap[newKey] = entry.value
+        } else {
+            newMap[entry.key] = entry.value
+        }
+    }
+
+    this.clear()
+    this.putAll(newMap)
+}

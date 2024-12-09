@@ -9,13 +9,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRender
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ColorButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.OpenPopupTip
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -57,7 +58,7 @@ fun WidgetContainerScope.ColorConfigButton(
     }
     TextLabel(text)
     click {
-        OpenPopupTip(
+        PopupTip(
             modifier = Modifier
                 .disableRender()
                 .renderOverlay { context, _, _, _ ->
@@ -74,7 +75,7 @@ fun WidgetContainerScope.ColorConfigButton(
             optionalDirection = Direction.clockwiseFromLeft.notification()
         ) {
             ColorPicker(color)
-        }
+        }.open()
     }
 }
 

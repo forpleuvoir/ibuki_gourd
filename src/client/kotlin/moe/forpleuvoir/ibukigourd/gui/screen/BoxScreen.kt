@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.DEFAULT_BG_BLUR_RADIUS
 
-fun interface BoxScreenScope : ScreenScope<IGScreenImpl>, BoxLayoutScope
+fun interface BoxScreenScope : ScreenScope, BoxLayoutScope
 
 fun BoxScreen(
     modifier: Modifier = Modifier,

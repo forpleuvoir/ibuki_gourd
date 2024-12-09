@@ -24,4 +24,3 @@ fun WidgetContainerScope.Box(
     modifier.foldInApply()
     Compose { BoxScope { this }.context() }
 }
-

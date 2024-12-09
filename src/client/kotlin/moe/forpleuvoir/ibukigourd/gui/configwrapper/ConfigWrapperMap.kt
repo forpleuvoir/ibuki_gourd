@@ -46,8 +46,8 @@ object ConfigWrapperMap {
         @Suppress("UNCHECKED_CAST")
         register<ConfigHSVColor> { c, m -> ColorConfigWrapper(c as ConfigRGBColor<ARGBColor>, m) }
         register<ConfigDurationObject> { c, m -> ConfigDurationWrapper(c, m) }
-        //TODO ConfigStringList
-        //TODO ConfigStringMap
+        register<ConfigStringList> { c, m -> StringListConfigWrapper(c, m) }
+        register<ConfigStringMap> { c, m -> StringMapConfigWrapper(c, m) }
         register<ConfigKeyBind> { c, m -> ConfigKeyBindWrapper(c, m) }
         register<ConfigKeyBindBoolean> { c, m -> ConfigKeyBindBooleanWrapper(c, m) }
 

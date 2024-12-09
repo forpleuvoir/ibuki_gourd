@@ -10,7 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyRelease
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.widget.OpenDialog
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -131,7 +132,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
         Icon(IconTextures.SETTING)
         click {
             settingsPopupState.switch()
-            OpenDialog(
+            SimpleDialog(
                 stateOf(config.translateText),
                 screenModifier = Modifier.onClose {
                     keyBind.setting.copyFrom(setting)
@@ -217,7 +218,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                     }
 
                 }
-            }
+            }.open()
         }
     }
 }

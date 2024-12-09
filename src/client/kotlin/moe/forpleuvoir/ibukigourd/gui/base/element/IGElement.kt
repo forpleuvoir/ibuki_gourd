@@ -22,8 +22,6 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     val customData: MutableMap<String, Any>
 
-
-
     fun hasParentInChain(target: IGElement): Boolean {
         var current: IGElement? = this
         while (current != null && current.parent() != current) {
@@ -164,7 +162,6 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     fun GUIEvent.cantUse(block: () -> Unit) =
         this.canUse(this@IGElement, block)
-
 
 }
 

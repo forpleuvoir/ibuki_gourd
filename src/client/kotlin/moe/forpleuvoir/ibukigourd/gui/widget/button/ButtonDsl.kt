@@ -19,6 +19,7 @@ import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
 fun WidgetContainerScope.Button(
@@ -26,6 +27,7 @@ fun WidgetContainerScope.Button(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     theme: PressableTheme = PressableTheme.Button2,
+    color: ARGBColor = Colors.WHITE,
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(5)
@@ -34,7 +36,7 @@ fun WidgetContainerScope.Button(
         .render { context, _, _, _ ->
             this as IGButtonWidget
             context.batchRenderTextureColored {
-                pushWidgetTexture(transform, theme(theme))
+                pushWidgetTexture(transform, theme(theme), color)
             }
         }
         .then(modifier).foldInApply()

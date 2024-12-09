@@ -9,9 +9,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minSize
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.LongSlider
-import moe.forpleuvoir.ibukigourd.gui.widget.OpenDialog
+import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
@@ -72,7 +73,7 @@ fun WidgetContainerScope.StringConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        val textEditor = TextEditor(
+        TextEditor(
             modifier = Modifier.width(120f)
         ) {
             text = strValue.getValue()
@@ -89,7 +90,7 @@ fun WidgetContainerScope.StringConfigWrapper(
         Button {
             Icon(IconTextures.EDIT)
             click {
-                OpenDialog(stateOf(config.translateText)) {
+                SimpleDialog(stateOf(config.translateText)) {
                     TextAreaWrapped(
                         modifier = Modifier
                             .maxSize(320f, 240f).minSize(180f, 150f)
@@ -101,7 +102,7 @@ fun WidgetContainerScope.StringConfigWrapper(
                             strValue.setValue(it)
                         }
                     }
-                }
+                }.open()
             }
         }
 

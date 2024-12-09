@@ -28,7 +28,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.render.math.component1
 import moe.forpleuvoir.ibukigourd.render.math.component2
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -163,16 +162,6 @@ fun tipRender(
         pushWidgetTexture(Box(pos, Size(texture.width, texture.height).toFloat()), texture, color = bgColor.getValue())
     }
 }
-
-fun WidgetScope.OpenPopupTip(
-    parentTransform: () -> Transform = { owner().transform },
-    screenModifier: Modifier = Modifier,
-    modifier: Modifier = Modifier,
-    bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
-    optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
-    screen: IGScreen = mc.currentScreen as IGScreen,
-    content: BoxScope.() -> Unit,
-): IGScreenImpl = openScreen(PopupTip(parentTransform, screenModifier, modifier, bgColor, optionalDirection, screen, content))
 
 fun WidgetScope.PopupTip(
     parentTransform: () -> Transform = { owner().transform },
