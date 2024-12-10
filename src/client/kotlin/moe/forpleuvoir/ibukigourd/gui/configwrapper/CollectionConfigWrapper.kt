@@ -202,13 +202,16 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                         key, modifier = Modifier.width(mapValue.keys.maxWidth(mc.textRenderer).coerceAtMost(119) + 1f)
                                     )
                                     FlatButton(
-                                        hoveredColor = Colors.PALEGREEN,
+                                        hoveredColor = Colors.PALEGREEN.alpha(.5f)
                                     ) {
                                         Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
+                                        HoverTip {
+                                            TextLabel("编辑Key")
+                                        }
                                         click {
                                             var newKey = mutableStateOf(key)
                                             ConfirmDialog(
-                                                stateOf(Literal(key)),
+                                                stateOf(Literal("编辑 => $key")),
                                                 onConfirm = {
                                                     mapValue.changeKeyPreservingOrder(key, newKey.getValue())
                                                     mc.currentScreen?.close()

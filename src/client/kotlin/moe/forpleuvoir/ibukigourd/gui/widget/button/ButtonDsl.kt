@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -47,22 +48,26 @@ fun WidgetContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    round: Int = 2,
     disabledColor: State<out ARGBColor> = stateOf(Color(0)),
     idleColor: State<out ARGBColor> = stateOf(Color(0)),
     hoveredColor: State<out ARGBColor> = stateOf(Color(0)),
     pressedColor: State<out ARGBColor> = stateOf(Color(0)),
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
-    Modifier.padding(1)
+    Modifier.padding(round)
         .name("FlatButton")
         .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { context, _, _, _ ->
             this as IGButtonWidget
             wasMouseOver {
-                context.renderBox(
-                    transform.asWorldCoordinateBox,
-                    status(disabledColor.getValue(), idleColor.getValue(), hoveredColor.getValue(), pressedColor.getValue())
-                )
+                context.batchRenderBox {
+                    pushRoundBox(
+                        transform.asWorldCoordinateBox,
+                        status(disabledColor.getValue(), idleColor.getValue(), hoveredColor.getValue(), pressedColor.getValue()),
+                        round
+                    )
+                }
             }
         }
         .then(modifier).foldInApply()
@@ -73,6 +78,7 @@ fun WidgetContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    round: Int = 2,
     disabledColor: ARGBColor = Color(0),
     idleColor: ARGBColor = Color(0),
     hoveredColor: ARGBColor = Color(0),
@@ -82,6 +88,7 @@ fun WidgetContainerScope.FlatButton(
     modifier,
     horizontalArrangement,
     verticalAlignment,
+    round,
     stateOf(disabledColor),
     stateOf(idleColor),
     stateOf(hoveredColor),

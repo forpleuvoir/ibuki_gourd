@@ -77,7 +77,7 @@ fun ConfirmDialog(
     ) {
         //TODO i18n
         Button(
-            color = Colors.PALEGREEN
+            color = HSVColor(135f, .35f, 1f)
         ) {
             TextLabel("Confirm")
             click {
