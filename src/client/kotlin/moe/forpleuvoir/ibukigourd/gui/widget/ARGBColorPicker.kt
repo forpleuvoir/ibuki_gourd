@@ -57,7 +57,9 @@ fun WidgetContainerScope.ColorPicker(
     colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
     resultModifier: ColumnScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
-) = Tabs {
+) = Tabs(
+    direction = Direction.Top
+) {
     tabColor.setValue(Color(255, 204, 240))
     inactiveColor.setValue(Color(179, 242, 255))
     Tab(

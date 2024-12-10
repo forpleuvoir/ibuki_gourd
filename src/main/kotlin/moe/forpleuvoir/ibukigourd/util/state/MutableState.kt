@@ -131,7 +131,7 @@ fun MutableState<Boolean>.switch(): MutableState<Boolean> {
 fun MutableState<Color>.toARGBColorState() =
     mutableStateOf(this.getValue() as ARGBColor).apply {
         subscribe {
-            this.setValue(Color(it.argb))
+            this@toARGBColorState.setValue(Color(it.argb))
         }
     }
 
@@ -139,6 +139,6 @@ fun MutableState<Color>.toARGBColorState() =
 fun MutableState<HSVColor>.toARGBColorState() =
     mutableStateOf(this.getValue() as ARGBColor).apply {
         subscribe {
-            this.setValue(HSVColor(it.argb))
+            this@toARGBColorState.setValue(HSVColor(it.argb))
         }
     }

@@ -44,6 +44,8 @@ interface WidgetContainer : Measurable {
 
     fun <W : IGWidget> setWidgetChildren(index: Int, child: W): W
 
+    fun swapWidgetChildren(index1: Int, index2: Int)
+
     fun removeWidgetChild(child: IGWidget): Boolean
 
     fun removeWidgetChildAt(index: Int): IGWidget?
@@ -93,6 +95,7 @@ interface WidgetContainer : Measurable {
 
         return false
     }
+
 }
 
 fun WidgetContainer.Compose(compose: () -> Unit) {

@@ -255,19 +255,19 @@ object WidgetTextures : SimpleSynchronousResourceReloadListener {
     var TAB_ACTIVE_BOTTOM = WidgetTexture(Corner(top = -3, right = 4, left = 4, bottom = 4), 240, 3, 256, 16, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_BOTTOM = WidgetTexture(Corner(top = 0, right = 4, left = 4, bottom = 5), 240, 32, 256, 48, TEXTURE_INFO)
+    var TAB_INACTIVE_BOTTOM = WidgetTexture(Corner(top = -1, right = 4, left = 4, bottom = 5), 240, 33, 256, 48, TEXTURE_INFO)
         private set
 
     var TAB_ACTIVE_LEFT = WidgetTexture(Corner(top = 4, right = -3, left = 4, bottom = 4), 224, 16, 237, 32, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_LEFT = WidgetTexture(Corner(top = 4, right = 0, left = 5, bottom = 4), 224, 48, 240, 64, TEXTURE_INFO)
+    var TAB_INACTIVE_LEFT = WidgetTexture(Corner(top = 4, right = -1, left = 5, bottom = 4), 224, 48, 239, 64, TEXTURE_INFO)
         private set
 
-    var TAB_ACTIVE_RIGHT = WidgetTexture(Corner(top = 4, right = 4, left = -3, bottom = 4), 243, 16, 256, 32, TEXTURE_INFO)
+    var TAB_ACTIVE_RIGHT = WidgetTexture(Corner(top = 4, right = 4, left = -2, bottom = 4), 242, 16, 256, 32, TEXTURE_INFO)
         private set
 
-    var TAB_INACTIVE_RIGHT = WidgetTexture(Corner(top = 4, right = 5, left = 4, bottom = 4), 240, 48, 256, 64, TEXTURE_INFO)
+    var TAB_INACTIVE_RIGHT = WidgetTexture(Corner(top = 4, right = 5, left = 0, bottom = 4), 240, 48, 256, 64, TEXTURE_INFO)
         private set
 
     var DIALOG_BG = WidgetTexture(Corner(4), 112, 16, 128, 32, TEXTURE_INFO)

@@ -52,6 +52,12 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
         widgetChildren[index] = it
     }
 
+    override fun swapWidgetChildren(index1: Int, index2: Int) {
+        val temp = widgetChildren[index2]
+        widgetChildren[index2] = widgetChildren[index1]
+        widgetChildren[index1] = temp
+    }
+
     override fun removeWidgetChild(child: IGWidget) = widgetChildren.remove(child)
 
     override fun removeWidgetChildAt(index: Int): IGWidget? = widgetChildren.removeAt(index)

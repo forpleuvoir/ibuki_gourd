@@ -14,6 +14,7 @@ import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
+import kotlin.math.absoluteValue
 
 fun DrawContext.batchRenderTextureColored(
     beginAction: () -> Unit = { enableBlend() },
@@ -152,65 +153,68 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
             return
         }
 
+        //corner.left
+        val cl = corner.left.absoluteValue.toFloat()
+        //corner.right
+        val cr = corner.right.absoluteValue.toFloat()
+        //corner.top
+        val ct = corner.top.absoluteValue.toFloat()
+        //corner.bottom
+        val cb = corner.bottom.absoluteValue.toFloat()
+
         /**
          * centerWidth
          */
-        val cw = width - (corner.left + corner.right)
-
+        val cw = width - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
         /**
          * centerHeight
          */
-        val ch = height - (corner.top + corner.bottom)
+        val ch = height - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
 
-        /**
-         * centerRegionWidth
-         */
-        val crw = uSize - (corner.left + corner.right)
+        val leftX = if (corner.left >= 0) x else x - cl
+        val centerX = if (corner.left >= 0) x + cl else x
+        val rightX = if (corner.right >= 0) x + (width - corner.right) else x + width
 
-        /**
-         *  centerRegionHeight
-         */
-        val crh = vSize - (corner.top + corner.bottom)
+        val topY = if (corner.top >= 0) y else y - ct
+        val centerY = if (corner.top >= 0) y + ct else y
+        val bottomY = if (corner.bottom >= 0) y + (height - corner.bottom) else y + height
 
-        val centerU = u + corner.left
-        val rightU = u + (uSize - corner.right)
-        val centerV = v + corner.top
-        val bottomV = v + (vSize - corner.bottom)
-        val centerX = x + corner.left
-        val rightX = x + (width - corner.right)
-        val centerY = y + corner.top
-        val bottomY = y + (height - corner.bottom)
+        val leftU = if (corner.left >= 0) u else u - cl.toInt()
+        val centerU = if (corner.left >= 0) u + cl.toInt() else u
+        val rightU = if (corner.right >= 0) u + (uSize - cr.toInt()) else u + uSize
+
+        val topV = if (corner.top >= 0) v else v - ct.toInt()
+        val centerV = if (corner.top >= 0) v + ct.toInt() else v
+        val bottomV = if (corner.bottom >= 0) v + (vSize - cb.toInt()) else v + vSize
+
+        val leftUS = cl.toInt()
+        val centerUS = uSize - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+        val rightUS = cr.toInt()
+
+        val topVS = ct.toInt()
+        val centerVS = vSize - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
+        val bottomVS = cb.toInt()
 
         //top left
-        pushTexture(x, y, corner.left.toFloat(), corner.top.toFloat(), u, v, corner.left, corner.top, color, textureWidth, textureHeight)
+        pushTexture(leftX, topY, cl, ct, leftU, topV, leftUS, topVS, color, textureWidth, textureHeight)
         //top center
-        pushTexture(centerX, y, cw, corner.top.toFloat(), centerU, v, crw, corner.top, color, textureWidth, textureHeight)
+        pushTexture(centerX, topY, cw, ct, centerU, topV, centerUS, topVS, color, textureWidth, textureHeight)
         //top right
-        pushTexture(rightX, y, corner.right.toFloat(), corner.top.toFloat(), rightU, v, corner.right, corner.top, color, textureWidth, textureHeight)
+        pushTexture(rightX, topY, cr, ct, rightU, topV, rightUS, topVS, color, textureWidth, textureHeight)
+
         //center left
-        pushTexture(x, centerY, corner.left.toFloat(), ch, u, centerV, corner.left, crh, color, textureWidth, textureHeight)
+        pushTexture(leftX, centerY, cl, ch, leftU, centerV, leftUS, centerVS, color, textureWidth, textureHeight)
         //center
-        pushTexture(centerX, centerY, cw, ch, centerU, centerV, crw, crh, color, textureWidth, textureHeight)
+        pushTexture(centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, color, textureWidth, textureHeight)
         //center right
-        pushTexture(rightX, centerY, corner.right.toFloat(), ch, rightU, centerV, corner.right, crh, color, textureWidth, textureHeight)
+        pushTexture(rightX, centerY, cr, ch, rightU, centerV, rightUS, centerVS, color, textureWidth, textureHeight)
+
         //bottom left
-        pushTexture(x, bottomY, corner.left.toFloat(), corner.bottom.toFloat(), u, bottomV, corner.left, corner.bottom, color, textureWidth, textureHeight)
+        pushTexture(leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, color, textureWidth, textureHeight)
         //bottom center
-        pushTexture(centerX, bottomY, cw, corner.bottom.toFloat(), centerU, bottomV, crw, corner.bottom, color, textureWidth, textureHeight)
+        pushTexture(centerX, bottomY, cw, cb, centerU, bottomV, centerUS, bottomVS, color, textureWidth, textureHeight)
         //bottom right
-        pushTexture(
-            rightX,
-            bottomY,
-            corner.right.toFloat(),
-            corner.bottom.toFloat(),
-            rightU,
-            bottomV,
-            corner.right,
-            corner.bottom,
-            color,
-            textureWidth,
-            textureHeight
-        )
+        pushTexture(rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, color, textureWidth, textureHeight)
     }
 
     /**
