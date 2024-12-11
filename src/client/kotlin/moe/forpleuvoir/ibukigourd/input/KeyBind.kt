@@ -26,7 +26,7 @@ import java.util.function.Consumer
 @Environment(EnvType.CLIENT)
 class KeyBind(
     vararg keyCodes: KeyCode,
-    private val defaultSetting: KeyBindSetting = keyBindSetting(),
+    private val defaultSetting: KeyBindSetting = KeyBindSetting(),
     action: KeyBind.() -> Unit = {}
 ) : Tickable, Resettable, Notifiable<KeyBind>, Matchable, Serializable, Deserializable {
 
@@ -42,7 +42,7 @@ class KeyBind(
 
     private val defaultKeys: MutableList<KeyCode> = keyCodes.toMutableList()
 
-    val setting: KeyBindSetting = keyBindSetting().apply { copyFrom(defaultSetting) }
+    val setting: KeyBindSetting = KeyBindSetting().apply { copyFrom(defaultSetting) }
 
     val keys: MutableList<KeyCode> = ArrayList(defaultKeys)
 

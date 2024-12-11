@@ -11,7 +11,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import net.fabricmc.loader.api.metadata.ModMetadata
 import java.nio.file.Path
 
-abstract class ModConfigManager(val modMetadata: ModMetadata, key: String) : ConfigManagerImpl(key) {
+abstract class ModConfigManager(val modMetadata: ModMetadata, key: String, autoScan: AutoScan = AutoScan.close) : ConfigManagerImpl(key, autoScan) {
 
     init {
         components {

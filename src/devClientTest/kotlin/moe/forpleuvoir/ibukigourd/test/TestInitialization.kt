@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.util.openScreen
@@ -32,6 +33,9 @@ object TestInitialization {
             }
             register(Keyboard.KP_6) {
                 openScreen(testScreen6())
+            }
+            register(Keyboard.KP_7) {
+                testScreen7().open()
             }
             register(Keyboard.KP_9) {
                 openScreen(testScreen9())

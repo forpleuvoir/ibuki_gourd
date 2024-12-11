@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
@@ -23,8 +24,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.KeyBind
+import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
 import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.keyBindSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.NextAction
@@ -93,7 +94,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
     val keys = mutableSetOf<KeyCode>()
     val settingsPopupState = mutableStateOf(false)
     val keyBind = mapping(config)
-    val setting = keyBindSetting().apply {
+    val setting = KeyBindSetting().apply {
         copyFrom(keyBind.setting)
     }
 
@@ -198,10 +199,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         val enumValue = mutableStateOf(setting.environment).apply {
                             subscribe { setting.environment = it }
                         }
-                        val selected = mutableStateOf(setting.environment.name)
-                        selected.bind(enumValue) { it.name }
-
-                        EnumSelector(selected, enumValue, Modifier.width(80f))
+                        EnumSelector(enumValue, modifier = Modifier.width(80f))
                     }
                     Column(
                         Modifier.fill(),
@@ -211,10 +209,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         val enumValue = mutableStateOf(setting.triggerMode).apply {
                             subscribe { setting.triggerMode = it }
                         }
-                        val selected = mutableStateOf(setting.triggerMode.name)
-                        selected.bind(enumValue) { it.name }
-
-                        EnumSelector(selected, enumValue, Modifier.width(80f))
+                        EnumSelector(enumValue, modifier = Modifier.width(80f))
                     }
 
                 }

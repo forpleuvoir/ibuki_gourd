@@ -8,7 +8,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.active
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -17,14 +16,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.nebula.common.util.valueOf
 import moe.forpleuvoir.nebula.config.Config
-import moe.forpleuvoir.nebula.config.container.ConfigContainer
+import moe.forpleuvoir.nebula.config.ConfigSerializable
 
-fun WidgetContainerScope.ConfigContainerWrapper(
-    configContainer: ConfigContainer,
+fun WidgetContainerScope.ConfigsWrapper(
+    configs: Iterable<ConfigSerializable>,
     modifier: Modifier = Modifier,
     listModifier: ColumnScope.() -> Modifier = { Modifier.weight(1).fill() },
     scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
@@ -34,7 +31,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
     scrollerModifier = scrollerModifier,
     spacing = 4f
 ) {
-    configContainer.configs().filterIsInstance<Config<*, *>>().forEach { config ->
+    configs.forEach { config ->
         ConfigWrapperMap.wrapper(config, this, Modifier.fill())
     }
 }
@@ -63,7 +60,7 @@ fun <V, T : Config<V, *>> WidgetContainerScope.ConfigResetButton(
     }
 }
 
-fun <T : Config<*, *>> ColumnScope.ConfigTextLabel(
+fun <T : ConfigSerializable> ColumnScope.ConfigTextLabel(
     config: T,
     modifier: Modifier = Modifier,
     textModifier: Modifier = Modifier
@@ -78,22 +75,3 @@ fun <T : Config<*, *>> ColumnScope.ConfigTextLabel(
     }
 }
 
-
-fun <E : Enum<E>> ColumnScope.EnumSelector(
-    selected: MutableState<String>,
-    enumValue: MutableState<E>,
-    modifier: Modifier = Modifier
-) = Spinner(
-    options = enumValue.getValue()::class.java.enumConstants.map { it.name },
-    selected = selected,
-    onChange = {
-        Enum.valueOf(enumValue.getValue()::class, it)?.let { it1 -> enumValue.setValue(it1) }
-    },
-    selectedWrapper = {
-        TextLabel(it, modifier = Modifier.weight(1))
-    },
-    optionWrapper = {
-        TextLabel(it, modifier = Modifier)
-    },
-    modifier = modifier,
-)

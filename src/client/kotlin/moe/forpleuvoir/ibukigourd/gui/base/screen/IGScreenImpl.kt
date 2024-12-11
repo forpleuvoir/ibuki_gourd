@@ -296,7 +296,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override fun close() {
         if (client?.currentScreen != this) return
-        InputHandler.unpressAll()
+        InputHandler.releaseAll()
         onClose?.invoke()
         MouseCursor.clear()
         coroutineScope.cancel()

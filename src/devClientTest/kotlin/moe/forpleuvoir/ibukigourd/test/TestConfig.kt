@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.*
 import kotlin.time.DurationUnit
 
@@ -55,5 +56,11 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
             "k3" to "k3"
         )
     )
+
+    val nested = addConfig(Nested)
+
+    object Nested : ConfigContainerImpl("nested") {
+        var testInt by int("test_int", 0, 0, 233)
+    }
 
 }

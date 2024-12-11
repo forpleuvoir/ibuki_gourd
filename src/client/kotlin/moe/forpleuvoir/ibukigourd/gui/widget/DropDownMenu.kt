@@ -19,18 +19,22 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
+import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
+import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.valueOf
 
 class DropDownMenuScope(private val owner: IGButtonWidget, private val state: MutableState<Boolean>) : ButtonScope {
 
@@ -172,7 +176,47 @@ fun WidgetContainerScope.Spinner(
     onChange,
     selectedColor,
     selectedWrapper = { TextLabel(it) },
-    optionWrapper = { TextLabel(it) },
+    optionWrapper = { TextLabel(it, modifier = Modifier.width(options.maxWidth(textRenderer).toFloat())) },
     modifier,
     scope
+)
+
+inline fun <reified E : Enum<E>> ColumnScope.EnumSelector(
+    selected: MutableState<E>,
+    noinline onChange: (E) -> Unit = { },
+    modifier: Modifier = Modifier
+) = Spinner(
+    options = E::class.java.enumConstants.toList(),
+    selected = selected,
+    onChange = onChange,
+    selectedWrapper = {
+        TextLabel(it.name, modifier = Modifier.weight(1))
+    },
+    optionWrapper = {
+        TextLabel(
+            it.name,
+            modifier = Modifier
+                .width(E::class.java.enumConstants.map { it.name }.maxWidth(textRenderer).toFloat())
+        )
+    },
+    modifier = modifier,
+)
+
+fun <E : Enum<E>> ColumnScope.NoInlineEnumSelector(
+    selected: MutableState<String>,
+    enumValue: MutableState<E>,
+    modifier: Modifier = Modifier
+) = Spinner(
+    options = enumValue.getValue()::class.java.enumConstants.map { it.name },
+    selected = selected,
+    onChange = {
+        Enum.valueOf(enumValue.getValue()::class, it)?.let { it1 -> enumValue.setValue(it1) }
+    },
+    selectedWrapper = {
+        TextLabel(it, modifier = Modifier.weight(1))
+    },
+    optionWrapper = {
+        TextLabel(it, modifier = Modifier.width(enumValue.getValue()::class.java.enumConstants.map { it.name }.maxWidth(textRenderer).toFloat()))
+    },
+    modifier = modifier,
 )

@@ -48,7 +48,7 @@ fun String.totalHeight(textRenderer: TextRenderer = tRenderer, spacing: Float, m
  * @param textRenderer [TextRenderer]
  * @return Int
  */
-fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
+fun Iterable<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }
 }
 
@@ -60,7 +60,7 @@ fun Collection<String>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
  * @return Int
  */
 @JvmName("maxTextWidth")
-fun Collection<McText>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
+fun Iterable<McText>.maxWidth(textRenderer: TextRenderer = tRenderer): Int {
     return this.maxOf { textRenderer.getWidth(it) }
 }
 

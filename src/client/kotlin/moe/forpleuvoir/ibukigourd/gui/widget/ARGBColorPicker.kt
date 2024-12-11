@@ -58,16 +58,12 @@ fun WidgetContainerScope.ColorPicker(
     resultModifier: ColumnScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
 ) = Tabs(
-    direction = Direction.Top
+    direction = Direction.Top,
+    modifier = modifier,
 ) {
     tabColor.setValue(Color(255, 204, 240))
     inactiveColor.setValue(Color(179, 242, 255))
-    Tab(
-        modifier = modifier,
-        scope = {
-            TextLabel("HSV")
-        }
-    ) {
+    Tab("HSV") {
         val color = mutableStateOf(colorState.getValue())
         color.subscribe {
             colorState.setValue(it)
@@ -79,11 +75,7 @@ fun WidgetContainerScope.ColorPicker(
             ColorResult(color, Modifier.size(78f, 78f).then(resultModifier()))
         }
     }
-    Tab(
-        scope = {
-            TextLabel("RGB")
-        }
-    ) {
+    Tab("RGB") {
         val color = mutableStateOf(colorState.getValue())
         color.subscribe {
             colorState.setValue(it)

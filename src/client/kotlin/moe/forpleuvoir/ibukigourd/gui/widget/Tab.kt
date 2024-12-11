@@ -11,19 +11,25 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.then
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.customData
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
+import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
@@ -40,16 +46,26 @@ data class TabScope(
 
     private val tabs = mutableMapOf<IGWidget, BoxScope.() -> IGWidget>()
 
-    fun addTab(tab: IGWidget, content: BoxScope.() -> IGWidget) {
+    private val tabsChangedListener = mutableMapOf<IGWidget, TabScope.(Boolean) -> Unit>()
+
+    private fun onChanged(current: IGWidget) {
+        tabsChangedListener.forEach {
+            it.value.invoke(this, it.key == current)
+        }
+    }
+
+    private fun addTab(tab: IGWidget, tabsChangedListener: TabScope.(Boolean) -> Unit, content: BoxScope.() -> IGWidget) {
         tabs[tab] = content
+        this.tabsChangedListener[tab] = tabsChangedListener
         if (!tab.active && !this::content.isInitialized) {
             this.content = mutableStateOf(content)
         }
     }
 
-    fun setCurrent(tab: IGWidget) {
+    private fun setCurrent(tab: IGWidget) {
         if (!tab.active) return
         tab.active = false
+        onChanged(tab)
         tabs.filter { it.key != tab }
             .forEach {
                 it.key.active = true
@@ -61,6 +77,7 @@ data class TabScope(
             check(tabs.isNotEmpty()) { "Tabs cannot be empty when initializing." }
             val (tab, content) = tabs.entries.first()
             tab.active = false
+            onChanged(tab)
             this.content = mutableStateOf(content)
         }
     }
@@ -68,6 +85,77 @@ data class TabScope(
     val tabColor: MutableState<ARGBColor> = mutableStateOf(Colors.WHITE)
 
     val inactiveColor: MutableState<ARGBColor> = mutableStateOf(Colors.GRAY)
+
+    fun TabScope.Tab(
+        activeColor: State<ARGBColor> = tabColor,
+        inactiveColor: State<ARGBColor> = this.inactiveColor,
+        modifier: Modifier = Modifier,
+        onTabChanged: TabScope.(Boolean) -> Unit = {},
+        scope: ButtonScope.() -> Unit = {},
+        content: BoxScope.() -> IGWidget
+    ) = Button(
+        modifier = Modifier
+            .then {
+                when (direction) {
+                    Top    -> padding(top = 5, right = 5, left = 5, bottom = 1)
+                    Bottom -> padding(top = 1, right = 5, left = 5, bottom = 5)
+                    Right  -> padding(top = 5, right = 5, left = 3, bottom = 5)
+                    Left   -> padding(top = 5, right = 3, left = 5, bottom = 5)
+                }
+            }
+            .align(
+                when (direction) {
+                    Top    -> Alignment.Bottom
+                    Bottom -> Alignment.Top
+                    Right  -> Alignment.Left
+                    Left   -> Alignment.Right
+                }
+            )
+            .render { context, _, _, _ ->
+                context.batchRenderTextureColored {
+                    pushWidgetTexture(transform, tabButtonTexture(direction, active), active.pick(inactiveColor.getValue(), activeColor.getValue()))
+                }
+            }.then(modifier)
+    ) {
+        this@Tab.addTab(this.owner(), onTabChanged, content)
+        click {
+            this@Tab.apply {
+                setCurrent(this@Button.owner())
+                this.content.setValue(content)
+            }
+        }
+        scope()
+    }
+
+    fun TabScope.Tab(
+        text: String,
+        activeTextColor: State<ARGBColor> = stateOf(Colors.WHITE),
+        inactiveTextColor: State<ARGBColor> = stateOf(Colors.BLACK),
+        modifier: Modifier = Modifier,
+        content: BoxScope.() -> IGWidget
+    ): IGButtonWidget {
+        val t = mutableStateOf(Literal(text))
+        var yOffset = -0.5f
+        return Tab(
+            modifier = modifier,
+            onTabChanged = {
+                t.setValue(Literal(text).withColor(if (it) activeTextColor.getValue() else inactiveTextColor.getValue()))
+                yOffset = if (it) -0.5f else 0.5f
+            },
+            content = content,
+            scope = {
+                TextLabel(
+                    t,
+                    modifier = Modifier.render { context, x, y, d ->
+                        context.useMatrixStack {
+                            it.translate(0f, yOffset, 0f)
+                            onRender(context, x, y, d)
+                        }
+                    }
+                )
+            }
+        )
+    }
 
     override fun Modifier.weight(weight: Int): Modifier {
         return if (owner is RowWidget) {
@@ -104,25 +192,29 @@ data class TabScope(
 fun WidgetContainerScope.Tabs(
     direction: Direction = Top,
     modifier: Modifier = Modifier,
+    tabsModifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
-): WidgetContainer = when (direction) {
-    Top, Bottom -> RowTabs(direction, modifier, scope)
-    Right, Left -> ColumnTabs(direction, modifier, scope)
+): WidgetContainerImpl = when (direction) {
+    Top, Bottom -> RowTabs(direction, modifier, tabsModifier, contentModifier, scope)
+    Right, Left -> ColumnTabs(direction, modifier, tabsModifier, contentModifier, scope)
 }
 
 
 private fun WidgetContainerScope.RowTabs(
     direction: Direction,
     modifier: Modifier = Modifier,
+    tabsModifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
 ) = Row(modifier) {
     var tabScope: TabScope? = null
-
     Column(
         Modifier
             .renderPriority(1)
             .matchSibling()
-            .padding(horizontal = 4),
+            .padding(horizontal = 4)
+            .then(tabsModifier),
         horizontalArrangement = Arrangement.Left
     ) {
         tabScope = TabScope(this.owner(), direction).apply {
@@ -130,7 +222,6 @@ private fun WidgetContainerScope.RowTabs(
             initialized()
         }
     }
-
     Box(
         modifier = Modifier
             .padding(5)
@@ -138,9 +229,10 @@ private fun WidgetContainerScope.RowTabs(
                 context.batchRenderTextureColored {
                     pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
                 }
-            }
+            }.then(contentModifier)
     ) {
-        Proxy(tabScope!!.content)
+        customData["tabScope"] = tabScope!!
+        Proxy(tabScope.content)
     }
     if (direction == Bottom) owner().swapWidgetChildren(0, 1)
 }
@@ -148,6 +240,8 @@ private fun WidgetContainerScope.RowTabs(
 private fun WidgetContainerScope.ColumnTabs(
     direction: Direction,
     modifier: Modifier = Modifier,
+    tabsModifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
 ) = Column(modifier) {
     var tabScope: TabScope? = null
@@ -155,7 +249,8 @@ private fun WidgetContainerScope.ColumnTabs(
         Modifier
             .renderPriority(1)
             .matchSibling()
-            .padding(vertical = 4),
+            .padding(vertical = 4)
+            .then(tabsModifier),
         verticalArrangement = Arrangement.Top
     ) {
         tabScope = TabScope(this.owner(), direction).apply {
@@ -170,52 +265,14 @@ private fun WidgetContainerScope.ColumnTabs(
                 context.batchRenderTextureColored {
                     pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
                 }
-            }
+            }.then(contentModifier)
     ) {
-        Proxy(tabScope!!.content)
+        customData["tabScope"] = tabScope!!
+        Proxy(tabScope.content)
     }
     if (direction == Right) owner().swapWidgetChildren(0, 1)
 }
 
-fun TabScope.Tab(
-    activeColor: State<ARGBColor> = tabColor,
-    inactiveColor: State<ARGBColor> = this.inactiveColor,
-    modifier: Modifier = Modifier,
-    scope: ButtonScope.() -> Unit = {},
-    content: BoxScope.() -> IGWidget
-) = Button(
-    modifier = Modifier
-        .then {
-            when (direction) {
-                Top    -> padding(top = 5, right = 5, left = 5, bottom = 0)
-                Bottom -> padding(top = 0, right = 5, left = 5, bottom = 5)
-                Right  -> padding(top = 5, right = 5, left = 3, bottom = 5)
-                Left   -> padding(top = 5, right = 3, left = 5, bottom = 5)
-            }
-        }
-        .align(
-            when (direction) {
-                Top    -> Alignment.Bottom
-                Bottom -> Alignment.Top
-                Right  -> Alignment.Left
-                Left   -> Alignment.Right
-            }
-        )
-        .render { context, _, _, _ ->
-            context.batchRenderTextureColored {
-                pushWidgetTexture(transform, tabButtonTexture(direction, active), active.pick(inactiveColor.getValue(), activeColor.getValue()))
-            }
-        }.then(modifier)
-) {
-    this@Tab.addTab(this.owner(), content)
-    click {
-        this@Tab.apply {
-            setCurrent(this@Button.owner())
-            this.content.setValue(content)
-        }
-    }
-    scope()
-}
 
 private fun tabButtonTexture(direction: Direction, active: Boolean): WidgetTexture = when (direction) {
     Top    -> active.pick(WidgetTextures.TAB_INACTIVE_TOP, WidgetTextures.TAB_ACTIVE_TOP)

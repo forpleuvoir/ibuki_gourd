@@ -750,6 +750,7 @@ fun <T> WidgetContainerScope.NumberEditor(
     ) {
         FlatButton(
             modifier = Modifier.padding(right = 2f).margin(top = 1f),
+            round = 0,
             hoveredColor = Colors.GRAY.opacity(.15f)
         ) {
             Box(Modifier.size(5f, 5f)) {
@@ -767,6 +768,7 @@ fun <T> WidgetContainerScope.NumberEditor(
         }
         FlatButton(
             modifier = Modifier.padding(right = 2f),
+            round = 0,
             hoveredColor = Colors.GRAY.opacity(.15f)
         ) {
             Box(Modifier.size(5f, 5f)) {

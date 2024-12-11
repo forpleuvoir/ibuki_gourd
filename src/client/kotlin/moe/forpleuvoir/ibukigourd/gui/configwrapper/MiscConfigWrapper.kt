@@ -11,9 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
-import moe.forpleuvoir.ibukigourd.gui.widget.LongSlider
-import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
-import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
+import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -28,13 +26,13 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
-import moe.forpleuvoir.nebula.config.Config
+import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
 import moe.forpleuvoir.nebula.config.item.impl.ConfigEnum
 import moe.forpleuvoir.nebula.config.item.impl.ConfigString
 
 fun WidgetContainerScope.UnspecifiedConfigWrapper(
-    config: Config<*, *>,
+    config: ConfigSerializable,
     modifier: Modifier = Modifier
 ) = Column(
     modifier,
@@ -45,7 +43,7 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         Button(
-            Modifier.width(80f)
+            Modifier.width(120f)
         ) {
             //TODO i18n
             TextLabel("Unsupported")
@@ -53,7 +51,6 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
                 TextLabel("Unsupported Config")
             }
         }
-        ConfigResetButton(config) {}
     }
 }
 
@@ -131,7 +128,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        EnumSelector(selected, enumValue, Modifier.width(80f))
+        NoInlineEnumSelector(selected, enumValue, Modifier.width(80f))
         ConfigResetButton(config) {
             enumValue.setValue(config.getValue())
         }
@@ -186,9 +183,6 @@ fun WidgetContainerScope.ConfigDurationWrapper(
         }
     }
 
-    val selected = mutableStateOf(unitValue.getValue().name)
-    selected.bind(unitValue) { it.name }
-
     ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
@@ -200,7 +194,7 @@ fun WidgetContainerScope.ConfigDurationWrapper(
             {
                 Column(horizontalArrangement = Arrangement.spacedBy(0f)) {
                     LongEditor(longValue, 0L..1000L, modifier = Modifier.width(45f), editorModifier = { Modifier.weight(1) })
-                    EnumSelector(selected, unitValue, Modifier.width(75f))
+                    EnumSelector(unitValue, modifier = Modifier.width(75f))
                 }
             },
             state

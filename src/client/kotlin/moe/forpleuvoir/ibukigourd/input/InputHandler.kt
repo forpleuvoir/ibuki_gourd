@@ -22,7 +22,7 @@ object InputHandler : Tickable {
 
     fun register(
         vararg keyCodes: KeyCode,
-        defaultSetting: KeyBindSetting = keyBindSetting(),
+        defaultSetting: KeyBindSetting = KeyBindSetting(),
         action: KeyBind.() -> Unit = {}
     ): KeyBind {
         return register(KeyBind(keyCodes = keyCodes, defaultSetting, action))
@@ -39,7 +39,7 @@ object InputHandler : Tickable {
         }
     }
 
-    fun unpressAll() {
+    fun releaseAll() {
         keyBinds.forEach(KeyBind::rest)
         currentPressKeyCode.clear()
         beforePressKeyCode.clear()

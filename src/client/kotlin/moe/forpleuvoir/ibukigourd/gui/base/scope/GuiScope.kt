@@ -20,6 +20,8 @@ fun interface GuiScope<T : Any> {
         @Suppress("NOTHING_TO_INLINE")
         inline fun <T : Any> T.create(): GuiScope<T> = create(this)
 
+        val GuiScope<out IGElement>.customData: MutableMap<String, Any> get() = this.owner().customData
+
         fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W) = owner().addWidgetChild(child)
 
         fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))

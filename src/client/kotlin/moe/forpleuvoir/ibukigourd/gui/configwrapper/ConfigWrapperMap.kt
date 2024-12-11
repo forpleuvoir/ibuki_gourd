@@ -6,27 +6,31 @@ import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import moe.forpleuvoir.nebula.config.Config
+import moe.forpleuvoir.nebula.config.ConfigSerializable
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.*
 import kotlin.reflect.KClass
 
 object ConfigWrapperMap {
 
-    private val maps: MutableMap<KClass<out Config<*, *>>, WidgetContainerScope.(Config<*, *>, Modifier) -> Unit> = mutableMapOf()
+    private val maps: MutableMap<KClass<out ConfigSerializable>, WidgetContainerScope.(ConfigSerializable, Modifier) -> Unit> = mutableMapOf()
 
     @Suppress("UNCHECKED_CAST")
-    fun <C : Config<*, *>, T : KClass<C>> register(type: T, wrapper: WidgetContainerScope.(C, Modifier) -> Unit) {
-        maps[type] = wrapper as WidgetContainerScope.(Config<*, *>, Modifier) -> Unit
+    fun <C : ConfigSerializable, T : KClass<C>> register(type: T, wrapper: WidgetContainerScope.(C, Modifier) -> Unit) {
+        maps[type] = wrapper as WidgetContainerScope.(ConfigSerializable, Modifier) -> Unit
     }
 
-    inline fun <reified C : Config<*, *>> register(noinline wrapper: WidgetContainerScope.(C, Modifier) -> Unit) {
+    inline fun <reified C : ConfigSerializable> register(noinline wrapper: WidgetContainerScope.(C, Modifier) -> Unit) {
         register(C::class, wrapper)
     }
 
-    fun <T : Config<*, *>, S : WidgetContainerScope> wrapper(config: T, scope: S, modifier: Modifier = Modifier) {
+    fun <T : ConfigSerializable, S : WidgetContainerScope> wrapper(config: T, scope: S, modifier: Modifier = Modifier) {
         maps[config::class]?.invoke(scope, config, modifier)
         if (maps[config::class] == null) {
-            scope.UnspecifiedConfigWrapper(config, modifier)
+            when (config) {
+                is ConfigContainer -> scope.ConfigContainerWrapper(config, modifier)
+                else               -> scope.UnspecifiedConfigWrapper(config, modifier)
+            }
         }
     }
 
@@ -50,8 +54,6 @@ object ConfigWrapperMap {
         register<ConfigStringMap> { c, m -> StringMapConfigWrapper(c, m) }
         register<ConfigKeyBind> { c, m -> ConfigKeyBindWrapper(c, m) }
         register<ConfigKeyBindBoolean> { c, m -> ConfigKeyBindBooleanWrapper(c, m) }
-
-
     }
 
 }

@@ -5,16 +5,20 @@ import net.minecraft.server.MinecraftServer
 import java.io.File
 import java.nio.file.Path
 
-abstract class ServerModConfigManager(modMetadata: ModMetadata, key: String) : ModConfigManager(modMetadata, key) {
+abstract class ServerModConfigManager(
+    modMetadata: ModMetadata,
+    key: String,
+    autoScan: AutoScan = AutoScan.close
+) : ModConfigManager(modMetadata, key, autoScan) {
 
-	protected open lateinit var server: MinecraftServer
+    protected open lateinit var server: MinecraftServer
 
-	fun init(server: MinecraftServer) {
-		this.server = server
-		init()
-	}
+    fun init(server: MinecraftServer) {
+        this.server = server
+        init()
+    }
 
-	override val configPath: Path
-		get() = File(server.session.directory.rootPath, modMetadata.id).toPath()
+    override val configPath: Path
+        get() = File(server.session.directory.rootPath, modMetadata.id).toPath()
 
 }
