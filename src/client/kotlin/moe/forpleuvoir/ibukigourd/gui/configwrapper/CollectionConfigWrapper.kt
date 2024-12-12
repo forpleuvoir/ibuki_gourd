@@ -43,10 +43,7 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
 fun WidgetContainerScope.StringListConfigWrapper(
     config: ConfigStringList,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
 
     val listValue = notifiableList(config.getValue()).apply {
         subscribe {
@@ -54,7 +51,6 @@ fun WidgetContainerScope.StringListConfigWrapper(
         }
     }
 
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -146,10 +142,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
 fun WidgetContainerScope.StringMapConfigWrapper(
     config: ConfigStringMap,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
 
     val mapValue = notifiableMap(config.getValue()).apply {
         subscribe {
@@ -157,7 +150,6 @@ fun WidgetContainerScope.StringMapConfigWrapper(
         }
     }
 
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {

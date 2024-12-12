@@ -42,13 +42,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun WidgetContainerScope.ConfigKeyBindWrapper(
     config: ConfigKeyBind,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
-
+) = ConfigColumnWrapper(config, modifier) {
     val text = mutableStateOf(config.getValue().asText)
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -62,17 +57,13 @@ fun WidgetContainerScope.ConfigKeyBindWrapper(
 fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
     config: ConfigKeyBindBoolean,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val text = mutableStateOf(config.getValue().keyBind.asText)
     val boolValue = mutableStateOf(config.getValue().value).apply {
         subscribe {
             config.setValue(config.getValue().copy(value = it))
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -98,7 +89,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
         copyFrom(keyBind.setting)
     }
 
-    val btn = Button(
+    Button(
         modifier = Modifier
             .width(120f)
             .keyPress { event ->

@@ -56,8 +56,6 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
-typealias McTextFieldWidget = net.minecraft.client.gui.widget.TextFieldWidget
-
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 open class TextEditorWidget(
     var textColor: ARGBColor = Color(0x303030),

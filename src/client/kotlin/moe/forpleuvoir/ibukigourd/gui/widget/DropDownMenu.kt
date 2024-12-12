@@ -19,7 +19,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
@@ -181,7 +180,7 @@ fun WidgetContainerScope.Spinner(
     scope
 )
 
-inline fun <reified E : Enum<E>> ColumnScope.EnumSelector(
+inline fun <reified E : Enum<E>> WidgetContainerScope.EnumSelector(
     selected: MutableState<E>,
     noinline onChange: (E) -> Unit = { },
     modifier: Modifier = Modifier
@@ -202,7 +201,7 @@ inline fun <reified E : Enum<E>> ColumnScope.EnumSelector(
     modifier = modifier,
 )
 
-fun <E : Enum<E>> ColumnScope.NoInlineEnumSelector(
+fun <E : Enum<E>> WidgetContainerScope.NoInlineEnumSelector(
     selected: MutableState<String>,
     enumValue: MutableState<E>,
     modifier: Modifier = Modifier

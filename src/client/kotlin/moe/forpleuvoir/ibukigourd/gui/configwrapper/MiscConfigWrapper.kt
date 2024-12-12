@@ -34,11 +34,7 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigString
 fun WidgetContainerScope.UnspecifiedConfigWrapper(
     config: ConfigSerializable,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
-    ConfigTextLabel(config)
+) = ConfigColumnWrapper(config, modifier) {
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -57,16 +53,12 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
 fun WidgetContainerScope.StringConfigWrapper(
     config: ConfigString,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val strValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -112,10 +104,7 @@ fun WidgetContainerScope.StringConfigWrapper(
 fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
     config: ConfigEnum<E>,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val enumValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
@@ -123,8 +112,6 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
     }
     val selected = mutableStateOf(enumValue.getValue().name)
     selected.bind(enumValue) { it.name }
-
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -138,16 +125,12 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
 fun WidgetContainerScope.BooleanConfigWrapper(
     config: ConfigBoolean,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val boolValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -161,10 +144,7 @@ fun WidgetContainerScope.BooleanConfigWrapper(
 fun WidgetContainerScope.ConfigDurationWrapper(
     config: ConfigDurationObject,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
 
     val longValue = mutableStateOf(config.getValue().duration).apply {
         subscribe {
@@ -183,7 +163,6 @@ fun WidgetContainerScope.ConfigDurationWrapper(
         }
     }
 
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {

@@ -2,11 +2,11 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.active
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
@@ -17,7 +17,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.nebula.config.Config
+import moe.forpleuvoir.nebula.common.api.Resettable
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 
 fun WidgetContainerScope.ConfigsWrapper(
@@ -36,8 +37,42 @@ fun WidgetContainerScope.ConfigsWrapper(
     }
 }
 
+inline fun <reified T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
+    configSerializable: T,
+    modifier: Modifier = Modifier,
+    crossinline content: ColumnScope.() -> Unit
+) = Column(
+    modifier
+        .attachLeft {
+            //TODO 配置化
+            var alpha = 0f
+            val maxAlpha = 0.25f
+            // alpha per tick
+            val aupt = maxAlpha * 0.15f
+            val adpt = maxAlpha * 0.25f
+            val color = Colors.CYAN.alpha(alpha)
+            fun updateAlpha(wasMouseOver: Boolean, delta: Float) {
+                alpha = if (wasMouseOver)
+                    (alpha + aupt * delta).coerceIn(0f, maxAlpha)
+                else (alpha - adpt * delta).coerceIn(0f, maxAlpha)
+            }
+            name(T::class.simpleName!! + "Wrapper")
+                .padding(horizontal = 2f)
+                .renderBackground { context, x, y, delta ->
+                    updateAlpha(wasMouseOver, delta)
+                    context.batchRenderBox {
+                        pushRoundBox(transform, color.alpha(alpha), 2)
+                    }
+                }
+        },
+    horizontalArrangement = Arrangement.SpaceBetween
+) {
+    ConfigTextLabel(configSerializable)
+    content()
+}
 
-fun <V, T : Config<V, *>> WidgetContainerScope.ConfigResetButton(
+
+fun <T : Resettable> WidgetContainerScope.ConfigResetButton(
     config: T,
     modifier: Modifier = Modifier,
     onRest: (T) -> Unit

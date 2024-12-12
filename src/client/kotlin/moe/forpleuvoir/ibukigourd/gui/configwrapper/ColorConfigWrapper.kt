@@ -6,7 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BiasAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
@@ -27,29 +26,25 @@ import moe.forpleuvoir.nebula.common.util.collection.notification
 import moe.forpleuvoir.nebula.config.item.impl.ConfigRGBColor
 
 fun WidgetContainerScope.ColorConfigWrapper(
-    configColor: ConfigRGBColor<ARGBColor>,
+    config: ConfigRGBColor<ARGBColor>,
     modifier: Modifier = Modifier
-) = Column(
-    Modifier.name("ColorConfigWrapper").then(modifier),
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
-    val colorValue = mutableStateOf(configColor.getValue()).apply {
+) = ConfigColumnWrapper(config, modifier) {
+    val colorValue = mutableStateOf(config.getValue()).apply {
         subscribe {
-            configColor.setValue(it)
+            config.setValue(it)
         }
     }
-    ConfigTextLabel(configColor)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        ColorConfigButton(colorValue, Modifier.minWidth(80f))
-        ConfigResetButton(configColor) {
-            colorValue.setValue(configColor.getValue())
+        ColorConfigSettingButton(colorValue, Modifier.minWidth(80f))
+        ConfigResetButton(config) {
+            colorValue.setValue(config.getValue())
         }
     }
 }
 
-fun WidgetContainerScope.ColorConfigButton(
+private fun WidgetContainerScope.ColorConfigSettingButton(
     color: MutableState<ARGBColor>,
     modifier: Modifier = Modifier
 ) = ColorButton(color, modifier) {

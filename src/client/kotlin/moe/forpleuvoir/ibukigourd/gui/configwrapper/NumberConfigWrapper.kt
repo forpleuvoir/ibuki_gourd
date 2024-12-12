@@ -25,16 +25,12 @@ private const val editorWidth = 120f
 fun WidgetContainerScope.IntConfigWrapper(
     config: ConfigInt,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val intValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -57,16 +53,12 @@ fun WidgetContainerScope.IntConfigWrapper(
 fun WidgetContainerScope.LongConfigWrapper(
     config: ConfigLong,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val longValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -89,16 +81,12 @@ fun WidgetContainerScope.LongConfigWrapper(
 fun WidgetContainerScope.FloatConfigWrapper(
     config: ConfigFloat,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val floatValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
@@ -121,16 +109,12 @@ fun WidgetContainerScope.FloatConfigWrapper(
 fun WidgetContainerScope.DoubleConfigWrapper(
     config: ConfigDouble,
     modifier: Modifier = Modifier
-) = Column(
-    modifier,
-    horizontalArrangement = Arrangement.SpaceBetween
-) {
+) = ConfigColumnWrapper(config, modifier) {
     val doubleValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    ConfigTextLabel(config)
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
