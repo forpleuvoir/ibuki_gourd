@@ -6,12 +6,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
+import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 
 fun testScreen7() = TabScreen(
     header = {
@@ -29,7 +32,26 @@ fun testScreen7() = TabScreen(
 }
 
 fun TabScope.tab1() = Tab("测试用配置设置") {
-    ConfigsWrapper(TestConfig.configs(), modifier = Modifier.fill())
+    Row {
+        val list = notifiableList(TestConfig.configs())
+        SearchBar(
+            textConsumer = { str ->
+                list.disableNotify {
+                    list.clear()
+                    list.addAll(TestConfig.configs().filter { it.matched(str.toRegex()) })
+                }
+                list.onChange(list)
+            },
+            hintText = stateOf("搜索.."),
+            modifier = Modifier.fill(),
+            textEditorModifier = { Modifier.weight(1) }
+        )
+        ConfigsWrapper(list, modifier = Modifier.fill()).apply {
+            list.subscribe {
+                this.recompose()
+            }
+        }
+    }
 }
 
 fun TabScope.tab2() = Tab("第二页,选择框颜色设置") {

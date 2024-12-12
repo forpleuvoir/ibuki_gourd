@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.BiasAlignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
@@ -62,7 +62,7 @@ private fun WidgetContainerScope.ColorConfigSettingButton(
                         Literal("点击空白处返回"),
                         screen()!!.transform,
                         color = HSVColor(0f, 0f, 0.85f),
-                        alignment = BiasAlignment.Horizontal(0f) + BiasAlignment.Vertical(0.8f),
+                        alignment = Alignment.biasedBy(0f, 0.8f),
                         shadow = true
                     )
                 },

@@ -26,7 +26,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         Button(
-            modifier = Modifier.width(113f)
+            modifier = Modifier.width(80f)
         ) {
             //TODO i18n
             TextLabel("设置")
@@ -48,6 +48,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
                 }.open()
             }
         }
+        ConfigResetButton(config)
     }
 }
 

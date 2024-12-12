@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -32,6 +33,9 @@ fun WidgetContainerScope.ConfigsWrapper(
     scrollerModifier = scrollerModifier,
     spacing = 4f
 ) {
+    //TODO i18n
+    //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
+    if (configs.count() == 0) TextLabel("啥也没有")
     configs.forEach { config ->
         ConfigWrapperMap.wrapper(config, this, Modifier.fill())
     }
@@ -75,7 +79,7 @@ inline fun <reified T : ConfigSerializable> WidgetContainerScope.ConfigColumnWra
 fun <T : Resettable> WidgetContainerScope.ConfigResetButton(
     config: T,
     modifier: Modifier = Modifier,
-    onRest: (T) -> Unit
+    onRest: (T) -> Unit = {}
 ): IGButtonWidget {
     val resettable = mutableStateOf(!config.isDefault())
     return Button(
@@ -110,3 +114,13 @@ fun <T : ConfigSerializable> ColumnScope.ConfigTextLabel(
     }
 }
 
+fun WidgetContainerScope.ConfigFilter(
+    collection: Collection<ConfigSerializable>
+) = Column(
+
+) {
+    SearchBar(textConsumer = {
+
+    })
+
+}

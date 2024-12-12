@@ -35,10 +35,11 @@ import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.math.copy
 import moe.forpleuvoir.ibukigourd.render.math.plus
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -58,11 +59,11 @@ import kotlin.math.min
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 open class TextEditorWidget(
-    var textColor: ARGBColor = Color(0x303030),
-    var hintColor: ARGBColor = Color(0x707070),
+    var textColor: ARGBColor = Color(0xFF303030),
+    var hintColor: ARGBColor = Color(0xFF707070),
     var bgShaderColor: ARGBColor = Colors.WHITE,
-    var selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    var suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    var selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    var suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     var cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     private val textRenderer: TextRenderer = mc.textRenderer
 ) : IGWidgetImpl() {
@@ -91,7 +92,7 @@ open class TextEditorWidget(
 
     private val history: HistoryRecord = HistoryRecord(currentRecord = HistoryRecord.Record(text, cursor))
 
-    private var hintText: Text? = null
+    private var hintText: State<String?> = stateOf(null)
 
     var suggestion: ((text: String) -> String)? = null
 
@@ -308,7 +309,8 @@ open class TextEditorWidget(
 
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
-        val width = text.isNotEmpty().pick(textRenderer.getWidth(text), hintText?.let { textRenderer.getWidth(it) } ?: 0).toFloat() + padding.width + 5f
+        val width =
+            text.isNotEmpty().pick(textRenderer.getWidth(text), hintText.getValue()?.let { textRenderer.getWidth(it) } ?: 0).toFloat() + padding.width + 5f
         val height = textRenderer.fontHeight + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
@@ -535,8 +537,8 @@ open class TextEditorWidget(
             matrixStack.translate(0.0f, 0.4f, 0f)
             content.batchRenderText(textRenderer) {
                 //"渲染提示文本"
-                if (text.isEmpty() && hintText != null && !isFocused) {
-                    pushAlignmentText(hintText!!, contentBox, defaultColor = hintColor)
+                if (text.isEmpty() && hintText.getValue() != null && !isFocused) {
+                    pushAlignmentText(hintText.getValue()!!, contentBox, color = hintColor)
                 }
                 //"渲染文本本体"
                 val renderText = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox.width.toInt())
@@ -596,7 +598,7 @@ open class TextEditorWidget(
                 owner().text = value
             }
 
-        var hintText: Text?
+        var hintText: State<String?>
             get() = owner().hintText
             set(value) {
                 owner().hintText = value
@@ -660,11 +662,11 @@ typealias TextEditorScope = TextEditorWidget.Scope
 
 fun WidgetContainerScope.TextEditor(
     modifier: Modifier = Modifier,
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     scope: TextEditorScope.() -> Unit = {}
@@ -695,11 +697,11 @@ fun <T> WidgetContainerScope.NumberEditor(
     textPredicate: (String) -> Boolean,
     modifier: Modifier = Modifier,
     editorModifier: ColumnScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     scope: ColumnScope.() -> Unit = {},
@@ -793,11 +795,11 @@ fun WidgetContainerScope.IntEditor(
     step: ValueStep<Int> = ValueStep(1, 5, 10, 15, 1),
     modifier: Modifier = Modifier,
     editorModifier: ColumnScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     scope: ColumnScope.() -> Unit = {},
@@ -830,11 +832,11 @@ fun WidgetContainerScope.LongEditor(
     step: ValueStep<Long> = ValueStep(1, 5, 10, 15, 1),
     modifier: Modifier = Modifier,
     editorModifier: ColumnScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     scope: ColumnScope.() -> Unit = {},
@@ -867,11 +869,11 @@ fun WidgetContainerScope.FloatEditor(
     step: ValueStep<Float> = ValueStep(1f, 5f, 10f, 15f, 1f),
     modifier: Modifier = Modifier,
     editorModifier: ColumnScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     scope: ColumnScope.() -> Unit = {},
@@ -908,11 +910,11 @@ fun WidgetContainerScope.DoubleEditor(
     step: ValueStep<Double> = ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
     modifier: Modifier = Modifier,
     editorModifier: ColumnScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
     scope: ColumnScope.() -> Unit = {},

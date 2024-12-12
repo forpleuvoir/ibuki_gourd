@@ -14,7 +14,6 @@ import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
-import moe.forpleuvoir.ibukigourd.gui.widget.Widget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -85,8 +84,9 @@ fun WidgetContainerScope.StringListConfigWrapper(
                             modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
                             listModifier = { Modifier.height(160f) }
                         ) {
+                            //TODO i18n
                             //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (listValue.isEmpty()) Widget(Modifier.size(0f, 0f)) {}
+                            if (listValue.isEmpty()) TextLabel("啥也没有")
                             listValue.forEachIndexed { index, item ->
                                 Column(
                                     horizontalArrangement = Arrangement.spacedBy(2f),
@@ -184,8 +184,9 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                             modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
                             listModifier = { Modifier.height(160f) }
                         ) {
+                            //TODO i18n
                             //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (mapValue.isEmpty()) Widget(Modifier.size(0f, 0f)) {}
+                            if (mapValue.isEmpty()) TextLabel("啥也没有")
                             mapValue.forEach { key, value ->
                                 Column(
                                     horizontalArrangement = Arrangement.spacedBy(2f),
