@@ -16,10 +16,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ColorButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
+import moe.forpleuvoir.ibukigourd.gui.widget.toHSVColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notification
@@ -31,7 +33,9 @@ fun WidgetContainerScope.ColorConfigWrapper(
 ) = ConfigColumnWrapper(config, modifier) {
     val colorValue = mutableStateOf(config.getValue()).apply {
         subscribe {
-            config.setValue(it)
+            if (config.getValue() is HSVColor)
+                config.setValue(it.toHSVColor())
+            else config.setValue(Color(it.argb))
         }
     }
     Column(

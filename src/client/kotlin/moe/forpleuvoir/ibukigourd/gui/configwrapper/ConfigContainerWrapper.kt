@@ -90,10 +90,10 @@ fun WidgetContainerScope.ConfigManagerWrapper(
     horizontalArrangement = Arrangement.spacedBy(5f)
 ) {
     val map = buildList {
-        addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it.translateText to it.configs() })
         (configManager.configs().filterIsInstance<Config<*, *>>() as Collection<ConfigSerializable>).let {
-            if (it.isNotEmpty()) add(Translatable("ibukigourd.gui.default_config_group") to it)
+            if (it.isNotEmpty()) add(Translatable("ibukigourd.gui.unspecified_group") to it)
         }
+        addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it.translateText to it.configs() })
     }
     val currentConfigs = if (map.isEmpty()) {
         notifiableList<ConfigSerializable>()
