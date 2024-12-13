@@ -152,11 +152,11 @@ class KeyBind(
     val asText: Text
         get() {
             val texts = asTexts
-            if (texts.isEmpty()) {
+            return if (texts.isEmpty()) {
                 //todo i18n
-                return Literal("not specified")
+                Literal("not specified")
             } else {
-                return Literal(keys.joinToString(" + "))
+                Literal(keys.joinToString(" + "))
             }
         }
 

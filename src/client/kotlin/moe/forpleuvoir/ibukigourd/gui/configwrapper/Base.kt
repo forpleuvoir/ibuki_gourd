@@ -13,7 +13,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -22,24 +21,6 @@ import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 
-fun WidgetContainerScope.ConfigsWrapper(
-    configs: Iterable<ConfigSerializable>,
-    modifier: Modifier = Modifier,
-    listModifier: ColumnScope.() -> Modifier = { Modifier.weight(1).fill() },
-    scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
-) = RowListWrapped(
-    modifier = modifier,
-    listModifier = listModifier,
-    scrollerModifier = scrollerModifier,
-    spacing = 4f
-) {
-    //TODO i18n
-    //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-    if (configs.count() == 0) TextLabel("啥也没有")
-    configs.forEach { config ->
-        ConfigWrapperMap.wrapper(config, this, Modifier.fill())
-    }
-}
 
 inline fun <reified T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
     configSerializable: T,

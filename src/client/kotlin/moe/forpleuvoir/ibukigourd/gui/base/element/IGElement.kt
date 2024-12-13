@@ -20,9 +20,13 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     var parent: () -> IGElement?
 
-    val customData: MutableMap<String, Any>
-
-    fun hasParentInChain(target: IGElement): Boolean {
+    /**
+     * 检查目标元素是否在当前元素的父级链中。
+     *
+     * @param target 目标元素，通过其与当前元素的父级链比较。
+     * @return 如果目标元素在父级链中，返回 true；否则返回 false。
+     */
+    fun isInParentChain(target: IGElement): Boolean {
         var current: IGElement? = this
         while (current != null && current.parent() != current) {
             if (current == target) {
@@ -107,8 +111,12 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
     }
 
     /**
-     * Executes the use function on the current GUIEvent instance with the given Element.
-     * @receiver GUIEvent The current GUIEvent instance.
+     * 将当前 GUIEvent 与 IGElement 进行关联并标记为已使用。
+     *
+     * 该方法用于在 GUIEvent 可以被使用的情况下，将其与当前 IGElement 实例关联，并更新其状态为已使用。
+     * 如果 GUIEvent 无法被使用，则不进行任何操作。
+     *
+     * @receiver GUIEvent 当前的 GUIEvent 实例。
      */
     fun GUIEvent.use() =
         this.use(this@IGElement)

@@ -4,8 +4,6 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import java.util.function.Consumer
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 
@@ -34,23 +32,16 @@ data class MutableState<T>(private var value: T) : State<T> {
 
     var onGetValue: (T) -> T = { it }
 
-    var enableNotification: Boolean = true
+    private var currentValue: T = onGetValue(value)
 
-    @OptIn(ExperimentalContracts::class)
-    inline fun disableNotification(action: () -> Unit) {
-        contract {
-            callsInPlace(action, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
-        }
-        enableNotification = false
-        action()
-        enableNotification = true
-    }
+    override var enableNotification: Boolean = true
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         if (this.value == value) return
         val oldValue = this.value
         this.value = onSetValue(value)
         if (oldValue != value) {
+            currentValue = value
             onChange(this.value)
         }
     }
@@ -60,12 +51,19 @@ data class MutableState<T>(private var value: T) : State<T> {
         val oldValue = this.value
         this.value = onSetValue(value)
         if (oldValue != value) {
+            currentValue = value
             onChange(this.value)
         }
     }
 
     override fun getValue(): T {
-        return onGetValue(value)
+        val v = onGetValue(value)
+        if (!enableNotification) return v
+        if (currentValue != v) {
+            currentValue = v
+            onChange(v)
+        }
+        return v
     }
 
     private val observers: MutableList<Consumer<T>> = ArrayList()
@@ -86,7 +84,7 @@ data class MutableState<T>(private var value: T) : State<T> {
     }
 
     override fun toString(): String {
-        return value.toString()
+        return getValue().toString()
     }
 
     companion object {
@@ -118,7 +116,7 @@ fun MutableState<String>.append(other: Any?): MutableState<String> {
     return this
 }
 
-operator fun MutableState<String>.plusAssign(other: MutableState<String>) {
+operator fun MutableState<String>.plusAssign(other: Any) {
     this.setValue(this.getValue() + other.toString())
 }
 

@@ -137,14 +137,12 @@ fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Lis
  */
 fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -> a == b }): Boolean {
     return if (this.size == list.size) {
-        var isEquals = true
-        this.forEachIndexed loop@{ index, obj ->
+        this.forEachIndexed { index, obj ->
             if (!contrast(list[index]!!, obj)) {
-                isEquals = false
-                return@loop
+                return false
             }
         }
-        isEquals
+        true
     } else false
 }
 
@@ -173,10 +171,9 @@ fun <K, V> Map<K, V>.forEachWithLimit(limit: Int, action: (K, V) -> Unit) {
 }
 
 fun <K, V> MutableMap<K, V>.changeKey(oldKey: K, newKey: K) {
-    if (this.containsKey(oldKey)) {
-        val value = this[oldKey]
+    this[oldKey]?.let { value ->
         this.remove(oldKey)
-        this[newKey] = value as V
+        this[newKey] = value
     }
 }
 

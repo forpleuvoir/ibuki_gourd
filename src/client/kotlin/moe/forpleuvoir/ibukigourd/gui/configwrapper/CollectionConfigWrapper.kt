@@ -28,8 +28,8 @@ import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.changeKeyPreservingOrder
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.ibukigourd.util.state.stateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -60,7 +60,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
             HoverTip(
                 optionalDirection = Direction.clockwiseFromLeft.notification()
             ) {
-                TextLabel(stateBy {
+                TextLabel(mutableStateBy {
                     val sb = StringBuilder()
                     listValue.forEachWithLimit(10) { t ->
                         sb.appendLine(t)
@@ -69,11 +69,9 @@ fun WidgetContainerScope.StringListConfigWrapper(
                     if (listValue.isEmpty()) sb.append("什么都没有")
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
-                }).apply {
-                    listValue.subscribe { this.onChanged() }
-                }
+                }).apply { listValue.subscribe { this.onChanged() } }
             }
-            TextLabel(stateBy { Literal(listValue.size.toString() + "个元素") }).apply { listValue.subscribe { this.onChanged() } }
+            TextLabel(mutableStateBy { Literal(listValue.size.toString() + "个元素") }).apply { listValue.subscribe { this.onChanged() } }
             click {
                 Dialog {
                     TextLabel(stateOf(config.translateText))
@@ -160,7 +158,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
             HoverTip(
                 optionalDirection = Direction.clockwiseFromLeft.notification()
             ) {
-                TextLabel(stateBy {
+                TextLabel(mutableStateBy {
                     val sb = StringBuilder()
                     mapValue.forEachWithLimit(10) { k, v ->
                         sb.appendLine("$k => $v")
@@ -169,11 +167,9 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                     if (mapValue.isEmpty()) sb.append("什么都没有")
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
-                }).apply {
-                    mapValue.subscribe { this.onChanged() }
-                }
+                }).apply { mapValue.subscribe { this.onChanged() } }
             }
-            TextLabel(stateBy { Literal(mapValue.size.toString() + "个元素") }).apply { mapValue.subscribe { this.onChanged() } }
+            TextLabel(mutableStateBy { Literal(mapValue.size.toString() + "个元素") }).apply { mapValue.subscribe { this.onChanged() } }
             click {
                 Dialog {
                     TextLabel(stateOf(config.translateText))

@@ -37,7 +37,7 @@ fun WidgetScope.HoverTip(
     var currentJob: Job? = null
     var hoverState = false
     keepShow.subscribe {
-        if (!it && !(screen.hoveredWidget.getValue()?.hasParentInChain(parentWidget) == true && parentWidget.wasMouseOver)) {
+        if (!it && !(screen.hoveredWidget.getValue()?.isInParentChain(parentWidget) == true && parentWidget.wasMouseOver)) {
             showState.setValue(false)
             hoverState = false
             currentJob?.cancel()
@@ -45,14 +45,14 @@ fun WidgetScope.HoverTip(
     }
     screen.hoveredWidget.subscribe {
         //如果悬浮组件为当前tip
-        if (it?.hasParentInChain(tip!!) == true) {
+        if (it?.isInParentChain(tip!!) == true) {
             return@subscribe
         }
         //如果已经为显示状态且保持显示则不更新
         if (showState.getValue() && keepShow.getValue()) return@subscribe
         //更新悬浮状态
         val oldState = hoverState
-        hoverState = it?.hasParentInChain(parentWidget) == true && parentWidget.wasMouseOver
+        hoverState = it?.isInParentChain(parentWidget) == true && parentWidget.wasMouseOver
         //状态更新时
         if (hoverState != oldState) {
             //取消之前的任务

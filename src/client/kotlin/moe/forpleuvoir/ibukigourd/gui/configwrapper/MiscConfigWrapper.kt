@@ -110,8 +110,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
             config.setValue(it)
         }
     }
-    val selected = mutableStateOf(enumValue.getValue().name)
-    selected.bind(enumValue) { it.name }
+    val selected = mutableStateOf(enumValue) { it.name }
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
