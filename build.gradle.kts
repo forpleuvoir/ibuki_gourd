@@ -104,7 +104,7 @@ kotlin {
     jvmToolchain(21)
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
-        apiVersion.set(KotlinVersion.KOTLIN_2_1)
+        apiVersion.set(KotlinVersion.KOTLIN_2_0)
         freeCompilerArgs.add("-Xjvm-default=all")
     }
 }
@@ -155,13 +155,13 @@ tasks {
     register<Copy>("modJar") {
         dependsOn(remapJar)
         mustRunAfter(remapJar)
+        val outPath = "$rootDir/modJar/$version"
+        val name = remapJar.get().archiveFileName.get()
+        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
+        from("build/libs")
+        into(outPath)
+        include(name)
         doLast {
-            val outPath = "$rootDir/modJar/$version"
-            val name = remapJar.get().archiveFileName.get()
-            val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
-            from("build/libs")
-            into(outPath)
-            include(name)
             delete("$outPath/$newName")
             file("$outPath/$name").renameTo(file("$outPath/$newName"))
         }

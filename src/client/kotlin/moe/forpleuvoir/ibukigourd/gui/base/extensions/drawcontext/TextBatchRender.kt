@@ -16,20 +16,32 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.LightmapTextureManager
+import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Text
+import org.joml.Matrix4f
 
 fun DrawContext.batchRenderText(
     textRenderer: TextRenderer = this.client.textRenderer,
     block: TextBatchRenderScope.() -> Unit
+) = textRenderer.batchRenderText(vertexConsumers, positionMatrix, block)
+
+fun TextRenderer.batchRenderText(
+    vertexConsumers: VertexConsumerProvider.Immediate,
+    positionMatrix: Matrix4f,
+    block: TextBatchRenderScope.() -> Unit
 ) {
-    TextBatchRenderScope(textRenderer, this).apply(block)
-    draw()
+    TextBatchRenderScope(this, vertexConsumers, positionMatrix).apply(block)
+    vertexConsumers.draw()
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-open class TextBatchRenderScope internal constructor(private val textRenderer: TextRenderer, private val context: DrawContext) {
+open class TextBatchRenderScope internal constructor(
+    private val textRenderer: TextRenderer,
+    private val vertexConsumers: VertexConsumerProvider,
+    private val positionMatrix: Matrix4f
+) {
 
     /**
      * 渲染文本
@@ -58,8 +70,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             y,
             color,
             shadow,
-            context.positionMatrix,
-            context.vertexConsumers,
+            positionMatrix,
+            vertexConsumers,
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
@@ -93,8 +105,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             y,
             color,
             shadow,
-            context.positionMatrix,
-            context.vertexConsumers,
+            positionMatrix,
+            vertexConsumers,
             layerType,
             backgroundColor,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
@@ -129,8 +141,8 @@ open class TextBatchRenderScope internal constructor(private val textRenderer: T
             y,
             color.argb,
             shadow,
-            context.positionMatrix,
-            context.vertexConsumers,
+            positionMatrix,
+            vertexConsumers,
             layerType,
             backgroundColor.argb,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,

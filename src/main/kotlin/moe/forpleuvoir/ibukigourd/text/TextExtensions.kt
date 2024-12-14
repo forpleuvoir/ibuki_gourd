@@ -3,7 +3,6 @@
 package moe.forpleuvoir.ibukigourd.text
 
 import net.minecraft.text.MutableText
-import java.util.*
 
 typealias McText = net.minecraft.text.Text
 
@@ -14,6 +13,8 @@ fun Literal(content: StringBuilder): Text = Text.literal(content.toString())
 
 @JvmOverloads
 fun Translatable(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
+
+fun MutableText.copyToText(): Text = Text(content, ArrayList(siblings), style)
 
 /**
  * 将MutableText进行扁平化处理.

@@ -13,9 +13,11 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.LightmapTextureManager
+import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Text
+import org.joml.Matrix4f
 
 /**
  * 渲染文本
@@ -39,8 +41,33 @@ fun DrawContext.renderText(
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     textRenderer: TextRenderer = this.client.textRenderer,
     rightToLeft: Boolean = textRenderer.isRightToLeft
+) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, rightToLeft)
+
+/**
+ * 渲染文本
+ * @receiver DrawContext
+ * @param text Text
+ * @param x Float
+ * @param y Float
+ * @param shadow Boolean
+ * @param layerType TextRenderer.TextLayerType
+ * @param rightToLeft Boolean
+ * @param color ARGBColor
+ * @param backgroundColor ARGBColor
+ */
+fun TextRenderer.renderText(
+    vertexConsumers: VertexConsumerProvider.Immediate,
+    positionMatrix: Matrix4f,
+    text: Text,
+    x: Float,
+    y: Float,
+    shadow: Boolean = false,
+    layerType: TextLayerType = TextLayerType.NORMAL,
+    color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
+    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+    rightToLeft: Boolean = this.isRightToLeft
 ) {
-    textRenderer.draw(
+    draw(
         ReorderingUtil.reorder(text, rightToLeft),
         x,
         y,
@@ -53,8 +80,9 @@ fun DrawContext.renderText(
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft
     )
-    draw()
+    vertexConsumers.draw()
 }
+
 
 /**
  * 渲染有序文本
@@ -77,8 +105,31 @@ fun DrawContext.renderText(
     backgroundColor: ARGBColor = Color(0),
     textRenderer: TextRenderer = this.client.textRenderer,
     rightToLeft: Boolean = textRenderer.isRightToLeft
+) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, rightToLeft)
+
+/**
+ * 渲染有序文本
+ * @param text OrderedText
+ * @param x Float
+ * @param y Float
+ * @param shadow Boolean
+ * @param layerType TextRenderer.TextLayerType
+ * @param color ARGBColor
+ * @param backgroundColor ARGBColor
+ */
+fun TextRenderer.renderText(
+    vertexConsumers: VertexConsumerProvider.Immediate,
+    positionMatrix: Matrix4f,
+    text: OrderedText,
+    x: Float,
+    y: Float,
+    shadow: Boolean = false,
+    layerType: TextLayerType = TextLayerType.NORMAL,
+    color: ARGBColor = Color(0xFF000000),
+    backgroundColor: ARGBColor = Color(0),
+    rightToLeft: Boolean = this.isRightToLeft
 ) {
-    textRenderer.draw(
+    draw(
         text,
         x,
         y,
@@ -91,8 +142,9 @@ fun DrawContext.renderText(
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft
     )
-    draw()
+    vertexConsumers.draw()
 }
+
 
 /**
  * 渲染文本
@@ -116,9 +168,34 @@ fun DrawContext.renderText(
     backgroundColor: ARGBColor = Color(0),
     textRenderer: TextRenderer = this.client.textRenderer,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
+) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, rightToLeft)
+
+/**
+ * 渲染文本
+ * @receiver DrawContext
+ * @param text String
+ * @param x Float
+ * @param y Float
+ * @param shadow Boolean
+ * @param layerType TextRenderer.TextLayerType
+ * @param rightToLeft Boolean
+ * @param color ARGBColor
+ * @param backgroundColor ARGBColor
+ */
+fun TextRenderer.renderText(
+    vertexConsumers: VertexConsumerProvider.Immediate,
+    positionMatrix: Matrix4f,
+    text: String,
+    x: Float,
+    y: Float,
+    shadow: Boolean = false,
+    layerType: TextLayerType = TextLayerType.NORMAL,
+    color: ARGBColor = Color(0xFF000000),
+    backgroundColor: ARGBColor = Color(0),
+    rightToLeft: Boolean = this.isRightToLeft,
 ) {
-    textRenderer.draw(
-        Literal(if (rightToLeft) textRenderer.mirror(text) else text).asOrderedText(),
+    draw(
+        Literal(if (rightToLeft) mirror(text) else text).asOrderedText(),
         x,
         y,
         color,
@@ -130,7 +207,7 @@ fun DrawContext.renderText(
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
         true
     )
-    draw()
+    vertexConsumers.draw()
 }
 
 /**
@@ -158,6 +235,35 @@ fun DrawContext.renderAlignmentText(
 ) {
     alignment.align(box, text.size(textRenderer).toFloat()).apply {
         renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+    }
+}
+
+/**
+ * 渲染对齐文本
+ * @receiver DrawContext
+ * @param text String
+ * @param box Box 需要对齐的[Box]
+ * @param alignment ([Orientation]) -> [Alignment] 对齐方式
+ * @param shadow Boolean
+ * @param layerType TextRenderer.TextLayerType
+ * @param rightToLeft Boolean
+ * @param color ARGBColor
+ * @param backgroundColor ARGBColor
+ */
+fun TextRenderer.renderAlignmentText(
+    vertexConsumers: VertexConsumerProvider.Immediate,
+    positionMatrix: Matrix4f,
+    text: String,
+    box: Box,
+    alignment: Alignment = Alignment.Center,
+    shadow: Boolean = false,
+    layerType: TextLayerType = TextLayerType.NORMAL,
+    color: ARGBColor = Color(0xFF000000),
+    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+    rightToLeft: Boolean = this.isRightToLeft,
+) {
+    alignment.align(box, text.size(this).toFloat()).apply {
+        renderText(vertexConsumers, positionMatrix, text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, rightToLeft)
     }
 }
 

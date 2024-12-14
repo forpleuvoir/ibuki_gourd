@@ -10,6 +10,8 @@ import kotlin.contracts.contract
 
 val DrawContext.positionMatrix: Matrix4f get() = matrices.peek().positionMatrix
 
+val MatrixStack.positionMatrix: Matrix4f get() = peek().positionMatrix
+
 @OptIn(ExperimentalContracts::class)
 inline fun DrawContext.useMatrixStack(block: DrawContext.(MatrixStack) -> Unit) {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
@@ -23,7 +25,7 @@ fun DrawContext.enableScissor(box: Box) {
 }
 
 @OptIn(ExperimentalContracts::class)
-fun DrawContext.scissor(box: Box,block: DrawContext.() -> Unit){
+fun DrawContext.scissor(box: Box, block: DrawContext.() -> Unit) {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
     enableScissor(box)
     block()

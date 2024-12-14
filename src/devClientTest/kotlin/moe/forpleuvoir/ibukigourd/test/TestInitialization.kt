@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.test
 
+import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
@@ -14,6 +15,7 @@ object TestInitialization {
 
     @Subscriber
     fun init(event: ModInitializerEvent) {
+        if (event.meta != IbukiGourd.metadata) return
         log.info("MOD测试")
         InputHandler.apply {
             register(Keyboard.KP_1) {

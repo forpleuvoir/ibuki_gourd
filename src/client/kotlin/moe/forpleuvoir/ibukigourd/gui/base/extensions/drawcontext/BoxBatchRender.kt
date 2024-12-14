@@ -19,6 +19,8 @@ import moe.forpleuvoir.nebula.common.color.alphaFRange
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.VertexConsumer
+import net.minecraft.client.render.VertexConsumerProvider
+import net.minecraft.client.util.math.MatrixStack
 import org.joml.Vector2fc
 import kotlin.math.abs
 import kotlin.math.min
@@ -27,13 +29,23 @@ fun DrawContext.batchRenderBox(
     layer: RenderLayer = RenderLayer.getGui(),
     block: BoxBatchRenderScope.() -> Unit
 ) {
-    block(BoxBatchRenderScope(vertexConsumers.getBuffer(layer), this))
+    block(BoxBatchRenderScope(vertexConsumers.getBuffer(layer), this.matrices))
     draw()
+}
+
+fun batchRenderBox(
+    vertexConsumers: VertexConsumerProvider.Immediate,
+    matrices: MatrixStack,
+    layer: RenderLayer = RenderLayer.getGui(),
+    block: BoxBatchRenderScope.() -> Unit
+) {
+    block(BoxBatchRenderScope(vertexConsumers.getBuffer(layer), matrices))
+    vertexConsumers.draw()
 }
 
 @ConsistentCopyVisibility
 @Suppress("MemberVisibilityCanBePrivate")
-data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexConsumer, private val context: DrawContext) {
+data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexConsumer, private val matrices: MatrixStack) {
 
     /**
      * 渲染一个[Box]
@@ -42,7 +54,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
      */
     fun pushBox(box: Box, color: ARGBColor) {
         for (vertex in box.vertexes) {
-            bufferBuilder.vertex(context.matrices, vertex).color(color)
+            bufferBuilder.vertex(matrices, vertex).color(color)
         }
     }
 
@@ -60,7 +72,7 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
      */
     fun pushBox(coloredBox: ColoredBox) {
         for (vertex in coloredBox.coloredVertexes) {
-            bufferBuilder.vertex(context.matrices, vertex).color(vertex.color)
+            bufferBuilder.vertex(matrices, vertex).color(vertex.color)
         }
     }
 
@@ -73,10 +85,10 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
      * @param color ARGBColor
      */
     fun pushBox(x: Float, y: Float, width: Float, height: Float, color: ARGBColor) {
-        bufferBuilder.vertex(context.matrices, x = x, y = y, 0f).color(color)
-        bufferBuilder.vertex(context.matrices, x = x, y = y + height, 0f).color(color)
-        bufferBuilder.vertex(context.matrices, x = x + width, y = y + height, 0f).color(color)
-        bufferBuilder.vertex(context.matrices, x = x + width, y = y, 0f).color(color)
+        bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(color)
+        bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(color)
+        bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(color)
+        bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(color)
     }
 
     /**
@@ -99,10 +111,10 @@ data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexCon
         bottomLeftColor: ARGBColor,
         bottomRightColor: ARGBColor
     ) {
-        bufferBuilder.vertex(context.matrices, x = x, y = y, 0f).color(topLeftColor)
-        bufferBuilder.vertex(context.matrices, x = x, y = y + height, 0f).color(bottomLeftColor)
-        bufferBuilder.vertex(context.matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
-        bufferBuilder.vertex(context.matrices, x = x + width, y = y, 0f).color(topRightColor)
+        bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(topLeftColor)
+        bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(bottomLeftColor)
+        bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
+        bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
     }
 
     /**

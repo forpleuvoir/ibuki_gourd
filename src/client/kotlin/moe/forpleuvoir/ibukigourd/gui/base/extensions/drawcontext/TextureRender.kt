@@ -14,6 +14,7 @@ import net.minecraft.client.render.BufferBuilder
 import net.minecraft.client.render.BufferRenderer
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.util.math.MatrixStack
 import kotlin.math.absoluteValue
 
 fun DrawContext.batchRenderTextureColored(
@@ -21,11 +22,21 @@ fun DrawContext.batchRenderTextureColored(
     endAction: () -> Unit = { disableBlend() },
     shaderSupplier: ShaderProgramKey = POSITION_TEX_COLOR,
     block: TextureBatchRenderScope.(DrawContext) -> Unit
+) = batchRenderTextureColored(matrices, beginAction, endAction, shaderSupplier) scope@{
+    this@scope.block(this@batchRenderTextureColored)
+}
+
+fun batchRenderTextureColored(
+    matrices: MatrixStack,
+    beginAction: () -> Unit = { enableBlend() },
+    endAction: () -> Unit = { disableBlend() },
+    shaderSupplier: ShaderProgramKey = POSITION_TEX_COLOR,
+    block: TextureBatchRenderScope.() -> Unit
 ) {
     setShader(shaderSupplier)
     beginAction()
     val bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
-    block.invoke(TextureBatchRenderScope(bufferBuilder, this), this)
+    block.invoke(TextureBatchRenderScope(bufferBuilder, matrices))
     bufferBuilder.endNullable()?.let {
         BufferRenderer.drawWithGlobalProgram(it)
     }
@@ -33,7 +44,10 @@ fun DrawContext.batchRenderTextureColored(
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-open class TextureBatchRenderScope internal constructor(private val bufferBuilder: BufferBuilder, private val context: DrawContext) {
+open class TextureBatchRenderScope internal constructor(
+    private val bufferBuilder: BufferBuilder,
+    private val matrices: MatrixStack
+) {
 
     /**
      * 绘制纹理
@@ -63,7 +77,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
         textureWidth: Int = 256,
         textureHeight: Int = 256,
     ) {
-        val matrix4f = context.positionMatrix
+        val matrix4f = matrices.positionMatrix
         val textureU = u.toFloat() / textureWidth.toFloat()
         val textureV = v.toFloat() / textureHeight.toFloat()
         val textureUEnd = (u + uSize).toFloat() / textureWidth.toFloat()
@@ -88,7 +102,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      * @param vertex4 UVVertex
      */
     fun pushTexture(vertex1: UVVertex, vertex2: UVVertex, vertex3: UVVertex, vertex4: UVVertex, color: ARGBColor = Colors.WHITE) {
-        val matrix4f = context.positionMatrix
+        val matrix4f = matrices.positionMatrix
         bufferBuilder.vertex(matrix4f, vertex1).texture(vertex1).color(color)
         bufferBuilder.vertex(matrix4f, vertex2).texture(vertex2).color(color)
         bufferBuilder.vertex(matrix4f, vertex3).texture(vertex3).color(color)
@@ -105,7 +119,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
      * @param textureHeight Int
      */
     fun pushTexture(box: Box, uvMapping: UVMapping, color: ARGBColor = Colors.WHITE, textureWidth: Int = 256, textureHeight: Int = 256) {
-        val matrix4f = context.positionMatrix
+        val matrix4f = matrices.positionMatrix
         bufferBuilder.vertex(matrix4f, box.vertexes[0]).texture(uvMapping.uStart.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
             .color(color)
         bufferBuilder.vertex(matrix4f, box.vertexes[2]).texture(uvMapping.uEnd.toFloat() / textureWidth, uvMapping.vStart.toFloat() / textureHeight)
@@ -166,6 +180,7 @@ open class TextureBatchRenderScope internal constructor(private val bufferBuilde
          * centerWidth
          */
         val cw = width - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+
         /**
          * centerHeight
          */
