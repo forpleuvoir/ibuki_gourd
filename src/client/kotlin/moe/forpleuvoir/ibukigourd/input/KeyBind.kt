@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.input
 import com.google.common.collect.Lists
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.NextAction
@@ -14,6 +15,7 @@ import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -130,12 +132,12 @@ class KeyBind(
                 }
 
                 OnPressed     -> {
-                    if (tickCount % setting.triggerPeriod == 0L) action()
+                    if (tickCount % setting.repeatTriggerInterval == 0L) action()
                 }
 
                 OnLongPressed -> {
                     val temp = tickCount - setting.longPressTime
-                    if (temp >= 0 && tickCount % setting.triggerPeriod == 0L) action()
+                    if (temp >= 0 && tickCount % setting.repeatTriggerInterval == 0L) action()
                 }
 
                 else          -> Unit
@@ -153,8 +155,7 @@ class KeyBind(
         get() {
             val texts = asTexts
             return if (texts.isEmpty()) {
-                //todo i18n
-                Literal("not specified")
+                IGLang.notSpecified
             } else {
                 Literal(keys.joinToString(" + "))
             }
@@ -202,7 +203,7 @@ class KeyBind(
 
     override fun serialization(): SerializeElement {
         return serializeObject {
-            "keys" to asTranslatableKey
+            "keys" to serializeArray(asTranslatableKey)
             "setting" to setting
         }
     }

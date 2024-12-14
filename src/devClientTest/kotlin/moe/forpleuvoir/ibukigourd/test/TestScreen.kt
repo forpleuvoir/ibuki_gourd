@@ -22,7 +22,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.mc

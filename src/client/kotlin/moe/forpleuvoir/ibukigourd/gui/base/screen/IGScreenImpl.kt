@@ -25,7 +25,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -145,7 +145,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     //------------ Tickable ------------\\
 
-    override fun tick() {
+    override fun tick() = eventProcessing {
         tick.invoke()
     }
 
@@ -280,6 +280,12 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         elementChildren.removeAt(ei)
         drawableChildren.removeAt(di)
         return widgetChildren.removeAt(index)
+    }
+
+    override fun swapWidgetChildren(index1: Int, index2: Int) {
+        val temp = widgetChildren[index2]
+        widgetChildren[index2] = widgetChildren[index1]
+        widgetChildren[index1] = temp
     }
 
     //------------ Vanilla Screen Override ------------\\
@@ -708,6 +714,9 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
         @Suppress("NOTHING_TO_INLINE")
         inline fun <T : Screen> T.open(): T = openScreen(this)
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline fun <T : IGScreenImpl> T.open(parentScreen: Screen?): T = openScreen(this).apply { this.parentScreen = parentScreen }
 
     }
 }

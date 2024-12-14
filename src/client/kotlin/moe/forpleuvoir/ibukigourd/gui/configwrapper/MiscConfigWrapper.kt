@@ -22,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -41,10 +42,9 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
         Button(
             Modifier.width(120f)
         ) {
-            //TODO i18n
-            TextLabel("Unsupported")
+            TextLabel(IGLang.unsupported)
             HoverTip {
-                TextLabel("Unsupported Config")
+                TextLabel(IGLang.unsupported)
             }
         }
     }

@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.gui.widget.toHSVColor
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -61,9 +62,8 @@ private fun WidgetContainerScope.ColorConfigSettingButton(
             modifier = Modifier
                 .disableRender()
                 .renderOverlay { context, _, _, _ ->
-                    //TODO i18n
                     context.renderAlignmentText(
-                        Literal("点击空白处返回"),
+                        IGLang.clickBlankBack,
                         screen()!!.transform,
                         color = HSVColor(0f, 0f, 0.85f),
                         alignment = Alignment.biasedBy(0f, 0.8f),

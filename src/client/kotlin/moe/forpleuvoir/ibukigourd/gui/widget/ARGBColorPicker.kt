@@ -18,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -112,8 +113,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Red")
+            TextLabel(IGLang.red)
         }
     }
     Column(Modifier.weight(1)) {
@@ -129,8 +129,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Green")
+            TextLabel(IGLang.green)
         }
     }
     Column(Modifier.weight(1)) {
@@ -146,8 +145,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Blue")
+            TextLabel(IGLang.blue)
         }
     }
     Column(Modifier.weight(1)) {
@@ -163,8 +161,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Alpha")
+            TextLabel(IGLang.alpha)
         }
     }
     scope()
@@ -185,8 +182,7 @@ fun WidgetContainerScope.ColorResult(
     }.then(modifier)
 ) {
     HoverTip {
-        //TODO i18n
-        TextLabel(mutableStateOf(color) { "点击复制颜色:${it.hexStr}" })
+        TextLabel(mutableStateOf(color) { IGLang.clickCopyColor(it.hexStr) })
     }
     scope()
 }

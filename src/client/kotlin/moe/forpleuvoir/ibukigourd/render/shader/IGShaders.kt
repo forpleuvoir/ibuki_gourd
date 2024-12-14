@@ -6,17 +6,7 @@ import net.minecraft.client.gl.ShaderProgramKey
 import net.minecraft.client.render.VertexFormat
 import net.minecraft.client.render.VertexFormats
 
-//@EventSubscriber
 object IGShaders {
-
-//    @Subscriber
-//    @Suppress("UNUSED_PARAMETER")
-//    fun init(event: ModInitializerEvent) {
-//        val shaderProgramKeys = ShaderProgramKeys.getAll()
-//        REGISTERED_SHADERS.forEach { shaderProgramKey ->
-//            shaderProgramKeys.add(shaderProgramKey)
-//        }
-//    }
 
     private val REGISTERED_SHADERS = mutableListOf<ShaderProgramKey>()
 

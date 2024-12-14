@@ -30,7 +30,15 @@ fun WidgetContainerScope.SearchBar(
         padding(5, 3, 3, 3)
             .render { context, _, _, _ ->
                 context.batchRenderTextureColored {
-                    pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
+                    pushWidgetTexture(
+                        transform,
+                        theme(
+                            WidgetTheme.TextInput,
+                            hovered = screen()?.hoveredWidget?.getValue()?.isInParentChain(this@render) == true
+                                    || screen()?.focusedWidget?.getValue()?.isInParentChain(this@render) == true
+                        ),
+                        bgShaderColor
+                    )
                 }
             }
     }

@@ -23,11 +23,13 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.mod.IGLang
+import moe.forpleuvoir.ibukigourd.mod.IGLang.mapConfigWrapperText
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.util.changeKeyPreservingOrder
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.renameKey
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -56,7 +58,6 @@ fun WidgetContainerScope.StringListConfigWrapper(
         Button(
             Modifier.width(80f)
         ) {
-            //TODO i18n
             HoverTip(
                 optionalDirection = Direction.clockwiseFromLeft.notification()
             ) {
@@ -66,12 +67,12 @@ fun WidgetContainerScope.StringListConfigWrapper(
                         sb.appendLine(t)
                     }
                     if (listValue.size > 10) sb.append("...")
-                    if (listValue.isEmpty()) sb.append("什么都没有")
+                    if (listValue.isEmpty()) sb.append(IGLang.hasNothing.plainText)
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
-                }).apply { listValue.subscribe { this.onChanged() } }
+                })
             }
-            TextLabel(mutableStateBy { Literal(listValue.size.toString() + "个元素") }).apply { listValue.subscribe { this.onChanged() } }
+            TextLabel(mutableStateBy { IGLang.listConfigWrapperText(listValue.size) })
             click {
                 Dialog {
                     TextLabel(stateOf(config.translateText))
@@ -82,9 +83,8 @@ fun WidgetContainerScope.StringListConfigWrapper(
                             modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
                             listModifier = { Modifier.height(160f) }
                         ) {
-                            //TODO i18n
                             //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (listValue.isEmpty()) TextLabel("啥也没有")
+                            if (listValue.isEmpty()) TextLabel(IGLang.hasNothing)
                             listValue.forEachIndexed { index, item ->
                                 Column(
                                     horizontalArrangement = Arrangement.spacedBy(2f),
@@ -154,7 +154,6 @@ fun WidgetContainerScope.StringMapConfigWrapper(
         Button(
             Modifier.width(80f)
         ) {
-            //TODO i18n
             HoverTip(
                 optionalDirection = Direction.clockwiseFromLeft.notification()
             ) {
@@ -164,12 +163,12 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                         sb.appendLine("$k => $v")
                     }
                     if (mapValue.size > 10) sb.append("...")
-                    if (mapValue.isEmpty()) sb.append("什么都没有")
+                    if (mapValue.isEmpty()) sb.append(IGLang.hasNothing.plainText)
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
-                }).apply { mapValue.subscribe { this.onChanged() } }
+                })
             }
-            TextLabel(mutableStateBy { Literal(mapValue.size.toString() + "个元素") }).apply { mapValue.subscribe { this.onChanged() } }
+            TextLabel(mutableStateBy { mapConfigWrapperText(mapValue.size) })
             click {
                 Dialog {
                     TextLabel(stateOf(config.translateText))
@@ -180,9 +179,8 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                             modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
                             listModifier = { Modifier.height(160f) }
                         ) {
-                            //TODO i18n
                             //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (mapValue.isEmpty()) TextLabel("啥也没有")
+                            if (mapValue.isEmpty()) TextLabel(IGLang.hasNothing)
                             mapValue.forEach { key, value ->
                                 Column(
                                     horizontalArrangement = Arrangement.spacedBy(2f),
@@ -202,7 +200,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                             ConfirmDialog(
                                                 stateOf(Literal("编辑 => $key")),
                                                 onConfirm = {
-                                                    mapValue.changeKeyPreservingOrder(key, newKey.getValue())
+                                                    mapValue.renameKey(key, newKey.getValue())
                                                     mc.currentScreen?.close()
                                                     this@RowListWrapped.execute {
                                                         this@RowListWrapped.recompose()

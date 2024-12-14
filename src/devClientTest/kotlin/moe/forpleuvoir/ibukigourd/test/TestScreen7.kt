@@ -11,8 +11,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig
-import moe.forpleuvoir.ibukigourd.mod.gui.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.IGLang
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
@@ -36,7 +37,7 @@ fun testScreen7() = TabScreen(
 }
 
 fun TabScope.tab3() = Tab("配置管理器测试") {
-    ConfigManagerWrapper(IGConfig)
+    ConfigManagerWrapper(TestConfig)
 }
 
 fun TabScope.tab1() = Tab("测试用配置设置") {
@@ -50,7 +51,7 @@ fun TabScope.tab1() = Tab("测试用配置设置") {
                 }
                 list.onChange(list)
             },
-            hintText = stateOf("搜索.."),
+            hintText = stateOf(IGLang.search.plainText),
             modifier = Modifier.fill(),
             textEditorModifier = { Modifier.weight(1) }
         )

@@ -15,7 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
-import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -76,7 +76,7 @@ fun <T : Resettable> WidgetContainerScope.ConfigResetButton(
             resettable.setValue(!config.isDefault())
             onRest(config)
         }
-        TextLabel(Translatable("ibukigourd.gui.button.rest"))
+        TextLabel(IGLang.reset)
     }
 }
 

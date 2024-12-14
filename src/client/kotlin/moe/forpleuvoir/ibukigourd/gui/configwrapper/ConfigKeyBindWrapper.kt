@@ -26,6 +26,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
 import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.NextAction
@@ -89,15 +91,17 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
         copyFrom(keyBind.setting)
     }
 
+    val inputtingColor = Colors.ORANGE
+
     Button(
         modifier = Modifier
             .width(120f)
             .keyPress { event ->
                 onKeyPress(event)
-                event.tryUse(inputting).onSuccess {
+                event.tryUse(inputting && event.keyCode != Keyboard.BACKSPACE).onSuccess {
                     keys.add(event.keyCode)
-                    if (keys.size == 1) text.setValue(Literal(event.keyCode.toString()).withColor(Colors.ORANGE))
-                    else text.setValue(Literal(keys.joinToString(separator = " + ")).withColor(Colors.ORANGE))
+                    if (keys.size == 1) text.setValue(Literal(event.keyCode.toString()).withColor(inputtingColor))
+                    else text.setValue(Literal(keys.joinToString(separator = " + ")).withColor(inputtingColor))
                 }
             }.keyRelease { event ->
                 onKeyRelease(event)
@@ -110,9 +114,9 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                 }
             }.then(buttonModifier)
     ) {
-        click {
+        release {
             inputting = !inputting
-            text.setValue(Literal("按下按键设置"))
+            text.setValue(Literal("按下按键设置").withColor(inputtingColor))
         }
         TextLabel(text)
         HoverTip(50.milliseconds) {
@@ -133,17 +137,15 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
             ) {
                 //on open
                 setting.copyFrom(keyBind.setting)
-                //TODO i18n
                 Row(
                     Modifier.width(240f),
                     verticalArrangement = Arrangement.spacedBy(5f)
                 ) {
-
                     Column(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextLabel("是否取消之后的操作")
+                        TextLabel(IGLang.nextAction)
                         val nextAction = mutableStateOf(setting.nextAction.value).apply {
                             subscribe { setting.nextAction = it.pick(NextAction.Cancel, NextAction.Continue) }
                         }
@@ -154,7 +156,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextLabel("只有完全匹配的按键才会触发")
+                        TextLabel(IGLang.exactMatch)
                         val exactMatch = mutableStateOf(setting.exactMatch).apply {
                             subscribe { setting.exactMatch = it }
                         }
@@ -165,7 +167,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextLabel("按下多久触发长按")
+                        TextLabel(IGLang.longPressTime)
                         val longPressTime = mutableStateOf(setting.longPressTime).apply {
                             subscribe { setting.longPressTime = it }
                         }
@@ -175,9 +177,9 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextLabel("重复触发的按键周期")
-                        val triggerPeriod = mutableStateOf(setting.triggerPeriod).apply {
-                            subscribe { setting.triggerPeriod = it }
+                        TextLabel(IGLang.repeatTriggerInterval)
+                        val triggerPeriod = mutableStateOf(setting.repeatTriggerInterval).apply {
+                            subscribe { setting.repeatTriggerInterval = it }
                         }
                         LongEditor(triggerPeriod, range = 0..1000L, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
                     }
@@ -186,7 +188,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextLabel("按键触发环境")
+                        TextLabel(IGLang.environment)
                         val enumValue = mutableStateOf(setting.environment).apply {
                             subscribe { setting.environment = it }
                         }
@@ -196,7 +198,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        TextLabel("按键触发模式")
+                        TextLabel(IGLang.triggerMode)
                         val enumValue = mutableStateOf(setting.triggerMode).apply {
                             subscribe { setting.triggerMode = it }
                         }

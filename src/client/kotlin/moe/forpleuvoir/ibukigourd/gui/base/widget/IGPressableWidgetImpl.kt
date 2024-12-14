@@ -15,8 +15,10 @@ abstract class IGPressableWidgetImpl : IGClickableWidgetImpl(), IGPressableWidge
     }
 
     override fun onRelease(mouseX: Float, mouseY: Float) {
-        pressed = false
-        onRelease()
+        if (pressed) {
+            pressed = false
+            onRelease()
+        }
     }
 
     override fun onKeyPress(event: KeyPressEvent) {

@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
 

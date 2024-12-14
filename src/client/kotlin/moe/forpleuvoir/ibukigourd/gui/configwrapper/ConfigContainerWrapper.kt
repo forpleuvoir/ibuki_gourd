@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
+import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -10,20 +11,26 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.mod.IGLang
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
+import moe.forpleuvoir.nebula.common.util.collection.notification
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -40,9 +47,8 @@ fun WidgetContainerScope.ConfigsWrapper(
     scrollerModifier = scrollerModifier,
     spacing = 4f
 ) {
-    //TODO i18n
     //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-    if (configs.count() == 0) TextLabel("啥也没有")
+    if (configs.count() == 0) TextLabel(IGLang.hasNothing)
     configs.forEach { config ->
         ConfigWrapperMap.wrapper(config, this, Modifier.fill())
     }
@@ -58,8 +64,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
         Button(
             modifier = Modifier.width(80f)
         ) {
-            //TODO i18n
-            TextLabel("设置")
+            TextLabel(IGLang.setting)
             click {
                 SimpleDialog(
                     title = stateOf(config.translateText)
@@ -91,28 +96,36 @@ fun WidgetContainerScope.ConfigManagerWrapper(
 ) {
     val map = buildList {
         (configManager.configs().filterIsInstance<Config<*, *>>() as Collection<ConfigSerializable>).let {
-            if (it.isNotEmpty()) add(Translatable("ibukigourd.gui.unspecified_group") to it)
+            if (it.isNotEmpty()) add(configManager as ConfigSerializable to it)
         }
-        addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it.translateText to it.configs() })
+        addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it to it.configs() })
     }
-    val currentConfigs = if (map.isEmpty()) {
-        notifiableList<ConfigSerializable>()
+    var (currentGroup, currentConfigs) = if (map.isEmpty()) {
+        Literal("empty") to notifiableList<ConfigSerializable>()
     } else {
-        notifiableList(map.first().second)
+        map.first().first to notifiableList(map.first().second)
     }
 
     RowListWrapped(
-        modifier = Modifier.fill().width(map.map { it.first }.maxWidth(mc.textRenderer).coerceIn(60, 120).toFloat()),
+        modifier = Modifier.fill(),
         listModifier = { Modifier.fill() },
     ) {
-        map.forEach { (name, configs) ->
+        map.forEach { (config, configs) ->
             FlatButton(
-                modifier = Modifier.fill(),
+                modifier = Modifier.width((map.map { it.first.translateText }.maxWidth(mc.textRenderer) + 4).coerceIn(100, 160).toFloat()),
                 hoveredColor = Colors.CYAN.alpha(0.25f),
                 pressedColor = Colors.CYAN.alpha(0.5f),
+                horizontalArrangement = Arrangement.Left
             ) {
-                TextLabel(name)
+                TextLabel(config.translateText) {
+                    HoverTip(
+                        optionalDirection = Direction.clockwiseFromRight.notification()
+                    ) {
+                        TextLabel(config.comment)
+                    }
+                }
                 click {
+                    currentGroup = config.translateText
                     currentConfigs.disableNotify {
                         currentConfigs.clear()
                         currentConfigs.addAll(configs)
@@ -122,12 +135,30 @@ fun WidgetContainerScope.ConfigManagerWrapper(
             }
         }
     }
-    ConfigsWrapper(
-        currentConfigs,
-        modifier = Modifier.fill()
-    ).apply {
-        currentConfigs.subscribe {
-            execute { this.recompose() }
+    Row(
+        verticalArrangement = Arrangement.spacedBy(3f),
+    ) {
+        SearchBar(
+            textConsumer = { str ->
+                currentConfigs.disableNotify {
+                    currentConfigs.clear()
+                    currentConfigs.addAll(map.find { (text, _) -> text == currentGroup }?.second?.filter { it.matched(str.toRegex()) } ?: emptyList())
+                }
+                currentConfigs.onChange(currentConfigs)
+            },
+            hintText = stateOf(IGLang.search.plainText),
+            modifier = Modifier.fill(),
+            textEditorModifier = { Modifier.weight(1) }
+        )
+        ConfigsWrapper(
+            currentConfigs,
+            modifier = Modifier.fill()
+        ).apply {
+            currentConfigs.subscribe {
+                execute {
+                    this.recompose()
+                }
+            }
         }
     }
 

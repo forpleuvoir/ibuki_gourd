@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.render.IGRenderLayers
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -44,8 +45,7 @@ fun WidgetContainerScope.HSVColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Hue")
+            TextLabel(IGLang.hue)
         }
     }
     Column(Modifier.weight(1)) {
@@ -61,8 +61,7 @@ fun WidgetContainerScope.HSVColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Saturation")
+            TextLabel(IGLang.saturation)
         }
     }
     Column(Modifier.weight(1)) {
@@ -78,8 +77,7 @@ fun WidgetContainerScope.HSVColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Value")
+            TextLabel(IGLang.brightness)
         }
     }
     Column(Modifier.weight(1)) {
@@ -95,8 +93,7 @@ fun WidgetContainerScope.HSVColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
         HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            //TODO i18n
-            TextLabel("Alpha")
+            TextLabel(IGLang.alpha)
         }
     }
     scope()

@@ -34,7 +34,7 @@ interface KeyBindSetting : Serializable, Deserializable, Matchable {
 	/**
 	 * 重复触发的按键周期
 	 */
-	var triggerPeriod: Long
+	var repeatTriggerInterval: Long
 
 	/**
 	 * 从其他按键设置复制

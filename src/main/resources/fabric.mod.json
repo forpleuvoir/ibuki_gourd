@@ -35,6 +35,12 @@
         "adapter": "kotlin",
         "value": "moe.forpleuvoir.ibukigourd.IbukiGourdServer"
       }
+    ],
+    "modmenu": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.forpleuvoir.ibukigourd.mod.compat.modmenu.ModMenuImpl"
+      }
     ]
   },
   "mixins": [
@@ -58,6 +64,11 @@
     "ibukigourd": {
       "package": [
         "moe.forpleuvoir.ibukigourd"
+      ]
+    },
+    "modmenu": {
+      "badges": [
+        "library"
       ]
     }
   }

@@ -81,14 +81,17 @@ class TextWidget(
 
     //------------ TextWidget ------------\\
 
-    init {
-        text.subscribe {
+    private var latestText: Text = text.getValue()
+
+    private fun updateText() {
+        val text = this.text.getValue()
+        if (latestText != text) {
+            latestText = text
             onChanged()
         }
     }
 
     private val textRenderer by setting::textRenderer
-
 
     private var renderText: List<McText> = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
 
@@ -180,6 +183,7 @@ class TextWidget(
     //------------ Render ------------\\
 
     private fun renderText(context: IGDrawContext, delta: Float) {
+        updateText()
         tickCounter += delta
         val contentBox = contentBox(true)
         val renderText = renderText

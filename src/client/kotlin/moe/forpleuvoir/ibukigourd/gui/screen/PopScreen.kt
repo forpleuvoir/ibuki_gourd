@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
-import moe.forpleuvoir.ibukigourd.mod.gui.GuiConfig.PopupScreen.DEFAULT_BG_BLUR_RADIUS
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.DEFAULT_BG_BLUR_RADIUS
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.screen.Screen

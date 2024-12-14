@@ -18,7 +18,7 @@ class KeyBindSettingImpl(
 
     private val log = logger()
 
-    override var triggerPeriod: Long = triggerPeriod.coerceAtLeast(0)
+    override var repeatTriggerInterval: Long = triggerPeriod.coerceAtLeast(0)
         set(value) {
             field = value.coerceAtLeast(0)
         }
@@ -34,7 +34,7 @@ class KeyBindSettingImpl(
             "next_action" - nextAction
             "exact_match" - exactMatch
             "trigger_mode" - triggerMode.key
-            "trigger_period" - triggerPeriod
+            "repeatTriggerInterval" - repeatTriggerInterval
             "long_press_time" - longPressTime
         }
     }
@@ -46,7 +46,7 @@ class KeyBindSettingImpl(
             nextAction = NextAction.deserialization(obj["next_action"]!!)
             exactMatch = obj["exact_match"]!!.asBoolean
             triggerMode = KeyTriggerMode.fromKey(obj["trigger_mode"]!!.asString)
-            triggerPeriod = obj["trigger_period"]!!.asLong
+            repeatTriggerInterval = obj["repeatTriggerInterval"]!!.asLong
             longPressTime = obj["long_press_time"]!!.asLong
         }.onFailure { log.error(it) }
     }
@@ -68,7 +68,7 @@ class KeyBindSettingImpl(
         if (nextAction != other.nextAction) return false
         if (exactMatch != other.exactMatch) return false
         if (triggerMode != other.triggerMode) return false
-        if (triggerPeriod != other.triggerPeriod) return false
+        if (repeatTriggerInterval != other.repeatTriggerInterval) return false
         if (longPressTime != other.longPressTime) return false
 
         return true
@@ -79,7 +79,7 @@ class KeyBindSettingImpl(
         result = 31 * result + nextAction.hashCode()
         result = 31 * result + exactMatch.hashCode()
         result = 31 * result + triggerMode.hashCode()
-        result = 31 * result + triggerPeriod.hashCode()
+        result = 31 * result + repeatTriggerInterval.hashCode()
         result = 31 * result + longPressTime.hashCode()
         return result
     }
@@ -102,8 +102,8 @@ class KeyBindSettingImpl(
             this.triggerMode = target.triggerMode
             valueChange = true
         }
-        if (this.triggerPeriod != target.triggerPeriod) {
-            this.triggerPeriod = target.triggerPeriod
+        if (this.repeatTriggerInterval != target.repeatTriggerInterval) {
+            this.repeatTriggerInterval = target.repeatTriggerInterval
             valueChange = true
         }
         if (this.longPressTime != target.longPressTime) {

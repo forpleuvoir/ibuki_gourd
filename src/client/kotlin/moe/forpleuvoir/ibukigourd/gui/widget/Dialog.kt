@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.mod.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.State
@@ -74,17 +75,16 @@ fun ConfirmDialog(
         Modifier.matchSibling(),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
     ) {
-        //TODO i18n
         Button(
             color = HSVColor(135f, .35f, 1f)
         ) {
-            TextLabel("Confirm")
+            TextLabel(IGLang.confirm)
             click {
                 onConfirm()
             }
         }
         Button {
-            TextLabel("Cancel")
+            TextLabel(IGLang.cancel)
             click { onCancel() }
         }
     }
@@ -117,9 +117,8 @@ fun Dialog(
                 }
             }
             .renderOverlay { context, _, _, _ ->
-                //TODO i18n
                 context.renderAlignmentText(
-                    "点击空白处返回",
+                    IGLang.clickBlankBack,
                     screen()!!.transform,
                     color = HSVColor(0f, 0f, 0.85f),
                     alignment = Alignment.biasedBy(0f, 0.95f),

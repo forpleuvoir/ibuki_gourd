@@ -33,6 +33,14 @@ inline fun MatrixStack.translate(vector2: Vector2fc) {
     this.translate(vector2.x(), vector2.y(), 0f)
 }
 
+inline fun MatrixStack.scale(vector2: Vector2fc) {
+    this.scale(vector2.x(), vector2.y(), 1f)
+}
+
+inline fun MatrixStack.scale(vector3: Vector3fc) {
+    this.scale(vector3.x(), vector3.y(), vector3.z())
+}
+
 inline fun Matrix4f.getPosition(): Vector3f {
     return Vector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
 }
