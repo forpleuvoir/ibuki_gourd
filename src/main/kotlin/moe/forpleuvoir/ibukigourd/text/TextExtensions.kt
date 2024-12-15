@@ -14,7 +14,7 @@ fun Literal(content: StringBuilder): Text = Text.literal(content.toString())
 @JvmOverloads
 fun Translatable(key: String, fallback: String? = null, vararg args: Any): Text = Text.translatable(key, fallback, *args)
 
-fun MutableText.copyToText(): Text = Text(content, ArrayList(siblings), style)
+fun McText.copyToText(): Text = Text(content, ArrayList(siblings), style)
 
 /**
  * 将MutableText进行扁平化处理.

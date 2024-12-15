@@ -24,6 +24,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.text.Style
 import kotlin.math.abs
 
@@ -210,6 +211,7 @@ class TextWidget(
                                 setting.layerType,
                                 color = setting.defaultColor,
                                 backgroundColor = setting.backgroundColor,
+                                LightmapTextureManager.MAX_LIGHT_COORDINATE,
                                 setting.rightToLeft
                             )
                         }

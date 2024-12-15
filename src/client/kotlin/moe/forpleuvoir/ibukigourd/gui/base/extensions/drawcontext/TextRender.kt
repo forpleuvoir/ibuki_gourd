@@ -40,8 +40,9 @@ fun DrawContext.renderText(
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     textRenderer: TextRenderer = this.client.textRenderer,
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft
-) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, rightToLeft)
+) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, light, rightToLeft)
 
 /**
  * 渲染文本
@@ -65,6 +66,7 @@ fun TextRenderer.renderText(
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = this.isRightToLeft
 ) {
     draw(
@@ -77,7 +79,7 @@ fun TextRenderer.renderText(
         vertexConsumers,
         layerType,
         backgroundColor,
-        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        light,
         rightToLeft
     )
     vertexConsumers.draw()
@@ -104,8 +106,9 @@ fun DrawContext.renderText(
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
     textRenderer: TextRenderer = this.client.textRenderer,
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft
-) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, rightToLeft)
+) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, light, rightToLeft)
 
 /**
  * 渲染有序文本
@@ -127,6 +130,7 @@ fun TextRenderer.renderText(
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = this.isRightToLeft
 ) {
     draw(
@@ -139,7 +143,7 @@ fun TextRenderer.renderText(
         vertexConsumers,
         layerType,
         backgroundColor,
-        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        light,
         rightToLeft
     )
     vertexConsumers.draw()
@@ -167,8 +171,9 @@ fun DrawContext.renderText(
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
     textRenderer: TextRenderer = this.client.textRenderer,
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
-) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, rightToLeft)
+) = textRenderer.renderText(vertexConsumers, positionMatrix, text, x, y, shadow, layerType, color, backgroundColor, light, rightToLeft)
 
 /**
  * 渲染文本
@@ -192,6 +197,7 @@ fun TextRenderer.renderText(
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Color(0),
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = this.isRightToLeft,
 ) {
     draw(
@@ -204,7 +210,7 @@ fun TextRenderer.renderText(
         vertexConsumers,
         layerType,
         backgroundColor,
-        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        light,
         true
     )
     vertexConsumers.draw()
@@ -231,10 +237,11 @@ fun DrawContext.renderAlignmentText(
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
     textRenderer: TextRenderer = this.client.textRenderer,
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
     alignment.align(box, text.size(textRenderer).toFloat()).apply {
-        renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+        renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, light, rightToLeft)
     }
 }
 
@@ -260,10 +267,11 @@ fun TextRenderer.renderAlignmentText(
     layerType: TextLayerType = TextLayerType.NORMAL,
     color: ARGBColor = Color(0xFF000000),
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = this.isRightToLeft,
 ) {
     alignment.align(box, text.size(this).toFloat()).apply {
-        renderText(vertexConsumers, positionMatrix, text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, rightToLeft)
+        renderText(vertexConsumers, positionMatrix, text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, light, rightToLeft)
     }
 }
 
@@ -288,9 +296,10 @@ fun DrawContext.renderAlignmentText(
     color: ARGBColor = Color(text.style.color?.rgb?.toLong() ?: 0xFF000000),
     backgroundColor: ARGBColor = Color(0),
     textRenderer: TextRenderer = this.client.textRenderer,
+    light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
     alignment.align(box, text.size(textRenderer).toFloat()).apply {
-        renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, rightToLeft)
+        renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, light, rightToLeft)
     }
 }

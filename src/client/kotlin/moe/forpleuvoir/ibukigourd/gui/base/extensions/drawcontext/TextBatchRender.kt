@@ -62,6 +62,7 @@ open class TextBatchRenderScope internal constructor(
         layerType: TextLayerType = TextLayerType.NORMAL,
         color: ARGBColor = text.style.argbColor ?: Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
@@ -74,7 +75,7 @@ open class TextBatchRenderScope internal constructor(
             vertexConsumers,
             layerType,
             backgroundColor,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            light,
             rightToLeft
         )
     }
@@ -97,6 +98,7 @@ open class TextBatchRenderScope internal constructor(
         layerType: TextLayerType = TextLayerType.NORMAL,
         color: ARGBColor = Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
@@ -109,7 +111,7 @@ open class TextBatchRenderScope internal constructor(
             vertexConsumers,
             layerType,
             backgroundColor,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            light,
             rightToLeft
         )
     }
@@ -133,6 +135,7 @@ open class TextBatchRenderScope internal constructor(
         layerType: TextLayerType = TextLayerType.NORMAL,
         color: ARGBColor = Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
@@ -145,7 +148,7 @@ open class TextBatchRenderScope internal constructor(
             vertexConsumers,
             layerType,
             backgroundColor.argb,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            light,
         )
     }
 
@@ -166,12 +169,13 @@ open class TextBatchRenderScope internal constructor(
         alignment: Alignment = Alignment.CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val offset = alignment.align(box, text.size(textRenderer).toFloat())
-        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, color, backgroundColor, rightToLeft)
+        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, color, backgroundColor, light, rightToLeft)
     }
 
     /**
@@ -191,12 +195,13 @@ open class TextBatchRenderScope internal constructor(
         alignment: Alignment = Alignment.CenterLeft,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         defaultColor: ARGBColor = text.style.argbColor ?: Color(0xFF000000),
         backgroundColor: ARGBColor = Color(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val offset = alignment.align(box, text.size(textRenderer).toFloat())
-        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, defaultColor, backgroundColor, rightToLeft)
+        pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, defaultColor, backgroundColor, light, rightToLeft)
 
     }
 
@@ -220,9 +225,10 @@ open class TextBatchRenderScope internal constructor(
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Color(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val texts = string.wrapToLines(textRenderer, box.width.toInt())
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
@@ -230,7 +236,7 @@ open class TextBatchRenderScope internal constructor(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, light, rightToLeft)
         }
     }
 
@@ -253,9 +259,10 @@ open class TextBatchRenderScope internal constructor(
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val texts = lines.wrapToLines(textRenderer, box.width.toInt())
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
@@ -263,7 +270,7 @@ open class TextBatchRenderScope internal constructor(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, light, rightToLeft)
         }
     }
 
@@ -286,9 +293,10 @@ open class TextBatchRenderScope internal constructor(
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val texts = text.wrapToTextLines(textRenderer, box.width.toInt())
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
@@ -296,7 +304,7 @@ open class TextBatchRenderScope internal constructor(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, light, rightToLeft)
         }
     }
 
@@ -319,9 +327,10 @@ open class TextBatchRenderScope internal constructor(
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         layerType: TextLayerType = TextLayerType.NORMAL,
-        rightToLeft: Boolean = textRenderer.isRightToLeft,
         defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
+        light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val texts = lines.wrapToTextLines(textRenderer, box.width.toInt())
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
@@ -329,7 +338,7 @@ open class TextBatchRenderScope internal constructor(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, rightToLeft)
+            pushText(texts[index], offset.x, offset.y, shadow, layerType, defaultColor, backgroundColor, light, rightToLeft)
         }
     }
 

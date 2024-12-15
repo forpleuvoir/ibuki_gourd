@@ -19,10 +19,10 @@ class IGDrawContext(
     vertexConsumers: VertexConsumerProvider.Immediate
 ) : DrawContext(client, vertexConsumers) {
 
+
     companion object {
         fun DrawContext.toIGDrawContext(): IGDrawContext =
-            if (this is IGDrawContext) this else IGDrawContext(this.client, this.vertexConsumers)
-
+            this as? IGDrawContext ?: IGDrawContext(this.client, this.vertexConsumers)
     }
 
     private var _layer: GuiLayer? = null

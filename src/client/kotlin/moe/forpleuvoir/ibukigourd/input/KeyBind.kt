@@ -83,12 +83,12 @@ class KeyBind(
         val beforeMatched = if (setting.exactMatch) {
             keys.exactMatch(beforeKeyCode)
         } else {
-            keys == beforeKeyCode || beforeKeyCode.hasAll(beforeKeyCode)
+            keys == beforeKeyCode || beforeKeyCode.hasAll(keys)
         }
         wasPress = if (setting.exactMatch) {
             keys.exactMatch(currentKeyCode)
         } else {
-            keys == currentKeyCode || currentKeyCode.hasAll(currentKeyCode)
+            keys == currentKeyCode || currentKeyCode.hasAll(keys)
         }
         if (wasPress && !beforeMatched) {
             return if (setting.triggerMode == OnPress || setting.triggerMode == BOTH) {
@@ -107,12 +107,12 @@ class KeyBind(
         val beforeMatched = if (setting.exactMatch) {
             keys.exactMatch(beforeKeyCode)
         } else {
-            keys == beforeKeyCode || beforeKeyCode.hasAll(beforeKeyCode)
+            keys == beforeKeyCode || beforeKeyCode.hasAll(keys)
         }
         val currentMath = if (setting.exactMatch) {
             keys.exactMatch(currentKeyCode)
         } else {
-            keys == currentKeyCode || currentKeyCode.hasAll(currentKeyCode)
+            keys == currentKeyCode || currentKeyCode.hasAll(keys)
         }
         if (beforeMatched && !currentMath) {
             return if (setting.triggerMode == OnRelease || setting.triggerMode == BOTH) {
@@ -222,4 +222,21 @@ class KeyBind(
             log.error(it)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as KeyBind
+
+        if (setting != other.setting) return false
+        if (keys != other.keys) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
+
 }

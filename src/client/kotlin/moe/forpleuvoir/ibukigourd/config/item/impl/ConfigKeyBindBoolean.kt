@@ -40,6 +40,10 @@ class ConfigKeyBindBoolean(
         configValue.value = value.value
     }
 
+    override fun KeyBindWithBoolean.isEquals(other: KeyBindWithBoolean): Boolean {
+        return this.value == other.value && this.keyBind == other.keyBind
+    }
+
     override fun deserialization(serializeElement: SerializeElement) {
         configValue.deserialization(serializeElement)
     }
