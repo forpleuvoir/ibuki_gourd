@@ -21,6 +21,8 @@
   "ibukigourd.color.brightness": "Brightness",
   "ibukigourd.color.click_copy_color": "Click to copy color %s",
   "$ConfigWrapper": "Config Wrapper",
+  "ibukigourd.config_wrapper.press_to_setting": "Press the button to start setting",
+  "ibukigourd.config_wrapper.release_to_save_setting": "Release the button to save the setting",
   "ibukigourd.config_wrapper.list.text": "%s elements",
   "ibukigourd.config_wrapper.map.text": "%s elements",
   "#input": "Input",

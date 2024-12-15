@@ -21,6 +21,8 @@
   "ibukigourd.color.brightness": "明度",
   "ibukigourd.color.click_copy_color": "点击复制颜色 %s",
   "$ConfigWrapper": "配置包装器",
+  "ibukigourd.config_wrapper.press_to_setting": "按下按键开始设置",
+  "ibukigourd.config_wrapper.release_to_save_setting": "释放按键保存设置",
   "ibukigourd.config_wrapper.list.text": "%s个元素",
   "ibukigourd.config_wrapper.map.text": "%s个元素",
   "#input": "输入",

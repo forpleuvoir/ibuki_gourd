@@ -157,7 +157,7 @@ class KeyBind(
             return if (texts.isEmpty()) {
                 IGLang.notSpecified
             } else {
-                Literal(keys.joinToString(" + "))
+                Literal(asTexts.joinToString(" + ") { it.plainText })
             }
         }
 

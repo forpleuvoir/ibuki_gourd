@@ -46,6 +46,10 @@ open class Text(
 
     val plainText: String get() = this.string
 
+    fun appendNewLine(): Text {
+        return this.appendLiteral("\n")
+    }
+
     override fun append(text: McText): Text {
         siblings.add(text)
         return this

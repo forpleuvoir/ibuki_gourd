@@ -4,6 +4,7 @@ package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.copyToText
 import net.minecraft.client.util.InputUtil
 
 interface KeyCode {
@@ -14,7 +15,7 @@ interface KeyCode {
         get() = keyNameText.plainText
 
     val keyNameText: Text
-        get() = Text.keyBind(this.translationKey)
+        get() = InputUtil.fromKeyCode(code, 0).localizedText.copyToText()
 
     val translationKey: String
 

@@ -41,7 +41,7 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
         println("按下了测试按键")
     })
 
-    var testKeyBindBoolean by keyBindBoolean("test_key_bind_boolean", KeyBind(Keyboard.H), false)
+    var testKeyBindBoolean by keyBindBoolean("test_key_bind_boolean", false, KeyBind(Keyboard.H))
 
     val testStringList by stringList(
         "test_string_list", listOf(

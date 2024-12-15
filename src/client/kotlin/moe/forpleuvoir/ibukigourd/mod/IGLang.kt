@@ -12,47 +12,51 @@ object IGLang {
 
     //------------ Misc ------------\\
 
-    val reset = lang("misc.reset")
+    val reset get() = lang("misc.reset")
 
-    val confirm = lang("misc.confirm")
+    val confirm get() = lang("misc.confirm")
 
-    val cancel = lang("misc.cancel")
+    val cancel get() = lang("misc.cancel")
 
-    val switchOn = lang("misc.switch.on")
+    val switchOn get() = lang("misc.switch.on")
 
-    val switchOff = lang("misc.switch.off")
+    val switchOff get() = lang("misc.switch.off")
 
-    val unsupported = lang("misc.unsupported")
+    val unsupported get() = lang("misc.unsupported")
 
-    val notSpecified = lang("misc.not_specified")
+    val notSpecified get() = lang("misc.not_specified")
 
-    val hasNothing = lang("misc.has_nothing")
+    val hasNothing get() = lang("misc.has_nothing")
 
-    val clickBlankBack = lang("misc.click_blank_back")
+    val clickBlankBack get() = lang("misc.click_blank_back")
 
-    val setting = lang("misc.setting")
+    val setting get() = lang("misc.setting")
 
-    val search = lang("misc.search")
+    val search get() = lang("misc.search")
 
     //------------ Color ------------\\
 
-    val red = lang("color.red")
+    val red get() = lang("color.red")
 
-    val green = lang("color.green")
+    val green get() = lang("color.green")
 
-    val blue = lang("color.blue")
+    val blue get() = lang("color.blue")
 
-    val alpha = lang("color.alpha")
+    val alpha get() = lang("color.alpha")
 
-    val hue = lang("color.hue")
+    val hue get() = lang("color.hue")
 
-    val saturation = lang("color.saturation")
+    val saturation get() = lang("color.saturation")
 
-    val brightness = lang("color.brightness")
+    val brightness get() = lang("color.brightness")
 
     fun clickCopyColor(color: String) = lang("color.click_copy_color", color)
 
     //------------ ConfigWrapper ------------\\
+
+    val pressToSetting get() = lang("config_wrapper.press_to_setting")
+
+    val releaseToSaveSetting get() = lang("config_wrapper.release_to_save_setting")
 
     fun listConfigWrapperText(count: Int) = lang("config_wrapper.list.text", count)
 
@@ -60,16 +64,16 @@ object IGLang {
 
     //------------ Input ------------\\
 
-    val nextAction = lang("input.next_action")
+    val nextAction get() = lang("input.next_action")
 
-    val exactMatch = lang("input.exact_match")
+    val exactMatch get() = lang("input.exact_match")
 
-    val longPressTime = lang("input.long_press_time")
+    val longPressTime get() = lang("input.long_press_time")
 
-    val repeatTriggerInterval = lang("input.repeat_trigger_interval")
+    val repeatTriggerInterval get() = lang("input.repeat_trigger_interval")
 
-    val environment = lang("input.environment")
+    val environment get() = lang("input.environment")
 
-    val triggerMode = lang("input.trigger_mode")
+    val triggerMode get() = lang("input.trigger_mode")
 
 }

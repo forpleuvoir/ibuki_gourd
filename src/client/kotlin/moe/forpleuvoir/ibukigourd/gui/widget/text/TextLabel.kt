@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -23,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.text.Style
@@ -82,6 +84,10 @@ class TextWidget(
 
     //------------ TextWidget ------------\\
 
+    init {
+        text.subscribe { onChanged() }
+    }
+
     private var latestText: Text = text.getValue()
 
     private fun updateText() {
@@ -99,7 +105,10 @@ class TextWidget(
     fun onChanged() {
         renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
         if (!constraints.fixed()) {
-            screen()?.remeasure()
+            defaultLaunch {
+                delay(1)
+                screen()?.remeasure()
+            }
         }
     }
 
@@ -194,7 +203,6 @@ class TextWidget(
             } else
                 Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat())
         }
-
         context.useScissor(transform.asWorldCoordinateBox) {
             useMatrixStack { matrixStack ->
                 matrixStack.translate(0.0f, 0.4f, 0f)

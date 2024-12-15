@@ -83,6 +83,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
     buttonModifier: Modifier = Modifier,
     mapping: (C) -> KeyBind
 ) {
+    val hoverText = mutableStateOf(text.getValue())
     var inputting = false
     val keys = mutableSetOf<KeyCode>()
     val settingsPopupState = mutableStateOf(false)
@@ -100,27 +101,28 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                 onKeyPress(event)
                 event.tryUse(inputting && event.keyCode != Keyboard.BACKSPACE).onSuccess {
                     keys.add(event.keyCode)
-                    if (keys.size == 1) text.setValue(Literal(event.keyCode.toString()).withColor(inputtingColor))
-                    else text.setValue(Literal(keys.joinToString(separator = " + ")).withColor(inputtingColor))
+                    hoverText.setValue(IGLang.releaseToSaveSetting.withColor(inputtingColor))
+                    text.setValue(Literal(keys.map { it.keyNameText }.joinToString(separator = " + ") { it.plainText }).withColor(inputtingColor))
                 }
             }.keyRelease { event ->
                 onKeyRelease(event)
-                if (inputting) {
+                event.tryUse(inputting).onSuccess {
                     inputting = false
                     keyBind.setKey(*keys.toTypedArray())
                     config.onChange(config)
                     text.setValue(keyBind.asText)
+                    hoverText.setValue(text.getValue())
                     keys.clear()
                 }
             }.then(buttonModifier)
     ) {
         release {
-            inputting = !inputting
-            text.setValue(Literal("按下按键设置").withColor(inputtingColor))
+            inputting = true
+            text.setValue(IGLang.pressToSetting.withColor(inputtingColor))
         }
         TextLabel(text)
         HoverTip(50.milliseconds) {
-            TextLabel(text)
+            TextLabel(hoverText)
         }
     }
 
