@@ -23,6 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
@@ -239,6 +240,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     private val widgetChildren = mutableListOf<IGWidget>()
 
     override fun widgetChildren(): List<IGWidget> = widgetChildren
+
+    override fun flat(): List<IGWidget> {
+        return (widgetChildren().flatMap { if (it is WidgetContainer) it.flat() else listOf(it) } + this)
+    }
 
     override fun clearWidgetChildren() {
         elementChildren.removeAll { it is IGWidget }

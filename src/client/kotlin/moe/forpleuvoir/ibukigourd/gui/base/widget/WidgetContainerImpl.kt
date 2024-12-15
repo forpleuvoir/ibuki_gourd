@@ -62,6 +62,10 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     override fun removeWidgetChildAt(index: Int): IGWidget? = widgetChildren.removeAt(index)
 
+    override fun flat(): List<IGWidget> {
+        return (widgetChildren().flatMap { if (it is WidgetContainer) it.flat() else listOf(it) } + this)
+    }
+
     //------------ Drawable ------------\\
 
     @Suppress("LocalVariableName")

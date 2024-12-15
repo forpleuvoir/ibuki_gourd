@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.tip
 
+import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -36,6 +37,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.NotifiableArrayList
 import moe.forpleuvoir.nebula.common.util.collection.notification
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import org.joml.Vector2f
 import org.joml.Vector2fc
@@ -60,12 +62,17 @@ class TipContainerWidget : WidgetContainerImpl(), AbsoluteLayout {
      */
     private fun clearInvalidTips() {
         screen()?.let { screen ->
-            val list = screen.flat()
-            val removeList = widgetChildren().filter {
-                WrappedTipData.fromTip(it)!!.parent in list
-            }
-            removeList.forEach {
-                removeWidgetChild(it)
+            //非常暴力的修复方式
+            defaultLaunch {
+                delay(1)
+                val list = screen.flat()
+                val tips = widgetChildren()
+                val removeList = tips.filter {
+                    WrappedTipData.fromTip(it)!!.parent !in list
+                }
+                removeList.forEach {
+                    removeWidgetChild(it)
+                }
             }
         }
     }

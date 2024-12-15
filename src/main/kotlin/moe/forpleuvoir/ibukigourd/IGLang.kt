@@ -1,6 +1,5 @@
-package moe.forpleuvoir.ibukigourd.mod
+package moe.forpleuvoir.ibukigourd
 
-import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 

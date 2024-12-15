@@ -50,7 +50,7 @@ interface WidgetContainer : Measurable {
 
     fun removeWidgetChildAt(index: Int): IGWidget?
 
-    fun flat(): List<IGWidget> = widgetChildren().flatMap { if (it is WidgetContainer) it.flat() else listOf(it) }
+    fun flat(): List<IGWidget>
 
     fun findTargetDFS(target: IGWidget): Boolean {
         // 检查当前节点是否为空
