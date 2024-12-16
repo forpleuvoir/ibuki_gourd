@@ -1,14 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigDurationObject
+import moe.forpleuvoir.ibukigourd.config.item.ConfigDurationObject
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.maxSize
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minSize
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
@@ -22,7 +19,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -40,12 +36,9 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         Button(
-            Modifier.width(120f)
+            Modifier.width(120f).hoverText(IGLang.unsupported)
         ) {
             TextLabel(IGLang.unsupported)
-            HoverTip {
-                TextLabel(IGLang.unsupported)
-            }
         }
     }
 }

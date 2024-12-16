@@ -32,9 +32,9 @@ import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.render.math.copy
-import moe.forpleuvoir.ibukigourd.render.math.plus
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.copy
+import moe.forpleuvoir.ibukigourd.util.math.plus
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState

@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.config.item.impl
+package moe.forpleuvoir.ibukigourd.config.item
 
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.config.ConfigBase

@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.input.mousePosition
-import moe.forpleuvoir.ibukigourd.render.math.*
+import moe.forpleuvoir.ibukigourd.util.math.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.primitive.ifc
 import org.joml.Vector2fc

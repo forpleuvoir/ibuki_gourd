@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.render.math
+package moe.forpleuvoir.ibukigourd.util.math
 
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
@@ -6,8 +6,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import org.joml.Vector2dc
-import org.joml.Vector2f
+import org.joml.*
 import org.joml.Vector2fc
 import org.joml.Vector2ic
 import org.joml.Vector3fc

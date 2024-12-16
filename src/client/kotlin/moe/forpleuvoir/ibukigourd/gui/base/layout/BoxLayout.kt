@@ -3,8 +3,8 @@ package moe.forpleuvoir.ibukigourd.gui.base.layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.render.math.plus
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.plus
 
 interface BoxLayout : Layout {
 

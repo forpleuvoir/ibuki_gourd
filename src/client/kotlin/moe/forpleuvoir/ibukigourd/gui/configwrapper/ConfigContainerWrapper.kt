@@ -5,10 +5,7 @@ import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.maxHeight
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.maxWidth
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
@@ -23,14 +20,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
-import moe.forpleuvoir.nebula.common.util.collection.notification
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -117,13 +112,10 @@ fun WidgetContainerScope.ConfigManagerWrapper(
                 pressedColor = Colors.CYAN.alpha(0.5f),
                 horizontalArrangement = Arrangement.Left
             ) {
-                TextLabel(config.translateText) {
-                    HoverTip(
-                        optionalDirection = Direction.clockwiseFromRight.notification()
-                    ) {
-                        TextLabel(config.comment)
-                    }
-                }
+                TextLabel(
+                    config.translateText,
+                    modifier = Modifier.hoverText(config.comment).hoverTextDirection(Direction.clockwiseFromRight)
+                )
                 click {
                     currentGroup = config.translateText
                     currentConfigs.disableNotify {

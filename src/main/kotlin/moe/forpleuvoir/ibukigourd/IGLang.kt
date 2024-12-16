@@ -33,6 +33,24 @@ object IGLang {
 
     val search get() = lang("misc.search")
 
+    val moveUp get() = lang("misc.move_up")
+
+    val moveDown get() = lang("misc.move_down")
+
+    val moveLeft get() = lang("misc.move_left")
+
+    val moveRight get() = lang("misc.move_right")
+
+    val add get() = lang("misc.add")
+
+    val remove get() = lang("misc.remove")
+
+    val edit get() = lang("misc.edit")
+
+    val copy get() = lang("misc.copy")
+
+    val paste get() = lang("misc.paste")
+
     //------------ Color ------------\\
 
     val red get() = lang("color.red")

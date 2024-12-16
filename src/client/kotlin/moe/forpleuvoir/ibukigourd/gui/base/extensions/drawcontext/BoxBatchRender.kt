@@ -10,9 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.pointsInCircleRange
 import moe.forpleuvoir.ibukigourd.render.color
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.render.math.plus
 import moe.forpleuvoir.ibukigourd.render.vertex
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.plus
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange

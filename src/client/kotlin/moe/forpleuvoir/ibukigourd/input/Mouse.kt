@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.InputUtil

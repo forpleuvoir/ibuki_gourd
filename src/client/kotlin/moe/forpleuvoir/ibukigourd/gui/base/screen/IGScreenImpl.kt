@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
+import moe.forpleuvoir.ibukigourd.gui.base.element.findFirsInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
@@ -24,12 +25,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDr
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverText
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.logger
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -138,6 +141,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     private fun executeTasks() {
+        if (eventProcessing) return
         tasks.forEach { it.invoke() }
         tasks.clear()
     }
@@ -427,6 +431,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 }
             }
 
+            hoveredWidget.getValue()?.let tip@{ widget ->
+                widget.findFirsInParentChain { it is IGWidget && it.hoverText() != null }
+                    ?.let { hoveredWidget ->
+                        TextTipRenderer.render(this, hoveredWidget as IGWidget, ctx)
+                    }
+            }
+
             renderOverlay(ctx, _mouseX, _mouseY, delta)
 
             ctx.render()
@@ -705,6 +716,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     companion object {
+        val _log = logger()
 
         inline fun <T> Iterable<T>.foreachWithIterator(action: (T) -> Unit) {
             val iterator = this.iterator()
@@ -713,7 +725,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                     action(iterator.next())
                 }
             }.onFailure {
-                it.printStackTrace()
+                _log.error(it)
             }
         }
 

@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.tip
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen

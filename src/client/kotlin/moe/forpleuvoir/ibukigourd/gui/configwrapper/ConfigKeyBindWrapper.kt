@@ -6,10 +6,7 @@ import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyPress
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyRelease
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
@@ -23,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
 import moe.forpleuvoir.ibukigourd.input.KeyCode
@@ -114,16 +110,16 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                     hoverText.setValue(text.getValue())
                     keys.clear()
                 }
-            }.then(buttonModifier)
+            }
+            .hoverText(hoverText)
+            .hoverTextShowDelay(50.milliseconds)
+            .then(buttonModifier)
     ) {
         release {
             inputting = true
             text.setValue(IGLang.pressToSetting.withColor(inputtingColor))
         }
         TextLabel(text)
-        HoverTip(50.milliseconds) {
-            TextLabel(hoverText)
-        }
     }
 
     Button {

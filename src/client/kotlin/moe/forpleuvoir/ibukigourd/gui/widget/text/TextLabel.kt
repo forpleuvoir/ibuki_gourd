@@ -14,9 +14,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChi
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
-import moe.forpleuvoir.ibukigourd.render.math.bezier.Ease
-import moe.forpleuvoir.ibukigourd.render.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.util.math.bezier.Ease
+import moe.forpleuvoir.ibukigourd.util.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -84,9 +84,9 @@ class TextWidget(
 
     //------------ TextWidget ------------\\
 
-    init {
-        text.subscribe { onChanged() }
-    }
+//    init {
+//        text.subscribe { onChanged() }
+//    }
 
     private var latestText: Text = text.getValue()
 

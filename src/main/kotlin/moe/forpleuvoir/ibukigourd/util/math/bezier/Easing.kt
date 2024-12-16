@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.render.math.bezier
+package moe.forpleuvoir.ibukigourd.util.math.bezier
 
 import org.jetbrains.annotations.Contract
 

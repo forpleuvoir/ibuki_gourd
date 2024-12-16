@@ -3,7 +3,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout.arrange
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import org.joml.Vector2fc
 
 interface Alignment {

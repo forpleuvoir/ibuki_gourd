@@ -2,10 +2,10 @@ package moe.forpleuvoir.ibukigourd.gui.base.render.shape.box
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.ColoredVertex
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
-import moe.forpleuvoir.ibukigourd.render.math.asVector2fc
-import moe.forpleuvoir.ibukigourd.render.math.asVector3fc
-import moe.forpleuvoir.ibukigourd.render.math.copy
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.asVector2fc
+import moe.forpleuvoir.ibukigourd.util.math.asVector3fc
+import moe.forpleuvoir.ibukigourd.util.math.copy
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import org.joml.Vector2fc
 

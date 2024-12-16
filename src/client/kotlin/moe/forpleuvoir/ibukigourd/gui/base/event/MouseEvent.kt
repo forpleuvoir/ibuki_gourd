@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.event
 
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MousePosition
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 
 sealed class MouseEvent(
     val x: Float,

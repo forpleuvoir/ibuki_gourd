@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.render.math.plus
+import moe.forpleuvoir.ibukigourd.util.math.plus
 import org.joml.Vector2fc
 import java.util.*
 

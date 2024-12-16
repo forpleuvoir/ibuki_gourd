@@ -3,12 +3,12 @@ package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.render.math.Vector2f
 import moe.forpleuvoir.ibukigourd.text.draw
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.style.argbColor
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors

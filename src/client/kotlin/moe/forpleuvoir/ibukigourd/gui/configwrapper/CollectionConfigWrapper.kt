@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -21,14 +20,15 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.ibukigourd.util.renameKey
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -37,7 +37,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.common.util.collection.notifiableMap
-import moe.forpleuvoir.nebula.common.util.collection.notification
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
 
@@ -57,11 +57,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
     ) {
         Button(
             Modifier.width(80f)
-        ) {
-            HoverTip(
-                optionalDirection = Direction.clockwiseFromLeft.notification()
-            ) {
-                TextLabel(mutableStateBy {
+                .hoverText(mutableStateBy {
                     val sb = StringBuilder()
                     listValue.forEachWithLimit(10) { t ->
                         sb.appendLine(t)
@@ -71,7 +67,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
                 })
-            }
+        ) {
             TextLabel(mutableStateBy { IGLang.listConfigWrapperText(listValue.size) })
             click {
                 Dialog {
@@ -89,6 +85,36 @@ fun WidgetContainerScope.StringListConfigWrapper(
                                 Column(
                                     horizontalArrangement = Arrangement.spacedBy(2f),
                                 ) {
+                                    Row {
+                                        FlatButton(
+                                            hoveredColor = Colors.BLACK.alpha(.15f),
+                                            round = 0,
+                                            modifier = Modifier.hoverText(IGLang.moveUp).padding(1).active(index > 0)
+                                        ) {
+                                            Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).pick(1f, .25f)))
+
+                                            click {
+                                                listValue.moveElement(index, (index - 1).coerceAtLeast(0))
+                                                execute { this@RowListWrapped.recompose() }
+                                            }
+                                        }
+                                        FlatButton(
+                                            hoveredColor = Colors.BLACK.alpha(.15f),
+                                            round = 0,
+                                            modifier = Modifier.hoverText(IGLang.moveDown).padding(1).active(index != listValue.lastIndex)
+                                        ) {
+                                            Icon(
+                                                IconTextures.DOWN,
+                                                modifier = Modifier,
+                                                color = Colors.GRAY.alpha((index != listValue.lastIndex).pick(1f, .25f))
+                                            )
+
+                                            click {
+                                                listValue.moveElement(index, (index + 1).coerceAtMost(listValue.lastIndex))
+                                                execute { this@RowListWrapped.recompose() }
+                                            }
+                                        }
+                                    }
                                     TextLabel(
                                         index.toString(),
                                         modifier = Modifier.width(mc.textRenderer.getWidth(listValue.lastIndex.toString()) + 1f)
@@ -101,7 +127,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
                                     }
                                     FlatButton(
                                         hoveredColor = Colors.LIGHT_RED,
-                                        modifier = Modifier.margin(right = 2f)
+                                        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
                                     ) {
                                         Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
                                         click {
@@ -119,6 +145,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
                         Modifier
                             .align(Alignment.CenterHorizontally)
                             .width(40f)
+                            .hoverText(IGLang.add)
                     ) {
                         Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
                         click {
@@ -153,11 +180,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
     ) {
         Button(
             Modifier.width(80f)
-        ) {
-            HoverTip(
-                optionalDirection = Direction.clockwiseFromLeft.notification()
-            ) {
-                TextLabel(mutableStateBy {
+                .hoverText(mutableStateBy {
                     val sb = StringBuilder()
                     mapValue.forEachWithLimit(10) { k, v ->
                         sb.appendLine("$k => $v")
@@ -167,7 +190,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
                 })
-            }
+        ) {
             TextLabel(mutableStateBy { mapConfigWrapperText(mapValue.size) })
             click {
                 Dialog {
@@ -189,17 +212,23 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                         key, modifier = Modifier.width(mapValue.keys.maxWidth(mc.textRenderer).coerceAtMost(119) + 1f)
                                     )
                                     FlatButton(
-                                        hoveredColor = Colors.PALEGREEN.alpha(.5f)
+                                        hoveredColor = Colors.PALEGREEN.alpha(.5f),
+                                        modifier = Modifier.hoverText(IGLang.edit)
                                     ) {
                                         Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
-                                        HoverTip {
-                                            TextLabel("编辑Key")
-                                        }
                                         click {
                                             var newKey = mutableStateOf(key)
                                             ConfirmDialog(
-                                                stateOf(Literal("编辑 => $key")),
+                                                stateOf(IGLang.edit.appendLiteral(" => $key")),
                                                 onConfirm = {
+                                                    if (newKey.getValue() == key) {
+                                                        mc.currentScreen?.close()
+                                                        return@ConfirmDialog
+                                                    }
+                                                    if (mapValue.containsKey(newKey.getValue())) {
+                                                        //TODO Show Toast
+                                                        return@ConfirmDialog
+                                                    }
                                                     mapValue.renameKey(key, newKey.getValue())
                                                     mc.currentScreen?.close()
                                                     this@RowListWrapped.execute {
@@ -221,9 +250,35 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                             mapValue.onChange(mapValue)
                                         }
                                     }
+
+                                    FlatButton(
+                                        hoveredColor = Colors.PALEGREEN.alpha(.5f),
+                                        modifier = Modifier.hoverText(IGLang.edit)
+                                    ) {
+                                        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
+                                        click {
+                                            var newValue = mutableStateOf(value)
+                                            ConfirmDialog(
+                                                stateOf(IGLang.edit.appendLiteral(" => $key")),
+                                                onConfirm = {
+                                                    mapValue[key] = newValue.getValue()
+                                                    mc.currentScreen?.close()
+                                                    this@RowListWrapped.execute {
+                                                        this@RowListWrapped.recompose()
+                                                    }
+                                                }
+                                            ) {
+                                                TextEditor(modifier = Modifier.width(240f)) {
+                                                    text = value
+                                                    textConsumer { newValue.setValue(it) }
+                                                }
+                                            }.open()
+                                        }
+                                    }
+
                                     FlatButton(
                                         hoveredColor = Colors.LIGHT_RED,
-                                        modifier = Modifier.margin(right = 2f)
+                                        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
                                     ) {
                                         Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
                                         click {
@@ -241,6 +296,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                         Modifier
                             .align(Alignment.CenterHorizontally)
                             .width(40f)
+                            .hoverText(IGLang.add)
                     ) {
                         Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
                         click {

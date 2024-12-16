@@ -20,23 +20,6 @@ interface IGElement : Element, GuiContext, ModifiableUserInteractionHandler {
 
     var parent: () -> IGElement?
 
-    /**
-     * 检查目标元素是否在当前元素的父级链中。
-     *
-     * @param target 目标元素，通过其与当前元素的父级链比较。
-     * @return 如果目标元素在父级链中，返回 true；否则返回 false。
-     */
-    fun isInParentChain(target: IGElement): Boolean {
-        var current: IGElement? = this
-        while (current != null && current.parent() != current) {
-            if (current == target) {
-                return true
-            }
-            current = current.parent()
-        }
-        return current == target
-    }
-
     override var layer: GuiLayer
 
     var active: Boolean

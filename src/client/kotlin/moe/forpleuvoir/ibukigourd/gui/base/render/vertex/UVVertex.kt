@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.vertex
 
-import moe.forpleuvoir.ibukigourd.render.math.Vector3f
+import moe.forpleuvoir.ibukigourd.util.math.Vector3f
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement

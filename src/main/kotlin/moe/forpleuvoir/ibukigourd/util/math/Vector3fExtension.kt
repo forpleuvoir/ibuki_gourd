@@ -1,6 +1,6 @@
 @file:Suppress("UNUSED")
 
-package moe.forpleuvoir.ibukigourd.render.math
+package moe.forpleuvoir.ibukigourd.util.math
 
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray

@@ -4,10 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTex
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -64,14 +61,10 @@ fun testScreen4() = ColumnScreen(
     }
     val switchState = mutableStateOf(false)
 
-    SwitchButton(switchState) {
-        HoverTip(
-            modifier = Modifier.margin(3f),
-            optionalDirection = notifiableList(Direction.Left)
-        ) {
-            TextLabel(mutableStateOf(switchState) { it.toString() })
-        }
-    }
+    SwitchButton(
+        switchState,
+        modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }).hoverTextDirection { listOf(Direction.Left) }
+    )
     Spinner(listOf("下拉菜单", "选项1", "选项2", "选项3")) {
         HoverTip(
             modifier = Modifier.margin(3f),

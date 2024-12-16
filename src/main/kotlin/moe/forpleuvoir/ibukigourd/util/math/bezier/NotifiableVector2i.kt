@@ -1,7 +1,7 @@
-package moe.forpleuvoir.ibukigourd.render.math.bezier
+package moe.forpleuvoir.ibukigourd.util.math.bezier
 
-import moe.forpleuvoir.ibukigourd.render.math.Vector2i
-import moe.forpleuvoir.ibukigourd.render.math.copy
+import moe.forpleuvoir.ibukigourd.util.math.Vector2i
+import moe.forpleuvoir.ibukigourd.util.math.copy
 import org.joml.Vector2i
 import org.joml.Vector2ic
 import kotlin.contracts.ExperimentalContracts

@@ -16,8 +16,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
@@ -28,7 +26,6 @@ import moe.forpleuvoir.ibukigourd.util.state.toARGBColorState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
@@ -100,7 +97,9 @@ fun WidgetContainerScope.ARGBColorPicker(
     modifier = Modifier.size(200f, 82f).then(modifier),
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("red").hoverText(IGLang.red).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -112,11 +111,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.red)
-        }
     }
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("green").hoverText(IGLang.green).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -128,11 +126,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.green)
-        }
     }
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("blue").hoverText(IGLang.blue).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -144,11 +141,10 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.blue)
-        }
     }
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("alpha").hoverText(IGLang.alpha).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -160,9 +156,6 @@ fun WidgetContainerScope.ARGBColorPicker(
             modifier = Modifier.width(38f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.alpha)
-        }
     }
     scope()
 }
@@ -179,13 +172,12 @@ fun WidgetContainerScope.ColorResult(
             mc.keyboard.clipboard = color.getValue().hexStr
             soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
         }
-    }.then(modifier)
-) {
-    HoverTip {
-        TextLabel(mutableStateOf(color) { IGLang.clickCopyColor(it.hexStr) })
     }
-    scope()
-}
+        .name("ColorResult")
+        .hoverText(mutableStateOf(color) { IGLang.clickCopyColor(it.hexStr) })
+        .then(modifier),
+    scope
+)
 
 
 fun WidgetContainerScope.RedColorSlider(

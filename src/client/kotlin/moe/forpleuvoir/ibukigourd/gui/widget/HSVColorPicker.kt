@@ -14,15 +14,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.render.IGRenderLayers
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 
 fun WidgetContainerScope.HSVColorPicker(
     colorState: MutableState<ARGBColor>,
@@ -32,7 +29,9 @@ fun WidgetContainerScope.HSVColorPicker(
     modifier = Modifier.size(200f, 82f).then(modifier),
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("hue").hoverText(IGLang.hue).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -44,11 +43,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.hue)
-        }
     }
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("saturation").hoverText(IGLang.saturation).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -60,11 +58,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.saturation)
-        }
     }
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("brightness").hoverText(IGLang.brightness).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -76,11 +73,10 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.brightness)
-        }
     }
-    Column(Modifier.weight(1)) {
+    Column(
+        Modifier.weight(1).name("alpha").hoverText(IGLang.alpha).hoverTextDirection { listOf(Direction.Left) }
+    ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
         ) {
@@ -92,9 +88,6 @@ fun WidgetContainerScope.HSVColorPicker(
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
-        HoverTip(optionalDirection = notifiableList(Direction.Left)) {
-            TextLabel(IGLang.alpha)
-        }
     }
     scope()
 }

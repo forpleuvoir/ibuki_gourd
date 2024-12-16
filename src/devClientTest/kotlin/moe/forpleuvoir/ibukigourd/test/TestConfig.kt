@@ -3,8 +3,8 @@ package moe.forpleuvoir.ibukigourd.test
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
-import moe.forpleuvoir.ibukigourd.config.item.impl.DurationObject
-import moe.forpleuvoir.ibukigourd.config.item.impl.durationObject
+import moe.forpleuvoir.ibukigourd.config.item.DurationObject
+import moe.forpleuvoir.ibukigourd.config.item.durationObject
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.util.Direction

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft

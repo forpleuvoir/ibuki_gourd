@@ -1,8 +1,7 @@
-package moe.forpleuvoir.ibukigourd.config.item.impl
+package moe.forpleuvoir.ibukigourd.config.item
 
-import moe.forpleuvoir.ibukigourd.render.math.Vector3f
-import moe.forpleuvoir.ibukigourd.render.math.deserialization
-import moe.forpleuvoir.ibukigourd.render.math.serialization
+import moe.forpleuvoir.ibukigourd.util.math.Vector3fc
+import moe.forpleuvoir.ibukigourd.util.math.serialization
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.ConfigValue
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -14,12 +13,14 @@ class ConfigVector3f(
     override val defaultValue: Vector3f
 ) : ConfigBase<Vector3f, ConfigVector3f>(), ConfigValue<Vector3f> {
 
-    constructor(key: String, defaultX: Number, defaultY: Number, defaultZ: Number) : this(key, Vector3f(defaultX, defaultY, defaultZ))
+    constructor(key: String, defaultX: Number, defaultY: Number, defaultZ: Number) : this(
+        key, Vector3f(defaultX.toFloat(), defaultY.toFloat(), defaultZ.toFloat())
+    )
 
     override var configValue: Vector3f = defaultValue
 
     override fun deserialization(serializeElement: SerializeElement) {
-        configValue.deserialization(serializeElement)
+        setValue(Vector3fc.deserialization(serializeElement) as Vector3f)
     }
 
     override fun serialization(): SerializeElement = configValue.serialization()

@@ -1,7 +1,7 @@
-package moe.forpleuvoir.ibukigourd.config.item.impl
+package moe.forpleuvoir.ibukigourd.config.item
 
-import moe.forpleuvoir.ibukigourd.render.math.deserialization
-import moe.forpleuvoir.ibukigourd.render.math.serialization
+import moe.forpleuvoir.ibukigourd.util.math.Vector2fc
+import moe.forpleuvoir.ibukigourd.util.math.serialization
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.ConfigValue
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -18,7 +18,7 @@ class ConfigVector2f(
     override var configValue: Vector2f = defaultValue
 
     override fun deserialization(serializeElement: SerializeElement) {
-        configValue.deserialization(serializeElement)
+        setValue(Vector2fc.deserialization(serializeElement) as Vector2f)
     }
 
     override fun serialization(): SerializeElement = configValue.serialization()

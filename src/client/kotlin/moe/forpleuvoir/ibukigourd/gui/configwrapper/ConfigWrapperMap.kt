@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
-import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigDurationObject
+import moe.forpleuvoir.ibukigourd.config.item.ConfigDurationObject
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier

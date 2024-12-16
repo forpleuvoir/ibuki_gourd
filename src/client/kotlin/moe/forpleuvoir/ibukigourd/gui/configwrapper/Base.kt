@@ -15,7 +15,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -88,11 +87,7 @@ fun <T : ConfigSerializable> ColumnScope.ConfigTextLabel(
     modifier = modifier.attachLeft { weight(1) },
     horizontalArrangement = Arrangement.Left
 ) {
-    TextLabel(config.translateText, textModifier) {
-        HoverTip {
-            TextLabel(config.comment)
-        }
-    }
+    TextLabel(config.translateText, textModifier.attachLeft { hoverText(config.comment) })
 }
 
 fun WidgetContainerScope.ConfigFilter(
