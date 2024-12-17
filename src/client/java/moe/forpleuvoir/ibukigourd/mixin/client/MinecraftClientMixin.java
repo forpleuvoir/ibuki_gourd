@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.task.ClientTickTaskSchedulerKt;
 import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler;
@@ -58,4 +59,8 @@ public abstract class MinecraftClientMixin {
         EventBus.Companion.broadcast(new ClientTickEvent.ClientTickEndEvent((MinecraftClient) (Object) this));
     }
 
+    @Inject(method = "onResolutionChanged", at = @At("RETURN"))
+    public void ibukigourd$onResolutionChanged(CallbackInfo ci) {
+        Toast.onResize();
+    }
 }

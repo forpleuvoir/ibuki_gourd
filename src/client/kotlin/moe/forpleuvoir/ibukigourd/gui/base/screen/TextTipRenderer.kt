@@ -16,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.TipHelper
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.util.primitive.pick
@@ -24,17 +25,15 @@ import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 
 object TextTipRenderer {
 
-    private var currentScreen: IGScreen? = null
-
     private var currentWidget: IGWidget? = null
 
     private var box: BoxWidget? = null
 
     private var textLabel: TextWidget? = null
 
-    var timeMark: ValueTimeMark = TimeSource.Monotonic.markNow()
+    private var timeMark: ValueTimeMark = TimeSource.Monotonic.markNow()
 
-    private fun update(screen: IGScreen, widget: IGWidget) {
+    private fun update(widget: IGWidget) {
         val directions = widget.hoverTextDirection()
         val direction = mutableStateOf(directions.isNotEmpty().pick(directions.first(), Top))
         box = BoxWidget().apply {
@@ -55,17 +54,16 @@ object TextTipRenderer {
         timeMark = TimeSource.Monotonic.markNow()
     }
 
-    fun render(screen: IGScreen, widget: IGWidget, drawContext: IGDrawContext) {
+    fun render(widget: IGWidget, drawContext: IGDrawContext) {
         if (widget.hoverText() == null) return
 
-        if (currentScreen != screen || currentWidget != widget) {
-            currentScreen = screen
+        if (currentWidget != widget) {
             currentWidget = widget
-            update(screen, widget)
+            update(widget)
         }
 
         if (timeMark.elapsedNow() < widget.hoverTextShowDelay) return
-        box?.measure(Constraints.of(0f, screen.transform.width, 0f, screen.transform.height))
+        box?.measure(Constraints.of(0f, mc.window.scaledWidth.toFloat(), 0f, mc.window.scaledHeight.toFloat()))
         box?.layout()
         box?.render(drawContext, 0, 0, 0f)
     }

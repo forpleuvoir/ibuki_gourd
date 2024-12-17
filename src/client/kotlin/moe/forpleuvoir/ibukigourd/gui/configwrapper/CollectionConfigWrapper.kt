@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -227,6 +228,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                                     }
                                                     if (mapValue.containsKey(newKey.getValue())) {
                                                         //TODO Show Toast
+                                                        Toast.showToast(text = "Key重复了")
                                                         return@ConfirmDialog
                                                     }
                                                     mapValue.renameKey(key, newKey.getValue())

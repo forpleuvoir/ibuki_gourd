@@ -3,6 +3,7 @@
   "package": "moe.forpleuvoir.ibukigourd.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "GameRendererMixin",
     "KeyboardMixin",
     "MinecraftClientMixin",
     "MouseMixin"

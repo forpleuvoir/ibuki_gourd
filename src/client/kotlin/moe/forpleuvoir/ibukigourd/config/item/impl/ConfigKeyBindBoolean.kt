@@ -4,11 +4,10 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeyBindBooleanValue
 import moe.forpleuvoir.ibukigourd.config.item.KeyBindWithBoolean
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.config.ConfigBase
@@ -63,8 +62,9 @@ fun ConfigContainer.keyBindBoolean(
     key: String,
     defaultValue: KeyBindWithBoolean,
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
-        mc.overlayMessage(
-            this.translateText.append(Literal(" : ")).append(it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED)))
+        Toast.showToast(
+            text =
+                this.translateText.append(Literal(" : ")).append(it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED)))
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, defaultValue, onSwitch))
@@ -74,8 +74,8 @@ fun ConfigContainer.keyBindBoolean(
     value: Boolean,
     keyBind: KeyBind = KeyBind(),
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
-        mc.overlayMessage(
-            this.translateText.append(Literal(" : ")).append(it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED)))
+        Toast.showToast(
+            text = this.translateText.append(Literal(" : ")).append(it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED)))
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, KeyBindWithBoolean(keyBind, value), onSwitch))

@@ -40,7 +40,7 @@ fun Vector2i.coerceIn(min: Vector2ic, max: Vector2ic): Vector2ic {
  * @return [Vector2i]
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun Vector2i(x: Number = 0f, y: Number = 0f): Vector2i = Vector2i(x.toInt(), y.toInt())
+inline fun Vector2i(x: Number = 0f, y: Number = 0f): Vector2i = org.joml.Vector2i(x.toInt(), y.toInt())
 
 /**
  * 复制一个向量

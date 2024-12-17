@@ -434,7 +434,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
             hoveredWidget.getValue()?.let tip@{ widget ->
                 widget.findFirsInParentChain { it is IGWidget && it.hoverText() != null }
                     ?.let { hoveredWidget ->
-                        TextTipRenderer.render(this, hoveredWidget as IGWidget, ctx)
+                        TextTipRenderer.render(hoveredWidget as IGWidget, ctx)
                     }
             }
 

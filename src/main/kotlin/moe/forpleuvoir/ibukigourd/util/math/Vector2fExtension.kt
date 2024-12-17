@@ -41,7 +41,7 @@ fun Vector2f.coerceIn(min: Vector2fc, max: Vector2fc): Vector2fc {
  * @return [Vector2f]
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun Vector2f(x: Number = 0f, y: Number = 0f): Vector2f = Vector2f(x.toFloat(), y.toFloat())
+inline fun Vector2f(x: Number = 0f, y: Number = 0f): Vector2f = org.joml.Vector2f(x.toFloat(), y.toFloat())
 
 /**
  * 复制一个向量
