@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
+import moe.forpleuvoir.ibukigourd.config.item.ConfigVector2f
+import moe.forpleuvoir.ibukigourd.config.item.ConfigVector3f
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
@@ -9,18 +11,19 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.*
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.math.copy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
 import moe.forpleuvoir.nebula.config.item.impl.ConfigFloat
 import moe.forpleuvoir.nebula.config.item.impl.ConfigInt
 import moe.forpleuvoir.nebula.config.item.impl.ConfigLong
 
 private const val editorWidth = 120f
+private const val vectorEditorWidth = 60f
 
 fun WidgetContainerScope.IntConfigWrapper(
     config: ConfigInt,
@@ -132,4 +135,106 @@ fun WidgetContainerScope.DoubleConfigWrapper(
             doubleValue.setValue(config.getValue())
         }
     }
+}
+
+
+fun WidgetContainerScope.ConfigVector2fWrapper(
+    config: ConfigVector2f,
+    modifier: Modifier = Modifier
+) = ConfigColumnWrapper(config, modifier) {
+    val vector2fValue = mutableStateOf(config.getValue()).apply {
+        subscribe {
+            config.setValue(it)
+        }
+    }
+
+    val xValue = mutableStateOf(vector2fValue.getValue().x()).apply {
+        subscribe {
+            vector2fValue.setValue(vector2fValue.getValue().copy(x = it))
+        }
+    }
+    val yValue = mutableStateOf(vector2fValue.getValue().y()).apply {
+        subscribe {
+            vector2fValue.setValue(vector2fValue.getValue().copy(y = it))
+        }
+    }
+
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
+
+        Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+            TextLabel(Literal("X").withColor(Colors.RED))
+            FloatEditor(xValue, config.minValue.x()..config.maxValue.x(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+        }
+
+        Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+            TextLabel(Literal("Y").withColor(Colors.LIME))
+            FloatEditor(yValue, config.minValue.y()..config.maxValue.y(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+        }
+
+        ConfigResetButton(config) {
+            vector2fValue.setValue(config.getValue())
+            xValue.setValue(vector2fValue.getValue().x())
+            yValue.setValue(vector2fValue.getValue().y())
+        }
+    }
+
+}
+
+
+fun WidgetContainerScope.ConfigVector3fWrapper(
+    config: ConfigVector3f,
+    modifier: Modifier = Modifier
+) = ConfigColumnWrapper(config, modifier) {
+    val vector3fValue = mutableStateOf(config.getValue()).apply {
+        subscribe {
+            config.setValue(it)
+        }
+    }
+
+    val xValue = mutableStateOf(vector3fValue.getValue().x()).apply {
+        subscribe {
+            vector3fValue.setValue(vector3fValue.getValue().copy(x = it))
+        }
+    }
+    val yValue = mutableStateOf(vector3fValue.getValue().y()).apply {
+        subscribe {
+            vector3fValue.setValue(vector3fValue.getValue().copy(y = it))
+        }
+    }
+    val zValue = mutableStateOf(vector3fValue.getValue().z()).apply {
+        subscribe {
+            vector3fValue.setValue(vector3fValue.getValue().copy(z = it))
+        }
+    }
+
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
+
+        Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+            TextLabel(Literal("X").withColor(Colors.RED))
+            FloatEditor(xValue, config.minValue.x()..config.maxValue.x(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+        }
+
+        Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+            TextLabel(Literal("Y").withColor(Colors.LIME))
+            FloatEditor(yValue, config.minValue.y()..config.maxValue.y(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+        }
+
+        Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+            TextLabel(Literal("Z").withColor(Colors.BLUE))
+            FloatEditor(zValue, config.minValue.z()..config.maxValue.z(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+        }
+
+
+        ConfigResetButton(config) {
+            vector3fValue.setValue(config.getValue())
+            xValue.setValue(vector3fValue.getValue().x())
+            yValue.setValue(vector3fValue.getValue().y())
+            zValue.setValue(vector3fValue.getValue().z())
+        }
+    }
+
 }

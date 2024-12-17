@@ -81,6 +81,7 @@ fun testScreen4() = ColumnScreen(
         LongSlider(mutableStateOf(30), -50L..100L, modifier = Modifier.size(120f, 16f))
         FloatSlider(mutableStateOf(30f), -50f..100f, modifier = Modifier.size(120f, 16f))
         DoubleSlider(mutableStateOf(30.0), -50.0..100.0, modifier = Modifier.size(120f, 16f))
+        PercentageSlider(mutableStateOf(0.5), 0.0..1.0, modifier = Modifier.size(120f, 16f))
     }
 
 }

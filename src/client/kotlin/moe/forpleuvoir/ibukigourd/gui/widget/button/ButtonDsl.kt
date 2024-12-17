@@ -31,7 +31,7 @@ fun WidgetContainerScope.Button(
     color: ARGBColor = Colors.WHITE,
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
-    Modifier.padding(5)
+    Modifier.padding(horizontal = 5, vertical = 5)
         .name("Button")
         .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { context, _, _, _ ->

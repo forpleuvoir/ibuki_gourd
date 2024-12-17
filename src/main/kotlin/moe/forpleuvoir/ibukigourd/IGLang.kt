@@ -71,6 +71,10 @@ object IGLang {
 
     //------------ ConfigWrapper ------------\\
 
+    fun <T : Comparable<*>> notInRange(value: T, minValue: T, maxValue: T) = lang("config_wrapper.not_in_range", value, minValue, maxValue)
+
+    fun keyExists(key: String) = lang("config_wrapper.key_exists", key)
+
     val pressToSetting get() = lang("config_wrapper.press_to_setting")
 
     val releaseToSaveSetting get() = lang("config_wrapper.release_to_save_setting")

@@ -21,26 +21,30 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
-import kotlin.math.abs
+import kotlin.time.Duration
 
-fun <T> WidgetContainerScope.NumberSlider(
+val SliderColorA = HSVColor(210f, .3f, .7f)
+val SliderColorB = HSVColor(210f, .1f, 1f)
+
+fun <T : Comparable<T>> WidgetContainerScope.Slider(
     value: MutableState<T>,
     minValue: T,
     maxValue: T,
+    progressMapper: (value: T, minVale: T, maxValue: T) -> Double,
     valueMapper: (progress: Double) -> T,
     textMapper: (T) -> Text = { Literal(it.toString()) },
     orientation: Orientation = Orientation.Horizontal,
-    colorA: ARGBColor = HSVColor(210f, .3f, .7f),
-    colorB: ARGBColor = HSVColor(210f, .1f, 1f),
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
-): IGWidgetImpl where T : Number, T : Comparable<T> {
+): IGWidgetImpl {
     var pressed = false
     value.onSetValue = { it.coerceIn(minValue, maxValue) }
     var notifiable = true
-    var progress = value.getValue().toDouble() / abs(maxValue.toDouble() - minValue.toDouble())
+    var progress = progressMapper(value.getValue(), minValue, maxValue)
     value.subscribe {
-        if (notifiable) progress = it.toDouble() / abs(maxValue.toDouble() - minValue.toDouble())
+        if (notifiable) progress = progressMapper(value.getValue(), minValue, maxValue)
     }
     fun setFromMouse(ref: Transform, x: Float, y: Float) {
         progress = orientation.peek({
@@ -54,7 +58,7 @@ fun <T> WidgetContainerScope.NumberSlider(
     }
     return Widget(
         modifier = Modifier
-            .name("NumberSlider")
+            .name("Slider")
             .minWidth(40f)
             .minHeight(16f)
             .mousePress { event ->
@@ -104,14 +108,39 @@ fun <T> WidgetContainerScope.NumberSlider(
 
 }
 
+fun <T> WidgetContainerScope.NumberSlider(
+    value: MutableState<T>,
+    minValue: T,
+    maxValue: T,
+    valueMapper: (progress: Double) -> T,
+    textMapper: (T) -> Text = { Literal(it.toString()) },
+    orientation: Orientation = Orientation.Horizontal,
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = {}
+) where T : Number, T : Comparable<T> = Slider(
+    value = value,
+    minValue = minValue,
+    maxValue = maxValue,
+    progressMapper = { value, min, max -> (value.toDouble() - min.toDouble()) / (max.toDouble() - min.toDouble()) },
+    valueMapper = valueMapper,
+    textMapper = textMapper,
+    orientation = orientation,
+    colorA = colorA,
+    colorB = colorB,
+    modifier = Modifier.name("NumberSlider").then(modifier),
+    scope = scope
+)
+
 fun WidgetContainerScope.IntSlider(
     value: MutableState<Int>,
     range: IntRange,
     textMapper: (Int) -> Text = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Int = { (range.first + (range.last - range.first) * it).toInt() },
     orientation: Orientation = Orientation.Horizontal,
-    colorA: ARGBColor = HSVColor(210f, .3f, .7f),
-    colorB: ARGBColor = HSVColor(210f, .1f, 1f),
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = NumberSlider(
@@ -133,8 +162,8 @@ fun WidgetContainerScope.LongSlider(
     textMapper: (Long) -> Text = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Long = { (range.first + (range.last - range.first) * it).toLong() },
     orientation: Orientation = Orientation.Horizontal,
-    colorA: ARGBColor = HSVColor(210f, .3f, .7f),
-    colorB: ARGBColor = HSVColor(210f, .1f, 1f),
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = NumberSlider(
@@ -156,8 +185,8 @@ fun WidgetContainerScope.FloatSlider(
     textMapper: (Float) -> Text = { Literal("%.2f".format(it)) },
     valueMapper: (progress: Double) -> Float = { (range.start + (range.endInclusive - range.start) * it).toFloat() },
     orientation: Orientation = Orientation.Horizontal,
-    colorA: ARGBColor = HSVColor(210f, .3f, .7f),
-    colorB: ARGBColor = HSVColor(210f, .1f, 1f),
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = NumberSlider(
@@ -179,8 +208,8 @@ fun WidgetContainerScope.DoubleSlider(
     textMapper: (Double) -> Text = { Literal("%.2f".format(it)) },
     valueMapper: (progress: Double) -> Double = { (range.start + (range.endInclusive - range.start) * it) },
     orientation: Orientation = Orientation.Horizontal,
-    colorA: ARGBColor = HSVColor(210f, .3f, .7f),
-    colorB: ARGBColor = HSVColor(210f, .1f, 1f),
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
 ) = NumberSlider(
@@ -193,5 +222,52 @@ fun WidgetContainerScope.DoubleSlider(
     colorB = colorB,
     orientation = orientation,
     modifier = Modifier.name("DoubleSlider").then(modifier),
+    scope = scope
+)
+
+fun WidgetContainerScope.PercentageSlider(
+    value: MutableState<Double>,
+    range: ClosedFloatingPointRange<Double> = 0.0..1.0,
+    textMapper: (Double) -> Text = { Literal("%.2f".format(it * 100) + "%") },
+    valueMapper: (progress: Double) -> Double = { (range.start + (range.endInclusive - range.start) * it) },
+    orientation: Orientation = Orientation.Horizontal,
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = {}
+) = NumberSlider(
+    value = value,
+    minValue = range.start,
+    maxValue = range.endInclusive,
+    textMapper = textMapper,
+    valueMapper = valueMapper,
+    colorA = colorA,
+    colorB = colorB,
+    orientation = orientation,
+    modifier = Modifier.name("PercentageSlider").then(modifier),
+    scope = scope
+)
+
+fun WidgetContainerScope.DurationSlider(
+    value: MutableState<Duration>,
+    range: ClosedRange<Duration>,
+    textMapper: (Duration) -> Text = { Literal(it.toString()) },
+    valueMapper: (progress: Double) -> Duration = { range.start + (range.endInclusive - range.start) * it },
+    orientation: Orientation = Orientation.Horizontal,
+    colorA: ARGBColor = SliderColorA,
+    colorB: ARGBColor = SliderColorB,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = {}
+) = Slider(
+    value = value,
+    minValue = range.start,
+    maxValue = range.endInclusive,
+    progressMapper = { value, min, max -> (value - min) / (max - min) },
+    valueMapper = valueMapper,
+    textMapper = textMapper,
+    colorA = colorA,
+    colorB = colorB,
+    orientation = orientation,
+    modifier = Modifier.name("DurationSlider").then(modifier),
     scope = scope
 )

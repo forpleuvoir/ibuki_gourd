@@ -7,8 +7,6 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import org.joml.*
-import org.joml.Vector2fc
-import org.joml.Vector2ic
 
 fun Vector2ic.isEmpty() = this.x() == 0 && this.y() == 0
 
@@ -26,7 +24,7 @@ operator fun Vector2ic.component2(): Int = y()
 
 fun Vector2ic.coerceIn(min: Vector2ic, max: Vector2ic): Vector2ic = Vector2i(x.coerceIn(min.x(), max.x()), y.coerceIn(min.y(), max.y()))
 
-fun Vector2i.coerceIn(min: Vector2ic, max: Vector2ic): Vector2ic {
+fun Vector2i.coerceInOf(min: Vector2ic, max: Vector2ic): Vector2ic {
     x = x.coerceIn(min.x(), max.x())
     y = y.coerceIn(min.y(), max.y())
     return this
@@ -85,7 +83,7 @@ fun Vector2ic.serialization(): SerializeElement = serializeObject {
     "y" to y()
 }
 
-object Vector2ic : Deserializer<Vector2ic> {
+object Vector2icDeserializer : Deserializer<Vector2ic> {
     override fun deserialization(serializeElement: SerializeElement): Vector2ic {
         return serializeElement.checkType<Vector2ic>()
             .check<SerializeArray> {

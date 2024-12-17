@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import kotlinx.coroutines.delay
+import moe.forpleuvoir.ibukigourd.gui.base.Margin
+import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -84,9 +86,12 @@ class TextWidget(
 
     //------------ TextWidget ------------\\
 
-//    init {
+    init {
 //        text.subscribe { onChanged() }
-//    }
+        padding = Padding(horizontal = 0f, vertical = 1f)
+        margin = Margin(horizontal = 0f, vertical = -1f)
+    }
+
 
     private var latestText: Text = text.getValue()
 

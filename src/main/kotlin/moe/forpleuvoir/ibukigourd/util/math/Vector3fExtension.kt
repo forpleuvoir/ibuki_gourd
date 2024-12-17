@@ -27,7 +27,7 @@ operator fun Vector3fc.component3(): Float = z()
 fun Vector3fc.coerceIn(min: Vector3fc, max: Vector3fc): Vector3fc =
     Vector3f(x.coerceIn(min.x(), max.x()), y.coerceIn(min.y(), max.y()), z.coerceIn(min.z(), max.z()))
 
-fun Vector3f.coerceIn(min: Vector3fc, max: Vector3fc): Vector3fc {
+fun Vector3f.coerceInOf(min: Vector3fc, max: Vector3fc): Vector3fc {
     x = x.coerceIn(min.x(), max.x())
     y = y.coerceIn(min.y(), max.y())
     y = y.coerceIn(min.z(), max.z())
@@ -97,7 +97,7 @@ fun Vector3fc.serialization(): SerializeElement = serializeObject {
     "z" to z()
 }
 
-object Vector3fc : Deserializer<Vector3fc> {
+object Vector3fcDeserializer : Deserializer<Vector3fc> {
     override fun deserialization(serializeElement: SerializeElement): Vector3fc {
         return serializeElement.checkType<Vector3fc>()
             .check<SerializeArray> {

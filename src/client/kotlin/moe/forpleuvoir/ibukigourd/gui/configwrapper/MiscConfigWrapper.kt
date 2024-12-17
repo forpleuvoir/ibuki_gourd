@@ -1,13 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.config.item.ConfigDurationObject
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -15,18 +15,20 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
-import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
+import moe.forpleuvoir.nebula.config.item.impl.ConfigDuration
 import moe.forpleuvoir.nebula.config.item.impl.ConfigEnum
 import moe.forpleuvoir.nebula.config.item.impl.ConfigString
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 fun WidgetContainerScope.UnspecifiedConfigWrapper(
     config: ConfigSerializable,
@@ -134,20 +136,9 @@ fun WidgetContainerScope.BooleanConfigWrapper(
 }
 
 fun WidgetContainerScope.ConfigDurationWrapper(
-    config: ConfigDurationObject,
+    config: ConfigDuration,
     modifier: Modifier = Modifier
 ) = ConfigColumnWrapper(config, modifier) {
-
-    val longValue = mutableStateOf(config.getValue().duration).apply {
-        subscribe {
-            config.setValue(config.getValue().copy(duration = it))
-        }
-    }
-    val unitValue = mutableStateOf(config.getValue().unit).apply {
-        subscribe {
-            config.setValue(config.getValue().copy(unit = it))
-        }
-    }
 
     val durationValue = mutableStateOf(config.getValue()).apply {
         subscribe {
@@ -158,26 +149,39 @@ fun WidgetContainerScope.ConfigDurationWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        val state = mutableStateOf(true)
-
-        SwitchableProxy(
-            { LongSlider(longValue, 0L..1000L, modifier = Modifier.width(120f), textMapper = { Literal(config.duration.toString()) }) },
-            {
-                Column(horizontalArrangement = Arrangement.spacedBy(0f)) {
-                    LongEditor(longValue, 0L..1000L, modifier = Modifier.width(45f), editorModifier = { Modifier.weight(1) })
-                    EnumSelector(unitValue, modifier = Modifier.width(75f))
-                }
-            },
-            state
+        DurationSlider(
+            durationValue,
+            config.minDuration..config.maxDuration,
+            modifier = Modifier.width(120f)
         )
-        Button {
-            click { state.switch() }
-            Icon(IconTextures.SWITCH)
+        Button(
+            modifier = Modifier.hoverText(IGLang.edit)
+        ) {
+            Icon(IconTextures.EDIT)
+            click {
+                val value = mutableStateOf(durationValue.getValue().toDouble(DurationUnit.SECONDS))
+                val unit = mutableStateOf(DurationUnit.SECONDS)
+                ConfirmDialog(
+                    stateOf(config.translateText),
+                    onConfirm = {
+                        val duration = value.getValue().toDuration(unit.getValue())
+                        if (duration in config.minDuration..config.maxDuration) {
+                            durationValue.setValue(duration)
+                            mc.currentScreen?.close()
+                        } else {
+                            Toast.showToast(text = IGLang.notInRange(duration, config.minDuration, config.maxDuration))
+                        }
+                    }
+                ) {
+                    Column(horizontalArrangement = Arrangement.spacedBy(5f)) {
+                        DoubleEditor(value, 0.0..999.9, modifier = Modifier.width(120f), editorModifier = { Modifier.weight(1) })
+                        EnumSelector(unit, modifier = Modifier.width(75f))
+                    }
+                }.open()
+            }
         }
         ConfigResetButton(config) {
-            durationValue.setValue(config.getValue())
-            longValue.setValue(durationValue.getValue().duration)
-            unitValue.setValue(durationValue.getValue().unit)
+            durationValue.setValue(it.getValue())
         }
     }
 }

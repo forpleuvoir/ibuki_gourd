@@ -134,7 +134,8 @@ fun WidgetContainerScope.ConfigManagerWrapper(
             textConsumer = { str ->
                 currentConfigs.disableNotify {
                     currentConfigs.clear()
-                    currentConfigs.addAll(map.find { (text, _) -> text == currentGroup }?.second?.filter { it.matched(str.toRegex()) } ?: emptyList())
+                    currentConfigs.addAll(map.find { (text, _) -> text.translateText == currentGroup }?.second?.filter { it.matched(str.toRegex()) }
+                        ?: emptyList())
                 }
                 currentConfigs.onChange(currentConfigs)
             },

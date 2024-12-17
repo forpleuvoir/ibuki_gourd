@@ -75,9 +75,7 @@ fun ConfirmDialog(
         Modifier.matchSibling(),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
     ) {
-        Button(
-            color = HSVColor(135f, .35f, 1f)
-        ) {
+        Button {
             TextLabel(IGLang.confirm)
             click {
                 onConfirm()

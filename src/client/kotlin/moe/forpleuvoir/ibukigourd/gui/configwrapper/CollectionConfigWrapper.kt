@@ -227,8 +227,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                                         return@ConfirmDialog
                                                     }
                                                     if (mapValue.containsKey(newKey.getValue())) {
-                                                        //TODO Show Toast
-                                                        Toast.showToast(text = "Key重复了")
+                                                        Toast.showToast(text = IGLang.keyExists(newKey.getValue()).withColor(Colors.RED))
                                                         return@ConfirmDialog
                                                     }
                                                     mapValue.renameKey(key, newKey.getValue())
