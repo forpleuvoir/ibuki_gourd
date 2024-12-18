@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
@@ -24,9 +25,20 @@ repositories {
 
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
 
+val gitHash: String by lazy {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD") // 获取短哈希值
+        standardOutput = stdout
+    }
+    stdout.toString().trim()
+}
+
+
 val modName: String = properties["archives_base_name"].toString()
 version = properties["mod_version"].toString()
 group = properties["maven_group"].toString()
+val outPutVersion = "$version-$gitHash"
 
 dependencies {
     minecraft(libs.minecraft)
@@ -109,13 +121,15 @@ kotlin {
     }
 }
 
+
+
 tasks {
 
     processResources {
-        inputs.property("version", version)
+        inputs.property("version", outPutVersion)
         filteringCharset = "UTF-8"
         filesMatching("fabric.mod.json") {
-            expand("version" to version)
+            expand("version" to outPutVersion)
         }
     }
 
@@ -155,9 +169,9 @@ tasks {
     register<Copy>("modJar") {
         dependsOn(remapJar)
         mustRunAfter(remapJar)
-        val outPath = "$rootDir/modJar/$version"
+        val outPath = "$rootDir/modJar/$outPutVersion"
         val name = remapJar.get().archiveFileName.get()
-        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
+        val newName = "$modName-$outPutVersion.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
         from("build/libs")
         into(outPath)
         include(name)

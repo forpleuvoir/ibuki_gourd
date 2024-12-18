@@ -1,8 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import kotlinx.coroutines.delay
-import moe.forpleuvoir.ibukigourd.gui.base.Margin
-import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -88,8 +86,8 @@ class TextWidget(
 
     init {
 //        text.subscribe { onChanged() }
-        padding = Padding(0, 0, 1, 1)
-        margin = Margin(0, -1, -1, -1)
+//        padding = Padding(0, 0, 0, 1)
+//        margin = Margin(0, -1, 0, 0)
     }
 
 
@@ -208,9 +206,9 @@ class TextWidget(
             } else
                 Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat())
         }
-        context.useScissor(transform.asWorldCoordinateBox) {
+        context.useScissor(transform.asWorldCoordinateBox.expandEdges(1f)) {
             useMatrixStack { matrixStack ->
-                matrixStack.translate(0.0f, 0.4f, 0f)
+                matrixStack.translate(1.0f, 0.4f, 0f)
                 //------------ 开始渲染 ------------\\
                 batchRenderText(textRenderer) {
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }
