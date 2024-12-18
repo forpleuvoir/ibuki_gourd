@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.config.item.stringPairList
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
@@ -54,6 +55,8 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
             "k3" to "k3"
         )
     )
+
+    val testStringPairList by stringPairList("test_string_pair_list", listOf("k1" to "v1", "k2" to "v2", "k3" to "k3"))
 
     val nested = addConfig(Nested)
 

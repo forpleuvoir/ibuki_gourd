@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
+import moe.forpleuvoir.ibukigourd.config.item.ConfigPairList
 import moe.forpleuvoir.ibukigourd.config.item.ConfigVector2f
 import moe.forpleuvoir.ibukigourd.config.item.ConfigVector3f
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBind
@@ -65,6 +66,7 @@ object ConfigWrapperMap {
         register<ConfigDuration> { c, m -> ConfigDurationWrapper(c, m) }
         register<ConfigStringList> { c, m -> StringListConfigWrapper(c, m) }
         register<ConfigStringMap> { c, m -> StringMapConfigWrapper(c, m) }
+        register<ConfigPairList<String, String>> { c, m -> StringPairListConfigWrapper(c, m) }
         register<ConfigKeyBind> { c, m -> ConfigKeyBindWrapper(c, m) }
         register<ConfigKeyBindBoolean> { c, m -> ConfigKeyBindBooleanWrapper(c, m) }
         register<ConfigVector2f> { c, m -> ConfigVector2fWrapper(c, m) }

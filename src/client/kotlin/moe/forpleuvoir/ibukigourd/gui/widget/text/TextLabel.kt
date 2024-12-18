@@ -88,8 +88,8 @@ class TextWidget(
 
     init {
 //        text.subscribe { onChanged() }
-        padding = Padding(horizontal = 0f, vertical = 1f)
-        margin = Margin(horizontal = 0f, vertical = -1f)
+        padding = Padding(0, 0, 1, 1)
+        margin = Margin(0, -1, -1, -1)
     }
 
 
