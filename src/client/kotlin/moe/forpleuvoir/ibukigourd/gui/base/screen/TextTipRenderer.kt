@@ -50,9 +50,7 @@ object TextTipRenderer : Tickable {
             }
             if (transform.parent() != widget.transform) transform.parent = { widget.transform }
         }
-        textLabel = TextWidget(mutableStateBy<Text> { widget.hoverText.invoke()!! }).apply {
-            setting.autoNewLine = true
-        }
+        textLabel = TextWidget(mutableStateBy<Text> { widget.hoverText.invoke()!! }, autoNewLine = true)
         box!!.addWidgetChild(textLabel!!)
         timeMark = TimeSource.Monotonic.markNow()
     }
