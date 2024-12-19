@@ -19,7 +19,7 @@ public abstract class GameRendererMixin {
     public abstract void tick();
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;draw()V", ordinal = 1, shift = At.Shift.AFTER))
-    public void ibukigourd$render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(name = "drawContext") DrawContext context, @Local(name = "i") int mouseX, @Local(name = "j") int mouseY) {
+    public void ibukigourd$render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(ordinal = 0) DrawContext context, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY) {
         Toast.render(IGDrawContext.Companion.toIGDrawContext(context), mouseX, mouseY, tickCounter.getLastFrameDuration());
     }
 
