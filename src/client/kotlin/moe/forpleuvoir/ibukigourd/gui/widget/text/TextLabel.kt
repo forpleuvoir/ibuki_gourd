@@ -208,7 +208,7 @@ class TextWidget(
         }
         context.useScissor(transform.asWorldCoordinateBox.expandEdges(1f)) {
             useMatrixStack { matrixStack ->
-                matrixStack.translate(1.0f, 0.4f, 0f)
+                matrixStack.translate(0.5f, 0.4f, 0f)
                 //------------ 开始渲染 ------------\\
                 batchRenderText(textRenderer) {
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }

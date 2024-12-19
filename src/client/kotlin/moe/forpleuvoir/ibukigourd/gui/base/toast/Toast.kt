@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.toast
 
+import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
@@ -27,18 +28,18 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 
-object Toast {
+object Toast : Tickable {
 
     object Config : ModConfigContainer("toast") {
         // 动画参数
-        internal val FADE_IN_OFFSET by vector2f("fade_in_offset", Vector2f(0f, 10f), Vector2f(-50, -50), Vector2f(50, 50)) // 开始的位移值
-        internal val FADE_OUT_OFFSET by vector2f("fade_out_offset", Vector2f(0f, -2f), Vector2f(-50, -50), Vector2f(50, 50)) // 结束的位移值
+        val FADE_IN_OFFSET by vector2f("fade_in_offset", Vector2f(0f, 10f), Vector2f(-50, -50), Vector2f(50, 50)) // 开始的位移值
+        val FADE_OUT_OFFSET by vector2f("fade_out_offset", Vector2f(0f, -2f), Vector2f(-50, -50), Vector2f(50, 50)) // 结束的位移值
 
-        internal val FADE_IN_DURATION by duration("fade_in_duration", 0.2.seconds, 0.seconds, 10.seconds)  // 淡入时间
-        internal val FADE_OUT_DURATION by duration("fade_out_duration", 0.2.seconds, 0.seconds, 10.seconds)  // 淡出时间
+        val FADE_IN_DURATION by duration("fade_in_duration", 0.2.seconds, 0.seconds, 10.seconds)  // 淡入时间
+        val FADE_OUT_DURATION by duration("fade_out_duration", 0.2.seconds, 0.seconds, 10.seconds)  // 淡出时间
 
-        internal val SHORT_DURATION by duration("short_duration", 2.seconds, maxDuration = 10.seconds)
-        internal val LONG_DURATION by duration("long_duration", 5.seconds, maxDuration = 20.seconds)
+        val SHORT_DURATION by duration("short_duration", 2.seconds, maxDuration = 10.seconds)
+        val LONG_DURATION by duration("long_duration", 5.seconds, maxDuration = 20.seconds)
     }
 
     val SHORT_DURATION get() = Config.SHORT_DURATION
@@ -48,7 +49,7 @@ object Toast {
     private val toastQueue = mutableListOf<Pair<BoxWidget, ValueTimeMark>>() // 存储当前 Toast 和其时间戳
 
     @JvmStatic
-    fun render(drawContent: IGDrawContext) {
+    fun render(drawContent: IGDrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val iterator = toastQueue.iterator()
         while (iterator.hasNext()) {
             val (box, timeMark) = iterator.next()
@@ -62,7 +63,7 @@ object Toast {
                     scissorOffset(offset) {
                         it.translate(offset.x(), offset.y(), 0f)
                         shaderColor(Colors.WHITE.alpha(alpha)) {
-                            box.render(this, 0, 0, 0f)
+                            box.render(this, mouseX, mouseY, delta)
                         }
                     }
                 }
@@ -181,6 +182,12 @@ object Toast {
                 measureCompletion()
                 layout()
             }
+        }
+    }
+
+    override fun onTick() {
+        toastQueue.forEach { (box, _) ->
+            box.tick()
         }
     }
 

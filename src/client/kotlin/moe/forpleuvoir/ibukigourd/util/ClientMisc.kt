@@ -43,7 +43,7 @@ internal fun identifier(path: String): Identifier = identifier(IbukiGourd.MOD_ID
 fun MinecraftClient.sendMessage(message: String) {
     this.player?.networkHandler?.let {
         if (message.startsWith("/"))
-            it.sendChatCommand(message)
+            it.sendChatCommand(message.substring(1))
         else
             it.sendChatMessage(message)
     }

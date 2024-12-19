@@ -14,12 +14,13 @@ import moe.forpleuvoir.ibukigourd.util.mc
 @ModConfig("config")
 object IGConfig : ClientModConfigManager(IbukiGourd.metadata, "config") {
 
-    private val _gui = addConfig(GuiConfig)
-
     val openScreen by keyBind("open_screen", KeyBind(Keyboard.I, Keyboard.G) {
         IbukiGourdModScreen().open(mc.currentScreen)
     })
 
-    private val _toast = addConfig(Toast.Config)
+    init {
+        addConfig(GuiConfig)
+        addConfig(Toast.Config)
+    }
 
 }

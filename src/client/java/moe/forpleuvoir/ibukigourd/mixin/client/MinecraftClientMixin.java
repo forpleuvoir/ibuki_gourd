@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
+import moe.forpleuvoir.ibukigourd.gui.base.screen.TextTipRenderer;
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.task.ClientTickTaskSchedulerKt;
@@ -49,6 +50,8 @@ public abstract class MinecraftClientMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     public void ibukigourd$tickStart(CallbackInfo ci) {
         InputHandler.INSTANCE.onTick();
+        Toast.INSTANCE.onTick();
+        TextTipRenderer.INSTANCE.onTick();
         ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).startTick((MinecraftClient) (Object) this);
         EventBus.Companion.broadcast(new ClientTickEvent.ClientTickStartEvent((MinecraftClient) (Object) this));
     }

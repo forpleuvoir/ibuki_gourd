@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.screen
 
+import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.setName
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -23,7 +24,7 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.time.TimeSource
 import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 
-object TextTipRenderer {
+object TextTipRenderer : Tickable {
 
     private var currentWidget: IGWidget? = null
 
@@ -54,7 +55,7 @@ object TextTipRenderer {
         timeMark = TimeSource.Monotonic.markNow()
     }
 
-    fun render(widget: IGWidget, drawContext: IGDrawContext) {
+    fun render(widget: IGWidget, drawContext: IGDrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (widget.hoverText() == null) return
 
         if (currentWidget != widget) {
@@ -65,7 +66,11 @@ object TextTipRenderer {
         if (timeMark.elapsedNow() < widget.hoverTextShowDelay) return
         box?.measure(Constraints.of(0f, mc.window.scaledWidth.toFloat(), 0f, mc.window.scaledHeight.toFloat()))
         box?.layout()
-        box?.render(drawContext, 0, 0, 0f)
+        box?.render(drawContext, mouseX, mouseY, delta)
+    }
+
+    override fun onTick() {
+        box?.onTick()
     }
 
 }

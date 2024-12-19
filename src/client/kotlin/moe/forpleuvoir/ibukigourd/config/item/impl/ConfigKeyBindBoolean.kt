@@ -64,7 +64,12 @@ fun ConfigContainer.keyBindBoolean(
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
         Toast.showToast(
             text =
-                this.translateText.append(Literal(" : ")).append(it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED)))
+                (this.parentContainer?.translateText ?: Literal())
+                    .appendLiteral("->")
+                    .append(this.translateText).append(Literal(" : "))
+                    .append(
+                        it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED))
+                    )
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, defaultValue, onSwitch))
@@ -75,7 +80,12 @@ fun ConfigContainer.keyBindBoolean(
     keyBind: KeyBind = KeyBind(),
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
         Toast.showToast(
-            text = this.translateText.append(Literal(" : ")).append(it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED)))
+            text = (this.parentContainer?.translateText ?: Literal())
+                .appendLiteral("->")
+                .append(this.translateText).append(Literal(" : "))
+                .append(
+                    it.pick(IGLang.switchOn, IGLang.switchOff).withColor(it.pick(Colors.LIMEGREEN, Colors.RED))
+                )
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, KeyBindWithBoolean(keyBind, value), onSwitch))

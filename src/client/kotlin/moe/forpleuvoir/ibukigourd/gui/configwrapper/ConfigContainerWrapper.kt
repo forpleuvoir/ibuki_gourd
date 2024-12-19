@@ -5,16 +5,22 @@ import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.util.disableRender
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
+import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
+import moe.forpleuvoir.ibukigourd.gui.widget.Widget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -23,9 +29,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -81,6 +90,39 @@ fun WidgetContainerScope.ConfigContainerWrapper(
         ConfigResetButton(config)
     }
 }
+
+fun WidgetContainerScope.ExpandableConfigContainerWrapper(
+    config: ConfigContainer,
+    modifier: Modifier = Modifier
+) = Row {
+    val expanded = mutableStateOf(false)
+    Button(
+        modifier = modifier.attachLeft {
+            disableRender().padding(0)
+        }
+    ) {
+        click { expanded.switch() }
+        ConfigColumnWrapper(config, Modifier.padding(horizontal = 2f, vertical = 5)) {
+            Icon(
+                mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
+                modifier = Modifier.margin(right = 10f)
+            )
+        }
+    }
+    SwitchableProxy(
+        widgetA = {
+            ConfigsWrapper(
+                config.configs(),
+                Modifier.padding(horizontal = 8, vertical = 2).disableRenderBackground(),
+                listModifier = { Modifier })
+        },
+        widgetB = {
+            Widget(Modifier) {}
+        },
+        expanded
+    )
+}
+
 
 fun WidgetContainerScope.ConfigManagerWrapper(
     configManager: ConfigManager,

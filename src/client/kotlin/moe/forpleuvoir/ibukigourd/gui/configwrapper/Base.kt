@@ -21,10 +21,10 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 
 
-inline fun <reified T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
+fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
     configSerializable: T,
     modifier: Modifier = Modifier,
-    crossinline content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ) = Column(
     modifier
         .attachLeft {
@@ -40,7 +40,7 @@ inline fun <reified T : ConfigSerializable> WidgetContainerScope.ConfigColumnWra
                     (alpha + aupt * delta).coerceIn(0f, maxAlpha)
                 else (alpha - adpt * delta).coerceIn(0f, maxAlpha)
             }
-            name(T::class.simpleName!! + "Wrapper")
+            name(configSerializable.javaClass.simpleName + "Wrapper")
                 .padding(horizontal = 2f)
                 .renderBackground { context, x, y, delta ->
                     updateAlpha(wasMouseOver, delta)

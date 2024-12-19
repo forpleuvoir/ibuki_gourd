@@ -22,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.style.style
@@ -203,11 +202,10 @@ private fun ColumnScope.RowTest(arrangement: Arrangement.Vertical) = Row(
             }
         }
 ) {
-    Button {
+    Button(
+        modifier = Modifier.hoverText("我踏马要写一大段测试文本,\n而且我还要换行.我TM换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换")
+    ) {
         TextLabel("按钮1")
-        HoverTip(
-            bgColor = mutableStateOf(Colors.PINK)
-        ) { TextLabel("我踏马要写一大段测试文本,\n而且我还要换行.我TM换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换\n换") }
     }
     Button { TextLabel("按钮2") }
     Button { TextLabel("按钮3") }

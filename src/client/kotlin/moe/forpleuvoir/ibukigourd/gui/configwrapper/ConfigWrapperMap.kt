@@ -47,7 +47,12 @@ object ConfigWrapperMap {
     init {
         //------------ DefaultConfigContainer ------------\\
         register(predicate = { it is ConfigContainer }, wrapper = { c, m ->
-            if (c is ConfigContainer) this.ConfigContainerWrapper(c, m)
+            if (c is ConfigContainer) {
+                if (c.configs().size > 10)
+                    this.ConfigContainerWrapper(c, m)
+                else
+                    this.ExpandableConfigContainerWrapper(c, m)
+            }
         })
         //------------ Number ------------\\
         register<ConfigInt> { c, m -> IntConfigWrapper(c, m) }
