@@ -36,9 +36,8 @@ val gitHash: String by lazy {
 
 
 val modName: String = properties["archives_base_name"].toString()
-version = properties["mod_version"].toString()
+version = properties["mod_version"].toString() + ".$gitHash"
 group = properties["maven_group"].toString()
-val outPutVersion = "$version.$gitHash"
 
 dependencies {
     minecraft(libs.minecraft)
@@ -126,10 +125,10 @@ kotlin {
 tasks {
 
     processResources {
-        inputs.property("version", outPutVersion)
+        inputs.property("version", version)
         filteringCharset = "UTF-8"
         filesMatching("fabric.mod.json") {
-            expand("version" to outPutVersion)
+            expand("version" to version)
         }
     }
 
@@ -169,9 +168,9 @@ tasks {
     register<Copy>("modJar") {
         dependsOn(remapJar)
         mustRunAfter(remapJar)
-        val outPath = "$rootDir/modJar/$outPutVersion"
+        val outPath = "$rootDir/modJar/$version"
         val name = remapJar.get().archiveFileName.get()
-        val newName = "$modName-$outPutVersion.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
+        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
         from("build/libs")
         into(outPath)
         include(name)
