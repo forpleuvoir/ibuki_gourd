@@ -38,7 +38,7 @@ val gitHash: String by lazy {
 val modName: String = properties["archives_base_name"].toString()
 version = properties["mod_version"].toString()
 group = properties["maven_group"].toString()
-val outPutVersion = "$version-$gitHash"
+val outPutVersion = "$version.$gitHash"
 
 dependencies {
     minecraft(libs.minecraft)
