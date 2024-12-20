@@ -12,6 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.screen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
 import moe.forpleuvoir.ibukigourd.text.*
@@ -24,7 +25,6 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.text.Style
@@ -69,12 +69,14 @@ class TextWidget(
 
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
-        val width = text.getValue().wrapToTextLines(textRenderer).maxOf { textRenderer.getWidth(it) }.toFloat() + padding.width
+        val width = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) (c.maxWidth - padding.width).toInt() else 0)
+            .maxOf { textRenderer.getWidth(it) }.toFloat() + padding.width
         val spacing = setting.verticalArrangement.spacing
         val height = text.getValue().wrapToTextLines(
-            textRenderer, if (setting.autoNewLine) (width - padding.width).toInt() else 0
+            textRenderer, (width - padding.width).toInt()
         ).size * (textRenderer.fontHeight + spacing) - spacing + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
+        renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
         return this
     }
 
@@ -108,9 +110,9 @@ class TextWidget(
     fun onChanged() {
         renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
         if (!constraints.fixed()) {
-            defaultLaunch {
+            screen()?.launch {
                 delay(1)
-                screen()?.remeasure()
+                this.screen?.remeasure()
             }
         }
     }
@@ -164,7 +166,7 @@ class TextWidget(
         val (minX, maxX) = xScrollRange[index]
         //滚动宽度
         val width = abs(maxX - minX)
-        val shouldScroll = textRenderer.getWidth(renderText[index]) > contentWidth
+        val shouldScroll = textRenderer.getWidth(renderText[index]) > contentWidth + 2f
         if (!shouldScroll) return x
         //从min滚动到max所需要的tick
         val ticks = width / xScrollSpeed
@@ -182,7 +184,7 @@ class TextWidget(
         val (minY, maxY) = yScrollRange
         //滚动宽度
         val height = abs(maxY - minY)
-        val shouldScroll = renderText.totalHeight(textRenderer, setting.verticalArrangement.spacing) > contentHeight
+        val shouldScroll = renderText.totalHeight(textRenderer, setting.verticalArrangement.spacing) > contentHeight + 2f
         if (!shouldScroll) return y
         //从min滚动到max所需要的tick
         val ticks = height / yScrollSpeed
@@ -208,7 +210,7 @@ class TextWidget(
         }
         context.useScissor(transform.asWorldCoordinateBox.expandEdges(1f)) {
             useMatrixStack { matrixStack ->
-                matrixStack.translate(0.5f, 0.4f, 0f)
+                matrixStack.translate(0.35f, 0.4f, 0f)
                 //------------ 开始渲染 ------------\\
                 batchRenderText(textRenderer) {
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }

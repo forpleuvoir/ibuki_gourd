@@ -64,7 +64,7 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     //------------ Coroutine ------------\\
 
-    val coroutineScope: CoroutineScope
+    val coroutineScope: ScreenCoroutineScope
 
     fun launch(
         context: CoroutineContext = EmptyCoroutineContext,

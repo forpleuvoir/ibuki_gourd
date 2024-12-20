@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.screen
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
@@ -146,7 +144,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         tasks.clear()
     }
 
-    override val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    override val coroutineScope: ScreenCoroutineScope = ScreenCoroutineScope(this)
 
     //------------ Tickable ------------\\
 

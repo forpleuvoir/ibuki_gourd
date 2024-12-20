@@ -207,6 +207,8 @@ private fun ColumnScope.RowTest(arrangement: Arrangement.Vertical) = Row(
     ) {
         TextLabel("按钮1")
     }
-    Button { TextLabel("按钮2") }
+    Button(
+        Modifier.hoverText("超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本超宽文本")
+    ) { TextLabel("按钮2") }
     Button { TextLabel("按钮3") }
 }
