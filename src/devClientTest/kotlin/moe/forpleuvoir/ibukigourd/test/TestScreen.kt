@@ -20,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -98,18 +97,18 @@ fun TestScreen() = BoxScreen(modifier()) {
             var c = 0
             var f = true
             repeat(50) {
-                val m = when (c) {
+                var m = when (c) {
                     0    -> Modifier.align(Alignment.Top)
                     1    -> Modifier.align(Alignment.CenterVertically)
                     2    -> Modifier.align(Alignment.Bottom)
                     else -> Modifier.align(Alignment.CenterVertically)
                 }
-                Button(m) {
-                    if (it == 12) {
-                        HoverTip {
-                            Button { TextLabel("悬浮测试") }
-                        }
+                if (it == 12) {
+                    m = m.hoverTtp {
+                        Button { TextLabel("悬浮测试") }
                     }
+                }
+                Button(m) {
                     TextLabel("$it")
                 }
                 if (c == 2) {

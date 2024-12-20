@@ -7,24 +7,19 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
+import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverText
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTextBGColor
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTextDirection
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTextMargin
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTextPadding
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTextShowDelay
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursor
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursorMapping
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.State
-import moe.forpleuvoir.nebula.common.color.ARGBColor
-import kotlin.time.Duration
 
 fun interface WidgetModifier : Modifier.Element {
     fun applyModify(element: IGWidget)
@@ -265,60 +260,44 @@ fun Modifier.mouseOverCursor(cursor: MouseCursor) = this then WidgetModifier { w
 
 //------------ HoverText ------------\\
 
-@JvmName("hoverTextState")
-fun Modifier.hoverText(text: State<Text>) = this then WidgetModifier { widget ->
-    widget.setHoverText { text.getValue() }
+fun Modifier.hoverTtp(
+    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    modifier: Modifier = Modifier,
+    content: BoxScope.() -> Unit
+) = this then WidgetModifier { widget ->
+    widget.setHoverTip(HoverTip(settings, HoverTip.DefaultModifier.then(modifier), content))
 }
 
-fun Modifier.hoverText(text: Text) = this then WidgetModifier { widget ->
-    widget.setHoverText { text }
+@JvmName("hoverTextState")
+fun Modifier.hoverText(
+    text: State<Text>,
+    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    modifier: Modifier = Modifier
+) = hoverTtp(settings, modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
+}
+
+fun Modifier.hoverText(
+    text: Text,
+    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    modifier: Modifier = Modifier
+) = hoverTtp(settings, modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
 @JvmName("hoverTextString")
-fun Modifier.hoverText(text: State<String>) = this then WidgetModifier { widget ->
-    widget.setHoverText { Literal(text.getValue()) }
+fun Modifier.hoverText(
+    text: State<String>,
+    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    modifier: Modifier = Modifier
+) = hoverTtp(settings, modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
-fun Modifier.hoverText(text: String) = this then WidgetModifier { widget ->
-    widget.setHoverText { Literal(text) }
-}
-
-fun Modifier.hoverTextShowDelay(delay: Duration) = this then WidgetModifier { widget ->
-    widget.setHoverTextShowDelay(delay)
-}
-
-fun Modifier.hoverTextDirection(direction: () -> List<Direction>) = this then WidgetModifier { widget ->
-    widget.setHoverTextDirection(direction)
-}
-
-fun Modifier.hoverTextDirection(direction: List<Direction>) = this then WidgetModifier { widget ->
-    widget.setHoverTextDirection { direction }
-}
-
-fun Modifier.hoverTextDirection(direction: State<List<Direction>>) = this then WidgetModifier { widget ->
-    widget.setHoverTextDirection { direction.getValue() }
-}
-
-fun Modifier.hoverTextMargin(margin: () -> Margin) = this then WidgetModifier { widget ->
-    widget.setHoverTextMargin(margin)
-}
-
-fun Modifier.hoverTextMargin(margin: Margin) = this then WidgetModifier { widget ->
-    widget.setHoverTextMargin { margin }
-}
-
-fun Modifier.hoverTextPadding(padding: () -> Padding) = this then WidgetModifier { widget ->
-    widget.setHoverTextPadding(padding)
-}
-
-fun Modifier.hoverTextPadding(padding: Padding) = this then WidgetModifier { widget ->
-    widget.setHoverTextPadding { padding }
-}
-
-fun Modifier.hoverTextBGColor(color: () -> ARGBColor) = this then WidgetModifier { widget ->
-    widget.setHoverTextBGColor(color)
-}
-
-fun Modifier.hoverTextBGColor(color: ARGBColor) = this then WidgetModifier { widget ->
-    widget.setHoverTextBGColor { color }
+fun Modifier.hoverText(
+    text: String,
+    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    modifier: Modifier = Modifier
+) = hoverTtp(settings, modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }

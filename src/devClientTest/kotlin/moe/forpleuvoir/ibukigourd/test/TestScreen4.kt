@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.*
@@ -63,7 +64,7 @@ fun testScreen4() = ColumnScreen(
 
     SwitchButton(
         switchState,
-        modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }).hoverTextDirection { listOf(Direction.Left) }
+        modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     )
     Spinner(listOf("下拉菜单", "选项1", "选项2", "选项3")) {
         HoverTip(

@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
+import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
@@ -30,7 +31,7 @@ fun WidgetContainerScope.HSVColorPicker(
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
     Column(
-        Modifier.weight(1).name("hue").hoverText(IGLang.hue).hoverTextDirection { listOf(Direction.Left) }
+        Modifier.weight(1).name("hue").hoverText(IGLang.hue, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
@@ -45,7 +46,7 @@ fun WidgetContainerScope.HSVColorPicker(
         )
     }
     Column(
-        Modifier.weight(1).name("saturation").hoverText(IGLang.saturation).hoverTextDirection { listOf(Direction.Left) }
+        Modifier.weight(1).name("saturation").hoverText(IGLang.saturation, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
@@ -60,7 +61,7 @@ fun WidgetContainerScope.HSVColorPicker(
         )
     }
     Column(
-        Modifier.weight(1).name("brightness").hoverText(IGLang.brightness).hoverTextDirection { listOf(Direction.Left) }
+        Modifier.weight(1).name("brightness").hoverText(IGLang.brightness, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
@@ -75,7 +76,7 @@ fun WidgetContainerScope.HSVColorPicker(
         )
     }
     Column(
-        Modifier.weight(1).name("alpha").hoverText(IGLang.alpha).hoverTextDirection { listOf(Direction.Left) }
+        Modifier.weight(1).name("alpha").hoverText(IGLang.alpha, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)

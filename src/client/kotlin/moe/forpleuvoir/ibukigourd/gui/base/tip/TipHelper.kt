@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.gui.widget.tip
+package moe.forpleuvoir.ibukigourd.gui.base.tip
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -8,7 +8,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.util.math.component1
 import moe.forpleuvoir.ibukigourd.util.math.component2
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -61,54 +60,54 @@ object TipHelper {
     ) {
         //计算箭头位置
         val (pos, texture) = when (direction) {
-            Top    -> Vector2f(
+            Direction.Top    -> Vector2f(
                 parentTransform.worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
                 transform.worldBottom
             ) to WidgetTextures.TIP_ARROW_TOP
 
-            Right  -> Vector2f(
+            Direction.Right  -> Vector2f(
                 transform.worldLeft - WidgetTextures.TIP_ARROW_RIGHT.width,
                 parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
             ) to WidgetTextures.TIP_ARROW_RIGHT
 
-            Bottom -> Vector2f(
+            Direction.Bottom -> Vector2f(
                 parentTransform.worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
                 transform.worldTop - WidgetTextures.TIP_ARROW_BOTTOM.height
             ) to WidgetTextures.TIP_ARROW_BOTTOM
 
-            Left   -> Vector2f(
+            Direction.Left   -> Vector2f(
                 transform.worldRight,
                 parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
             ) to WidgetTextures.TIP_ARROW_LEFT
         }
         context.batchRenderTextureColored {
             pushWidgetTexture(transform, WidgetTextures.TIP, color = bgColor)
-            pushWidgetTexture(Box(pos, Size(texture.width, texture.height).toFloat()), texture, color = bgColor)
+            pushWidgetTexture(Box.Companion(pos, Size.Companion(texture.width, texture.height).toFloat()), texture, color = bgColor)
         }
     }
 
     private fun calcPosition(ref: Size<Float>, margin: Margin, parent: Transform, direction: Direction): Vector2fc {
         val pos = when (direction) {
-            Top    -> Vector2f(parent.halfWidth - ref.halfWidth, -margin.bottom - ref.height)
-            Right  -> Vector2f(parent.width + margin.left, parent.halfHeight - ref.halfHeight)
-            Bottom -> Vector2f(parent.halfWidth - ref.halfWidth, parent.height + margin.top)
-            Left   -> Vector2f(-margin.right - ref.width, parent.halfHeight - ref.halfHeight)
+            Direction.Top    -> Vector2f(parent.halfWidth - ref.halfWidth, -margin.bottom - ref.height)
+            Direction.Right  -> Vector2f(parent.width + margin.left, parent.halfHeight - ref.halfHeight)
+            Direction.Bottom -> Vector2f(parent.halfWidth - ref.halfWidth, parent.height + margin.top)
+            Direction.Left   -> Vector2f(-margin.right - ref.width, parent.halfHeight - ref.halfHeight)
         }
         return pos
     }
 
     private fun checkDirection(ref: Size<Float>, margin: Margin, parent: Transform, optionalDirection: Iterable<Direction>): Direction {
         //------------ 计算如果没有可放置位置则选择一个空间最大的方向放置 ------------\\
-        val leftSpace = Left to (parent.worldLeft)
-        val rightSpace = Right to (mc.window.scaledWidth - parent.worldRight)
-        val topSpace = Top to (parent.worldTop)
-        val bottomSpace = Bottom to (mc.window.scaledHeight - parent.worldBottom)
+        val leftSpace = Direction.Left to (parent.worldLeft)
+        val rightSpace = Direction.Right to (mc.window.scaledWidth - parent.worldRight)
+        val topSpace = Direction.Top to (parent.worldTop)
+        val bottomSpace = Direction.Bottom to (mc.window.scaledHeight - parent.worldBottom)
         return optionalDirection.find {
             when (it) {
-                Left   -> leftSpace.second >= ref.width + margin.right
-                Right  -> rightSpace.second >= ref.width + margin.left
-                Top    -> topSpace.second >= ref.height + margin.bottom
-                Bottom -> bottomSpace.second >= ref.height + margin.top
+                Direction.Left   -> leftSpace.second >= ref.width + margin.right
+                Direction.Right  -> rightSpace.second >= ref.width + margin.left
+                Direction.Top    -> topSpace.second >= ref.height + margin.bottom
+                Direction.Bottom -> bottomSpace.second >= ref.height + margin.top
             }
         } ?: arrayOf(leftSpace, rightSpace, topSpace, bottomSpace).maxBy { if (it.first in optionalDirection) it.second else -114514f }.first
     }

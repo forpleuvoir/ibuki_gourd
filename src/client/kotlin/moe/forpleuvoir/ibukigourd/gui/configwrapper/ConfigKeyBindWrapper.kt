@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -111,8 +112,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                     keys.clear()
                 }
             }
-            .hoverText(hoverText)
-            .hoverTextShowDelay(50.milliseconds)
+            .hoverText(hoverText, HoverTip.DefaultSetting.copy(showDelay = 50.milliseconds))
             .then(buttonModifier)
     ) {
         release {

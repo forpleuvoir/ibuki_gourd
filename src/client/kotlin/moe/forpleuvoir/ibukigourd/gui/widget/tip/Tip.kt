@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHelper
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen

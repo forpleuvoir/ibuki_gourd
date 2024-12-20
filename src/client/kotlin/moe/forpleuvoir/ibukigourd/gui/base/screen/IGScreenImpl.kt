@@ -21,9 +21,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
+import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverText
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
@@ -312,6 +313,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         InputHandler.releaseAll()
         onClose?.invoke()
         MouseCursor.clear()
+        HoverTipHandler.hideCurrentTip()
         coroutineScope.cancel()
         client?.setScreen(parentScreen)
     }
@@ -388,6 +390,16 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 currentNode = currentNode.parent()
             }
             cursorSupplier = { (currentNode as? IGWidget)?.mouseOverCursor ?: MouseCursor.default }
+
+            it?.let hoverTip@{ widget ->
+                widget.findFirsInParentChain { it is IGWidget && it.hoverTip != null }
+                    ?.let { hoveredWidget ->
+                        hoveredWidget as IGWidget
+                        HoverTipHandler.setCurrentTip({ hoveredWidget.transform }, hoveredWidget.hoverTip!!)
+                        return@hoverTip
+                    }
+                HoverTipHandler.hideCurrentTip()
+            }
         }
     }
 
@@ -429,12 +441,12 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 }
             }
 
-            hoveredWidget.getValue()?.let tip@{ widget ->
-                widget.findFirsInParentChain { it is IGWidget && it.hoverText() != null }
-                    ?.let { hoveredWidget ->
-                        TextTipRenderer.render(hoveredWidget as IGWidget, ctx, mouseX, mouseY, delta)
-                    }
-            }
+//            hoveredWidget.getValue()?.let tip@{ widget ->
+//                widget.findFirsInParentChain { it is IGWidget && it.hoverTip() != null }
+//                    ?.let { hoveredWidget ->
+//                        HoverTipHandler.render(hoveredWidget as IGWidget, ctx, mouseX, mouseY, delta)
+//                    }
+//            }
 
             renderOverlay(ctx, _mouseX, _mouseY, delta)
 

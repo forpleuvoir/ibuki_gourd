@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
+import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRender
@@ -156,7 +157,7 @@ fun WidgetContainerScope.ConfigManagerWrapper(
             ) {
                 TextLabel(
                     config.translateText,
-                    modifier = Modifier.hoverText(config.comment).hoverTextDirection(Direction.clockwiseFromRight)
+                    modifier = Modifier.hoverText(config.comment, HoverTip.DefaultSetting.copy(optionalDirection = Direction.clockwiseFromRight))
                 )
                 click {
                     currentGroup = config.translateText

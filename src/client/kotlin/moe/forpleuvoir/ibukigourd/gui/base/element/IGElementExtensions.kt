@@ -33,5 +33,5 @@ fun IGElement.findFirsInParentChain(predicate: (IGElement) -> Boolean): IGElemen
         }
         current = current.parent()
     }
-    return current
+    return null
 }
