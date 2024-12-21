@@ -36,8 +36,9 @@ val gitHash: String by lazy {
 
 
 val modName: String = properties["archives_base_name"].toString()
-version = properties["mod_version"].toString() + ".$gitHash"
+version = properties["mod_version"].toString()
 group = properties["maven_group"].toString()
+val versionWithGitHash: String = "$version+$gitHash"
 
 dependencies {
     minecraft(libs.minecraft)
@@ -170,7 +171,7 @@ tasks {
         mustRunAfter(remapJar)
         val outPath = "$rootDir/modJar/$version"
         val name = remapJar.get().archiveFileName.get()
-        val newName = "$modName-$version.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
+        val newName = "$modName-$versionWithGitHash.$time-minecraft.${libs.versions.minecraftVersion.get()}-fabric.jar"
         from("build/libs")
         into(outPath)
         include(name)
