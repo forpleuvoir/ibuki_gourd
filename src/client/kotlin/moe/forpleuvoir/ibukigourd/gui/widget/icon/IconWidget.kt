@@ -26,7 +26,7 @@ class IconWidget(
             if (field != value) {
                 val remeasure = !(field.uSize == value.uSize && field.vSize == value.vSize) && remeasureOnChange
                 field = value
-                if (remeasure) screen()?.remeasure()
+                if (remeasure) remeasure()
             }
         }
 

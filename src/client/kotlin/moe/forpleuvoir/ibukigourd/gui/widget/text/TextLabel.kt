@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
-import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -12,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.base.screen.screen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
 import moe.forpleuvoir.ibukigourd.text.*
@@ -110,9 +108,8 @@ class TextWidget(
     fun onChanged() {
         renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
         if (!constraints.fixed()) {
-            screen()?.launch {
-                delay(1)
-                this.screen?.remeasure()
+            runCatching {
+                remeasure()
             }
         }
     }

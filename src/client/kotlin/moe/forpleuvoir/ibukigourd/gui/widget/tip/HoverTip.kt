@@ -21,6 +21,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+@Deprecated(
+    message = "Use Modifier.hoverTip instead. This function is deprecated and will be removed in a future release.",
+    replaceWith = ReplaceWith("Modifier.hoverTip(settings, modifier, content)")
+)
 fun WidgetScope.HoverTip(
     showDelay: Duration = 200.milliseconds,
     closeDelay: Duration = 0.seconds,

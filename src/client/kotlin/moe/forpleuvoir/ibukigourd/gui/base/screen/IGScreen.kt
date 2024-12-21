@@ -60,7 +60,7 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     override var parentData: Any?
 
-    fun remeasure()
+    override fun remeasure()
 
     //------------ Coroutine ------------\\
 

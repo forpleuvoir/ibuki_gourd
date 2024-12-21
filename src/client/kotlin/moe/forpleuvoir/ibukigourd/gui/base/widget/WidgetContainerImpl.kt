@@ -1,11 +1,15 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
+import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.foreachWithIterator
 import moe.forpleuvoir.ibukigourd.input.mousePosition
+import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.DrawContext
 
 
@@ -21,7 +25,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
     override fun recompose() {
         clearWidgetChildren()
         compose()
-        screen()?.remeasure()
+        remeasure()
     }
 
     private val widgetChildren = mutableListOf<IGWidget>()
@@ -38,6 +42,18 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     override fun onMeasureCompletion() {
         super<Layout>.onMeasureCompletion()
+    }
+
+    override fun remeasure() {
+        this.findLastInParentChain(false) { it is Measurable }?.let {
+            it as Measurable
+            it.remeasure()
+            return
+        }
+        measure(Constraints.of(0f, mc.window.scaledWidth.toFloat(), 0f, mc.window.scaledHeight.toFloat()))
+        measureCompletion()
+        layout()
+
     }
 
     override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {

@@ -24,7 +24,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
-class HoverTip(
+class Tip(
     val settings: Setting = DefaultSetting,
     val modifier: Modifier = DefaultModifier,
     val content: BoxScope.() -> Unit
@@ -64,7 +64,7 @@ class HoverTip(
 
             Compose { BoxScope { this }.content() }
 
-            measure(Constraints.of(4f, mc.window.scaledWidth.toFloat(), 4f, mc.window.scaledHeight.toFloat()))
+            measure(Constraints.of(0f, mc.window.scaledWidth.toFloat(), 0f, mc.window.scaledHeight.toFloat()))
             measureCompletion()
             layout()
         }

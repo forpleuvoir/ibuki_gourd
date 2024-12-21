@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -43,12 +43,14 @@ fun WidgetContainerScope.ConfigKeyBindWrapper(
     modifier: Modifier = Modifier
 ) = ConfigColumnWrapper(config, modifier) {
     val text = mutableStateOf(config.getValue().asText)
+    val hoverText = mutableStateOf(text.getValue())
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        KeyBindWrapper(text, config) { it.getValue() }
+        KeyBindWrapper(text, hoverText, config) { it.getValue() }
         ConfigResetButton(config) {
             text.setValue(config.getValue().asText)
+            hoverText.setValue(text.getValue())
         }
     }
 }
@@ -58,6 +60,7 @@ fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
     modifier: Modifier = Modifier
 ) = ConfigColumnWrapper(config, modifier) {
     val text = mutableStateOf(config.getValue().keyBind.asText)
+    val hoverText = mutableStateOf(text.getValue())
     val boolValue = mutableStateOf(config.getValue().value).apply {
         subscribe {
             config.setValue(config.getValue().copy(value = it))
@@ -67,20 +70,21 @@ fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         SwitchButton(boolValue, modifier.width(40f))
-        KeyBindWrapper(text, config, Modifier.width(75f)) { it.getValue().keyBind }
+        KeyBindWrapper(text, hoverText, config, Modifier.width(75f)) { it.getValue().keyBind }
         ConfigResetButton(config) {
             text.setValue(config.getValue().keyBind.asText)
+            hoverText.setValue(text.getValue())
         }
     }
 }
 
 private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
     text: MutableState<Text>,
+    hoverText: MutableState<Text>,
     config: C,
     buttonModifier: Modifier = Modifier,
     mapping: (C) -> KeyBind
 ) {
-    val hoverText = mutableStateOf(text.getValue())
     var inputting = false
     val keys = mutableSetOf<KeyCode>()
     val settingsPopupState = mutableStateOf(false)
@@ -112,7 +116,7 @@ private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
                     keys.clear()
                 }
             }
-            .hoverText(hoverText, HoverTip.DefaultSetting.copy(showDelay = 50.milliseconds))
+            .hoverText(hoverText, Tip.DefaultSetting.copy(showDelay = 50.milliseconds))
             .then(buttonModifier)
     ) {
         release {

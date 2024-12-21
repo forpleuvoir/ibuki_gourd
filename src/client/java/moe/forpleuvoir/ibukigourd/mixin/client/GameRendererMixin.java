@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext;
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTipHandler;
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler;
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
@@ -22,7 +22,7 @@ public abstract class GameRendererMixin {
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;draw()V", ordinal = 1, shift = At.Shift.AFTER))
     public void ibukigourd$render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci, @Local(ordinal = 0) DrawContext context, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY) {
         var ctx = IGDrawContext.Companion.toIGDrawContext(context);
-        HoverTipHandler.render(ctx, mouseX, mouseY, tickCounter.getLastFrameDuration());
+        TipHandler.render(ctx, mouseX, mouseY, tickCounter.getLastFrameDuration());
         Toast.render(ctx, mouseX, mouseY, tickCounter.getLastFrameDuration());
     }
 

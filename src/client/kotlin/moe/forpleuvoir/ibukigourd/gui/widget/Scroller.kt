@@ -87,7 +87,7 @@ open class ScrollerWidget(
         )
 
         if (scrollState.barProportion == 1f && (transform.height != 0f || transform.width != 0f)) {
-            screen()?.remeasure()
+            remeasure()
             remeasureFlag = false
             return
         }
@@ -95,7 +95,7 @@ open class ScrollerWidget(
         if (transform.height == 0f || transform.width == 0f) {
             if (!remeasureFlag) {
                 remeasureFlag = true
-                screen()?.remeasure()
+                remeasure()
             }
         } else {
             remeasureFlag = false

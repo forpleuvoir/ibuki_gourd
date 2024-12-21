@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.IGLang.mapConfigWrapperText
 import moe.forpleuvoir.ibukigourd.config.item.ConfigPairList
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -12,7 +13,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -43,6 +45,7 @@ import moe.forpleuvoir.nebula.common.util.collection.notifiableMap
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
+import kotlin.time.Duration.Companion.seconds
 
 fun WidgetContainerScope.StringListConfigWrapper(
     config: ConfigStringList,
@@ -227,6 +230,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                         Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
                                         click {
                                             var newKey = key
+                                            var editor: (() -> Transform)? = null
                                             ConfirmDialog(
                                                 stateOf(IGLang.edit.appendLiteral(" => $key")),
                                                 onConfirm = {
@@ -235,7 +239,13 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                                         return@ConfirmDialog
                                                     }
                                                     if (mapValue.containsKey(newKey)) {
-                                                        Toast.showToast(text = IGLang.keyExists(newKey).withColor(Colors.RED))
+                                                        editor?.let {
+                                                            TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                                                                TextLabel(IGLang.keyExists(newKey).withColor(Colors.RED))
+                                                            })
+                                                        }
+
+//                                                        Toast.showToast(text = IGLang.keyExists(newKey).withColor(Colors.RED))
                                                         return@ConfirmDialog
                                                     }
                                                     mapValue.renameKey(key, newKey)
@@ -243,9 +253,13 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                                                     this@RowListWrapped.execute {
                                                         this@RowListWrapped.recompose()
                                                     }
+                                                },
+                                                screenModifier = Modifier.onClose {
+                                                    TipHandler.popTip(CONFIG_WRAPPER_TIP)
                                                 }
                                             ) {
                                                 TextEditor(modifier = Modifier.width(240f)) {
+                                                    editor = { this.owner().transform }
                                                     text = key
                                                     textConsumer { newKey = it }
                                                 }

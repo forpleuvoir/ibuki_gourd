@@ -21,7 +21,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverTip
@@ -69,7 +70,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override val screen: () -> IGScreen? = { this }
 
-    override var parent: () -> IGElement? = { this }
+    override var parent: () -> IGElement? = { null }
 
     override var parentScreen: Screen? = null
 
@@ -313,7 +314,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         InputHandler.releaseAll()
         onClose?.invoke()
         MouseCursor.clear()
-        HoverTipHandler.hideCurrentTip()
+        TipHandler.popTip(SCREEN_HOVER_TIP)
         coroutineScope.cancel()
         client?.setScreen(parentScreen)
     }
@@ -395,10 +396,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 widget.findFirsInParentChain { it is IGWidget && it.hoverTip != null }
                     ?.let { hoveredWidget ->
                         hoveredWidget as IGWidget
-                        HoverTipHandler.setCurrentTip({ hoveredWidget.transform }, hoveredWidget.hoverTip!!)
+                        TipHandler.pushTip(SCREEN_HOVER_TIP, { hoveredWidget.transform }, hoveredWidget.hoverTip!!)
                         return@hoverTip
                     }
-                HoverTipHandler.hideCurrentTip()
+                TipHandler.popTip(SCREEN_HOVER_TIP)
             }
         }
     }
@@ -441,13 +442,6 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 }
             }
 
-//            hoveredWidget.getValue()?.let tip@{ widget ->
-//                widget.findFirsInParentChain { it is IGWidget && it.hoverTip() != null }
-//                    ?.let { hoveredWidget ->
-//                        HoverTipHandler.render(hoveredWidget as IGWidget, ctx, mouseX, mouseY, delta)
-//                    }
-//            }
-
             renderOverlay(ctx, _mouseX, _mouseY, delta)
 
             ctx.render()
@@ -489,7 +483,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         renderDarkening(context, transform.worldX.toInt(), transform.worldY.toInt(), width, height)
     }
 
-    @Suppress("MemberVisibilityCanBePrivate", "NOTHING_TO_INLINE")
+    @Suppress("MemberVisibilityCanBePrivate", "NOTHING_TO_INLINE", "unused")
     protected inline fun renderVanillaBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) =
         renderBackground(context, mouseX.toInt(), mouseY.toInt(), delta)
 

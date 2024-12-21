@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
 
@@ -29,12 +29,12 @@ object WidgetCustomData {
 
     private const val HOVER_TIP_KEY = "hoverTip"
 
-    fun IGWidget.setHoverTip(tip: HoverTip) {
+    fun IGWidget.setHoverTip(tip: Tip) {
         customData[HOVER_TIP_KEY] = tip
     }
 
     @Suppress("UNCHECKED_CAST")
-    val IGWidget.hoverTip: HoverTip?
-        get() = customData[HOVER_TIP_KEY] as? HoverTip
+    val IGWidget.hoverTip: Tip?
+        get() = customData[HOVER_TIP_KEY] as? Tip
 
 }

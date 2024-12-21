@@ -47,7 +47,7 @@ interface KeyBindSetting : Serializable, Deserializable, Matchable {
 
 fun KeyBindSetting(
     environment: KeyEnvironment = KeyEnvironment.InGame,
-	nextAction: NextAction = NextAction.Continue,
+	nextAction: NextAction = NextAction.Cancel,
     exactMatch: Boolean = true,
     triggerMode: KeyTriggerMode = KeyTriggerMode.OnRelease,
     triggerPeriod: Long = 5,

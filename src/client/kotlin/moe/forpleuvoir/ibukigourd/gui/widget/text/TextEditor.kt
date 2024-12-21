@@ -76,7 +76,7 @@ open class TextEditorWidget(
                 field = value
                 if (enableTextNotification) onTextChanged(field)
                 if (!constraints.widthFixed()) {
-                    screen()?.remeasure()
+                    remeasure()
                 }
             }
         }

@@ -19,7 +19,7 @@ fun <T : WidgetContainerScope> T.Proxy(
                 val widget = owner().setWidgetChildren(index, new)
                 owner().removeWidgetChildAt(owner().widgetChildren().lastIndex)
                 currentWidget.setValue(new)
-                widget.screen()?.remeasure()
+                widget.remeasure()
             }
         }.onFailure {
             it.printStackTrace()

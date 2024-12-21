@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTip
@@ -261,17 +261,17 @@ fun Modifier.mouseOverCursor(cursor: MouseCursor) = this then WidgetModifier { w
 //------------ HoverText ------------\\
 
 fun Modifier.hoverTtp(
-    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier,
     content: BoxScope.() -> Unit
 ) = this then WidgetModifier { widget ->
-    widget.setHoverTip(HoverTip(settings, HoverTip.DefaultModifier.then(modifier), content))
+    widget.setHoverTip(Tip(settings, Tip.DefaultModifier.then(modifier), content))
 }
 
 @JvmName("hoverTextState")
 fun Modifier.hoverText(
     text: State<Text>,
-    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTtp(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
@@ -279,7 +279,7 @@ fun Modifier.hoverText(
 
 fun Modifier.hoverText(
     text: Text,
-    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTtp(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
@@ -288,7 +288,7 @@ fun Modifier.hoverText(
 @JvmName("hoverTextString")
 fun Modifier.hoverText(
     text: State<String>,
-    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTtp(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
@@ -296,7 +296,7 @@ fun Modifier.hoverText(
 
 fun Modifier.hoverText(
     text: String,
-    settings: HoverTip.Setting = HoverTip.DefaultSetting,
+    settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTtp(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))

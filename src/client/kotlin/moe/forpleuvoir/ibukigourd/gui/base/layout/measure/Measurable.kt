@@ -17,4 +17,6 @@ interface Measurable {
 
     fun onMeasureCompletion()
 
+    fun remeasure()
+
 }

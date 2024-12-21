@@ -2,12 +2,14 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -27,6 +29,7 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDuration
 import moe.forpleuvoir.nebula.config.item.impl.ConfigEnum
 import moe.forpleuvoir.nebula.config.item.impl.ConfigString
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -161,6 +164,7 @@ fun WidgetContainerScope.ConfigDurationWrapper(
             click {
                 val value = mutableStateOf(durationValue.getValue().toDouble(DurationUnit.SECONDS))
                 val unit = mutableStateOf(DurationUnit.SECONDS)
+                var editor: (() -> Transform)? = null
                 ConfirmDialog(
                     stateOf(config.translateText),
                     onConfirm = {
@@ -169,12 +173,22 @@ fun WidgetContainerScope.ConfigDurationWrapper(
                             durationValue.setValue(duration)
                             mc.currentScreen?.close()
                         } else {
-                            Toast.showToast(text = IGLang.notInRange(duration, config.minDuration, config.maxDuration))
+                            editor?.let {
+                                TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                                    TextLabel(IGLang.notInRange(duration, config.minDuration, config.maxDuration))
+                                })
+                            }
+//                            Toast.showToast(text = IGLang.notInRange(duration, config.minDuration, config.maxDuration))
                         }
+                    },
+                    screenModifier = Modifier.onClose {
+                        TipHandler.popTip(CONFIG_WRAPPER_TIP)
                     }
                 ) {
                     Column(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                        DoubleEditor(value, 0.0..999.9, modifier = Modifier.width(120f), editorModifier = { Modifier.weight(1) })
+                        DoubleEditor(value, 0.0..999.9, modifier = Modifier.width(120f), editorModifier = { Modifier.weight(1) }) {
+                            editor = { owner().transform }
+                        }
                         EnumSelector(unit, modifier = Modifier.width(75f))
                     }
                 }.open()

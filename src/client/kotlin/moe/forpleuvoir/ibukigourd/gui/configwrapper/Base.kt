@@ -20,6 +20,7 @@ import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 
+const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
 
 fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
     configSerializable: T,

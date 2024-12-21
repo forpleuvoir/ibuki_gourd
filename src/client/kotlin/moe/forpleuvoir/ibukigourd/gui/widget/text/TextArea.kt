@@ -309,7 +309,7 @@ class TextAreaWidget(
 
     private fun onChange() {
         if (!constraints.fixed()) {
-            screen()?.remeasure()
+            remeasure()
         }
         this.reWrap()
         this.onCursorChanged()

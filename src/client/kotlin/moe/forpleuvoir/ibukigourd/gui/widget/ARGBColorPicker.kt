@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -99,7 +99,7 @@ fun WidgetContainerScope.ARGBColorPicker(
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
     Column(
-        Modifier.weight(1).name("red").hoverText(IGLang.red, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
+        Modifier.weight(1).name("red").hoverText(IGLang.red, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
@@ -114,7 +114,7 @@ fun WidgetContainerScope.ARGBColorPicker(
         )
     }
     Column(
-        Modifier.weight(1).name("green").hoverText(IGLang.green, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
+        Modifier.weight(1).name("green").hoverText(IGLang.green, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
@@ -129,7 +129,7 @@ fun WidgetContainerScope.ARGBColorPicker(
         )
     }
     Column(
-        Modifier.weight(1).name("blue").hoverText(IGLang.blue, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
+        Modifier.weight(1).name("blue").hoverText(IGLang.blue, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)
@@ -144,7 +144,7 @@ fun WidgetContainerScope.ARGBColorPicker(
         )
     }
     Column(
-        Modifier.weight(1).name("alpha").hoverText(IGLang.alpha, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
+        Modifier.weight(1).name("alpha").hoverText(IGLang.alpha, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
             modifier.padding(vertical = 4f).weight(1).margin(right = 2f)

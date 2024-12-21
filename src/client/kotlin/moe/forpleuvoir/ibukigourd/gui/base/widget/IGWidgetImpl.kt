@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
+import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -63,6 +64,15 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override fun onMeasureCompletion() = Unit
 
+    override fun remeasure() {
+        this.findLastInParentChain(false) { it is Measurable }?.let {
+            it as Measurable
+            it.remeasure()
+            return
+        }
+        measure(Constraints.of(0f, mc.window.scaledWidth.toFloat(), 0f, mc.window.scaledHeight.toFloat()))
+        measureCompletion()
+    }
 
     //------------ DrawableElement ------------\\
 

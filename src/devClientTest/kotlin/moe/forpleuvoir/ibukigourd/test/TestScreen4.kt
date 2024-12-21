@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.tip.HoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.*
@@ -15,7 +15,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.gui.widget.tip.HoverTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -23,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 
 fun testScreen4() = ColumnScreen(
     Modifier.renderOverlay { ctx, x, y, d ->
@@ -39,16 +37,17 @@ fun testScreen4() = ColumnScreen(
         }
     }
 ) {
-    IntEditor(mutableStateOf(5), modifier = Modifier.width(50f), editorModifier = { Modifier.weight(1) }, scope = {
-        HoverTip(
-            modifier = Modifier.margin(3f),
-            optionalDirection = notifiableList(Direction.Top)
-        ) {
-            Button {
-                TextLabel("悬浮测试")
-            }
-        }
-    })
+    IntEditor(
+        mutableStateOf(5),
+        modifier = Modifier.width(50f)
+            .hoverTtp(
+                modifier = Modifier.margin(3f), settings = Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Top))
+            ) {
+                Button {
+                    TextLabel("悬浮测试")
+                }
+            },
+        editorModifier = { Modifier.weight(1) })
     Button {
         TextLabel("高度测试1")
         click {
@@ -64,18 +63,18 @@ fun testScreen4() = ColumnScreen(
 
     SwitchButton(
         switchState,
-        modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }, HoverTip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
+        modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     )
-    Spinner(listOf("下拉菜单", "选项1", "选项2", "选项3")) {
-        HoverTip(
-            modifier = Modifier.margin(3f),
-            optionalDirection = notifiableList(Direction.Right)
+    Spinner(
+        listOf("下拉菜单", "选项1", "选项2", "选项3"),
+        modifier = Modifier.hoverTtp(
+            modifier = Modifier.margin(3f), settings = Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Top))
         ) {
             Button {
                 TextLabel("悬浮测试")
             }
         }
-    }
+    )
     Row {
         val state = mutableStateOf(15)
         IntSlider(state, -50..100, colorA = HSVColor(210f, .3f, .7f), colorB = HSVColor(210f, .1f, 1f), modifier = Modifier.size(120f, 16f))
