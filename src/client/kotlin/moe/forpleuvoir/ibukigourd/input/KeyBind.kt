@@ -91,7 +91,7 @@ class KeyBind(
             keys == currentKeyCode || currentKeyCode.hasAll(keys)
         }
         if (wasPress && !beforeMatched) {
-            return if (setting.triggerMode == OnPress || setting.triggerMode == BOTH) {
+            return if (setting.triggerMode == OnPress || setting.triggerMode == Both) {
                 action()
                 setting.nextAction
             } else NextAction.Continue
@@ -115,7 +115,7 @@ class KeyBind(
             keys == currentKeyCode || currentKeyCode.hasAll(keys)
         }
         if (beforeMatched && !currentMath) {
-            return if (setting.triggerMode == OnRelease || setting.triggerMode == BOTH) {
+            return if (setting.triggerMode == OnRelease || setting.triggerMode == Both) {
                 action()
                 setting.nextAction
             } else NextAction.Continue

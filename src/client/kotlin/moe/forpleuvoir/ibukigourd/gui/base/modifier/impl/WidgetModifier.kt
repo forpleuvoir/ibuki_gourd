@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursor
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursorMapping
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
@@ -20,6 +21,8 @@ import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.nebula.common.color.ARGBColor
+import kotlin.time.Duration
 
 fun interface WidgetModifier : Modifier.Element {
     fun applyModify(element: IGWidget)
@@ -285,6 +288,19 @@ fun Modifier.hoverText(
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
+fun Modifier.hoverText(
+    text: Text,
+    showDelay: Duration = Tip.DefaultSetting.showDelay,
+    hideDelay: Duration = Tip.DefaultSetting.hideDelay,
+    fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
+    fadeInOffset: Float = Tip.DefaultSetting.fadeInOffset,
+    optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
+    backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
+    modifier: Modifier = Modifier
+) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
+}
+
 @JvmName("hoverTextString")
 fun Modifier.hoverText(
     text: State<String>,
@@ -299,5 +315,18 @@ fun Modifier.hoverText(
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTtp(settings, modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
+}
+
+fun Modifier.hoverText(
+    text: String,
+    showDelay: Duration = Tip.DefaultSetting.showDelay,
+    hideDelay: Duration = Tip.DefaultSetting.hideDelay,
+    fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
+    fadeInOffset: Float = Tip.DefaultSetting.fadeInOffset,
+    optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
+    backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
+    modifier: Modifier = Modifier
+) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }

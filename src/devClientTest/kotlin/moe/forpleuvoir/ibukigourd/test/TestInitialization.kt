@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
+import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -18,6 +19,12 @@ object TestInitialization {
         if (event.meta != IbukiGourd.metadata) return
         log.info("MOD测试")
         InputHandler.apply {
+            register(Keyboard.KP_0) {
+                IbukiGourdEventManager.eventSet().forEach {
+                    println(it.qualifiedName)
+                }
+
+            }
             register(Keyboard.KP_1) {
                 openScreen(TestScreen())
             }

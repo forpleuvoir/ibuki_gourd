@@ -11,7 +11,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
-import moe.forpleuvoir.ibukigourd.gui.widget.*
+import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
+import moe.forpleuvoir.ibukigourd.gui.widget.DurationSlider
+import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -108,11 +111,11 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
             config.setValue(it)
         }
     }
-    val selected = mutableStateOf(enumValue) { it.name }
+    val selected = mutableStateOf(enumValue) { it }
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        NoInlineEnumSelector(selected, enumValue, Modifier.width(80f))
+        EnumSelector(enumValue, Modifier.width(80f))
         ConfigResetButton(config) {
             enumValue.setValue(config.getValue())
         }

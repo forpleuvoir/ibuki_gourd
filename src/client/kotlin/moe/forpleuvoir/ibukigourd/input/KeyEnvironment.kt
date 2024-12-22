@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.input.KeyEnvironment.entries
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
@@ -25,12 +24,6 @@ enum class KeyEnvironment(val key: String) : Serializable {
         }
     }
 
-    val displayName: Text
-        get() = Translatable("ibuki_gourd.key_bind.environment.${key}")
-
-    val description: Text
-        get() = Translatable("ibuki_gourd.key_bind.environment.${key}.description")
-
     fun envMatch(): Boolean {
         if (this == Both) return true
         return this == currentEnv()
@@ -43,9 +36,6 @@ enum class KeyEnvironment(val key: String) : Serializable {
     override fun serialization(): SerializeElement {
         return SerializePrimitive(this.key)
     }
-
-    val allOption: List<KeyEnvironment>
-        get() = entries
 
 }
 

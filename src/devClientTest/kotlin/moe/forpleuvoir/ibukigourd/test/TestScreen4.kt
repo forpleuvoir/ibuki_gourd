@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.test
 
+import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -65,7 +66,7 @@ fun testScreen4() = ColumnScreen(
         switchState,
         modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     )
-    Spinner(
+    Selector(
         listOf("下拉菜单", "选项1", "选项2", "选项3"),
         modifier = Modifier.hoverTtp(
             modifier = Modifier.margin(3f), settings = Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Top))
@@ -75,6 +76,8 @@ fun testScreen4() = ColumnScreen(
             }
         }
     )
+    EventSelector(IbukiGourdEventManager.eventSet(), modifier = Modifier.maxWidth(120f))
+
     Row {
         val state = mutableStateOf(15)
         IntSlider(state, -50..100, colorA = HSVColor(210f, .3f, .7f), colorB = HSVColor(210f, .1f, 1f), modifier = Modifier.size(120f, 16f))

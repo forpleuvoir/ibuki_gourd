@@ -2,7 +2,11 @@
 
 package moe.forpleuvoir.ibukigourd.text
 
+import moe.forpleuvoir.nebula.event.Event
+import moe.forpleuvoir.nebula.event.eventName
+import moe.forpleuvoir.nebula.event.eventSimpleName
 import net.minecraft.text.MutableText
+import kotlin.reflect.KClass
 
 typealias McText = net.minecraft.text.Text
 
@@ -43,3 +47,10 @@ fun MutableText.flat(): List<McText> {
     }
 }
 
+val <T : Enum<T>> T.translateText: Text get() = Translatable("enum.${javaClass.name}.$name", name)
+
+val <T : Enum<T>> T.translateComment: Text get() = Translatable("enum.${javaClass.name}.$name.comment", name)
+
+val KClass<out Event>.translateText: Text get() = Translatable("event.$eventName", eventSimpleName)
+
+val KClass<out Event>.translateComment: Text get() = Translatable("event.$eventName.comment", eventSimpleName)

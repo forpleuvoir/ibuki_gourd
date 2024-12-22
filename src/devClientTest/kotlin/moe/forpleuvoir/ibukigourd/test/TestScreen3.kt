@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
-import moe.forpleuvoir.ibukigourd.gui.widget.Spinner
+import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.button.*
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
@@ -97,7 +97,7 @@ fun testScreen3() = RowScreen(
                 TextLabel(str)
             }
         }
-        Spinner(
+        Selector(
             options = map.asIterable(),
             selectedWrapper = {
                 wrapper(this, it.toPair())
@@ -106,7 +106,7 @@ fun testScreen3() = RowScreen(
                 wrapper(this, it.toPair())
             },
         )
-        Spinner(listString)
+        Selector(listString)
     }
 
     Button(

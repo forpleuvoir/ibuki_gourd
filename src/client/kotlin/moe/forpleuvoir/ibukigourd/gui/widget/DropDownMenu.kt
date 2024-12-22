@@ -23,6 +23,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.translateComment
+import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -33,7 +35,8 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.common.util.primitive.pick
-import moe.forpleuvoir.nebula.common.util.valueOf
+import moe.forpleuvoir.nebula.event.Event
+import kotlin.reflect.KClass
 
 class DropDownMenuScope(private val owner: IGButtonWidget, private val state: MutableState<Boolean>) : ButtonScope {
 
@@ -108,7 +111,7 @@ fun WidgetContainerScope.DropDownMenu(
 }
 
 
-fun <T> WidgetContainerScope.Spinner(
+fun <T> WidgetContainerScope.Selector(
     options: Iterable<T>,
     selected: MutableState<T> = mutableStateOf(options.first()),
     onChange: (T) -> Unit = {},
@@ -162,14 +165,14 @@ fun <T> WidgetContainerScope.Spinner(
 }
 
 
-fun WidgetContainerScope.Spinner(
+fun WidgetContainerScope.Selector(
     options: Iterable<String>,
     selected: MutableState<String> = mutableStateOf(options.first()),
     onChange: (String) -> Unit = {},
     selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
     modifier: Modifier = Modifier,
     scope: DropDownMenuScope.() -> Unit = {}
-) = Spinner(
+) = Selector(
     options,
     selected,
     onChange,
@@ -180,42 +183,49 @@ fun WidgetContainerScope.Spinner(
     scope
 )
 
-inline fun <reified E : Enum<E>> WidgetContainerScope.EnumSelector(
+fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
     selected: MutableState<E>,
-    noinline onChange: (E) -> Unit = { },
     modifier: Modifier = Modifier
-) = Spinner(
-    options = E::class.java.enumConstants.toList(),
+) = Selector(
+    options = selected.getValue()::class.java.enumConstants.map { it },
     selected = selected,
-    onChange = onChange,
+    onChange = {
+        selected.setValue(it)
+    },
     selectedWrapper = {
-        TextLabel(it.name, modifier = Modifier.weight(1))
+        TextLabel(it.translateText, modifier = Modifier.weight(1).hoverText(it.translateComment, optionalDirection = Direction.clockwiseFromTop))
     },
     optionWrapper = {
         TextLabel(
-            it.name,
+            it.translateText,
             modifier = Modifier
-                .width(E::class.java.enumConstants.map { it.name }.maxWidth(textRenderer).toFloat())
+                .width(selected.getValue()::class.java.enumConstants.map { it.translateText }.maxWidth(textRenderer).toFloat().coerceAtLeast(30f))
+                .hoverText(it.translateComment, optionalDirection = Direction.leftRightTopBottom)
         )
     },
     modifier = modifier,
 )
 
-fun <E : Enum<E>> WidgetContainerScope.NoInlineEnumSelector(
-    selected: MutableState<String>,
-    enumValue: MutableState<E>,
+fun WidgetContainerScope.EventSelector(
+    options: Iterable<KClass<out Event>>,
+    selected: MutableState<KClass<out Event>> = mutableStateOf(options.first()),
     modifier: Modifier = Modifier
-) = Spinner(
-    options = enumValue.getValue()::class.java.enumConstants.map { it.name },
+) = Selector(
+    options = options,
     selected = selected,
     onChange = {
-        Enum.valueOf(enumValue.getValue()::class, it)?.let { it1 -> enumValue.setValue(it1) }
+        selected.setValue(it)
     },
     selectedWrapper = {
-        TextLabel(it, modifier = Modifier.weight(1))
+        TextLabel(it.translateText, modifier = Modifier.weight(1).hoverText(it.translateComment, optionalDirection = Direction.clockwiseFromTop))
     },
     optionWrapper = {
-        TextLabel(it, modifier = Modifier.width(enumValue.getValue()::class.java.enumConstants.map { it.name }.maxWidth(textRenderer).toFloat()))
+        TextLabel(
+            it.translateText,
+            modifier = Modifier
+                .width(options.map { it.translateText }.maxWidth(textRenderer).toFloat().coerceAtLeast(30f))
+                .hoverText(it.translateComment, optionalDirection = Direction.leftRightTopBottom)
+        )
     },
     modifier = modifier,
 )

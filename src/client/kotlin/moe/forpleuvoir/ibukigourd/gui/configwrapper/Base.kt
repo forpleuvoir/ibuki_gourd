@@ -29,7 +29,6 @@ fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
 ) = Column(
     modifier
         .attachLeft {
-            //TODO 配置化
             var alpha = 0f
             val maxAlpha = 0.25f
             // alpha per tick
