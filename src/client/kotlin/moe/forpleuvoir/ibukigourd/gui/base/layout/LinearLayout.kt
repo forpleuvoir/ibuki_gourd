@@ -53,6 +53,7 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
         companion object : WrappedLayoutDataUtil<WrappedRowLayoutData> {
             override fun fromMeasurable(measurable: Measurable): WrappedRowLayoutData? =
                 measurable.parentData as? WrappedRowLayoutData
+
             override fun default() = WrappedRowLayoutData()
         }
 
@@ -73,7 +74,10 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
         //使用的高度
         var usedHeight = arrangement.spacing * measurables.lastIndex
         //总权重
-        val totalWidget = parentDatas.sumOf { it.weight }
+        val totalWidget = parentDatas.sumOf { it.weight.toInt() }
+
+        //优先计算固定最小尺寸的组件的占用
+        val minimumOccupiedHeight = measurables.sumOf { it.constraints.minHeight.toDouble() + it.margin.height }.toFloat()
 
         measurables.forEachIndexed { index, child ->
             if (parentDatas[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
@@ -82,7 +86,7 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
                         if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
                         contentMaxWidth - child.margin.width,
                         0f,
-                        (contentMaxHeight - usedHeight - child.margin.height).coerceAtLeast(0f)
+                        (contentMaxHeight - usedHeight - minimumOccupiedHeight - child.margin.height).coerceAtLeast(0f)
                     )
                 )
                 if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
@@ -176,6 +180,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical
         companion object : WrappedLayoutDataUtil<WrappedColumnLayoutData> {
             override fun fromMeasurable(measurable: Measurable): WrappedColumnLayoutData? =
                 measurable.parentData as? WrappedColumnLayoutData
+
             override fun default() = WrappedColumnLayoutData()
         }
 
@@ -198,12 +203,15 @@ interface ColumnLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical
         //总权重
         val totalWidget = parentDatas.sumOf { it.weight }
 
+        //优先计算固定最小尺寸的组件的占用
+        val minimumOccupiedWidth = measurables.sumOf { it.constraints.minWidth.toDouble() + it.margin.width }.toFloat()
+
         measurables.forEachIndexed { index, child ->
             if (parentDatas[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
                 val placeable = child.measure(
                     Constraints.of(
                         0f,
-                        (contentMaxWidth - usedWidth - child.margin.width).coerceAtLeast(0f),
+                        (contentMaxWidth - usedWidth - minimumOccupiedWidth - child.margin.width).coerceAtLeast(0f),
                         if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
                         contentMaxHeight - child.margin.height
                     )

@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
@@ -27,6 +28,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -112,10 +114,31 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     }
     SwitchableProxy(
         widgetA = {
-            ConfigsWrapper(
-                config.configs(),
-                Modifier.padding(horizontal = 8, vertical = 2).disableRenderBackground(),
-                listModifier = { Modifier })
+            Column {
+                Widget(
+                    Modifier.width(1.5f)
+                        .matchSibling()
+                        .padding(0, 0, 2, 2)
+                        .margin(4, 0.5, 0, 0)
+                        .render { context, _, _, _ ->
+                            context.renderBox(
+                                transform.asWorldCoordinateBox.trimEdges(padding.top, padding.bottom, padding.left, padding.right),
+                                configContainerWrapperGuidelinesColor
+                            )
+                        }
+                )
+                Row(
+                    modifier = Modifier.padding(2, 8, 2, 2),
+                    verticalArrangement = Arrangement.spacedBy(4f)
+                ) {
+                    //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
+                    if (config.configs().isEmpty()) TextLabel(IGLang.hasNothing)
+                    config.configs().forEach { config ->
+                        ConfigWrapperMap.wrapper(config, this, Modifier.fill())
+                    }
+                }
+            }
+
         },
         widgetB = {
             Widget(Modifier) {}

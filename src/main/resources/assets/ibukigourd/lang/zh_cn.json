@@ -130,6 +130,8 @@
   "ibukigourd.config.comment": "IbukiGourd MOD 设置",
   "ibukigourd.config.gui": "用户界面",
   "ibukigourd.config.gui.comment": "用户界面相关配置",
+  "ibukigourd.config.gui.config_container_wrapper_guidelines_color": "配置容器包装器层级关联线颜色",
+  "ibukigourd.config.gui.config_container_wrapper_guidelines_color.comment": "配置容器包装器层级关联线颜色",
   "ibukigourd.config.open_screen": "打开设置界面",
   "ibukigourd.config.open_screen.comment": "打开此MOD设置界面的快捷键",
   "ibukigourd.config.gui.screen": "屏幕设置",

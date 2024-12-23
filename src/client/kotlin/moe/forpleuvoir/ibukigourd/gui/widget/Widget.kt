@@ -18,7 +18,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 
 fun WidgetContainerScope.Widget(
     modifier: Modifier,
-    scope: WidgetScope.() -> Unit
+    scope: WidgetScope.() -> Unit = {}
 ) = addWidgetChild(object : IGWidgetImpl() {
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)

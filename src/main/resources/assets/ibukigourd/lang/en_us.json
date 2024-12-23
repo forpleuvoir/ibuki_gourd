@@ -130,6 +130,8 @@
   "ibukigourd.config.comment": "IbukiGourd MOD settings",
   "ibukigourd.config.gui": "Gui",
   "ibukigourd.config.gui.comment": "User interface related configurations",
+  "ibukigourd.config.gui.config_container_wrapper_guidelines_color": "Config Container Wrapper Guidelines Color",
+  "ibukigourd.config.gui.config_container_wrapper_guidelines_color.comment": "The color of guidelines for the Config Container Wrapper",
   "ibukigourd.config.open_screen": "Open settings screen",
   "ibukigourd.config.open_screen.comment": "Shortcut key to open this MOD's settings screen",
   "ibukigourd.config.gui.screen": "Screen Settings",
