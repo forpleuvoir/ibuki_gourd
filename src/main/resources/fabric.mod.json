@@ -13,7 +13,7 @@
     "sources": "https://github.com/forpleuvoir/ibuki_gourd",
     "issues": "https://github.com/forpleuvoir/ibuki_gourd/issues"
   },
-  "license": "GPLv3",
+  "license": "MIT",
   "icon": "assets/ibukigourd/icon.png",
   "accessWidener": "ibukigourd.accesswidener",
   "environment": "*",
