@@ -77,7 +77,12 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
         val totalWidget = parentDatas.sumOf { it.weight.toInt() }
 
         //优先计算固定最小尺寸的组件的占用
-        val minimumOccupiedHeight = measurables.sumOf { it.constraints.minHeight.toDouble() + it.margin.height }.toFloat()
+        var minimumOccupiedHeight = 0f
+        measurables.forEachIndexed { index, child ->
+            if (parentDatas[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
+                minimumOccupiedHeight += child.constraints.minHeight + child.margin.height
+            }
+        }
 
         measurables.forEachIndexed { index, child ->
             if (parentDatas[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
@@ -204,7 +209,12 @@ interface ColumnLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical
         val totalWidget = parentDatas.sumOf { it.weight }
 
         //优先计算固定最小尺寸的组件的占用
-        val minimumOccupiedWidth = measurables.sumOf { it.constraints.minWidth.toDouble() + it.margin.width }.toFloat()
+        var minimumOccupiedWidth = 0f
+        measurables.forEachIndexed { index, child ->
+            if (parentDatas[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
+                minimumOccupiedWidth += child.constraints.minWidth + child.margin.width
+            }
+        }
 
         measurables.forEachIndexed { index, child ->
             if (parentDatas[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
