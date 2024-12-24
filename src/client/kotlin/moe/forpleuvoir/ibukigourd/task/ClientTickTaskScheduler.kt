@@ -9,17 +9,17 @@ val TickTaskScheduler.Companion.Client by lazy { TickTaskScheduler<MinecraftClie
 inline fun MinecraftClient.scheduleStartTick(task: TickTask<MinecraftClient>) =
     TickTaskScheduler.Client.scheduleStartTick(task)
 
-inline fun MinecraftClient.scheduleStartTick(noinline action: (MinecraftClient) -> Unit) =
+inline fun MinecraftClient.scheduleStartTick(noinline action: (TickTask<MinecraftClient>, MinecraftClient) -> Unit) =
     TickTaskScheduler.Client.scheduleStartTick(action)
 
-inline fun MinecraftClient.scheduleStartTick(delay: Int = 0, noinline action: (MinecraftClient) -> Unit) =
+inline fun MinecraftClient.scheduleStartTick(delay: Int = 0, noinline action: (TickTask<MinecraftClient>, MinecraftClient) -> Unit) =
     TickTaskScheduler.Client.scheduleStartTick(delay, action)
 
 inline fun MinecraftClient.scheduleEndTick(task: TickTask<MinecraftClient>) =
     TickTaskScheduler.Client.scheduleEndTick(task)
 
-inline fun MinecraftClient.scheduleEndTick(noinline action: (MinecraftClient) -> Unit) =
+inline fun MinecraftClient.scheduleEndTick(noinline action: (TickTask<MinecraftClient>, MinecraftClient) -> Unit) =
     TickTaskScheduler.Client.scheduleEndTick(action)
 
-inline fun MinecraftClient.scheduleEndTick(delay: Int = 0, noinline action: (MinecraftClient) -> Unit) =
+inline fun MinecraftClient.scheduleEndTick(delay: Int = 0, noinline action: (TickTask<MinecraftClient>, MinecraftClient) -> Unit) =
     TickTaskScheduler.Client.scheduleEndTick(delay, action)

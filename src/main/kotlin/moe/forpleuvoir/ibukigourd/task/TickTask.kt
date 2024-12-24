@@ -1,14 +1,21 @@
 package moe.forpleuvoir.ibukigourd.task
 
+import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+
 
 data class TickTask<T>(
     val delay: Int = 0,
     val period: Int = 1,
     val times: Int = 1,
-    val action: (T) -> Unit
-) {
+    private val executor: TaskExecutor<T>
+) : Serializable {
 
-    constructor(task: TickTask<T>) : this(task.delay, task.period, task.times, task.action)
+    constructor(task: TickTask<T>) : this(task.delay, task.period, task.times, task.executor)
+
+    constructor(delay: Int, period: Int, times: Int, action: (TickTask<T>, T) -> Unit) :
+            this(delay, period, times, SimpleTaskExecutor(action))
 
     init {
         check(delay >= 0) { "delay must be >=0" }
@@ -37,9 +44,21 @@ data class TickTask<T>(
 
     fun tryExecute(context: T) {
         if (isOver || !shouldExecute) return
-        action(context)
+        executor.execute(this, context)
         counter++
         tickCounter = 0
+    }
+
+
+    override fun serialization(): SerializeElement = serializeObject {
+        "delay" to delay
+        "period" to period
+        "times" to times
+        "executor" to executor.serialization()
+    }
+
+    override fun toString(): String {
+        return "TickTask(delay=$delay, period=$period, times=$times, executor=$executor)"
     }
 
 }
