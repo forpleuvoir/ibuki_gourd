@@ -5,9 +5,29 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 open class TickTaskScheduler<T> {
 
+    @Suppress("NOTHING_TO_INLINE")
     companion object {
         @JvmStatic
-        val Server = TickTaskScheduler<MinecraftServer>()
+        val Server by lazy { TickTaskScheduler<MinecraftServer>() }
+
+        inline fun MinecraftServer.scheduleStartTick(task: TickTask<MinecraftServer>) =
+            Server.scheduleStartTick(task)
+
+        inline fun MinecraftServer.scheduleStartTick(noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
+            Server.scheduleStartTick(action)
+
+        inline fun MinecraftServer.scheduleStartTick(delay: Int = 0, noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
+            Server.scheduleStartTick(delay, action)
+
+        inline fun MinecraftServer.scheduleEndTick(task: TickTask<MinecraftServer>) =
+            Server.scheduleEndTick(task)
+
+        inline fun MinecraftServer.scheduleEndTick(noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
+            Server.scheduleEndTick(action)
+
+        inline fun MinecraftServer.scheduleEndTick(delay: Int = 0, noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
+            Server.scheduleEndTick(delay, action)
+
     }
 
     private val startTasks = ConcurrentLinkedQueue<TickTask<T>>()
@@ -19,11 +39,11 @@ open class TickTaskScheduler<T> {
         startTasks.add(task)
     }
 
-    fun scheduleStartTick(action: (T) -> Unit) {
+    fun scheduleStartTick(action: (TickTask<T>, T) -> Unit) {
         startTasks.add(TickTask(0, 1, 1, action))
     }
 
-    fun scheduleStartTick(delay: Int = 0, action: (T) -> Unit) {
+    fun scheduleStartTick(delay: Int = 0, action: (TickTask<T>, T) -> Unit) {
         startTasks.add(TickTask(delay, 1, 1, action))
     }
 
@@ -31,11 +51,11 @@ open class TickTaskScheduler<T> {
         endTasks.add(task)
     }
 
-    fun scheduleEndTick(action: (T) -> Unit) {
+    fun scheduleEndTick(action: (TickTask<T>, T) -> Unit) {
         endTasks.add(TickTask(0, 1, 1, action))
     }
 
-    fun scheduleEndTick(delay: Int = 0, action: (T) -> Unit) {
+    fun scheduleEndTick(delay: Int = 0, action: (TickTask<T>, T) -> Unit) {
         endTasks.add(TickTask(delay, 1, 1, action))
     }
 
