@@ -49,7 +49,6 @@ class KeyBind(
     val keys: MutableList<KeyCode> = ArrayList(defaultKeys)
 
     var action: KeyBind.() -> Unit = action
-        internal set
 
     /**
      * 当前按键是否被按下
