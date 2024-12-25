@@ -44,7 +44,7 @@ object Toast : Tickable {
 
     val SHORT_DURATION get() = Config.SHORT_DURATION
 
-    val LONG_DURATION get() = Config.SHORT_DURATION
+    val LONG_DURATION get() = Config.LONG_DURATION
 
     private val toastQueue = mutableListOf<Pair<BoxWidget, ValueTimeMark>>() // 存储当前 Toast 和其时间戳
 

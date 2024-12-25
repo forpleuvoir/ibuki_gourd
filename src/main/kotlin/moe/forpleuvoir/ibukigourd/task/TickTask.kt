@@ -1,29 +1,51 @@
 package moe.forpleuvoir.ibukigourd.task
 
+import moe.forpleuvoir.nebula.common.api.ExperimentalApi
+import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.toSerializeObject
 
 
 data class TickTask<T>(
-    val delay: Int = 0,
-    val period: Int = 1,
-    val times: Int = 1,
+    val setting: Setting,
     private val executor: TaskExecutor<T>
 ) : Serializable {
 
     companion object {
-        fun <T> from(task: TickTask<T>) = TickTask(task.delay, task.period, task.times, task.executor)
+        fun <T> fromTask(task: TickTask<T>) = TickTask(task.delay, task.period, task.times, task.executor)
     }
 
-    constructor(delay: Int, period: Int, times: Int, action: (TickTask<T>, T) -> Unit) :
+    constructor(delay: Int = 0, period: Int = 1, times: Int = 1, executor: TaskExecutor<T>) :
+            this(Setting(delay, period, times), executor)
+
+    constructor(delay: Int = 0, period: Int = 1, times: Int = 1, action: (TickTask<T>, T) -> Unit) :
             this(delay, period, times, SimpleTaskExecutor(action))
+
+    data class Setting(val delay: Int, val period: Int, val times: Int) : Serializable {
+        override fun serialization(): SerializeElement {
+            return this.toSerializeObject()
+        }
+
+        companion object : Deserializer<Setting> {
+            @OptIn(ExperimentalApi::class)
+            override fun deserialization(serializeElement: SerializeElement): Setting {
+                return Deserializer.deserialization<Setting>(serializeElement)
+            }
+        }
+    }
 
     init {
         check(delay >= 0) { "delay must be >=0" }
         check(period >= 1) { "period must be >=1" }
         check(times >= 1) { "period must be >=1" }
     }
+
+    val delay: Int get() = setting.delay
+    val period: Int get() = setting.period
+    val times: Int get() = setting.times
 
     var counter: Int = 0
         private set(value) {
@@ -53,9 +75,7 @@ data class TickTask<T>(
 
 
     override fun serialization(): SerializeElement = serializeObject {
-        "delay" to delay
-        "period" to period
-        "times" to times
+        "setting" to setting.serialization()
         "executor" to executor.serialization()
     }
 
