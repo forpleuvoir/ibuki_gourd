@@ -6,7 +6,6 @@ import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.toSerializeObject
 
 
 data class TickTask<T>(
@@ -25,8 +24,10 @@ data class TickTask<T>(
             this(delay, period, times, SimpleTaskExecutor(action))
 
     data class Setting(val delay: Int, val period: Int, val times: Int) : Serializable {
-        override fun serialization(): SerializeElement {
-            return this.toSerializeObject()
+        override fun serialization(): SerializeElement = serializeObject {
+            "delay" to delay
+            "period" to period
+            "times" to times
         }
 
         companion object : Deserializer<Setting> {
