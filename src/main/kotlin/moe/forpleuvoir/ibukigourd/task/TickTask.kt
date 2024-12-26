@@ -1,10 +1,10 @@
 package moe.forpleuvoir.ibukigourd.task
 
-import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.extensions.deserialization
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 
@@ -23,7 +23,7 @@ data class TickTask<T>(
     constructor(delay: Int = 0, period: Int = 1, times: Int = 1, action: (TickTask<T>, T) -> Unit) :
             this(delay, period, times, SimpleTaskExecutor(action))
 
-    data class Setting(val delay: Int, val period: Int, val times: Int) : Serializable {
+    data class Setting(val delay: Int = 0, val period: Int = 1, val times: Int = 1) : Serializable {
         override fun serialization(): SerializeElement = serializeObject {
             "delay" to delay
             "period" to period
@@ -31,10 +31,14 @@ data class TickTask<T>(
         }
 
         companion object : Deserializer<Setting> {
-            @OptIn(ExperimentalApi::class)
-            override fun deserialization(serializeElement: SerializeElement): Setting {
-                return Deserializer.deserialization<Setting>(serializeElement)
-            }
+            override fun deserialization(serializeElement: SerializeElement): Setting =
+                serializeElement.checkType<SerializeObject, Setting> {
+                    Setting(
+                        it["delay"]!!.asInt.coerceAtLeast(0),
+                        it["period"]!!.asInt.coerceAtLeast(1),
+                        it["times"]!!.asInt.coerceAtLeast(1)
+                    )
+                }.getOrDefault(Setting())
         }
     }
 
