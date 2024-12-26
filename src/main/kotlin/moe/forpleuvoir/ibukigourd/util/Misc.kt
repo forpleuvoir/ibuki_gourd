@@ -32,6 +32,14 @@ internal fun Any.logger(): ModLogger {
     return ModLogger(this::class, IbukiGourd.MOD_NAME)
 }
 
+internal fun logger(kClass: KClass<*>): ModLogger {
+    return ModLogger(kClass::class, IbukiGourd.MOD_NAME)
+}
+
+internal fun logger(name: String): ModLogger {
+    return ModLogger(name, IbukiGourd.MOD_NAME)
+}
+
 val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
 val isDevEnv: Boolean by lazy { loader.isDevelopmentEnvironment }

@@ -115,7 +115,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        EnumSelector(enumValue, Modifier.width(80f))
+        EnumSelector(enumValue, modifier = Modifier.width(80f))
         ConfigResetButton(config) {
             enumValue.setValue(config.getValue())
         }

@@ -720,7 +720,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     companion object {
-        val _log = logger()
+        val _log = logger("Screen")
 
         inline fun <T> Iterable<T>.foreachWithIterator(action: (T) -> Unit) {
             val iterator = this.iterator()

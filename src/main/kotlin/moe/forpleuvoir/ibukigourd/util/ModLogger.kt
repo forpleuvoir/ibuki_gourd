@@ -14,6 +14,8 @@ value class ModLogger internal constructor(
 
     constructor(clazz: KClass<*>, modName: String) : this(LoggerFactory.getLogger("${modName}[${clazz.simpleName ?: clazz.java.simpleName}]"))
 
+    constructor(logName: String, modName: String) : this(LoggerFactory.getLogger("${modName}[$logName]"))
+
     inline fun warn(throwable: Throwable) {
         this.warn(throwable.message, throwable)
     }

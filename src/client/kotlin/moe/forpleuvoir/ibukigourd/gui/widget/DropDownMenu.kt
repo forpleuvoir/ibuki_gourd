@@ -185,12 +185,15 @@ fun WidgetContainerScope.Selector(
 
 fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
     selected: MutableState<E>,
+    options: Iterable<E> = selected.getValue()::class.java.enumConstants.toList(),
+    onChange: (E) -> Unit = {},
     modifier: Modifier = Modifier
 ) = Selector(
-    options = selected.getValue()::class.java.enumConstants.map { it },
+    options = options,
     selected = selected,
     onChange = {
         selected.setValue(it)
+        onChange(it)
     },
     selectedWrapper = {
         TextLabel(it.translateText, modifier = Modifier.weight(1).hoverText(it.translateComment, optionalDirection = Direction.clockwiseFromTop))
@@ -199,7 +202,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
         TextLabel(
             it.translateText,
             modifier = Modifier
-                .width(selected.getValue()::class.java.enumConstants.map { it.translateText }.maxWidth(textRenderer).toFloat().coerceAtLeast(30f))
+                .width(options.map { it.translateText }.maxWidth(textRenderer).toFloat().coerceAtLeast(30f))
                 .hoverText(it.translateComment, optionalDirection = Direction.leftRightTopBottom)
         )
     },

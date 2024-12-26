@@ -16,7 +16,10 @@ class KeyBindSettingImpl(
     longPressTime: Long = 20,
 ) : KeyBindSetting {
 
-    private val log = logger()
+    companion object {
+        private val log = logger(KeyBindSettingImpl::class)
+    }
+
 
     override var repeatTriggerInterval: Long = triggerPeriod.coerceAtLeast(0)
         set(value) {

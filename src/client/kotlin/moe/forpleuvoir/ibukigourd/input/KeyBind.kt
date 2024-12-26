@@ -38,7 +38,12 @@ class KeyBind(
         action = keyBind.action
     )
 
-    private val log = logger()
+    companion object {
+
+        private val log = logger(KeyBind::class)
+
+    }
+
 
     val uuid: UUID = UUID.randomUUID()
 
