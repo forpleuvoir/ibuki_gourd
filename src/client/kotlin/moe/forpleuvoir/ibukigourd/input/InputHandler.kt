@@ -54,7 +54,7 @@ object InputHandler : Tickable {
             var action = NextAction.Continue
             keyBinds.forEach loop@{
                 action = it.onKeyPress(beforePressKeyCode, currentPressKeyCode)
-                if (action == NextAction.Continue) return@loop
+                if (action == NextAction.Cancel) return@loop
             }
             beforePressKeyCode.clear()
             beforePressKeyCode.addAll(currentPressKeyCode)
@@ -72,7 +72,7 @@ object InputHandler : Tickable {
             var action = NextAction.Continue
             keyBinds.forEach loop@{
                 action = it.onKeyRelease(beforePressKeyCode, currentPressKeyCode)
-                if (action == NextAction.Continue) return@loop
+                if (action == NextAction.Cancel) return@loop
             }
             beforePressKeyCode.clear()
             beforePressKeyCode.addAll(currentPressKeyCode)

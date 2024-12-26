@@ -301,6 +301,20 @@ fun Modifier.hoverText(
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
+@JvmName("hoverTextState")
+fun Modifier.hoverText(
+    text: State<Text>,
+    showDelay: Duration = Tip.DefaultSetting.showDelay,
+    hideDelay: Duration = Tip.DefaultSetting.hideDelay,
+    fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
+    fadeInOffset: Float = Tip.DefaultSetting.fadeInOffset,
+    optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
+    backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
+    modifier: Modifier = Modifier
+) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
+}
+
 @JvmName("hoverTextString")
 fun Modifier.hoverText(
     text: State<String>,
@@ -320,6 +334,19 @@ fun Modifier.hoverText(
 
 fun Modifier.hoverText(
     text: String,
+    showDelay: Duration = Tip.DefaultSetting.showDelay,
+    hideDelay: Duration = Tip.DefaultSetting.hideDelay,
+    fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
+    fadeInOffset: Float = Tip.DefaultSetting.fadeInOffset,
+    optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
+    backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
+    modifier: Modifier = Modifier
+) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+    TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
+}
+
+fun Modifier.hoverText(
+    text: State<String>,
     showDelay: Duration = Tip.DefaultSetting.showDelay,
     hideDelay: Duration = Tip.DefaultSetting.hideDelay,
     fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,

@@ -108,6 +108,11 @@ class KeyBind(
         } else {
             keys == beforeKeyCode || beforeKeyCode.hasAll(keys)
         }
+        wasPress = if (setting.exactMatch) {
+            if (beforeKeyCode.exactMatch(keys)) false else wasPress
+        } else {
+            if (beforeKeyCode.hasAll(keys)) false else wasPress
+        }
         val currentMath = if (setting.exactMatch) {
             keys.exactMatch(currentKeyCode)
         } else {
