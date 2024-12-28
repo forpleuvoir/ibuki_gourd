@@ -52,7 +52,8 @@ dependencies {
     modImplementation(libs.modMenu)
 
     //nebula
-    include(api("${libs.nebula.get()}:nebula")!!)
+    include("${libs.nebula.get()}:nebula")
+    api(libs.nebula)
 
     //其他第三方库依赖
 

@@ -45,7 +45,7 @@ fun batchRenderBox(
 
 @ConsistentCopyVisibility
 @Suppress("MemberVisibilityCanBePrivate")
-data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexConsumer, private val matrices: MatrixStack) {
+data class BoxBatchRenderScope internal constructor(val bufferBuilder: VertexConsumer, val matrices: MatrixStack) {
 
     /**
      * 渲染一个[Box]

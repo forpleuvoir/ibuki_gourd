@@ -38,9 +38,9 @@ fun TextRenderer.batchRenderText(
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 open class TextBatchRenderScope internal constructor(
-    private val textRenderer: TextRenderer,
-    private val vertexConsumers: VertexConsumerProvider,
-    private val positionMatrix: Matrix4f
+    val textRenderer: TextRenderer,
+    val vertexConsumers: VertexConsumerProvider,
+    val positionMatrix: Matrix4f
 ) {
 
     /**

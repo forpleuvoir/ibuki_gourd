@@ -45,8 +45,8 @@ fun batchRenderTextureColored(
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 open class TextureBatchRenderScope internal constructor(
-    private val bufferBuilder: BufferBuilder,
-    private val matrices: MatrixStack
+    val bufferBuilder: BufferBuilder,
+    val matrices: MatrixStack
 ) {
 
     /**
