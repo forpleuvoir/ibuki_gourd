@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -22,7 +23,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 
 fun WidgetContainerScope.SearchBar(
     textConsumer: (String) -> Unit,
-    hintText: State<String?> = stateOf(null),
+    hintText: State<String?> = stateOf(IGLang.search.plainText),
     bgShaderColor: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
     textEditorModifier: ColumnScope.() -> Modifier = { Modifier },

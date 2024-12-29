@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -88,15 +87,4 @@ fun <T : ConfigSerializable> ColumnScope.ConfigTextLabel(
     horizontalArrangement = Arrangement.Left
 ) {
     TextLabel(config.translateText, textModifier.attachLeft { hoverText(config.comment) })
-}
-
-fun WidgetContainerScope.ConfigFilter(
-    collection: Collection<ConfigSerializable>
-) = Column(
-
-) {
-    SearchBar(textConsumer = {
-
-    })
-
 }

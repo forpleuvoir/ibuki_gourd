@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
+import moe.forpleuvoir.ibukigourd.gui.widget.SelectorWithSearcher
 import moe.forpleuvoir.ibukigourd.gui.widget.button.*
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
@@ -44,8 +45,23 @@ fun testScreen3() = RowScreen(
     }
 ) {
     val selectText = mutableStateOf("本居小铃")
-    val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香")
+    val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香", "本居小铃")
     Column {
+        SelectorWithSearcher(
+            listString,
+            { str, s ->
+                str.contains(s)
+            },
+            selectText,
+            selectedWrapper = {
+                TextLabel(it)
+            },
+            optionWrapper = {
+                TextLabel(it, modifier = Modifier.width(80f))
+            },
+            searchBarModifier = { Modifier.width(80f) },
+            listModifier = { Modifier.width(80f) },
+        )
         DropDownMenu {
             TextLabel(selectText)
             DropDownContent {

@@ -1,13 +1,16 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -19,6 +22,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
@@ -28,6 +33,7 @@ import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -58,6 +64,7 @@ val DropDownMenuSeparatorColor = Color(0xFFCCCCCC)
 
 fun WidgetContainerScope.DropDownMenu(
     modifier: Modifier = Modifier,
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     screen: IGScreen = mc.currentScreen as IGScreen,
     scope: DropDownMenuScope.() -> Unit
 ): IGButtonWidget = Button(
@@ -81,7 +88,7 @@ fun WidgetContainerScope.DropDownMenu(
     click {
         expandState.switch()
         PopupTip(
-            optionalDirection = notifiableList(Direction.Bottom, Direction.Top, Direction.Right, Direction.Left),
+            optionalDirection = notifiableList(optionsDirection),
             screenModifier = Modifier
                 .bgBlurRadius(0f)
                 .onClose { expandState.setValue(false) },
@@ -111,21 +118,24 @@ fun WidgetContainerScope.DropDownMenu(
 }
 
 
+val defaultSelectedColor = Colors.AQUA.opacity(.25f)
+
 fun <T> WidgetContainerScope.Selector(
     options: Iterable<T>,
     selected: MutableState<T> = mutableStateOf(options.first()),
     onChange: (T) -> Unit = {},
-    selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
+    selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
     optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
     check(selected.getValue() in options) { "initialOption must be in options" }
     selected.subscribe {
         onChange(it)
     }
-    return DropDownMenu(modifier) {
+    return DropDownMenu(modifier, optionsDirection) {
         val proxy: MutableState<DropDownMenuScope.() -> IGWidget> = mutableStateOf {
             selectedWrapper.invoke(this, selected.getValue())
         }
@@ -164,13 +174,94 @@ fun <T> WidgetContainerScope.Selector(
     }
 }
 
+fun <T> WidgetContainerScope.SelectorWithSearcher(
+    options: Iterable<T>,
+    predicate: (T, String) -> Boolean,
+    selected: MutableState<T> = mutableStateOf(options.first()),
+    onChange: (T) -> Unit = {},
+    selectedColor: ARGBColor = defaultSelectedColor,
+    selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
+    optionWrapper: ButtonScope.(T) -> IGWidget,
+    modifier: Modifier = Modifier,
+    searchBarModifier: RowScope.() -> Modifier = { Modifier },
+    listModifier: RowScope.() -> Modifier = { Modifier },
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    scope: DropDownMenuScope.() -> Unit = {}
+): IGButtonWidget {
+    check(selected.getValue() in options) { "initialOption must be in options" }
+    selected.subscribe {
+        onChange(it)
+    }
+    return DropDownMenu(modifier, optionsDirection) {
+        val proxy: MutableState<DropDownMenuScope.() -> IGWidget> = mutableStateOf {
+            selectedWrapper.invoke(this, selected.getValue())
+        }
+        Proxy(proxy)
+        selected.subscribe {
+            proxy.setValue {
+                selectedWrapper.invoke(this, selected.getValue())
+            }
+        }
+
+        DropDownContent {
+            Row(
+                horizontalAlignment = Alignment.Left,
+            ) {
+                val showList = notifiableList(options.toList())
+                SearchBar(
+                    textConsumer = { str ->
+                        showList.disableNotify {
+                            showList.clear()
+                            showList.addAll(options.toList().filter { predicate(it, str) })
+                        }
+                        showList.onChange(showList)
+                    },
+                    hintText = stateOf(IGLang.search.plainText),
+                    modifier = searchBarModifier(),
+                    textEditorModifier = { Modifier.weight(1) }
+                )
+                RowListWrapped(
+                    modifier = listModifier().attachLeft { padding(0f).disableRenderBackground() },
+                    horizontalAlignment = Alignment.Left
+                ) {
+                    if (showList.isEmpty()) TextLabel(IGLang.hasNothing)
+                    showList.forEachIndexed { index, option ->
+                        if (index != 0) {
+                            ColoredBox(
+                                DropDownMenuSeparatorColor,
+                                Modifier.height(1f).matchSibling()
+                            )
+                        }
+                        FlatButton(
+                            hoveredColor = selectedColor,
+                            horizontalArrangement = Arrangement.Left,
+                        ) {
+                            optionWrapper(option)
+                            click {
+                                selected.setValue(option)
+                                this@DropDownMenu.toggle()
+                            }
+                        }
+                    }
+                }.apply {
+                    showList.subscribe {
+                        execute { this.recompose() }
+                    }
+                }
+            }
+        }
+        scope()
+    }
+}
+
 
 fun WidgetContainerScope.Selector(
     options: Iterable<String>,
     selected: MutableState<String> = mutableStateOf(options.first()),
     onChange: (String) -> Unit = {},
-    selectedColor: ARGBColor = Colors.BANANA_YELLOW.opacity(.35f),
+    selectedColor: ARGBColor = defaultSelectedColor,
     modifier: Modifier = Modifier,
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = Selector(
     options,
@@ -180,6 +271,7 @@ fun WidgetContainerScope.Selector(
     selectedWrapper = { TextLabel(it) },
     optionWrapper = { TextLabel(it, modifier = Modifier.width(options.maxWidth(textRenderer).toFloat())) },
     modifier,
+    optionsDirection,
     scope
 )
 
@@ -187,7 +279,8 @@ fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
     selected: MutableState<E>,
     options: Iterable<E> = selected.getValue()::class.java.enumConstants.toList(),
     onChange: (E) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
 ) = Selector(
     options = options,
     selected = selected,
@@ -207,12 +300,14 @@ fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
         )
     },
     modifier = modifier,
+    optionsDirection = optionsDirection
 )
 
 fun WidgetContainerScope.EventSelector(
     options: Iterable<KClass<out Event>>,
     selected: MutableState<KClass<out Event>> = mutableStateOf(options.first()),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
 ) = Selector(
     options = options,
     selected = selected,
@@ -231,4 +326,5 @@ fun WidgetContainerScope.EventSelector(
         )
     },
     modifier = modifier,
+    optionsDirection = optionsDirection
 )
