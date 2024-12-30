@@ -33,7 +33,7 @@ class RowListWidget(
         scrollState {
             maxAmount = totalSpace - contentHeight
             barProportion = contentHeight / totalSpace
-            amountStep = widgetChildren().minOf { it.transform.height } / 2f
+            amountStep = widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
         }
         super<ListWidget>.onMeasureCompletion()
     }
