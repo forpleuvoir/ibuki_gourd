@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -313,8 +314,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         if (client?.currentScreen != this) return
         InputHandler.releaseAll()
         onClose?.invoke()
-        MouseCursor.clear()
         TipHandler.popTip(SCREEN_HOVER_TIP)
+        MouseCursor.clear()
         coroutineScope.cancel()
         client?.setScreen(parentScreen)
     }
@@ -343,6 +344,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override fun init() {
         onInit?.invoke()
+        TipHandler.popTip(SCREEN_HOVER_TIP)
         recompose()
     }
 
@@ -420,6 +422,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
+        if (renderParentScreen) {
+            parentScreen?.render(context, mouseX, mouseY, delta)
+        }
+
         latestRenderTime = measureTime {
 
             if (mc.currentScreen == this) {
@@ -582,7 +588,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
-        if (active) mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
+        if (active) {
+            parentScreen?.mouseReleased(mouseX, mouseY, button)
+            mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
+        }
         return false
     }
 
@@ -658,7 +667,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
-        if (active) keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
+        if (active) {
+            parentScreen?.keyReleased(keyCode, scanCode, modifiers)
+            keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
+        }
         return false
     }
 

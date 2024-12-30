@@ -1,11 +1,11 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderParent
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.DEFAULT_BG_BLUR_RADIUS
-import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.screen.Screen
 
@@ -16,20 +16,8 @@ fun PopupScreen(
 ) = BoxScreen(
     Modifier
         .name("PopupScreen")
+        .renderParent(true)
         .bgBlurRadius(DEFAULT_BG_BLUR_RADIUS)
-        .renderBackground { context, x, y, d ->
-            screen()?.parentScreen?.render(context, 0, 0, d)
-            mc.gameRenderer.renderBlur((this as IGScreen).bgBlurRadius, d)
-            mc.framebuffer.beginWrite(false)
-        }
-        .mouseRelease {
-            screen()?.parentScreen?.mouseReleased(it.x.toDouble(), it.y.toDouble(), it.button.code)
-            onMouseRelease(it)
-        }
-        .keyRelease {
-            screen()?.parentScreen?.keyReleased(it.keyCode.code, it.scanCode, it.modifiers)
-            onKeyRelease(it)
-        }
         .then(modifier)
 ) {
     owner().parentScreen = parentScreen as Screen
