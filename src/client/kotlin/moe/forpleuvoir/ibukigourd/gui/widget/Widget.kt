@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -30,6 +30,20 @@ fun WidgetContainerScope.Widget(
     GuiScope { this }.scope()
 }
 
+fun WidgetContainerScope.Rect(
+    color: State<ARGBColor>,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = { }
+) = Widget(Modifier.render { context, _, _, _ ->
+    context.renderBox(transform.asWorldCoordinateBox, color.getValue())
+} then modifier, scope)
+
+fun WidgetContainerScope.Rect(
+    color: ARGBColor,
+    modifier: Modifier = Modifier,
+    scope: WidgetScope.() -> Unit = { }
+) = Rect(stateOf(color), modifier, scope)
+
 fun WidgetContainerScope.ColoredBox(
     color: ARGBColor,
     modifier: Modifier = Modifier,
@@ -45,8 +59,6 @@ fun WidgetContainerScope.ColoredBox(
         batchRenderTextureColored {
             pushTileTexture(transform, WidgetTextures.ALPHA)
         }
-        batchRenderBox {
-            pushBox(transform, color.getValue())
-        }
     }
+    context.renderBox(transform.asWorldCoordinateBox, color.getValue())
 } then modifier, scope)

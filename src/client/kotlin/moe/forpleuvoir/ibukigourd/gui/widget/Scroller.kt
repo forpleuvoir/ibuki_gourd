@@ -130,8 +130,8 @@ open class ScrollerWidget(
 
     private val scrollableLength: Float
         get() = orientation.peek(
-            this.transform.height - (scrollState.barProportion * this.transform.height),
-            this.transform.width - (scrollState.barProportion * this.transform.width)
+            this.transform.height - (scrollState.barProportion * this.transform.height).coerceAtLeast(9f),
+            this.transform.width - (scrollState.barProportion * this.transform.width).coerceAtLeast(9f)
         )
 
     private val barPositionRange: ClosedFloatingPointRange<Float> get() = 0f..scrollableLength

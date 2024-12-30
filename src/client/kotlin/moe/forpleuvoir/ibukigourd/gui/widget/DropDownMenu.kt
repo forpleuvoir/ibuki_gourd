@@ -105,7 +105,7 @@ fun WidgetContainerScope.DropDownMenu(
         modifier = Modifier.width(13f),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        ColoredBox(
+        Rect(
             DropDownMenuSeparatorColor,
             Modifier
                 .width(1f)
@@ -152,9 +152,9 @@ fun <T> WidgetContainerScope.Selector(
             ) {
                 options.forEachIndexed { index, option ->
                     if (index != 0) {
-                        ColoredBox(
+                        Rect(
                             DropDownMenuSeparatorColor,
-                            Modifier.height(1f).matchSibling()
+                            Modifier.height(.5f).matchSibling()
                         )
                     }
                     FlatButton(
@@ -227,9 +227,9 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
                     if (showList.isEmpty()) TextLabel(IGLang.hasNothing)
                     showList.forEachIndexed { index, option ->
                         if (index != 0) {
-                            ColoredBox(
+                            Rect(
                                 DropDownMenuSeparatorColor,
-                                Modifier.height(1f).matchSibling()
+                                Modifier.height(.5f).matchSibling()
                             )
                         }
                         FlatButton(
