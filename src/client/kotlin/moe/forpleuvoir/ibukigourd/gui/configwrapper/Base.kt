@@ -3,12 +3,12 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -16,7 +16,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.api.Resettable
-import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 
 const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
@@ -28,25 +27,9 @@ fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
 ) = Column(
     modifier
         .attachLeft {
-            var alpha = 0f
-            val maxAlpha = 0.25f
-            // alpha per tick
-            val aupt = maxAlpha * 0.15f
-            val adpt = maxAlpha * 0.25f
-            val color = Colors.CYAN.alpha(alpha)
-            fun updateAlpha(wasMouseOver: Boolean, delta: Float) {
-                alpha = if (wasMouseOver)
-                    (alpha + aupt * delta).coerceIn(0f, maxAlpha)
-                else (alpha - adpt * delta).coerceIn(0f, maxAlpha)
-            }
             name(configSerializable.javaClass.simpleName + "Wrapper")
                 .padding(horizontal = 2f)
-                .renderBackground { context, x, y, delta ->
-                    updateAlpha(wasMouseOver, delta)
-                    context.batchRenderBox {
-                        pushRoundBox(transform, color.alpha(alpha), 2)
-                    }
-                }
+                .bgHoverHighlightBox()
         },
     horizontalArrangement = Arrangement.SpaceBetween
 ) {

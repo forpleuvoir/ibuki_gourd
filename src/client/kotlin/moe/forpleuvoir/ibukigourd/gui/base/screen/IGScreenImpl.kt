@@ -422,9 +422,6 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-        if (renderParentScreen) {
-            parentScreen?.render(context, mouseX, mouseY, delta)
-        }
 
         latestRenderTime = measureTime {
 
@@ -459,6 +456,9 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         if (client!!.world == null) {
             this.renderPanoramaBackground(context, delta)
+        }
+        if (renderParentScreen) {
+            parentScreen?.render(context, mouseX.toInt(), mouseY.toInt(), delta)
         }
         renderBlur(bgBlurRadius, delta)
     }

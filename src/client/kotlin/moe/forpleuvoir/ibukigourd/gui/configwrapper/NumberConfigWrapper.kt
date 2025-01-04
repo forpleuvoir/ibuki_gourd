@@ -22,8 +22,8 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigFloat
 import moe.forpleuvoir.nebula.config.item.impl.ConfigInt
 import moe.forpleuvoir.nebula.config.item.impl.ConfigLong
 
-private const val editorWidth = 120f
-private const val vectorEditorWidth = 60f
+private const val EDITOR_WIDTH = 120f
+private const val VECTOR_EDITOR_WIDTH = 60f
 
 fun WidgetContainerScope.IntConfigWrapper(
     config: ConfigInt,
@@ -39,8 +39,8 @@ fun WidgetContainerScope.IntConfigWrapper(
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { IntSlider(intValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
-            { IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            { IntSlider(intValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
+            { IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -67,8 +67,8 @@ fun WidgetContainerScope.LongConfigWrapper(
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { LongSlider(longValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
-            { LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            { LongSlider(longValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
+            { LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -95,8 +95,8 @@ fun WidgetContainerScope.FloatConfigWrapper(
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { FloatSlider(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
-            { FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            { FloatSlider(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
+            { FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -123,8 +123,8 @@ fun WidgetContainerScope.DoubleConfigWrapper(
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { DoubleSlider(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth)) },
-            { DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(editorWidth), editorModifier = { Modifier.weight(1) }) },
+            { DoubleSlider(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
+            { DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -165,12 +165,20 @@ fun WidgetContainerScope.ConfigVector2fWrapper(
 
         Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
             TextLabel(Literal("X").withColor(Colors.RED))
-            FloatEditor(xValue, config.minValue.x()..config.maxValue.x(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+            FloatEditor(
+                xValue,
+                config.minValue.x()..config.maxValue.x(),
+                modifier = Modifier.width(VECTOR_EDITOR_WIDTH),
+                editorModifier = { Modifier.weight(1) })
         }
 
         Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
             TextLabel(Literal("Y").withColor(Colors.LIME))
-            FloatEditor(yValue, config.minValue.y()..config.maxValue.y(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+            FloatEditor(
+                yValue,
+                config.minValue.y()..config.maxValue.y(),
+                modifier = Modifier.width(VECTOR_EDITOR_WIDTH),
+                editorModifier = { Modifier.weight(1) })
         }
 
         ConfigResetButton(config) {
@@ -215,17 +223,29 @@ fun WidgetContainerScope.ConfigVector3fWrapper(
 
         Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
             TextLabel(Literal("X").withColor(Colors.RED))
-            FloatEditor(xValue, config.minValue.x()..config.maxValue.x(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+            FloatEditor(
+                xValue,
+                config.minValue.x()..config.maxValue.x(),
+                modifier = Modifier.width(VECTOR_EDITOR_WIDTH),
+                editorModifier = { Modifier.weight(1) })
         }
 
         Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
             TextLabel(Literal("Y").withColor(Colors.LIME))
-            FloatEditor(yValue, config.minValue.y()..config.maxValue.y(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+            FloatEditor(
+                yValue,
+                config.minValue.y()..config.maxValue.y(),
+                modifier = Modifier.width(VECTOR_EDITOR_WIDTH),
+                editorModifier = { Modifier.weight(1) })
         }
 
         Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
             TextLabel(Literal("Z").withColor(Colors.BLUE))
-            FloatEditor(zValue, config.minValue.z()..config.maxValue.z(), modifier = Modifier.width(vectorEditorWidth), editorModifier = { Modifier.weight(1) })
+            FloatEditor(
+                zValue,
+                config.minValue.z()..config.maxValue.z(),
+                modifier = Modifier.width(VECTOR_EDITOR_WIDTH),
+                editorModifier = { Modifier.weight(1) })
         }
 
 

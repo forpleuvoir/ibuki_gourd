@@ -13,9 +13,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.modifier.disableRender
+import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.util.disableRender
-import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
@@ -28,6 +28,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainer
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
@@ -98,7 +99,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
 ) = Row {
-    val expanded = mutableStateOf(false)
+    val expanded = mutableStateOf(autoExpandConfigContainer)
     Button(
         modifier = modifier.attachLeft {
             disableRender().padding(0)
@@ -131,7 +132,6 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
                     modifier = Modifier.padding(2, 8, 2, 2),
                     verticalArrangement = Arrangement.spacedBy(4f)
                 ) {
-                    //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
                     if (config.configs().isEmpty()) TextLabel(IGLang.hasNothing)
                     config.configs().forEach { config ->
                         ConfigWrapperMap.wrapper(config, this, Modifier.fill())

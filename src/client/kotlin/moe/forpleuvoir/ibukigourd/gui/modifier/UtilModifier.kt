@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.gui.util
+package moe.forpleuvoir.ibukigourd.gui.modifier
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier

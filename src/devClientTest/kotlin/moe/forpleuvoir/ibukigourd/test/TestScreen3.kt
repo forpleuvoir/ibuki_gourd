@@ -8,9 +8,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
+import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.modifier.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
-import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
-import moe.forpleuvoir.ibukigourd.gui.util.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.SelectorWithSearcher
