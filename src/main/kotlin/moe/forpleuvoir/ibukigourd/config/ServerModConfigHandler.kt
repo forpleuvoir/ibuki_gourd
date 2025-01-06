@@ -13,9 +13,9 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSubclassOf
 
+@Suppress("unused")
 @EventSubscriber
-@Deprecated("Internal objects,Do not call")
-object ServerModConfigHandler : ModConfigHandler {
+internal object ServerModConfigHandler : ModConfigHandler {
     private val log = logger()
 
     private val configManagers = HashMap<String, ServerModConfigManager>()
@@ -77,7 +77,6 @@ object ServerModConfigHandler : ModConfigHandler {
     }
 
     @Subscriber
-    @Suppress("unused")
     fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
         log.info("server mod config saving...")
         runBlocking {
@@ -86,7 +85,6 @@ object ServerModConfigHandler : ModConfigHandler {
     }
 
     @Subscriber
-    @Suppress("unused")
     fun serverSave(event: ServerSavingEvent) {
         configManagers.forEach { (key, value) ->
             if (value.savable()) {

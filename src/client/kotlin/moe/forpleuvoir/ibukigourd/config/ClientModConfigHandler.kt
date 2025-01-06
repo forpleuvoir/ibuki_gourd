@@ -11,9 +11,9 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSubclassOf
 
+@Suppress("unused")
 @EventSubscriber
-@Deprecated("Internal objects,Do not call")
-object ClientModConfigHandler : ModConfigHandler {
+internal object ClientModConfigHandler : ModConfigHandler {
 
     private val log = logger()
 

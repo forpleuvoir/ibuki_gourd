@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
@@ -56,6 +57,8 @@ import net.minecraft.util.Util
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 
 @Suppress("MemberVisibilityCanBePrivate", "Unused")
 open class TextEditorWidget(
@@ -332,6 +335,13 @@ open class TextEditorWidget(
         }
     }
 
+    private fun selectWord() {
+        this.moveCursor(RELATIVE, previousWordOffsetAtCursor)
+        selecting = true
+        this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
+        selecting = false
+    }
+
     override fun onKeyPress(event: KeyPressEvent) {
         if (!this.isActive) return
         selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
@@ -344,10 +354,7 @@ open class TextEditorWidget(
             }
             //选中当前单词
             if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
-                this.moveCursor(RELATIVE, previousWordOffsetAtCursor)
-                selecting = true
-                this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
-                selecting = false
+                selectWord()
                 return@tryUse true
             }
             //复制选中文本
@@ -486,13 +493,20 @@ open class TextEditorWidget(
         cursor = count + firstCharacterIndex + offset
     }
 
+    private var lastPressTime = TimeSource.Monotonic.markNow()
+
     override fun onMousePress(event: MousePressEvent) {
         super.onMousePress(event)
         event.tryUse {
             wasMouseOver && event.button == Mouse.LEFT
         }.onSuccess {
             soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+            val oldCursor = cursor
             setCursorFromMouse(event.x)
+            if (oldCursor == cursor && lastPressTime.elapsedNow() < 500.milliseconds) {
+                selectWord()
+            }
+            lastPressTime = TimeSource.Monotonic.markNow()
         }
     }
 
@@ -595,7 +609,11 @@ open class TextEditorWidget(
         var text: String
             get() = owner().text
             set(value) {
-                owner().text = value
+                owner().apply {
+                    setCursorToEnd()
+                    this.selectionEnd = 0
+                    write(value, true)
+                }
             }
 
         var hintText: State<String?>
@@ -712,7 +730,15 @@ fun <T> WidgetContainerScope.NumberEditor(
         .padding(2, 4, 2, 2)
         .renderBackground { context, _, _, _ ->
             context.batchRenderTextureColored {
-                pushWidgetTexture(transform, theme(WidgetTheme.TextInput), bgShaderColor)
+                pushWidgetTexture(
+                    transform,
+                    theme(
+                        WidgetTheme.TextInput,
+                        hovered = screen()?.hoveredWidget?.getValue()?.isInParentChain(this@renderBackground) == true
+                                || screen()?.focusedWidget?.getValue()?.isInParentChain(this@renderBackground) == true
+                    ),
+                    bgShaderColor
+                )
             }
         }.then(modifier),
     horizontalArrangement = Arrangement.SpaceBetween

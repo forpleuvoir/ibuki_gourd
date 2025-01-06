@@ -47,6 +47,8 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 
 /**
  * 多行文本输入框
@@ -366,14 +368,21 @@ class TextAreaWidget(
         }
     }
 
+    private var lastPressTime = TimeSource.Monotonic.markNow()
+
     override fun onMousePress(event: MousePressEvent) {
         super.onMousePress(event)
         event.tryUse {
             wasMouseOver && event.button == Mouse.LEFT
         }.onSuccess {
+            soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+            val oldCursor = cursor
             selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
             moveCursor(event.x, event.y)
-            soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+            if (oldCursor == cursor && lastPressTime.elapsedNow() < 500.milliseconds) {
+                selectWord()
+            }
+            lastPressTime = TimeSource.Monotonic.markNow()
         }
     }
 
@@ -425,9 +434,7 @@ class TextAreaWidget(
             }
             //选中当前单词
             if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
-                this.moveCursor(RELATIVE, previousWordOffsetAtCursor)
-                selecting = true
-                this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
+                selectWord()
                 return@tryUse true
             }
             //另起一行
@@ -459,10 +466,17 @@ class TextAreaWidget(
             return@tryUse when (event.keyCode) {
                 //输入制表符或者四个空格
                 Keyboard.TAB                      -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL))
-                        replaceSelection("\t")
-                    else
+                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)) {
+                        var lineText = currentLine.getText(text)
+                        repeat(4) {
+                            lineText = lineText.removePrefix(" ")
+                        }
+                        selectionEnd = currentLine.beginIndex
+                        cursor = currentLine.endIndex
+                        replaceSelection(lineText, true)
+                    } else {
                         replaceSelection("    ")
+                    }
                     true
                 }
                 //光标左移
@@ -560,6 +574,12 @@ class TextAreaWidget(
 
         }
 
+    }
+
+    private fun selectWord() {
+        this.moveCursor(RELATIVE, previousWordOffsetAtCursor)
+        selecting = true
+        this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
     }
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
@@ -667,7 +687,11 @@ class TextAreaWidget(
         var text: String
             get() = owner().text
             set(value) {
-                owner().text = value
+                owner().apply {
+                    cursor = text.length
+                    selectionEnd = 0
+                    replaceSelection(value, true)
+                }
             }
 
         var hintText: Text?
