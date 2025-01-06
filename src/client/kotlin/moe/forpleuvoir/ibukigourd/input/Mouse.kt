@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.MinecraftClient
@@ -63,7 +65,16 @@ enum class Mouse(override val code: Int) : KeyCode {
     }
 
     override val translationKey: String
-        get() = InputUtil.Type.MOUSE.createFromCode(code).translationKey
+        get() = when (this) {
+            LEFT, RIGHT, MIDDLE -> InputUtil.Type.MOUSE.createFromCode(code).translationKey
+            else                -> "key.mouse"
+        }
+
+    override val keyNameText: Text
+        get() = when (this) {
+            LEFT, RIGHT, MIDDLE -> Translatable(translationKey)
+            else                -> Translatable(translationKey, null, this.code + 1)
+        }
 }
 
 enum class MouseCursor(val value: Int) {
