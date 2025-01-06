@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.expandableConfigContainerLimit
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -48,7 +49,7 @@ object ConfigWrapperMap {
         //------------ DefaultConfigContainer ------------\\
         register(predicate = { it is ConfigContainer }, wrapper = { c, m ->
             if (c is ConfigContainer) {
-                if (c.configs().size > 10)
+                if (c.configs().size > expandableConfigContainerLimit)
                     this.ConfigContainerWrapper(c, m)
                 else
                     this.ExpandableConfigContainerWrapper(c, m)

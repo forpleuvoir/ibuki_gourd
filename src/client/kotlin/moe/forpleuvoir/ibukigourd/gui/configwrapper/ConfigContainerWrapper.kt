@@ -29,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainer
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainerLimit
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
@@ -99,7 +100,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
 ) = Row {
-    val expanded = mutableStateOf(autoExpandConfigContainer)
+    val expanded = mutableStateOf(autoExpandConfigContainer && config.configs().size <= autoExpandConfigContainerLimit)
     Button(
         modifier = modifier.attachLeft {
             disableRender().padding(0)

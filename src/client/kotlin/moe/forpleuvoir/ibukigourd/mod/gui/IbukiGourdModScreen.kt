@@ -18,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
@@ -33,7 +34,10 @@ fun IbukiGourdModScreen() = TabScreen(
             horizontalArrangement = Arrangement.spacedBy(5f, Alignment.Left)
         ) {
             Icon(icon, modifier = Modifier.size(16f, 16f))
-            TextLabel(IbukiGourd.MOD_NAME)
+            TextLabel(Literal(IbukiGourd.MOD_NAME).style {
+                bold()
+                color(Color("#FF994dbf"))
+            })
         }
     },
     modifier = Modifier.onClose {
