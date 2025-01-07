@@ -387,7 +387,7 @@ class TextAreaWidget(
     }
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        event.tryUse { wasDragging }.onSuccess {
+        event.tryUse(wasDragging).onSuccess {
             selecting = true
             moveCursor(event.x, event.y)
             selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
@@ -395,7 +395,7 @@ class TextAreaWidget(
     }
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        event.tryUse { wasMouseOver }.onSuccess {
+        event.tryUse(wasDragging).onSuccess {
             scrollState.scroll(event.verticalAmount)
         }
     }

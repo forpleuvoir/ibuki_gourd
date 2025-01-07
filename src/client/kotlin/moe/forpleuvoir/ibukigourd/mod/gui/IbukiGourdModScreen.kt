@@ -36,7 +36,7 @@ fun IbukiGourdModScreen() = TabScreen(
             Icon(icon, modifier = Modifier.size(16f, 16f))
             TextLabel(Literal(IbukiGourd.MOD_NAME).style {
                 bold()
-                color(Color("#FF994dbf"))
+                color("#FF994dbf")
             })
         }
     },

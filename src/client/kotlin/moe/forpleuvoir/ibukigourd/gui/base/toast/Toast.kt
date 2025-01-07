@@ -107,21 +107,21 @@ object Toast : Tickable {
     }
 
     fun showToast(
+        text: String,
         duration: Duration = SHORT_DURATION,
         fadeInDuration: Duration = Config.FADE_IN_DURATION,
         fadeOutDuration: Duration = Config.FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
-        modifier: Modifier = Modifier,
-        text: String
+        modifier: Modifier = Modifier
     ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { TextLabel(text) }
 
     fun showToast(
+        text: Text,
         duration: Duration = SHORT_DURATION,
         fadeInDuration: Duration = Config.FADE_IN_DURATION,
         fadeOutDuration: Duration = Config.FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
-        modifier: Modifier = Modifier,
-        text: Text
+        modifier: Modifier = Modifier
     ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { TextLabel(text) }
 
     fun showToast(

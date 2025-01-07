@@ -4,148 +4,222 @@
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-`IbukiGourd` is a `Minecraft Fabric MOD` primarily written in `kotlin`, mainly providing prerequisite features for other MODs.
+`IbukiGourd` is a `Minecraft Fabric MOD` primarily written in `Kotlin`. It is designed to provide essential features for
+other mods, including:
 
-`Config Manage` `Config GUI` `Command DSL` `GUI DSL`
+- **Config Management**
+- **Config GUI**
+- **Command DSL**
+- **GUI DSL**
 
-Dependent:
+Dependencies:
 
 - [Fabric API](https://github.com/FabricMC/fabric)
 - [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
 
-## Usage
+---
+
+## How to Use
+
+---
 
 ### Dependency
-Add repositories to your Gradle project
 
-Gradle Groovy:
-```
-//Snapshot repository
+Add repositories to your Gradle project:
+
+**Gradle Groovy:**
+
+```groovy
+// Snapshot repository
 maven {
     name "forpleuvoirSnapshots"
     url "https://maven.forpleuvoir.moe/snapshots"
 }
-//Releases repository
+// Release repository
 maven {
     name "forpleuvoirReleases"
     url "https://maven.forpleuvoir.moe/releases"
 }
 ```
-Gradle Kotlin:
-```
-//Snapshot repository
+
+**Gradle Kotlin:**
+
+```kts
+// Snapshot repository
 maven {
     name = "forpleuvoirSnapshots"
     url = uri("https://maven.forpleuvoir.moe/snapshots")
 }
-//Releases repository
+// Release repository
 maven {
     name = "forpleuvoirReleases"
     url = uri("https://maven.forpleuvoir.moe/releases")
 }
 ```
-Add it as a dependency to your Gradle project:
-```
+
+Add the dependency:
+
+```kts
 dependencies {
     implementation("moe.forpleuvoir:ibukigourd:$version")
 }
 ```
 
-### Config
+---
 
-Client-side Config,need to extends `ClientModConfigManager`
+### Configuration
 
-example:
-```
-object YourModConfigs : ClientModConfigManager(yourModMeta,"key"){
+#### Client-side Configuration
 
-    //Use property delegations
-    var stringConfig by ConfigString("config_key_1","defaultValue")
+For client-side configurations, the class should extend `ClientModConfigManager`.
 
-    //Delegates are not used
-    val mapConfing = ConfigStringMap("config_key_2",mapOf("k1" to "v1","k2" to "v2"))
+**Example:**
 
-    //Add a child container
-    object Other : ModConfigContainer("other"){
-        ......
+```kotlin
+object YourModConfigs : ClientModConfigManager(
+   modMeta = yourModMeta,
+   key = "key",
+   autoScan = AutoScan.close
+) {
+
+   // When autoScan is disabled, manually add configuration objects to the container:
+   // addConfig(configEntry)
+   // Or use extension methods for configuration items
+
+   // Using property delegation
+   var stringConfig by ConfigString("config_key_1", "defaultValue")
+
+   // When autoScan is disabled, the `string` method automatically adds the config item
+   // to the container. Generally, extension methods should be defined in the respective
+   // configuration class file.
+   var stringByExtension by string("config_key_1", "defaultValue")
+
+   // Without delegation
+   val mapConfig = ConfigStringMap("config_key_2", mapOf("k1" to "v1", "k2" to "v2"))
+
+   // Add a child container
+   object Other : ModConfigContainer("other") {
+      // Additional logic for nested settings
     }
-
 }
 ```
-Manually manage the Config Manager
-```
-//initialize
+
+**How to manage the configuration manually:**
+
+```kotlin
+// Initialize
 YourModConfigs.init()
-//Load the config from the file
+// Load configuration from file
 YourModConfigs.load()
-//Save the config to a file
+// Save configuration to file
 YourModConfigs.save()
-//Forced save
+// Force save configuration
 YourModConfigs.forceSave()
 ```
-Server-side config,need to extends`ServerModConfigManager`
-```
-//For initialization, you need to pass in the Minecraft Server instance, and the rest is configured with the same client
+
+#### Server-side Configuration
+
+For server-side configurations, the class should extend `ServerModConfigManager`:
+
+```kotlin
+// For initialization, pass in the Minecraft server instance.
+// The rest of the operations are the same as for the client configuration.
 ServerModConfigManager.init(MinecraftServer)
 ```
-Automatically manage config
 
- - Add in`fabric.mod.json`
+---
+
+### Automatic Configuration Management
+
+To set up automatic configuration management:
+
+1. Add the following to `fabric.mod.json`:
+
+    ```json
+    {
+      "custom": {
+        "ibukigourd": {
+          "package": [
+            "your.code.pack"
+          ]
+        }
+      }
+    }
+    ```
+
+2. Annotate the configuration manager with `@ModConfig("config_Key")`:
+
+    ```kotlin
+    @ModConfig("config_Key")
+    object YourModConfigs : ClientModConfigManager(yourModMeta, "key")
+    ```
+
+---
+
+### Command DSL
+
+Use the following method to register root commands:
+
+```kotlin
+fun <S> CommandDispatcher<S>.registerCommand(
+   name: String,
+   scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit
+)
 ```
-"custom": {
-  "ibukigourd": {
-    "package": [
-      "your.code.pack"
-    ]
-  }
-}
-```
- - Add annotations on the Config Manager`@ModConfig("config_Key")`
-```
-@ModConfig("config_Key")
-object YourModConfigs : ClientModConfigManager(yourModMeta,"key")
-```
-### Command DSL(planned, undeveloped)
-expect:
-```
-literal("yourCommand"){
-    literal("subCommand"){
+
+**Example:**
+
+```kotlin
+dispatcher.registerCommand("yourCommand") {
+   literal("subCommand") {
         suggests {
-            //do something
+           // Provide suggestions
         }
         execute {
-            //do something
+           // Execute the command
         }
     }
-    argument("argName",ArgumentType){
+   argument("argName", ArgumentType) {
         execute {
-            //do something
+           // Execution logic with command arguments
         }
     }
 }
-
 ```
 
-### GUI DSL(Under development)
-expect:
-```
-screen{
-    row{
-        button(
+This example demonstrates how root commands can contain nested subcommands and arguments.
+
+---
+
+### GUI DSL
+
+**Expected Usage:**
+
+```kotlin
+BoxScreen {
+   Row(
+      modifier = Modifier,
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally,
+   ) {
+      Button {
             click = {
-                //do something
+               Toast.showToast(text = "hello minecraft")
             }
-        ){
-            text("hello minecraft")
-            icon()
-        }    
-    }
-}
+         TextLabel("hello minecraft")
+         Icon(IconTextures.LOCK)
+      }
+   }
+}.open()  // Opens the screen
 ```
 
+The GUI DSL facilitates intuitive layout and interaction design within Minecraft.
 
-## Acknowledgement
+---
 
->Thanks to [JetBrains](https://www.jetbrains.com) for allocating free open-source licences for IDEs such as [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai).
- 
+## Acknowledgements
+
+Special thanks to [JetBrains](https://www.jetbrains.com) for providing free licenses for open-source projects,
+including [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai).
+
 [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com)

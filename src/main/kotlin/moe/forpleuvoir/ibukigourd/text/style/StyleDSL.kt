@@ -49,6 +49,11 @@ class StyleScope {
         return this
     }
 
+    fun color(hexColor: String): StyleScope {
+        this.color = Color(hexColor)
+        return this
+    }
+
     fun shadowColor(rgbColor: RGBColor): StyleScope {
         this.shadowColor = rgbColor
         return this
