@@ -162,8 +162,6 @@ dispatcher.registerCommand("yourCommand") {
 
 ### GUI DSL
 
-预期效果
-
 ```kotlin   
 BoxScreen {
    Row(

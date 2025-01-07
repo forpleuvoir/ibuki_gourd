@@ -193,8 +193,6 @@ This example demonstrates how root commands can contain nested subcommands and a
 
 ### GUI DSL
 
-**Expected Usage:**
-
 ```kotlin
 BoxScreen {
    Row(
