@@ -95,7 +95,7 @@ object Toast : Tickable {
             progress < 1 - fadeOutRatio -> Vector2f(0f, 0f)
             else                        -> FADE_OUT_OFFSET * ((progress - (1 - fadeOutRatio)) / fadeOutRatio)
         }
-        return Pair(alpha, offset)
+        return Pair(alpha.coerceIn(0f..1f), offset)
     }
 
     private operator fun Vector2fc.times(scale: Number) = Vector2f(this.x() * scale.toDouble(), this.y() * scale.toDouble())
