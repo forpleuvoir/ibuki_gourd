@@ -11,9 +11,26 @@ fun ConfigSerializable.translationKey(
     acc + (if (c.parentContainer != null) "." else "") + c.key
 }
 
+private const val TRANSLATE_TEXT_KYE = "#translate_text"
+
+private const val COMMENT_KYE = "#comment"
 
 val ConfigSerializable.translateText: Text
-    get() = Translatable(translationKey())
+    get() =
+        runCatching {
+            getUserData(TRANSLATE_TEXT_KYE) as Text
+        }.getOrElse {
+            val text = Translatable(translationKey())
+            setUserData(TRANSLATE_TEXT_KYE, text)
+            text
+        }
+
 
 val ConfigSerializable.comment: Text
-    get() = Translatable(translationKey() + ".comment")
+    get() = runCatching {
+        getUserData(COMMENT_KYE) as Text
+    }.getOrElse {
+        val text = Translatable(translationKey() + ".comment")
+        setUserData(COMMENT_KYE, text)
+        text
+    }

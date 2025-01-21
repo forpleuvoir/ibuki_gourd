@@ -10,14 +10,24 @@ open class TickTaskScheduler<T> {
         @JvmStatic
         val Server by lazy { TickTaskScheduler<MinecraftServer>() }
 
+        //------------ START ------------\\
+
         inline fun MinecraftServer.scheduleStartTick(task: TickTask<MinecraftServer>) =
             Server.scheduleStartTick(task)
 
         inline fun MinecraftServer.scheduleStartTick(noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
             Server.scheduleStartTick(action)
 
+        inline fun MinecraftServer.scheduleStopTick(crossinline task: () -> Unit) =
+            Server.scheduleStartTick { _, _ -> task() }
+
         inline fun MinecraftServer.scheduleStartTick(delay: Int = 0, noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
             Server.scheduleStartTick(delay, action)
+
+        inline fun MinecraftServer.scheduleStopTick(delay: Int = 0, crossinline task: () -> Unit) =
+            Server.scheduleStartTick(delay) { _, _ -> task() }
+
+        //------------ END ------------\\
 
         inline fun MinecraftServer.scheduleEndTick(task: TickTask<MinecraftServer>) =
             Server.scheduleEndTick(task)
@@ -25,8 +35,14 @@ open class TickTaskScheduler<T> {
         inline fun MinecraftServer.scheduleEndTick(noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
             Server.scheduleEndTick(action)
 
+        inline fun MinecraftServer.scheduleEndTick(crossinline task: () -> Unit) =
+            Server.scheduleEndTick { _, _ -> task() }
+
         inline fun MinecraftServer.scheduleEndTick(delay: Int = 0, noinline action: (TickTask<MinecraftServer>, MinecraftServer) -> Unit) =
             Server.scheduleEndTick(delay, action)
+
+        inline fun MinecraftServer.scheduleEndTick(delay: Int = 0, crossinline task: () -> Unit) =
+            Server.scheduleEndTick(delay) { _, _ -> task() }
 
     }
 

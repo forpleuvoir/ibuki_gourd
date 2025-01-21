@@ -194,6 +194,7 @@ fun WidgetContainerScope.ConfigManagerWrapper(
             }
         }
     }
+
     Row(
         verticalArrangement = Arrangement.spacedBy(3f),
     ) {
@@ -201,8 +202,15 @@ fun WidgetContainerScope.ConfigManagerWrapper(
             textConsumer = { str ->
                 currentConfigs.disableNotify {
                     currentConfigs.clear()
-                    currentConfigs.addAll(map.find { (text, _) -> text.translateText == currentGroup }?.second?.filter { it.matched(str.toRegex()) }
-                        ?: emptyList())
+                    currentConfigs.addAll(
+                        map.find { (text, _) -> text.translateText == currentGroup }
+                            ?.second?.filter {
+                                it.matched(str.toRegex())
+                                        || it.translateText.plainText.contains(str)
+                                        || it.comment.plainText.contains(str)
+                            }
+                            ?: emptyList()
+                    )
                 }
                 currentConfigs.onChange(currentConfigs)
             },
