@@ -12,7 +12,9 @@ import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
@@ -85,6 +87,20 @@ fun testScreen4() = ColumnScreen(
         FloatSlider(mutableStateOf(30f), -50f..100f, modifier = Modifier.size(120f, 16f))
         DoubleSlider(mutableStateOf(30.0), -50.0..100.0, modifier = Modifier.size(120f, 16f))
         PercentageSlider(mutableStateOf(0.5), 0.0..1.0, modifier = Modifier.size(120f, 16f))
+    }
+    Column {
+        val selected: MutableState<String?> = mutableStateOf("选项3")
+        RadioButtons(
+            listOf("选项1", "选项2", "选项3"),
+            selected,
+            optionWrapper = {
+                TextLabel(it)
+            },
+            onChange = {
+                println("选择了$it")
+            }
+        )
+
     }
 
 }

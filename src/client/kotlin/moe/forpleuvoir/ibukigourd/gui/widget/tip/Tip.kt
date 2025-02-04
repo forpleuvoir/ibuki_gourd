@@ -145,7 +145,7 @@ fun WidgetScope.PopupTip(
     modifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Colors.WHITE),
     optionalDirection: NotifiableArrayList<Direction> = Direction.entries.notification(),
-    screen: IGScreen = mc.currentScreen as IGScreen,
+    screen: IGScreen? = mc.currentScreen as IGScreen?,
     content: BoxScope.() -> Unit,
 ): IGScreenImpl = PopupScreen(screenModifier, screen) {
     val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))

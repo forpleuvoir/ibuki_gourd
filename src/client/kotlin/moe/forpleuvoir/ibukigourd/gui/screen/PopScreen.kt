@@ -11,7 +11,7 @@ import net.minecraft.client.gui.screen.Screen
 
 fun PopupScreen(
     modifier: Modifier = Modifier,
-    parentScreen: IGScreen = mc.currentScreen as IGScreen,
+    parentScreen: IGScreen? = mc.currentScreen as IGScreen?,
     content: BoxScreenScope.() -> Unit,
 ) = BoxScreen(
     Modifier
@@ -20,7 +20,7 @@ fun PopupScreen(
         .bgBlurRadius(DEFAULT_BG_BLUR_RADIUS)
         .then(modifier)
 ) {
-    owner().parentScreen = parentScreen as Screen
+    owner().parentScreen = parentScreen as Screen?
     owner().screen()?.let { s ->
         s.onResize = { client, width, height ->
             s.parentScreen?.resize(client, width, height)

@@ -194,3 +194,37 @@ fun WidgetContainerScope.ColorButton(
         }.then(modifier),
     content = scope
 )
+
+/**
+ * 创建一组单选按钮的函数。
+ *
+ * @param options 选项集合，用于定义按钮的值和显示内容。
+ * @param selected 当前选中的选项，使用可变状态保存和监听选中值的变化，默认为空。
+ * @param onChange 回调函数，当选中状态更改时调用，并传递选中的选项值。
+ * @param optionWrapper 按钮内容的包装方式，用于自定义每个选项按钮的显示内容。
+ * @param modifier 每个按钮的修饰符，用于定义样式和布局的变化。
+ */
+fun <S : WidgetContainerScope, T> S.RadioButtons(
+    options: Iterable<T>,
+    selected: MutableState<T?> = mutableStateOf(null),
+    onChange: (T) -> Unit = {},
+    optionWrapper: ButtonScope.(T) -> Unit,
+    modifier: S.(T) -> Modifier = { Modifier },
+) {
+    val buttons = mutableListOf<ButtonScope>()
+    options.forEach { option ->
+        Button(modifier = modifier.invoke(this, option)) {
+            optionWrapper(option)
+            if (selected.getValue() == option) owner().active = false
+            buttons.add(this)
+            click {
+                selected.setValue(option)
+                onChange(option)
+                buttons.forEach {
+                    if (!it.owner().active) it.owner().active = true
+                }
+                this.owner().active = false
+            }
+        }
+    }
+}

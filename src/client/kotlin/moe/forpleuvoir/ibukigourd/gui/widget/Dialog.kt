@@ -33,7 +33,7 @@ fun SimpleDialog(
     bgColor: State<ARGBColor> = stateOf(Color(0xFFF4D9FF)),
     contentOutlineColor: State<ARGBColor> = bgColor,
     contentInnerColor: State<ARGBColor> = stateOf(Colors.WHITE),
-    parentScreen: IGScreen = mc.currentScreen as IGScreen,
+    parentScreen: IGScreen? = mc.currentScreen as IGScreen?,
     content: BoxScope.() -> Unit
 ): IGScreenImpl = Dialog(
     modifier = modifier,
@@ -52,7 +52,7 @@ fun ConfirmDialog(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Color(0xFFF4D9FF)),
-    parentScreen: IGScreen = mc.currentScreen as IGScreen,
+    parentScreen: IGScreen? = mc.currentScreen as IGScreen?,
     onConfirm: () -> Unit = {
         mc.currentScreen?.close()
     },
@@ -93,7 +93,7 @@ fun Dialog(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Color(0xFFF4D9FF)),
-    parentScreen: IGScreen = mc.currentScreen as IGScreen,
+    parentScreen: IGScreen? = mc.currentScreen as IGScreen?,
     content: RowScope.() -> Unit
 ): IGScreenImpl = PopupScreen(
     modifier = Modifier.name("Dialog") then screenModifier,
