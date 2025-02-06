@@ -61,8 +61,9 @@ fun WidgetContainerScope.KeyBindButton(
                 }
             }
             .mouseRelease { event ->
+                val pressed = (this as IGButtonWidget).pressed
                 onMouseRelease(event)
-                event.tryUse(!inputting && wasMouseOver).onSuccess {
+                event.tryUse(!inputting && wasMouseOver && pressed).onSuccess {
                     inputting = true
                     text.setValue(IGLang.pressToSetting.withColor(inputtingColor))
                 }

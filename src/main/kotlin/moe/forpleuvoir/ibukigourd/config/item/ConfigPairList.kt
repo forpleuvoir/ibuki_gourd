@@ -2,11 +2,12 @@ package moe.forpleuvoir.ibukigourd.config.item
 
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.ConfigList
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 class ConfigPairList<A, B>(
     override val key: String,
@@ -19,11 +20,15 @@ class ConfigPairList<A, B>(
     key, defaultValue,
     serializer = {
         serializeArray(aSerializer(it.first), bSerializer(it.second))
+        serializeObject {
+            "first" to it.first
+            "second" to it.second
+        }
     },
     deserializer = {
         it.checkType<Pair<A, B>> {
-            check<SerializeArray> {
-                aDeserializer(it[0]) to bDeserializer(it[1])
+            check<SerializeObject> {
+                aDeserializer(it["first"]!!) to bDeserializer(it["second"]!!)
             }
         }.getOrThrow()
     }
