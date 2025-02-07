@@ -552,12 +552,12 @@ open class TextEditorWidget(
             content.batchRenderText(textRenderer) {
                 //"渲染提示文本"
                 if (text.isEmpty() && hintText.getValue() != null && !isFocused) {
-                    pushAlignmentText(hintText.getValue()!!, contentBox, color = hintColor)
+                    pushAlignmentText(hintText.getValue()!!, contentBox, color = hintColor, layerType = TextRenderer.TextLayerType.SEE_THROUGH)
                 }
                 //"渲染文本本体"
                 val renderText = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentBox.width.toInt())
                 renderText.takeIf { it.isNotEmpty() }?.let {
-                    pushAlignmentText(it, contentBox, color = textColor)
+                    pushAlignmentText(it, contentBox, color = textColor, layerType = TextRenderer.TextLayerType.SEE_THROUGH)
                 }
                 //"渲染文本建议"
                 suggestion?.invoke(text)?.let { suggestion ->
@@ -565,7 +565,7 @@ open class TextEditorWidget(
                         val renderTextWidth = textRenderer.getWidth(renderText).toFloat()
                         val box =
                             Box(contentBox.position + Vector2f(renderTextWidth), contentBox.width - renderTextWidth, contentBox.height)
-                        pushAlignmentText(suggestion, box, color = suggestionColor)
+                        pushAlignmentText(suggestion, box, color = suggestionColor, layerType = TextRenderer.TextLayerType.SEE_THROUGH)
                     }
                 }
             }

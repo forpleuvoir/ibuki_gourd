@@ -36,8 +36,13 @@ class ConfigKeyBindBoolean(
 
     override fun setValue(value: KeyBindWithBoolean) {
         value.keyBind.action = action
-        configValue.keyBind.copyOf(value.keyBind)
-        configValue.value = value.value
+        var changed = getValue().keyBind.copyOf(value.keyBind)
+        val oldValue = getValue().value
+        getValue().value = value.value
+        changed = changed || getValue().value != oldValue
+        if (changed) {
+            onChange(this)
+        }
     }
 
     override fun KeyBindWithBoolean.isEquals(other: KeyBindWithBoolean): Boolean {

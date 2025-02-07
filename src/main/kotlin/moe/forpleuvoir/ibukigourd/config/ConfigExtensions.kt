@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.config
 
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.fold
 
@@ -18,19 +19,19 @@ private const val COMMENT_KYE = "#comment"
 val ConfigSerializable.translateText: Text
     get() =
         runCatching {
-            getUserData(TRANSLATE_TEXT_KYE) as Text
+            (getUserData(TRANSLATE_TEXT_KYE) as Text).copyToText()
         }.getOrElse {
             val text = Translatable(translationKey())
             setUserData(TRANSLATE_TEXT_KYE, text)
-            text
+            text.copyToText()
         }
 
 
 val ConfigSerializable.comment: Text
     get() = runCatching {
-        getUserData(COMMENT_KYE) as Text
+        (getUserData(COMMENT_KYE) as Text).copyToText()
     }.getOrElse {
         val text = Translatable(translationKey() + ".comment")
         setUserData(COMMENT_KYE, text)
-        text
+        text.copyToText()
     }

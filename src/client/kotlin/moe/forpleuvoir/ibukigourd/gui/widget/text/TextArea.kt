@@ -618,7 +618,8 @@ class TextAreaWidget(
                         contentBox,
                         horizontalAlignment = Alignment.Left,
                         verticalArrangement = Arrangement.spacedBy(spacing, Alignment.Top),
-                        defaultColor = hintColor
+                        defaultColor = hintColor,
+                        layerType = TextRenderer.TextLayerType.SEE_THROUGH
                     )
                 }
             }
@@ -630,7 +631,13 @@ class TextAreaWidget(
                 var y = contentBox.top - amount
                 lines.forEach {
                     if (y in contentBox.top - fontHeight..contentBox.bottom)
-                        pushText(text.substring(it.beginIndex, it.endIndex), contentBox.left, y, color = textColor)
+                        pushText(
+                            text.substring(it.beginIndex, it.endIndex),
+                            contentBox.left,
+                            y,
+                            color = textColor,
+                            layerType = TextRenderer.TextLayerType.SEE_THROUGH
+                        )
                     y += fontHeight + spacing
                 }
             }

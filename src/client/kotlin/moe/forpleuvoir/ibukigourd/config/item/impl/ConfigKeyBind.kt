@@ -20,11 +20,14 @@ class ConfigKeyBind(
     }
 
     override fun setValue(value: KeyBind) {
-        configValue.copyOf(value)
+        if (configValue.copyOf(value)) {
+            onChange(this)
+        }
     }
 
     override fun deserialization(serializeElement: SerializeElement) {
         configValue.deserialization(serializeElement)
+        onChange(this)
     }
 
     override fun serialization(): SerializeElement {
