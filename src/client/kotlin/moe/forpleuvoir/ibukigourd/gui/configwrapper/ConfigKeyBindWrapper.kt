@@ -54,6 +54,7 @@ fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
         KeyBindWrapper(text, hoverText, config, Modifier.width(75f)) { it.getValue().keyBind }
         ConfigResetButton(config) {
             text.setValue(config.getValue().keyBind.asText)
+            boolValue.setValue(config.getValue().value)
             hoverText.setValue(text.getValue())
         }
     }

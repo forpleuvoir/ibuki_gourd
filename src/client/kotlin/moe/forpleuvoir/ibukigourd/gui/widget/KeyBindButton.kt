@@ -25,7 +25,6 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
-import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.time.Duration.Companion.milliseconds
@@ -90,10 +89,6 @@ fun WidgetContainerScope.KeyBindButton(
             .hoverText(text = hoverText, showDelay = 50.milliseconds)
             .then(modifier)
     ) {
-//        release {
-//            inputting = true
-//            text.setValue(IGLang.pressToSetting.withColor(inputtingColor))
-//        }
         TextLabel(text)
     }
 }
@@ -104,7 +99,6 @@ fun WidgetContainerScope.KeyBindSettingButton(
     modifier: Modifier = Modifier,
     onSettingChange: (KeyBindSetting) -> Unit = {}
 ): IGButtonWidget {
-    val settingsPopupState = mutableStateOf(false)
     val setting = KeyBindSetting().apply {
         copyFrom(keyBind.setting)
     }
@@ -113,7 +107,6 @@ fun WidgetContainerScope.KeyBindSettingButton(
     ) {
         Icon(IconTextures.SETTING)
         click {
-            settingsPopupState.switch()
             SimpleDialog(
                 stateOf(title),
                 screenModifier = Modifier.onClose {
