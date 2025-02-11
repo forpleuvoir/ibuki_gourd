@@ -41,7 +41,7 @@ fun TabScope.tab3() = Tab("配置管理器测试") {
     ConfigManagerWrapper(TestConfig)
 }
 
-fun TabScope.tab1() = Tab("测试用配置设置") {
+fun TabScope.tab1() = Tab("测试用配置设置", true) {
     Row {
         val list = notifiableList(TestConfig.configs())
         SearchBar(

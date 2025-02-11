@@ -16,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
@@ -160,7 +161,8 @@ fun WidgetContainerScope.MoveButton(
     FlatButton(
         hoveredColor = Colors.BLACK.alpha(.15f),
         round = 0,
-        modifier = Modifier.hoverText(IGLang.moveDown).padding(1).active(index != listValue.lastIndex)
+        modifier = Modifier.hoverText(IGLang.moveDown, Tip.DefaultSetting.copy(optionalDirection = Direction.clockwiseFromBottom)).padding(1)
+            .active(index != listValue.lastIndex)
     ) {
         Icon(
             IconTextures.DOWN,

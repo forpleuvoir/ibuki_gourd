@@ -25,6 +25,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 
 private val icon = WidgetTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, identifier("icon.png")))
 
+
 fun IbukiGourdModScreen() = TabScreen(
     header = {
         Column(
@@ -50,7 +51,7 @@ fun IbukiGourdModScreen() = TabScreen(
 }
 
 private fun TabScope.Config() = Tab(
-    IGConfig.translateText.plainText
+    IGConfig.translateText.plainText,
 ) {
     ConfigManagerWrapper(IGConfig)
 }

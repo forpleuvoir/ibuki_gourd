@@ -48,6 +48,8 @@ data class TabScope(
 
     private val tabsChangedListener = mutableMapOf<IGWidget, TabScope.(Boolean) -> Unit>()
 
+    private var defaultTab: Pair<IGWidget, (BoxScope.() -> IGWidget)>? = null
+
     private fun onChanged(current: IGWidget) {
         tabsChangedListener.forEach {
             it.value.invoke(this, it.key == current)
@@ -75,7 +77,7 @@ data class TabScope(
     internal fun initialized() {
         if (!this::content.isInitialized) {
             check(tabs.isNotEmpty()) { "Tabs cannot be empty when initializing." }
-            val (tab, content) = tabs.entries.first()
+            val (tab, content) = defaultTab ?: tabs.entries.first().toPair()
             tab.active = false
             onChanged(tab)
             this.content = mutableStateOf(content)
@@ -87,6 +89,7 @@ data class TabScope(
     val inactiveColor: MutableState<ARGBColor> = mutableStateOf(Colors.GRAY)
 
     fun TabScope.Tab(
+        initial: Boolean = false,
         activeColor: State<ARGBColor> = tabColor,
         inactiveColor: State<ARGBColor> = this.inactiveColor,
         modifier: Modifier = Modifier,
@@ -117,7 +120,8 @@ data class TabScope(
                 }
             }.then(modifier)
     ) {
-        this@Tab.addTab(this.owner(), onTabChanged, content)
+        this@TabScope.addTab(this.owner(), onTabChanged, content)
+        if (initial) this@TabScope.defaultTab = this.owner() to content
         click {
             this@Tab.apply {
                 setCurrent(this@Button.owner())
@@ -129,6 +133,8 @@ data class TabScope(
 
     fun TabScope.Tab(
         text: String,
+        initial: Boolean = false,
+        onTabChanged: TabScope.(Boolean) -> Unit = {},
         activeTextColor: State<ARGBColor> = stateOf(Colors.WHITE),
         inactiveTextColor: State<ARGBColor> = stateOf(Colors.BLACK),
         modifier: Modifier = Modifier,
@@ -137,10 +143,12 @@ data class TabScope(
         val t = mutableStateOf(Literal(text))
         var yOffset = -0.5f
         return Tab(
+            initial = initial,
             modifier = modifier,
             onTabChanged = {
                 t.setValue(Literal(text).withColor(if (it) activeTextColor.getValue() else inactiveTextColor.getValue()))
                 yOffset = if (it) -0.5f else 0.5f
+                onTabChanged(this, it)
             },
             content = content,
             scope = {
@@ -158,32 +166,40 @@ data class TabScope(
     }
 
     override fun Modifier.weight(weight: Int): Modifier {
-        return if (owner is RowWidget) {
-            RowScope { owner }.run { weight(weight) }
-        } else if (owner is ColumnWidget) {
-            ColumnScope { owner }.run { weight(weight) }
-        } else {
-            throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
+        return when (owner) {
+            is RowWidget    ->
+                RowScope { owner }.run { weight(weight) }
+
+            is ColumnWidget ->
+                ColumnScope { owner }.run { weight(weight) }
+
+            else            -> throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
         }
     }
 
     override fun Modifier.fillMode(fillMode: FillMode): Modifier {
-        return if (owner is RowWidget) {
-            RowScope { owner }.run { fillMode(fillMode) }
-        } else if (owner is ColumnWidget) {
-            ColumnScope { owner }.run { fillMode(fillMode) }
-        } else {
-            throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
+        return when (owner) {
+            is RowWidget    ->
+                RowScope { owner }.run { fillMode(fillMode) }
+
+            is ColumnWidget ->
+                ColumnScope { owner }.run { fillMode(fillMode) }
+
+            else            ->
+                throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
         }
     }
 
     override fun Modifier.align(alignment: Alignment.Linear): Modifier {
-        return if (owner is RowWidget) {
-            RowScope { owner }.run { align(alignment as Alignment.Horizontal) }
-        } else if (owner is ColumnWidget) {
-            ColumnScope { owner }.run { align(alignment as Alignment.Vertical) }
-        } else {
-            throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
+        return when (owner) {
+            is RowWidget    ->
+                RowScope { owner }.run { align(alignment as Alignment.Horizontal) }
+
+            is ColumnWidget ->
+                ColumnScope { owner }.run { align(alignment as Alignment.Vertical) }
+
+            else            ->
+                throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
         }
     }
 

@@ -40,7 +40,7 @@ class Tip(
 
     companion object {
         val DefaultModifier get() = Modifier.padding(4).margin(4)
-        val DefaultSetting get() = Setting()
+        val DefaultSetting = Setting()
     }
 
     private lateinit var box: BoxWidget

@@ -31,7 +31,7 @@ val ConfigSerializable.comment: Text
     get() = runCatching {
         (getUserData(COMMENT_KYE) as Text).copyToText()
     }.getOrElse {
-        val text = Translatable(translationKey() + ".comment")
+        val text = Translatable(translationKey() + ".comment", translateText.plainText)
         setUserData(COMMENT_KYE, text)
         text.copyToText()
     }
