@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import net.minecraft.command.CommandSource
+import java.util.stream.Stream
 
 
 @DslMarker
@@ -54,8 +55,16 @@ class RequiredArgumentScope<S, T>(
         argumentBuilder.suggests(provider)
     }
 
-    fun suggests(vararg suggestions: String) {
-        suggests { _, builder -> CommandSource.suggestMatching(suggestions, builder) }
+    fun suggests(vararg candidates: String) {
+        suggests { _, builder -> CommandSource.suggestMatching(candidates, builder) }
+    }
+
+    fun suggests(candidates: Stream<String>) {
+        suggests { _, builder -> CommandSource.suggestMatching(candidates, builder) }
+    }
+
+    fun suggests(candidates: Iterable<String>) {
+        suggests { _, builder -> CommandSource.suggestMatching(candidates, builder) }
     }
 
 }

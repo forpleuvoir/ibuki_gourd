@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.element
 
 val IGElement.parentChain: List<IGElement>
     get() = generateSequence(this) { if (it.parent() != it) it.parent() else null }
-
         .toList()
 
 /**

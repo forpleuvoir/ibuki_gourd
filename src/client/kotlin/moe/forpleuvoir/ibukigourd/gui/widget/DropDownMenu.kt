@@ -20,10 +20,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
@@ -123,18 +120,18 @@ val defaultSelectedColor = Colors.AQUA.opacity(.25f)
 fun <T> WidgetContainerScope.Selector(
     options: Iterable<T>,
     selected: MutableState<T> = mutableStateOf(options.first()),
-    onChange: (T) -> Unit = {},
+    checker: (T, T) -> Boolean = { a, b -> a == b },
+    onSelected: (T) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
     optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
+    listWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    listModifier: ColumnScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
-    check(selected.getValue() in options) { "initialOption must be in options" }
-    selected.subscribe {
-        onChange(it)
-    }
+    check(options.any { checker(it, selected.getValue()) }) { "initialOption must be in options" }
     return DropDownMenu(modifier, optionsDirection) {
         val proxy: MutableState<DropDownMenuScope.() -> IGWidget> = mutableStateOf {
             selectedWrapper.invoke(this, selected.getValue())
@@ -144,11 +141,13 @@ fun <T> WidgetContainerScope.Selector(
             proxy.setValue {
                 selectedWrapper.invoke(this, selected.getValue())
             }
+            onSelected(it)
         }
         DropDownContent {
             RowListWrapped(
-                modifier = Modifier.padding(0f).disableRenderBackground(),
-                horizontalAlignment = Alignment.Left
+                modifier = Modifier.padding(0f).disableRenderBackground().then(listWrapperModifier()),
+                horizontalAlignment = Alignment.Left,
+                listModifier = listModifier
             ) {
                 options.forEachIndexed { index, option ->
                     if (index != 0) {
@@ -163,6 +162,7 @@ fun <T> WidgetContainerScope.Selector(
                     ) {
                         optionWrapper(option)
                         click {
+                            if (checker(option, selected.getValue())) onSelected(option)
                             selected.setValue(option)
                             this@DropDownMenu.toggle()
                         }
@@ -174,24 +174,44 @@ fun <T> WidgetContainerScope.Selector(
     }
 }
 
+/**
+ * 用于创建一个带有搜索功能的选择器组件。
+ *
+ * @param options 选项的集合。
+ * @param predicate 一个函数，用于根据输入字符串筛选选项。返回值为布尔类型，表示是否匹配。
+ * @param selected 当前选中的选项，作为一个可变状态对象。
+ * @param checker 一个函数，用于比较两个选项是否相等，默认值是直接比较它们的相等性。
+ * @param onSelected 当选中的选项更改时调用的回调函数。
+ * @param searchBarHideLimit 搜索栏显示的最小选项数量阈值，默认值为5。
+ * @param selectedColor 用于表示选中项时的颜色。
+ * @param selectedWrapper 一个函数，用于包装选中项的界面。
+ * @param optionWrapper 一个函数，用于包装每个选项的界面。
+ * @param modifier 修饰器，用于定制组件的样式。
+ * @param searchBarModifier 修饰搜索栏的外观样式函数，带默认实现。
+ * @param listWrapperModifier 修饰选项列表包装的外观样式函数，带默认实现。
+ * @param listModifier 修饰选项列表的外观样式函数，带默认实现。
+ * @param optionsDirection 指定选项显示方向的列表。
+ * @param scope 在下拉菜单组件中的作用域配置。
+ * @return 返回一个用于显示下拉选择菜单的按钮组件。
+ */
 fun <T> WidgetContainerScope.SelectorWithSearcher(
     options: Iterable<T>,
     predicate: (T, String) -> Boolean,
     selected: MutableState<T> = mutableStateOf(options.first()),
-    onChange: (T) -> Unit = {},
+    checker: (T, T) -> Boolean = { a, b -> a == b },
+    onSelected: (T) -> Unit = {},
+    searchBarHideLimit: Int = 5,
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
     optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
     searchBarModifier: RowScope.() -> Modifier = { Modifier },
+    listWrapperModifier: RowScope.() -> Modifier = { Modifier },
     listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
-    check(selected.getValue() in options) { "initialOption must be in options" }
-    selected.subscribe {
-        onChange(it)
-    }
+    check(options.any { checker(it, selected.getValue()) }) { "initialOption must be in options" }
     return DropDownMenu(modifier, optionsDirection) {
         val proxy: MutableState<DropDownMenuScope.() -> IGWidget> = mutableStateOf {
             selectedWrapper.invoke(this, selected.getValue())
@@ -201,6 +221,7 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
             proxy.setValue {
                 selectedWrapper.invoke(this, selected.getValue())
             }
+            onSelected(it)
         }
 
         DropDownContent {
@@ -208,20 +229,21 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
                 horizontalAlignment = Alignment.Left,
             ) {
                 val showList = notifiableList(options.toList())
-                SearchBar(
-                    textConsumer = { str ->
-                        showList.disableNotify {
-                            showList.clear()
-                            showList.addAll(options.toList().filter { predicate(it, str) })
-                        }
-                        showList.onChange(showList)
-                    },
-                    hintText = stateOf(IGLang.search.plainText),
-                    modifier = searchBarModifier(),
-                    textEditorModifier = { Modifier.weight(1) }
-                )
+                if (options.count() > searchBarHideLimit)
+                    SearchBar(
+                        textConsumer = { str ->
+                            showList.disableNotify {
+                                showList.clear()
+                                showList.addAll(options.toList().filter { predicate(it, str) })
+                            }
+                            showList.onChange(showList)
+                        },
+                        hintText = stateOf(IGLang.search.plainText),
+                        modifier = searchBarModifier(),
+                        textEditorModifier = { Modifier.weight(1) }
+                    )
                 RowListWrapped(
-                    modifier = listModifier().attachLeft { padding(0f).disableRenderBackground() },
+                    modifier = listModifier().attachLeft { padding(0f).disableRenderBackground() }.then(listWrapperModifier()),
                     horizontalAlignment = Alignment.Left
                 ) {
                     if (showList.isEmpty()) TextLabel(IGLang.hasNothing)
@@ -238,6 +260,7 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
                         ) {
                             optionWrapper(option)
                             click {
+                                if (checker(option, selected.getValue())) onSelected(option)
                                 selected.setValue(option)
                                 this@DropDownMenu.toggle()
                             }
@@ -258,36 +281,37 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
 fun WidgetContainerScope.Selector(
     options: Iterable<String>,
     selected: MutableState<String> = mutableStateOf(options.first()),
-    onChange: (String) -> Unit = {},
+    onSelected: (String) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     modifier: Modifier = Modifier,
+    listWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    listModifier: ColumnScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = Selector(
     options,
     selected,
-    onChange,
-    selectedColor,
+    onSelected = onSelected,
+    selectedColor = selectedColor,
     selectedWrapper = { TextLabel(it) },
     optionWrapper = { TextLabel(it, modifier = Modifier.width(options.maxWidth(textRenderer).toFloat())) },
-    modifier,
-    optionsDirection,
-    scope
+    modifier = modifier,
+    listWrapperModifier = listWrapperModifier,
+    listModifier = listModifier,
+    optionsDirection = optionsDirection,
+    scope = scope
 )
 
 fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
     selected: MutableState<E>,
     options: Iterable<E> = selected.getValue()::class.java.enumConstants.toList(),
-    onChange: (E) -> Unit = {},
+    onSelected: (E) -> Unit = {},
     modifier: Modifier = Modifier,
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
 ) = Selector(
     options = options,
     selected = selected,
-    onChange = {
-        selected.setValue(it)
-        onChange(it)
-    },
+    onSelected = onSelected,
     selectedWrapper = {
         TextLabel(it.translateText, modifier = Modifier.weight(1).hoverText(it.translateComment, optionalDirection = Direction.clockwiseFromTop))
     },
@@ -306,14 +330,13 @@ fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
 fun WidgetContainerScope.EventSelector(
     options: Iterable<KClass<out Event>>,
     selected: MutableState<KClass<out Event>> = mutableStateOf(options.first()),
+    onSelected: (KClass<out Event>) -> Unit = {},
     modifier: Modifier = Modifier,
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
 ) = Selector(
     options = options,
     selected = selected,
-    onChange = {
-        selected.setValue(it)
-    },
+    onSelected = onSelected,
     selectedWrapper = {
         TextLabel(it.translateText, modifier = Modifier.weight(1).hoverText(it.translateComment, optionalDirection = Direction.clockwiseFromTop))
     },
