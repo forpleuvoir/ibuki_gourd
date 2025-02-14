@@ -4,7 +4,8 @@
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-`IbukiGourd` is a `Minecraft Fabric MOD` primarily written in `Kotlin`. It is designed to provide essential features for
+[IbukiGourd](https://modrinth.com/mod/ibukigourd) is a `Minecraft Fabric MOD` primarily written in `Kotlin`. It is
+designed to provide essential features for
 other mods, including:
 
 - **Config Management**
@@ -12,16 +13,15 @@ other mods, including:
 - **Command DSL**
 - **GUI DSL**
 
+![Modrinth Version](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth)
+![Maven Version](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmaven.forpleuvoir.moe%2Fsnapshots%2Fmoe%2Fforpleuvoir%2Fibukigourd%2Fmaven-metadata.xml)
+
 Dependencies:
 
 - [Fabric API](https://github.com/FabricMC/fabric)
 - [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
 
----
-
 ## How to Use
-
----
 
 ### Dependency
 
@@ -64,8 +64,6 @@ dependencies {
     implementation("moe.forpleuvoir:ibukigourd:$version")
 }
 ```
-
----
 
 ### Configuration
 
@@ -127,8 +125,6 @@ For server-side configurations, the class should extend `ServerModConfigManager`
 ServerModConfigManager.init(MinecraftServer)
 ```
 
----
-
 ### Automatic Configuration Management
 
 To set up automatic configuration management:
@@ -153,8 +149,6 @@ To set up automatic configuration management:
     @ModConfig("config_Key")
     object YourModConfigs : ClientModConfigManager(yourModMeta, "key")
     ```
-
----
 
 ### Command DSL
 
@@ -189,8 +183,6 @@ dispatcher.registerCommand("yourCommand") {
 
 This example demonstrates how root commands can contain nested subcommands and arguments.
 
----
-
 ### GUI DSL
 
 ```kotlin
@@ -201,7 +193,7 @@ BoxScreen {
       horizontalAlignment = Alignment.CenterHorizontally,
    ) {
       Button {
-            click = {
+          click {
                Toast.showToast(text = "hello minecraft")
             }
          TextLabel("hello minecraft")
@@ -211,9 +203,9 @@ BoxScreen {
 }.open()  // Opens the screen
 ```
 
-The GUI DSL facilitates intuitive layout and interaction design within Minecraft.
+<img alt="img.png" src="doc/img.png" width="854"/>
 
----
+The GUI DSL facilitates intuitive layout and interaction design within Minecraft.
 
 ## Acknowledgements
 

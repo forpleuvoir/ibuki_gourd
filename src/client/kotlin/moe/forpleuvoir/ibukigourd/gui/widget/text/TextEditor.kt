@@ -97,7 +97,7 @@ open class TextEditorWidget(
 
     private var hintText: State<String?> = stateOf(null)
 
-    var suggestion: ((text: String) -> String)? = null
+    var suggestion: ((text: String, cursor: Int) -> String)? = null
 
     var onTextChanged: (text: String) -> Unit = {}
 
@@ -397,7 +397,7 @@ open class TextEditorWidget(
                 //制表符，如果有建议文本则补全建议文本，否则输入四个空格
                 Keyboard.TAB       -> {
                     if (suggestion != null && cursor == text.length) {
-                        suggestion!!(text).let {
+                        suggestion!!(text, cursor).let {
                             if (it.isNotEmpty()) {
                                 write(it)
                             }
@@ -560,7 +560,7 @@ open class TextEditorWidget(
                     pushAlignmentText(it, contentBox, color = textColor, layerType = TextRenderer.TextLayerType.SEE_THROUGH)
                 }
                 //"渲染文本建议"
-                suggestion?.invoke(text)?.let { suggestion ->
+                suggestion?.invoke(text, cursor)?.let { suggestion ->
                     if (isFocused && cursor == text.length) {
                         val renderTextWidth = textRenderer.getWidth(renderText).toFloat()
                         val box =
@@ -616,6 +616,11 @@ open class TextEditorWidget(
                 }
             }
 
+        fun text(text: MutableState<String>) {
+            this.text = text.getValue()
+            textConsumer { text.setValue(it) }
+        }
+
         var hintText: State<String?>
             get() = owner().hintText
             set(value) {
@@ -657,7 +662,7 @@ open class TextEditorWidget(
                 owner().cursorColor = value
             }
 
-        fun suggestion(suggestion: (text: String) -> String) {
+        fun suggestion(suggestion: (text: String, cursor: Int) -> String) {
             owner().suggestion = suggestion
         }
 

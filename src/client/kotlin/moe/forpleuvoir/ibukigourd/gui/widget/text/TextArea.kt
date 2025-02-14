@@ -116,7 +116,7 @@ class TextAreaWidget(
         return -1
     }
 
-    var suggestion: ((text: String, preWord: String) -> Iterable<Text>)? = null
+    var suggestion: ((text: String, preWord: String, cursor: Int) -> Iterable<Text>)? = null
 
     private val currentLine: Substring
         get() = this.getOffsetLine(0)
@@ -748,7 +748,7 @@ class TextAreaWidget(
                 owner().spacing = value
             }
 
-        fun suggestion(suggestion: ((text: String, preWord: String) -> Iterable<Text>)) {
+        fun suggestion(suggestion: ((text: String, preWord: String, cursor: Int) -> Iterable<Text>)) {
             owner().suggestion = suggestion
         }
 

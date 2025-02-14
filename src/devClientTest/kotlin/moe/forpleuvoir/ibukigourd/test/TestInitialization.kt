@@ -4,7 +4,17 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.IbukiGourd.log
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.util.openScreen
@@ -46,6 +56,9 @@ object TestInitialization {
             register(Keyboard.KP_7) {
                 testScreen7().open()
             }
+            register(Keyboard.KP_8) {
+                example()
+            }
             register(Keyboard.KP_9) {
                 openScreen(testScreen9())
             }
@@ -53,3 +66,20 @@ object TestInitialization {
 
     }
 }
+
+
+fun example() = BoxScreen {
+    Row(
+        modifier = Modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Button {
+            click {
+                Toast.showToast(text = "hello minecraft")
+            }
+            TextLabel("hello minecraft")
+            Icon(IconTextures.LOCK)
+        }
+    }
+}.open()//打开屏幕

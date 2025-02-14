@@ -4,9 +4,12 @@
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-`IbukiGourd` 是一个主要由`kotlin`编写的`Minecraft Fabric MOD`,主要为其他MOD提供前置功能
+[IbukiGourd](https://modrinth.com/mod/ibukigourd) 是一个主要由`kotlin`编写的`Minecraft Fabric MOD`,主要为其他MOD提供前置功能
 
 如:`配置管理` `配置GUI` `指令DSL` `GUI DSL`
+
+![Modrinth Version](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth)
+![Maven Version](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmaven.forpleuvoir.moe%2Fsnapshots%2Fmoe%2Fforpleuvoir%2Fibukigourd%2Fmaven-metadata.xml)
 
 依赖于:
 
@@ -170,7 +173,7 @@ BoxScreen {
       horizontalAlignment = Alignment.CenterHorizontally,
    ) {
       Button {
-            click = {
+         click {
                Toast.showToast(text = "hello minecraft")
             }
          TextLabel("hello minecraft")
@@ -179,6 +182,8 @@ BoxScreen {
     }
 }.open()//打开屏幕
 ```
+
+<img alt="img.png" src="doc/img.png" width="854"/>
 
 ## 鸣谢
 
