@@ -134,7 +134,7 @@ fun WidgetContainerScope.BooleanConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        SwitchButton(boolValue, modifier.width(40f))
+        SwitchButton(boolValue, Modifier.width(40f))
         ConfigResetButton(config) {
             boolValue.setValue(config.getValue())
         }

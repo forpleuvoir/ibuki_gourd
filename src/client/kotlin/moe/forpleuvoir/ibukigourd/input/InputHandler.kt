@@ -29,6 +29,7 @@ object InputHandler : Tickable {
     }
 
     fun detectKeyConflicts(keyBind: KeyBind): Sequence<KeyBind> {
+        if (keyBind.keys.isEmpty()) return emptySequence()
         return keyBinds.asSequence().filter {
             it !== keyBind
         }.filter {

@@ -61,6 +61,19 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
     val nested = addConfig(Nested)
 
     object Nested : ConfigContainerImpl("nested") {
+
+        val testKeyBind by keyBindBoolean("test_key_bind", false, KeyBind {})
+
+        var testInt by int("test_int", 0, 0, 233)
+    }
+
+
+    val nested2 = addConfig(Nested2)
+
+    object Nested2 : ConfigContainerImpl("nested2") {
+
+        val testBoolean by boolean("test_key_bind", false)
+
         var testInt by int("test_int", 0, 0, 233)
     }
 

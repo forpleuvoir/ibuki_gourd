@@ -41,7 +41,7 @@ fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        SwitchButton(boolValue, modifier.width(40f))
+        SwitchButton(boolValue, Modifier.width(40f))
         KeyBindWrapper(config, Modifier.width(75f)) { it.getValue().keyBind }
         ConfigResetButton(config) {
             boolValue.setValue(config.getValue().value)
