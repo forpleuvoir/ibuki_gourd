@@ -43,7 +43,7 @@ fun testScreen4() = ColumnScreen(
     IntEditor(
         mutableStateOf(5),
         modifier = Modifier.width(50f)
-            .hoverTtp(
+            .hoverTip(
                 modifier = Modifier.margin(3f), settings = Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Top))
             ) {
                 Button {
@@ -70,7 +70,7 @@ fun testScreen4() = ColumnScreen(
     )
     Selector(
         listOf("下拉菜单", "选项1", "选项2", "选项3"),
-        modifier = Modifier.hoverTtp(
+        modifier = Modifier.hoverTip(
             modifier = Modifier.margin(3f), settings = Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Top))
         ) {
             Button {

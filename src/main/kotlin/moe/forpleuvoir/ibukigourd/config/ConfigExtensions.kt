@@ -17,14 +17,13 @@ private const val TRANSLATE_TEXT_KYE = "#translate_text"
 private const val COMMENT_KYE = "#comment"
 
 val ConfigSerializable.translateText: Text
-    get() =
-        runCatching {
-            (getUserData(TRANSLATE_TEXT_KYE) as Text).copyToText()
-        }.getOrElse {
-            val text = Translatable(translationKey())
-            setUserData(TRANSLATE_TEXT_KYE, text)
-            text.copyToText()
-        }
+    get() = runCatching {
+        (getUserData(TRANSLATE_TEXT_KYE) as Text).copyToText()
+    }.getOrElse {
+        val text = Translatable(translationKey())
+        setUserData(TRANSLATE_TEXT_KYE, text)
+        text.copyToText()
+    }
 
 
 val ConfigSerializable.comment: Text

@@ -1,8 +1,10 @@
 package moe.forpleuvoir.ibukigourd.config.item.impl
 
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeyBindValue
+import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyBind
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -17,6 +19,7 @@ class ConfigKeyBind(
     override fun init() {
         super.init()
         InputHandler.register(configValue)
+        configValue.name((this.parentContainer?.translateText?.appendLiteral("->") ?: Literal()).append(this.translateText))
     }
 
     override fun setValue(value: KeyBind) {

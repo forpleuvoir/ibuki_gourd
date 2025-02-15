@@ -104,7 +104,7 @@ fun TestScreen() = BoxScreen(modifier()) {
                     else -> Modifier.align(Alignment.CenterVertically)
                 }
                 if (it == 12) {
-                    m = m.hoverTtp {
+                    m = m.hoverTip {
                         Button { TextLabel("悬浮测试") }
                     }
                 }

@@ -263,7 +263,7 @@ fun Modifier.mouseOverCursor(cursor: MouseCursor) = this then WidgetModifier { w
 
 //------------ HoverText ------------\\
 
-fun Modifier.hoverTtp(
+fun Modifier.hoverTip(
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier,
     content: BoxScope.() -> Unit
@@ -276,7 +276,7 @@ fun Modifier.hoverText(
     text: State<Text>,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
-) = hoverTtp(settings, modifier) {
+) = hoverTip(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -284,7 +284,7 @@ fun Modifier.hoverText(
     text: Text,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
-) = hoverTtp(settings, modifier) {
+) = hoverTip(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -297,7 +297,7 @@ fun Modifier.hoverText(
     optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
     backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
     modifier: Modifier = Modifier
-) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -311,7 +311,7 @@ fun Modifier.hoverText(
     optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
     backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
     modifier: Modifier = Modifier
-) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -320,7 +320,7 @@ fun Modifier.hoverText(
     text: State<String>,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
-) = hoverTtp(settings, modifier) {
+) = hoverTip(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -328,7 +328,7 @@ fun Modifier.hoverText(
     text: String,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
-) = hoverTtp(settings, modifier) {
+) = hoverTip(settings, modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -341,7 +341,7 @@ fun Modifier.hoverText(
     optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
     backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
     modifier: Modifier = Modifier
-) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }
 
@@ -354,6 +354,6 @@ fun Modifier.hoverText(
     optionalDirection: List<Direction> = Tip.DefaultSetting.optionalDirection,
     backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
     modifier: Modifier = Modifier
-) = hoverTtp(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
+) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
     TextLabel(text, setting = TextWidget.Setting(autoNewLine = true))
 }

@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChi
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.textLabelUpdateInterval
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.util.math.bezier.SineEasing
@@ -27,6 +28,7 @@ import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.text.Style
 import kotlin.math.abs
+import kotlin.time.TimeSource
 
 class TextWidget(
     val text: State<Text>,
@@ -93,7 +95,10 @@ class TextWidget(
 
     private var latestText: Text = text.getValue()
 
-    private fun updateText() {
+    private var mark = TimeSource.Monotonic.markNow()
+
+    private fun updateText(force: Boolean = false) {
+        if (!force && mark.elapsedNow() < textLabelUpdateInterval) return
         val text = this.text.getValue()
         if (latestText != text) {
             latestText = text

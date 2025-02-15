@@ -11,9 +11,9 @@ import moe.forpleuvoir.nebula.common.color.Color
 fun testScreen5() = RowScreen(
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
-    val color = mutableStateOf(GuiConfig.screen.WIDGET_TEST_OUTLINE_COLOR).apply {
+    val color = mutableStateOf(GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR).apply {
         subscribe {
-            GuiConfig.screen.WIDGET_TEST_OUTLINE_COLOR = Color(it.argb)
+            GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR = Color(it.argb)
         }
     }
     ColorPicker(color)

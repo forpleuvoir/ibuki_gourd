@@ -36,5 +36,4 @@ data class KeyBindWithBoolean(
     override fun matched(regex: Regex): Boolean =
         keyBind matched regex || regex.containsMatchIn(value.toString())
 
-
 }

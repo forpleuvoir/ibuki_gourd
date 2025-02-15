@@ -44,8 +44,9 @@ class KeyBind(
 
     }
 
-
     val uuid: UUID = UUID.randomUUID()
+
+    var name: Text = Literal(uuid.toString())
 
     private val defaultKeys: MutableList<KeyCode> = keyCodes.toMutableList()
 
@@ -65,6 +66,11 @@ class KeyBind(
      * 按键被按下的时间，释放时会清空
      */
     private var tickCount: Long = 0
+
+    fun name(name: Text): KeyBind {
+        this.name = name
+        return this
+    }
 
     fun setKey(vararg keyCodes: KeyCode): Boolean {
         return if (!keys.exactMatch(keyCodes.toList())) {

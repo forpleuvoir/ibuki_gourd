@@ -4,20 +4,26 @@ import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.config.item.impl.*
+import kotlin.time.Duration.Companion.seconds
 
 object GuiConfig : ModConfigContainer("gui") {
 
     val configContainerWrapperGuidelinesColor by hsvColor("config_container_wrapper_guidelines_color", HSVColor(0f, 0f, 0f).alpha(0.15f))
 
-    val autoExpandConfigContainer by boolean("auto_expand_config_container", false)
+    val showFirstConfigInContainer by boolean("show_first_config_in_container", true)
+
+    val autoExpandConfigContainer by boolean("auto_expand_config_container", true)
 
     val autoExpandConfigContainerLimit by int("auto_expand_config_container_limit", 5, 0, 20)
 
-    val expandableConfigContainerLimit by int("expandable_config_container_limit", 10, 0, 20)
+    val expandableConfigContainerLimit by int("expandable_config_container_limit", 15, 0, 20)
 
-    val screen = addConfig(Screen)
+    val textLabelUpdateInterval by duration("text_label_update_interval", 0.5.seconds, 0.seconds, 2.seconds)
 
-    val popupScreen = addConfig(PopupScreen)
+    init {
+        addConfig(Screen)
+        addConfig(PopupScreen)
+    }
 
     object Screen : ModConfigContainer("screen") {
 

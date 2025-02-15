@@ -23,6 +23,8 @@ const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
 fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
     configSerializable: T,
     modifier: Modifier = Modifier,
+    textWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
+    textModifier: ColumnScope.() -> Modifier = { Modifier },
     content: ColumnScope.() -> Unit
 ) = Column(
     modifier
@@ -33,7 +35,7 @@ fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
         },
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
-    ConfigTextLabel(configSerializable)
+    ConfigTextLabel(configSerializable, textWrapperModifier(), textModifier)
     content()
 }
 
@@ -64,10 +66,10 @@ fun <T : Resettable> WidgetContainerScope.ConfigResetButton(
 fun <T : ConfigSerializable> ColumnScope.ConfigTextLabel(
     config: T,
     modifier: Modifier = Modifier,
-    textModifier: Modifier = Modifier
+    textModifier: ColumnScope.() -> Modifier = { Modifier }
 ) = Column(
     modifier = modifier.attachLeft { weight(1) },
     horizontalArrangement = Arrangement.Left
 ) {
-    TextLabel(config.translateText, textModifier.attachLeft { hoverText(config.comment) })
+    TextLabel(config.translateText, textModifier().attachLeft { hoverText(config.comment) })
 }

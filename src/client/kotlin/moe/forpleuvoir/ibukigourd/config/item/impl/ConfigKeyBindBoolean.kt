@@ -32,6 +32,7 @@ class ConfigKeyBindBoolean(
     override fun init() {
         super.init()
         InputHandler.register(configValue.keyBind)
+        configValue.keyBind.name((this.parentContainer?.translateText?.appendLiteral("->") ?: Literal()).append(this.translateText))
     }
 
     override fun setValue(value: KeyBindWithBoolean) {

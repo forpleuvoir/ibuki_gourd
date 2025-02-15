@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRender
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -31,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainer
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainerLimit
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.showFirstConfigInContainer
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -101,17 +103,39 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     modifier: Modifier = Modifier
 ) = Row {
     val expanded = mutableStateOf(autoExpandConfigContainer && config.configs().size <= autoExpandConfigContainerLimit)
+
+    var firstConfig = config.configs().find { showFirstConfigInContainer && it !is ConfigContainer }
+    if (config.configs().count { it !is ConfigContainer } <= 1) firstConfig = null
+
     Button(
         modifier = modifier.attachLeft {
             disableRender().padding(0)
         }
     ) {
         click { expanded.switch() }
-        ConfigColumnWrapper(config, Modifier.padding(horizontal = 2f, vertical = 5)) {
-            Icon(
-                mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
-                modifier = Modifier.margin(right = 10f)
-            )
+        Column(
+            Modifier
+                .weight(1)
+                .attachLeft {
+                    name(config.javaClass.simpleName + "Wrapper")
+                        .padding(horizontal = 2f, vertical = if (firstConfig == null) 5 else 0)
+                        .bgHoverHighlightBox()
+                },
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextLabel(config.translateText, Modifier.hoverText(config.comment))
+            if (firstConfig != null) {
+                TextLabel("·", modifier = Modifier.margin(horizontal = 1f))
+            }
+            Column {
+                firstConfig?.let { firstConfig ->
+                    ConfigWrapperMap.wrapper(firstConfig, this, Modifier.weight(1))
+                }
+                Icon(
+                    mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
+                    modifier = Modifier.margin(right = 5f, left = 2f)
+                )
+            }
         }
     }
     SwitchableProxy(
@@ -135,7 +159,8 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
                 ) {
                     if (config.configs().isEmpty()) TextLabel(IGLang.hasNothing)
                     config.configs().forEach { config ->
-                        ConfigWrapperMap.wrapper(config, this, Modifier.fill())
+                        if (config != firstConfig)
+                            ConfigWrapperMap.wrapper(config, this, Modifier.fill())
                     }
                 }
             }

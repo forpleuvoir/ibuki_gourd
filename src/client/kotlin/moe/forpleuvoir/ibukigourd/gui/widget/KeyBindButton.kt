@@ -15,24 +15,35 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.input.KeyBind
-import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
-import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.time.Duration.Companion.milliseconds
 
+val KeyBind.hoverText: Text
+    get() {
+        val conflictText = IGLang.keybindConflict
+        val text = Literal(keys.map { it.keyNameText }.joinToString(separator = " + ") { it.plainText })
+        if (keys.count() == 0) text.append(IGLang.pressToSetting)
+        var count = 0
+        InputHandler.detectKeyConflicts(this).forEach {
+            count++
+            conflictText.appendNewLine().appendLiteral(" - ").append(it.name)
+        }
+        return if (count > 0) text.copyToText().appendNewLine().append(conflictText)
+        else text
+    }
+
+
 fun WidgetContainerScope.KeyBindButton(
     keyBind: KeyBind,
-    text: MutableState<Text> = mutableStateOf(keyBind.asText),
-    hoverText: MutableState<Text> = mutableStateOf(text.getValue()),
     modifier: Modifier = Modifier,
     onKeyChanged: (KeyBind) -> Unit = {},
 ): IGButtonWidget {
@@ -40,6 +51,16 @@ fun WidgetContainerScope.KeyBindButton(
     val keys = mutableSetOf<KeyCode>()
 
     val inputtingColor = Colors.ORANGE
+    val conflictColor = Colors.RED
+
+    fun inputtingText() = Literal(
+        keys.map { it.keyNameText }.joinToString(separator = " + ") { it.plainText }
+    ).withColor(inputtingColor)
+
+    fun text() = keyBind.asText.apply {
+        if (InputHandler.detectKeyConflicts(keyBind).count() > 0) withColor(conflictColor)
+    }
+
     return Button(
         modifier = Modifier
             .width(120f)
@@ -47,16 +68,12 @@ fun WidgetContainerScope.KeyBindButton(
                 onMousePress(event)
                 event.tryUse(inputting && event.button.code != Keyboard.BACKSPACE.code).onSuccess {
                     keys.add(event.button)
-                    hoverText.setValue(IGLang.releaseToSaveSetting.withColor(inputtingColor))
-                    text.setValue(Literal(keys.map { it.keyNameText }.joinToString(separator = " + ") { it.plainText }).withColor(inputtingColor))
                 }
             }
             .keyPress { event ->
                 onKeyPress(event)
                 event.tryUse(inputting && event.keyCode != Keyboard.BACKSPACE).onSuccess {
                     keys.add(event.keyCode)
-                    hoverText.setValue(IGLang.releaseToSaveSetting.withColor(inputtingColor))
-                    text.setValue(Literal(keys.map { it.keyNameText }.joinToString(separator = " + ") { it.plainText }).withColor(inputtingColor))
                 }
             }
             .mouseRelease { event ->
@@ -64,14 +81,11 @@ fun WidgetContainerScope.KeyBindButton(
                 onMouseRelease(event)
                 event.tryUse(!inputting && wasMouseOver && pressed).onSuccess {
                     inputting = true
-                    text.setValue(IGLang.pressToSetting.withColor(inputtingColor))
                 }
                 event.tryUse(inputting).onSuccess {
                     inputting = false
                     keyBind.setKey(*keys.toTypedArray())
                     onKeyChanged(keyBind)
-                    text.setValue(keyBind.asText)
-                    hoverText.setValue(text.getValue())
                     keys.clear()
                 }
             }
@@ -81,15 +95,22 @@ fun WidgetContainerScope.KeyBindButton(
                     inputting = false
                     keyBind.setKey(*keys.toTypedArray())
                     onKeyChanged(keyBind)
-                    text.setValue(keyBind.asText)
-                    hoverText.setValue(text.getValue())
                     keys.clear()
                 }
             }
-            .hoverText(text = hoverText, showDelay = 50.milliseconds)
+            .hoverText(text = mutableStateBy {
+                if (inputting) IGLang.releaseToSaveSetting.withColor(inputtingColor)
+                else keyBind.hoverText
+            }, showDelay = 50.milliseconds)
             .then(modifier)
     ) {
-        TextLabel(text)
+        TextLabel(mutableStateBy {
+            if (inputting) {
+                if (keys.count() > 0)
+                    inputtingText()
+                else Literal(IGLang.pressToSetting.plainText).withColor(inputtingColor)
+            } else text()
+        })
     }
 }
 

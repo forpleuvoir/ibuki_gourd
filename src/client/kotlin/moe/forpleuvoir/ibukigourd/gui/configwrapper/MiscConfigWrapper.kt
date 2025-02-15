@@ -83,7 +83,7 @@ fun WidgetContainerScope.StringConfigWrapper(
                 SimpleDialog(stateOf(config.translateText)) {
                     TextAreaWrapped(
                         modifier = Modifier
-                            .maxSize(320f, 240f).minSize(180f, 150f)
+                            .minHeight(150f).maxHeight(240f)
                             .disableRenderBackground()
                             .padding(0f)
                     ) {

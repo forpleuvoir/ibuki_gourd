@@ -67,9 +67,9 @@ fun TabScope.tab1() = Tab("测试用配置设置", true) {
 }
 
 fun TabScope.tab2() = Tab("第二页,选择框颜色设置") {
-    val color = mutableStateOf(GuiConfig.screen.WIDGET_TEST_OUTLINE_COLOR).apply {
+    val color = mutableStateOf(GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR).apply {
         subscribe {
-            GuiConfig.screen.WIDGET_TEST_OUTLINE_COLOR = Color(it.argb)
+            GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR = Color(it.argb)
         }
     }
     ColorPicker(color)

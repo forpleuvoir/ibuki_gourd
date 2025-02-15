@@ -28,6 +28,13 @@ object InputHandler : Tickable {
         return register(KeyBind(keyCodes = keyCodes, defaultSetting, action))
     }
 
+    fun detectKeyConflicts(keyBind: KeyBind): Sequence<KeyBind> {
+        return keyBinds.asSequence().filter {
+            it !== keyBind
+        }.filter {
+            it.keys.exactMatch(keyBind.keys)
+        }
+    }
 
     fun unregister(keyBind: KeyBind) {
         keyBinds.remove(keyBind)

@@ -79,6 +79,8 @@ object IGLang {
 
     val releaseToSaveSetting get() = lang("config_wrapper.release_to_save_setting")
 
+    val keybindConflict get() = lang("config_wrapper.keybind_conflict")
+
     fun listConfigWrapperText(count: Int) = lang("config_wrapper.list.text", count)
 
     fun mapConfigWrapperText(count: Int) = lang("config_wrapper.map.text", count)
