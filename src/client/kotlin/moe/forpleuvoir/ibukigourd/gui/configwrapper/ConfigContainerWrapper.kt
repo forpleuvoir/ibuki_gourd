@@ -58,7 +58,6 @@ fun WidgetContainerScope.ConfigsWrapper(
     scrollerModifier = scrollerModifier,
     spacing = 4f
 ) {
-    //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
     if (configs.count() == 0) TextLabel(IGLang.hasNothing)
     configs.forEach { config ->
         ConfigWrapperMap.wrapper(config, this, Modifier.fill())
@@ -129,7 +128,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
             }
             Column {
                 firstConfig?.let { firstConfig ->
-                    ConfigWrapperMap.wrapper(firstConfig, this, Modifier.weight(1))
+                    ConfigWrapperMap.wrapper(firstConfig, this, Modifier.weight(1).disableRenderBackground())
                 }
                 Icon(
                     mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
