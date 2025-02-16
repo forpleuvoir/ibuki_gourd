@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
@@ -24,8 +25,12 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.LightmapTextureManager
+import net.minecraft.item.Item.TooltipContext
+import net.minecraft.item.tooltip.TooltipType
+import net.minecraft.text.HoverEvent
 import net.minecraft.text.Style
 import kotlin.math.abs
 import kotlin.time.TimeSource
@@ -288,7 +293,33 @@ fun WidgetContainerScope.TextLabel(
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = TextLabel(stateOf(text), modifier, setting, scope)
+): TextWidget {
+    val m =
+        text.style.hoverEvent?.let { hoverEvent ->
+            Modifier.hoverTip {
+                when (hoverEvent.action) {
+                    HoverEvent.Action.SHOW_TEXT   -> TextLabel(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT)!!.copyToText())
+
+                    HoverEvent.Action.SHOW_ENTITY -> hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY)!!.let {
+                        it.asTooltip()
+                            .map { text -> text.copyToText() }
+                            .forEach { text -> TextLabel(text) }
+                    }
+
+                    HoverEvent.Action.SHOW_ITEM   -> hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM)!!.let {
+                        it.asStack()
+                            .getTooltip(
+                                TooltipContext.DEFAULT,
+                                mc.player,
+                                mc.options.advancedItemTooltips.pick(TooltipType.ADVANCED, TooltipType.BASIC)
+                            ).map { text -> text.copyToText() }
+                            .forEach { text -> TextLabel(text) }
+                    }
+                }
+            }
+        }
+    return TextLabel(stateOf(text), (m ?: Modifier).then(modifier), setting, scope)
+}
 
 @JvmName("TextString")
 fun WidgetContainerScope.TextLabel(

@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.configwrapper
 
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.IGLang.mapConfigWrapperText
+import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.item.ConfigPairList
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -15,23 +15,25 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -41,108 +43,15 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
-import moe.forpleuvoir.nebula.common.util.collection.notifiableMap
 import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.config.Config
+import moe.forpleuvoir.nebula.config.item.impl.ConfigList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
 import kotlin.time.Duration.Companion.seconds
 
-fun WidgetContainerScope.StringListConfigWrapper(
-    config: ConfigStringList,
-    modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-
-    val listValue = notifiableList(config.getValue()).apply {
-        subscribe {
-            config.setValue(it)
-        }
-    }
-
-    Column(
-        horizontalArrangement = Arrangement.spacedBy(5f)
-    ) {
-        Button(
-            Modifier.width(80f)
-                .hoverText(mutableStateBy {
-                    val sb = StringBuilder()
-                    listValue.forEachWithLimit(10) { t ->
-                        sb.appendLine(t)
-                    }
-                    if (listValue.size > 10) sb.append("...")
-                    if (listValue.isEmpty()) sb.append(IGLang.hasNothing.plainText)
-                    if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
-                    Literal(sb.toString())
-                })
-        ) {
-            TextLabel(mutableStateBy { IGLang.listConfigWrapperText(listValue.size) })
-            click {
-                Dialog {
-                    TextLabel(stateOf(config.translateText))
-                    DialogContent(
-                        Modifier.padding(5f, 3f, 5f, 5f)
-                    ) {
-                        RowListWrapped(
-                            modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
-                            listModifier = { Modifier.height(160f) }
-                        ) {
-                            //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (listValue.isEmpty()) TextLabel(IGLang.hasNothing)
-                            listValue.forEachIndexed { index, item ->
-                                Column(
-                                    horizontalArrangement = Arrangement.spacedBy(2f),
-                                ) {
-                                    MoveButton(this@RowListWrapped, listValue, index)
-                                    TextLabel(
-                                        index.toString(),
-                                        modifier = Modifier.width(mc.textRenderer.getWidth(listValue.lastIndex.toString()) + 1f)
-                                    )
-                                    TextEditor(modifier = Modifier.width(240f)) {
-                                        text = item
-                                        textConsumer {
-                                            listValue[index] = it
-                                        }
-                                    }
-                                    FlatButton(
-                                        hoveredColor = Colors.LIGHT_RED,
-                                        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
-                                    ) {
-                                        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
-                                        click {
-                                            listValue.removeAt(index)
-                                            execute {
-                                                this@RowListWrapped.recompose()
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Button(
-                        Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .width(40f)
-                            .hoverText(IGLang.add)
-                    ) {
-                        Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
-                        click {
-                            listValue.add("")
-                            this@Dialog.recompose()
-                        }
-                    }
-                }.open()
-            }
-        }
-        ConfigResetButton(config) {
-            listValue.clear()
-            listValue.addAll(config.defaultValue)
-        }
-    }
-}
-
 fun WidgetContainerScope.MoveButton(
-    recomposeWidget: RowListScope,
+    recompose: () -> Unit,
     listValue: MutableList<*>,
     index: Int,
 ) = Row {
@@ -155,7 +64,7 @@ fun WidgetContainerScope.MoveButton(
 
         click {
             listValue.moveElement(index, (index - 1).coerceAtLeast(0))
-            execute { recomposeWidget.recompose() }
+            recompose()
         }
     }
     FlatButton(
@@ -172,301 +81,468 @@ fun WidgetContainerScope.MoveButton(
 
         click {
             listValue.moveElement(index, (index + 1).coerceAtMost(listValue.lastIndex))
-            execute { recomposeWidget.recompose() }
+            recompose()
         }
     }
 }
 
+fun <T> WidgetContainerScope.IterableWrapedButton(
+    title: Text,
+    iterable: Iterable<T>,
+    onAdd: (T) -> Unit,
+    newValue: (Iterable<T>) -> T,
+    //hover
+    hoverSettings: Tip.Setting = Tip.DefaultSetting,
+    hoverModifier: Modifier = Modifier,
+    hoverContent: BoxScope.(Iterable<T>) -> Unit,
+    //button
+    modifier: Modifier = Modifier,
+    content: ButtonScope.() -> Unit = {
+        TextLabel(mutableStateBy { IGLang.listConfigWrapperText(iterable.count()) })
+    },
+    //RowList
+    rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    rowListModifier: ColumnScope.() -> Modifier = { Modifier },
+    entryWrapper: RowListScope.(T, index: Int) -> Unit
+) = Button(
+    Modifier.width(80f)
+        .hoverTip(hoverSettings, hoverModifier) { hoverContent(iterable) }
+        .then(modifier)
+) {
+    content()
+    click {
+        var rowList: WidgetContainer? = null
+        Dialog {
+            TextLabel(title)
+            DialogContent(
+                Modifier.padding(5f, 3f, 5f, 5f)
+            ) {
+                rowList = RowListWrapped(
+                    modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f).then(rowListWrapperModifier()),
+                    listModifier = { Modifier.height(160f).then(rowListModifier()) }
+                ) {
+                    if (iterable.count() == 0) TextLabel(IGLang.hasNothing)
+                    iterable.forEachIndexed { index, entry ->
+                        entryWrapper(entry, index)
+                    }
+                }
+            }
+            Button(
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(40f)
+                    .hoverText(IGLang.add)
+            ) {
+                Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
+                click {
+                    onAdd(newValue(iterable))
+                    execute {
+                        rowList?.recompose()
+                    }
+                }
+            }
+        }.open()
+    }
+}
 
-fun WidgetContainerScope.StringMapConfigWrapper(
-    config: ConfigStringMap,
-    modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+fun <T> WidgetContainerScope.ListConfigWrapedButton(
+    config: ConfigList<T>,
+    title: Text = config.translateText.style { hover(config.comment) },
+    iterable: Iterable<T> = config.getValue(),
+    onAdd: (T) -> Unit = { config.getValue().add(it) },
+    newValue: (Iterable<T>) -> T,
+    //hover
+    hoverSettings: Tip.Setting = Tip.DefaultSetting,
+    hoverModifier: Modifier = Modifier,
+    hoverContent: BoxScope.(Iterable<T>) -> Unit = {
+        TextLabel(mutableStateBy {
+            val sb = StringBuilder()
+            config.getValue().forEachWithLimit(10) { t ->
+                sb.appendLine(t)
+            }
+            if (config.getValue().size > 10) sb.append("...")
+            if (config.getValue().isEmpty()) sb.append(IGLang.hasNothing.plainText)
+            if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
+            Literal(sb.toString())
+        })
+    },
+    //button
+    modifier: Modifier = Modifier,
+    content: ButtonScope.() -> Unit = {
+        TextLabel(mutableStateBy { IGLang.listConfigWrapperText(iterable.count()) })
+    },
+    //RowList
+    rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    rowListModifier: ColumnScope.() -> Modifier = { Modifier },
+    entryWrapper: RowListScope.(T, index: Int) -> Unit
+) = IterableWrapedButton(
+    title = title,
+    iterable = iterable,
+    onAdd = onAdd,
+    newValue = newValue,
+    hoverSettings = hoverSettings,
+    hoverModifier = hoverModifier,
+    hoverContent = hoverContent,
+    modifier = modifier,
+    content = content,
+    rowListWrapperModifier = rowListWrapperModifier,
+    rowListModifier = rowListModifier,
+    entryWrapper = entryWrapper,
+)
 
-    val mapValue = notifiableMap(config.getValue()).apply {
-        subscribe {
-            config.setValue(it)
+fun <T> WidgetContainerScope.ListConfigEntryWrapper(
+    config: ConfigList<T>,
+    index: Int,
+    recompose: () -> Unit,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    content: ColumnScope.() -> Unit
+) = Column(
+    modifier,
+    horizontalArrangement,
+    verticalAlignment,
+) {
+    TextLabel(
+        index.toString(),
+        modifier = Modifier.width(mc.textRenderer.getWidth(config.getValue().lastIndex.toString()) + 1f)
+    )
+    content()
+    FlatButton(
+        hoveredColor = Colors.LIGHT_RED,
+        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
+    ) {
+        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
+        click {
+            config.getValue().removeAt(index)
+            recompose()
         }
     }
+}
 
+fun <T> WidgetContainerScope.MoveableListConfigEntryWrapper(
+    config: ConfigList<T>,
+    index: Int,
+    recompose: () -> Unit,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    content: ColumnScope.() -> Unit
+) = Column(
+    modifier,
+    horizontalArrangement,
+    verticalAlignment,
+) {
+    MoveButton(recompose, config.getValue(), index)
+    TextLabel(
+        index.toString(),
+        modifier = Modifier.width(mc.textRenderer.getWidth(config.getValue().lastIndex.toString()) + 1f)
+    )
+    content()
+    FlatButton(
+        hoveredColor = Colors.LIGHT_RED,
+        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
+    ) {
+        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
+        click {
+            config.getValue().removeAt(index)
+            recompose()
+        }
+    }
+}
+
+fun WidgetContainerScope.StringListConfigWrapper(
+    config: ConfigStringList,
+    modifier: Modifier = Modifier
+) = ConfigColumnWrapper(config, modifier) {
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        Button(
-            Modifier.width(80f)
-                .hoverText(mutableStateBy {
-                    val sb = StringBuilder()
-                    mapValue.forEachWithLimit(10) { k, v ->
-                        sb.appendLine("$k => $v")
+        ListConfigWrapedButton(
+            config = config,
+            newValue = { "" },
+        ) { entry, index ->
+            MoveableListConfigEntryWrapper(
+                config = config,
+                index = index,
+                recompose = { execute { this@ListConfigWrapedButton.recompose() } }
+            ) {
+                TextEditor(modifier = Modifier.width(240f)) {
+                    text = entry
+                    textConsumer {
+                        config.getValue()[index] = it
                     }
-                    if (mapValue.size > 10) sb.append("...")
-                    if (mapValue.isEmpty()) sb.append(IGLang.hasNothing.plainText)
-                    if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
-                    Literal(sb.toString())
-                })
-        ) {
-            TextLabel(mutableStateBy { mapConfigWrapperText(mapValue.size) })
-            click {
-                Dialog {
-                    TextLabel(stateOf(config.translateText))
-                    DialogContent(
-                        Modifier.padding(5f, 3f, 5f, 5f)
-                    ) {
-                        RowListWrapped(
-                            modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
-                            listModifier = { Modifier.height(160f) }
-                        ) {
-                            //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (mapValue.isEmpty()) TextLabel(IGLang.hasNothing)
-                            mapValue.forEach { key, value ->
-                                Column(
-                                    horizontalArrangement = Arrangement.spacedBy(2f),
-                                ) {
-                                    TextLabel(
-                                        key, modifier = Modifier.width(mapValue.keys.maxWidth(mc.textRenderer).coerceAtMost(119) + 1f)
-                                    )
-                                    FlatButton(
-                                        hoveredColor = Colors.PALEGREEN.alpha(.5f),
-                                        modifier = Modifier.hoverText(IGLang.edit)
-                                    ) {
-                                        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
-                                        click {
-                                            var newKey = key
-                                            var editor: (() -> Transform)? = null
-                                            ConfirmDialog(
-                                                stateOf(IGLang.edit.appendLiteral(" => $key")),
-                                                onConfirm = {
-                                                    if (newKey == key) {
-                                                        mc.currentScreen?.close()
-                                                        return@ConfirmDialog
-                                                    }
-                                                    if (mapValue.containsKey(newKey)) {
-                                                        editor?.let {
-                                                            TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
-                                                                TextLabel(IGLang.keyExists(newKey).withColor(Colors.RED))
-                                                            })
-                                                        }
-
-//                                                        Toast.showToast(text = IGLang.keyExists(newKey).withColor(Colors.RED))
-                                                        return@ConfirmDialog
-                                                    }
-                                                    mapValue.renameKey(key, newKey)
-                                                    mc.currentScreen?.close()
-                                                    this@RowListWrapped.execute {
-                                                        this@RowListWrapped.recompose()
-                                                    }
-                                                },
-                                                screenModifier = Modifier.onClose {
-                                                    TipHandler.popTip(CONFIG_WRAPPER_TIP)
-                                                }
-                                            ) {
-                                                TextEditor(modifier = Modifier.width(240f)) {
-                                                    editor = { this.owner().transform }
-                                                    text = key
-                                                    textConsumer { newKey = it }
-                                                }
-                                            }.open()
-                                        }
-                                    }
-                                    TextEditor(modifier = Modifier.width(240f)) {
-                                        text = value
-                                        textConsumer {
-                                            mapValue[key] = it
-                                            mapValue.onChange(mapValue)
-                                        }
-                                    }
-
-                                    FlatButton(
-                                        hoveredColor = Colors.PALEGREEN.alpha(.5f),
-                                        modifier = Modifier.hoverText(IGLang.edit)
-                                    ) {
-                                        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
-                                        click {
-                                            var newValue = value
-                                            ConfirmDialog(
-                                                stateOf(IGLang.edit.appendLiteral(" => $key")),
-                                                onConfirm = {
-                                                    mapValue[key] = newValue
-                                                    mc.currentScreen?.close()
-                                                    this@RowListWrapped.execute {
-                                                        this@RowListWrapped.recompose()
-                                                    }
-                                                }
-                                            ) {
-                                                TextEditor(modifier = Modifier.width(240f)) {
-                                                    text = value
-                                                    textConsumer { newValue = it }
-                                                }
-                                            }.open()
-                                        }
-                                    }
-
-                                    FlatButton(
-                                        hoveredColor = Colors.LIGHT_RED,
-                                        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
-                                    ) {
-                                        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
-                                        click {
-                                            mapValue.remove(key)
-                                            execute {
-                                                this@RowListWrapped.recompose()
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Button(
-                        Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .width(40f)
-                            .hoverText(IGLang.add)
-                    ) {
-                        Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
-                        click {
-                            mapValue["key ${(mapValue.size)}"] = ""
-                            this@Dialog.recompose()
-                        }
-                    }
-                }.open()
+                }
             }
         }
         ConfigResetButton(config) {
-            mapValue.clear()
-            mapValue.putAll(config.defaultValue)
+            execute { this@Column.recompose() }
         }
     }
 }
-
 
 fun WidgetContainerScope.StringPairListConfigWrapper(
     config: ConfigPairList<String, String>,
     modifier: Modifier = Modifier
 ) = ConfigColumnWrapper(config, modifier) {
-
-    val listValue = notifiableList(config.getValue()).apply {
-        subscribe {
-            config.setValue(it)
-        }
-    }
-
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        Button(
-            Modifier.width(80f)
-                .hoverText(mutableStateBy {
+        ListConfigWrapedButton(
+            config = config,
+            newValue = { "" to "" },
+            hoverContent = {
+                TextLabel(mutableStateBy {
                     val sb = StringBuilder()
-                    listValue.forEachWithLimit(10) { (k, v) ->
+                    config.getValue().forEachWithLimit(10) { (k, v) ->
                         sb.appendLine("$k => $v")
                     }
-                    if (listValue.size > 10) sb.append("...")
-                    if (listValue.isEmpty()) sb.append(IGLang.hasNothing.plainText)
+                    if (config.getValue().size > 10) sb.append("...")
+                    if (config.getValue().isEmpty()) sb.append(IGLang.hasNothing.plainText)
                     if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
                     Literal(sb.toString())
                 })
-        ) {
-            TextLabel(mutableStateBy { mapConfigWrapperText(listValue.size) })
-            click {
-                Dialog {
-                    TextLabel(stateOf(config.translateText))
-                    DialogContent(
-                        Modifier.padding(5f, 3f, 5f, 5f)
-                    ) {
-                        RowListWrapped(
-                            modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
-                            listModifier = { Modifier.height(160f) }
-                        ) {
-                            //TODO 很神秘的bug 如果列表为空会导致整个screen都无法正常测量和布局
-                            if (listValue.isEmpty()) TextLabel(IGLang.hasNothing)
-                            listValue.forEachIndexed { index, (key, value) ->
-                                Column(
-                                    horizontalArrangement = Arrangement.spacedBy(2f),
-                                    modifier = Modifier.width(360f)
-                                ) {
-                                    MoveButton(this@RowListWrapped, listValue, index)
+            }
+        ) { (key, value), index ->
+            val recompose = { execute { this@ListConfigWrapedButton.recompose() } }
+            MoveableListConfigEntryWrapper(
+                config = config,
+                index = index,
+                recompose = recompose,
+                modifier = Modifier.width(360f)
+            ) {
+                TextEditor(modifier = Modifier.width(240f).weight(3)) {
+                    text = key
+                    textConsumer {
+                        config.getValue()[index] = it to value
+                    }
+                }
 
-                                    TextEditor(modifier = Modifier.width(240f).weight(3)) {
-                                        text = key
-                                        textConsumer {
-                                            listValue[index] = it to value
-                                            listValue.onChange(listValue)
-                                        }
-                                    }
+                TextEditor(modifier = Modifier.width(240f).weight(5)) {
+                    text = value
+                    textConsumer {
+                        config.getValue()[index] = key to it
+                    }
+                }
 
-                                    TextEditor(modifier = Modifier.width(240f).weight(5)) {
-                                        text = value
-                                        textConsumer {
-                                            listValue[index] = key to it
-                                            listValue.onChange(listValue)
-                                        }
-                                    }
-
-                                    FlatButton(
-                                        hoveredColor = Colors.PALEGREEN.alpha(.5f),
-                                        modifier = Modifier.hoverText(IGLang.edit)
-                                    ) {
-                                        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
-                                        click {
-                                            var newKey = key
-                                            var newValue = value
-                                            ConfirmDialog(
-                                                stateOf(IGLang.edit.appendLiteral(" => $key")),
-                                                onConfirm = {
-                                                    listValue[index] = newKey to newValue
-                                                    mc.currentScreen?.close()
-                                                    this@RowListWrapped.execute {
-                                                        this@RowListWrapped.recompose()
-                                                    }
-                                                }
-                                            ) {
-                                                TextEditor(modifier = Modifier.width(240f)) {
-                                                    text = key
-                                                    textConsumer { newKey = it }
-                                                }
-                                                TextArea(modifier = Modifier.width(240f).height(120f)) {
-                                                    text = value
-                                                    textConsumer { newValue = it }
-                                                }
-                                            }.open()
-                                        }
-                                    }
-
-                                    FlatButton(
-                                        hoveredColor = Colors.LIGHT_RED,
-                                        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
-                                    ) {
-                                        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
-                                        click {
-                                            listValue.removeAt(index)
-                                            execute {
-                                                this@RowListWrapped.recompose()
-                                            }
-                                        }
-                                    }
-                                }
+                FlatButton(
+                    hoveredColor = Colors.PALEGREEN.alpha(.5f),
+                    modifier = Modifier.hoverText(IGLang.edit)
+                ) {
+                    Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
+                    click {
+                        var newKey = key
+                        var newValue = value
+                        ConfirmDialog(
+                            stateOf(IGLang.edit.appendLiteral(" => $key")),
+                            onConfirm = {
+                                config.getValue()[index] = newKey to newValue
+                                mc.currentScreen?.close()
+                                recompose()
                             }
-                        }
+                        ) {
+                            TextEditor(modifier = Modifier.width(240f)) {
+                                text = key
+                                textConsumer { newKey = it }
+                            }
+                            TextArea(modifier = Modifier.width(240f).height(120f)) {
+                                text = value
+                                textConsumer { newValue = it }
+                            }
+                        }.open()
                     }
-                    Button(
-                        Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .width(40f)
-                            .hoverText(IGLang.add)
-                    ) {
-                        Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
-                        click {
-                            listValue.add("" to "")
-                            this@Dialog.recompose()
-                        }
-                    }
-                }.open()
+                }
             }
         }
         ConfigResetButton(config) {
-            listValue.clear()
-            listValue.addAll(config.defaultValue)
+            execute { this@Column.recompose() }
+        }
+    }
+}
+
+fun <K, V> mapEntry(key: K, value: V) = object : Map.Entry<K, V> {
+    override val key: K = key
+    override val value: V = value
+}
+
+fun <K, V> WidgetContainerScope.MapConfigWrapedButton(
+    config: Config<MutableMap<K, V>, *>,
+    title: Text = config.translateText.style { hover(config.comment) },
+    iterable: Iterable<Map.Entry<K, V>> = config.getValue().entries,
+    onAdd: (Map.Entry<K, V>) -> Unit = { config.getValue().put(it.key, it.value) },
+    newValue: (Iterable<Map.Entry<K, V>>) -> Map.Entry<K, V>,
+    //hover
+    hoverSettings: Tip.Setting = Tip.DefaultSetting,
+    hoverModifier: Modifier = Modifier,
+    hoverContent: BoxScope.(Iterable<Map.Entry<K, V>>) -> Unit = {
+        TextLabel(mutableStateBy {
+            val sb = StringBuilder()
+            config.getValue().forEachWithLimit(10) { k, v ->
+                sb.appendLine("$k => $v")
+            }
+            if (config.getValue().size > 10) sb.append("...")
+            if (config.getValue().isEmpty()) sb.append(IGLang.hasNothing.plainText)
+            if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
+            Literal(sb.toString())
+        })
+    },
+    //button
+    modifier: Modifier = Modifier,
+    content: ButtonScope.() -> Unit = {
+        TextLabel(mutableStateBy { IGLang.listConfigWrapperText(iterable.count()) })
+    },
+    //RowList
+    rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    rowListModifier: ColumnScope.() -> Modifier = { Modifier },
+    entryWrapper: RowListScope.(Map.Entry<K, V>, index: Int) -> Unit
+) = IterableWrapedButton(
+    title = title,
+    iterable = iterable,
+    onAdd = onAdd,
+    newValue = newValue,
+    hoverSettings = hoverSettings,
+    hoverModifier = hoverModifier,
+    hoverContent = hoverContent,
+    modifier = modifier,
+    content = content,
+    rowListWrapperModifier = rowListWrapperModifier,
+    rowListModifier = rowListModifier,
+    entryWrapper = entryWrapper,
+)
+
+fun <K, V> WidgetContainerScope.MapConfigEntryWrapper(
+    config: Config<MutableMap<K, V>, *>,
+    key: K,
+    keyWrapper: ColumnScope.(K, Map<K, V>) -> Unit,
+    keyEditorWrapper: RowScope.(K, Map<K, V>, (K) -> Unit) -> (() -> Transform),
+    keyToSting: (K) -> String = { it.toString() },
+    value: V,
+    valueWrapper: ColumnScope.(V, MutableMap<K, V>) -> Unit,
+    valueEditorWrapper: RowScope.(V, Map<K, V>, (V) -> Unit) -> Unit,
+    recompose: () -> Unit,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+) = Column(
+    modifier,
+    horizontalArrangement,
+    verticalAlignment,
+) {
+    keyWrapper(key, config.getValue())
+    FlatButton(
+        hoveredColor = Colors.PALEGREEN.alpha(.5f),
+        modifier = Modifier.hoverText(IGLang.edit)
+    ) {
+        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
+        click {
+            var newKey = key
+            var editor: (() -> Transform)? = null
+            ConfirmDialog(
+                stateOf(IGLang.edit.appendLiteral(" => $key")),
+                onConfirm = {
+                    if (newKey == key) {
+                        mc.currentScreen?.close()
+                        return@ConfirmDialog
+                    }
+                    if (config.getValue().containsKey(newKey)) {
+                        editor?.let {
+                            TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                                TextLabel(IGLang.keyExists(keyToSting(newKey)).withColor(Colors.RED))
+                            })
+                        }
+                        return@ConfirmDialog
+                    }
+                    config.getValue().renameKey(key, newKey)
+                    mc.currentScreen?.close()
+                    recompose()
+                },
+                screenModifier = Modifier.onClose {
+                    TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                }
+            ) {
+                editor = keyEditorWrapper(key, config.getValue()) { newKey = it }
+            }.open()
+        }
+    }
+    valueWrapper(value, config.getValue())
+    FlatButton(
+        hoveredColor = Colors.PALEGREEN.alpha(.5f),
+        modifier = Modifier.hoverText(IGLang.edit)
+    ) {
+        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
+        click {
+            var newValue = value
+            ConfirmDialog(
+                stateOf(IGLang.edit.appendLiteral(" => $key")),
+                onConfirm = {
+                    config.getValue()[key] = newValue
+                    mc.currentScreen?.close()
+                    recompose()
+                }
+            ) {
+                valueEditorWrapper(value, config.getValue()) { newValue = it }
+            }.open()
+        }
+    }
+
+    FlatButton(
+        hoveredColor = Colors.LIGHT_RED,
+        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
+    ) {
+        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
+        click {
+            config.getValue().remove(key)
+            recompose()
+        }
+    }
+}
+
+fun WidgetContainerScope.StringMapConfigWrapper(
+    config: ConfigStringMap,
+    modifier: Modifier = Modifier
+) = ConfigColumnWrapper(config, modifier) {
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
+        MapConfigWrapedButton(
+            config = config,
+            newValue = { mapEntry("key ${(it.count())}", "") },
+        ) { (key, value), index ->
+            MapConfigEntryWrapper(
+                config = config,
+                key = key,
+                keyWrapper = { k, map ->
+                    TextLabel(
+                        key, modifier = Modifier.width(map.keys.maxWidth(mc.textRenderer).coerceAtMost(119) + 1f)
+                    )
+                },
+                keyEditorWrapper = { k, map, setKey ->
+                    val editor = TextEditor(modifier = Modifier.width(240f)) {
+                        text = key
+                        textConsumer { setKey(it) }
+                    }
+                    val transform = { editor.transform }
+                    transform
+                },
+                keyToSting = { it },
+                value = value,
+                valueWrapper = { v, map ->
+                    TextEditor(modifier = Modifier.width(240f)) {
+                        text = value
+                        textConsumer { map[key] = it }
+                    }
+                },
+                valueEditorWrapper = { v, map, setValue ->
+                    TextEditor(modifier = Modifier.width(240f)) {
+                        text = value
+                        textConsumer { setValue(it) }
+                    }
+                },
+                recompose = { execute { this@MapConfigWrapedButton.recompose() } }
+            )
+        }
+        ConfigResetButton(config) {
+            execute { this@Column.recompose() }
         }
     }
 }

@@ -14,9 +14,9 @@ object GuiConfig : ModConfigContainer("gui") {
 
     val autoExpandConfigContainer by boolean("auto_expand_config_container", true)
 
-    val autoExpandConfigContainerLimit by int("auto_expand_config_container_limit", 5, 0, 20)
+    val autoExpandConfigContainerLimit by int("auto_expand_config_container_limit", 5, 0, 30)
 
-    val expandableConfigContainerLimit by int("expandable_config_container_limit", 15, 0, 20)
+    val expandableConfigContainerLimit by int("expandable_config_container_limit", 15, 0, 30)
 
     val textLabelUpdateInterval by duration("text_label_update_interval", 0.5.seconds, 0.seconds, 2.seconds)
 
