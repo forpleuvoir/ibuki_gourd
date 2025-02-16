@@ -65,6 +65,12 @@ object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MO
         val testKeyBind by keyBindBoolean("test_key_bind", false, KeyBind {})
 
         var testInt by int("test_int", 0, 0, 233)
+
+        init {
+            repeat(15) {
+                int("test_int_$it", it, 0, 233)
+            }
+        }
     }
 
 

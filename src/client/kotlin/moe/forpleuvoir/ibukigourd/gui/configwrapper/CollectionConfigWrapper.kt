@@ -154,11 +154,12 @@ fun <T> WidgetContainerScope.ListConfigWrapedButton(
     //hover
     hoverSettings: Tip.Setting = Tip.DefaultSetting,
     hoverModifier: Modifier = Modifier,
+    hoverEntryToString: (T) -> String = { it.toString() },
     hoverContent: BoxScope.(Iterable<T>) -> Unit = {
         TextLabel(mutableStateBy {
             val sb = StringBuilder()
             config.getValue().forEachWithLimit(10) { t ->
-                sb.appendLine(t)
+                sb.appendLine(hoverEntryToString(t))
             }
             if (config.getValue().size > 10) sb.append("...")
             if (config.getValue().isEmpty()) sb.append(IGLang.hasNothing.plainText)
@@ -291,18 +292,7 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
         ListConfigWrapedButton(
             config = config,
             newValue = { "" to "" },
-            hoverContent = {
-                TextLabel(mutableStateBy {
-                    val sb = StringBuilder()
-                    config.getValue().forEachWithLimit(10) { (k, v) ->
-                        sb.appendLine("$k => $v")
-                    }
-                    if (config.getValue().size > 10) sb.append("...")
-                    if (config.getValue().isEmpty()) sb.append(IGLang.hasNothing.plainText)
-                    if (sb.endsWith("\n")) sb.deleteAt(sb.length - 1)
-                    Literal(sb.toString())
-                })
-            }
+            hoverEntryToString = { "${it.first} => ${it.second}" }
         ) { (key, value), index ->
             val recompose = { execute { this@ListConfigWrapedButton.recompose() } }
             MoveableListConfigEntryWrapper(

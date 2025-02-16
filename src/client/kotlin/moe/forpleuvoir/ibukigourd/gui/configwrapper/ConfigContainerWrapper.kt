@@ -60,7 +60,7 @@ fun WidgetContainerScope.ConfigsWrapper(
 ) {
     if (configs.count() == 0) TextLabel(IGLang.hasNothing)
     configs.forEach { config ->
-        ConfigWrapperMap.wrapper(config, this, Modifier.fill())
+        ConfigWrapperMap.wrapper(config, this, Modifier.fill().unlockConstraint())
     }
 }
 
@@ -100,16 +100,14 @@ fun WidgetContainerScope.ConfigContainerWrapper(
 fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
-) = Row {
+) = Row(modifier) {
     val expanded = mutableStateOf(autoExpandConfigContainer && config.configs().size <= autoExpandConfigContainerLimit)
 
     var firstConfig = config.configs().find { showFirstConfigInContainer && it !is ConfigContainer }
     if (config.configs().count { it !is ConfigContainer } <= 1) firstConfig = null
 
     Button(
-        modifier = modifier.attachLeft {
-            disableRender().padding(0)
-        }
+        modifier = Modifier.disableRender().padding(0)
     ) {
         click { expanded.switch() }
         Column(

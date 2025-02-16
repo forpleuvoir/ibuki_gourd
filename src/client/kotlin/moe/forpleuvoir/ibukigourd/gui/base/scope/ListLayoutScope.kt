@@ -53,6 +53,17 @@ interface ListLayoutScope<T : Alignment.Linear> {
      */
     fun Modifier.fill(): Modifier = fillMode(FillMode.MatchParent)
 
+    /**
+     * 解除当前组件的布局约束。
+     *
+     * 使用此方法可以使组件在布局中取消其先前设定的约束条件，使其不再受到父布局或兄弟组件设置的特定限制。
+     * 调用此方法后，组件可能恢复到默认的未受约束状态。
+     *
+     * @receiver Modifier 当前的修饰符实例
+     * @return 修改后的 Modifier 对象
+     */
+    fun Modifier.unlockConstraint(unlockConstraint: Boolean = true): Modifier
+
 }
 
 interface ColumnListLayoutScope : ListLayoutScope<Alignment.Vertical> {
@@ -77,6 +88,16 @@ interface ColumnListLayoutScope : ListLayoutScope<Alignment.Vertical> {
         }
     }
 
+    override fun Modifier.unlockConstraint(unlockConstraint: Boolean) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnListLayout.WrappedColumnListLayoutData
+                -> it.parentData = parentData.copy(unlockConstraint = unlockConstraint)
+
+            null
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(unlockConstraint = unlockConstraint)
+        }
+    }
+
 }
 
 interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
@@ -98,6 +119,16 @@ interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
 
             null
                 -> it.parentData = RowListLayout.WrappedRowListLayoutData(alignment = alignment)
+        }
+    }
+
+    override fun Modifier.unlockConstraint(unlockConstraint: Boolean) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is RowListLayout.WrappedRowListLayoutData
+                -> it.parentData = parentData.copy(unlockConstraint = unlockConstraint)
+
+            null
+                -> it.parentData = RowListLayout.WrappedRowListLayoutData(unlockConstraint = unlockConstraint)
         }
     }
 

@@ -74,7 +74,7 @@ interface RowLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal> {
         //使用的高度
         var usedHeight = arrangement.spacing * measurables.lastIndex
         //总权重
-        val totalWidget = parentDatas.sumOf { it.weight.toInt() }
+        val totalWidget = parentDatas.sumOf { it.weight }
 
         //优先计算固定最小尺寸的组件的占用
         var minimumOccupiedHeight = 0f

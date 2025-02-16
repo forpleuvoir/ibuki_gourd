@@ -10,7 +10,7 @@ object GuiConfig : ModConfigContainer("gui") {
 
     val configContainerWrapperGuidelinesColor by hsvColor("config_container_wrapper_guidelines_color", HSVColor(0f, 0f, 0f).alpha(0.15f))
 
-    val showFirstConfigInContainer by boolean("show_first_config_in_container", true)
+    val showFirstConfigInContainer by boolean("show_first_config_in_container", false)
 
     val autoExpandConfigContainer by boolean("auto_expand_config_container", true)
 

@@ -37,6 +37,16 @@ interface WrappedListLayoutData {
      * 例如，可以用来确定子组件是水平居中、左对齐还是右对齐等。
      */
     val alignment: Alignment.Linear?
+
+    /**
+     * 表示一个布尔值，用于确定是否解除对布局约束的限制。
+     *
+     * 当值为 `true` 时，表示在布局中可以解除某些特定的约束条件，这可能使子组件的位置或尺寸不再受严格限制。
+     * 当值为 `false` 时，表示布局将严格按照定义的约束来计算和安排子组件。
+     *
+     * 这个变量通常用于需要动态调整布局行为的场景。
+     */
+    val unlockConstraint: Boolean
 }
 
 interface RowListLayout : ListLayout {
@@ -44,11 +54,13 @@ interface RowListLayout : ListLayout {
     data class WrappedRowListLayoutData(
         override val fillMode: FillMode = None,
         override val alignment: Alignment.Horizontal? = null,
+        override val unlockConstraint: Boolean = false,
     ) : WrappedListLayoutData {
 
         companion object : WrappedLayoutDataUtil<WrappedRowListLayoutData> {
             override fun fromMeasurable(measurable: Measurable): WrappedRowListLayoutData? =
                 measurable.parentData as? WrappedRowListLayoutData
+
             override fun default(): WrappedRowListLayoutData = WrappedRowListLayoutData()
         }
 
@@ -66,37 +78,51 @@ interface RowListLayout : ListLayout {
         var maxChildWidth = 0f
         //内容的最大高度
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
+
+        fun contentMaxHeight(unconstrained: Boolean) =
+            if (unconstrained) 2333f
+            else contentMaxHeight
+
         //所有元素的parentData
         val parentDatas = WrappedRowListLayoutData.wrappedDatas(measurables)
         //使用的高度
         var usedHeight = spacing * measurables.lastIndex
 
         measurables
-            .filterIndexed { index, _ -> parentDatas[index].fillMode != FillMode.MatchSibling }
             .forEachIndexed { index, child ->
-                val placeable = child.measure(
-                    Constraints.of(
-                        if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
-                        contentMaxWidth - child.margin.width,
-                        0f,
-                        (contentMaxHeight - child.margin.height).coerceAtLeast(0f)
+                if (parentDatas[index].fillMode != FillMode.MatchSibling) {
+                    val placeable = child.measure(
+                        Constraints.of(
+                            if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
+                            contentMaxWidth - child.margin.width,
+                            0f,
+                            (contentMaxHeight(parentDatas[index].unlockConstraint) - child.margin.height).coerceAtLeast(0f)
+                        )
                     )
-                )
-                if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
-                usedHeight += placeable.size.height + child.margin.height
+
+                    if (placeable.size.width + child.margin.width > maxChildWidth)
+                        maxChildWidth = placeable.size.width + child.margin.width
+
+                    usedHeight += placeable.size.height + child.margin.height
+                }
             }
 
         //matchMaxSpace
         measurables
-            .filterIndexed { index, _ -> parentDatas[index].fillMode == FillMode.MatchSibling }
-            .forEach { child ->
-                val min = if (maxChildWidth > 0) maxChildWidth - child.margin.width else 0f
-                val max = if (maxChildWidth > 0) maxChildWidth - child.margin.width else contentMaxWidth - child.margin.width
-                val placeable = child.measure(
-                    Constraints.of(min, max, 0f, (contentMaxHeight - child.margin.height).coerceAtLeast(0f))
-                )
-                if (placeable.size.width + child.margin.width > maxChildWidth) maxChildWidth = placeable.size.width + child.margin.width
-                usedHeight += placeable.size.height + child.margin.height
+            .forEachIndexed { index, child ->
+                if (parentDatas[index].fillMode == FillMode.MatchSibling) {
+
+                    val min = if (maxChildWidth > 0) maxChildWidth - child.margin.width else 0f
+                    val max = if (maxChildWidth > 0) maxChildWidth - child.margin.width else contentMaxWidth - child.margin.width
+                    val placeable = child.measure(
+                        Constraints.of(min, max, 0f, (contentMaxHeight(parentDatas[index].unlockConstraint) - child.margin.height).coerceAtLeast(0f))
+                    )
+
+                    if (placeable.size.width + child.margin.width > maxChildWidth)
+                        maxChildWidth = placeable.size.width + child.margin.width
+
+                    usedHeight += placeable.size.height + child.margin.height
+                }
             }
 
         usedHeight += widget.padding.height
@@ -136,11 +162,13 @@ interface ColumnListLayout : ListLayout {
     data class WrappedColumnListLayoutData(
         override val fillMode: FillMode = None,
         override val alignment: Alignment.Vertical? = null,
+        override val unlockConstraint: Boolean = false,
     ) : WrappedListLayoutData {
 
         companion object : WrappedLayoutDataUtil<WrappedColumnListLayoutData> {
             override fun fromMeasurable(measurable: Measurable): WrappedColumnListLayoutData? =
                 measurable.parentData as? WrappedColumnListLayoutData
+
             override fun default(): WrappedColumnListLayoutData = WrappedColumnListLayoutData()
         }
 
@@ -158,41 +186,58 @@ interface ColumnListLayout : ListLayout {
         var maxChildHeight = 0f
         //内容的最大高度
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
+
+        fun contentMaxWidth(unconstrained: Boolean) =
+            if (unconstrained) 2333f
+            else contentMaxWidth
+
         //所有元素的parentData
         val parentDatas = WrappedColumnListLayoutData.wrappedDatas(measurables)
         //使用的宽度
         var usedWidth = spacing * measurables.lastIndex
 
         measurables
-            .filterIndexed { index, _ -> parentDatas[index].fillMode != FillMode.MatchSibling }
             .forEachIndexed { index, child ->
-                val placeable = child.measure(
-                    Constraints.of(
-                        0f,
-                        (contentMaxWidth - child.margin.width).coerceAtLeast(0f),
-                        if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
-                        contentMaxHeight - child.margin.height
+                if (parentDatas[index].fillMode != FillMode.MatchSibling) {
+
+                    val placeable = child.measure(
+                        Constraints.of(
+                            0f,
+                            (contentMaxWidth(parentDatas[index].unlockConstraint) - child.margin.width).coerceAtLeast(0f),
+                            if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
+                            contentMaxHeight - child.margin.height
+                        )
                     )
-                )
-                if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
-                usedWidth += placeable.size.width + child.margin.width
+
+                    if (placeable.size.height + child.margin.height > maxChildHeight)
+                        maxChildHeight = placeable.size.height + child.margin.height
+
+                    usedWidth += placeable.size.width + child.margin.width
+                }
             }
 
         //matchMaxSpace
         measurables
-            .filterIndexed { index, _ -> parentDatas[index].fillMode == FillMode.MatchSibling }
-            .forEach { child ->
-                val min = if (maxChildHeight > 0) maxChildHeight - child.margin.height else 0f
-                val max = if (maxChildHeight > 0) maxChildHeight - child.margin.height else contentMaxHeight - child.margin.height
-                val placeable = child.measure(
-                    Constraints.of(
-                        0f,
-                        (contentMaxWidth - child.margin.width).coerceAtLeast(0f),
-                        min, max
+            .forEachIndexed { index, child ->
+                if (parentDatas[index].fillMode == FillMode.MatchSibling) {
+
+                    val min = if (maxChildHeight > 0) maxChildHeight - child.margin.height else 0f
+                    val max = if (maxChildHeight > 0) maxChildHeight - child.margin.height else contentMaxHeight - child.margin.height
+
+                    val placeable = child.measure(
+                        Constraints.of(
+                            0f,
+                            (contentMaxWidth(parentDatas[index].unlockConstraint) - child.margin.width).coerceAtLeast(0f),
+                            min, max
+                        )
                     )
-                )
-                if (placeable.size.height + child.margin.height > maxChildHeight) maxChildHeight = placeable.size.height + child.margin.height
-                usedWidth += placeable.size.width + child.margin.width
+
+                    if (placeable.size.height + child.margin.height > maxChildHeight)
+                        maxChildHeight = placeable.size.height + child.margin.height
+
+                    usedWidth += placeable.size.width + child.margin.width
+
+                }
             }
 
         usedWidth += widget.padding.width
