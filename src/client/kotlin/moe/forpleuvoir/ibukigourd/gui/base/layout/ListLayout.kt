@@ -49,6 +49,8 @@ interface WrappedListLayoutData {
     val unlockConstraint: Boolean
 }
 
+private const val UNLOCKED_MAX_CONSTRAINTS = 2333f
+
 interface RowListLayout : ListLayout {
 
     data class WrappedRowListLayoutData(
@@ -80,7 +82,7 @@ interface RowListLayout : ListLayout {
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
 
         fun contentMaxHeight(unconstrained: Boolean) =
-            if (unconstrained) 2333f
+            if (unconstrained) UNLOCKED_MAX_CONSTRAINTS
             else contentMaxHeight
 
         //所有元素的parentData
@@ -188,7 +190,7 @@ interface ColumnListLayout : ListLayout {
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
 
         fun contentMaxWidth(unconstrained: Boolean) =
-            if (unconstrained) 2333f
+            if (unconstrained) UNLOCKED_MAX_CONSTRAINTS
             else contentMaxWidth
 
         //所有元素的parentData

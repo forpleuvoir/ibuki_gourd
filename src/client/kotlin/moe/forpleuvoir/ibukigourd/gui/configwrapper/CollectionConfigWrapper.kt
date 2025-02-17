@@ -86,7 +86,7 @@ fun WidgetContainerScope.MoveButton(
     }
 }
 
-fun <T> WidgetContainerScope.IterableWrapedButton(
+fun <T> WidgetContainerScope.IterableWrappedButton(
     title: Text,
     iterable: Iterable<T>,
     onAdd: (T) -> Unit,
@@ -145,7 +145,7 @@ fun <T> WidgetContainerScope.IterableWrapedButton(
     }
 }
 
-fun <T> WidgetContainerScope.ListConfigWrapedButton(
+fun <T> WidgetContainerScope.ListConfigWrappedButton(
     config: ConfigList<T>,
     title: Text = config.translateText.style { hover(config.comment) },
     iterable: Iterable<T> = config.getValue(),
@@ -176,7 +176,7 @@ fun <T> WidgetContainerScope.ListConfigWrapedButton(
     rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
     rowListModifier: ColumnScope.() -> Modifier = { Modifier },
     entryWrapper: RowListScope.(T, index: Int) -> Unit
-) = IterableWrapedButton(
+) = IterableWrappedButton(
     title = title,
     iterable = iterable,
     onAdd = onAdd,
@@ -259,14 +259,14 @@ fun WidgetContainerScope.StringListConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        ListConfigWrapedButton(
+        ListConfigWrappedButton(
             config = config,
             newValue = { "" },
         ) { entry, index ->
             MoveableListConfigEntryWrapper(
                 config = config,
                 index = index,
-                recompose = { execute { this@ListConfigWrapedButton.recompose() } }
+                recompose = { execute { this@ListConfigWrappedButton.recompose() } }
             ) {
                 TextEditor(modifier = Modifier.width(240f)) {
                     text = entry
@@ -289,12 +289,12 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        ListConfigWrapedButton(
+        ListConfigWrappedButton(
             config = config,
             newValue = { "" to "" },
             hoverEntryToString = { "${it.first} => ${it.second}" }
         ) { (key, value), index ->
-            val recompose = { execute { this@ListConfigWrapedButton.recompose() } }
+            val recompose = { execute { this@ListConfigWrappedButton.recompose() } }
             MoveableListConfigEntryWrapper(
                 config = config,
                 index = index,
@@ -355,7 +355,7 @@ fun <K, V> mapEntry(key: K, value: V) = object : Map.Entry<K, V> {
     override val value: V = value
 }
 
-fun <K, V> WidgetContainerScope.MapConfigWrapedButton(
+fun <K, V> WidgetContainerScope.MapConfigWrappedButton(
     config: Config<MutableMap<K, V>, *>,
     title: Text = config.translateText.style { hover(config.comment) },
     iterable: Iterable<Map.Entry<K, V>> = config.getValue().entries,
@@ -385,7 +385,7 @@ fun <K, V> WidgetContainerScope.MapConfigWrapedButton(
     rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
     rowListModifier: ColumnScope.() -> Modifier = { Modifier },
     entryWrapper: RowListScope.(Map.Entry<K, V>, index: Int) -> Unit
-) = IterableWrapedButton(
+) = IterableWrappedButton(
     title = title,
     iterable = iterable,
     onAdd = onAdd,
@@ -494,7 +494,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        MapConfigWrapedButton(
+        MapConfigWrappedButton(
             config = config,
             newValue = { mapEntry("key ${(it.count())}", "") },
         ) { (key, value), index ->
@@ -528,7 +528,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                         textConsumer { setValue(it) }
                     }
                 },
-                recompose = { execute { this@MapConfigWrapedButton.recompose() } }
+                recompose = { execute { this@MapConfigWrappedButton.recompose() } }
             )
         }
         ConfigResetButton(config) {
