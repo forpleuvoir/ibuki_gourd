@@ -28,7 +28,6 @@ import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.plus
-import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun testScreen3() = RowScreen(
@@ -71,7 +70,7 @@ fun testScreen3() = RowScreen(
                 ) {
                     listString.forEach { str ->
                         FlatButton(
-                            modifier = Modifier.width(listString.maxWidth(textRenderer) + 2f),
+                            modifier = Modifier.width(listString.maxWidth + 2f),
                             hoveredColor = Colors.CYAN.opacity(.35f),
                             horizontalArrangement = Arrangement.Left
                         ) {

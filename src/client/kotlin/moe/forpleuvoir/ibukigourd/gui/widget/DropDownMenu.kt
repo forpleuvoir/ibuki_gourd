@@ -32,7 +32,6 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
-import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -294,7 +293,7 @@ fun WidgetContainerScope.Selector(
     onSelected = onSelected,
     selectedColor = selectedColor,
     selectedWrapper = { TextLabel(it) },
-    optionWrapper = { TextLabel(it, modifier = Modifier.width(options.maxWidth(textRenderer).toFloat())) },
+    optionWrapper = { TextLabel(it, modifier = Modifier.width(options.maxWidth)) },
     modifier = modifier,
     listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
@@ -319,7 +318,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
         TextLabel(
             it.translateText,
             modifier = Modifier
-                .width(options.map { it.translateText }.maxWidth(textRenderer).toFloat().coerceAtLeast(30f))
+                .width(options.map { it.translateText }.maxWidth.coerceAtLeast(30f))
                 .hoverText(it.translateComment, optionalDirection = Direction.leftRightTopBottom)
         )
     },
@@ -344,7 +343,7 @@ fun WidgetContainerScope.EventSelector(
         TextLabel(
             it.translateText,
             modifier = Modifier
-                .width(options.map { it.translateText }.maxWidth(textRenderer).toFloat().coerceAtLeast(30f))
+                .width(options.map { it.translateText }.maxWidth.coerceAtLeast(30f))
                 .hoverText(it.translateComment, optionalDirection = Direction.leftRightTopBottom)
         )
     },

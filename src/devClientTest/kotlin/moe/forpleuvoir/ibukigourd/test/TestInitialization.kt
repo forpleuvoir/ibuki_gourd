@@ -17,6 +17,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
@@ -77,6 +79,8 @@ fun example() = BoxScreen {
         Button {
             click {
                 Toast.showToast(text = "hello minecraft")
+                println("hello minecraft".width)
+                println(Literal("hello minecraft").width)
             }
             TextLabel("hello minecraft")
             Icon(IconTextures.LOCK)

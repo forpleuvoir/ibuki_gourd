@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import moe.forpleuvoir.ibukigourd.compat.modernui.ModernUICompat
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.textRenderOffset
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -75,14 +77,12 @@ class TextWidget(
 
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
-        val width = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) (c.maxWidth - padding.width).toInt() else 0)
-            .maxOf { textRenderer.getWidth(it) }.toFloat() + padding.width
+        val width = text.getValue().wrapToTextLines(if (setting.autoNewLine) (c.maxWidth - padding.width) else 0f)
+            .maxOf { it.width } + padding.width
         val spacing = setting.verticalArrangement.spacing
-        val height = text.getValue().wrapToTextLines(
-            textRenderer, (width - padding.width).toInt()
-        ).size * (textRenderer.fontHeight + spacing) - spacing + padding.height
+        val height = text.getValue().totalHeight(spacing) + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
-        renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
+        renderText = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
         return this
     }
 
@@ -114,10 +114,10 @@ class TextWidget(
 
     private val textRenderer by setting::textRenderer
 
-    private var renderText: List<McText> = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
+    private var renderText: List<McText> = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
 
     fun onChanged() {
-        renderText = text.getValue().wrapToTextLines(textRenderer, if (setting.autoNewLine) contentWidth.toInt() else 0)
+        renderText = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
         if (!constraints.fixed()) {
             runCatching {
                 remeasure()
@@ -144,7 +144,7 @@ class TextWidget(
     private val xScrollRange: List<Pair<Float, Float>>
         get() = renderText.map {
             val contentBox = contentBox(false)
-            val textWidth = textRenderer.getWidth(it)
+            val textWidth = it.width
             val minX = contentBox.right - textWidth
             val maxX = contentBox.left
             minX to maxX
@@ -157,7 +157,7 @@ class TextWidget(
     private val yScrollRange: Pair<Float, Float>
         get() {
             val contentBox = contentBox(false)
-            val textHeight = renderText.totalHeight(textRenderer, setting.verticalArrangement.spacing)
+            val textHeight = renderText.totalHeight(setting.verticalArrangement.spacing)
             val minY = contentBox.bottom - textHeight
             val maxY = contentBox.top
             return minY to maxY
@@ -174,7 +174,7 @@ class TextWidget(
         val (minX, maxX) = xScrollRange[index]
         //滚动宽度
         val width = abs(maxX - minX)
-        val shouldScroll = textRenderer.getWidth(renderText[index]) > contentWidth + 2f
+        val shouldScroll = renderText[index].width > contentWidth + 2f
         if (!shouldScroll) return x
         //从min滚动到max所需要的tick
         val ticks = width / xScrollSpeed
@@ -192,7 +192,7 @@ class TextWidget(
         val (minY, maxY) = yScrollRange
         //滚动宽度
         val height = abs(maxY - minY)
-        val shouldScroll = renderText.totalHeight(textRenderer, setting.verticalArrangement.spacing) > contentHeight + 2f
+        val shouldScroll = renderText.totalHeight(setting.verticalArrangement.spacing) > contentHeight + 2f
         if (!shouldScroll) return y
         //从min滚动到max所需要的tick
         val ticks = height / yScrollSpeed
@@ -212,29 +212,44 @@ class TextWidget(
         val renderText = renderText
         val list = renderText.map { text ->
             if (text != renderText.last()) {
-                Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight + setting.verticalArrangement.spacing)
-            } else
-                Size(textRenderer.getWidth(text).toFloat(), textRenderer.fontHeight.toFloat())
+                text.size.run {
+                    Size(width, this.height + setting.verticalArrangement.spacing)
+                }
+            } else text.size
         }
         context.useScissor(transform.asWorldCoordinateBox.expandEdges(1f)) {
             useMatrixStack { matrixStack ->
-                matrixStack.translate(0.35f, 0.4f, 0f)
+                matrixStack.translate(0.35f, textRenderOffset.y(), 0f)
                 //------------ 开始渲染 ------------\\
                 batchRenderText(textRenderer) {
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }
                         .zip(setting.verticalArrangement.arrange(contentBox.height, list.map { it.height }).map { contentBox.top + it })
                         .forEachIndexed { index, (x, y) ->
-                            pushText(
-                                renderText[index],
-                                textScrolledXPos(index, x),
-                                textScrolledYPos(index, y),
-                                setting.shadow,
-                                setting.layerType,
-                                color = setting.defaultColor,
-                                backgroundColor = setting.backgroundColor,
-                                LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                                setting.rightToLeft
-                            )
+                            if (ModernUICompat.isTextEngineEnabled) {
+                                pushText(
+                                    renderText[index].string,
+                                    textScrolledXPos(index, x),
+                                    textScrolledYPos(index, y),
+                                    setting.shadow,
+                                    setting.layerType,
+                                    color = setting.defaultColor,
+                                    backgroundColor = setting.backgroundColor,
+                                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                                    setting.rightToLeft
+                                )
+                            } else {
+                                pushText(
+                                    renderText[index],
+                                    textScrolledXPos(index, x),
+                                    textScrolledYPos(index, y),
+                                    setting.shadow,
+                                    setting.layerType,
+                                    color = setting.defaultColor,
+                                    backgroundColor = setting.backgroundColor,
+                                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                                    setting.rightToLeft
+                                )
+                            }
                         }
                 }
             }

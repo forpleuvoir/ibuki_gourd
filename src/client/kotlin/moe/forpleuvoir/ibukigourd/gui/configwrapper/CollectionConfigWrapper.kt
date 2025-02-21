@@ -35,6 +35,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.moveElement
@@ -206,7 +207,7 @@ fun <T> WidgetContainerScope.ListConfigEntryWrapper(
 ) {
     TextLabel(
         index.toString(),
-        modifier = Modifier.width(mc.textRenderer.getWidth(config.getValue().lastIndex.toString()) + 1f)
+        modifier = Modifier.width(config.getValue().lastIndex.toString().width + 1f)
     )
     content()
     FlatButton(
@@ -237,7 +238,7 @@ fun <T> WidgetContainerScope.MoveableListConfigEntryWrapper(
     MoveButton(recompose, config.getValue(), index)
     TextLabel(
         index.toString(),
-        modifier = Modifier.width(mc.textRenderer.getWidth(config.getValue().lastIndex.toString()) + 1f)
+        modifier = Modifier.width(config.getValue().lastIndex.toString().width + 1f)
     )
     content()
     FlatButton(
@@ -503,7 +504,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                 key = key,
                 keyWrapper = { k, map ->
                     TextLabel(
-                        key, modifier = Modifier.width(map.keys.maxWidth(mc.textRenderer).coerceAtMost(119) + 1f)
+                        key, modifier = Modifier.width(map.keys.maxWidth.coerceAtMost(119f) + 1f)
                     )
                 },
                 keyEditorWrapper = { k, map, setKey ->

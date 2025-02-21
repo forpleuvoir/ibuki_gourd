@@ -5,30 +5,31 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.screen.byRemember
-import moe.forpleuvoir.ibukigourd.gui.base.screen.remember
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
-import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 
 fun TestScreen2() = RowScreen(
     modifier = Modifier.padding(20),
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
+    val t = mutableStateOf("hello minecraft")
+    TextLabel(t)
     TextEditor {
         textConsumer {
-            mc.remember("text1", it)
+            t.setValue(it)
         }
-        text = mc.byRemember("text1", "Hello world!")
+        text = t.getValue()
     }
     TextAreaWrapped(
         modifier = Modifier.width(160f).weight(1)
     ) {
         textConsumer {
-            mc.remember(this, it)
+            t.setValue(it)
         }
-        text = mc.byRemember(this, "这是多行文本")
+        text = t.getValue()
     }
 
 

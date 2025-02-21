@@ -27,10 +27,7 @@ import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.text.totalHeight
-import moe.forpleuvoir.ibukigourd.text.wrapToLines
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -295,7 +292,7 @@ class TextAreaWidget(
         if (offset == 0) {
             return
         }
-        val i = textRenderer.getWidth(text.substring(this.currentLine.beginIndex, cursor)) + 2
+        val i = text.substring(this.currentLine.beginIndex, cursor).width.toInt() + 2
         val substring: Substring = this.getOffsetLine(offset)
         val amount = textRenderer.trimToWidth(text.substring(substring.beginIndex, substring.endIndex), i).length
         moveCursor(ABSOLUTE, substring.beginIndex + amount)
@@ -323,7 +320,7 @@ class TextAreaWidget(
             lines.add(Substring.EMPTY)
             return
         }
-        text.wrapToLines(textRenderer, contentWidth.toInt()) { start, end ->
+        text.wrapToLines(contentWidth) { start, end ->
             lines.add(Substring(start, end))
         }
         if (text[text.length - 1] == '\n') {
@@ -349,8 +346,8 @@ class TextAreaWidget(
 
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
-        val height = text.totalHeight(textRenderer, spacing, c.maxWidth.toInt()) + padding.height
-        val width = text.wrapToLines(textRenderer).maxWidth(textRenderer).toFloat() + padding.width
+        val height = text.totalHeight(spacing, c.maxWidth) + padding.height
+        val width = text.wrapToLines().maxWidth + padding.width
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         reWrap()
         return this
@@ -645,26 +642,26 @@ class TextAreaWidget(
         //应该最多渲染三个矩形
         if (selectedText.isNotEmpty() && isFocused) {
             val (start, end) = selection
-            val startXOffset = textRenderer.getWidth(text.substring(currentLine(start).beginIndex, start))
-            val endXOffset = textRenderer.getWidth(text.substring(currentLine(end).beginIndex, end))
+            val startXOffset = text.substring(currentLine(start).beginIndex, start).width
+            val endXOffset = text.substring(currentLine(end).beginIndex, end).width
             val startY = contentBox.top + currentLineIndex(start) * (fontHeight + spacing) - amount
             val endY = contentBox.top + currentLineIndex(end) * (fontHeight + spacing) - amount
             val mindY = (startY + (fontHeight + spacing)).let { if (it == endY) 0f else it }
             if (startY == endY) {
                 context.renderBox(
-                    Box(contentBox.left + startXOffset, startY, Size(textRenderer.getWidth(selection.getText(this.text)), fontHeight)),
+                    Box(contentBox.left + startXOffset, startY, selection.getText(this.text).size),
                     selectedColor, RenderLayer.getGuiTextHighlight()
                 )
             } else if (mindY == 0f) {
                 context.batchRenderBox(RenderLayer.getGuiTextHighlight()) {
                     pushBox(Box(contentBox.left + startXOffset, startY, Size(contentBox.width - startXOffset, fontHeight + spacing)), selectedColor)
-                    pushBox(Box(contentBox.left, endY, Size(endXOffset, fontHeight)), selectedColor)
+                    pushBox(Box(contentBox.left, endY, Size(endXOffset, fontHeight.toFloat())), selectedColor)
                 }
             } else {
                 context.batchRenderBox(RenderLayer.getGuiTextHighlight()) {
                     pushBox(Box(contentBox.left + startXOffset, startY, Size(contentBox.width - startXOffset, fontHeight + spacing)), selectedColor)
                     pushBox(Box(contentBox.left, mindY, Size(contentBox.width, endY - startY - (fontHeight + spacing))), selectedColor)
-                    pushBox(Box(contentBox.left, endY, Size(endXOffset, fontHeight)), selectedColor)
+                    pushBox(Box(contentBox.left, endY, Size(endXOffset, fontHeight.toFloat())), selectedColor)
                 }
             }
         }
@@ -675,7 +672,7 @@ class TextAreaWidget(
             val contentBox = contentBox(true)
             val thickness = 0.75f
             val xOffset =
-                textRenderer.getWidth(text.substring(currentLine.beginIndex, cursor)).let { if (cursor == text.length) it.toFloat() else it - thickness }
+                text.substring(currentLine.beginIndex, cursor).width.let { if (cursor == text.length) it else it - thickness }
             val y = contentBox.top + currentLineIndex * (fontHeight + spacing) - amount - spacing
             if (y !in contentBox.top - fontHeight..contentBox.bottom) return
             context.renderBox(Box(contentBox.left + xOffset, y + spacing, Size(thickness, textRenderer.fontHeight.toFloat())), cursorColor)

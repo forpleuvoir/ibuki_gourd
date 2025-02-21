@@ -5,6 +5,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
+
+fun Modifier.data(key: String, value: Any) = this then WidgetModifier {
+    it.customData[key] = value
+}
+
 fun Modifier.name(name: String) = this then WidgetModifier {
     it.setName(name)
 }

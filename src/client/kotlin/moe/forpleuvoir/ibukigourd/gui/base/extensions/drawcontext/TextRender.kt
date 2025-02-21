@@ -1,11 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 
+import moe.forpleuvoir.ibukigourd.compat.modernui.ModernUICompat
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.draw
 import moe.forpleuvoir.ibukigourd.text.size
+import moe.forpleuvoir.ibukigourd.util.math.Vector3f
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -18,6 +20,15 @@ import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Text
 import org.joml.Matrix4f
+import org.joml.Vector3fc
+
+
+val textRenderOffset: Vector3fc by lazy {
+    ModernUICompat.textEngineEnabled(
+        Vector3f(0.0f, 0.0f, 0f), Vector3f(0.0f, 0.4f, 0f)
+    )
+}
+
 
 /**
  * 渲染文本
@@ -240,7 +251,7 @@ fun DrawContext.renderAlignmentText(
     light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
-    alignment.align(box, text.size(textRenderer).toFloat()).apply {
+    alignment.align(box, text.size).apply {
         renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, light, rightToLeft)
     }
 }
@@ -270,7 +281,7 @@ fun TextRenderer.renderAlignmentText(
     light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = this.isRightToLeft,
 ) {
-    alignment.align(box, text.size(this).toFloat()).apply {
+    alignment.align(box, text.size).apply {
         renderText(vertexConsumers, positionMatrix, text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, light, rightToLeft)
     }
 }
@@ -299,7 +310,7 @@ fun DrawContext.renderAlignmentText(
     light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
     rightToLeft: Boolean = textRenderer.isRightToLeft,
 ) {
-    alignment.align(box, text.size(textRenderer).toFloat()).apply {
+    alignment.align(box, text.size).apply {
         renderText(text, box.x + x(), box.y + y(), shadow, layerType, color, backgroundColor, textRenderer, light, rightToLeft)
     }
 }

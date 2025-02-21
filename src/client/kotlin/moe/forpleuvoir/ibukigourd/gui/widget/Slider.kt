@@ -1,8 +1,10 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.compat.modernui.ModernUICompat
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.textRenderOffset
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -99,7 +101,10 @@ fun <T : Comparable<T>> WidgetContainerScope.Slider(
                             pushWidgetTexture(transform, theme, colorB)
                         }
                     }
-                    renderAlignmentText(textMapper(value.getValue()), transform.asWorldCoordinateBox.copy(y = transform.worldY + 1f))
+                    renderAlignmentText(
+                        textMapper(value.getValue()),
+                        transform.asWorldCoordinateBox.copy(y = transform.worldY + ModernUICompat.textEngineEnabled(textRenderOffset.y(), 1f))
+                    )
                 }
             }.then(modifier)
     ) {

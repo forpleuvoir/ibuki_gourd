@@ -2,10 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.useMatrixStack
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -33,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.math.copy
 import moe.forpleuvoir.ibukigourd.util.math.plus
@@ -313,7 +311,7 @@ open class TextEditorWidget(
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
         val width =
-            text.isNotEmpty().pick(textRenderer.getWidth(text), hintText.getValue()?.let { textRenderer.getWidth(it) } ?: 0).toFloat() + padding.width + 5f
+            text.isNotEmpty().pick(text.width, hintText.getValue()?.width ?: 0).toFloat() + padding.width + 5f
         val height = textRenderer.fontHeight + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
@@ -487,8 +485,8 @@ open class TextEditorWidget(
         val str = textRenderer.trimToWidth(text.substring(firstCharacterIndex), contentWidth.toInt())
         val xOffset = (mouseX - contentLeft(true)).coerceAtLeast(0f)
         val count = textRenderer.trimToWidth(str, xOffset.toInt()).length
-        val countWidth = textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + count)).toFloat()
-        val endCharWidth = textRenderer.getWidth(text[(count + firstCharacterIndex + 1).coerceIn(0..text.lastIndex.coerceAtLeast(0))].toString())
+        val countWidth = text.substring(firstCharacterIndex, firstCharacterIndex + count).width
+        val endCharWidth = text[(count + firstCharacterIndex + 1).coerceIn(0..text.lastIndex.coerceAtLeast(0))].toString().width
         val offset = if (xOffset - countWidth > endCharWidth / 2f) 1 else 0
         cursor = count + firstCharacterIndex + offset
     }
@@ -535,12 +533,11 @@ open class TextEditorWidget(
             val height = textRenderer.fontHeight.toFloat()
             val thickness = 0.75f
             val y = box.top + (box.height - height) / 2f
-            val offset = textRenderer.getWidth(
-                text.substring(
-                    min(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0),
-                    max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
-                )
-            )
+            val offset = text.substring(
+                min(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0),
+                max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
+            ).width
+
             content.renderBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
         }
     }
@@ -548,7 +545,7 @@ open class TextEditorWidget(
     fun renderText(content: DrawContext) {
         val contentBox = contentBox(true)
         content.useMatrixStack { matrixStack ->
-            matrixStack.translate(0.0f, 0.4f, 0f)
+            matrixStack.translate(0f, textRenderOffset.y(), 0f)
             content.batchRenderText(textRenderer) {
                 //"渲染提示文本"
                 if (text.isEmpty() && hintText.getValue() != null && !isFocused) {
@@ -562,7 +559,7 @@ open class TextEditorWidget(
                 //"渲染文本建议"
                 suggestion?.invoke(text, cursor)?.let { suggestion ->
                     if (isFocused && cursor == text.length) {
-                        val renderTextWidth = textRenderer.getWidth(renderText).toFloat()
+                        val renderTextWidth = renderText.width
                         val box =
                             Box(contentBox.position + Vector2f(renderTextWidth), contentBox.width - renderTextWidth, contentBox.height)
                         pushAlignmentText(suggestion, box, color = suggestionColor, layerType = TextRenderer.TextLayerType.SEE_THROUGH)
@@ -578,11 +575,11 @@ open class TextEditorWidget(
                     (selectionEnd - firstCharacterIndex).coerceAtLeast(0)
             val start = contentBox.left +
                     if (startIndex > 0)
-                        textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + startIndex)).toFloat()
+                        text.substring(firstCharacterIndex, firstCharacterIndex + startIndex).width
                     else 0f
             val end = contentBox.left +
                     if (endIndex > 0)
-                        textRenderer.getWidth(text.substring(firstCharacterIndex, firstCharacterIndex + endIndex)).toFloat()
+                        text.substring(firstCharacterIndex, firstCharacterIndex + endIndex).width
                     else 0f
             val width = (start - end).absoluteValue
             val rect = if (selectionEnd > selectionStart) {

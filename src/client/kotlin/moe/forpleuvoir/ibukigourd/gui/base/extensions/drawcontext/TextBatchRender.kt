@@ -3,11 +3,8 @@ package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.text.draw
-import moe.forpleuvoir.ibukigourd.text.size
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.text.style.argbColor
-import moe.forpleuvoir.ibukigourd.text.wrapToLines
-import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -17,7 +14,6 @@ import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.VertexConsumerProvider
-import net.minecraft.client.resource.language.ReorderingUtil
 import net.minecraft.text.OrderedText
 import net.minecraft.text.Text
 import org.joml.Matrix4f
@@ -66,7 +62,7 @@ open class TextBatchRenderScope internal constructor(
         rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
         textRenderer.draw(
-            ReorderingUtil.reorder(text, rightToLeft),
+            text.asOrderedText(),
             x,
             y,
             color,
@@ -174,7 +170,7 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
-        val offset = alignment.align(box, text.size(textRenderer).toFloat())
+        val offset = alignment.align(box, text.size)
         pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, color, backgroundColor, light, rightToLeft)
     }
 
@@ -200,7 +196,7 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
-        val offset = alignment.align(box, text.size(textRenderer).toFloat())
+        val offset = alignment.align(box, text.size)
         pushText(text, box.x + offset.x(), box.y + offset.y(), shadow, layerType, defaultColor, backgroundColor, light, rightToLeft)
 
     }
@@ -230,9 +226,9 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
-        val texts = string.wrapToLines(textRenderer, box.width.toInt())
+        val texts = string.wrapToLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
-        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
@@ -264,9 +260,9 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
-        val texts = lines.wrapToLines(textRenderer, box.width.toInt())
+        val texts = lines.wrapToLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
-        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
@@ -298,9 +294,9 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
-        val texts = text.wrapToTextLines(textRenderer, box.width.toInt())
+        val texts = text.wrapToTextLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
-        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
@@ -332,9 +328,9 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
-        val texts = lines.wrapToTextLines(textRenderer, box.width.toInt())
+        val texts = lines.wrapToTextLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
-        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, textRenderer.getWidth(it).toFloat()) }
+        val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->

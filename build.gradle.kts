@@ -21,6 +21,11 @@ repositories {
     maven { url = uri("https://maven.terraformersmc.com/") }
 //	maven { url = uri("https://maven.forpleuvoir.moe/releases") }
     maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
+
+    maven {
+        name = "IzzelAliz Maven"
+        url = uri("https://maven.izzel.io/releases/")
+    }
 }
 
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
@@ -51,6 +56,10 @@ dependencies {
     //其他mod依赖
     modImplementation(libs.modMenu)
 
+    //兼容测试
+    modCompileOnly("icyllis.modernui", "ModernUI-Core", "3.11.1")
+    modCompileOnly("icyllis.modernui", "ModernUI-Markdown", "3.11.1")
+    modCompileOnly("icyllis.modernui", "ModernUI-Fabric", "1.21.4-3.11.1.11")
     //nebula
     include("${libs.nebula.get()}:nebula")
     api(libs.nebula)

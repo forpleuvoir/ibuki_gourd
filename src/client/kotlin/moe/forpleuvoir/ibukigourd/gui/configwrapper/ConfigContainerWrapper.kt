@@ -35,7 +35,6 @@ import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGui
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.showFirstConfigInContainer
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
@@ -196,7 +195,7 @@ fun WidgetContainerScope.ConfigManagerWrapper(
     ) {
         map.forEach { (config, configs) ->
             FlatButton(
-                modifier = Modifier.width((map.map { it.first.translateText }.maxWidth(mc.textRenderer) + 4).coerceIn(100, 160).toFloat()),
+                modifier = Modifier.width((map.map { it.first.translateText }.maxWidth + 4f).coerceIn(100f, 160f)),
                 hoveredColor = Colors.CYAN.alpha(0.25f),
                 pressedColor = Colors.CYAN.alpha(0.5f),
                 horizontalArrangement = Arrangement.Left
