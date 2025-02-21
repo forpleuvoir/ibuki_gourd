@@ -57,9 +57,9 @@ dependencies {
     modImplementation(libs.modMenu)
 
     //兼容测试
-    modCompileOnly("icyllis.modernui", "ModernUI-Core", "3.11.1")
-    modCompileOnly("icyllis.modernui", "ModernUI-Markdown", "3.11.1")
-    modCompileOnly("icyllis.modernui", "ModernUI-Fabric", "1.21.4-3.11.1.11")
+    modImplementation("icyllis.modernui", "ModernUI-Core", "3.11.1")
+    modImplementation("icyllis.modernui", "ModernUI-Markdown", "3.11.1")
+    modImplementation("icyllis.modernui", "ModernUI-Fabric", "1.21.4-3.11.1.11")
     //nebula
     include("${libs.nebula.get()}:nebula")
     api(libs.nebula)

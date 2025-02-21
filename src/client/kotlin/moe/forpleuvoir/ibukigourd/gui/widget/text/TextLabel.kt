@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
-import moe.forpleuvoir.ibukigourd.compat.modernui.ModernUICompat
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.textRenderOffset
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
@@ -225,31 +224,17 @@ class TextWidget(
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }
                         .zip(setting.verticalArrangement.arrange(contentBox.height, list.map { it.height }).map { contentBox.top + it })
                         .forEachIndexed { index, (x, y) ->
-                            if (ModernUICompat.isTextEngineEnabled) {
-                                pushText(
-                                    renderText[index].string,
-                                    textScrolledXPos(index, x),
-                                    textScrolledYPos(index, y),
-                                    setting.shadow,
-                                    setting.layerType,
-                                    color = setting.defaultColor,
-                                    backgroundColor = setting.backgroundColor,
-                                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                                    setting.rightToLeft
-                                )
-                            } else {
-                                pushText(
-                                    renderText[index],
-                                    textScrolledXPos(index, x),
-                                    textScrolledYPos(index, y),
-                                    setting.shadow,
-                                    setting.layerType,
-                                    color = setting.defaultColor,
-                                    backgroundColor = setting.backgroundColor,
-                                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                                    setting.rightToLeft
-                                )
-                            }
+                            pushText(
+                                renderText[index],
+                                textScrolledXPos(index, x),
+                                textScrolledYPos(index, y),
+                                setting.shadow,
+                                setting.layerType,
+                                color = setting.defaultColor,
+                                backgroundColor = setting.backgroundColor,
+                                LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                                setting.rightToLeft
+                            )
                         }
                 }
             }
