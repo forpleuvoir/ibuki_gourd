@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
@@ -58,9 +58,7 @@ fun TabScope.tab1() = Tab("测试用配置设置", true) {
         )
         ConfigsWrapper(list, modifier = Modifier.fill()).apply {
             list.subscribe {
-                execute {
-                    this.recompose()
-                }
+                executeRecompose()
             }
         }
     }

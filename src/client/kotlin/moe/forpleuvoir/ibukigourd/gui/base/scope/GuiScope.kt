@@ -26,8 +26,14 @@ fun interface GuiScope<T : Any> {
 
         fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
 
+
+        @Deprecated("should use executeRecompose() instead", replaceWith = ReplaceWith("executeRecompose()"))
         fun WidgetContainerScope.recompose() {
             owner().recompose()
+        }
+
+        fun <T> GuiScope<T>.executeRecompose() where T : WidgetContainer, T : IGElement {
+            execute { owner().recompose() }
         }
 
         fun WidgetScope.layer(layer: GuiLayer) {

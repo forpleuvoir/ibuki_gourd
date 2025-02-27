@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
@@ -16,7 +17,7 @@ fun testScreen9() = ColumnScreen {
             TextLabel(it.toString(), modifier = Modifier.width(20f))
         }
     }.apply {
-        list.subscribe { recompose() }
+        list.subscribe { executeRecompose() }
     }
 
     Button {

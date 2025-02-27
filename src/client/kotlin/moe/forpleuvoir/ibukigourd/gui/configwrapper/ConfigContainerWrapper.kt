@@ -10,9 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRender
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
@@ -244,9 +244,7 @@ fun WidgetContainerScope.ConfigManagerWrapper(
             modifier = Modifier.fill()
         ).apply {
             currentConfigs.subscribe {
-                execute {
-                    this.recompose()
-                }
+                executeRecompose()
             }
         }
     }

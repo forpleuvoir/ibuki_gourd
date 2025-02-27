@@ -10,9 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -267,7 +267,7 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
                     }
                 }.apply {
                     showList.subscribe {
-                        execute { this.recompose() }
+                        executeRecompose()
                     }
                 }
             }

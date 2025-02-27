@@ -9,13 +9,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
@@ -112,7 +112,7 @@ fun <T> WidgetContainerScope.IterableWrappedButton(
 ) {
     content()
     click {
-        var rowList: WidgetContainer? = null
+        var rowList: WidgetContainerImpl? = null
         Dialog {
             TextLabel(title)
             DialogContent(
@@ -137,9 +137,7 @@ fun <T> WidgetContainerScope.IterableWrappedButton(
                 Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
                 click {
                     onAdd(newValue(iterable))
-                    execute {
-                        rowList?.recompose()
-                    }
+                    rowList?.executeRecompose()
                 }
             }
         }.open()
@@ -267,7 +265,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
             MoveableListConfigEntryWrapper(
                 config = config,
                 index = index,
-                recompose = { execute { this@ListConfigWrappedButton.recompose() } }
+                recompose = { this@ListConfigWrappedButton.executeRecompose() }
             ) {
                 TextEditor(modifier = Modifier.width(240f)) {
                     text = entry
@@ -278,7 +276,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
             }
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }
@@ -295,7 +293,7 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
             newValue = { "" to "" },
             hoverEntryToString = { "${it.first} => ${it.second}" }
         ) { (key, value), index ->
-            val recompose = { execute { this@ListConfigWrappedButton.recompose() } }
+            val recompose = { this@ListConfigWrappedButton.executeRecompose() }
             MoveableListConfigEntryWrapper(
                 config = config,
                 index = index,
@@ -346,7 +344,7 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
             }
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }
@@ -529,11 +527,11 @@ fun WidgetContainerScope.StringMapConfigWrapper(
                         textConsumer { setValue(it) }
                     }
                 },
-                recompose = { execute { this@MapConfigWrappedButton.recompose() } }
+                recompose = { this@MapConfigWrappedButton.executeRecompose() }
             )
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }

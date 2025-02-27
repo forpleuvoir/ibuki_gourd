@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
+import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import java.util.*
@@ -106,4 +107,8 @@ fun WidgetContainer.Compose(compose: () -> Unit) {
 fun <T : GuiScope<out WidgetContainer>> T.Compose(compose: T.() -> Unit) {
     this.owner().compose = { compose(this) }
     this.owner().compose()
+}
+
+fun <T> T.executeRecompose() where T : WidgetContainer, T : IGElement {
+    this.screen()?.execute { recompose() }
 }
