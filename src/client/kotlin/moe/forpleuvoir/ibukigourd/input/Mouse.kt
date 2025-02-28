@@ -65,15 +65,12 @@ enum class Mouse(override val code: Int) : KeyCode {
     }
 
     override val translationKey: String
-        get() = when (this) {
-            LEFT, RIGHT, MIDDLE -> InputUtil.Type.MOUSE.createFromCode(code).translationKey
-            else                -> "key.mouse"
-        }
+        get() = InputUtil.Type.MOUSE.createFromCode(code).translationKey
 
     override val keyNameText: Text
         get() = when (this) {
             LEFT, RIGHT, MIDDLE -> Translatable(translationKey)
-            else                -> Translatable(translationKey, null, this.code + 1)
+            else -> Translatable("key.mouse", null, this.code + 1)
         }
 }
 
