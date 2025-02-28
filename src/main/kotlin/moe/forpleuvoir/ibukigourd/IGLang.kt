@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd
 
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.color.RGBColor
 
 object IGLang {
 
@@ -20,6 +22,11 @@ object IGLang {
     val switchOn get() = lang("misc.switch.on")
 
     val switchOff get() = lang("misc.switch.off")
+
+    fun switch(switch: Boolean) = if (switch) switchOn else switchOff
+
+    fun coloredSwitch(switch: Boolean, onColor: RGBColor = Colors.LIMEGREEN, offColor: RGBColor = Colors.RED) =
+        if (switch) switchOn.withColor(onColor) else switchOff.withColor(offColor)
 
     val unsupported get() = lang("misc.unsupported")
 
