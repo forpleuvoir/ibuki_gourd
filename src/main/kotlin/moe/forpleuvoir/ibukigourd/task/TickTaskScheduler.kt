@@ -46,82 +46,102 @@ open class TickTaskScheduler<T> {
 
     }
 
-    private val startTasks = ConcurrentLinkedQueue<TickTask<T>>()
-    private val startRemoveList = ConcurrentLinkedQueue<TickTask<T>>()
-    private val endTasks = ConcurrentLinkedQueue<TickTask<T>>()
-    private val endRemoveList = ConcurrentLinkedQueue<TickTask<T>>()
+    private val _startTasks = ConcurrentLinkedQueue<TickTask<T>>()
+    private val _startRemoveList = ConcurrentLinkedQueue<TickTask<T>>()
+    private val _endTasks = ConcurrentLinkedQueue<TickTask<T>>()
+    private val _endRemoveList = ConcurrentLinkedQueue<TickTask<T>>()
+
+    val tasks get() = _startTasks + _endTasks
+    val startTasks get() = _startTasks.toList()
+    val endTasks get() = _endTasks.toList()
 
     fun scheduleStartTick(task: TickTask<T>) {
-        startTasks.add(task)
+        addToStart(task)
     }
 
     fun scheduleStartTick(action: (TickTask<T>, T) -> Unit) {
-        startTasks.add(TickTask(0, 1, 1, action))
+        addToStart(TickTask(0, 1, 1, action))
     }
 
     fun scheduleStartTick(delay: Int = 0, action: (TickTask<T>, T) -> Unit) {
-        startTasks.add(TickTask(delay, 1, 1, action))
+        addToStart(TickTask(delay, 1, 1, action))
     }
 
     fun scheduleEndTick(task: TickTask<T>) {
-        endTasks.add(task)
+        addToEnd(task)
     }
 
     fun scheduleEndTick(action: (TickTask<T>, T) -> Unit) {
-        endTasks.add(TickTask(0, 1, 1, action))
+        addToEnd(TickTask(0, 1, 1, action))
     }
 
     fun scheduleEndTick(delay: Int = 0, action: (TickTask<T>, T) -> Unit) {
-        endTasks.add(TickTask(delay, 1, 1, action))
+        addToEnd(TickTask(delay, 1, 1, action))
+    }
+
+    protected open fun addToStart(task: TickTask<T>) {
+        _startTasks.add(task)
+    }
+
+    protected open fun addToEnd(task: TickTask<T>) {
+        _endTasks.add(task)
     }
 
     fun remove(task: TickTask<T>) {
-        startRemoveList.add(task)
-        endRemoveList.add(task)
+        removeFromStart(task)
+        removeFromEnd(task)
+    }
+
+    protected open fun removeFromStart(task: TickTask<T>) {
+        _startRemoveList.add(task)
+    }
+
+    protected open fun removeFromEnd(task: TickTask<T>) {
+        _endRemoveList.add(task)
     }
 
     fun clear() {
-        startTasks.clear()
-        endTasks.clear()
+        _startTasks.clear()
+        _endTasks.clear()
     }
 
     private fun endRemoveHandler() {
-        endRemoveList.forEach {
-            endTasks.remove(it)
+        _endRemoveList.forEach {
+            _endTasks.remove(it)
         }
-        endRemoveList.clear()
+        _endRemoveList.clear()
     }
 
     private fun startRemoveHandler() {
-        startRemoveList.forEach {
-            startTasks.remove(it)
+        _startRemoveList.forEach {
+            _startTasks.remove(it)
         }
-        startRemoveList.clear()
+        _startRemoveList.clear()
     }
 
 
     fun startTick(context: T) {
         startRemoveHandler()
-        val iterator = startTasks.iterator()
+        val iterator = _startTasks.iterator()
         while (iterator.hasNext()) {
-            val value = iterator.next()
-            if (value.isOver) {
-                iterator.remove()
+            val task = iterator.next()
+            if (task.isOver) {
+                removeFromStart(task)
             } else {
-                value.tryExecute(context)
+                task.tryExecute(context)
             }
         }
     }
 
     fun endTick(context: T) {
         endRemoveHandler()
-        val iterator = endTasks.iterator()
+        val iterator = _endTasks.iterator()
         while (iterator.hasNext()) {
-            val value = iterator.next()
-            if (value.isOver) {
-                iterator.remove()
+            val task = iterator.next()
+            if (task.isOver) {
+                removeFromEnd(task)
             } else {
-                value.tryExecute(context)
+                task.tryExecute(context)
             }
         }
     }
