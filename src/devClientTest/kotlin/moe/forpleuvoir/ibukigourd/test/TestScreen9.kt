@@ -1,30 +1,25 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
+import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
-import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.nebula.common.util.collection.notifiableList
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
+import java.util.concurrent.atomic.AtomicInteger
+
+val count = AtomicInteger(0)
 
 fun testScreen9() = ColumnScreen {
-    val list = notifiableList(1, 2, 3)
-
-    RowListWrapped {
-        list.forEach {
-            TextLabel(it.toString(), modifier = Modifier.width(20f))
-        }
-    }.apply {
-        list.subscribe { executeRecompose() }
-    }
-
-    Button {
-        TextLabel("添加")
-        click {
-            list.add(list.size + 1)
+    defaultLaunch {
+        println("启动")
+        while (true) {
+            delay(500)
+            count.incrementAndGet()
         }
     }
-
+    count.set(0)
+    TextLabel(mutableStateBy {
+        Literal(count.toString())
+    })
 }

@@ -100,7 +100,6 @@ fun testScreen4() = ColumnScreen(
                 println("选择了$it")
             }
         )
-
     }
 
 }

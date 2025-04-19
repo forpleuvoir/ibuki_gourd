@@ -16,7 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.textLabelUpdateInterval
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.math.bezier.Ease
 import moe.forpleuvoir.ibukigourd.util.math.bezier.SineEasing
@@ -35,6 +35,7 @@ import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Style
 import kotlin.math.abs
+import kotlin.time.Duration
 import kotlin.time.TimeSource
 
 class TextWidget(
@@ -70,6 +71,7 @@ class TextWidget(
         var defaultColor: ARGBColor = Colors.BLACK,
         var backgroundColor: ARGBColor = Color(0),
         var textRenderer: TextRenderer = mc.textRenderer,
+        var textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval
     )
 
     //------------ Override ------------\\
@@ -103,7 +105,8 @@ class TextWidget(
     private var mark = TimeSource.Monotonic.markNow()
 
     private fun updateText(force: Boolean = false) {
-        if (!force && mark.elapsedNow() < textLabelUpdateInterval) return
+        if (!force && mark.elapsedNow() < setting.textLabelUpdateInterval) return
+        mark = TimeSource.Monotonic.markNow()
         val text = this.text.getValue()
         if (latestText != text) {
             latestText = text

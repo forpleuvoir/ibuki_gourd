@@ -1,5 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.scope
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
 import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
@@ -7,6 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import org.joml.Vector2fc
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 @GuiDslMark
 fun interface GuiScope<T : Any> {
@@ -63,6 +68,30 @@ fun interface GuiScope<T : Any> {
         fun ElementScope.execute(task: () -> Unit) {
             owner().screen()?.execute(task)
         }
+
+        fun ElementScope.launch(
+            context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
+            block: suspend CoroutineScope.() -> Unit
+        ) = owner().screen()?.launch(context, start, block)
+
+        fun IGElement.launch(
+            context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
+            block: suspend CoroutineScope.() -> Unit
+        ) = screen()?.launch(context, start, block)
+
+        fun <T> ElementScope.async(
+            context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
+            block: suspend CoroutineScope.() -> T
+        ): Deferred<T>? = owner().screen()?.async(context, start, block)
+
+        fun <T> IGElement.async(
+            context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
+            block: suspend CoroutineScope.() -> T
+        ): Deferred<T>? = screen()?.async(context, start, block)
     }
 
 }
