@@ -24,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverTip
@@ -39,6 +40,7 @@ import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.*
 import net.minecraft.client.gui.navigation.GuiNavigation
@@ -143,7 +145,14 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     private fun executeTasks() {
         if (eventProcessing) return
-        tasks.forEach { it.invoke() }
+        tasks.forEach {
+            runCatching {
+                it.invoke()
+            }.onFailure {
+                Toast.showToast(text = Literal(it.message.toString()).withColor(Colors.RED))
+                _log.warn(it)
+            }
+        }
         tasks.clear()
     }
 

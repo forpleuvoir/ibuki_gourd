@@ -8,7 +8,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 
-data class TickTask<T>(
+class TickTask<T>(
     val setting: Setting,
     private val executor: TaskExecutor<T>
 ) : Serializable {
