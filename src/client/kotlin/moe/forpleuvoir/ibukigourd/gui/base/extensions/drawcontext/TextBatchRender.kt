@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext
 
-import moe.forpleuvoir.ibukigourd.compat.modernui.ModernUICompat
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
@@ -62,20 +61,7 @@ open class TextBatchRenderScope internal constructor(
         light: Int = LightmapTextureManager.MAX_LIGHT_COORDINATE,
         rightToLeft: Boolean = textRenderer.isRightToLeft
     ) {
-        if (ModernUICompat.isTextEngineEnabled) textRenderer.draw(
-            text,
-            x,
-            y,
-            color.argb,
-            shadow,
-            positionMatrix,
-            vertexConsumers,
-            layerType,
-            backgroundColor.argb,
-            light,
-            rightToLeft
-        )
-        else textRenderer.draw(
+        textRenderer.draw(
             text.asOrderedText(),
             x,
             y,

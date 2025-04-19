@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text
 
+import moe.forpleuvoir.ibukigourd.compat.modernui.ModernUICompat
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
@@ -20,7 +21,8 @@ fun TextRenderer.draw(
     backgroundColor: ARGBColor,
     light: Int,
     mirror: Boolean
-): Int = this.drawInternal(text, x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light, mirror)
+): Int = if (ModernUICompat.isTextEngineEnabled) draw(text, x, y, color.argb, shadow, matrix, vertexConsumers, layerType, backgroundColor.argb, light)
+else this.drawInternal(text, x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light, mirror)
 
 
 fun TextRenderer.drawInternal(
