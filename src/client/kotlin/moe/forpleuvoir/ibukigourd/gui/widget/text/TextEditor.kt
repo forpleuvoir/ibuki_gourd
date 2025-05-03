@@ -22,8 +22,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -342,37 +342,37 @@ open class TextEditorWidget(
 
     override fun onKeyPress(event: KeyPressEvent) {
         if (!this.isActive) return
-        selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+        selecting = InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)
         event.tryUse {
             //全选文本
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
                 setCursorToEnd()
                 this.selectionEnd = 0
                 return@tryUse true
             }
             //选中当前单词
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
                 selectWord()
                 return@tryUse true
             }
             //复制选中文本
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
                 mc.keyboard.clipboard = this.selectedText
                 return@tryUse true
             }
             //粘贴文本
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
                 write(mc.keyboard.clipboard)
                 return@tryUse true
             }
             //剪切选中文本
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
                 mc.keyboard.clipboard = this.selectedText
                 write("")
                 return@tryUse true
             }
             //撤销
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
                 setCursorToEnd()
                 this.selectionEnd = 0
                 history.undo(text, cursor).let {
@@ -382,7 +382,7 @@ open class TextEditorWidget(
                 return@tryUse true
             }
             //重做
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
                 setCursorToEnd()
                 this.selectionEnd = 0
                 history.redo(text, cursor).let {
@@ -407,7 +407,7 @@ open class TextEditorWidget(
                 }
                 //光标左移,如果按下左控制键则跳过一个单词
                 Keyboard.LEFT      -> {
-                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    val offset = if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         previousWordOffsetAtCursor
                     } else {
                         -1
@@ -417,7 +417,7 @@ open class TextEditorWidget(
                 }
                 //光标右移,如果按下左控制键则跳过一个单词
                 Keyboard.RIGHT     -> {
-                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    val offset = if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         nextWordOffsetAtCursor
                     } else {
                         1
@@ -427,7 +427,7 @@ open class TextEditorWidget(
                 }
                 //删除一个字符
                 Keyboard.BACKSPACE -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         erase(this.previousWordOffsetAtCursor)
                     } else {
                         erase(-1)
@@ -436,7 +436,7 @@ open class TextEditorWidget(
                 }
                 //删除一个字符
                 Keyboard.DELETE    -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         selecting = true
                         this.moveCursor(RELATIVE, nextWordOffsetAtCursor)
                         selecting = false
@@ -512,7 +512,7 @@ open class TextEditorWidget(
         event.tryUse { wasDragging }.onSuccess {
             selecting = true
             setCursorFromMouse(event.x)
-            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+            selecting = InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)
         }
     }
 
@@ -716,7 +716,7 @@ fun <T> WidgetContainerScope.NumberEditor(
     step: ValueStep<T>,
     textPredicate: (String) -> Boolean,
     modifier: Modifier = Modifier,
-    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    editorModifier: RowScope.() -> Modifier = { Modifier },
     textColor: ARGBColor = Color(0xFF303030),
     hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -724,9 +724,9 @@ fun <T> WidgetContainerScope.NumberEditor(
     suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: ColumnScope.() -> Unit = {},
+    scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope .() -> Unit = {}
-) where  T : Comparable<T>, T : Number = Column(
+) where  T : Comparable<T>, T : Number = Row(
     Modifier
         .name("NumberEditor")
         .padding(2, 4, 2, 2)
@@ -772,7 +772,7 @@ fun <T> WidgetContainerScope.NumberEditor(
         textPredicate(textPredicate)
         editorScope()
     }
-    Row(
+    Column(
         Modifier.height(12f),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -786,9 +786,9 @@ fun <T> WidgetContainerScope.NumberEditor(
             }
             click {
                 val s = when {
-                    InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
-                    InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
-                    InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
+                    InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
+                    InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
+                    InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
                     else                                              -> step.click
                 }
                 value.setValue(plus(value.getValue(), s))
@@ -804,9 +804,9 @@ fun <T> WidgetContainerScope.NumberEditor(
             }
             click {
                 val s = when {
-                    InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
-                    InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
-                    InputHandler.hasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
+                    InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
+                    InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
+                    InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
                     else                                              -> step.click
                 }
                 value.setValue(minus(value.getValue(), s))
@@ -821,8 +821,9 @@ fun WidgetContainerScope.IntEditor(
     value: MutableState<Int>,
     range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
     step: ValueStep<Int> = ValueStep(1, 5, 10, 15, 1),
+    valueMapper: (Int) -> String = { it.toString() },
     modifier: Modifier = Modifier,
-    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    editorModifier: RowScope.() -> Modifier = { Modifier },
     textColor: ARGBColor = Color(0xFF303030),
     hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -830,14 +831,14 @@ fun WidgetContainerScope.IntEditor(
     suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: ColumnScope.() -> Unit = {},
+    scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
-    valueMapper = { it.toString() },
+    valueMapper = valueMapper,
     textMapper = { runCatching { it.toInt() }.getOrElse { 0 } },
     step = step,
     textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toInt() in range }.getOrElse { false }) || it.isEmpty() },
@@ -858,8 +859,9 @@ fun WidgetContainerScope.LongEditor(
     value: MutableState<Long>,
     range: LongRange = Long.MIN_VALUE..Int.MAX_VALUE,
     step: ValueStep<Long> = ValueStep(1, 5, 10, 15, 1),
+    valueMapper: (Long) -> String = { it.toString() },
     modifier: Modifier = Modifier,
-    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    editorModifier: RowScope.() -> Modifier = { Modifier },
     textColor: ARGBColor = Color(0xFF303030),
     hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -867,14 +869,14 @@ fun WidgetContainerScope.LongEditor(
     suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: ColumnScope.() -> Unit = {},
+    scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
-    valueMapper = { it.toString() },
+    valueMapper = valueMapper,
     textMapper = { runCatching { it.toLong() }.getOrElse { 0L } },
     step = step,
     textPredicate = { (Regex("-?\\d+").matches(it) && runCatching { it.toLong() in range }.getOrElse { false }) || it.isEmpty() },
@@ -895,8 +897,9 @@ fun WidgetContainerScope.FloatEditor(
     value: MutableState<Float>,
     range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
     step: ValueStep<Float> = ValueStep(1f, 5f, 10f, 15f, 1f),
+    valueMapper: (Float) -> String = { it.toString() },
     modifier: Modifier = Modifier,
-    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    editorModifier: RowScope.() -> Modifier = { Modifier },
     textColor: ARGBColor = Color(0xFF303030),
     hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -904,14 +907,14 @@ fun WidgetContainerScope.FloatEditor(
     suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: ColumnScope.() -> Unit = {},
+    scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
-    valueMapper = { it.toString() },
+    valueMapper = valueMapper,
     textMapper = { runCatching { it.toFloat() }.getOrElse { 0f } },
     step = step,
     textPredicate = {
@@ -936,8 +939,9 @@ fun WidgetContainerScope.DoubleEditor(
     value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
     step: ValueStep<Double> = ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
+    valueMapper: (Double) -> String = { it.toString() },
     modifier: Modifier = Modifier,
-    editorModifier: ColumnScope.() -> Modifier = { Modifier },
+    editorModifier: RowScope.() -> Modifier = { Modifier },
     textColor: ARGBColor = Color(0xFF303030),
     hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
@@ -945,14 +949,14 @@ fun WidgetContainerScope.DoubleEditor(
     suggestionColor: ARGBColor = Color(0xFF008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     textRenderer: TextRenderer = mc.textRenderer,
-    scope: ColumnScope.() -> Unit = {},
+    scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
 ) = NumberEditor(
     value = value,
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
-    valueMapper = { it.toString() },
+    valueMapper = valueMapper,
     textMapper = { runCatching { it.toDouble() }.getOrElse { 0.0 } },
     step = step,
     textPredicate = {

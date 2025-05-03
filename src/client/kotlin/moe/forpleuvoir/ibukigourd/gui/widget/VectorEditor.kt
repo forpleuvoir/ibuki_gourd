@@ -6,8 +6,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
@@ -26,8 +26,8 @@ fun WidgetContainerScope.Vector3iEditor(
     modifier: Modifier = Modifier,
     editorModifier: Modifier = Modifier.width(60f),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
-    scope: ColumnScope.(xValue: MutableState<Int>, yValue: MutableState<Int>, zValue: MutableState<Int>) -> Unit = { _, _, _ -> }
-) = Column(
+    scope: RowScope.(xValue: MutableState<Int>, yValue: MutableState<Int>, zValue: MutableState<Int>) -> Unit = { _, _, _ -> }
+) = Row(
     modifier,
     horizontalArrangement
 ) {
@@ -48,7 +48,7 @@ fun WidgetContainerScope.Vector3iEditor(
         }
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("X").withColor(Colors.RED))
         IntEditor(
             xValue,
@@ -57,7 +57,7 @@ fun WidgetContainerScope.Vector3iEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Y").withColor(Colors.LIME))
         IntEditor(
             yValue,
@@ -66,7 +66,7 @@ fun WidgetContainerScope.Vector3iEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Z").withColor(Colors.BLUE))
         IntEditor(
             zValue,
@@ -84,8 +84,8 @@ fun WidgetContainerScope.Vector3fEditor(
     modifier: Modifier = Modifier,
     editorModifier: Modifier = Modifier.width(60f),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
-    scope: ColumnScope.(xValue: MutableState<Float>, yValue: MutableState<Float>, zValue: MutableState<Float>) -> Unit = { _, _, _ -> }
-) = Column(
+    scope: RowScope.(xValue: MutableState<Float>, yValue: MutableState<Float>, zValue: MutableState<Float>) -> Unit = { _, _, _ -> }
+) = Row(
     modifier,
     horizontalArrangement
 ) {
@@ -106,7 +106,7 @@ fun WidgetContainerScope.Vector3fEditor(
         }
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("X").withColor(Colors.RED))
         FloatEditor(
             xValue,
@@ -115,7 +115,7 @@ fun WidgetContainerScope.Vector3fEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Y").withColor(Colors.LIME))
         FloatEditor(
             yValue,
@@ -124,7 +124,7 @@ fun WidgetContainerScope.Vector3fEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Z").withColor(Colors.BLUE))
         FloatEditor(
             zValue,
@@ -142,8 +142,8 @@ fun WidgetContainerScope.Vector3dEditor(
     modifier: Modifier = Modifier,
     editorModifier: Modifier = Modifier.width(60f),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
-    scope: ColumnScope.(xValue: MutableState<Double>, yValue: MutableState<Double>, zValue: MutableState<Double>) -> Unit = { _, _, _ -> }
-) = Column(
+    scope: RowScope.(xValue: MutableState<Double>, yValue: MutableState<Double>, zValue: MutableState<Double>) -> Unit = { _, _, _ -> }
+) = Row(
     modifier,
     horizontalArrangement
 ) {
@@ -164,7 +164,7 @@ fun WidgetContainerScope.Vector3dEditor(
         }
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("X").withColor(Colors.RED))
         DoubleEditor(
             xValue,
@@ -173,7 +173,7 @@ fun WidgetContainerScope.Vector3dEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Y").withColor(Colors.LIME))
         DoubleEditor(
             yValue,
@@ -182,7 +182,7 @@ fun WidgetContainerScope.Vector3dEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Z").withColor(Colors.BLUE))
         DoubleEditor(
             zValue,
@@ -200,8 +200,8 @@ fun WidgetContainerScope.Vector2iEditor(
     modifier: Modifier = Modifier,
     editorModifier: Modifier = Modifier.width(60f),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
-    scope: ColumnScope.(xValue: MutableState<Int>, yValue: MutableState<Int>) -> Unit = { _, _ -> }
-) = Column(
+    scope: RowScope.(xValue: MutableState<Int>, yValue: MutableState<Int>) -> Unit = { _, _ -> }
+) = Row(
     modifier,
     horizontalArrangement
 ) {
@@ -217,7 +217,7 @@ fun WidgetContainerScope.Vector2iEditor(
         }
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("X").withColor(Colors.RED))
         IntEditor(
             xValue,
@@ -226,7 +226,7 @@ fun WidgetContainerScope.Vector2iEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Y").withColor(Colors.LIME))
         IntEditor(
             yValue,
@@ -244,8 +244,8 @@ fun WidgetContainerScope.Vector2fEditor(
     modifier: Modifier = Modifier,
     editorModifier: Modifier = Modifier.width(60f),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
-    scope: ColumnScope.(xValue: MutableState<Float>, yValue: MutableState<Float>) -> Unit = { _, _ -> }
-) = Column(
+    scope: RowScope.(xValue: MutableState<Float>, yValue: MutableState<Float>) -> Unit = { _, _ -> }
+) = Row(
     modifier,
     horizontalArrangement
 ) {
@@ -261,7 +261,7 @@ fun WidgetContainerScope.Vector2fEditor(
         }
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("X").withColor(Colors.RED))
         FloatEditor(
             xValue,
@@ -270,7 +270,7 @@ fun WidgetContainerScope.Vector2fEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Y").withColor(Colors.LIME))
         FloatEditor(
             yValue,
@@ -288,8 +288,8 @@ fun WidgetContainerScope.Vector2dEditor(
     modifier: Modifier = Modifier,
     editorModifier: Modifier = Modifier.width(60f),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
-    scope: ColumnScope.(xValue: MutableState<Double>, yValue: MutableState<Double>) -> Unit = { _, _ -> }
-) = Column(
+    scope: RowScope.(xValue: MutableState<Double>, yValue: MutableState<Double>) -> Unit = { _, _ -> }
+) = Row(
     modifier,
     horizontalArrangement
 ) {
@@ -305,7 +305,7 @@ fun WidgetContainerScope.Vector2dEditor(
         }
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("X").withColor(Colors.RED))
         DoubleEditor(
             xValue,
@@ -314,7 +314,7 @@ fun WidgetContainerScope.Vector2dEditor(
             editorModifier = { Modifier.weight(1) })
     }
 
-    Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2f)) {
         TextLabel(Literal("Y").withColor(Colors.LIME))
         DoubleEditor(
             yValue,

@@ -99,6 +99,9 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override val wasMouseOver: Boolean
         get() = transform.isMouseOvered(mc.mousePosition)
 
+    override val wasMouseOverContent: Boolean
+        get() = (mc.mousePosition in contentBox(true)) && mc.currentScreen == screen()
+
     /**
      * 组件是否在拖动中
      */

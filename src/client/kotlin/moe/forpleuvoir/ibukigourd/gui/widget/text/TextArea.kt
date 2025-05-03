@@ -18,9 +18,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnWidget
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -374,7 +374,7 @@ class TextAreaWidget(
         }.onSuccess {
             soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
             val oldCursor = cursor
-            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+            selecting = InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)
             moveCursor(event.x, event.y)
             if (oldCursor == cursor && lastPressTime.elapsedNow() < 500.milliseconds) {
                 selectWord()
@@ -387,7 +387,7 @@ class TextAreaWidget(
         event.tryUse(wasDragging).onSuccess {
             selecting = true
             moveCursor(event.x, event.y)
-            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+            selecting = InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)
         }
     }
 
@@ -400,25 +400,25 @@ class TextAreaWidget(
     override fun onKeyPress(event: KeyPressEvent) {
         if (!isFocused) return
         event.tryUse {
-            selecting = InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)
+            selecting = InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)
             //全选
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.A)) {
                 cursor = text.length
                 selectionEnd = 0
                 return@tryUse true
             }
             //复制选中
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.C)) {
                 mc.keyboard.clipboard = this.selectedText
                 return@tryUse true
             }
             //粘贴
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.V)) {
                 replaceSelection(mc.keyboard.clipboard)
                 return@tryUse true
             }
             //剪切选中
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.X)) {
                 if (this.selectedText.isEmpty()) {
                     this.selection = currentLine
                     if (this.text[currentLine.beginIndex - 1] == '\n') {
@@ -430,18 +430,18 @@ class TextAreaWidget(
                 return@tryUse true
             }
             //选中当前单词
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.W)) {
                 selectWord()
                 return@tryUse true
             }
             //另起一行
-            if (InputHandler.hasKeyPressed(Keyboard.RIGHT_SHIFT, Keyboard.ENTER)) {
+            if (InputHandler.wasKeyPressed(Keyboard.RIGHT_SHIFT, Keyboard.ENTER)) {
                 this.moveCursor(ABSOLUTE, this.currentLine.endIndex)
                 replaceSelection("\n")
                 return@tryUse true
             }
             //撤回
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Z)) {
                 cursor = text.length
                 selectionEnd = 0
                 history.undo(text, cursor).let {
@@ -451,7 +451,7 @@ class TextAreaWidget(
                 return@tryUse true
             }
             //重做
-            if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL, Keyboard.Y)) {
                 cursor = text.length
                 selectionEnd = 0
                 history.redo(text, cursor).let {
@@ -463,7 +463,7 @@ class TextAreaWidget(
             return@tryUse when (event.keyCode) {
                 //输入制表符或者四个空格
                 Keyboard.TAB                      -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_SHIFT)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)) {
                         var lineText = currentLine.getText(text)
                         repeat(4) {
                             lineText = lineText.removePrefix(" ")
@@ -478,7 +478,7 @@ class TextAreaWidget(
                 }
                 //光标左移
                 Keyboard.LEFT                     -> {
-                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    val offset = if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         this.previousWordOffsetAtCursor
                     } else {
                         -1
@@ -488,7 +488,7 @@ class TextAreaWidget(
                 }
                 //光标右移
                 Keyboard.RIGHT                    -> {
-                    val offset = if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    val offset = if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         this.nextWordOffsetAtCursor
                     } else {
                         1
@@ -498,7 +498,7 @@ class TextAreaWidget(
                 }
                 //光标上移
                 Keyboard.UP                       -> {
-                    if (!InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (!InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         moveCursorLine(-1)
                     } else {
                         amount -= fontHeight + spacing
@@ -507,7 +507,7 @@ class TextAreaWidget(
                 }
                 //光标下移
                 Keyboard.DOWN                     -> {
-                    if (!InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (!InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         moveCursorLine(1)
                     } else {
                         amount += fontHeight + spacing
@@ -526,7 +526,7 @@ class TextAreaWidget(
                 }
                 //光标移动至行首,如果按下了ctrl则移动到文本开头
                 Keyboard.HOME                     -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         this.moveCursor(ABSOLUTE, 0)
                     } else {
                         this.moveCursor(ABSOLUTE, this.currentLine.beginIndex)
@@ -535,7 +535,7 @@ class TextAreaWidget(
                 }
                 //光标移动至行尾,如果按下了ctrl则移动到文本结尾
                 Keyboard.END                      -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         this.moveCursor(END, 0)
                     } else {
                         this.moveCursor(ABSOLUTE, this.currentLine.endIndex)
@@ -544,7 +544,7 @@ class TextAreaWidget(
                 }
                 //删除选中,如果没有选中则删除光标前的一个字符,如果按下了ctrl则删除光标前的一个单词
                 Keyboard.BACKSPACE                -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         delete(this.previousWordOffsetAtCursor)
                     } else {
                         delete(-1)
@@ -553,7 +553,7 @@ class TextAreaWidget(
                 }
                 //删除选中,如果没有选中则删除光标后的一个字符,如果按下了ctrl则删除光标后的一个单词
                 Keyboard.DELETE                   -> {
-                    if (InputHandler.hasKeyPressed(Keyboard.LEFT_CONTROL)) {
+                    if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
                         delete(this.nextWordOffsetAtCursor)
                     } else {
                         delete(1)
@@ -816,12 +816,12 @@ fun WidgetContainerScope.TextAreaWrapped(
     barThickness: Float = 9f,
     scrollState: ScrollState = ScrollState(),
     modifier: Modifier = Modifier,
-    textAreaModifier: ColumnScope .() -> Modifier = { Modifier },
-    scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
+    textAreaModifier: RowScope .() -> Modifier = { Modifier },
+    scrollerModifier: RowScope.() -> Modifier = { Modifier },
     scope: TextAreaScope.() -> Unit = {}
-): ColumnWidget {
+): RowWidget {
     var textArea: TextAreaWidget? = null
-    return Column(
+    return Row(
         modifier = Modifier
             .padding(5.5f, 4f, 5.5f, 5.5f)
             .renderBackground { ctx, _, _, _ ->

@@ -21,7 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.maxWidth
@@ -97,7 +97,7 @@ fun WidgetContainerScope.DropDownMenu(
         }.open()
     }
 
-    Column(
+    Row(
         modifier = Modifier.width(13f),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -126,7 +126,7 @@ fun <T> WidgetContainerScope.Selector(
     optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
     listWrapperModifier: BoxScope.() -> Modifier = { Modifier },
-    listModifier: ColumnScope.() -> Modifier = { Modifier },
+    listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
@@ -143,7 +143,7 @@ fun <T> WidgetContainerScope.Selector(
             onSelected(it)
         }
         DropDownContent {
-            RowListWrapped(
+            ColumnListWrapped(
                 modifier = Modifier.padding(0f).disableRenderBackground().then(listWrapperModifier()),
                 horizontalAlignment = Alignment.Left,
                 listModifier = listModifier
@@ -204,9 +204,9 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
     selectedWrapper: DropDownMenuScope.(T) -> IGWidget,
     optionWrapper: ButtonScope.(T) -> IGWidget,
     modifier: Modifier = Modifier,
-    searchBarModifier: RowScope.() -> Modifier = { Modifier },
-    listWrapperModifier: RowScope.() -> Modifier = { Modifier },
-    listModifier: RowScope.() -> Modifier = { Modifier },
+    searchBarModifier: ColumnScope.() -> Modifier = { Modifier },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
+    listModifier: ColumnScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
@@ -224,7 +224,7 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
         }
 
         DropDownContent {
-            Row(
+            Column(
                 horizontalAlignment = Alignment.Left,
             ) {
                 val showList = notifiableList(options.toList())
@@ -241,7 +241,7 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
                         modifier = searchBarModifier(),
                         textEditorModifier = { Modifier.weight(1) }
                     )
-                RowListWrapped(
+                ColumnListWrapped(
                     modifier = listModifier().attachLeft { padding(0f).disableRenderBackground() }.then(listWrapperModifier()),
                     horizontalAlignment = Alignment.Left
                 ) {
@@ -284,7 +284,7 @@ fun WidgetContainerScope.Selector(
     selectedColor: ARGBColor = defaultSelectedColor,
     modifier: Modifier = Modifier,
     listWrapperModifier: BoxScope.() -> Modifier = { Modifier },
-    listModifier: ColumnScope.() -> Modifier = { Modifier },
+    listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = Selector(

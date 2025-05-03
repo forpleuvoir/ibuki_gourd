@@ -36,6 +36,9 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
      */
     override val wasMouseOver: Boolean get() = transform.isMouseOvered(mc.mousePosition) && mc.currentScreen == screen()
 
+    override val wasMouseOverContent: Boolean
+        get() = (mc.mousePosition in contentBox(true)) && mc.currentScreen == screen()
+
     /**
      * 组件是否在拖动中
      */

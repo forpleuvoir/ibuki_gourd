@@ -11,8 +11,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
@@ -26,8 +26,8 @@ fun WidgetContainerScope.SearchBar(
     hintText: State<String?> = stateOf(IGLang.search.plainText),
     bgShaderColor: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
-    textEditorModifier: ColumnScope.() -> Modifier = { Modifier },
-) = Column(
+    textEditorModifier: RowScope.() -> Modifier = { Modifier },
+) = Row(
     modifier.attachLeft {
         padding(5, 3, 3, 3)
             .render { context, _, _, _ ->

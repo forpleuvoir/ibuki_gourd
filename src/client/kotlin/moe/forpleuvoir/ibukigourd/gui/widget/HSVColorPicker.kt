@@ -12,8 +12,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.render.IGRenderLayers
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -25,12 +25,12 @@ import moe.forpleuvoir.nebula.common.color.HSVColor
 fun WidgetContainerScope.HSVColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
-    scope: RowScope.() -> Unit = {}
-) = Row(
+    scope: ColumnScope.() -> Unit = {}
+) = Column(
     modifier = Modifier.size(200f, 82f).then(modifier),
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
-    Column(
+    Row(
         Modifier.weight(1).name("hue").hoverText(IGLang.hue, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -41,11 +41,12 @@ fun WidgetContainerScope.HSVColorPicker(
         FloatEditor(
             mutableStateOf(colorState, { it.toHSVColor().hue }) { colorState.getValue().clone().toHSVColor().hue(it) },
             range = 0f..360f,
+            valueMapper = { String.format("%.2f", it) },
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
     }
-    Column(
+    Row(
         Modifier.weight(1).name("saturation").hoverText(IGLang.saturation, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -56,11 +57,12 @@ fun WidgetContainerScope.HSVColorPicker(
         FloatEditor(
             mutableStateOf(colorState, { it.toHSVColor().saturation * 100 }) { colorState.getValue().clone().toHSVColor().saturation(it / 100) },
             range = 0f..100f,
+            valueMapper = { String.format("%.2f", it) },
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
     }
-    Column(
+    Row(
         Modifier.weight(1).name("brightness").hoverText(IGLang.brightness, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -71,11 +73,12 @@ fun WidgetContainerScope.HSVColorPicker(
         FloatEditor(
             mutableStateOf(colorState, { it.toHSVColor().value * 100 }) { colorState.getValue().clone().toHSVColor().value(it / 100) },
             range = 0f..100f,
+            valueMapper = { String.format("%.2f", it) },
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )
     }
-    Column(
+    Row(
         Modifier.weight(1).name("alpha").hoverText(IGLang.alpha, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -86,6 +89,7 @@ fun WidgetContainerScope.HSVColorPicker(
         FloatEditor(
             mutableStateOf(colorState, { it.alphaF * 100 }) { Color(colorState.getValue().argb).alpha(it / 100) },
             range = 0f..100f,
+            valueMapper = { String.format("%.2f", it) },
             modifier = Modifier.width(45f),
             editorModifier = { Modifier.weight(1) }
         )

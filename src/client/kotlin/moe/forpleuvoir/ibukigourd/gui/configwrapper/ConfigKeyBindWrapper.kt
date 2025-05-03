@@ -10,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.KeyBindButton
 import moe.forpleuvoir.ibukigourd.gui.widget.KeyBindSettingButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.config.Config
@@ -20,8 +20,8 @@ import moe.forpleuvoir.nebula.config.Config
 fun WidgetContainerScope.ConfigKeyBindWrapper(
     config: ConfigKeyBind,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-    Column(
+) = ConfigRowWrapper(config, modifier) {
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         KeyBindWrapper(config) { it.getValue() }
@@ -32,13 +32,13 @@ fun WidgetContainerScope.ConfigKeyBindWrapper(
 fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
     config: ConfigKeyBindBoolean,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val boolValue = mutableStateOf(config.getValue().value).apply {
         subscribe {
             config.setValue(config.getValue().copy(value = it))
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         SwitchButton(boolValue, Modifier.width(40f))
@@ -49,7 +49,7 @@ fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
     }
 }
 
-private fun <C : Config<*, C>> ColumnScope.KeyBindWrapper(
+private fun <C : Config<*, C>> RowScope.KeyBindWrapper(
     config: C,
     buttonModifier: Modifier = Modifier,
     mapping: (C) -> KeyBind

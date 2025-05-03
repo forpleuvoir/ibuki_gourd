@@ -15,7 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChi
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.math.bezier.Ease
@@ -79,9 +79,9 @@ class TextWidget(
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.constraintAs(constraints)
         val width = text.getValue().wrapToTextLines(if (setting.autoNewLine) (c.maxWidth - padding.width) else 0f)
-            .maxOf { it.width } + padding.width
+            .maxOfOrNull { it.width } ?: (0f + padding.width)
         val spacing = setting.verticalArrangement.spacing
-        val height = text.getValue().totalHeight(spacing) + padding.height
+        val height = text.getValue().totalHeight(spacing, width) + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         renderText = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
         return this
@@ -93,18 +93,11 @@ class TextWidget(
 
     //------------ TextWidget ------------\\
 
-    init {
-//        text.subscribe { onChanged() }
-//        padding = Padding(0, 0, 0, 1)
-//        margin = Margin(0, -1, 0, 0)
-    }
-
-
     private var latestText: Text = text.getValue()
 
     private var mark = TimeSource.Monotonic.markNow()
 
-    private fun updateText(force: Boolean = false) {
+    fun updateText(force: Boolean = false) {
         if (!force && mark.elapsedNow() < setting.textLabelUpdateInterval) return
         mark = TimeSource.Monotonic.markNow()
         val text = this.text.getValue()
@@ -301,7 +294,7 @@ fun WidgetContainerScope.TextLabel(
     val m =
         text.style.hoverEvent?.let { hoverEvent ->
             Modifier.hoverTip {
-                Row {
+                Column {
                     when (hoverEvent.action) {
                         HoverEvent.Action.SHOW_TEXT   -> TextLabel(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT)!!.copyToText())
 

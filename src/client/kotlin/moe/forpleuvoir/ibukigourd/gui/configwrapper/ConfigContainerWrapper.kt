@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.config.userdata.guiWrapper
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -25,9 +26,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainer
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainerLimit
@@ -49,9 +50,9 @@ import moe.forpleuvoir.nebula.config.manager.ConfigManager
 fun WidgetContainerScope.ConfigsWrapper(
     configs: Iterable<ConfigSerializable>,
     modifier: Modifier = Modifier,
-    listModifier: ColumnScope.() -> Modifier = { Modifier.weight(1).fill() },
-    scrollerModifier: ColumnScope.() -> Modifier = { Modifier },
-) = RowListWrapped(
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1).fill() },
+    scrollerModifier: RowScope.() -> Modifier = { Modifier },
+) = ColumnListWrapped(
     modifier = modifier,
     listModifier = listModifier,
     scrollerModifier = scrollerModifier,
@@ -59,15 +60,15 @@ fun WidgetContainerScope.ConfigsWrapper(
 ) {
     if (configs.count() == 0) TextLabel(IGLang.hasNothing)
     configs.forEach { config ->
-        ConfigWrapperMap.wrapper(config, this, Modifier.fill().unlockConstraint())
+        config.guiWrapper(this, Modifier.fill().unlockConstraint())
     }
 }
 
 fun WidgetContainerScope.ConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-    Column(
+) = ConfigRowWrapper(config, modifier) {
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         Button(
@@ -99,7 +100,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
 fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
-) = Row(modifier) {
+) = Column(modifier) {
     val expanded = mutableStateOf(autoExpandConfigContainer && config.configs().size <= autoExpandConfigContainerLimit)
 
     var firstConfig = config.configs().find { showFirstConfigInContainer && it !is ConfigContainer }
@@ -109,7 +110,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
         modifier = Modifier.disableRender().padding(0)
     ) {
         click { expanded.switch() }
-        Column(
+        Row(
             Modifier
                 .weight(1)
                 .attachLeft {
@@ -123,10 +124,8 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
             if (firstConfig != null) {
                 TextLabel("·", modifier = Modifier.margin(horizontal = 1f))
             }
-            Column {
-                firstConfig?.let { firstConfig ->
-                    ConfigWrapperMap.wrapper(firstConfig, this, Modifier.weight(1).disableRenderBackground())
-                }
+            Row {
+                firstConfig?.guiWrapper(this, Modifier.weight(1).disableRenderBackground())
                 Icon(
                     mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
                     modifier = Modifier.margin(right = 5f, left = 2f)
@@ -136,7 +135,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
     }
     SwitchableProxy(
         widgetA = {
-            Column {
+            Row {
                 Widget(
                     Modifier.width(1.5f)
                         .matchSibling()
@@ -149,14 +148,14 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
                             )
                         }
                 )
-                Row(
+                Column(
                     modifier = Modifier.padding(2, 8, 2, 2),
                     verticalArrangement = Arrangement.spacedBy(4f)
                 ) {
                     if (config.configs().isEmpty()) TextLabel(IGLang.hasNothing)
                     config.configs().forEach { config ->
                         if (config != firstConfig)
-                            ConfigWrapperMap.wrapper(config, this, Modifier.fill())
+                            config.guiWrapper(this, Modifier.fill())
                     }
                 }
             }
@@ -173,7 +172,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
 fun WidgetContainerScope.ConfigManagerWrapper(
     configManager: ConfigManager,
     modifier: Modifier = Modifier,
-) = Column(
+) = Row(
     modifier,
     horizontalArrangement = Arrangement.spacedBy(5f)
 ) {
@@ -189,7 +188,7 @@ fun WidgetContainerScope.ConfigManagerWrapper(
         map.first().first to notifiableList(map.first().second)
     }
 
-    RowListWrapped(
+    ColumnListWrapped(
         modifier = Modifier.fill(),
         listModifier = { Modifier.fill() },
     ) {
@@ -216,7 +215,7 @@ fun WidgetContainerScope.ConfigManagerWrapper(
         }
     }
 
-    Row(
+    Column(
         verticalArrangement = Arrangement.spacedBy(3f),
     ) {
         SearchBar(

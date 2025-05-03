@@ -28,7 +28,7 @@ import moe.forpleuvoir.nebula.common.color.HSVColor
 fun SimpleDialog(
     title: State<Text>,
     modifier: Modifier = Modifier,
-    contentModifier: RowScope.() -> Modifier = { Modifier },
+    contentModifier: ColumnScope.() -> Modifier = { Modifier },
     screenModifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Color(0xFFF4D9FF)),
     contentOutlineColor: State<ARGBColor> = bgColor,
@@ -59,7 +59,7 @@ fun ConfirmDialog(
     onCancel: () -> Unit = {
         mc.currentScreen?.close()
     },
-    content: RowScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ): IGScreenImpl = Dialog(
     modifier = modifier,
     screenModifier = screenModifier,
@@ -71,7 +71,7 @@ fun ConfirmDialog(
     //Content
     content()
     //Button
-    Column(
+    Row(
         Modifier.matchSibling(),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
     ) {
@@ -94,12 +94,12 @@ fun Dialog(
     screenModifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Color(0xFFF4D9FF)),
     parentScreen: IGScreen? = mc.currentScreen as IGScreen?,
-    content: RowScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ): IGScreenImpl = PopupScreen(
     modifier = Modifier.name("Dialog") then screenModifier,
     parentScreen = parentScreen
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .padding(6f)
             .align(Alignment.Center)

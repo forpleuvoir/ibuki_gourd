@@ -89,11 +89,11 @@ object InputHandler : Tickable {
         return NextAction.Continue
     }
 
-    fun hasKeyPressed(keyCode: KeyCode): Boolean {
+    fun wasKeyPressed(keyCode: KeyCode): Boolean {
         return currentPressKeyCode.contains(keyCode)
     }
 
-    fun hasKeyPressed(vararg keyCode: KeyCode): Boolean {
+    fun wasKeyPressed(vararg keyCode: KeyCode): Boolean {
         return currentPressKeyCode.exactMatch(keyCode.toList())
     }
 

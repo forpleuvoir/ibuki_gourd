@@ -52,11 +52,15 @@ object IGLang {
 
     val remove get() = lang("misc.remove")
 
+    fun removeConfirm(content: String) = lang("misc.remove_confirm", content)
+
     val edit get() = lang("misc.edit")
 
     val copy get() = lang("misc.copy")
 
     val paste get() = lang("misc.paste")
+
+    val content get() = lang("misc.content")
 
     //------------ Color ------------\\
 
@@ -80,6 +84,14 @@ object IGLang {
 
     fun <T : Comparable<*>> notInRange(value: T, minValue: T, maxValue: T) = lang("config_wrapper.not_in_range", value, minValue, maxValue)
 
+    val pairFirst get() = lang("config_wrapper.pair.first")
+
+    val pairSecond get() = lang("config_wrapper.pair.second")
+
+    val mapKey get() = lang("config_wrapper.map.key")
+
+    val mapValue get() = lang("config_wrapper.map.value")
+
     fun keyExists(key: String) = lang("config_wrapper.key_exists", key)
 
     val pressToSetting get() = lang("config_wrapper.press_to_setting")
@@ -87,6 +99,8 @@ object IGLang {
     val releaseToSaveSetting get() = lang("config_wrapper.release_to_save_setting")
 
     val keybindConflict get() = lang("config_wrapper.keybind_conflict")
+
+    val move get() = lang("config_wrapper.move")
 
     fun listConfigWrapperText(count: Int) = lang("config_wrapper.list.text", count)
 

@@ -27,7 +27,7 @@ fun interface GuiScope<T : Any> {
 
         val GuiScope<out IGElement>.customData: MutableMap<String, Any> get() = this.owner().customData
 
-        fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W) = owner().addWidgetChild(child)
+        infix fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W) = owner().addWidgetChild(child)
 
         fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
 

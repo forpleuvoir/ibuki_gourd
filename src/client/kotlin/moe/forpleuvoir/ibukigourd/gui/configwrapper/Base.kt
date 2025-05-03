@@ -11,8 +11,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.api.Resettable
@@ -20,13 +20,13 @@ import moe.forpleuvoir.nebula.config.ConfigSerializable
 
 const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
 
-fun <T : ConfigSerializable> WidgetContainerScope.ConfigColumnWrapper(
+fun <T : ConfigSerializable> WidgetContainerScope.ConfigRowWrapper(
     configSerializable: T,
     modifier: Modifier = Modifier,
-    textWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
-    textModifier: ColumnScope.() -> Modifier = { Modifier },
-    content: ColumnScope.() -> Unit
-) = Column(
+    textWrapperModifier: RowScope.() -> Modifier = { Modifier },
+    textModifier: RowScope.() -> Modifier = { Modifier },
+    content: RowScope.() -> Unit
+) = Row(
     modifier
         .attachLeft {
             name(configSerializable.javaClass.simpleName + "Wrapper")
@@ -63,11 +63,11 @@ fun <T : Resettable> WidgetContainerScope.ConfigResetButton(
     }
 }
 
-fun <T : ConfigSerializable> ColumnScope.ConfigTextLabel(
+fun <T : ConfigSerializable> RowScope.ConfigTextLabel(
     config: T,
     modifier: Modifier = Modifier,
-    textModifier: ColumnScope.() -> Modifier = { Modifier }
-) = Column(
+    textModifier: RowScope.() -> Modifier = { Modifier }
+) = Row(
     modifier = modifier.attachLeft { weight(1) },
     horizontalArrangement = Arrangement.Left
 ) {

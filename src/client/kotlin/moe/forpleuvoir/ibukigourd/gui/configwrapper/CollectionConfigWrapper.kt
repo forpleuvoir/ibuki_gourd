@@ -27,8 +27,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
@@ -55,7 +55,7 @@ fun WidgetContainerScope.MoveButton(
     recompose: () -> Unit,
     listValue: MutableList<*>,
     index: Int,
-) = Row {
+) = Column {
     FlatButton(
         hoveredColor = Colors.BLACK.alpha(.15f),
         round = 0,
@@ -101,10 +101,10 @@ fun <T> WidgetContainerScope.IterableWrappedButton(
     content: ButtonScope.() -> Unit = {
         TextLabel(mutableStateBy { IGLang.listConfigWrapperText(iterable.count()) })
     },
-    //RowList
-    rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
-    rowListModifier: ColumnScope.() -> Modifier = { Modifier },
-    entryWrapper: RowListScope.(T, index: Int) -> Unit
+    //ColumnList
+    columnListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    columnListModifier: RowScope.() -> Modifier = { Modifier },
+    entryWrapper: ColumnListScope.(T, index: Int) -> Unit
 ) = Button(
     Modifier.width(80f)
         .hoverTip(hoverSettings, hoverModifier) { hoverContent(iterable) }
@@ -112,15 +112,15 @@ fun <T> WidgetContainerScope.IterableWrappedButton(
 ) {
     content()
     click {
-        var rowList: WidgetContainerImpl? = null
+        var columnList: WidgetContainerImpl? = null
         Dialog {
             TextLabel(title)
             DialogContent(
                 Modifier.padding(5f, 3f, 5f, 5f)
             ) {
-                rowList = RowListWrapped(
-                    modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f).then(rowListWrapperModifier()),
-                    listModifier = { Modifier.height(160f).then(rowListModifier()) }
+                columnList = ColumnListWrapped(
+                    modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f).then(columnListWrapperModifier()),
+                    listModifier = { Modifier.height(160f).then(columnListModifier()) }
                 ) {
                     if (iterable.count() == 0) TextLabel(IGLang.hasNothing)
                     iterable.forEachIndexed { index, entry ->
@@ -137,7 +137,7 @@ fun <T> WidgetContainerScope.IterableWrappedButton(
                 Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
                 click {
                     onAdd(newValue(iterable))
-                    rowList?.executeRecompose()
+                    columnList?.executeRecompose()
                 }
             }
         }.open()
@@ -172,9 +172,9 @@ fun <T> WidgetContainerScope.ListConfigWrappedButton(
         TextLabel(mutableStateBy { IGLang.listConfigWrapperText(iterable.count()) })
     },
     //RowList
-    rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
-    rowListModifier: ColumnScope.() -> Modifier = { Modifier },
-    entryWrapper: RowListScope.(T, index: Int) -> Unit
+    columnListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    columnListModifier: RowScope.() -> Modifier = { Modifier },
+    entryWrapper: ColumnListScope.(T, index: Int) -> Unit
 ) = IterableWrappedButton(
     title = title,
     iterable = iterable,
@@ -185,8 +185,8 @@ fun <T> WidgetContainerScope.ListConfigWrappedButton(
     hoverContent = hoverContent,
     modifier = modifier,
     content = content,
-    rowListWrapperModifier = rowListWrapperModifier,
-    rowListModifier = rowListModifier,
+    columnListWrapperModifier = columnListWrapperModifier,
+    columnListModifier = columnListModifier,
     entryWrapper = entryWrapper,
 )
 
@@ -197,8 +197,8 @@ fun <T> WidgetContainerScope.ListConfigEntryWrapper(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    content: ColumnScope.() -> Unit
-) = Column(
+    content: RowScope.() -> Unit
+) = Row(
     modifier,
     horizontalArrangement,
     verticalAlignment,
@@ -227,8 +227,8 @@ fun <T> WidgetContainerScope.MoveableListConfigEntryWrapper(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    content: ColumnScope.() -> Unit
-) = Column(
+    content: RowScope.() -> Unit
+) = Row(
     modifier,
     horizontalArrangement,
     verticalAlignment,
@@ -251,11 +251,11 @@ fun <T> WidgetContainerScope.MoveableListConfigEntryWrapper(
     }
 }
 
-fun WidgetContainerScope.StringListConfigWrapper(
+fun WidgetContainerScope.StringListConfigWrapper1(
     config: ConfigStringList,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-    Column(
+) = ConfigRowWrapper(config, modifier) {
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         ListConfigWrappedButton(
@@ -276,16 +276,16 @@ fun WidgetContainerScope.StringListConfigWrapper(
             }
         }
         ConfigResetButton(config) {
-            this@Column.executeRecompose()
+            this@Row.executeRecompose()
         }
     }
 }
 
-fun WidgetContainerScope.StringPairListConfigWrapper(
+fun WidgetContainerScope.StringPairListConfigWrapper1(
     config: ConfigPairList<String, String>,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-    Column(
+) = ConfigRowWrapper(config, modifier) {
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         ListConfigWrappedButton(
@@ -344,7 +344,7 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
             }
         }
         ConfigResetButton(config) {
-            this@Column.executeRecompose()
+            this@Row.executeRecompose()
         }
     }
 }
@@ -381,9 +381,9 @@ fun <K, V> WidgetContainerScope.MapConfigWrappedButton(
         TextLabel(mutableStateBy { IGLang.listConfigWrapperText(iterable.count()) })
     },
     //RowList
-    rowListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
-    rowListModifier: ColumnScope.() -> Modifier = { Modifier },
-    entryWrapper: RowListScope.(Map.Entry<K, V>, index: Int) -> Unit
+    columnListWrapperModifier: BoxScope.() -> Modifier = { Modifier },
+    columnListModifier: RowScope.() -> Modifier = { Modifier },
+    entryWrapper: ColumnListScope.(Map.Entry<K, V>, index: Int) -> Unit
 ) = IterableWrappedButton(
     title = title,
     iterable = iterable,
@@ -394,25 +394,25 @@ fun <K, V> WidgetContainerScope.MapConfigWrappedButton(
     hoverContent = hoverContent,
     modifier = modifier,
     content = content,
-    rowListWrapperModifier = rowListWrapperModifier,
-    rowListModifier = rowListModifier,
+    columnListWrapperModifier = columnListWrapperModifier,
+    columnListModifier = columnListModifier,
     entryWrapper = entryWrapper,
 )
 
 fun <K, V> WidgetContainerScope.MapConfigEntryWrapper(
     config: Config<MutableMap<K, V>, *>,
     key: K,
-    keyWrapper: ColumnScope.(K, Map<K, V>) -> Unit,
-    keyEditorWrapper: RowScope.(K, Map<K, V>, (K) -> Unit) -> (() -> Transform),
+    keyWrapper: RowScope.(K, Map<K, V>) -> Unit,
+    keyEditorWrapper: ColumnScope.(K, Map<K, V>, (K) -> Unit) -> (() -> Transform),
     keyToSting: (K) -> String = { it.toString() },
     value: V,
-    valueWrapper: ColumnScope.(V, MutableMap<K, V>) -> Unit,
-    valueEditorWrapper: RowScope.(V, Map<K, V>, (V) -> Unit) -> Unit,
+    valueWrapper: RowScope.(V, MutableMap<K, V>) -> Unit,
+    valueEditorWrapper: ColumnScope.(V, Map<K, V>, (V) -> Unit) -> Unit,
     recompose: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = Column(
+) = Row(
     modifier,
     horizontalArrangement,
     verticalAlignment,
@@ -486,11 +486,11 @@ fun <K, V> WidgetContainerScope.MapConfigEntryWrapper(
     }
 }
 
-fun WidgetContainerScope.StringMapConfigWrapper(
+fun WidgetContainerScope.StringMapConfigWrapper1(
     config: ConfigStringMap,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-    Column(
+) = ConfigRowWrapper(config, modifier) {
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         MapConfigWrappedButton(
@@ -531,7 +531,7 @@ fun WidgetContainerScope.StringMapConfigWrapper(
             )
         }
         ConfigResetButton(config) {
-            this@Column.executeRecompose()
+            this@Row.executeRecompose()
         }
     }
 }

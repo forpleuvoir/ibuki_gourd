@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
@@ -9,14 +10,22 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
+import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.gui.widget.toHSVColor
+import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -225,6 +234,35 @@ fun <S : WidgetContainerScope, T> S.RadioButtons(
                 }
                 this.owner().active = false
             }
+        }
+    }
+}
+
+
+fun WidgetContainerScope.DeleteButton(
+    confirmMessage: Text,
+    recompose: () -> Unit,
+    deleteAction: () -> Unit,
+) = FlatButton(
+    hoveredColor = Colors.LIGHT_RED,
+    modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
+) {
+    Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
+    click {
+        if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
+            deleteAction()
+            recompose()
+        } else {
+            ConfirmDialog(
+                stateOf(IGLang.remove),
+                onConfirm = {
+                    deleteAction()
+                    closeScreen()
+                    recompose()
+                }
+            ) {
+                TextLabel(confirmMessage, modifier = Modifier.minWidth(120f))
+            }.open()
         }
     }
 }

@@ -167,11 +167,11 @@ data class TabScope(
 
     override fun Modifier.weight(weight: Int): Modifier {
         return when (owner) {
-            is RowWidget    ->
-                RowScope { owner }.run { weight(weight) }
-
             is ColumnWidget ->
                 ColumnScope { owner }.run { weight(weight) }
+
+            is RowWidget ->
+                RowScope { owner }.run { weight(weight) }
 
             else            -> throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
         }
@@ -179,11 +179,11 @@ data class TabScope(
 
     override fun Modifier.fillMode(fillMode: FillMode): Modifier {
         return when (owner) {
-            is RowWidget    ->
-                RowScope { owner }.run { fillMode(fillMode) }
-
             is ColumnWidget ->
                 ColumnScope { owner }.run { fillMode(fillMode) }
+
+            is RowWidget    ->
+                RowScope { owner }.run { fillMode(fillMode) }
 
             else            ->
                 throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
@@ -192,11 +192,11 @@ data class TabScope(
 
     override fun Modifier.align(alignment: Alignment.Linear): Modifier {
         return when (owner) {
-            is RowWidget    ->
-                RowScope { owner }.run { align(alignment as Alignment.Horizontal) }
-
             is ColumnWidget ->
-                ColumnScope { owner }.run { align(alignment as Alignment.Vertical) }
+                ColumnScope { owner }.run { align(alignment as Alignment.Horizontal) }
+
+            is RowWidget    ->
+                RowScope { owner }.run { align(alignment as Alignment.Vertical) }
 
             else            ->
                 throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
@@ -212,20 +212,20 @@ fun WidgetContainerScope.Tabs(
     contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
 ): WidgetContainerImpl = when (direction) {
-    Top, Bottom -> RowTabs(direction, modifier, tabsModifier, contentModifier, scope)
-    Right, Left -> ColumnTabs(direction, modifier, tabsModifier, contentModifier, scope)
+    Top, Bottom -> ColumnTabs(direction, modifier, tabsModifier, contentModifier, scope)
+    Right, Left -> RowTabs(direction, modifier, tabsModifier, contentModifier, scope)
 }
 
 
-private fun WidgetContainerScope.RowTabs(
+private fun WidgetContainerScope.ColumnTabs(
     direction: Direction,
     modifier: Modifier = Modifier,
     tabsModifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
-) = Row(modifier) {
+) = Column(modifier) {
     var tabScope: TabScope? = null
-    Column(
+    Row(
         Modifier
             .renderPriority(1)
             .matchSibling()
@@ -253,15 +253,15 @@ private fun WidgetContainerScope.RowTabs(
     if (direction == Bottom) owner().swapWidgetChildren(0, 1)
 }
 
-private fun WidgetContainerScope.ColumnTabs(
+private fun WidgetContainerScope.RowTabs(
     direction: Direction,
     modifier: Modifier = Modifier,
     tabsModifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
-) = Column(modifier) {
+) = Row(modifier) {
     var tabScope: TabScope? = null
-    Row(
+    Column(
         Modifier
             .renderPriority(1)
             .matchSibling()

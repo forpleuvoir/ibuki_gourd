@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.modifier.renderHoveredOutlineBox
-import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
+import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.SelectorWithSearcher
@@ -21,7 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
@@ -30,7 +30,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.plus
 import moe.forpleuvoir.nebula.common.color.Colors
 
-fun testScreen3() = RowScreen(
+fun testScreen3() = ColumnScreen(
     modifier = Modifier.renderOverlay { ctx, _, _, _ ->
         val lines = listOf(
             Literal(screen()?.focusedWidget.toString()),
@@ -45,7 +45,7 @@ fun testScreen3() = RowScreen(
 ) {
     val selectText = mutableStateOf("本居小铃")
     val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香", "本居小铃")
-    Column {
+    Row {
         SelectorWithSearcher(
             listString,
             { str, s ->
@@ -64,7 +64,7 @@ fun testScreen3() = RowScreen(
         DropDownMenu {
             TextLabel(selectText)
             DropDownContent {
-                RowListWrapped(
+                ColumnListWrapped(
                     modifier = Modifier.disableRenderBackground().padding(0f),
                     horizontalAlignment = Alignment.Left,
                 ) {
@@ -104,7 +104,7 @@ fun testScreen3() = RowScreen(
             "伊吹萃香" to IconTextures.SAVE
         )
         val wrapper: ButtonScope.(Pair<String, WidgetTexture>) -> IGWidget = { (str, icon) ->
-            Column(
+            Row(
                 modifier = Modifier.width(80f),
                 horizontalArrangement = Arrangement.spacedBy(2f)
             ) {
@@ -163,15 +163,15 @@ fun testScreen3() = RowScreen(
         Arrangement.Center,
         Arrangement.Right
     )
-    Column(Modifier.height(200f)) {
-        Row(
+    Row(Modifier.height(200f)) {
+        Column(
             modifier = Modifier.weight(1).fill()
         ) {
             (list + lh).forEach { arrangement ->
                 ColumnTest(arrangement)
             }
         }
-        Column(
+        Row(
             modifier = Modifier.weight(1).fill()
         ) {
             (list + lv).forEach { arrangement ->
@@ -182,7 +182,7 @@ fun testScreen3() = RowScreen(
 
 }
 
-private fun RowScope.ColumnTest(arrangement: Arrangement.Horizontal) = Column(
+private fun ColumnScope.ColumnTest(arrangement: Arrangement.Horizontal) = Row(
     modifier = Modifier
         .padding(3f)
         .fill()
@@ -202,7 +202,7 @@ private fun RowScope.ColumnTest(arrangement: Arrangement.Horizontal) = Column(
     Button { TextLabel("按钮3") }
 }
 
-private fun ColumnScope.RowTest(arrangement: Arrangement.Vertical) = Row(
+private fun RowScope.RowTest(arrangement: Arrangement.Vertical) = Column(
     verticalArrangement = arrangement,
     modifier = Modifier
         .padding(3f)

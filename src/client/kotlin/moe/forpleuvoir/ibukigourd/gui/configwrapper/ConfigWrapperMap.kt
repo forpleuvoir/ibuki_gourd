@@ -15,11 +15,15 @@ import kotlin.reflect.KClass
 
 private typealias Wrapper = WidgetContainerScope.(ConfigSerializable, Modifier) -> Unit
 private typealias Predicate = (ConfigSerializable) -> Boolean
+private typealias WrapperEntry = Pair<Predicate, Wrapper>
+
+private val WrapperEntry.predicate get() = first
+private val WrapperEntry.wrapper get() = second
 
 @Suppress("UNCHECKED_CAST")
 object ConfigWrapperMap {
 
-    private val wrappers: MutableList<Pair<Predicate, Wrapper>> = LinkedList()
+    private val wrappers: MutableList<WrapperEntry> = LinkedList()
 
     fun register(predicate: Predicate, wrapper: Wrapper) {
         wrappers.addFirst(predicate to wrapper)
@@ -34,9 +38,9 @@ object ConfigWrapperMap {
     }
 
     fun <T : ConfigSerializable, S : WidgetContainerScope> wrapper(config: T, scope: S, modifier: Modifier = Modifier) {
-        wrappers.find { it.first(config) }
+        wrappers.find { it.predicate(config) }
             ?.let {
-                it.second.invoke(scope, config, modifier)
+                it.wrapper.invoke(scope, config, modifier)
                 return
             }
         scope.UnspecifiedConfigWrapper(config, modifier)
@@ -75,9 +79,9 @@ object ConfigWrapperMap {
         register<ConfigVector3d> { c, m -> ConfigVector3dWrapper(c, m) }
 
         //------------ Collection ------------\\
-        register<ConfigStringList> { c, m -> StringListConfigWrapper(c, m) }
-        register<ConfigStringMap> { c, m -> StringMapConfigWrapper(c, m) }
-        register<ConfigPairList<String, String>> { c, m -> StringPairListConfigWrapper(c, m) }
+        register<ConfigStringList> { c, m -> StringListConfigWrapper(c, modifier = m) }
+        register<ConfigStringMap> { c, m -> StringMapConfigWrapper(c, modifier = m) }
+        register<ConfigPairList<String, String>> { c, m -> StringPairListConfigWrapper(c, modifier = m) }
         register<ConfigKeyBind> { c, m -> ConfigKeyBindWrapper(c, m) }
         register<ConfigKeyBindBoolean> { c, m -> ConfigKeyBindBooleanWrapper(c, m) }
 

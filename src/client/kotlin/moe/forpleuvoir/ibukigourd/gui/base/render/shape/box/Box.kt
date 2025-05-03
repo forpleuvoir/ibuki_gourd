@@ -61,7 +61,7 @@ interface Box : SizeFloat, Cloneable {
 
     val asScreenRect: ScreenRect get() = ScreenRect(this.x.toInt(), this.y.toInt(), this.width.toInt(), this.height.toInt())
 
-    fun trimEdges(top: Float, bottom: Float, left: Float, right: Float): Box =
+    fun trimEdges(top: Float = 0f, bottom: Float = 0f, left: Float = 0f, right: Float = 0f): Box =
         Box(this.x + left, this.y + top, this.endX - right, this.endY - bottom)
 
     fun trimEdges(width: Float, height: Float): Box = trimEdges(width / 2, width / 2, height / 2, height / 2)

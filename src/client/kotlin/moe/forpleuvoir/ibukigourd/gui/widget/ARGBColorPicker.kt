@@ -35,8 +35,8 @@ import net.minecraft.sound.SoundEvents
 fun WidgetContainerScope.ColorPicker(
     colorState: MutableState<Color>,
     modifier: Modifier = Modifier,
-    colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
-    resultModifier: ColumnScope.() -> Modifier = { Modifier },
+    colorPickerModifier: RowScope.() -> Modifier = { Modifier },
+    resultModifier: RowScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
 ) = ColorPicker(colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope)
 
@@ -44,8 +44,8 @@ fun WidgetContainerScope.ColorPicker(
 fun WidgetContainerScope.ColorPicker(
     colorState: MutableState<HSVColor>,
     modifier: Modifier = Modifier,
-    colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
-    resultModifier: ColumnScope.() -> Modifier = { Modifier },
+    colorPickerModifier: RowScope.() -> Modifier = { Modifier },
+    resultModifier: RowScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
 ) = ColorPicker(colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope)
 
@@ -53,8 +53,8 @@ fun WidgetContainerScope.ColorPicker(
 fun WidgetContainerScope.ColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
-    colorPickerModifier: ColumnScope.() -> Modifier = { Modifier },
-    resultModifier: ColumnScope.() -> Modifier = { Modifier },
+    colorPickerModifier: RowScope.() -> Modifier = { Modifier },
+    resultModifier: RowScope.() -> Modifier = { Modifier },
     scope: TabScope.() -> Unit = {}
 ) = Tabs(
     direction = Direction.Top,
@@ -67,7 +67,7 @@ fun WidgetContainerScope.ColorPicker(
         color.subscribe {
             colorState.setValue(it)
         }
-        Column(
+        Row(
             horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
         ) {
             HSVColorPicker(color, modifier = colorPickerModifier())
@@ -79,7 +79,7 @@ fun WidgetContainerScope.ColorPicker(
         color.subscribe {
             colorState.setValue(it)
         }
-        Column(
+        Row(
             horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
         ) {
             this.ARGBColorPicker(color, modifier = colorPickerModifier())
@@ -93,12 +93,12 @@ fun WidgetContainerScope.ColorPicker(
 fun WidgetContainerScope.ARGBColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
-    scope: RowScope.() -> Unit = {}
-) = Row(
+    scope: ColumnScope.() -> Unit = {}
+) = Column(
     modifier = Modifier.size(200f, 82f).then(modifier),
     verticalArrangement = Arrangement.spacedBy(2f, Alignment.CenterVertically),
 ) {
-    Column(
+    Row(
         Modifier.weight(1).name("red").hoverText(IGLang.red, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -113,7 +113,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
     }
-    Column(
+    Row(
         Modifier.weight(1).name("green").hoverText(IGLang.green, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -128,7 +128,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
     }
-    Column(
+    Row(
         Modifier.weight(1).name("blue").hoverText(IGLang.blue, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(
@@ -143,7 +143,7 @@ fun WidgetContainerScope.ARGBColorPicker(
             editorModifier = { Modifier.weight(1) }
         )
     }
-    Column(
+    Row(
         Modifier.weight(1).name("alpha").hoverText(IGLang.alpha, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
     ) {
         Box(

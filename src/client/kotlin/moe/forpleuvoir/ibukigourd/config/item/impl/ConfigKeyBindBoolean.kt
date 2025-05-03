@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.IGLang.coloredSwitch
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeyBindBooleanValue
 import moe.forpleuvoir.ibukigourd.config.item.KeyBindWithBoolean
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyBind
@@ -67,11 +68,7 @@ fun ConfigContainer.keyBindBoolean(
     defaultValue: KeyBindWithBoolean,
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
         Toast.showToast(
-            text =
-                (this.parentContainer?.translateText ?: Literal())
-                    .appendLiteral("->")
-                    .append(this.translateText).append(Literal(" : "))
-                    .append(coloredSwitch(it))
+            text = translateTextWithParent(1, "->").append(Literal(" : ")).append(coloredSwitch(it))
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, defaultValue, onSwitch))
@@ -82,10 +79,7 @@ fun ConfigContainer.keyBindBoolean(
     keyBind: KeyBind = KeyBind(),
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
         Toast.showToast(
-            text = (this.parentContainer?.translateText ?: Literal())
-                .appendLiteral("->")
-                .append(this.translateText).append(Literal(" : "))
-                .append(coloredSwitch(it))
+            text = translateTextWithParent(1, "->").append(Literal(" : ")).append(coloredSwitch(it))
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, KeyBindWithBoolean(keyBind, value), onSwitch))

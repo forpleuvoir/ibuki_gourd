@@ -15,7 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -28,7 +28,7 @@ private val icon = WidgetTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, ide
 
 fun IbukiGourdModScreen() = TabScreen(
     header = {
-        Column(
+        Row(
             Modifier
                 .fill()
                 .padding(5f),

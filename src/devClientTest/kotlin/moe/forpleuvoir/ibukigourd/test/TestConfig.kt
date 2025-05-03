@@ -6,9 +6,12 @@ import moe.forpleuvoir.ibukigourd.config.ModConfig
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.item.stringPairList
+import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
+import moe.forpleuvoir.ibukigourd.gui.configwrapper.IntConfigWrapper
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.*
@@ -19,6 +22,11 @@ import kotlin.time.Duration.Companion.seconds
 object TestConfig : ClientModConfigManager(IbukiGourd.metadata, "${IbukiGourd.MOD_ID}_test") {
 
     var testInt by int("test_int", 0, 0, 233)
+        .setGuiWrapper { config, modifier ->
+            IntConfigWrapper(config, modifier) {
+                Literal("$it 测试Int")
+            }
+        }
 
     var testLong by long("test_long", 0, 0, 233)
 

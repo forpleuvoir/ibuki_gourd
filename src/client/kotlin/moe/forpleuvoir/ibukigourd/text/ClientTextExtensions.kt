@@ -175,35 +175,46 @@ fun MutableText.wrapToTextLines(
     // 声明用于构建每一行字符串的 StringBuilder
     val currentLineString = StringBuilder()
     // 迭代处理每一段文本
-    var newline = false
-    flatList.forEach { text ->
+    flatList.forEachIndexed { index, text ->
         // 声明一个临时的StringBuilder用于存储临时字符
         val temp = StringBuilder()
         // 迭代处理每一段文本的每一个字符
         for (chr in text.string) {
-            run {
-                // 如果字符不需要换行，且不超过最大宽度，则追加到当前行字符串后面
-                if (!needNewLine(chr)) {
-                    if (maxWidth <= 0) return@run
-                    if ((currentLineString.toString() + chr).width <= maxWidth) return@run
+            run {//检测是否换行的代码块
+                //检查是否为换行符号
+                if (!needNewLine(chr)) {  //不是换行符号
+                    //检查最大宽度是否无限制
+                    if (maxWidth <= 0f)
+                        return@run //无限制宽度并且不是换行符号,所以跳出换行代码块,当次字符添加不换行
+                    //不是换行符号,但是又宽度限制,检查添加到当前行的字符的长度
+                    if ((currentLineString.toString() + chr).width <= maxWidth)
+                        return@run  //小于等于最大宽度限制,跳出换行代码块,当次字符添加不换行
                 }
-                // 否则，将临时字符串添加到文本列表中，然后清空临时字符串及当前行字符串
-                texts.add(Literal(temp).setStyle(text.style))
-                newline = true
-                temp.clear()
+                //没有跳出换行代码块,说明需要换行,所以需要将当前行的字符串添加到结果中,并创建新的一行
+                if (texts.isNotEmpty()) {
+                    //如果当前行不为空,并且temp不为空,说明当前行有内容,需要将temp的内容添加到结果中
+                    if (temp.isNotEmpty()) texts.last().append(Literal(temp).setStyle(text.style))
+                } else { //如果第一行为空说明当前是第一行,直接将temp添加到结果中
+                    if (temp.isNotEmpty()) texts.add(Literal(temp).setStyle(text.style))
+                }
+                //添加完之后换行
+                texts.add(Literal())
+                //换行之后清空临时文本
                 currentLineString.clear()
+                temp.clear()
             }
-            // 如果字符不需要换行，则追加到临时字符串及当前行字符串后面
+            //执行到这说明没有换行,添加字符到当前行的字符串中
             if (!needNewLine(chr)) {
                 temp.append(chr)
                 currentLineString.append(chr)
             }
-        }
-        if (texts.isNotEmpty() && !newline) {
-            texts.last().append(Literal(temp).setStyle(text.style))
-        } else {
-            texts.add(Literal(temp).setStyle(text.style))
-            newline = false
+        }//当前的[text]处理完毕,并不代表当前行结束,需要将temp的内容添加到结果中
+
+        if (texts.isNotEmpty()) {
+            //如果当前行不为空,并且temp不为空,说明当前行有内容,需要将temp的内容添加到结果中
+            if (temp.isNotEmpty()) texts.last().append(Literal(temp).setStyle(text.style))
+        } else { //如果第一行为空说明当前是第一行,直接将temp添加到结果中
+            if (temp.isNotEmpty()) texts.add(Literal(temp).setStyle(text.style))
         }
     }
     // 最后返回处理后的文本列表

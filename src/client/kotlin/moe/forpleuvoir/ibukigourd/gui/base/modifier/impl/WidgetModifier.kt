@@ -127,12 +127,18 @@ fun Modifier.padding(padding: Padding) = this then WidgetModifier { widget ->
     widget.padding = padding
 }
 
-fun Modifier.padding(left: Number = 0f, right: Number = 0f, top: Number = 0f, bottom: Number = 0f) = this then WidgetModifier { widget ->
-    widget.padding = Padding(left, right, top, bottom)
+fun Modifier.padding(left: Number? = null, right: Number? = null, top: Number? = null, bottom: Number? = null) = this then WidgetModifier { widget ->
+    widget.padding = Padding(left ?: widget.padding.left, right ?: widget.padding.right, top ?: widget.padding.top, bottom ?: widget.padding.bottom)
 }
 
-fun Modifier.padding(horizontal: Number = 0, vertical: Number = 0) = this then WidgetModifier { widget ->
-    widget.padding = Padding(horizontal, vertical)
+fun Modifier.padding(horizontal: Number? = null, vertical: Number? = null) = this then WidgetModifier { widget ->
+    widget.padding =
+        Padding(
+            left = horizontal ?: widget.padding.left,
+            right = horizontal ?: widget.padding.right,
+            top = vertical ?: widget.padding.top,
+            bottom = vertical ?: widget.padding.bottom
+        )
 }
 
 fun Modifier.padding(all: Number) = this then WidgetModifier { widget ->
@@ -150,12 +156,13 @@ fun Modifier.margin(margin: Margin) = this then WidgetModifier { widget ->
     widget.margin = margin
 }
 
-fun Modifier.margin(left: Number = 0f, right: Number = 0f, top: Number = 0f, bottom: Number = 0f) = this then WidgetModifier { widget ->
-    widget.margin = Margin(left, right, top, bottom)
+fun Modifier.margin(left: Number? = null, right: Number? = null, top: Number? = null, bottom: Number? = null) = this then WidgetModifier { widget ->
+    widget.margin = Margin(left ?: widget.margin.left, right ?: widget.margin.right, top ?: widget.margin.top, bottom ?: widget.margin.bottom)
 }
 
-fun Modifier.margin(horizontal: Number = 0, vertical: Number = 0) = this then WidgetModifier { widget ->
-    widget.margin = Margin(horizontal, vertical)
+fun Modifier.margin(horizontal: Number? = null, vertical: Number? = null) = this then WidgetModifier { widget ->
+    widget.margin =
+        Margin(left = horizontal ?: widget.margin.left, right = horizontal ?: widget.margin.right, top = vertical ?: widget.margin.top, bottom = vertical ?: widget.margin.bottom)
 }
 
 fun Modifier.margin(all: Number) = this then WidgetModifier { widget ->

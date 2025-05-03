@@ -74,19 +74,19 @@ fun modifier(): Modifier {
 }
 
 fun TestScreen() = BoxScreen(modifier()) {
-    Row(
+    Column(
         modifier = Modifier
             .padding(20f)
             .align(Alignment.Center)
             .renderOverlay { context, _, _, _ ->
-                this as RowWidget
+                this as ColumnWidget
                 context.batchRenderBox {
                     pushBoxOutline(contentBox(true), Colors.BLUE)
                 }
             },
         verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically),
     ) {
-        ColumnListWrapped(
+        RowListWrapped(
             spacing = 3f,
             modifier = Modifier.weight(2).fill(),
             listModifier = { Modifier.weight(1).fill().renderHoveredOutlineBox(Colors.PARCHMENT) }
@@ -110,7 +110,7 @@ fun TestScreen() = BoxScreen(modifier()) {
 
 }
 
-fun RowScope.TestColumn() = Column(
+fun ColumnScope.TestColumn() = Row(
     modifier = Modifier.renderOverlay { context, _, _, _ ->
         context.batchRenderBox {
             pushBoxOutline(transform, Colors.AQUA)
@@ -118,7 +118,7 @@ fun RowScope.TestColumn() = Column(
     }.weight(5),
     horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
 ) {
-    RowListWrapped(
+    ColumnListWrapped(
         modifier = Modifier.width(120f),
         spacing = 2f,
         listModifier = { Modifier.weight(1) }
@@ -146,7 +146,7 @@ fun RowScope.TestColumn() = Column(
                 }
             }
     ) {
-        Column {
+        Row {
             icons.forEach {
                 Icon(it)
                 Box(Modifier.width(5f))

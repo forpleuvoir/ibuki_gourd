@@ -23,6 +23,8 @@ interface IGWidget : DrawableElement, Layoutable {
      */
     val wasMouseOver: Boolean
 
+    val wasMouseOverContent: Boolean
+
     /**
      * 组件是否在拖动中
      */

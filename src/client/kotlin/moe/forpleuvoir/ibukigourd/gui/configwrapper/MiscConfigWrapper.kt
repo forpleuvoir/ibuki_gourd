@@ -19,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
@@ -39,8 +39,8 @@ import kotlin.time.toDuration
 fun WidgetContainerScope.UnspecifiedConfigWrapper(
     config: ConfigSerializable,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
-    Column(
+) = ConfigRowWrapper(config, modifier) {
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         Button(
@@ -54,13 +54,13 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
 fun WidgetContainerScope.StringConfigWrapper(
     config: ConfigString,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val strValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         TextEditor(
@@ -105,14 +105,14 @@ fun WidgetContainerScope.StringConfigWrapper(
 fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
     config: ConfigEnum<E>,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val enumValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
     val selected = mutableStateOf(enumValue) { it }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         EnumSelector(enumValue, modifier = Modifier.width(80f))
@@ -125,13 +125,13 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
 fun WidgetContainerScope.BooleanConfigWrapper(
     config: ConfigBoolean,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val boolValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         SwitchButton(boolValue, Modifier.width(40f))
@@ -144,7 +144,7 @@ fun WidgetContainerScope.BooleanConfigWrapper(
 fun WidgetContainerScope.ConfigDurationWrapper(
     config: ConfigDuration,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
 
     val durationValue = mutableStateOf(config.getValue()).apply {
         subscribe {
@@ -152,7 +152,7 @@ fun WidgetContainerScope.ConfigDurationWrapper(
         }
     }
 
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         DurationSlider(
@@ -188,7 +188,7 @@ fun WidgetContainerScope.ConfigDurationWrapper(
                         TipHandler.popTip(CONFIG_WRAPPER_TIP)
                     }
                 ) {
-                    Column(horizontalArrangement = Arrangement.spacedBy(5f)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
                         DoubleEditor(value, 0.0..999.9, modifier = Modifier.width(120f), editorModifier = { Modifier.weight(1) }) {
                             editor = { owner().transform }
                         }

@@ -8,3 +8,4 @@ server_run
 /src/test/**
 .fabric
 .kotlin
+.lingma

@@ -15,7 +15,7 @@ private const val VECTOR_EDITOR_WIDTH = 60f
 fun WidgetContainerScope.ConfigVector2iWrapper(
     config: ConfigVector2i,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val vector2iValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
@@ -40,7 +40,7 @@ fun WidgetContainerScope.ConfigVector2iWrapper(
 fun WidgetContainerScope.ConfigVector2fWrapper(
     config: ConfigVector2f,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val vector2fValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
@@ -65,7 +65,7 @@ fun WidgetContainerScope.ConfigVector2fWrapper(
 fun WidgetContainerScope.ConfigVector2dWrapper(
     config: ConfigVector2d,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val vector2dValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
@@ -92,7 +92,7 @@ fun WidgetContainerScope.ConfigVector2dWrapper(
 fun WidgetContainerScope.ConfigVector3iWrapper(
     config: ConfigVector3i,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val vector3iValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
@@ -118,7 +118,7 @@ fun WidgetContainerScope.ConfigVector3iWrapper(
 fun WidgetContainerScope.ConfigVector3fWrapper(
     config: ConfigVector3f,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val vector3fValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
@@ -144,7 +144,7 @@ fun WidgetContainerScope.ConfigVector3fWrapper(
 fun WidgetContainerScope.ConfigVector3dWrapper(
     config: ConfigVector3d,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val vector3dValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)

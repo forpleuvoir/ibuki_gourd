@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
 import moe.forpleuvoir.ibukigourd.gui.widget.Tabs
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -14,11 +14,11 @@ import moe.forpleuvoir.nebula.common.color.Colors
 
 fun TabScreen(
     modifier: Modifier = Modifier,
-    header: RowScope.() -> Unit = { },
+    header: ColumnScope.() -> Unit = { },
     tabColor: State<ARGBColor> = stateOf(Colors.WHITE),
     inactiveColor: State<ARGBColor> = stateOf(Colors.GRAY),
     tabScope: TabScope.() -> Unit
-) = RowScreen(
+) = ColumnScreen(
     modifier = modifier
 ) {
     header()

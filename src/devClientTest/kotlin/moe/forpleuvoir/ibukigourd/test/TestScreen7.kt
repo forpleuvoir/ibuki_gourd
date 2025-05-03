@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
 import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
 import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
@@ -42,7 +42,7 @@ fun TabScope.tab3() = Tab("配置管理器测试") {
 }
 
 fun TabScope.tab1() = Tab("测试用配置设置", true) {
-    Row {
+    Column {
         val list = notifiableList(TestConfig.configs())
         SearchBar(
             textConsumer = { str ->

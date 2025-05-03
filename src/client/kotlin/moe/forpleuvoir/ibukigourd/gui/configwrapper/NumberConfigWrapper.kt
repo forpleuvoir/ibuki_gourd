@@ -8,11 +8,13 @@ import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
@@ -24,20 +26,22 @@ private const val EDITOR_WIDTH = 120f
 
 fun WidgetContainerScope.IntConfigWrapper(
     config: ConfigInt,
-    modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+    modifier: Modifier = Modifier,
+    width: Float = EDITOR_WIDTH,
+    textMapper: (Int) -> Text = { Literal(it.toString()) }
+) = ConfigRowWrapper(config, modifier) {
     val intValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { IntSlider(intValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
-            { IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
+            { IntSlider(intValue, config.minValue..config.maxValue, textMapper = textMapper, modifier = Modifier.width(width)) },
+            { IntEditor(intValue, config.minValue..config.maxValue, modifier = Modifier.width(width), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -52,20 +56,22 @@ fun WidgetContainerScope.IntConfigWrapper(
 
 fun WidgetContainerScope.LongConfigWrapper(
     config: ConfigLong,
-    modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+    modifier: Modifier = Modifier,
+    width: Float = EDITOR_WIDTH,
+    textMapper: (Long) -> Text = { Literal(it.toString()) }
+) = ConfigRowWrapper(config, modifier) {
     val longValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { LongSlider(longValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
-            { LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
+            { LongSlider(longValue, config.minValue..config.maxValue, textMapper = textMapper, modifier = Modifier.width(width)) },
+            { LongEditor(longValue, config.minValue..config.maxValue, modifier = Modifier.width(width), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -80,20 +86,22 @@ fun WidgetContainerScope.LongConfigWrapper(
 
 fun WidgetContainerScope.FloatConfigWrapper(
     config: ConfigFloat,
-    modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+    modifier: Modifier = Modifier,
+    width: Float = EDITOR_WIDTH,
+    textMapper: (Float) -> Text = { Literal("%.2f".format(it)) }
+) = ConfigRowWrapper(config, modifier) {
     val floatValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { FloatSlider(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
-            { FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
+            { FloatSlider(floatValue, config.minValue..config.maxValue, textMapper = textMapper, modifier = Modifier.width(width)) },
+            { FloatEditor(floatValue, config.minValue..config.maxValue, modifier = Modifier.width(width), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {
@@ -108,20 +116,22 @@ fun WidgetContainerScope.FloatConfigWrapper(
 
 fun WidgetContainerScope.DoubleConfigWrapper(
     config: ConfigDouble,
-    modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+    modifier: Modifier = Modifier,
+    width: Float = EDITOR_WIDTH,
+    textMapper: (Double) -> Text = { Literal("%.2f".format(it)) }
+) = ConfigRowWrapper(config, modifier) {
     val doubleValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             config.setValue(it)
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         val state = mutableStateOf(true)
         SwitchableProxy(
-            { DoubleSlider(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH)) },
-            { DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(EDITOR_WIDTH), editorModifier = { Modifier.weight(1) }) },
+            { DoubleSlider(doubleValue, config.minValue..config.maxValue, textMapper = textMapper, modifier = Modifier.width(width)) },
+            { DoubleEditor(doubleValue, config.minValue..config.maxValue, modifier = Modifier.width(width), editorModifier = { Modifier.weight(1) }) },
             state
         )
         Button {

@@ -137,11 +137,11 @@ fun WidgetContainerScope.KeyBindSettingButton(
             ) {
                 //on open
                 setting.copyFrom(keyBind.setting)
-                Row(
+                Column(
                     Modifier.width(240f),
                     verticalArrangement = Arrangement.spacedBy(5f)
                 ) {
-                    Column(
+                    Row(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -152,7 +152,7 @@ fun WidgetContainerScope.KeyBindSettingButton(
                         SwitchButton(nextAction, Modifier.width(40f))
                     }
 
-                    Column(
+                    Row(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -163,7 +163,7 @@ fun WidgetContainerScope.KeyBindSettingButton(
                         SwitchButton(exactMatch, Modifier.width(40f))
                     }
 
-                    Column(
+                    Row(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -173,7 +173,7 @@ fun WidgetContainerScope.KeyBindSettingButton(
                         }
                         LongEditor(longPressTime, range = 0..1000L, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
                     }
-                    Column(
+                    Row(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -184,7 +184,7 @@ fun WidgetContainerScope.KeyBindSettingButton(
                         LongEditor(triggerPeriod, range = 0..1000L, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
                     }
 
-                    Column(
+                    Row(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -194,7 +194,7 @@ fun WidgetContainerScope.KeyBindSettingButton(
                         }
                         EnumSelector(enumValue, modifier = Modifier.width(80f))
                     }
-                    Column(
+                    Row(
                         Modifier.fill(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {

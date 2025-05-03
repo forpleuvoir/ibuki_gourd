@@ -1,17 +1,17 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
-import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetContainer
 import moe.forpleuvoir.ibukigourd.util.Tick
 
 open class IGButtonWidget(
     override val arrangement: Arrangement.Horizontal,
     override val alignment: Alignment.Vertical
-) : IGPressableWidgetContainer(), ColumnLayout {
+) : IGPressableWidgetContainer(), RowLayout {
 
     //------------ IGButton ------------\\
 
@@ -65,7 +65,7 @@ open class IGButtonWidget(
         return this
     }
 
-    fun interface Scope : GuiScope<IGButtonWidget>, ColumnLayoutScope {
+    fun interface Scope : GuiScope<IGButtonWidget>, RowLayoutScope {
 
         fun click(action: (IGButtonWidget) -> Unit) = owner().click(action)
 

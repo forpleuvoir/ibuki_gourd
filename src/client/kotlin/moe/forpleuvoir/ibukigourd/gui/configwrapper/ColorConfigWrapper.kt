@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ColorButton
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.toHSVColor
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -24,7 +24,7 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigRGBColor
 fun WidgetContainerScope.ColorConfigWrapper(
     config: ConfigRGBColor<ARGBColor>,
     modifier: Modifier = Modifier
-) = ConfigColumnWrapper(config, modifier) {
+) = ConfigRowWrapper(config, modifier) {
     val colorValue = mutableStateOf(config.getValue()).apply {
         subscribe {
             if (config.getValue() is HSVColor)
@@ -32,7 +32,7 @@ fun WidgetContainerScope.ColorConfigWrapper(
             else config.setValue(Color(it.argb))
         }
     }
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
         ColorConfigSettingButton(colorValue, Modifier.minWidth(80f))

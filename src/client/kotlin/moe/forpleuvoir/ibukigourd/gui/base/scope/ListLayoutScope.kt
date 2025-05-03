@@ -15,7 +15,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.WidgetModifier
 @GuiDslMark
 interface ListLayoutScope<T : Alignment.Linear> {
 
-
     /**
      * 填充至最大空间 如果为垂直布局则填充宽度,为水平布局则填充高度
      * @receiver Modifier
@@ -66,41 +65,7 @@ interface ListLayoutScope<T : Alignment.Linear> {
 
 }
 
-interface ColumnListLayoutScope : ListLayoutScope<Alignment.Vertical> {
-
-    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
-        when (val parentData = it.parentData) {
-            is ColumnListLayout.WrappedColumnListLayoutData
-                -> it.parentData = parentData.copy(fillMode = fillMode)
-
-            null
-                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(fillMode = fillMode)
-        }
-    }
-
-    override fun Modifier.align(alignment: Alignment.Vertical) = this then WidgetModifier {
-        when (val parentData = it.parentData) {
-            is ColumnListLayout.WrappedColumnListLayoutData
-                -> it.parentData = parentData.copy(alignment = alignment)
-
-            null
-                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(alignment = alignment)
-        }
-    }
-
-    override fun Modifier.unlockConstraint(unlockConstraint: Boolean) = this then WidgetModifier {
-        when (val parentData = it.parentData) {
-            is ColumnListLayout.WrappedColumnListLayoutData
-                -> it.parentData = parentData.copy(unlockConstraint = unlockConstraint)
-
-            null
-                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(unlockConstraint = unlockConstraint)
-        }
-    }
-
-}
-
-interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
+interface RowListLayoutScope : ListLayoutScope<Alignment.Vertical> {
 
     override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
         when (val parentData = it.parentData) {
@@ -112,7 +77,7 @@ interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
         }
     }
 
-    override fun Modifier.align(alignment: Alignment.Horizontal) = this then WidgetModifier {
+    override fun Modifier.align(alignment: Alignment.Vertical) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is RowListLayout.WrappedRowListLayoutData
                 -> it.parentData = parentData.copy(alignment = alignment)
@@ -129,6 +94,40 @@ interface RowListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
 
             null
                 -> it.parentData = RowListLayout.WrappedRowListLayoutData(unlockConstraint = unlockConstraint)
+        }
+    }
+
+}
+
+interface ColumnListLayoutScope : ListLayoutScope<Alignment.Horizontal> {
+
+    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnListLayout.WrappedColumnListLayoutData
+                -> it.parentData = parentData.copy(fillMode = fillMode)
+
+            null
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(fillMode = fillMode)
+        }
+    }
+
+    override fun Modifier.align(alignment: Alignment.Horizontal) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnListLayout.WrappedColumnListLayoutData
+                -> it.parentData = parentData.copy(alignment = alignment)
+
+            null
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(alignment = alignment)
+        }
+    }
+
+    override fun Modifier.unlockConstraint(unlockConstraint: Boolean) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnListLayout.WrappedColumnListLayoutData
+                -> it.parentData = parentData.copy(unlockConstraint = unlockConstraint)
+
+            null
+                -> it.parentData = ColumnListLayout.WrappedColumnListLayoutData(unlockConstraint = unlockConstraint)
         }
     }
 

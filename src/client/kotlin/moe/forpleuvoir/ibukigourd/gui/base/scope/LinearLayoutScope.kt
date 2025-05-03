@@ -63,33 +63,7 @@ interface LinearLayoutScope<T : Alignment.Linear> {
 
 }
 
-interface ColumnLayoutScope : LinearLayoutScope<Alignment.Vertical> {
-
-    override fun Modifier.weight(weight: Int) = this then WidgetModifier {
-        check(weight >= 0) { "weight must be >= 0" }
-        when (val parentData = it.parentData) {
-            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(weight = weight)
-            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(weight = weight)
-        }
-    }
-
-    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
-        when (val parentData = it.parentData) {
-            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(fillMode = fillMode)
-            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(fillMode = fillMode)
-        }
-    }
-
-    override fun Modifier.align(alignment: Alignment.Vertical) = this then WidgetModifier {
-        when (val parentData = it.parentData) {
-            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(alignment = alignment)
-            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(alignment = alignment)
-        }
-    }
-
-}
-
-interface RowLayoutScope : LinearLayoutScope<Alignment.Horizontal> {
+interface RowLayoutScope : LinearLayoutScope<Alignment.Vertical> {
 
     override fun Modifier.weight(weight: Int) = this then WidgetModifier {
         check(weight >= 0) { "weight must be >= 0" }
@@ -106,10 +80,36 @@ interface RowLayoutScope : LinearLayoutScope<Alignment.Horizontal> {
         }
     }
 
-    override fun Modifier.align(alignment: Alignment.Horizontal) = this then WidgetModifier {
+    override fun Modifier.align(alignment: Alignment.Vertical) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is RowLayout.WrappedRowLayoutData -> it.parentData = parentData.copy(alignment = alignment)
             null                              -> it.parentData = RowLayout.WrappedRowLayoutData(alignment = alignment)
+        }
+    }
+
+}
+
+interface ColumnLayoutScope : LinearLayoutScope<Alignment.Horizontal> {
+
+    override fun Modifier.weight(weight: Int) = this then WidgetModifier {
+        check(weight >= 0) { "weight must be >= 0" }
+        when (val parentData = it.parentData) {
+            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(weight = weight)
+            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(weight = weight)
+        }
+    }
+
+    override fun Modifier.fillMode(fillMode: FillMode) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(fillMode = fillMode)
+            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(fillMode = fillMode)
+        }
+    }
+
+    override fun Modifier.align(alignment: Alignment.Horizontal) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(alignment = alignment)
+            null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(alignment = alignment)
         }
     }
 

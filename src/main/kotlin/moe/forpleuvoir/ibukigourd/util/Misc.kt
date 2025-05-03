@@ -171,6 +171,15 @@ fun <T> Iterable<T>.forEachWithLimit(limit: Int, action: (T) -> Unit) {
     }
 }
 
+fun <T> Iterable<T>.forEachWithLimitIndexed(limit: Int, action: (Int, T) -> Unit) {
+    var count = 0
+    for ((index, element) in this.withIndex()) {
+        if (count >= limit) break
+        action(index, element)
+        count++
+    }
+}
+
 fun <K, V> Map<K, V>.forEachWithLimit(limit: Int, action: (K, V) -> Unit) {
     var count = 0
     for (element in this) {

@@ -45,16 +45,16 @@ abstract class ListWidget(
         ctx.tryRender {
             renderBackground(this, _mouseX, _mouseY, delta)
             render.invoke(this, _mouseX, _mouseY, delta)
-        }
-        if (enableScissor) {
-            ctx.scissor(contentBox(true)) {
+            if (enableScissor) {
+                ctx.scissor(contentBox(true)) {
+                    renderChildren(ctx, _mouseX, _mouseY, delta)
+                }
+            } else {
                 renderChildren(ctx, _mouseX, _mouseY, delta)
             }
-        } else {
-            renderChildren(ctx, _mouseX, _mouseY, delta)
-        }
 
-        ctx.tryRender { renderOverlay(this, _mouseX, _mouseY, delta) }
+            renderOverlay(this, _mouseX, _mouseY, delta)
+        }
     }
 
     private fun renderChildren(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
@@ -77,7 +77,7 @@ abstract class ListWidget(
     }
 
     override fun onMousePress(event: MousePressEvent) {
-        if (wasMouseOver) super.onMousePress(event)
+        if (wasMouseOverContent) super.onMousePress(event)
     }
 
     interface Scope<L : ListWidget, A : Alignment.Linear> : GuiScope<L>, ListLayoutScope<A> {

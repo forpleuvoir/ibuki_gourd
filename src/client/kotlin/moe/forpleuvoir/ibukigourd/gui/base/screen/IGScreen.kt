@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ScreenScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.Screen
@@ -79,6 +80,8 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
     ): Deferred<T> = coroutineScope.async(context, start, block)
 
 }
+
+fun closeScreen() = mc.currentScreen?.close()
 
 fun IGElement.execute(task: () -> Unit) {
     if (this is IGScreen) execute(task)
