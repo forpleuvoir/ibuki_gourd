@@ -82,7 +82,7 @@ interface TableLayout : Layout {
         //已使用的宽度
         var usedWidth = 0f
         //父数据
-        val parentData = columns.map { WrappedTableColumnEntryData.wrappedDatas(it.column) }
+        val parentData = columns.map { WrappedTableColumnEntryData.wrappedData(it.column) }
         //总权重
         val totalWidget = columns.sumOf { it.weight }
 
@@ -136,7 +136,7 @@ interface TableLayout : Layout {
     fun layoutColumn(columns: List<TableColumn>) {
         val contentBox = widget.contentBox(false)
         val amount = this.amount()
-        val alignments = columns.map { WrappedTableColumnEntryData.wrappedDatas(it.column).map { it.getAlignment(this) } }
+        val alignments = columns.map { WrappedTableColumnEntryData.wrappedData(it.column).map { it.getAlignment(this) } }
 
         val heights = extractColumns(columns).map { it.maxOf { it.wrappedHeight } }
         val widths = columns.map { it.getWrappedWidth() }

@@ -11,7 +11,7 @@ interface WrappedLayoutDataUtil<T> {
     fun getOrDefault(measurable: Measurable, default: T = this.default()) =
         fromMeasurable(measurable) ?: default
 
-    fun wrappedDatas(list: List<Measurable>, default: T = this.default()): List<T> {
+    fun wrappedData(list: List<Measurable>, default: T = this.default()): List<T> {
         return list.map { getOrDefault(it, default) }
     }
 

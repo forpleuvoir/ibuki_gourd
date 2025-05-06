@@ -9,20 +9,20 @@ object WidgetCustomData {
     private const val MOUSE_OVER_CURSOR_KEY = "mouseOverCursor"
 
     fun IGWidget.setMouseOverCursor(cursor: MouseCursor) {
-        customData[MOUSE_OVER_CURSOR_KEY] = cursor
+        userData[MOUSE_OVER_CURSOR_KEY] = cursor
     }
 
     fun <W : IGWidget> W.setMouseOverCursorMapping(mapping: MouseCursorMapping<W>) {
-        customData[MOUSE_OVER_CURSOR_KEY] = mapping
+        userData[MOUSE_OVER_CURSOR_KEY] = mapping
     }
 
     @Suppress("UNCHECKED_CAST")
     val IGWidget.mouseOverCursor: MouseCursor?
         get() {
-            return runCatching { customData[MOUSE_OVER_CURSOR_KEY] as? MouseCursorMapping<IGWidget> }
+            return runCatching { userData[MOUSE_OVER_CURSOR_KEY] as? MouseCursorMapping<IGWidget> }
                 .getOrNull()
                 ?.invoke(this)
-                ?: customData[MOUSE_OVER_CURSOR_KEY] as? MouseCursor
+                ?: userData[MOUSE_OVER_CURSOR_KEY] as? MouseCursor
         }
 
     //------------ HoverTip ------------\\
@@ -30,11 +30,11 @@ object WidgetCustomData {
     private const val HOVER_TIP_KEY = "hoverTip"
 
     fun IGWidget.setHoverTip(tip: Tip) {
-        customData[HOVER_TIP_KEY] = tip
+        userData[HOVER_TIP_KEY] = tip
     }
 
     @Suppress("UNCHECKED_CAST")
     val IGWidget.hoverTip: Tip?
-        get() = customData[HOVER_TIP_KEY] as? Tip
+        get() = userData[HOVER_TIP_KEY] as? Tip
 
 }

@@ -25,6 +25,7 @@ accessible field net/minecraft/client/gui/DrawContext client Lnet/minecraft/clie
 accessible field net/minecraft/client/gui/DrawContext matrices Lnet/minecraft/client/util/math/MatrixStack;
 accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
 accessible method net/minecraft/client/gui/DrawContext setScissor (Lnet/minecraft/client/gui/ScreenRect;)V
+accessible field net/minecraft/client/gui/DrawContext itemRenderState Lnet/minecraft/client/render/item/ItemRenderState;
 #Sceen
 extendable method net/minecraft/client/gui/screen/Screen init (Lnet/minecraft/client/MinecraftClient;II)V
 accessible method net/minecraft/client/gui/screen/Screen init ()V

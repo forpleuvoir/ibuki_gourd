@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import moe.forpleuvoir.ibukigourd.render.shaderColor
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
@@ -51,24 +52,26 @@ object Toast : Tickable {
     @JvmStatic
     fun render(drawContent: IGDrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val iterator = toastQueue.iterator()
-        while (iterator.hasNext()) {
-            val (box, timeMark) = iterator.next()
-            val duration = box.duration
-            val fadeInDuration = box.fadeInDuration
-            val fadeOutDuration = box.fadeOutDuration
-            // 检查是否已经超时
-            if (timeMark.elapsedNow() <= duration) {
-                val (alpha, offset) = calculateAlphaAndOffset(duration, fadeInDuration, fadeOutDuration, timeMark)
-                drawContent.useMatrixStack {
-                    scissorOffset(offset) {
-                        it.translate(offset.x(), offset.y(), 0f)
-                        shaderColor(Colors.WHITE.alpha(alpha)) {
-                            box.render(this, mouseX, mouseY, delta)
+        runWithZOffset(9999f) {
+            while (iterator.hasNext()) {
+                val (box, timeMark) = iterator.next()
+                val duration = box.duration
+                val fadeInDuration = box.fadeInDuration
+                val fadeOutDuration = box.fadeOutDuration
+                // 检查是否已经超时
+                if (timeMark.elapsedNow() <= duration) {
+                    val (alpha, offset) = calculateAlphaAndOffset(duration, fadeInDuration, fadeOutDuration, timeMark)
+                    drawContent.useMatrixStack {
+                        scissorOffset(offset) {
+                            it.translate(offset.x(), offset.y(), 0f)
+                            shaderColor(Colors.WHITE.alpha(alpha)) {
+                                box.render(this, mouseX, mouseY, delta)
+                            }
                         }
                     }
+                } else {
+                    iterator.remove() // 移除已过期的 Toast
                 }
-            } else {
-                iterator.remove() // 移除已过期的 Toast
             }
         }
     }
@@ -151,9 +154,9 @@ object Toast : Tickable {
 
         // 添加新 Toast
         val newToast = BoxWidget().apply {
-            customData["#toast_duration"] = duration
-            customData["#toast_duration_fade_in"] = fadeInDuration
-            customData["#toast_duration_fade_out"] = fadeOutDuration
+            userData["#toast_duration"] = duration
+            userData["#toast_duration_fade_in"] = fadeInDuration
+            userData["#toast_duration_fade_out"] = fadeOutDuration
             padding = Padding(4f)
             measureCompletion = {
                 transform.translateTo(alignment.align(mc.window.scaledSize.toFloat(), transform), true)
@@ -171,9 +174,9 @@ object Toast : Tickable {
         updatePosition()
     }
 
-    private val BoxWidget.duration: Duration get() = customData["#toast_duration"] as? Duration ?: SHORT_DURATION
-    private val BoxWidget.fadeInDuration: Duration get() = customData["#toast_duration_fade_in"] as? Duration ?: SHORT_DURATION
-    private val BoxWidget.fadeOutDuration: Duration get() = customData["#toast_duration_fade_out"] as? Duration ?: SHORT_DURATION
+    private val BoxWidget.duration: Duration get() = userData["#toast_duration"] as? Duration ?: SHORT_DURATION
+    private val BoxWidget.fadeInDuration: Duration get() = userData["#toast_duration_fade_in"] as? Duration ?: SHORT_DURATION
+    private val BoxWidget.fadeOutDuration: Duration get() = userData["#toast_duration_fade_out"] as? Duration ?: SHORT_DURATION
 
     private fun updatePosition() {
         toastQueue.forEach { (box, _) ->

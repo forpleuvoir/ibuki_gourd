@@ -21,7 +21,7 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     //------------ IbukiGourd Widget ------------\\
 
-    override val customData: MutableMap<String, Any> = mutableMapOf()
+    override val userData: MutableMap<String, Any> = mutableMapOf()
 
     final override val transform: Transform = Transform()
 

@@ -260,12 +260,27 @@ fun GameRenderer.renderBlur(radius: Float, delta: Float) {
     }
 }
 
+/**
+ * - 默认的Z轴坐标值，用于在渲染时指定顶点的Z轴位置。
+ * - 该值通常作为默认参数提供，以便在未明确指定Z轴坐标时使用。
+ * - 初始值为0，表示在屏幕空间中位于默认的深度平面。
+ */
+var defaultZOffset: Float = 0f
+    @Deprecated("Don't modify unless you know what you're doing") set
+
+@Suppress("DEPRECATION")
+inline fun runWithZOffset(offset: Float, block: () -> Unit) {
+    val z = defaultZOffset
+    defaultZOffset = offset
+    block()
+    defaultZOffset = z
+}
 
 inline fun VertexConsumer.vertex(matrix4f: Matrix4f, vertex: Vector3fc): VertexConsumer =
     vertex(matrix4f, vertex.x(), vertex.y(), vertex.z())
 
-inline fun VertexConsumer.vertex(matrix4f: Matrix4f, vector2fc: Vector2fc): VertexConsumer =
-    vertex(matrix4f, vector2fc.x(), vector2fc.y(), 0f)
+inline fun VertexConsumer.vertex(matrix4f: Matrix4f, vector2fc: Vector2fc, z: Float = defaultZOffset): VertexConsumer =
+    vertex(matrix4f, vector2fc.x(), vector2fc.y(), z)
 
 inline fun VertexConsumer.vertex(matrix4f: Matrix4f, x: Number, y: Number, z: Number): VertexConsumer =
     this.vertex(matrix4f, x.toFloat(), y.toFloat(), z.toFloat())
@@ -276,8 +291,8 @@ inline fun VertexConsumer.vertex(matrixStack: MatrixStack, x: Number, y: Number,
 inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector3: Vector3fc): VertexConsumer =
     this.vertex(matrixStack.peek().positionMatrix, vector3)
 
-inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector2fc: Vector2fc): VertexConsumer =
-    this.vertex(matrixStack.peek().positionMatrix, vector2fc)
+inline fun VertexConsumer.vertex(matrixStack: MatrixStack, vector2fc: Vector2fc, z: Float = defaultZOffset): VertexConsumer =
+    this.vertex(matrixStack.peek().positionMatrix, vector2fc, z)
 
 inline fun VertexConsumer.texture(uv: UVVertex): VertexConsumer =
     this.texture(uv.u, uv.v)

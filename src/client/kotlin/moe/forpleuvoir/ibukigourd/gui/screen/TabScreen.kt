@@ -13,12 +13,14 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun TabScreen(
-    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    modifier: BoxScreenScope.() -> Modifier = { Modifier },
     header: ColumnScope.() -> Unit = { },
     tabColor: State<ARGBColor> = stateOf(Colors.WHITE),
     inactiveColor: State<ARGBColor> = stateOf(Colors.GRAY),
     tabScope: TabScope.() -> Unit
 ) = ColumnScreen(
+    screenModifier = screenModifier,
     modifier = modifier
 ) {
     header()
@@ -30,14 +32,14 @@ fun TabScreen(
             .fill()
             .render { context, _, _, _ ->
                 context.batchRenderTextureColored {
-                    pushWidgetTexture(transform, WidgetTextures.TABS_SCREEN_BACKGROUND, (customData["tabScope"] as TabScope).tabColor.getValue())
+                    pushWidgetTexture(transform, WidgetTextures.TABS_SCREEN_BACKGROUND, (userData["#tab_scope"] as TabScope).tabColor.getValue())
                 }
             }
     ) {
         this.tabColor.setValue(tabColor.getValue())
-        this.tabColor.bind(tabColor) { it }
+        this.tabColor.bind(tabColor)
         this.inactiveColor.setValue(inactiveColor.getValue())
-        this.inactiveColor.bind(inactiveColor) { it }
+        this.inactiveColor.bind(inactiveColor)
         tabScope()
     }
 }

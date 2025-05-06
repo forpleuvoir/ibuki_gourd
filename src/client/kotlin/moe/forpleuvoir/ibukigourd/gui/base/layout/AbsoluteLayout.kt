@@ -17,7 +17,7 @@ interface AbsoluteLayout : Layout {
     }
 
     override fun layout(layoutables: List<Layoutable>) {
-        val datas = WrappedAbsoluteLayoutData.wrappedDatas(layoutables)
+        val datas = WrappedAbsoluteLayoutData.wrappedData(layoutables)
         layoutables.forEachIndexed { index, layoutable ->
             layoutable.placeAt(datas[index].asVec2, true)
         }

@@ -13,6 +13,16 @@ interface IGDrawable : Drawable, GuiContext {
 
     //------------ Vanilla Drawable ------------\\
 
+    /**
+     * 使用原版渲染方式执行绘制操作。
+     *
+     * 仅用于区分原版与模组的渲染函数
+     *
+     * @param context 绘制上下文，包含当前绘制所需的环境信息。
+     * @param mouseX 鼠标的 X 坐标，以 Number 类型传入，内部会转换为 Int 类型。
+     * @param mouseY 鼠标的 Y 坐标，以 Number 类型传入，内部会转换为 Int 类型。
+     * @param delta 渲染的增量时间，用于平滑动画或过渡效果。
+     */
     fun vanillaRender(context: DrawContext, mouseX: Number, mouseY: Number, delta: Float) =
         render(context, mouseX.toInt(), mouseY.toInt(), delta)
 

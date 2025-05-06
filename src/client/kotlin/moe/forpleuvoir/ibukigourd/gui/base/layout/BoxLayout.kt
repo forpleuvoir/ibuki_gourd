@@ -13,11 +13,11 @@ interface BoxLayout : Layout {
         var maxChildWidth = 0f
         var maxChildHeight = 0f
 
-        val parentDatas = WrappedBoxLayoutData.wrappedDatas(measurables)
+        val parentData = WrappedBoxLayoutData.wrappedData(measurables)
 
         val childConstraints = Constraints.of(0f, maxWidth - widget.padding.width, 0f, maxHeight - widget.padding.height)
         measurables.forEachIndexed { index, child ->
-            val data = parentDatas[index]
+            val data = parentData[index]
             var _childConstraints = childConstraints
             if (data.fillWidth) {
                 val w = (maxWidth - widget.padding.width).coerceAtLeast(0f)
@@ -43,9 +43,9 @@ interface BoxLayout : Layout {
     }
 
     override fun layout(layoutables: List<Layoutable>) {
-        val datas = WrappedBoxLayoutData.wrappedDatas(layoutables)
+        val data = WrappedBoxLayoutData.wrappedData(layoutables)
         layoutables.forEachIndexed { index, placeable ->
-            val vec2f = datas[index].alignment.align(widget.contentBox(false), placeable.wrappedSize)
+            val vec2f = data[index].alignment.align(widget.contentBox(false), placeable.wrappedSize)
             placeable.placeAt(vec2f + Vector2f(placeable.margin.left, placeable.margin.top) + Vector2f(widget.padding.left, widget.padding.top), false)
         }
     }

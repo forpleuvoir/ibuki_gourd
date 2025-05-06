@@ -8,7 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 
 fun testScreen6() = ColumnScreen(
-    modifier = Modifier
+    screenModifier = Modifier
         .onClose {
             TestConfig.asyncSave()
         },

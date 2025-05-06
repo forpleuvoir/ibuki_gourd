@@ -25,7 +25,7 @@ fun testScreen7() = TabScreen(
         TextLabel("这是顶部测试", modifier = Modifier.align(Alignment.Right))
         TextLabel("这是顶部测试2", modifier = Modifier.align(Alignment.Right))
     },
-    modifier = Modifier.onClose {
+    screenModifier = Modifier.onClose {
         TestConfig.asyncSave()
         IGConfig.asyncSave()
     },

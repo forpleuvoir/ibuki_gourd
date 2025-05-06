@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 
 fun TestScreen2() = ColumnScreen(
-    modifier = Modifier.padding(20),
+    screenModifier = Modifier.padding(20),
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
     val t = mutableStateOf("hello minecraft")

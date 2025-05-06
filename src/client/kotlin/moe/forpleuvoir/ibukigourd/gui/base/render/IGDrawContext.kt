@@ -63,8 +63,11 @@ class IGDrawContext(
         contract {
             callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         }
-        if (canRender(drawable)) this.block()
+        if (canRender(drawable)) {
+            this.block()
+        }
     }
+
 
     @OptIn(ExperimentalContracts::class)
     inline fun useMatrixStack(block: IGDrawContext.(matrices: MatrixStack) -> Unit) {

@@ -2,8 +2,8 @@ package moe.forpleuvoir.ibukigourd.gui.base.modifier.impl
 
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.setBgBlurRadius
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.setRenderParentScreen
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.setBgBlurRadius
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.setRenderParentScreen
 
 fun interface ScreenModifier : Modifier.Element {
     fun applyModify(element: IGScreen)

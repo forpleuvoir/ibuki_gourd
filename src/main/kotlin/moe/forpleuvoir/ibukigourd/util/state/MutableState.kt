@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.util.state
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
+import moe.forpleuvoir.nebula.common.util.primitive.pick
 import java.util.function.Consumer
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
@@ -83,6 +84,12 @@ data class MutableState<T>(private var value: T) : State<T> {
         }
     }
 
+    fun bind(otherState: State<T>) {
+        otherState.subscribe {
+            this.setValue(it)
+        }
+    }
+
     override fun toString(): String {
         return getValue().toString()
     }
@@ -124,6 +131,10 @@ fun MutableState<Boolean>.switch(): MutableState<Boolean> {
     this.setValue(!this.getValue())
     return this
 }
+
+fun <T> MutableState<Boolean>.pick(v1: T, v2: T) = this.getValue().pick(v1, v2)
+
+fun <R> MutableState<Boolean>.pick(block: () -> R, block2: () -> R) = this.getValue().pick(block, block2)
 
 @JvmName("colorToARGBColorState")
 fun MutableState<Color>.toARGBColorState() =

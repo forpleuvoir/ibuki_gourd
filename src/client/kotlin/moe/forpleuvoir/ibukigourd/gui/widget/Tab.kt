@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.then
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.customData
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.userData
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -33,7 +33,6 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
-
 
 data class TabScope(
     val owner: WidgetContainer,
@@ -86,7 +85,11 @@ data class TabScope(
 
     val tabColor: MutableState<ARGBColor> = mutableStateOf(Colors.WHITE)
 
+    fun tabColor(color: ARGBColor) = tabColor.setValue(color)
+
     val inactiveColor: MutableState<ARGBColor> = mutableStateOf(Colors.GRAY)
+
+    fun inactiveColor(color: ARGBColor) = inactiveColor.setValue(color)
 
     fun TabScope.Tab(
         initial: Boolean = false,
@@ -247,7 +250,7 @@ private fun WidgetContainerScope.ColumnTabs(
                 }
             }.then(contentModifier)
     ) {
-        customData["tabScope"] = tabScope!!
+        userData["#tab_scope"] = tabScope!!
         Proxy(tabScope.content)
     }
     if (direction == Bottom) owner().swapWidgetChildren(0, 1)
@@ -283,7 +286,7 @@ private fun WidgetContainerScope.RowTabs(
                 }
             }.then(contentModifier)
     ) {
-        customData["tabScope"] = tabScope!!
+        userData["#tab_scope"] = tabScope!!
         Proxy(tabScope.content)
     }
     if (direction == Right) owner().swapWidgetChildren(0, 1)

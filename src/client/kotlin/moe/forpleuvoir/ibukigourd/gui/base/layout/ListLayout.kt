@@ -86,7 +86,7 @@ interface ColumnListLayout : ListLayout {
             else contentMaxHeight
 
         //所有元素的parentData
-        val parentData = WrappedColumnListLayoutData.wrappedDatas(measurables)
+        val parentData = WrappedColumnListLayoutData.wrappedData(measurables)
         //使用的高度
         var usedHeight = spacing * measurables.lastIndex
 
@@ -136,7 +136,7 @@ interface ColumnListLayout : ListLayout {
     override fun layout(layoutables: List<Layoutable>) {
         val contentBox = widget.contentBox(false)
         val amount = this.amount()
-        val alignments = WrappedColumnListLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
+        val alignments = WrappedColumnListLayoutData.wrappedData(layoutables).map { it.getAlignment(this) }
         Arrangement.spacedBy(spacing, Alignment.Top)
             //计算每一个组件的Y偏移
             .arrange(widget.contentWidth, layoutables.map { it.wrappedHeight })
@@ -194,7 +194,7 @@ interface RowListLayout : ListLayout {
             else contentMaxWidth
 
         //所有元素的parentData
-        val parentDatas = WrappedRowListLayoutData.wrappedDatas(measurables)
+        val parentDatas = WrappedRowListLayoutData.wrappedData(measurables)
         //使用的宽度
         var usedWidth = spacing * measurables.lastIndex
 
@@ -251,7 +251,7 @@ interface RowListLayout : ListLayout {
     override fun layout(layoutables: List<Layoutable>) {
         val contentBox = widget.contentBox(false)
         val amount = this.amount()
-        val alignments = WrappedRowListLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
+        val alignments = WrappedRowListLayoutData.wrappedData(layoutables).map { it.getAlignment(this) }
         Arrangement.spacedBy(spacing, Alignment.Left)
             //计算每一个组件的X偏移
             .arrange(widget.contentWidth, layoutables.map { it.wrappedWidth })

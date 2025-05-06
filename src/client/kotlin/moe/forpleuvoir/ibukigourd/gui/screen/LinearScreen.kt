@@ -9,22 +9,22 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 
-
 fun ColumnScreen(
-    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    modifier: BoxScreenScope.() -> Modifier = { Modifier },
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: ColumnScope.() -> Unit
-) = BoxScreen(Modifier.name("ColumnScreen").then(modifier)) {
-    Column(Modifier.fill().then(modifier), verticalArrangement, horizontalAlignment, content)
+) = BoxScreen(Modifier.name("ColumnScreen").then(screenModifier)) {
+    Column(Modifier.fill().then(modifier()), verticalArrangement, horizontalAlignment, content)
 }
 
-
 fun RowScreen(
-    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    modifier: BoxScreenScope.() -> Modifier = { Modifier },
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: RowScope.() -> Unit
-) = BoxScreen(Modifier.name("RowScreen").then(modifier)) {
-    Row(Modifier.fill().then(modifier), horizontalArrangement, verticalAlignment, content)
+) = BoxScreen(Modifier.name("RowScreen").then(screenModifier)) {
+    Row(Modifier.fill().then(modifier()), horizontalArrangement, verticalAlignment, content)
 }

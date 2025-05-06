@@ -1,16 +1,16 @@
 [versions]
-modVersion = "0.8.0+beta"
+modVersion = "0.8.1+beta"
 #Fabric check these on https://fabricmc.net/versions.html
 minecraftVersion = "1.21.4"
 yarnMappingsVersion = "1.21.4+build.1"
 fabricLoaderVersion = "0.16.9"
 fabricApiVersion = "0.111.0+1.21.4"
-fabricLoomVersion = "1.7-SNAPSHOT"
+fabricLoomVersion = "1.10-SNAPSHOT"
 #mods
 modMenuVersion = "13.0.0-beta.1"
 fabricKotlinVersion = "1.12.3+kotlin.2.0.21"
 #other
-nebulaVersion = "0.2.23"
+nebulaVersion = "0.2.24"
 kotlinVersion = "2.0.0"
 
 [libraries]

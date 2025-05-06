@@ -14,7 +14,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
-import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
@@ -69,14 +68,12 @@ fun WidgetContainerScope.FlatButton(
         .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { context, _, _, _ ->
             this as IGButtonWidget
-            wasMouseOver {
-                context.batchRenderBox {
-                    pushRoundBox(
-                        transform.asWorldCoordinateBox,
-                        status(disabledColor.getValue(), idleColor.getValue(), hoveredColor.getValue(), pressedColor.getValue()),
-                        round
-                    )
-                }
+            context.batchRenderBox {
+                pushRoundBox(
+                    transform.asWorldCoordinateBox,
+                    status(disabledColor, idleColor, hoveredColor, pressedColor).getValue(),
+                    round
+                )
             }
         }
         .then(modifier).foldInApply()
@@ -110,6 +107,8 @@ fun WidgetContainerScope.SwitchButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    onColor: ARGBColor = Color(0XFFA9E2A9),
+    offColor: ARGBColor = Color(0XFFDC9F9F),
     scope: ButtonScope.() -> Unit = {}
 ) = Button(
     Modifier
@@ -122,7 +121,7 @@ fun WidgetContainerScope.SwitchButton(
             val box = b.copy(switchState.getValue().pick(b.x + b.width * (1 - proportion), b.x), width = b.width * proportion)
             context.batchRenderTextureColored {
                 pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_BORDER)
-                pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_CONTENT, switchState.getValue().pick(Color(0XFFA9E2A9), Color(0XFFDC9F9F)))
+                pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_CONTENT, switchState.pick(onColor, offColor))
                 pushWidgetTexture(box, WidgetTextures.SWITCH_BUTTON)
             }
         }.then(modifier),

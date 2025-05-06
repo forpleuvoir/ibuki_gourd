@@ -41,7 +41,7 @@ fun IbukiGourdModScreen() = TabScreen(
             })
         }
     },
-    modifier = Modifier.onClose {
+    screenModifier = Modifier.onClose {
         IGConfig.asyncSave()
     },
     tabColor = stateOf(Color(0xffffccf0)),

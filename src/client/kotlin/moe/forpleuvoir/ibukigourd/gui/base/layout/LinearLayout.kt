@@ -70,25 +70,26 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
         //内容的最大高度
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
         //所有元素的parentData
-        val parentDatas = WrappedColumnLayoutData.wrappedDatas(measurables)
+        val parentData = WrappedColumnLayoutData.wrappedData(measurables)
         //使用的高度
         var usedHeight = arrangement.spacing * measurables.lastIndex
         //总权重
-        val totalWidget = parentDatas.sumOf { it.weight }
+        val totalWidget = parentData.sumOf { it.weight }
 
         //优先计算固定最小尺寸的组件的占用
         var minimumOccupiedHeight = 0f
         measurables.forEachIndexed { index, child ->
-            if (parentDatas[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
+            if (parentData[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
                 minimumOccupiedHeight += child.constraints.minHeight + child.margin.height
             }
         }
 
+        //测量所有固定尺寸的组件
         measurables.forEachIndexed { index, child ->
-            if (parentDatas[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
+            if (parentData[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
                 val placeable = child.measure(
                     Constraints.of(
-                        if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
+                        if (parentData[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
                         contentMaxWidth - child.margin.width,
                         0f,
                         (contentMaxHeight - usedHeight - minimumOccupiedHeight - child.margin.height).coerceAtLeast(0f)
@@ -99,8 +100,9 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
             }
         }
 
+        //测量所有匹配兄弟的组件
         measurables.forEachIndexed { index, child ->
-            if (parentDatas[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
+            if (parentData[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
                 val max = if (maxChildWidth > 0) maxChildWidth - child.margin.width else contentMaxWidth - child.margin.width
                 val min = if (maxChildWidth > 0) maxChildWidth - child.margin.width else 0f
                 val placeable = child.measure(
@@ -118,14 +120,16 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
         //单位权重所占的高度
         val weightUnitHeight = if (totalWidget > 0) (contentMaxHeight - usedHeight) / totalWidget else 0f
 
-        if (totalWidget != 0)
+        //测量所有权重的组件
+        if (totalWidget != 0) {
+            //测量所有权重的组件
             measurables.forEachIndexed { index, child ->
-                if (parentDatas[index].run { weight > 0 && fillMode != FillMode.MatchSibling }) {
-                    val weight = parentDatas[index].weight
+                if (parentData[index].run { weight > 0 && fillMode != FillMode.MatchSibling }) {
+                    val weight = parentData[index].weight
                     val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceAtLeast(0f)
                     val placeable = child.measure(
                         Constraints.of(
-                            if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
+                            if (parentData[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
                             contentMaxWidth - child.margin.width,
                             distributionHeight, distributionHeight
                         )
@@ -135,10 +139,10 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
                 }
             }
 
-        if (totalWidget != 0)
+            //测量所有匹配兄弟的组件
             measurables.forEachIndexed { index, child ->
-                if (parentDatas[index].run { weight > 0 && fillMode == FillMode.MatchSibling }) {
-                    val weight = parentDatas[index].weight
+                if (parentData[index].run { weight > 0 && fillMode == FillMode.MatchSibling }) {
+                    val weight = parentData[index].weight
                     val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceAtLeast(0f)
                     val min = if (maxChildWidth > 0) maxChildWidth - child.margin.width else 0f
                     val max = if (maxChildWidth > 0) maxChildWidth - child.margin.width else contentMaxWidth - child.margin.width
@@ -149,6 +153,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
                     usedHeight += placeable.size.height + child.margin.height
                 }
             }
+        }
 
         usedHeight += widget.padding.height
         maxChildWidth += widget.padding.width
@@ -161,7 +166,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
         val horizontalSpace = contentBox.width
         val verticalSpace = contentBox.height
 
-        val alignments = WrappedColumnLayoutData.wrappedDatas(layoutables).map { it.getAlignment(this) }
+        val alignments = WrappedColumnLayoutData.wrappedData(layoutables).map { it.getAlignment(this) }
 
         val verticalOffsets = arrangement.arrange(verticalSpace, layoutables.map { it.wrappedHeight }).map { contentBox.top + it }
         val horizontalOffsets = layoutables.mapIndexed { i, l ->
@@ -204,27 +209,27 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
         //内容的最大高度
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //所有元素的parentData
-        val parentDatas = WrappedRowLayoutData.wrappedDatas(measurables)
+        val parentData = WrappedRowLayoutData.wrappedData(measurables)
         //使用的宽度
         var usedWidth = arrangement.spacing * measurables.lastIndex
         //总权重
-        val totalWidget = parentDatas.sumOf { it.weight }
+        val totalWidget = parentData.sumOf { it.weight }
 
         //优先计算固定最小尺寸的组件的占用
         var minimumOccupiedWidth = 0f
         measurables.forEachIndexed { index, child ->
-            if (parentDatas[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
+            if (parentData[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
                 minimumOccupiedWidth += child.constraints.minWidth + child.margin.width
             }
         }
 
         measurables.forEachIndexed { index, child ->
-            if (parentDatas[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
+            if (parentData[index].run { weight <= 0 && fillMode != FillMode.MatchSibling }) {
                 val placeable = child.measure(
                     Constraints.of(
                         0f,
                         (contentMaxWidth - usedWidth - minimumOccupiedWidth - child.margin.width).coerceAtLeast(0f),
-                        if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
+                        if (parentData[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
                         contentMaxHeight - child.margin.height
                     )
                 )
@@ -234,7 +239,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
         }
 
         measurables.forEachIndexed { index, child ->
-            if (parentDatas[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
+            if (parentData[index].run { weight <= 0 && fillMode == FillMode.MatchSibling }) {
                 val min = if (maxChildHeight > 0) maxChildHeight + child.margin.height else 0f
                 val max = if (maxChildHeight > 0) maxChildHeight + child.margin.height else contentMaxHeight - child.margin.height
                 val placeable = child.measure(
@@ -251,16 +256,16 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
 
         val weightUnitWidth = if (totalWidget > 0) (contentMaxWidth - usedWidth) / totalWidget else 0f
 
-        if (totalWidget != 0)
+        if (totalWidget != 0) {
             measurables.forEachIndexed { index, child ->
-                if (parentDatas[index].run { weight > 0 && fillMode != FillMode.MatchSibling }) {
-                    val weight = parentDatas[index].weight
+                if (parentData[index].run { weight > 0 && fillMode != FillMode.MatchSibling }) {
+                    val weight = parentData[index].weight
                     val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceAtLeast(0f)
                     val placeable = child.measure(
                         Constraints.of(
                             distributionWidth,
                             distributionWidth,
-                            if (parentDatas[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
+                            if (parentData[index].fillMode == FillMode.MatchParent) contentMaxHeight - child.margin.height else 0f,
                             contentMaxHeight - child.margin.height
                         )
                     )
@@ -269,10 +274,9 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
                 }
             }
 
-        if (totalWidget != 0)
             measurables.forEachIndexed { index, child ->
-                if (parentDatas[index].run { weight > 0 && fillMode == FillMode.MatchSibling }) {
-                    val weight = parentDatas[index].weight
+                if (parentData[index].run { weight > 0 && fillMode == FillMode.MatchSibling }) {
+                    val weight = parentData[index].weight
                     val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceAtLeast(0f)
                     val min = if (maxChildHeight > 0) maxChildHeight + child.margin.height else 0f
                     val max = if (maxChildHeight > 0) maxChildHeight + child.margin.height else contentMaxHeight - child.margin.height
@@ -283,7 +287,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
                     usedWidth += placeable.size.width + child.margin.width
                 }
             }
-
+        }
 
         usedWidth += widget.padding.width
         maxChildHeight += widget.padding.height
@@ -296,7 +300,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
         val horizontalSpace = contentBox.width
         val verticalSpace = contentBox.height
 
-        val alignments = WrappedRowLayoutData.wrappedDatas(layoutables, WrappedRowLayoutData()).map { it.getAlignment(this) }
+        val alignments = WrappedRowLayoutData.wrappedData(layoutables, WrappedRowLayoutData()).map { it.getAlignment(this) }
 
         val verticalOffsets = layoutables.mapIndexed { i, l -> contentBox.top + alignments[i].align(verticalSpace, l.wrappedHeight) }
         val horizontalOffsets = arrangement.arrange(

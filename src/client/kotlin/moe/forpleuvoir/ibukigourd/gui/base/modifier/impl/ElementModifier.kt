@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 
 
 fun Modifier.data(key: String, value: Any) = this then WidgetModifier {
-    it.customData[key] = value
+    it.userData[key] = value
 }
 
 fun Modifier.name(name: String) = this then WidgetModifier {

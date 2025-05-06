@@ -20,8 +20,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.bgBlurRadius
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenCustomData.renderParentScreen
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen.Companion.applyZOffset
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.bgBlurRadius
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.parentCount
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
@@ -58,7 +60,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     //------------ IGWidget ------------\\
 
-    override val customData: MutableMap<String, Any> = mutableMapOf()
+    override val userData: MutableMap<String, Any> = mutableMapOf()
 
     override val transform: Transform = Transform(Vector2f(0f, 0f), this.width.toFloat(), this.height.toFloat(), true).apply {
         subscribeSizeChange { _, (width, height) ->
@@ -129,14 +131,6 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         internal set
 
     override var focusedWidget: MutableState<IGWidget?> = mutableStateOf(null)
-
-    private val datas: MutableMap<String, Any> = mutableMapOf()
-
-    override fun pushData(key: String, data: Any) {
-        datas[key] = data
-    }
-
-    override fun getData(key: String): Any? = datas[key]
 
     private val tasks: MutableList<() -> Unit> = mutableListOf()
 
@@ -448,18 +442,23 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
             val ctx = context.toIGDrawContext()
 
             val (_mouseX, _mouseY) = context.client.mousePosition
-            renderBackground(ctx, _mouseX, _mouseY, delta)
-            render.invoke(ctx, _mouseX, _mouseY, delta)
-            for (index in layers.lastIndex downTo 0) {
-                ctx.layer = layers[index]
-                drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
-                    if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
+            parentCount
+            applyZOffset {
+
+                renderBackground(ctx, _mouseX, _mouseY, delta)
+
+                render.invoke(ctx, _mouseX, _mouseY, delta)
+                for (index in layers.lastIndex downTo 0) {
+                    ctx.layer = layers[index]
+                    drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
+                        if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
+                    }
                 }
+
+                renderOverlay(ctx, _mouseX, _mouseY, delta)
+
+                ctx.render()
             }
-
-            renderOverlay(ctx, _mouseX, _mouseY, delta)
-
-            ctx.render()
         }
     }
 
