@@ -1,51 +1,36 @@
 package moe.forpleuvoir.ibukigourd.gui.base.event
 
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 open class GUIEvent {
 
-    companion object {
-        fun <R : GUIEvent> R.layer(layer: GuiLayer): R = apply {
-            this.layer = layer
-        }
-
-    }
-
-    lateinit var layer: GuiLayer
-
     var used: Boolean = false
         protected set
 
-    fun canUse(element: IGElement): Boolean {
-        return !used && checkLayer(element)
-    }
+    val canUse get() = !used
 
-    fun cantUse(element: IGElement): Boolean {
-        return used || !checkLayer(element)
-    }
+    val cantUse get() = used
 
     @OptIn(ExperimentalContracts::class)
-    inline fun canUse(element: IGElement, block: () -> Unit) {
+    inline fun canUse(block: () -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         }
-        if (canUse(element)) block()
+        if (canUse) block()
     }
 
     @OptIn(ExperimentalContracts::class)
-    inline fun cantUse(element: IGElement, block: () -> Unit) {
+    inline fun cantUse(block: () -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         }
-        if (cantUse(element)) block()
+        if (cantUse) block()
     }
 
-    fun use(element: IGElement) {
-        canUse(element) {
+    fun use() {
+        canUse {
             used = true
         }
     }
@@ -66,19 +51,36 @@ open class GUIEvent {
         if (used) block()
     }
 
-    fun checkLayer(element: IGElement): Boolean {
-        if (::layer.isInitialized) {
-            return element.layer == this@GUIEvent.layer
+    /**
+     * 尝试使用当前的 GUIEvent 实例与给定的代码块。
+     * 如果 GUIEvent 可以使用并且代码块返回 true，则在该元素上执行 'use' 函数，并返回 true。
+     * 如果 GUIEvent 不能使用或代码块返回 false，则返回 false。
+     * ```kotlin
+     * event.tryUse {
+     *     // 如果使用成功，返回 true
+     *     true
+     * }.onSuccess {
+     *     // 执行一些操作
+     * }
+     * ```
+     * @receiver GUIEvent 当前的 GUIEvent 实例。
+     * @param condition 要执行的代码块。
+     * @return Result<Boolean> 成功（true）如果事件已使用，失败（false）否则。
+     */
+    inline fun tryUse(condition: () -> Boolean): Result<Unit> {
+        if (canUse && condition()) {
+            this.use()
+            return Result.success(Unit)
         }
-        return false
+        return Result.failure(Exception("Event cannot be used."))
     }
 
-    @OptIn(ExperimentalContracts::class)
-    fun checkLayer(element: IGElement, block: () -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    fun tryUse(condition: Boolean = true): Result<Unit> {
+        if (canUse && condition) {
+            this.use()
+            return Result.success(Unit)
         }
-        if (checkLayer(element)) block()
+        return Result.failure(Exception("Event cannot be used."))
     }
 
 }

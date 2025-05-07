@@ -7,7 +7,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
@@ -90,12 +89,12 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
         if (event.position in transform.asWorldCoordinateBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
-                mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
+                mouseEnter(MouseEnterEvent(event.x, event.y))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
             if (wasMouseOver) {
-                mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
+                mouseLeave(MouseLeaveEvent(event.x, event.y))
             }
         }
 

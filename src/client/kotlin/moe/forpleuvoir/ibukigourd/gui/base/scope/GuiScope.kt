@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import moe.forpleuvoir.ibukigourd.gui.base.GuiDslMark
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -39,14 +38,6 @@ fun interface GuiScope<T : Any> {
 
         fun <T> GuiScope<T>.executeRecompose() where T : WidgetContainer, T : IGElement {
             execute { owner().recompose() }
-        }
-
-        fun WidgetScope.layer(layer: GuiLayer) {
-            owner().layer = layer
-        }
-
-        fun WidgetScope.clearLayer() {
-            owner().clearLayer()
         }
 
         fun WidgetScope.active(active: Boolean) {

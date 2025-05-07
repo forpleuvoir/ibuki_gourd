@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.screen
 
 import kotlinx.coroutines.*
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.parentCount
@@ -59,11 +58,6 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
     var onFirstInit: ((client: MinecraftClient, width: Int, height: Int) -> Unit)?
 
     var onInit: (() -> Unit)?
-
-    /**
-     * GUI层
-     */
-    val layers: List<GuiLayer>
 
     /**
      * 用于处理删除元素之类的操作,会在GUI事件执行完成之后处理任务

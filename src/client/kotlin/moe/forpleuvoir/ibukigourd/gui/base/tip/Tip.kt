@@ -47,7 +47,7 @@ class Tip(
 
     private var showTimeMark: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
-    private var currentDirection = mutableStateOf(settings.optionalDirection.isNotEmpty().pick(settings.optionalDirection.first(), Direction.Top))
+    private var currentDirection = mutableStateOf(settings.optionalDirection.isNotEmpty().pick(settings.optionalDirection.first(), Top))
 
     fun init(parent: () -> Transform) {
         val directions = settings.optionalDirection
@@ -109,8 +109,8 @@ class Tip(
         return alpha to when (currentDirection.getValue()) {
             Top    -> Vector2f(0f, offset)
             Bottom -> Vector2f(0f, -offset)
-            Left   -> Vector2f(-offset, 0f)
-            Right  -> Vector2f(offset, 0f)
+            Left  -> Vector2f(offset, 0f)
+            Right -> Vector2f(-offset, 0f)
         }
     }
 }

@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.GuiContext
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.input.mouseX
@@ -32,10 +31,6 @@ interface IGDrawable : Drawable, GuiContext {
 
     //------------ IGDrawable ------------\\
 
-    override var layer: GuiLayer
-
-    override fun clearLayer()
-
     /**
      * 可见
      */
@@ -65,14 +60,6 @@ interface IGDrawable : Drawable, GuiContext {
 
     fun IGDrawContext.postRender(render: IGDrawContext.() -> Unit) {
         this.postRender(this@IGDrawable.renderPriority, render)
-    }
-
-    fun IGDrawContext.canRender(): Boolean {
-        return this.canRender(this@IGDrawable)
-    }
-
-    fun IGDrawContext.tryRender(block: IGDrawContext.() -> Unit) {
-        this.tryRender(this@IGDrawable, block)
     }
 
 }

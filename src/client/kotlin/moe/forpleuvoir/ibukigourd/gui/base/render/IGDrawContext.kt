@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render
 
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
-import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.enableScissor
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import net.minecraft.client.MinecraftClient
@@ -25,16 +23,6 @@ class IGDrawContext(
             this as? IGDrawContext ?: IGDrawContext(this.client, this.vertexConsumers)
     }
 
-    private var _layer: GuiLayer? = null
-
-    var layer: GuiLayer
-        get() {
-            return _layer ?: GuiLayer.Default
-        }
-        set(value) {
-            _layer = value
-        }
-
     private val afterRenderList: MutableList<Pair<Int, IGDrawContext.() -> Unit>> = mutableListOf()
 
     private var afterRendering: Boolean = false
@@ -46,28 +34,14 @@ class IGDrawContext(
         afterRenderList.add(renderPriority to render)
     }
 
-    fun render() {
+    fun renderAfterRendering() {
+        if (afterRenderList.isEmpty()) return
         afterRendering = true
         afterRenderList.sortedBy { it.first }.forEach { (_, render) ->
             render.invoke(this)
         }
         afterRendering = false
     }
-
-    fun canRender(drawable: IGDrawable): Boolean {
-        return drawable.layer == this@IGDrawContext.layer
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    inline fun tryRender(drawable: IGDrawable, block: IGDrawContext.() -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.AT_MOST_ONCE)
-        }
-        if (canRender(drawable)) {
-            this.block()
-        }
-    }
-
 
     @OptIn(ExperimentalContracts::class)
     inline fun useMatrixStack(block: IGDrawContext.(matrices: MatrixStack) -> Unit) {

@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
@@ -15,7 +14,7 @@ abstract class DrawableElementImpl : DrawableElement {
     @Suppress("LocalVariableName")
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val (_mouseX, _mouseY) = context.client.mousePosition
-        context.toIGDrawContext().tryRender {
+        context.toIGDrawContext().apply {
             renderBackground.invoke(this, _mouseX, _mouseY, delta)
             render.invoke(this, _mouseX, _mouseY, delta)
             renderOverlay.invoke(this, _mouseX, _mouseY, delta)
@@ -74,20 +73,6 @@ abstract class DrawableElementImpl : DrawableElement {
         }
 
     override var parent: () -> IGElement? = { null }
-
-    private var _layer: GuiLayer? = null
-
-    override var layer: GuiLayer
-        set(value) {
-            _layer = value
-        }
-        get() {
-            return _layer ?: (parent()?.layer ?: GuiLayer.Default)
-        }
-
-    override fun clearLayer() {
-        _layer = null
-    }
 
     private var _active: Boolean? = null
 

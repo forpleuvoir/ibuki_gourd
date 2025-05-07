@@ -24,7 +24,7 @@ abstract class IGClickableWidgetImpl : IGWidgetImpl(), IGClickableWidget {
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
         super.onMouseRelease(event)
-        if (this.isValidClickButton(event.button) && this.layer == event.layer) {
+        if (this.isValidClickButton(event.button)) {
             this.onRelease(event.x, event.y)
             this.playReleaseSound(soundManager)
         }

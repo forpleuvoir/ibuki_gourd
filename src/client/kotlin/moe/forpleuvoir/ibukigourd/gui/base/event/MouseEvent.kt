@@ -9,7 +9,7 @@ sealed class MouseEvent(
     val y: Float
 ) : GUIEvent() {
 
-    val position: MousePosition get() = MousePosition(x, y)
+    val position by lazy { MousePosition(x, y) }
 
     operator fun component1() = x
 
@@ -60,9 +60,10 @@ class MouseDragEvent(
     val deltaX: Float,
     val deltaY: Float,
 ) : MouseEvent(x, y) {
-    val deltaPosition: MousePosition get() = MousePosition(deltaX, deltaY)
 
-    val delta get() = Vector2f(deltaX, deltaY)
+    val deltaPosition by lazy { MousePosition(deltaX, deltaY) }
+
+    val delta by lazy { Vector2f(deltaX, deltaY) }
 
     operator fun component3() = button
 

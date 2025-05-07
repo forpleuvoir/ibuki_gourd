@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.modifier.impl
 
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -212,18 +211,6 @@ fun Modifier.renderOverlay(action: IGWidget.(IGDrawContext, Float, Float, Float)
 }
 
 //------------ GuiContext ------------\\
-
-fun Modifier.layer(layer: GuiLayer) = this then WidgetModifier { widget ->
-    widget.layer = layer
-}
-
-
-fun Modifier.layer(layer: State<GuiLayer>) = this then WidgetModifier { widget ->
-    widget.layer = layer.getValue()
-    layer.subscribe {
-        widget.layer = it
-    }
-}
 
 
 //------------ Measure ------------\\

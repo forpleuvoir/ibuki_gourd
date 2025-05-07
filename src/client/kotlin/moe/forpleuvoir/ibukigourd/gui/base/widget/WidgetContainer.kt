@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
@@ -8,7 +7,7 @@ import java.util.*
 
 interface WidgetContainer : Measurable {
 
-    fun hoveredWidget(layer: GuiLayer): IGWidget? {
+    fun hoveredWidget(): IGWidget? {
         // 遍历所有子组件
         for (child in widgetChildren()) {
             // 检查组件是否激活
@@ -16,14 +15,14 @@ interface WidgetContainer : Measurable {
 
             // 如果组件是 WidgetContainer，递归检查它的子组件
             if (child is WidgetContainer) {
-                val hovered = child.hoveredWidget(layer)
+                val hovered = child.hoveredWidget()
                 if (hovered != null && hovered.active) {
                     return hovered
                 }
             }
 
             // 如果组件被悬停并且层级匹配，返回该组件
-            if (child.wasMouseOver && child.layer == layer) {
+            if (child.wasMouseOver) {
                 return child
             }
         }

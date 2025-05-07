@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.screen
 
 import kotlinx.coroutines.cancel
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -10,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.findFirsInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.event.GUIEvent.Companion.layer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderGradientBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
@@ -112,23 +110,6 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
 
     //------------ IGScreen ------------\\
-
-    private var _layer: GuiLayer? = null
-
-    override var layer: GuiLayer
-        set(value) {
-            _layer = value
-        }
-        get() {
-            return _layer ?: GuiLayer.Default
-        }
-
-    override fun clearLayer() {
-        _layer = null
-    }
-
-    override var layers: List<GuiLayer> = GuiLayer.defaultLayers
-        internal set
 
     override var focusedWidget: MutableState<IGWidget?> = mutableStateOf(null)
 
@@ -413,14 +394,12 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     private fun updateHoveredWidget() {
-        for (layer in layers) {
-            val widget = hoveredWidget(layer)
-            if (widget != null) {
-                if (hoveredWidget.getValue() != widget) {
-                    hoveredWidget.setValue(widget)
-                }
-                return
+        val widget = hoveredWidget()
+        if (widget != null) {
+            if (hoveredWidget.getValue() != widget) {
+                hoveredWidget.setValue(widget)
             }
+            return
         }
         hoveredWidget.setValue(null)
     }
@@ -448,16 +427,14 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 renderBackground(ctx, _mouseX, _mouseY, delta)
 
                 render.invoke(ctx, _mouseX, _mouseY, delta)
-                for (index in layers.lastIndex downTo 0) {
-                    ctx.layer = layers[index]
-                    drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
-                        if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
-                    }
+
+                drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
+                    if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
                 }
 
                 renderOverlay(ctx, _mouseX, _mouseY, delta)
 
-                ctx.render()
+                ctx.renderAfterRendering()
             }
         }
     }
@@ -532,7 +509,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) = eventProcessing {
-        if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()).layer(this.layer))
+        if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()))
     }
 
     override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
@@ -543,25 +520,22 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         if (event.position in transform.asWorldCoordinateBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
             if (!wasMouseOver) {
-                mouseEnter(MouseEnterEvent(event.x, event.y).layer(this.layer))
+                mouseEnter(MouseEnterEvent(event.x, event.y))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
             if (wasMouseOver) {
-                mouseLeave(MouseLeaveEvent(event.x, event.y).layer(this.layer))
+                mouseLeave(MouseLeaveEvent(event.x, event.y))
             }
         }
 
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.mouseMove.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.mouseMove.invoke(event)
         }
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
-        if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
+        if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)))
         false
     }
 
@@ -569,39 +543,32 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     override fun onMousePress(event: MousePressEvent) {
         wasDragging = wasMouseOver
-        val focusedEvent = FocusedEvent()
-        for (layer in layers) {
-            event.layer(layer)
 
-            if (wasMouseOver) {
-                focused(focusedEvent.layer(layer))
-            }
+        if (wasMouseOver) {
+            focused(FocusedEvent())
+        }
 
-            elementChildren().foreachWithIterator {
-                if (it.active) it.mousePress.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.mousePress.invoke(event)
         }
     }
 
     override var focused: (event: FocusedEvent) -> Unit = ::onFocused
 
     override fun onFocused(event: FocusedEvent) {
-        for (layer in layers) {
-            event.layer(layer)
-            elementChildren().foreachWithIterator {
-                if (it.active) it.focused.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.focused.invoke(event)
         }
+
         event.tryUse().onSuccess {
             isFocused = true
         }
-
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
         if (active) {
             parentScreen?.mouseReleased(mouseX, mouseY, button)
-            mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)).layer(this.layer))
+            mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)))
         }
         return false
     }
@@ -611,11 +578,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override fun onMouseRelease(event: MouseReleaseEvent) {
         wasDragging = false
 
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.mouseRelease.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.mouseRelease.invoke(event)
         }
     }
 
@@ -627,7 +591,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
                 Mouse.fromCode(button),
                 deltaX.toFloat(),
                 deltaY.toFloat()
-            ).layer(this.layer)
+            )
         )
         return false
     }
@@ -635,43 +599,34 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override var mouseDragging: (event: MouseDragEvent) -> Unit = ::onMouseDragging
 
     override fun onMouseDragging(event: MouseDragEvent) {
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.mouseDragging.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.mouseDragging.invoke(event)
         }
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean = eventProcessing {
-        if (active) mouseScrolling(MouseScrollEvent(mouseX.toFloat(), mouseY.toFloat(), verticalAmount.toFloat(), horizontalAmount.toFloat()).layer(this.layer))
+        if (active) mouseScrolling(MouseScrollEvent(mouseX.toFloat(), mouseY.toFloat(), verticalAmount.toFloat(), horizontalAmount.toFloat()))
         return false
     }
 
     override var mouseScrolling: (event: MouseScrollEvent) -> Unit = ::onMouseScrolling
 
     override fun onMouseScrolling(event: MouseScrollEvent) {
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.mouseScrolling.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.mouseScrolling.invoke(event)
         }
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
-        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
+        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
         return true
     }
 
     override var keyPress: (event: KeyPressEvent) -> Unit = ::onKeyPress
 
     override fun onKeyPress(event: KeyPressEvent) {
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.keyPress.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.keyPress.invoke(event)
         }
         event.tryUse(event.keyCode == Keyboard.ESCAPE && shouldCloseOnEsc())
             .onSuccess { close() }
@@ -680,7 +635,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
         if (active) {
             parentScreen?.keyReleased(keyCode, scanCode, modifiers)
-            keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers).layer(this.layer))
+            keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
         }
         return false
     }
@@ -688,27 +643,21 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override var keyRelease: (event: KeyReleaseEvent) -> Unit = ::onKeyRelease
 
     override fun onKeyRelease(event: KeyReleaseEvent) {
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.keyRelease.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.keyRelease.invoke(event)
         }
     }
 
     override fun charTyped(chr: Char, modifiers: Int): Boolean = eventProcessing {
-        if (active) charTyped.invoke(CharTypedEvent(chr, modifiers).layer(this.layer))
+        if (active) charTyped.invoke(CharTypedEvent(chr, modifiers))
         return false
     }
 
     override var charTyped: (event: CharTypedEvent) -> Unit = ::onCharTyped
 
     override fun onCharTyped(event: CharTypedEvent) {
-        for (layer in layers) {
-            event.layer = layer
-            elementChildren().foreachWithIterator {
-                if (it.active) it.charTyped.invoke(event)
-            }
+        elementChildren().foreachWithIterator {
+            if (it.active) it.charTyped.invoke(event)
         }
     }
 

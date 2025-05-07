@@ -42,11 +42,11 @@ abstract class ListWidget(
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
-        ctx.tryRender {
+        ctx.apply {
             renderBackground(this, _mouseX, _mouseY, delta)
             render.invoke(this, _mouseX, _mouseY, delta)
             if (enableScissor) {
-                ctx.scissor(contentBox(true)) {
+                scissor(contentBox(true)) {
                     renderChildren(ctx, _mouseX, _mouseY, delta)
                 }
             } else {

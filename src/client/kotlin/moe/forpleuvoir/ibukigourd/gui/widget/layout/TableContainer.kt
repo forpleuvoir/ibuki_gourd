@@ -90,7 +90,7 @@ class TableWidget(
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
-        ctx.tryRender {
+        ctx.apply {
             renderBackground(this, _mouseX, _mouseY, delta)
             render.invoke(this, _mouseX, _mouseY, delta)
 

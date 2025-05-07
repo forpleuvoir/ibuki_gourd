@@ -35,16 +35,16 @@ interface DrawableElementContainer : DrawableElement, ElementContainer, Drawable
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val ctx = context.toIGDrawContext()
         val (_mouseX, _mouseY) = context.client.mousePosition
-        ctx.tryRender {
-            renderBackground(this, _mouseX, _mouseY, delta)
-            render(this, _mouseX, _mouseY, delta)
-        }
+
+        renderBackground(ctx, _mouseX, _mouseY, delta)
+
+        render(ctx, _mouseX, _mouseY, delta)
 
         drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
             if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
         }
 
-        ctx.tryRender { renderOverlay(this, _mouseX, _mouseY, delta) }
+        renderOverlay(ctx, _mouseX, _mouseY, delta)
     }
 
 
