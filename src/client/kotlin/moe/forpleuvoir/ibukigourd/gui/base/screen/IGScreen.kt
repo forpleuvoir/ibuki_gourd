@@ -21,10 +21,18 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
         const val Z_OFFSET = 100F
 
-        const val POPUP_Z_OFFSET = -50F
+        const val POPUP_Z_OFFSET = 50F
+
+        const val TOAST_Z_OFFSET = 100f
 
         inline fun IGScreen.applyZOffset(block: () -> Unit) =
             runWithZOffset(Z_OFFSET * parentCount, block)
+
+        val currentScreenZOffset: Float
+            get() = when (val screen = mc.currentScreen) {
+                is IGScreen -> screen.parentCount * Z_OFFSET
+                else        -> 0f
+            }
 
     }
 

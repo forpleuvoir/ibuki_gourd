@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast.Config.FADE_IN_OFFSET
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast.Config.FADE_OUT_OFFSET
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -52,7 +53,7 @@ object Toast : Tickable {
     @JvmStatic
     fun render(drawContent: IGDrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         val iterator = toastQueue.iterator()
-        runWithZOffset(9999f) {
+        runWithZOffset(IGScreen.currentScreenZOffset + IGScreen.TOAST_Z_OFFSET) {
             while (iterator.hasNext()) {
                 val (box, timeMark) = iterator.next()
                 val duration = box.duration

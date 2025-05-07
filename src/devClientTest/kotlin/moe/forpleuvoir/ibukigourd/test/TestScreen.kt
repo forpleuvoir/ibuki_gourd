@@ -28,7 +28,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.time.Duration.Companion.seconds
 
-fun modifier(): Modifier {
+private fun modifier(): Modifier {
     var deltaCount = 0
     var fps = 0
     var renderTime = 0.seconds

@@ -28,14 +28,9 @@ fun WidgetContainerScope.ItemIcon(
     scale: Float = 1f,
     modifier: Modifier = Modifier
 ) = Widget(modifier.attachLeft {
-    val s = 1f / scale
     size(16f * scale, 16f * scale)
         .render { context, x, y, delta ->
-            context.useMatrixStack {
-                it.scale(scale, scale, scale)
-                it.translate(transform.worldX * s, transform.worldY * s, defaultZOffset * s)
-                renderItem(item.getValue(), 0f, 0f)
-            }
+            context.renderItem(item.getValue(), transform.worldX, transform.worldY, defaultZOffset, scale)
         }
 })
 
@@ -65,17 +60,19 @@ fun DrawContext.renderItem(
     stack: ItemStack,
     x: Float,
     y: Float,
-    z: Float = 0f,
+    z: Float = defaultZOffset,
+    scale: Float = 1f,
     seed: Int = 0,
     entity: LivingEntity? = this.client.player,
     world: World? = this.client.world
 ) {
-    if (stack.isEmpty) return
+    if (stack.isEmpty || scale == 0f) return
     this.client.itemModelManager.update(this.itemRenderState, stack, ModelTransformationMode.GUI, false, world, entity, seed)
     this.useMatrixStack { matrices ->
-        matrices.translate(x + 8, y + 8, z + 8f)
-        matrices.scale(16.0f, -16.0f, 16f)
-
+        val s = 1f / scale
+        val offset = 8 * scale
+        matrices.scale(16.0f * scale, -16.0f * scale, 16f * scale)
+        matrices.translate((x + offset) * s / 16f, (y + offset) * s / -16f, (z + offset) * s / 16f)
         val isSideLit: Boolean = !this.itemRenderState.isSideLit
         if (isSideLit) {
             this.draw()

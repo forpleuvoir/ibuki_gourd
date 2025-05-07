@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -42,7 +43,7 @@ object TipHandler : Tickable {
 
     @JvmStatic
     fun render(drawContext: IGDrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        runWithZOffset(9999f) {
+        runWithZOffset(IGScreen.currentScreenZOffset + IGScreen.POPUP_Z_OFFSET) {
             tips.values.forEach {
                 it.render(drawContext, mouseX, mouseY, delta)
             }
