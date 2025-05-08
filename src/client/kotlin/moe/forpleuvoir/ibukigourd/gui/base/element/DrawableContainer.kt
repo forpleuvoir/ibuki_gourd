@@ -1,9 +1,18 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-interface DrawableContainer {
+interface DrawableContainer<D : IGDrawable> {
 
-    fun drawableChildren(): List<IGDrawable>
+    companion object {
 
-    fun <T : IGDrawable> addDrawableChild(child: T): T
+        fun getRenderLayer(container: DrawableContainer<*>): GuiRenderLayer =
+            GuiRenderLayer { context, x, y, delta ->
+                container.drawableChildren().forEach { drawable ->
+                    if (drawable.visible) drawable.render(context, x, y, delta)
+                }
+            }
+
+    }
+
+    fun drawableChildren(): List<D>
 
 }

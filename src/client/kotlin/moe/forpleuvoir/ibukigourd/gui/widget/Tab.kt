@@ -1,10 +1,12 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.RenderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.addRenderLayer
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
@@ -157,12 +159,12 @@ data class TabScope(
             scope = {
                 TextLabel(
                     t,
-                    modifier = Modifier.render { context, x, y, d ->
-                        context.useMatrixStack {
-                            it.translate(0f, yOffset, 0f)
-                            onRender(context, x, y, d)
+                    modifier = Modifier
+                        .addRenderLayer(RenderPriority.DEFAULT - 1) { context, _, _, _ ->
+                            context.matrices.push()
+                            context.matrices.translate(0f, yOffset, 0f)
                         }
-                    }
+                        .addRenderLayer(RenderPriority.DEFAULT + 1) { context, _, _, _ -> context.matrices.pop() }
                 )
             }
         )

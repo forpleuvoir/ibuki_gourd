@@ -5,10 +5,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
-import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row

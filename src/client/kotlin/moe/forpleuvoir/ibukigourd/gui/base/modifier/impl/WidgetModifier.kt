@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.modifier.impl
 
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
+import moe.forpleuvoir.ibukigourd.gui.base.element.RenderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
@@ -9,9 +10,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTip
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursor
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursorMapping
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetRenderLayer
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setHoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCursor
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCursorMapping
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
@@ -192,23 +194,39 @@ fun Modifier.visible(state: State<Boolean>) = this then WidgetModifier { widget 
     }
 }
 
-fun Modifier.renderBackground(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
-    drawable.renderBackground = { context, mouseX, mouseY, delta ->
-        drawable.action(context, mouseX, mouseY, delta)
-    }
+fun Modifier.addRenderLayer(priority: Int, action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { widget ->
+    widget.addRenderLayer(priority, WidgetRenderLayer(widget, action))
 }
 
-fun Modifier.render(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
-    drawable.render = { context, mouseX, mouseY, delta ->
-        drawable.action(context, mouseX, mouseY, delta)
-    }
+fun Modifier.preRenderHandler(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) =
+    addRenderLayer(RenderPriority.PRE_HANDLER, action)
+
+fun Modifier.renderBackground(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) =
+    addRenderLayer(RenderPriority.BACKGROUND, action)
+
+fun Modifier.render(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) =
+    addRenderLayer(RenderPriority.DEFAULT, action)
+
+fun Modifier.renderOverlay(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) =
+    addRenderLayer(RenderPriority.OVERLAY, action)
+
+fun Modifier.postRenderHandler(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) =
+    addRenderLayer(RenderPriority.POST_HANDLER, action)
+
+
+fun Modifier.disableRenderLayer(priority: Int) = this then WidgetModifier { widget ->
+    widget.removeRenderLayer(priority)
 }
 
-fun Modifier.renderOverlay(action: IGWidget.(IGDrawContext, Float, Float, Float) -> Unit) = this then WidgetModifier { drawable ->
-    drawable.renderOverlay = { context, mouseX, mouseY, delta ->
-        drawable.action(context, mouseX, mouseY, delta)
-    }
-}
+fun Modifier.disablePreRenderHandler() = disableRenderLayer(RenderPriority.PRE_HANDLER)
+
+fun Modifier.disableRenderBackground() = disableRenderLayer(RenderPriority.BACKGROUND)
+
+fun Modifier.disableRender() = disableRenderLayer(RenderPriority.DEFAULT)
+
+fun Modifier.disableRenderOverlay() = disableRenderLayer(RenderPriority.OVERLAY)
+
+fun Modifier.disablePostRenderHandler() = disableRenderLayer(RenderPriority.POST_HANDLER)
 
 //------------ GuiContext ------------\\
 

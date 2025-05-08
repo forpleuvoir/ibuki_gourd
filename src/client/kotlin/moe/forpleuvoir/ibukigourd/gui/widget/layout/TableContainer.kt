@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.layout
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.MousePressEvent
 import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
@@ -16,7 +17,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
@@ -30,9 +30,7 @@ import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
-import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
-import net.minecraft.client.gui.DrawContext
 import net.minecraft.util.math.MathHelper
 
 class TableWidget(
@@ -47,6 +45,7 @@ class TableWidget(
         scrollState.subscribe {
             layout()
         }
+        addDefaultLayer(::renderChildren)
     }
 
     var enableScissor: Boolean = true
@@ -87,13 +86,8 @@ class TableWidget(
         event.tryUse(wasMouseOver).onSuccess { scrollState.scroll(event.verticalAmount) }
     }
 
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        val ctx = context.toIGDrawContext()
-        val (_mouseX, _mouseY) = context.client.mousePosition
-        ctx.apply {
-            renderBackground(this, _mouseX, _mouseY, delta)
-            render.invoke(this, _mouseX, _mouseY, delta)
-
+    fun renderChildren(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+        context.apply {
             val headHeight = if (hasHeader && fixedHeader) {
                 columns.first().cachedCells.first()!!.second.height
             } else 0f
@@ -101,13 +95,13 @@ class TableWidget(
             val scissorBox = contentBox(true).trimEdges(top = MathHelper.ceil(headHeight).toFloat())
 
             if (enableScissor) {
-                ctx.scissor(scissorBox) {
+                scissor(scissorBox) {
                     //渲染Cells
                     columns.forEachIndexed { rowIndex, tableColumn ->
                         tableColumn.cachedCells.forEachIndexed { columnIndex, cell ->
                             cell?.let { (widget, box) ->
                                 if (!(hasHeader && columnIndex == 0)) {
-                                    renderCells(widget, box, rowIndex, columnIndex, ctx, _mouseX, _mouseY, delta)
+                                    renderCells(widget, box, rowIndex, columnIndex, context, mouseX, mouseY, delta)
                                 }
                             }
                         }
@@ -115,13 +109,13 @@ class TableWidget(
                     //渲染Header
                     if (hasHeader && !fixedHeader) columns.forEachIndexed { rowIndex, tableColumn ->
                         tableColumn.cachedCells.first()?.let { (widget, box) ->
-                            renderHeaders(widget, box, rowIndex, ctx, _mouseX, _mouseY, delta)
+                            renderHeaders(widget, box, rowIndex, context, mouseX, mouseY, delta)
                         }
                     }
                 }
                 if (hasHeader && fixedHeader) columns.forEachIndexed { rowIndex, tableColumn ->
                     tableColumn.cachedCells.first()?.let { (widget, box) ->
-                        renderHeaders(widget, box, rowIndex, ctx, _mouseX, _mouseY, delta)
+                        renderHeaders(widget, box, rowIndex, context, mouseX, mouseY, delta)
                     }
                 }
             } else {
@@ -130,7 +124,7 @@ class TableWidget(
                     tableColumn.cachedCells.forEachIndexed { columnIndex, cell ->
                         cell?.let { (widget, box) ->
                             if (!(hasHeader && columnIndex == 0)) {
-                                renderCells(widget, box, rowIndex, columnIndex, ctx, _mouseX, _mouseY, delta)
+                                renderCells(widget, box, rowIndex, columnIndex, context, mouseX, mouseY, delta)
                             }
                         }
                     }
@@ -139,29 +133,27 @@ class TableWidget(
                 if (hasHeader) {
                     columns.forEachIndexed { rowIndex, tableColumn ->
                         tableColumn.cachedCells.first()?.let { (widget, box) ->
-                            renderHeaders(widget, box, rowIndex, ctx, _mouseX, _mouseY, delta)
+                            renderHeaders(widget, box, rowIndex, context, mouseX, mouseY, delta)
                         }
                     }
                 }
             }
-
-            renderOverlay(this, _mouseX, _mouseY, delta)
         }
     }
 
     private fun renderHeaders(header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        onRenderHeader(header, headerBox, rowIndex, context, mouseX, mouseY, delta)
+        renderHeader(header, headerBox, rowIndex, context, mouseX, mouseY, delta)
     }
 
     private fun renderCells(cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        onRenderCell(cell, cellBox, rowIndex, columnIndex, context, mouseX, mouseY, delta)
+        renderCell(cell, cellBox, rowIndex, columnIndex, context, mouseX, mouseY, delta)
     }
 
-    var onRenderHeader: (header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::renderHeader
+    var renderHeader: (header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderHeader
 
-    var onRenderCell: (cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::renderCell
+    var renderCell: (cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderCell
 
-    fun renderHeader(header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+    fun onRenderHeader(header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         if (!fixedHeader) {
             if ((header.transform.asWorldCoordinateBox intersectWith transform.asWorldCoordinateBox).exist) {
                 header.clearActive()
@@ -171,10 +163,10 @@ class TableWidget(
                 header.visible = false
             }
         }
-        if (header.visible) header.vanillaRender(context, mouseX, mouseY, delta)
+        if (header.visible) header.render(context, mouseX, mouseY, delta)
     }
 
-    fun renderCell(cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+    fun onRenderCell(cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         val box = if (hasHeader && fixedHeader) {
             val height = columns.first().cachedCells.first()!!.second.height
             transform.asWorldCoordinateBox.copy(y = transform.asWorldCoordinateBox.y + height + padding.top)
@@ -187,7 +179,7 @@ class TableWidget(
             cell.visible = false
         }
 
-        if (cell.visible) cell.vanillaRender(context, mouseX, mouseY, delta)
+        if (cell.visible) cell.render(context, mouseX, mouseY, delta)
     }
 
     override fun onMousePress(event: MousePressEvent) {
@@ -258,13 +250,13 @@ class TableWidget(
         }
 
         fun onRenderHeader(render: TableWidget.(header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit) {
-            owner().onRenderHeader = { header, headerBox, rowIndex, context, mouseX, mouseY, delta ->
+            owner().renderHeader = { header, headerBox, rowIndex, context, mouseX, mouseY, delta ->
                 this.owner().render(header, headerBox, rowIndex, context, mouseX, mouseY, delta)
             }
         }
 
         fun onRenderCell(render: TableWidget.(cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit) {
-            owner().onRenderCell = { cell, cellBox, rowIndex, columnIndex, context, mouseX, mouseY, delta ->
+            owner().renderCell = { cell, cellBox, rowIndex, columnIndex, context, mouseX, mouseY, delta ->
                 this.owner().render(cell, cellBox, rowIndex, columnIndex, context, mouseX, mouseY, delta)
             }
         }

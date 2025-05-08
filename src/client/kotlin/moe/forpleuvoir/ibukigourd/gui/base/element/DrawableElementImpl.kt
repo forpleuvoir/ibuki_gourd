@@ -1,26 +1,9 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
-import moe.forpleuvoir.ibukigourd.input.mousePosition
-import net.minecraft.client.gui.DrawContext
 
 abstract class DrawableElementImpl : DrawableElement {
-
-    //------------ Vanilla Drawable ------------\\
-
-    @Suppress("LocalVariableName")
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        val (_mouseX, _mouseY) = context.client.mousePosition
-        context.toIGDrawContext().apply {
-            renderBackground.invoke(this, _mouseX, _mouseY, delta)
-            render.invoke(this, _mouseX, _mouseY, delta)
-            renderOverlay.invoke(this, _mouseX, _mouseY, delta)
-        }
-    }
-
 
     //------------ Tickable ------------\\
 
@@ -47,19 +30,6 @@ abstract class DrawableElementImpl : DrawableElement {
     }
 
     override var renderPriority: Int = 0
-
-    override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
-
-    abstract override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float)
-
-    override var render: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRender
-
-    abstract override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float)
-
-    override var renderOverlay: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderOverlay
-
-    abstract override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float)
-
 
     //------------ IGElement ------------\\
 

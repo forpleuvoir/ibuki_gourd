@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.textRenderOffset
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
@@ -74,6 +75,12 @@ class TextWidget(
         var textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval
     )
 
+    init {
+        addDefaultLayer { context, mouseX, mouseY, delta ->
+            renderText(context, delta)
+        }
+    }
+
     //------------ Override ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
@@ -86,10 +93,6 @@ class TextWidget(
         renderText = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
         return this
     }
-
-    override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) =
-        renderText(context, delta)
-
 
     //------------ TextWidget ------------\\
 
@@ -200,7 +203,7 @@ class TextWidget(
 
     //------------ Render ------------\\
 
-    private fun renderText(context: IGDrawContext, delta: Float) {
+    fun renderText(context: IGDrawContext, delta: Float) {
         updateText()
         tickCounter += delta
         val contentBox = contentBox(true)

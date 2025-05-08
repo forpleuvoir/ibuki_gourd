@@ -13,7 +13,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope

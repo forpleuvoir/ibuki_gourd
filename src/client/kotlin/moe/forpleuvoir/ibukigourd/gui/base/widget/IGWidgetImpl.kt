@@ -5,6 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementImpl
 import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
+import moe.forpleuvoir.ibukigourd.gui.base.element.GuiRenderLayer
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -17,6 +19,10 @@ import moe.forpleuvoir.ibukigourd.util.mc
  * 所有组件的基类,实现任何组件都应该继承此类
  */
 abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
+
+    init {
+        addDefaultLayer(::renderWidget)
+    }
 
     //------------ IbukiGourd Widget ------------\\
 
@@ -49,12 +55,25 @@ abstract class IGWidgetImpl : DrawableElementImpl(), IGWidget, Measurable {
 
     override var renderPriority: Int = 0
 
-    override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) = Unit
+    protected open val renderLayers: MutableMap<Int, GuiRenderLayer> = mutableMapOf()
 
-    override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) = Unit
+    protected var sortedRenderLayers: List<GuiRenderLayer> = emptyList()
 
-    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) = Unit
+    override fun renderLayers(): Iterable<GuiRenderLayer> = sortedRenderLayers
 
+    override fun addRenderLayer(priority: Int, layer: GuiRenderLayer) {
+        renderLayers[priority] = layer
+        sortedRenderLayers = renderLayers.toList().sortedBy { it.first }.map { it.second }
+    }
+
+    override fun removeRenderLayer(priority: Int): Boolean {
+        return renderLayers.remove(priority)?.let {
+            sortedRenderLayers = renderLayers.toList().sortedBy { it.first }.map { it.second }
+            true
+        } ?: false
+    }
+
+    abstract fun renderWidget(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float)
 
     //------------ Measurable ------------\\
 

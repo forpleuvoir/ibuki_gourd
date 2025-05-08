@@ -20,15 +20,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen.Companion.applyZOffset
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.bgBlurRadius
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.parentCount
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverTip
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.renderBlur
@@ -183,15 +182,11 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     //------------ Container ------------\\
 
     override fun clearChildren() {
-        elementChildren.clear()
         drawableChildren.clear()
         widgetChildren.clear()
     }
 
     override fun remove(child: Element) {
-        if (child is IGElement) {
-            elementChildren.remove(child)
-        }
         if (child is IGDrawable) {
             drawableChildren.remove(child)
         }
@@ -202,29 +197,23 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     //------------ Container.Element ------------\\
 
-    private val elementChildren = mutableListOf<IGElement>()
-
     @Deprecated("should use elementChildren() instead", ReplaceWith("elementChildren"))
-    override fun children(): MutableList<out Element> = elementChildren
+    override fun children(): MutableList<out Element> = widgetChildren
 
-    override fun elementChildren(): List<IGElement> = elementChildren
-
-    override fun <T : IGElement> addElementChild(child: T): T = child.also {
-        it.parent = { this }
-        elementChildren.add(it)
-    }
+    override fun elementChildren(): List<IGWidget> = widgetChildren()
 
     //------------ Container.Drawable ------------\\
 
-    private val drawableChildren = mutableListOf<IGDrawable>()
+    private val drawableChildren = mutableListOf<IGWidget>()
 
-    override fun drawableChildren(): List<IGDrawable> = drawableChildren
+    override fun drawableChildren(): List<IGWidget> = drawableChildren
 
     @Deprecated("should use addDrawableChild(child) instead", ReplaceWith("addDrawableChild(drawable)"))
     override fun <T : Drawable?> addDrawable(drawable: T): T = drawable
 
-    override fun <T : IGDrawable> addDrawableChild(child: T): T = child.also {
-        drawableChildren.add(it)
+    fun <T : IGWidget> addDrawableChild(child: T): T = child.also { child ->
+        drawableChildren.add(child)
+        drawableChildren.sortBy { it.renderPriority }
     }
 
     //------------ Container.Widget ------------\\
@@ -238,44 +227,40 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     }
 
     override fun clearWidgetChildren() {
-        elementChildren.removeAll { it is IGWidget }
-        drawableChildren.removeAll { it is IGWidget }
+        drawableChildren.clear()
         widgetChildren.clear()
     }
 
     @Deprecated("should use addWidgetChild(child) instead", ReplaceWith("addWidgetChild"))
     override fun <T> addSelectableChild(child: T): T where T : Element, T : Selectable = child
 
-    override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
-        it.transform.parent = { this.transform }
+    override fun <W : IGWidget> addWidgetChild(child: W): W = child.also { child ->
+        child.transform.parent = { this.transform }
+        child.parent = { this }
         addDrawableChild(child)
-        addElementChild(child)
-        widgetChildren.add(it)
+        widgetChildren.add(child)
     }
 
-    override fun <W : IGWidget> setWidgetChildren(index: Int, child: W): W = child.also {
-        it.transform.parent = { this.transform }
-        it.parent = { this }
+    override fun <W : IGWidget> setWidgetChildren(index: Int, child: W): W = child.also { child ->
+        child.transform.parent = { this.transform }
+        child.parent = { this }
         val old = widgetChildren[index]
         val di = drawableChildren.indexOf(old)
-        val ei = elementChildren.indexOf(old)
-        widgetChildren[index] = it
-        drawableChildren[di] = it
-        elementChildren[ei] = it
+        widgetChildren[index] = child
+        drawableChildren[di] = child
+        drawableChildren.sortBy { it.renderPriority }
     }
 
     override fun removeWidgetChild(child: IGWidget): Boolean {
-        return elementChildren.remove(child) ||
-                drawableChildren.remove(child) ||
+        return drawableChildren.remove(child) ||
                 widgetChildren.remove(child)
     }
 
     override fun removeWidgetChildAt(index: Int): IGWidget? {
         val old = widgetChildren[index]
         val di = drawableChildren.indexOf(old)
-        val ei = elementChildren.indexOf(old)
-        elementChildren.removeAt(ei)
         drawableChildren.removeAt(di)
+        drawableChildren.sortBy { it.renderPriority }
         return widgetChildren.removeAt(index)
     }
 
@@ -369,7 +354,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     private var cursorSupplier: () -> MouseCursor = { MouseCursor.default }
 
-    override var hoveredWidget: MutableState<IGWidget?> = mutableStateOf<IGWidget?>(null).apply {
+    override val hoveredWidget: MutableState<IGWidget?> = mutableStateOf<IGWidget?>(null).apply {
         subscribe {
             var currentNode: IGElement? = it
             while (currentNode != null) {
@@ -382,7 +367,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
             cursorSupplier = { (currentNode as? IGWidget)?.mouseOverCursor ?: MouseCursor.default }
 
             it?.let hoverTip@{ widget ->
-                widget.findFirsInParentChain { it is IGWidget && it.hoverTip != null }
+                widget.findFirsInParentChain { w -> w is IGWidget && w.hoverTip != null }
                     ?.let { hoveredWidget ->
                         hoveredWidget as IGWidget
                         TipHandler.pushTip(SCREEN_HOVER_TIP, { hoveredWidget.transform }, hoveredWidget.hoverTip!!)
@@ -421,27 +406,15 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
             val ctx = context.toIGDrawContext()
 
             val (_mouseX, _mouseY) = context.client.mousePosition
-            parentCount
+
             applyZOffset {
-
-                renderBackground(ctx, _mouseX, _mouseY, delta)
-
-                render.invoke(ctx, _mouseX, _mouseY, delta)
-
-                drawableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
-                    if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
-                }
-
-                renderOverlay(ctx, _mouseX, _mouseY, delta)
-
+                super<IGScreen>.render(ctx, _mouseX, _mouseY, delta)
                 ctx.renderAfterRendering()
             }
         }
     }
 
-    override var renderBackground: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
-
-    override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+    fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         if (client!!.world == null) {
             this.renderPanoramaBackground(context, delta)
         }
@@ -456,13 +429,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
         client!!.framebuffer.beginWrite(false)
     }
 
-    override var render: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRender
 
-    override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) = Unit
-
-    override var renderOverlay: (context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderOverlay
-
-    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+    fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         hoveredWidget.getValue()?.let { widget ->
             WIDGET_TEST_OUTLINE_COLOR
                 .takeIf { it.alpha > 0 }

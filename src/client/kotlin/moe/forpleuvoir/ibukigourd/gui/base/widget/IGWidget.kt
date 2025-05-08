@@ -4,7 +4,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElement
+import moe.forpleuvoir.ibukigourd.gui.base.element.GuiRenderLayer
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
+import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.nebula.common.util.primitive.pick
@@ -68,6 +70,17 @@ interface IGWidget : DrawableElement, Layoutable {
             transform.y = y
         }
         placeCompletion()
+    }
+
+}
+
+data class WidgetRenderLayer(
+    private val widget: IGWidget,
+    private val render: IGWidget.(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit
+) : GuiRenderLayer {
+
+    override fun renderLayer(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+        render.invoke(widget, context, mouseX, mouseY, delta)
     }
 
 }

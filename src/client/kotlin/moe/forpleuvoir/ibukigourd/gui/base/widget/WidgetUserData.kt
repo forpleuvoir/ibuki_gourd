@@ -4,9 +4,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
 
-object WidgetCustomData {
+object WidgetUserData {
 
-    private const val MOUSE_OVER_CURSOR_KEY = "mouseOverCursor"
+    private const val MOUSE_OVER_CURSOR_KEY = "#mouse_over_cursor"
 
     fun IGWidget.setMouseOverCursor(cursor: MouseCursor) {
         userData[MOUSE_OVER_CURSOR_KEY] = cursor
@@ -27,7 +27,7 @@ object WidgetCustomData {
 
     //------------ HoverTip ------------\\
 
-    private const val HOVER_TIP_KEY = "hoverTip"
+    private const val HOVER_TIP_KEY = "#hover_tip"
 
     fun IGWidget.setHoverTip(tip: Tip) {
         userData[HOVER_TIP_KEY] = tip

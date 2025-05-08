@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.*
@@ -16,7 +17,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
-import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
@@ -68,6 +68,10 @@ open class TextEditorWidget(
     var cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     private val textRenderer: TextRenderer = mc.textRenderer
 ) : IGWidgetImpl() {
+
+    init {
+        addDefaultLayer(::renderWidget)
+    }
 
     //------------ TextField ------------\\
 
@@ -591,8 +595,7 @@ open class TextEditorWidget(
         }
     }
 
-
-    override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+    fun renderWidget(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.useScissor(contentBox(true)) {
             renderText(context)
         }

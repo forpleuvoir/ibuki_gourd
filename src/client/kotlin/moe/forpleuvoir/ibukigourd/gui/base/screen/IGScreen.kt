@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screen.Screen
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
+interface IGScreen : DrawableElementContainer<IGWidget, IGWidget>, WidgetContainer, IGWidget {
 
     companion object {
 
@@ -41,7 +41,7 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     var focusedWidget: MutableState<IGWidget?>
 
-    var hoveredWidget: MutableState<IGWidget?>
+    val hoveredWidget: MutableState<IGWidget?>
 
     var pauseGame: Boolean
 

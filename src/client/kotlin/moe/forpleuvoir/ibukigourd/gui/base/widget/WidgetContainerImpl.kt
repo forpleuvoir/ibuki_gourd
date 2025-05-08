@@ -1,19 +1,23 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableContainer
+import moe.forpleuvoir.ibukigourd.gui.base.element.DrawableElementContainer
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.foreachWithIterator
-import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.mc
-import net.minecraft.client.gui.DrawContext
 
 
-abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
+abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, DrawableElementContainer<IGWidget, IGWidget>, Layout {
+
+    init {
+        addDefaultLayer(DrawableContainer.getRenderLayer(this))
+    }
 
     //------------ Container ------------\\
 
@@ -30,9 +34,12 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     private val widgetChildren = mutableListOf<IGWidget>()
 
+    private val drawableChildren = mutableListOf<IGWidget>()
+
     override fun widgetChildren(): List<IGWidget> = widgetChildren
 
     override fun clearWidgetChildren() {
+        drawableChildren.clear()
         widgetChildren.clear()
     }
 
@@ -56,16 +63,20 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     }
 
-    override fun <W : IGWidget> addWidgetChild(child: W): W = child.also {
-        it.transform.parent = { this.transform }
-        it.parent = { this }
-        widgetChildren.add(it)
+    override fun <W : IGWidget> addWidgetChild(child: W): W = child.also { widget ->
+        widget.transform.parent = { this.transform }
+        widget.parent = { this }
+        widgetChildren.add(widget)
+        drawableChildren.add(widget)
+        drawableChildren.sortBy { it.renderPriority }
     }
 
-    override fun <W : IGWidget> setWidgetChildren(index: Int, child: W) = child.also {
-        it.transform.parent = { this.transform }
-        it.parent = { this }
-        widgetChildren[index] = it
+    override fun <W : IGWidget> setWidgetChildren(index: Int, child: W) = child.also { widget ->
+        widget.transform.parent = { this.transform }
+        widget.parent = { this }
+        widgetChildren[index] = widget
+        drawableChildren[index] = widget
+        drawableChildren.sortBy { it.renderPriority }
     }
 
     override fun swapWidgetChildren(index1: Int, index2: Int) {
@@ -74,9 +85,17 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
         widgetChildren[index1] = temp
     }
 
-    override fun removeWidgetChild(child: IGWidget) = widgetChildren.remove(child)
+    override fun removeWidgetChild(child: IGWidget): Boolean {
+        val removed = drawableChildren.remove(child)
+        drawableChildren.sortBy { it.renderPriority }
+        return widgetChildren.remove(child) && removed
+    }
 
-    override fun removeWidgetChildAt(index: Int): IGWidget? = widgetChildren.removeAt(index)
+    override fun removeWidgetChildAt(index: Int): IGWidget? {
+        drawableChildren.removeAt(index)
+        drawableChildren.sortBy { it.renderPriority }
+        return widgetChildren.removeAt(index)
+    }
 
     override fun flat(): List<IGWidget> {
         return (widgetChildren().flatMap { if (it is WidgetContainer) it.flat() else listOf(it) } + this)
@@ -84,21 +103,11 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     //------------ Drawable ------------\\
 
-    @Suppress("LocalVariableName")
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        val ctx = context.toIGDrawContext()
-        val (_mouseX, _mouseY) = context.client.mousePosition
-        renderBackground(ctx, _mouseX, _mouseY, delta)
-        render.invoke(ctx, _mouseX, _mouseY, delta)
-
-        widgetChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
-            if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
-        }
-
-        renderOverlay(ctx, _mouseX, _mouseY, delta)
-    }
+    override fun drawableChildren(): List<IGWidget> = drawableChildren
 
     //------------ Element ------------\\
+
+    override fun elementChildren(): List<IGWidget> = widgetChildren()
 
     override fun onTick() {
         widgetChildren().forEach { it.tick() }
@@ -110,7 +119,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
 
     @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
-        super.onMouseMove(event)
+        super<IGWidgetImpl>.onMouseMove(event)
 
         widgetChildren().foreachWithIterator {
             if (it.active) it.mouseMove.invoke(event)
@@ -118,7 +127,8 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
     }
 
     override fun onMousePress(event: MousePressEvent) {
-        super.onMousePress(event)
+        super<IGWidgetImpl>.onMousePress(event)
+
         widgetChildren().foreachWithIterator {
             if (it.active) it.mousePress.invoke(event)
         }
@@ -128,11 +138,13 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
         widgetChildren().foreachWithIterator {
             if (it.active) it.focused.invoke(event)
         }
-        super.onFocused(event)
+
+        super<IGWidgetImpl>.onFocused(event)
     }
 
     override fun onMouseRelease(event: MouseReleaseEvent) {
-        super.onMouseRelease(event)
+        super<IGWidgetImpl>.onMouseRelease(event)
+
         widgetChildren().foreachWithIterator {
             if (it.active) it.mouseRelease.invoke(event)
         }

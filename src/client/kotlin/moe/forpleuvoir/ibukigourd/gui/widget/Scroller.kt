@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.element.addBackgroundLayer
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.event.MouseDragEvent
 import moe.forpleuvoir.ibukigourd.gui.base.event.MouseScrollEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
@@ -10,7 +12,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mouseOverCursor
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
@@ -44,6 +45,19 @@ open class ScrollerWidget(
                 }, {
                     bar.height = height
                 })
+        }
+
+        addBackgroundLayer { context, mouseX, mouseY, delta ->
+            context.batchRenderTextureColored {
+                pushWidgetTexture(transform, theme(bgTheme))
+            }
+        }
+        addDefaultLayer { context, mouseX, mouseY, delta ->
+            if (scrollState.barProportion == 0f) return@addDefaultLayer
+            updateBar()
+            context.batchRenderTextureColored {
+                pushWidgetTexture(bar, theme(barTheme))
+            }
         }
     }
 
@@ -99,20 +113,6 @@ open class ScrollerWidget(
             }
         } else {
             remeasureFlag = false
-        }
-    }
-
-    override fun onRenderBackground(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.batchRenderTextureColored {
-            pushWidgetTexture(transform, theme(bgTheme))
-        }
-    }
-
-    override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        if (scrollState.barProportion == 0f) return
-        updateBar()
-        context.batchRenderTextureColored {
-            pushWidgetTexture(bar, theme(barTheme))
         }
     }
 

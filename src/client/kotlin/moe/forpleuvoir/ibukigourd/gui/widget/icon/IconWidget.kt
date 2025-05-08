@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.icon
 
+import moe.forpleuvoir.ibukigourd.gui.base.element.addDefaultLayer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -18,6 +19,10 @@ class IconWidget(
     iconTexture: WidgetTexture,
     private var color: ARGBColor = Colors.WHITE
 ) : IGWidgetImpl() {
+
+    init {
+        addDefaultLayer(::renderWidget)
+    }
 
     private var remeasureOnChange: Boolean = true
 
@@ -38,13 +43,11 @@ class IconWidget(
         return this
     }
 
-    override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
+    fun renderWidget(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
             pushWidgetTexture(contentBox(true), iconTexture, color)
         }
     }
-
-    companion object
 
     fun interface IconScope : GuiScope<IconWidget> {
 

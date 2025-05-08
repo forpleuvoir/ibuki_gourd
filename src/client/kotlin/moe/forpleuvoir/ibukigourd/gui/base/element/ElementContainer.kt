@@ -1,9 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-interface ElementContainer {
+interface ElementContainer<E : IGElement> {
 
-    fun elementChildren(): List<IGElement>
-
-    fun <T : IGElement> addElementChild(child: T): T
+    fun elementChildren(): List<E>
 
 }
