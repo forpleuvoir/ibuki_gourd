@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.modifier
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -33,9 +32,6 @@ fun Modifier.debugInfo(): Modifier {
             this as IGScreenImpl
             val contentBox = contentBox(true).trimEdges(8f)
             onRenderOverlay(context, mouseX, mouseY, delta)
-            context.batchRenderBox {
-                pushBoxOutline(contentBox, Colors.ROSE)
-            }
             context.batchRenderText {
                 val texts = listOf(
                     Literal("Screen renderTime:$renderTime").style { color(Colors.AQUA) },

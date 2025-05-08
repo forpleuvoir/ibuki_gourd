@@ -14,10 +14,6 @@ interface TableLayout : Layout {
 
     companion object {
 
-        private fun List<TableColumn>.getLayoutable(row: Int, column: Int): Layoutable {
-            return this[column].column[row]
-        }
-
         private const val UNLOCKED_MAX_CONSTRAINTS = 2333f
 
     }

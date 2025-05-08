@@ -10,9 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 class BoxWidget : WidgetContainerImpl(), BoxLayout {
-
     fun interface Scope : GuiScope<BoxWidget>, BoxLayoutScope
-
 }
 
 typealias BoxScope = BoxWidget.Scope
