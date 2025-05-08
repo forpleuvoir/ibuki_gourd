@@ -39,9 +39,9 @@ interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
 
     var parentScreen: Screen?
 
-    var focusedWidget: MutableState<IGWidget?>
+    val focusedWidget: MutableState<IGWidget?>
 
-    var hoveredWidget: MutableState<IGWidget?>
+    val hoveredWidget: MutableState<IGWidget?>
 
     var pauseGame: Boolean
 

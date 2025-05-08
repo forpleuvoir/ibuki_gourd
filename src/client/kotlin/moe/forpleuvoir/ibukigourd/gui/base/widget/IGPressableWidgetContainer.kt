@@ -24,7 +24,7 @@ abstract class IGPressableWidgetContainer : IGClickableWidgetContainer(), IGPres
     override fun onKeyPress(event: KeyPressEvent) {
         if (!this.visible) return
         super.onKeyPress(event)
-        event.tryUse { Keyboard.isToggle(event.keyCode) && isFocused }
+        event.tryUse(Keyboard.isToggle(event.keyCode) && isFocused)
             .onSuccess {
                 this.playClickSound(soundManager)
                 this.onPress()

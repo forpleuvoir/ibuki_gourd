@@ -30,6 +30,15 @@ interface WidgetContainer : Measurable {
         return null
     }
 
+    /**
+     * - 用于定义组件的组合逻辑的函数类型变量。
+     *
+     * - 该变量存储一个无参且无返回值的函数，用于动态构建或更新组件的内容。
+     *
+     * - 在组件需要重新组合其内部结构时，此变量会被调用以执行相关的逻辑。
+     *
+     * - 所有的子组件都应该在此高阶函数内添加
+     */
     var compose: () -> Unit
 
     fun recompose()

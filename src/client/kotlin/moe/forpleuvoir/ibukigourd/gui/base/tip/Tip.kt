@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.tip
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.setName
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementUserData.setName
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin

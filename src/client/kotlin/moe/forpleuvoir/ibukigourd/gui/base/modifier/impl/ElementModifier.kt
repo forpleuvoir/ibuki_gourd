@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.modifier.impl
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.setName
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementUserData.setName
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget

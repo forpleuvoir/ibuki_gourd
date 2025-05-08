@@ -15,7 +15,7 @@ abstract class IGClickableWidgetImpl : IGWidgetImpl(), IGClickableWidget {
     override fun onMousePress(event: MousePressEvent) {
         if (!visible) return
         super.onMousePress(event)
-        event.tryUse { isValidClickButton(event.button) && this.allowClicked(event.x, event.y) }
+        event.tryUse(isValidClickButton(event.button) && this.allowClicked(event.x, event.y))
             .onSuccess {
                 this.playClickSound(soundManager)
                 this.onClick(event.x, event.y)

@@ -9,9 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setHoverTip
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursor
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.setMouseOverCursorMapping
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setHoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCursor
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCursorMapping
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
@@ -242,7 +242,7 @@ fun Modifier.placeCompletion(action: IGWidget.() -> Unit) = this then WidgetModi
     widget.placeCompletion = { action(widget) }
 }
 
-//------------ CustomData ------------\\
+//------------ UserData ------------\\
 
 fun <W : IGWidget> Modifier.mouseOverCursor(mapping: MouseCursorMapping<W>) = this then WidgetModifier { widget ->
     runCatching {

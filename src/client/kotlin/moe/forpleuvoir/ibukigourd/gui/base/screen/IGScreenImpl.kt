@@ -4,7 +4,7 @@ import kotlinx.coroutines.cancel
 import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementUserData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGDrawable
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
 import moe.forpleuvoir.ibukigourd.gui.base.element.findFirsInParentChain
@@ -27,8 +27,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.hoverTip
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetCustomData.mouseOverCursor
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
 import moe.forpleuvoir.ibukigourd.render.renderBlur
@@ -111,7 +111,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     //------------ IGScreen ------------\\
 
-    override var focusedWidget: MutableState<IGWidget?> = mutableStateOf(null)
+    override val focusedWidget: MutableState<IGWidget?> = mutableStateOf(null)
 
     private val tasks: MutableList<() -> Unit> = mutableListOf()
 
@@ -369,7 +369,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
 
     private var cursorSupplier: () -> MouseCursor = { MouseCursor.default }
 
-    override var hoveredWidget: MutableState<IGWidget?> = mutableStateOf<IGWidget?>(null).apply {
+    override val hoveredWidget: MutableState<IGWidget?> = mutableStateOf<IGWidget?>(null).apply {
         subscribe {
             var currentNode: IGElement? = it
             while (currentNode != null) {

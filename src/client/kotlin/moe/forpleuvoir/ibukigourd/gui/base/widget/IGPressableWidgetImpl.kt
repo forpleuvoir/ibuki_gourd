@@ -23,7 +23,7 @@ abstract class IGPressableWidgetImpl : IGClickableWidgetImpl(), IGPressableWidge
 
     override fun onKeyPress(event: KeyPressEvent) {
         if (!this.visible) return
-        event.tryUse { Keyboard.isToggle(event.keyCode) && isFocused }
+        event.tryUse(Keyboard.isToggle(event.keyCode) && isFocused)
             .onSuccess {
                 this.playClickSound(soundManager)
                 this.onPress()

@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-object ElementCustomData {
+object ElementUserData {
 
-    private const val NAME_KEY = "name"
+    private const val NAME_KEY = "#name"
 
     fun IGElement.setName(name: String) {
         userData[NAME_KEY] = name
