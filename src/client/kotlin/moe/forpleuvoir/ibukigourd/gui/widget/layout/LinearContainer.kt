@@ -6,11 +6,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 
 //------------ Row ------------\\
@@ -18,13 +19,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
 class RowWidget(
     override val arrangement: Arrangement.Horizontal,
     override val alignment: Alignment.Vertical
-) : WidgetContainerImpl(), RowLayout {
-    fun interface Scope : GuiScope<RowWidget>, RowLayoutScope
-}
+) : WidgetContainerImpl(), RowLayout
 
-typealias RowScope = RowWidget.Scope
+fun interface RowScope : GuiScope<WidgetContainer>, RowLayoutScope
 
-fun WidgetContainerScope.Row(
+fun ContainerScope.Row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -39,13 +38,11 @@ fun WidgetContainerScope.Row(
 class ColumnWidget(
     override val arrangement: Arrangement.Vertical,
     override val alignment: Alignment.Horizontal,
-) : WidgetContainerImpl(), ColumnLayout {
-    fun interface Scope : GuiScope<ColumnWidget>, ColumnLayoutScope
-}
+) : WidgetContainerImpl(), ColumnLayout
 
-typealias ColumnScope = ColumnWidget.Scope
+fun interface ColumnScope : GuiScope<WidgetContainer>, ColumnLayoutScope
 
-fun WidgetContainerScope.Column(
+fun ContainerScope.Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,

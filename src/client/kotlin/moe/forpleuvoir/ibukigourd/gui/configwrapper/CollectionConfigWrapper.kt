@@ -9,8 +9,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
@@ -51,7 +51,7 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigStringList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
 import kotlin.time.Duration.Companion.seconds
 
-fun WidgetContainerScope.MoveButton(
+fun ContainerScope.MoveButton(
     recompose: () -> Unit,
     listValue: MutableList<*>,
     index: Int,
@@ -87,7 +87,7 @@ fun WidgetContainerScope.MoveButton(
     }
 }
 
-fun <T> WidgetContainerScope.IterableWrappedButton(
+fun <T> ContainerScope.IterableWrappedButton(
     title: Text,
     iterable: Iterable<T>,
     onAdd: (T) -> Unit,
@@ -144,7 +144,7 @@ fun <T> WidgetContainerScope.IterableWrappedButton(
     }
 }
 
-fun <T> WidgetContainerScope.ListConfigWrappedButton(
+fun <T> ContainerScope.ListConfigWrappedButton(
     config: ConfigList<T>,
     title: Text = config.translateText.style { hover(config.comment) },
     iterable: Iterable<T> = config.getValue(),
@@ -190,7 +190,7 @@ fun <T> WidgetContainerScope.ListConfigWrappedButton(
     entryWrapper = entryWrapper,
 )
 
-fun <T> WidgetContainerScope.ListConfigEntryWrapper(
+fun <T> ContainerScope.ListConfigEntryWrapper(
     config: ConfigList<T>,
     index: Int,
     recompose: () -> Unit,
@@ -220,7 +220,7 @@ fun <T> WidgetContainerScope.ListConfigEntryWrapper(
     }
 }
 
-fun <T> WidgetContainerScope.MoveableListConfigEntryWrapper(
+fun <T> ContainerScope.MoveableListConfigEntryWrapper(
     config: ConfigList<T>,
     index: Int,
     recompose: () -> Unit,
@@ -251,7 +251,7 @@ fun <T> WidgetContainerScope.MoveableListConfigEntryWrapper(
     }
 }
 
-fun WidgetContainerScope.StringListConfigWrapper1(
+fun ContainerScope.StringListConfigWrapper1(
     config: ConfigStringList,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -281,7 +281,7 @@ fun WidgetContainerScope.StringListConfigWrapper1(
     }
 }
 
-fun WidgetContainerScope.StringPairListConfigWrapper1(
+fun ContainerScope.StringPairListConfigWrapper1(
     config: ConfigPairList<String, String>,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -354,7 +354,7 @@ fun <K, V> mapEntry(key: K, value: V) = object : Map.Entry<K, V> {
     override val value: V = value
 }
 
-fun <K, V> WidgetContainerScope.MapConfigWrappedButton(
+fun <K, V> ContainerScope.MapConfigWrappedButton(
     config: Config<MutableMap<K, V>, *>,
     title: Text = config.translateText.style { hover(config.comment) },
     iterable: Iterable<Map.Entry<K, V>> = config.getValue().entries,
@@ -399,7 +399,7 @@ fun <K, V> WidgetContainerScope.MapConfigWrappedButton(
     entryWrapper = entryWrapper,
 )
 
-fun <K, V> WidgetContainerScope.MapConfigEntryWrapper(
+fun <K, V> ContainerScope.MapConfigEntryWrapper(
     config: Config<MutableMap<K, V>, *>,
     key: K,
     keyWrapper: RowScope.(K, Map<K, V>) -> Unit,
@@ -486,7 +486,7 @@ fun <K, V> WidgetContainerScope.MapConfigEntryWrapper(
     }
 }
 
-fun WidgetContainerScope.StringMapConfigWrapper1(
+fun ContainerScope.StringMapConfigWrapper1(
     config: ConfigStringMap,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {

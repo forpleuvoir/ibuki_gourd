@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.config.item.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 
@@ -12,7 +12,7 @@ private const val VECTOR_EDITOR_WIDTH = 60f
 
 //------------ Vector2 ------------\\
 
-fun WidgetContainerScope.ConfigVector2iWrapper(
+fun ContainerScope.ConfigVector2iWrapper(
     config: ConfigVector2i,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -37,7 +37,7 @@ fun WidgetContainerScope.ConfigVector2iWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigVector2fWrapper(
+fun ContainerScope.ConfigVector2fWrapper(
     config: ConfigVector2f,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -62,7 +62,7 @@ fun WidgetContainerScope.ConfigVector2fWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigVector2dWrapper(
+fun ContainerScope.ConfigVector2dWrapper(
     config: ConfigVector2d,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -89,7 +89,7 @@ fun WidgetContainerScope.ConfigVector2dWrapper(
 
 //------------ Vector3 ------------\\
 
-fun WidgetContainerScope.ConfigVector3iWrapper(
+fun ContainerScope.ConfigVector3iWrapper(
     config: ConfigVector3i,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -115,7 +115,7 @@ fun WidgetContainerScope.ConfigVector3iWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigVector3fWrapper(
+fun ContainerScope.ConfigVector3fWrapper(
     config: ConfigVector3f,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -141,7 +141,7 @@ fun WidgetContainerScope.ConfigVector3fWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigVector3dWrapper(
+fun ContainerScope.ConfigVector3dWrapper(
     config: ConfigVector3d,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {

@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
 import moe.forpleuvoir.ibukigourd.render.color
+import moe.forpleuvoir.ibukigourd.render.defaultZOffset
 import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
@@ -117,10 +118,10 @@ fun renderBox(
     layer: RenderLayer = RenderLayer.getGui()
 ) {
     val bufferBuilder = vertexConsumers.getBuffer(layer)
-    bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(color)
-    bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(color)
-    bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(color)
-    bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(color)
+    bufferBuilder.vertex(matrices, x = x, y = y, defaultZOffset).color(color)
+    bufferBuilder.vertex(matrices, x = x, y = y + height, defaultZOffset).color(color)
+    bufferBuilder.vertex(matrices, x = x + width, y = y + height, defaultZOffset).color(color)
+    bufferBuilder.vertex(matrices, x = x + width, y = y, defaultZOffset).color(color)
     vertexConsumers.draw()
 }
 
@@ -184,10 +185,10 @@ fun renderBox(
     layer: RenderLayer = RenderLayer.getGui()
 ) {
     val bufferBuilder = vertexConsumers.getBuffer(layer)
-    bufferBuilder.vertex(matrices, x = x, y = y, 0f).color(topLeftColor)
-    bufferBuilder.vertex(matrices, x = x, y = y + height, 0f).color(bottomLeftColor)
-    bufferBuilder.vertex(matrices, x = x + width, y = y + height, 0f).color(bottomRightColor)
-    bufferBuilder.vertex(matrices, x = x + width, y = y, 0f).color(topRightColor)
+    bufferBuilder.vertex(matrices, x = x, y = y, defaultZOffset).color(topLeftColor)
+    bufferBuilder.vertex(matrices, x = x, y = y + height, defaultZOffset).color(bottomLeftColor)
+    bufferBuilder.vertex(matrices, x = x + width, y = y + height, defaultZOffset).color(bottomRightColor)
+    bufferBuilder.vertex(matrices, x = x + width, y = y, defaultZOffset).color(topRightColor)
     vertexConsumers.draw()
 }
 

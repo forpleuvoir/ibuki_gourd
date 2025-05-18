@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.render.defaultZOffset
 import moe.forpleuvoir.ibukigourd.util.math.Vector3f
 import moe.forpleuvoir.ibukigourd.util.state.State
@@ -23,7 +23,7 @@ import net.minecraft.item.ModelTransformationMode
 import net.minecraft.world.World
 
 @JvmName("ItemStackIcon")
-fun WidgetContainerScope.ItemIcon(
+fun ContainerScope.ItemIcon(
     item: State<ItemStack>,
     scale: Float = 1f,
     modifier: Modifier = Modifier
@@ -34,20 +34,20 @@ fun WidgetContainerScope.ItemIcon(
         }
 })
 
-fun WidgetContainerScope.ItemIcon(
+fun ContainerScope.ItemIcon(
     item: ItemStack,
     scale: Float = 1f,
     modifier: Modifier = Modifier
 ) = ItemIcon(stateOf(item), scale, modifier)
 
 
-fun WidgetContainerScope.ItemIcon(
+fun ContainerScope.ItemIcon(
     item: ItemConvertible,
     scale: Float = 1f,
     modifier: Modifier = Modifier
 ) = ItemIcon(stateOf(ItemStack(item)), scale, modifier)
 
-fun WidgetContainerScope.ItemIcon(
+fun ContainerScope.ItemIcon(
     item: State<out ItemConvertible>,
     scale: Float = 1f,
     modifier: Modifier = Modifier

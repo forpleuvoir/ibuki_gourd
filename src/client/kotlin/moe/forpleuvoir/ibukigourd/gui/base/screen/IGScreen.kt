@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screen.Screen
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-interface IGScreen : DrawableElementContainer, WidgetContainer, IGWidget {
+interface IGScreen : DrawableElementContainer, WidgetContainer {
 
     companion object {
 

@@ -1,30 +1,47 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout
+import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.DEFAULT_BG_BLUR_RADIUS
 
 fun ColumnScreen(
-    screenModifier: Modifier = Modifier,
-    modifier: BoxScreenScope.() -> Modifier = { Modifier },
+    modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: ColumnScope.() -> Unit
-) = BoxScreen(Modifier.name("ColumnScreen").then(screenModifier)) {
-    Column(Modifier.fill().then(modifier()), verticalArrangement, horizontalAlignment, content)
+): IGScreenImpl = object : IGScreenImpl(), ColumnLayout {
+    override var compose: () -> Unit = { ColumnScope { this }.content() }
+    override val arrangement: Arrangement.Vertical get() = verticalArrangement
+    override val alignment: Alignment.Horizontal get() = horizontalAlignment
+}.apply {
+    Modifier
+        .bgBlurRadius(DEFAULT_BG_BLUR_RADIUS)
+        .name("ColumnScreen")
+        .then(modifier).foldInApply()
 }
 
+
 fun RowScreen(
-    screenModifier: Modifier = Modifier,
-    modifier: BoxScreenScope.() -> Modifier = { Modifier },
+    modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: RowScope.() -> Unit
-) = BoxScreen(Modifier.name("RowScreen").then(screenModifier)) {
-    Row(Modifier.fill().then(modifier()), horizontalArrangement, verticalAlignment, content)
+): IGScreenImpl = object : IGScreenImpl(), RowLayout {
+    override var compose: () -> Unit = { RowScope { this }.content() }
+    override val arrangement: Arrangement.Horizontal get() = horizontalArrangement
+    override val alignment: Alignment.Vertical get() = verticalAlignment
+
+}.apply {
+    Modifier
+        .bgBlurRadius(DEFAULT_BG_BLUR_RADIUS)
+        .name("RowScreen")
+        .then(modifier).foldInApply()
 }

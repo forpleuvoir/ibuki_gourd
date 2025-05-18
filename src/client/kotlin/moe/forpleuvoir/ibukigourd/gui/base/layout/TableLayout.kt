@@ -39,7 +39,7 @@ interface TableLayout : Layout {
     override fun layout(layoutables: List<Layoutable>) = Unit
 
     override fun measure(constraints: Constraints): Placeable {
-        return measureColumns(columns, this.constraints.constraintAs(constraints))
+        return measureColumns(columns, this.constraints.merge(constraints))
     }
 
     override fun layout() {
@@ -62,7 +62,7 @@ interface TableLayout : Layout {
         val totalGapHeight = columnGap * (rowCount - 1)
 
         //垂直布局 宽度固定
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         //所有子元素的最大宽度限制固定
         val contentMaxWidth = (maxWidth - widget.padding.width - totalGapWidth).coerceAtLeast(0f)
         val defaultMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
@@ -108,7 +108,7 @@ interface TableLayout : Layout {
                 if (tableColumn.weight > 0) {
                     val weight = tableColumn.weight
                     tableColumn.column.forEachIndexed { rowIndex, layoutable ->
-                        val distributionWidth = ((weightUnitWidth * weight) - layoutable.margin.width).coerceAtLeast(0f)
+                        val distributionWidth = ((weightUnitWidth * weight) - layoutable.margin.width).coerceIn(0f, layoutable.constraints.maxWidth)
                         val parentData = parentData[columnIndex][rowIndex]
                         val placeable = layoutable.measure(
                             Constraints.of(

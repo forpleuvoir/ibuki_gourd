@@ -149,7 +149,7 @@ fun ColumnScope.TestColumn() = Row(
         Row {
             icons.forEach {
                 Icon(it)
-                Box(Modifier.width(5f))
+                Box(Modifier.width(5f)) {}
             }
         }
     }

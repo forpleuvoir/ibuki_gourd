@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.util.math.plus
 interface BoxLayout : Layout {
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         var maxChildWidth = 0f
         var maxChildHeight = 0f
 

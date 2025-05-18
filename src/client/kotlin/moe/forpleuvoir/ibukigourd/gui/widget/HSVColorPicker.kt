@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
@@ -22,7 +22,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
 
-fun WidgetContainerScope.HSVColorPicker(
+fun ContainerScope.HSVColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: ColumnScope.() -> Unit = {}
@@ -98,7 +98,7 @@ fun WidgetContainerScope.HSVColorPicker(
 }
 
 
-fun WidgetContainerScope.SaturationColorSlider(
+fun ContainerScope.SaturationColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
@@ -110,7 +110,7 @@ fun WidgetContainerScope.SaturationColorSlider(
     modifier, scope
 )
 
-fun WidgetContainerScope.ValueColorSlider(
+fun ContainerScope.ValueColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
@@ -122,7 +122,7 @@ fun WidgetContainerScope.ValueColorSlider(
     modifier, scope
 )
 
-fun WidgetContainerScope.HueColorSlider(
+fun ContainerScope.HueColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}

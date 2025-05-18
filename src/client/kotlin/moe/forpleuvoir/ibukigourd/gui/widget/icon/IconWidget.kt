@@ -6,9 +6,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -31,7 +31,7 @@ class IconWidget(
         }
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraintAs(constraints)
+        val c = this.constraints.merge(constraints)
         val width = iconTexture.width + padding.width
         val height = iconTexture.height + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
@@ -70,7 +70,7 @@ class IconWidget(
 
 typealias IconScope = IconWidget.IconScope
 
-fun WidgetContainerScope.Icon(
+fun ContainerScope.Icon(
     texture: WidgetTexture,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
@@ -80,7 +80,7 @@ fun WidgetContainerScope.Icon(
     IconScope { this }.scope()
 }
 
-fun WidgetContainerScope.Icon(
+fun ContainerScope.Icon(
     texture: MutableState<WidgetTexture>,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,

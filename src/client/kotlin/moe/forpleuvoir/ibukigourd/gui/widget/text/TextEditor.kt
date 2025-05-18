@@ -12,9 +12,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -309,7 +309,7 @@ open class TextEditorWidget(
     //------------ Measure ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraintAs(constraints)
+        val c = this.constraints.merge(constraints)
         val width =
             text.isNotEmpty().pick(text.width, hintText.getValue()?.width ?: 0).toFloat() + padding.width + 5f
         val height = textRenderer.fontHeight + padding.height
@@ -680,7 +680,7 @@ open class TextEditorWidget(
 
 typealias TextEditorScope = TextEditorWidget.Scope
 
-fun WidgetContainerScope.TextEditor(
+fun ContainerScope.TextEditor(
     modifier: Modifier = Modifier,
     textColor: ARGBColor = Color(0xFF303030),
     hintColor: ARGBColor = Color(0xFF707070),
@@ -706,7 +706,7 @@ fun WidgetContainerScope.TextEditor(
 
 data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
 
-fun <T> WidgetContainerScope.NumberEditor(
+fun <T> ContainerScope.NumberEditor(
     value: MutableState<T>,
     valueMapper: (T) -> String,
     valueRange: ClosedRange<T>,
@@ -817,7 +817,7 @@ fun <T> WidgetContainerScope.NumberEditor(
 }
 
 
-fun WidgetContainerScope.IntEditor(
+fun ContainerScope.IntEditor(
     value: MutableState<Int>,
     range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
     step: ValueStep<Int> = ValueStep(1, 5, 10, 15, 1),
@@ -855,7 +855,7 @@ fun WidgetContainerScope.IntEditor(
     editorScope = editorScope
 )
 
-fun WidgetContainerScope.LongEditor(
+fun ContainerScope.LongEditor(
     value: MutableState<Long>,
     range: LongRange = Long.MIN_VALUE..Int.MAX_VALUE,
     step: ValueStep<Long> = ValueStep(1, 5, 10, 15, 1),
@@ -893,7 +893,7 @@ fun WidgetContainerScope.LongEditor(
     editorScope = editorScope
 )
 
-fun WidgetContainerScope.FloatEditor(
+fun ContainerScope.FloatEditor(
     value: MutableState<Float>,
     range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
     step: ValueStep<Float> = ValueStep(1f, 5f, 10f, 15f, 1f),
@@ -935,7 +935,7 @@ fun WidgetContainerScope.FloatEditor(
 )
 
 
-fun WidgetContainerScope.DoubleEditor(
+fun ContainerScope.DoubleEditor(
     value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
     step: ValueStep<Double> = ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),

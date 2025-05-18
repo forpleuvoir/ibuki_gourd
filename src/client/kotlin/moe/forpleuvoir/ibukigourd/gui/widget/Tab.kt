@@ -10,10 +10,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.then
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.userData
 import moe.forpleuvoir.ibukigourd.gui.base.scope.LinearLayoutScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
@@ -208,7 +208,7 @@ data class TabScope(
 
 }
 
-fun WidgetContainerScope.Tabs(
+fun ContainerScope.Tabs(
     direction: Direction = Top,
     modifier: Modifier = Modifier,
     tabsModifier: Modifier = Modifier,
@@ -220,7 +220,7 @@ fun WidgetContainerScope.Tabs(
 }
 
 
-private fun WidgetContainerScope.ColumnTabs(
+private fun ContainerScope.ColumnTabs(
     direction: Direction,
     modifier: Modifier = Modifier,
     tabsModifier: Modifier = Modifier,
@@ -256,7 +256,7 @@ private fun WidgetContainerScope.ColumnTabs(
     if (direction == Bottom) owner().swapWidgetChildren(0, 1)
 }
 
-private fun WidgetContainerScope.RowTabs(
+private fun ContainerScope.RowTabs(
     direction: Direction,
     modifier: Modifier = Modifier,
     tabsModifier: Modifier = Modifier,

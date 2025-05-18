@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
@@ -42,7 +42,7 @@ val KeyBind.hoverText: Text
     }
 
 
-fun WidgetContainerScope.KeyBindButton(
+fun ContainerScope.KeyBindButton(
     keyBind: KeyBind,
     modifier: Modifier = Modifier,
     onKeyChanged: (KeyBind) -> Unit = {},
@@ -114,7 +114,7 @@ fun WidgetContainerScope.KeyBindButton(
     }
 }
 
-fun WidgetContainerScope.KeyBindSettingButton(
+fun ContainerScope.KeyBindSettingButton(
     keyBind: KeyBind,
     title: Text,
     modifier: Modifier = Modifier,

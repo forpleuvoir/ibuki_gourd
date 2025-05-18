@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.KeyBindButton
 import moe.forpleuvoir.ibukigourd.gui.widget.KeyBindSettingButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
@@ -17,7 +17,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.config.Config
 
 
-fun WidgetContainerScope.ConfigKeyBindWrapper(
+fun ContainerScope.ConfigKeyBindWrapper(
     config: ConfigKeyBind,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -29,7 +29,7 @@ fun WidgetContainerScope.ConfigKeyBindWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigKeyBindBooleanWrapper(
+fun ContainerScope.ConfigKeyBindBooleanWrapper(
     config: ConfigKeyBindBoolean,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {

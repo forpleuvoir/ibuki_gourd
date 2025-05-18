@@ -26,13 +26,13 @@ fun interface GuiScope<T : Any> {
 
         val GuiScope<out IGElement>.userData: MutableMap<String, Any> get() = this.owner().userData
 
-        infix fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W) = owner().addWidgetChild(child)
+        infix fun <W : IGWidget> ContainerScope.addWidgetChild(child: W) = owner().addWidgetChild(child)
 
-        fun <W : IGWidget> WidgetContainerScope.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
+        fun <W : IGWidget> ContainerScope.addWidgetChild(child: W, scope: W.() -> Unit) = owner().addWidgetChild(child.apply(scope))
 
 
         @Deprecated("should use executeRecompose() instead", replaceWith = ReplaceWith("executeRecompose()"))
-        fun WidgetContainerScope.recompose() {
+        fun ContainerScope.recompose() {
             owner().recompose()
         }
 
@@ -87,9 +87,10 @@ fun interface GuiScope<T : Any> {
 
 }
 
+
 typealias WidgetScope = GuiScope<out IGWidget>
 
-typealias WidgetContainerScope = GuiScope<out WidgetContainer>
+typealias ContainerScope = GuiScope<out WidgetContainer>
 
 typealias ElementScope = GuiScope<out IGElement>
 

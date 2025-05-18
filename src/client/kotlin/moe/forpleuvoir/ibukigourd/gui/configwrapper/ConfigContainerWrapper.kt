@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -47,7 +47,7 @@ import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.manager.ConfigManager
 
-fun WidgetContainerScope.ConfigsWrapper(
+fun ContainerScope.ConfigsWrapper(
     configs: Iterable<ConfigSerializable>,
     modifier: Modifier = Modifier,
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1).fill() },
@@ -64,7 +64,7 @@ fun WidgetContainerScope.ConfigsWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigContainerWrapper(
+fun ContainerScope.ConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -97,7 +97,7 @@ fun WidgetContainerScope.ConfigContainerWrapper(
     }
 }
 
-fun WidgetContainerScope.ExpandableConfigContainerWrapper(
+fun ContainerScope.ExpandableConfigContainerWrapper(
     config: ConfigContainer,
     modifier: Modifier = Modifier
 ) = Column(modifier) {
@@ -169,7 +169,7 @@ fun WidgetContainerScope.ExpandableConfigContainerWrapper(
 }
 
 
-fun WidgetContainerScope.ConfigManagerWrapper(
+fun ContainerScope.ConfigManagerWrapper(
     configManager: ConfigManager,
     modifier: Modifier = Modifier,
 ) = Row(

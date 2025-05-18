@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.findFirsInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderGradientBox
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
@@ -54,7 +53,7 @@ import kotlin.contracts.contract
 import kotlin.time.Duration
 import kotlin.time.measureTime
 
-abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, Layout {
+abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     //------------ IGWidget ------------\\
 
@@ -170,7 +169,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen, L
     override var layoutCompletion: () -> Unit = ::onLayoutCompletion
 
     override fun measure(constraints: Constraints): Placeable {
-        return super.measure(constraints = constraints).also {
+        return super<IGScreen>.measure(constraints = constraints).also {
             measureCompletion()
             layout()
         }

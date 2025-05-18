@@ -190,9 +190,13 @@ fun <K, V> Map<K, V>.forEachWithLimit(limit: Int, action: (K, V) -> Unit) {
 }
 
 fun <K, V> MutableMap<K, V>.renameKey(oldKey: K, newKey: K) {
-    this[oldKey]?.let { value ->
-        this.remove(oldKey)
-        this[newKey] = value
+    if (this is LinkedHashMap) {
+        this.renameKey(oldKey, newKey)
+    } else {
+        this[oldKey]?.let { value ->
+            this.remove(oldKey)
+            this[newKey] = value
+        }
     }
 }
 

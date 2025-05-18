@@ -62,7 +62,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //垂直布局 宽度固定
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         //所有子元素的最大宽度限制固定
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //最宽的子元素宽度
@@ -126,7 +126,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
             measurables.forEachIndexed { index, child ->
                 if (parentData[index].run { weight > 0 && fillMode != FillMode.MatchSibling }) {
                     val weight = parentData[index].weight
-                    val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceAtLeast(0f)
+                    val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceIn(0f, child.constraints.maxHeight)
                     val placeable = child.measure(
                         Constraints.of(
                             if (parentData[index].fillMode == FillMode.MatchParent) contentMaxWidth - child.margin.width else 0f,
@@ -143,7 +143,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
             measurables.forEachIndexed { index, child ->
                 if (parentData[index].run { weight > 0 && fillMode == FillMode.MatchSibling }) {
                     val weight = parentData[index].weight
-                    val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceAtLeast(0f)
+                    val distributionHeight = ((weightUnitHeight * weight) - child.margin.height).coerceIn(0f, child.constraints.maxHeight)
                     val min = if (maxChildWidth > 0) maxChildWidth - child.margin.width else 0f
                     val max = if (maxChildWidth > 0) maxChildWidth - child.margin.width else contentMaxWidth - child.margin.width
                     val placeable = child.measure(
@@ -201,7 +201,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //水平布局 高度固定
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         //所有子元素的最大高度限制固定
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
         //最高的子元素高度
@@ -260,7 +260,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
             measurables.forEachIndexed { index, child ->
                 if (parentData[index].run { weight > 0 && fillMode != FillMode.MatchSibling }) {
                     val weight = parentData[index].weight
-                    val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceAtLeast(0f)
+                    val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceIn(0f, child.constraints.maxWidth)
                     val placeable = child.measure(
                         Constraints.of(
                             distributionWidth,
@@ -277,7 +277,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
             measurables.forEachIndexed { index, child ->
                 if (parentData[index].run { weight > 0 && fillMode == FillMode.MatchSibling }) {
                     val weight = parentData[index].weight
-                    val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceAtLeast(0f)
+                    val distributionWidth = ((weightUnitWidth * weight) - child.margin.width).coerceIn(0f, child.constraints.maxWidth)
                     val min = if (maxChildHeight > 0) maxChildHeight + child.margin.height else 0f
                     val max = if (maxChildHeight > 0) maxChildHeight + child.margin.height else contentMaxHeight - child.margin.height
                     val placeable = child.measure(

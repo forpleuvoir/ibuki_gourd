@@ -1,5 +1,5 @@
 [versions]
-modVersion = "0.8.2+beta"
+modVersion = "0.8.3+beta"
 #Fabric check these on https://fabricmc.net/versions.html
 minecraftVersion = "1.21.4"
 yarnMappingsVersion = "1.21.4+build.1"

@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -130,7 +130,7 @@ fun Dialog(
     )
 }
 
-fun WidgetContainerScope.DialogContent(
+fun ContainerScope.DialogContent(
     modifier: Modifier = Modifier,
     contentOutlineColor: State<ARGBColor> = stateOf(Color(0xFFF4D9FF)),
     contentInnerColor: State<ARGBColor> = stateOf(Colors.WHITE),

@@ -9,9 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -68,7 +69,7 @@ fun <T> TableWidget.Scope.ColumnBuilder<T>.MoveableTableColumCell(
     },
 ) = Column(cell)
 
-fun <T> WidgetContainerScope.TableWrappedButton(
+fun <T> ContainerScope.TableWrappedButton(
     userData: Iterable<T>,
     title: Text,
     onAdd: (T) -> Unit,
@@ -122,7 +123,7 @@ fun <T> WidgetContainerScope.TableWrappedButton(
     }
 }
 
-fun <T> WidgetContainerScope.TableConfigListWrappedButton(
+fun <T> ContainerScope.TableConfigListWrappedButton(
     config: ConfigList<T>,
     title: Text = config.translateText.style { hover(config.comment) },
     onAdd: (T) -> Unit = { config.add(it) },
@@ -132,7 +133,11 @@ fun <T> WidgetContainerScope.TableConfigListWrappedButton(
     hoverModifier: Modifier = Modifier,
     hoverTableScope: TableScope<T>.() -> Unit,
     hoverContent: BoxScope.(Iterable<T>) -> Unit = {
-        Table(config.subList(0, config.size.coerceAtMost(9)), scope = hoverTableScope)
+        if (config.isEmpty()) {
+            TextLabel(IGLang.hasNothing)
+        } else {
+            Table(config.subList(0, config.size.coerceAtMost(9)), scope = hoverTableScope)
+        }
     },
     //button
     modifier: Modifier = Modifier,
@@ -168,12 +173,12 @@ fun <K, V> TableScope<Map.Entry<K, V>>.TableConfigMapKeyColumn(
     keyEditorWrapper: ColumnScope.(K, V, Map<K, V>, (K) -> Unit) -> (() -> Transform),
     recompose: () -> Unit,
     weight: Int = 0,
-    headerText: Text = IGLang.mapKey,
+    header: TableLayoutColumnScope.() -> IGWidget = { TextLabel(IGLang.mapKey, modifier = Modifier.minWidth(80f)) },
     keyToSting: (K) -> String = { it.toString() },
     modifier: TableLayoutColumnScope.() -> Modifier = { Modifier },
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = Header(weight) { TextLabel(headerText) }.Column { (key, value) ->
+) = Header(weight, header).Column { (key, value) ->
     FlatButton(
         hoveredColor = Colors.PALEGREEN.alpha(.25f),
         modifier = Modifier.hoverText(IGLang.edit.appendLiteral(" ").append(IGLang.mapKey)).then(modifier()),
@@ -229,9 +234,9 @@ fun <V> TableScope<Map.Entry<String, V>>.TableConfigMapStringKeyColumn(
     },
     recompose: () -> Unit = { this.executeRecompose() },
     weight: Int = 0,
-    headerText: Text = IGLang.mapKey,
+    header: TableLayoutColumnScope.() -> IGWidget = { TextLabel(IGLang.mapKey, modifier = Modifier.minWidth(80f)) },
     keyToSting: (String) -> String = { it },
-    modifier: TableLayoutColumnScope.() -> Modifier = { Modifier },
+    modifier: TableLayoutColumnScope.() -> Modifier = { Modifier.minWidth(120f) },
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = TableConfigMapKeyColumn(
@@ -240,7 +245,7 @@ fun <V> TableScope<Map.Entry<String, V>>.TableConfigMapStringKeyColumn(
     keyEditorWrapper,
     recompose,
     weight,
-    headerText,
+    header,
     keyToSting,
     modifier,
     horizontalArrangement,
@@ -254,11 +259,11 @@ fun <K, V> TableScope<Map.Entry<K, V>>.TableConfigMapValueColumn(
     valueEditorWrapper: ColumnScope.(K, V, Map<K, V>, (V) -> Unit) -> Unit,
     recompose: () -> Unit,
     weight: Int = 0,
-    headerText: Text = IGLang.mapValue,
+    header: TableLayoutColumnScope.() -> IGWidget = { TextLabel(IGLang.mapValue, modifier = Modifier.minWidth(80f)) },
     modifier: TableLayoutColumnScope.() -> Modifier = { Modifier },
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = Header(weight) { TextLabel(headerText) }.Column { (key, value) ->
+) = Header(weight, header).Column { index, (key, value) ->
     Row(
         modifier = Modifier.then(modifier()),
         horizontalArrangement = horizontalArrangement,
@@ -271,16 +276,16 @@ fun <K, V> TableScope<Map.Entry<K, V>>.TableConfigMapValueColumn(
         ) {
             Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
             click {
-                var newValue = value
+                var newValue = config.getValue()[key]
                 ConfirmDialog(
                     stateOf(IGLang.edit.appendLiteral(" => $key")),
                     onConfirm = {
-                        config.getValue()[key] = newValue
+                        config.getValue()[key] = newValue!!
                         mc.currentScreen?.close()
                         recompose()
                     }
                 ) {
-                    valueEditorWrapper(key, value, config.getValue()) { newValue = it }
+                    valueEditorWrapper(key, config.getValue()[key]!!, config.getValue()) { newValue = it }
                 }.open()
             }
         }
@@ -303,8 +308,8 @@ fun <K> TableScope<Map.Entry<K, String>>.TableConfigMapStringValueColumn(
     },
     recompose: () -> Unit = { this.executeRecompose() },
     weight: Int = 0,
-    headerText: Text = IGLang.mapValue,
-    modifier: TableLayoutColumnScope.() -> Modifier = { Modifier },
+    header: TableLayoutColumnScope.() -> IGWidget = { TextLabel(IGLang.mapValue, modifier = Modifier.minWidth(80f)) },
+    modifier: TableLayoutColumnScope.() -> Modifier = { Modifier.minWidth(120f) },
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(2f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = TableConfigMapValueColumn(
@@ -313,13 +318,13 @@ fun <K> TableScope<Map.Entry<K, String>>.TableConfigMapStringValueColumn(
     valueEditorWrapper,
     recompose,
     weight,
-    headerText,
+    header,
     modifier,
     horizontalArrangement,
     verticalAlignment
 )
 
-fun <K, V> WidgetContainerScope.TableConfigMapWrappedButton(
+fun <K, V> ContainerScope.TableConfigMapWrappedButton(
     config: Config<MutableMap<K, V>, *>,
     title: Text = config.translateText.style { hover(config.comment) },
     onAdd: (Map.Entry<K, V>) -> Unit = { config.getValue().put(it.key, it.value) },
@@ -329,7 +334,11 @@ fun <K, V> WidgetContainerScope.TableConfigMapWrappedButton(
     hoverModifier: Modifier = Modifier,
     hoverTableScope: TableScope<Map.Entry<K, V>>.() -> Unit,
     hoverContent: BoxScope.(Iterable<Map.Entry<K, V>>) -> Unit = {
-        Table(config.getValue().entries.toList().subList(0, config.getValue().size.coerceAtMost(9)), scope = hoverTableScope)
+        if (config.getValue().isEmpty()) {
+            TextLabel(IGLang.hasNothing)
+        } else {
+            Table(config.getValue().entries.toList().subList(0, config.getValue().size.coerceAtMost(9)), scope = hoverTableScope)
+        }
     },
     //button
     modifier: Modifier = Modifier,
@@ -359,7 +368,7 @@ fun <K, V> WidgetContainerScope.TableConfigMapWrappedButton(
     tableScope
 )
 
-fun WidgetContainerScope.StringPairListConfigWrapper(
+fun ContainerScope.StringPairListConfigWrapper(
     config: ConfigPairList<String, String>,
     modifier: Modifier = Modifier,
     firstTableName: Text = IGLang.pairFirst,
@@ -388,33 +397,43 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
         ) {
             val recompose = { this@TableConfigListWrappedButton.executeRecompose() }
 
-            MoveableTableHeader().MoveableTableColumCell(config, recompose, showIndex)
+            MoveableTableHeader {
+                TextLabel(IGLang.move, modifier = Modifier.padding(bottom = 3f))
+            }.MoveableTableColumCell(config, recompose, showIndex)
 
             Header {
-                TextLabel(firstTableName)
-            }.Column { index, (first, second) ->
+                TextLabel(
+                    firstTableName,
+                    setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                    modifier = Modifier.padding(bottom = 3f).minWidth(80f)
+                )
+            }.Column { index, (first, _) ->
                 TextEditor(modifier = Modifier.width(120f)) {
                     text = first
                     textConsumer {
-                        config.getValue()[index] = it to second
+                        config.getValue()[index] = it to config.getValue()[index].second
                     }
                 }
             }
 
             Header {
-                TextLabel(secondTableName)
-            }.Column { index, (first, second) ->
+                TextLabel(
+                    secondTableName,
+                    setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                    modifier = Modifier.padding(bottom = 3f).minWidth(120f)
+                )
+            }.Column { index, (_, second) ->
                 TextEditor(modifier = Modifier.width(160f)) {
                     text = second
                     textConsumer {
-                        config.getValue()[index] = first to it
+                        config.getValue()[index] = config.getValue()[index].first to it
                     }
                 }
             }
 
             Header {
-                TextLabel(IGLang.edit)
-            }.Column { index, (first, second) ->
+                TextLabel(IGLang.edit, modifier = Modifier.padding(bottom = 3f))
+            }.Column { index, (_, _) ->
                 Row {
                     FlatButton(
                         hoveredColor = Colors.PALEGREEN.alpha(.5f),
@@ -422,10 +441,10 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
                     ) {
                         Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
                         click {
-                            var newKey = first
-                            var newValue = second
+                            var newKey = config.getValue()[index].first
+                            var newValue = config.getValue()[index].second
                             ConfirmDialog(
-                                stateOf(IGLang.edit.appendLiteral(" => $first")),
+                                stateOf(IGLang.edit.appendLiteral(" => ${config.getValue()[index].first}")),
                                 onConfirm = {
                                     config.getValue()[index] = newKey to newValue
                                     mc.currentScreen?.close()
@@ -433,17 +452,17 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
                                 }
                             ) {
                                 TextEditor(modifier = Modifier.width(240f)) {
-                                    text = first
+                                    text = config.getValue()[index].first
                                     textConsumer { newKey = it }
                                 }
                                 TextArea(modifier = Modifier.width(240f).height(120f)) {
-                                    text = second
+                                    text = config.getValue()[index].second
                                     textConsumer { newValue = it }
                                 }
                             }.open()
                         }
                     }
-                    DeleteButton(IGLang.removeConfirm("$first => $second"), recompose) {
+                    DeleteButton({ IGLang.removeConfirm("${config.getValue()[index].first} => ${config.getValue()[index].second}") }, recompose) {
                         config.removeAt(index)
                     }
                 }
@@ -455,7 +474,7 @@ fun WidgetContainerScope.StringPairListConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.StringListConfigWrapper(
+fun ContainerScope.StringListConfigWrapper(
     config: ConfigStringList,
     modifier: Modifier = Modifier,
     contentTableName: Text = IGLang.content,
@@ -474,10 +493,16 @@ fun WidgetContainerScope.StringListConfigWrapper(
             }
         ) {
             val recompose = { this@TableConfigListWrappedButton.executeRecompose() }
-            MoveableTableHeader().MoveableTableColumCell(config, recompose, showIndex)
+            MoveableTableHeader {
+                TextLabel(IGLang.move, modifier = Modifier.padding(bottom = 3f))
+            }.MoveableTableColumCell(config, recompose, showIndex)
 
             Header {
-                TextLabel(contentTableName)
+                TextLabel(
+                    contentTableName,
+                    setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                    modifier = Modifier.padding(bottom = 3f).minWidth(160f)
+                )
             }.Column { index, entry ->
                 TextEditor(modifier = Modifier.width(240f)) {
                     text = entry
@@ -488,9 +513,9 @@ fun WidgetContainerScope.StringListConfigWrapper(
             }
 
             Header {
-                TextLabel(IGLang.edit)
+                TextLabel(IGLang.edit, modifier = Modifier.padding(bottom = 3f))
             }.Column { index, entry ->
-                DeleteButton(IGLang.removeConfirm("[$index]$entry"), recompose) {
+                DeleteButton({ IGLang.removeConfirm("[$index]${config[index]}") }, recompose) {
                     config.removeAt(index)
                 }
             }
@@ -501,7 +526,7 @@ fun WidgetContainerScope.StringListConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.StringMapConfigWrapper(
+fun ContainerScope.StringMapConfigWrapper(
     config: ConfigStringMap,
     modifier: Modifier = Modifier,
     keyTableName: Text = IGLang.mapKey,
@@ -528,15 +553,35 @@ fun WidgetContainerScope.StringMapConfigWrapper(
             }
         ) {
 
-            TableConfigMapStringKeyColumn(config, headerText = keyTableName)
+            TableConfigMapStringKeyColumn(
+                config,
+                header = {
+                    TextLabel(
+                        keyTableName,
+                        setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                        modifier = Modifier.padding(bottom = 3f).minWidth(80f)
+                    )
+                })
 
-            TableConfigMapStringValueColumn(config, headerText = valueTableName)
+            TableConfigMapStringValueColumn(
+                config,
+                header = {
+                    TextLabel(
+                        valueTableName,
+                        setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                        modifier = Modifier.padding(bottom = 3f).minWidth(80f)
+                    )
+                })
 
             Header {
-                TextLabel(IGLang.remove)
+                TextLabel(
+                    IGLang.remove,
+                    setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                    modifier = Modifier.padding(bottom = 3f)
+                )
             }.Column { index, (key, value) ->
                 DeleteButton(
-                    IGLang.removeConfirm("$key => $value"),
+                    { IGLang.removeConfirm("$key => ${config[key]}") },
                     { this@TableConfigMapWrappedButton.executeRecompose() }
                 ) {
                     config.remove(key)

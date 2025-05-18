@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
@@ -21,7 +21,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.config.item.impl.ConfigRGBColor
 
-fun WidgetContainerScope.ColorConfigWrapper(
+fun ContainerScope.ColorConfigWrapper(
     config: ConfigRGBColor<ARGBColor>,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -42,7 +42,7 @@ fun WidgetContainerScope.ColorConfigWrapper(
     }
 }
 
-private fun WidgetContainerScope.ColorConfigSettingButton(
+private fun ContainerScope.ColorConfigSettingButton(
     color: MutableState<ARGBColor>,
     modifier: Modifier = Modifier
 ) = ColorButton(color, modifier) {

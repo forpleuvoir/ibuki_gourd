@@ -35,7 +35,7 @@ data class Constraints(
 
     val heightRange get() = minHeight..maxHeight
 
-    fun constraintAs(constraints: Constraints): Constraints {
+    fun merge(constraints: Constraints): Constraints {
         val minWidth = max(this.minWidth, constraints.minWidth).coerceIn(constraints.minWidth, constraints.maxWidth)
         val maxWidth = min(this.maxWidth, constraints.maxWidth).coerceIn(minWidth, constraints.maxWidth)
         val minHeight = max(this.minHeight, constraints.minHeight).coerceIn(constraints.minHeight, constraints.maxHeight)

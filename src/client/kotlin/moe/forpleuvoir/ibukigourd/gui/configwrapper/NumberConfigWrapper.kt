@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -24,7 +24,7 @@ import moe.forpleuvoir.nebula.config.item.impl.ConfigLong
 
 private const val EDITOR_WIDTH = 120f
 
-fun WidgetContainerScope.IntConfigWrapper(
+fun ContainerScope.IntConfigWrapper(
     config: ConfigInt,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
@@ -54,7 +54,7 @@ fun WidgetContainerScope.IntConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.LongConfigWrapper(
+fun ContainerScope.LongConfigWrapper(
     config: ConfigLong,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
@@ -84,7 +84,7 @@ fun WidgetContainerScope.LongConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.FloatConfigWrapper(
+fun ContainerScope.FloatConfigWrapper(
     config: ConfigFloat,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
@@ -114,7 +114,7 @@ fun WidgetContainerScope.FloatConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.DoubleConfigWrapper(
+fun ContainerScope.DoubleConfigWrapper(
     config: ConfigDouble,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,

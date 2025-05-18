@@ -1,13 +1,13 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 
-fun <T : WidgetContainerScope> T.Proxy(
+fun <T : ContainerScope> T.Proxy(
     proxyState: State<T.() -> IGWidget>
 ): MutableState<IGWidget> {
     val currentWidget = mutableStateOf(proxyState.getValue().invoke(this))
@@ -28,7 +28,7 @@ fun <T : WidgetContainerScope> T.Proxy(
     return currentWidget
 }
 
-fun <T : WidgetContainerScope> T.SwitchableProxy(
+fun <T : ContainerScope> T.SwitchableProxy(
     widgetA: T.() -> IGWidget,
     widgetB: T.() -> IGWidget,
     switch: State<Boolean>,

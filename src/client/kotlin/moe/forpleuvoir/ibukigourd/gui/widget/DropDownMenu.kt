@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -58,7 +58,7 @@ class DropDownMenuScope(private val owner: IGButtonWidget, private val state: Mu
 
 val DropDownMenuSeparatorColor = Color(0xFFCCCCCC)
 
-fun WidgetContainerScope.DropDownMenu(
+fun ContainerScope.DropDownMenu(
     modifier: Modifier = Modifier,
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     screen: IGScreen = mc.currentScreen as IGScreen,
@@ -116,7 +116,7 @@ fun WidgetContainerScope.DropDownMenu(
 
 val defaultSelectedColor = Colors.AQUA.opacity(.25f)
 
-fun <T> WidgetContainerScope.Selector(
+fun <T> ContainerScope.Selector(
     options: Iterable<T>,
     selected: MutableState<T> = mutableStateOf(options.first()),
     checker: (T, T) -> Boolean = { a, b -> a == b },
@@ -193,7 +193,7 @@ fun <T> WidgetContainerScope.Selector(
  * @param scope 在下拉菜单组件中的作用域配置。
  * @return 返回一个用于显示下拉选择菜单的按钮组件。
  */
-fun <T> WidgetContainerScope.SelectorWithSearcher(
+fun <T> ContainerScope.SelectorWithSearcher(
     options: Iterable<T>,
     predicate: (T, String) -> Boolean,
     selected: MutableState<T> = mutableStateOf(options.first()),
@@ -277,7 +277,7 @@ fun <T> WidgetContainerScope.SelectorWithSearcher(
 }
 
 
-fun WidgetContainerScope.Selector(
+fun ContainerScope.Selector(
     options: Iterable<String>,
     selected: MutableState<String> = mutableStateOf(options.first()),
     onSelected: (String) -> Unit = {},
@@ -301,7 +301,7 @@ fun WidgetContainerScope.Selector(
     scope = scope
 )
 
-fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
+fun <E : Enum<E>> ContainerScope.EnumSelector(
     selected: MutableState<E>,
     options: Iterable<E> = selected.getValue()::class.java.enumConstants.toList(),
     onSelected: (E) -> Unit = {},
@@ -326,7 +326,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumSelector(
     optionsDirection = optionsDirection
 )
 
-fun WidgetContainerScope.EventSelector(
+fun ContainerScope.EventSelector(
     options: Iterable<KClass<out Event>>,
     selected: MutableState<KClass<out Event>> = mutableStateOf(options.first()),
     onSelected: (KClass<out Event>) -> Unit = {},

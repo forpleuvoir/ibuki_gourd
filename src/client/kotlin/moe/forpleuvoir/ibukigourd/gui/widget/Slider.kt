@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
@@ -28,7 +28,7 @@ import kotlin.time.Duration
 val SliderColorA = HSVColor(210f, .3f, .7f)
 val SliderColorB = HSVColor(210f, .1f, 1f)
 
-fun <T : Comparable<T>> WidgetContainerScope.Slider(
+fun <T : Comparable<T>> ContainerScope.Slider(
     value: MutableState<T>,
     minValue: T,
     maxValue: T,
@@ -113,7 +113,7 @@ fun <T : Comparable<T>> WidgetContainerScope.Slider(
 
 }
 
-fun <T> WidgetContainerScope.NumberSlider(
+fun <T> ContainerScope.NumberSlider(
     value: MutableState<T>,
     minValue: T,
     maxValue: T,
@@ -138,7 +138,7 @@ fun <T> WidgetContainerScope.NumberSlider(
     scope = scope
 )
 
-fun WidgetContainerScope.IntSlider(
+fun ContainerScope.IntSlider(
     value: MutableState<Int>,
     range: IntRange,
     textMapper: (Int) -> Text = { Literal(it.toString()) },
@@ -161,7 +161,7 @@ fun WidgetContainerScope.IntSlider(
     scope = scope
 )
 
-fun WidgetContainerScope.LongSlider(
+fun ContainerScope.LongSlider(
     value: MutableState<Long>,
     range: LongRange,
     textMapper: (Long) -> Text = { Literal(it.toString()) },
@@ -184,7 +184,7 @@ fun WidgetContainerScope.LongSlider(
     scope = scope
 )
 
-fun WidgetContainerScope.FloatSlider(
+fun ContainerScope.FloatSlider(
     value: MutableState<Float>,
     range: ClosedFloatingPointRange<Float>,
     textMapper: (Float) -> Text = { Literal("%.2f".format(it)) },
@@ -207,7 +207,7 @@ fun WidgetContainerScope.FloatSlider(
     scope = scope
 )
 
-fun WidgetContainerScope.DoubleSlider(
+fun ContainerScope.DoubleSlider(
     value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double>,
     textMapper: (Double) -> Text = { Literal("%.2f".format(it)) },
@@ -230,7 +230,7 @@ fun WidgetContainerScope.DoubleSlider(
     scope = scope
 )
 
-fun WidgetContainerScope.PercentageSlider(
+fun ContainerScope.PercentageSlider(
     value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double> = 0.0..1.0,
     textMapper: (Double) -> Text = { Literal("%.2f".format(it * 100) + "%") },
@@ -253,7 +253,7 @@ fun WidgetContainerScope.PercentageSlider(
     scope = scope
 )
 
-fun WidgetContainerScope.DurationSlider(
+fun ContainerScope.DurationSlider(
     value: MutableState<Duration>,
     range: ClosedRange<Duration>,
     textMapper: (Duration) -> Text = { Literal(it.toString()) },

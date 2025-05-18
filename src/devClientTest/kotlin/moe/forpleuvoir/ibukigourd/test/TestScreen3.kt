@@ -31,7 +31,7 @@ import moe.forpleuvoir.ibukigourd.util.state.plus
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun testScreen3() = ColumnScreen(
-    screenModifier = Modifier.renderOverlay { ctx, _, _, _ ->
+    modifier = Modifier.renderOverlay { ctx, _, _, _ ->
         val lines = listOf(
             Literal(screen()?.focusedWidget.toString()),
             Literal(screen()?.hoveredWidget.toString())

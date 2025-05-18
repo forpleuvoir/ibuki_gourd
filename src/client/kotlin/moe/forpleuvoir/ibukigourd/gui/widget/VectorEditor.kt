@@ -5,7 +5,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
@@ -19,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import org.joml.*
 
-fun WidgetContainerScope.Vector3iEditor(
+fun ContainerScope.Vector3iEditor(
     vector3i: MutableState<Vector3ic>,
     minValue: Vector3ic = Vector3i(Int.MIN_VALUE),
     maxValue: Vector3ic = Vector3i(Int.MAX_VALUE),
@@ -77,7 +77,7 @@ fun WidgetContainerScope.Vector3iEditor(
     scope(xValue, yValue, zValue)
 }
 
-fun WidgetContainerScope.Vector3fEditor(
+fun ContainerScope.Vector3fEditor(
     vector3f: MutableState<Vector3fc>,
     minValue: Vector3fc = Vector3f(Float.NEGATIVE_INFINITY),
     maxValue: Vector3fc = Vector3f(Float.POSITIVE_INFINITY),
@@ -135,7 +135,7 @@ fun WidgetContainerScope.Vector3fEditor(
     scope(xValue, yValue, zValue)
 }
 
-fun WidgetContainerScope.Vector3dEditor(
+fun ContainerScope.Vector3dEditor(
     vector3d: MutableState<Vector3dc>,
     minValue: Vector3dc = Vector3d(Double.NEGATIVE_INFINITY),
     maxValue: Vector3dc = Vector3d(Double.POSITIVE_INFINITY),
@@ -193,7 +193,7 @@ fun WidgetContainerScope.Vector3dEditor(
     scope(xValue, yValue, zValue)
 }
 
-fun WidgetContainerScope.Vector2iEditor(
+fun ContainerScope.Vector2iEditor(
     vector2i: MutableState<Vector2ic>,
     minValue: Vector2ic = Vector2i(Int.MIN_VALUE),
     maxValue: Vector2ic = Vector2i(Int.MAX_VALUE),
@@ -237,7 +237,7 @@ fun WidgetContainerScope.Vector2iEditor(
     scope(xValue, yValue)
 }
 
-fun WidgetContainerScope.Vector2fEditor(
+fun ContainerScope.Vector2fEditor(
     vector2f: MutableState<Vector2fc>,
     minValue: Vector2fc = Vector2f(Float.NEGATIVE_INFINITY),
     maxValue: Vector2fc = Vector2f(Float.POSITIVE_INFINITY),
@@ -281,7 +281,7 @@ fun WidgetContainerScope.Vector2fEditor(
     scope(xValue, yValue)
 }
 
-fun WidgetContainerScope.Vector2dEditor(
+fun ContainerScope.Vector2dEditor(
     vector2d: MutableState<Vector2dc>,
     minValue: Vector2dc = Vector2d(Double.NEGATIVE_INFINITY),
     maxValue: Vector2dc = Vector2d(Double.POSITIVE_INFINITY),

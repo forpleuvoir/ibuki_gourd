@@ -18,11 +18,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
@@ -77,7 +77,10 @@ class TableWidget(
         scrollState {
             maxAmount = totalSpace - contentHeight
             barProportion = contentHeight / totalSpace
-            amountStep = widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
+            amountStep = when (widgetChildren().size) {
+                0    -> 0f
+                else -> widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
+            }
         }
         super<WidgetContainerImpl>.onMeasureCompletion()
     }
@@ -274,7 +277,7 @@ class TableWidget(
 
 typealias TableScope<T> = TableWidget.Scope<T>
 
-fun <T> WidgetContainerScope.Table(
+fun <T> ContainerScope.Table(
     userData: Iterable<T>,
     defaultAlignment: Alignment = Alignment.Center,
     fixedHeader: Boolean = true,
@@ -291,7 +294,7 @@ fun <T> WidgetContainerScope.Table(
     }
 }
 
-fun <T> WidgetContainerScope.TableWrapped(
+fun <T> ContainerScope.TableWrapped(
     userData: Iterable<T>,
     modifier: Modifier = Modifier,
     defaultAlignment: Alignment = Alignment.Center,

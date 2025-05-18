@@ -8,7 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -32,7 +32,7 @@ import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.sound.SoundEvents
 
 @JvmName("ColorPicker")
-fun WidgetContainerScope.ColorPicker(
+fun ContainerScope.ColorPicker(
     colorState: MutableState<Color>,
     modifier: Modifier = Modifier,
     colorPickerModifier: RowScope.() -> Modifier = { Modifier },
@@ -41,7 +41,7 @@ fun WidgetContainerScope.ColorPicker(
 ) = ColorPicker(colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope)
 
 @JvmName("HsvColorPicker")
-fun WidgetContainerScope.ColorPicker(
+fun ContainerScope.ColorPicker(
     colorState: MutableState<HSVColor>,
     modifier: Modifier = Modifier,
     colorPickerModifier: RowScope.() -> Modifier = { Modifier },
@@ -50,7 +50,7 @@ fun WidgetContainerScope.ColorPicker(
 ) = ColorPicker(colorState.toARGBColorState(), modifier, colorPickerModifier, resultModifier, scope)
 
 @JvmName("ARGBColorPicker")
-fun WidgetContainerScope.ColorPicker(
+fun ContainerScope.ColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     colorPickerModifier: RowScope.() -> Modifier = { Modifier },
@@ -90,7 +90,7 @@ fun WidgetContainerScope.ColorPicker(
 }
 
 
-fun WidgetContainerScope.ARGBColorPicker(
+fun ContainerScope.ARGBColorPicker(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: ColumnScope.() -> Unit = {}
@@ -162,7 +162,7 @@ fun WidgetContainerScope.ARGBColorPicker(
 }
 
 
-fun WidgetContainerScope.ColorResult(
+fun ContainerScope.ColorResult(
     color: State<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = { }
@@ -175,13 +175,13 @@ fun WidgetContainerScope.ColorResult(
         }
     }
         .name("ColorResult")
-        .hoverText(mutableStateOf(color) { IGLang.clickCopyColor(it.hexStr) })
+        .hoverText(mutableStateOf(color) { IGLang.clickCopyColor(it) })
         .then(modifier),
     scope
 )
 
 
-fun WidgetContainerScope.RedColorSlider(
+fun ContainerScope.RedColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
@@ -193,7 +193,7 @@ fun WidgetContainerScope.RedColorSlider(
     modifier, scope
 )
 
-fun WidgetContainerScope.GreenColorSlider(
+fun ContainerScope.GreenColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
@@ -205,7 +205,7 @@ fun WidgetContainerScope.GreenColorSlider(
     modifier, scope
 )
 
-fun WidgetContainerScope.BlueColorSlider(
+fun ContainerScope.BlueColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
@@ -217,7 +217,7 @@ fun WidgetContainerScope.BlueColorSlider(
     modifier, scope
 )
 
-fun WidgetContainerScope.AlphaColorSlider(
+fun ContainerScope.AlphaColorSlider(
     colorState: MutableState<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = {}
@@ -230,7 +230,7 @@ fun WidgetContainerScope.AlphaColorSlider(
 )
 
 
-fun WidgetContainerScope.ColorComponentSlider(
+fun ContainerScope.ColorComponentSlider(
     colorState: MutableState<ARGBColor>,
     colorComponentGetter: (ARGBColor) -> Float,
     colorComponentSetter: (ARGBColor, Float) -> ARGBColor,

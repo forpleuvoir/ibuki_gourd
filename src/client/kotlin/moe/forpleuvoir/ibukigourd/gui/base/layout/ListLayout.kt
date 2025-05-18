@@ -73,7 +73,7 @@ interface ColumnListLayout : ListLayout {
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //垂直布局 宽度固定
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         //所有子元素的最大宽度限制固定
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //最宽的子元素宽度
@@ -181,7 +181,7 @@ interface RowListLayout : ListLayout {
 
     override fun measureChildren(measurables: List<Measurable>, constraints: Constraints): Placeable {
         //水平布局 高度固定
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         //所有子元素的最大高度限制固定
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
         //最高的子元素高度

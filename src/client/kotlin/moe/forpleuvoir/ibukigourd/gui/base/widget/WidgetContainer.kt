@@ -1,11 +1,14 @@
 package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.IGElement
-import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import java.util.*
 
-interface WidgetContainer : Measurable {
+interface WidgetContainer : IGWidget, Layout {
+
+    override val widget: IGWidget
+        get() = this
 
     fun hoveredWidget(): IGWidget? {
         // 遍历所有子组件
@@ -65,7 +68,7 @@ interface WidgetContainer : Measurable {
         // 检查当前节点是否为空
         if (widgetChildren().isEmpty()) return false
         // 检查当前节点是否为目标节点
-        if (this is IGWidget && this == target) return true
+        if (this == target) return true
 
         // 遍历所有子节点
         for (child in widgetChildren()) {

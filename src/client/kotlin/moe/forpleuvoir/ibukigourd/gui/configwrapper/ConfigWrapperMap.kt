@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.config.item.*
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.expandableConfigContainerLimit
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.config.ConfigSerializable
@@ -13,7 +13,7 @@ import moe.forpleuvoir.nebula.config.item.impl.*
 import java.util.*
 import kotlin.reflect.KClass
 
-private typealias Wrapper = WidgetContainerScope.(ConfigSerializable, Modifier) -> Unit
+private typealias Wrapper = ContainerScope.(ConfigSerializable, Modifier) -> Unit
 private typealias Predicate = (ConfigSerializable) -> Boolean
 private typealias WrapperEntry = Pair<Predicate, Wrapper>
 
@@ -29,15 +29,15 @@ object ConfigWrapperMap {
         wrappers.addFirst(predicate to wrapper)
     }
 
-    fun <C : ConfigSerializable, T : KClass<C>> register(type: T, wrapper: WidgetContainerScope.(C, Modifier) -> Unit) {
+    fun <C : ConfigSerializable, T : KClass<C>> register(type: T, wrapper: ContainerScope.(C, Modifier) -> Unit) {
         register({ it::class == type }, wrapper as Wrapper)
     }
 
-    inline fun <reified C : ConfigSerializable> register(noinline wrapper: WidgetContainerScope.(C, Modifier) -> Unit) {
+    inline fun <reified C : ConfigSerializable> register(noinline wrapper: ContainerScope.(C, Modifier) -> Unit) {
         register(C::class, wrapper)
     }
 
-    fun <T : ConfigSerializable, S : WidgetContainerScope> wrapper(config: T, scope: S, modifier: Modifier = Modifier) {
+    fun <T : ConfigSerializable, S : ContainerScope> wrapper(config: T, scope: S, modifier: Modifier = Modifier) {
         wrappers.find { it.predicate(config) }
             ?.let {
                 it.wrapper.invoke(scope, config, modifier)

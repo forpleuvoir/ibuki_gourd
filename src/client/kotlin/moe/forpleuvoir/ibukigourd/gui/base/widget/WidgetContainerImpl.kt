@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
@@ -13,12 +12,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.DrawContext
 
 
-abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
-
-    //------------ Container ------------\\
-
-    override val widget: IGWidget
-        get() = this
+abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer {
 
     override lateinit var compose: () -> Unit
 
@@ -41,7 +35,7 @@ abstract class WidgetContainerImpl : IGWidgetImpl(), WidgetContainer, Layout {
     override var layoutCompletion: () -> Unit = ::onLayoutCompletion
 
     override fun onMeasureCompletion() {
-        super<Layout>.onMeasureCompletion()
+        super<WidgetContainer>.onMeasureCompletion()
     }
 
     override fun remeasure() {

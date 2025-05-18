@@ -13,14 +13,12 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
 fun TabScreen(
-    screenModifier: Modifier = Modifier,
-    modifier: BoxScreenScope.() -> Modifier = { Modifier },
+    modifier: Modifier = Modifier,
     header: ColumnScope.() -> Unit = { },
     tabColor: State<ARGBColor> = stateOf(Colors.WHITE),
     inactiveColor: State<ARGBColor> = stateOf(Colors.GRAY),
     tabScope: TabScope.() -> Unit
 ) = ColumnScreen(
-    screenModifier = screenModifier,
     modifier = modifier
 ) {
     header()

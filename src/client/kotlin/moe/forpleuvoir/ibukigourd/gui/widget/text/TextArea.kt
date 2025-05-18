@@ -12,9 +12,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
@@ -345,7 +345,7 @@ class TextAreaWidget(
     //------------ Measure ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraintAs(constraints)
+        val c = this.constraints.merge(constraints)
         val height = text.totalHeight(spacing, c.maxWidth) + padding.height
         val width = text.wrapToLines().maxWidth + padding.width
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
@@ -762,7 +762,7 @@ class TextAreaWidget(
 
 typealias TextAreaScope = TextAreaWidget.Scope
 
-fun WidgetContainerScope.TextArea(
+fun ContainerScope.TextArea(
     modifier: Modifier = Modifier,
     maxLength: Int = Int.MAX_VALUE,
     scrollState: ScrollState = ScrollState(),
@@ -810,7 +810,7 @@ fun WidgetContainerScope.TextArea(
     TextAreaScope { this }.scope()
 }
 
-fun WidgetContainerScope.TextAreaWrapped(
+fun ContainerScope.TextAreaWrapped(
     maxLength: Int = Int.MAX_VALUE,
     textRenderer: TextRenderer = mc.textRenderer,
     barThickness: Float = 9f,

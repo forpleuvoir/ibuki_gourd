@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd
 
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.RGBColor
 
@@ -52,7 +53,7 @@ object IGLang {
 
     val remove get() = lang("misc.remove")
 
-    fun removeConfirm(content: String) = lang("misc.remove_confirm", content)
+    fun removeConfirm(content: Any) = lang("misc.remove_confirm", content)
 
     val edit get() = lang("misc.edit")
 
@@ -78,7 +79,7 @@ object IGLang {
 
     val brightness get() = lang("color.brightness")
 
-    fun clickCopyColor(color: String) = lang("color.click_copy_color", color)
+    fun clickCopyColor(color: ARGBColor) = lang("color.click_copy_color", color.hexStr)
 
     //------------ ConfigWrapper ------------\\
 
@@ -92,7 +93,7 @@ object IGLang {
 
     val mapValue get() = lang("config_wrapper.map.value")
 
-    fun keyExists(key: String) = lang("config_wrapper.key_exists", key)
+    fun keyExists(key: Any) = lang("config_wrapper.key_exists", key)
 
     val pressToSetting get() = lang("config_wrapper.press_to_setting")
 

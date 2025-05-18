@@ -11,9 +11,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGPressableWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
@@ -53,7 +53,7 @@ open class ScrollerWidget(
     )
 
     override fun measure(constraints: Constraints): Placeable {
-        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.constraintAs(constraints)
+        val (minWidth, maxWidth, minHeight, maxHeight) = this.constraints.merge(constraints)
         orientation.peek(
             {
                 transform.set(minWidth, maxHeight)
@@ -222,7 +222,7 @@ open class ScrollerWidget(
 typealias ScrollerScope = ScrollerWidget.Scope
 
 
-fun WidgetContainerScope.Scroller(
+fun ContainerScope.Scroller(
     scrollState: ScrollState = ScrollState(),
     orientation: Orientation = Orientation.Vertical,
     barTheme: PressableTheme = PressableTheme.ScrollerBar,

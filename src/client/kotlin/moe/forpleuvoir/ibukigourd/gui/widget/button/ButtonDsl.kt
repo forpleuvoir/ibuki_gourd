@@ -8,8 +8,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
@@ -31,7 +31,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 
-fun WidgetContainerScope.Button(
+fun ContainerScope.Button(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -52,7 +52,7 @@ fun WidgetContainerScope.Button(
     ButtonScope { this }.Compose(content)
 }
 
-fun WidgetContainerScope.FlatButton(
+fun ContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -80,7 +80,7 @@ fun WidgetContainerScope.FlatButton(
     ButtonScope { this }.Compose(content)
 }
 
-fun WidgetContainerScope.FlatButton(
+fun ContainerScope.FlatButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -102,7 +102,7 @@ fun WidgetContainerScope.FlatButton(
     content
 )
 
-fun WidgetContainerScope.SwitchButton(
+fun ContainerScope.SwitchButton(
     switchState: MutableState<Boolean> = mutableStateOf(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
@@ -141,7 +141,7 @@ fun WidgetContainerScope.SwitchButton(
  * @param verticalAlignment 垂直对齐方式，默认为 [Alignment.CenterVertically]
  * @param scope 按钮内容的 Lambda 表达式，默认为空
  */
-fun WidgetContainerScope.LockButton(
+fun ContainerScope.LockButton(
     lockState: MutableState<Boolean> = mutableStateOf(false),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
@@ -175,7 +175,7 @@ fun WidgetContainerScope.LockButton(
     buttonScope.Compose(scope)
 }
 
-fun WidgetContainerScope.ColorButton(
+fun ContainerScope.ColorButton(
     color: State<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: ButtonScope.() -> Unit = {}
@@ -212,7 +212,7 @@ fun WidgetContainerScope.ColorButton(
  * @param optionWrapper 按钮内容的包装方式，用于自定义每个选项按钮的显示内容。
  * @param modifier 每个按钮的修饰符，用于定义样式和布局的变化。
  */
-fun <S : WidgetContainerScope, T> S.RadioButtons(
+fun <S : ContainerScope, T> S.RadioButtons(
     options: Iterable<T>,
     selected: MutableState<T?> = mutableStateOf(null),
     onChange: (T) -> Unit = {},
@@ -238,8 +238,8 @@ fun <S : WidgetContainerScope, T> S.RadioButtons(
 }
 
 
-fun WidgetContainerScope.DeleteButton(
-    confirmMessage: Text,
+fun ContainerScope.DeleteButton(
+    confirmMessage: () -> Text,
     recompose: () -> Unit,
     deleteAction: () -> Unit,
 ) = FlatButton(
@@ -260,7 +260,7 @@ fun WidgetContainerScope.DeleteButton(
                     recompose()
                 }
             ) {
-                TextLabel(confirmMessage, modifier = Modifier.minWidth(120f))
+                TextLabel(confirmMessage(), modifier = Modifier.minWidth(120f))
             }.open()
         }
     }

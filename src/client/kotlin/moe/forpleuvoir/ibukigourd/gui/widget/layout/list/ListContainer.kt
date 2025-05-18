@@ -9,9 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ColumnListLayoutScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.scope.RowListLayoutScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
@@ -36,18 +36,20 @@ class RowListWidget(
         scrollState {
             maxAmount = (totalSpace - contentWidth).coerceAtLeast(0f)
             barProportion = contentWidth / totalSpace
-            amountStep = widgetChildren().minOf { it.transform.width } / 2f
+            amountStep = when (widgetChildren().size) {
+                0    -> 0f
+                else -> widgetChildren().minOf { it.transform.width } / 2f
+            }
         }
         super<ListWidget>.onMeasureCompletion()
     }
 
-    fun interface Scope : ListWidget.Scope<RowListWidget, Alignment.Vertical>, RowListLayoutScope
 
 }
 
-typealias RowListScope = RowListWidget.Scope
+fun interface RowListScope : ListWidget.Scope<RowListWidget, Alignment.Vertical>, RowListLayoutScope
 
-fun WidgetContainerScope.RowList(
+fun ContainerScope.RowList(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
@@ -59,7 +61,7 @@ fun WidgetContainerScope.RowList(
 }
 
 
-fun WidgetContainerScope.RowListWrapped(
+fun ContainerScope.RowListWrapped(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
@@ -110,18 +112,20 @@ class ColumnListWidget(
         scrollState {
             maxAmount = totalSpace - contentHeight
             barProportion = contentHeight / totalSpace
-            amountStep = widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
+            amountStep = when (widgetChildren().size) {
+                0    -> 0f
+                else -> widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
+            }
         }
         super<ListWidget>.onMeasureCompletion()
     }
 
-    fun interface Scope : ListWidget.Scope<ColumnListWidget, Alignment.Horizontal>, ColumnListLayoutScope
 
 }
 
-typealias ColumnListScope = ColumnListWidget.Scope
+fun interface ColumnListScope : ListWidget.Scope<ColumnListWidget, Alignment.Horizontal>, ColumnListLayoutScope
 
-fun WidgetContainerScope.ColumnList(
+fun ContainerScope.ColumnList(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,
@@ -132,7 +136,7 @@ fun WidgetContainerScope.ColumnList(
     ColumnListScope { this }.Compose(content)
 }
 
-fun WidgetContainerScope.ColumnListWrapped(
+fun ContainerScope.ColumnListWrapped(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = ScrollState(),
     spacing: Float = 0f,

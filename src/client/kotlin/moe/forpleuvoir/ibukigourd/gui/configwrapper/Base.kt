@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
@@ -20,7 +20,7 @@ import moe.forpleuvoir.nebula.config.ConfigSerializable
 
 const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
 
-fun <T : ConfigSerializable> WidgetContainerScope.ConfigRowWrapper(
+fun <T : ConfigSerializable> ContainerScope.ConfigRowWrapper(
     configSerializable: T,
     modifier: Modifier = Modifier,
     textWrapperModifier: RowScope.() -> Modifier = { Modifier },
@@ -40,7 +40,7 @@ fun <T : ConfigSerializable> WidgetContainerScope.ConfigRowWrapper(
 }
 
 
-fun <T : Resettable> WidgetContainerScope.ConfigResetButton(
+fun <T : Resettable> ContainerScope.ConfigResetButton(
     config: T,
     modifier: Modifier = Modifier,
     onRest: (T) -> Unit = {}

@@ -10,9 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollAxis
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -77,7 +77,7 @@ class TextWidget(
     //------------ Override ------------\\
 
     override fun measure(constraints: Constraints): Placeable {
-        val c = this.constraints.constraintAs(constraints)
+        val c = this.constraints.merge(constraints)
         val width = text.getValue().wrapToTextLines(if (setting.autoNewLine) (c.maxWidth - padding.width) else 0f)
             .maxOfOrNull { it.width } ?: (0f + padding.width)
         val spacing = setting.verticalArrangement.spacing
@@ -275,7 +275,7 @@ typealias TextWidgetScope = TextWidget.Scope
 
 typealias TextSetting = TextWidget.Setting
 
-fun WidgetContainerScope.TextLabel(
+fun ContainerScope.TextLabel(
     text: State<Text>,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
@@ -285,7 +285,7 @@ fun WidgetContainerScope.TextLabel(
     TextWidgetScope { this }.scope()
 }
 
-fun WidgetContainerScope.TextLabel(
+fun ContainerScope.TextLabel(
     text: Text,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
@@ -321,7 +321,7 @@ fun WidgetContainerScope.TextLabel(
 }
 
 @JvmName("TextString")
-fun WidgetContainerScope.TextLabel(
+fun ContainerScope.TextLabel(
     str: String,
     style: Style = Style.EMPTY,
     modifier: Modifier = Modifier,
@@ -330,7 +330,7 @@ fun WidgetContainerScope.TextLabel(
 ) = TextLabel(Literal(str).setStyle(style), modifier, setting, scope)
 
 @JvmName("TextString")
-fun WidgetContainerScope.TextLabel(
+fun ContainerScope.TextLabel(
     str: State<String>,
     style: Style = Style.EMPTY,
     modifier: Modifier = Modifier,

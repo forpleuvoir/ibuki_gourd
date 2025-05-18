@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
@@ -36,7 +36,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-fun WidgetContainerScope.UnspecifiedConfigWrapper(
+fun ContainerScope.UnspecifiedConfigWrapper(
     config: ConfigSerializable,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -51,7 +51,7 @@ fun WidgetContainerScope.UnspecifiedConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.StringConfigWrapper(
+fun ContainerScope.StringConfigWrapper(
     config: ConfigString,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -102,7 +102,7 @@ fun WidgetContainerScope.StringConfigWrapper(
     }
 }
 
-fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
+fun <E : Enum<E>> ContainerScope.EnumConfigWrapper(
     config: ConfigEnum<E>,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -122,7 +122,7 @@ fun <E : Enum<E>> WidgetContainerScope.EnumConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.BooleanConfigWrapper(
+fun ContainerScope.BooleanConfigWrapper(
     config: ConfigBoolean,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
@@ -141,7 +141,7 @@ fun WidgetContainerScope.BooleanConfigWrapper(
     }
 }
 
-fun WidgetContainerScope.ConfigDurationWrapper(
+fun ContainerScope.ConfigDurationWrapper(
     config: ConfigDuration,
     modifier: Modifier = Modifier
 ) = ConfigRowWrapper(config, modifier) {
