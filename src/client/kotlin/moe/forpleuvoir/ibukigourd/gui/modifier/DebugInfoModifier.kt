@@ -106,6 +106,7 @@ fun Modifier.debugInfo(
 ): Modifier {
     val s = DebugInfoScope().apply(scope)
     return this.renderOverlay { context, mouseX, mouseY, delta ->
+        onRenderOverlay(context, mouseX, mouseY, delta)
         this as IGScreen
         val texts = s.entries.map { it.text(this, context, mouseX, mouseY, delta) }
         val textSize = Size(texts.maxWidth, texts.totalHeight(verticalArrangement.spacing))

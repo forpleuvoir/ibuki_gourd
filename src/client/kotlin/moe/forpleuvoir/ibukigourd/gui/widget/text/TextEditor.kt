@@ -106,13 +106,13 @@ open class TextEditorWidget(
      */
     private var firstCharacterIndex: Int = 0
 
-    private var selectionStart: Int = 0
-        set(value) {
+    var selectionStart: Int = 0
+        private set(value) {
             field = value.coerceIn(0, text.length)
         }
 
-    private var selectionEnd: Int = 0
-        set(value) {
+    var selectionEnd: Int = 0
+        private set(value) {
             val textLength = text.length
             field = value.coerceIn(0, textLength)
             if (firstCharacterIndex > textLength) {

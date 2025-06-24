@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
+import moe.forpleuvoir.ibukigourd.gui.modifier.*
 import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
 import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
@@ -28,6 +29,11 @@ fun testScreen7() = TabScreen(
     modifier = Modifier.onClose {
         TestConfig.asyncSave()
         IGConfig.asyncSave()
+    }.debugInfo {
+        ScreenFPS()
+        ScreenRenderTime()
+        MouseCursor()
+        MousePosition()
     },
     tabColor = stateOf(Color(0xffffccf0)),
     inactiveColor = stateOf(Color(0xffb3f2ff))

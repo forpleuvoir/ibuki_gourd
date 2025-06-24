@@ -89,6 +89,8 @@ object InputHandler : Tickable {
         return NextAction.Continue
     }
 
+    val pressedKeys: Set<KeyCode> get() = currentPressKeyCode.toSet()
+
     fun wasKeyPressed(keyCode: KeyCode): Boolean {
         return currentPressKeyCode.contains(keyCode)
     }

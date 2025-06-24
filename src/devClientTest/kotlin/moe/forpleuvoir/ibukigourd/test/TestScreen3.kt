@@ -8,8 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
-import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
-import moe.forpleuvoir.ibukigourd.gui.modifier.renderHoveredOutlineBox
+import moe.forpleuvoir.ibukigourd.gui.modifier.*
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
@@ -41,6 +40,11 @@ fun testScreen3() = ColumnScreen(
                 lines, transform.asWorldCoordinateBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
             )
         }
+    }.debugInfo {
+        ScreenFPS()
+        ScreenRenderTime()
+        MouseCursor()
+        MousePosition()
     }
 ) {
     val selectText = mutableStateOf("本居小铃")

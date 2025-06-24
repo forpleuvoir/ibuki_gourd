@@ -9,3 +9,7 @@ server_run
 .fabric
 .kotlin
 .lingma
+.idea
+.vscode
+modJar
+out
