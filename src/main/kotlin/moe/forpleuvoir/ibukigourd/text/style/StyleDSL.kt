@@ -9,87 +9,87 @@ import net.minecraft.util.Identifier
 
 fun MutableText.style(style: StyleScope.() -> Unit): MutableText {
     return this.styled {
-        StyleScope().apply(style).style
+        StyleScope(it).apply(style).asStyle
     }
 }
 
-class StyleScope {
+class StyleScope(parent: Style) {
 
-    val style: Style get() = style(color, shadowColor, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent)
+    val asStyle: Style get() = style(color, shadowColor, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent)
 
-    private var color: RGBColor? = null
+    private var color: RGBColor? = parent.color?.let { Color(it.rgb).alpha(1f) }
 
-    private var shadowColor: RGBColor? = null
+    private var shadowColor: RGBColor? = parent.shadowColor?.let { Color(it).alpha(1f) }
 
-    private var bold: Boolean? = null
+    private var bold: Boolean? = parent.bold
 
-    private var italic: Boolean? = null
+    private var italic: Boolean? = parent.italic
 
-    private var underlined: Boolean? = null
+    private var underlined: Boolean? = parent.underlined
 
-    private var strikethrough: Boolean? = null
+    private var strikethrough: Boolean? = parent.strikethrough
 
-    private var obfuscated: Boolean? = null
+    private var obfuscated: Boolean? = parent.obfuscated
 
-    private var clickEvent: ClickEvent? = null
+    private var clickEvent: ClickEvent? = parent.clickEvent
 
-    private var hoverEvent: HoverEvent? = null
+    private var hoverEvent: HoverEvent? = parent.hoverEvent
 
-    private var insertion: String? = null
+    private var insertion: String? = parent.insertion
 
-    private var font: Identifier? = null
+    private var font: Identifier? = parent.font
 
-    fun color(rgbColor: RGBColor): StyleScope {
+    fun color(rgbColor: RGBColor?): StyleScope {
         this.color = rgbColor
         return this
     }
 
-    fun color(rgbColor: Int): StyleScope {
-        this.color = Color(rgbColor).alpha(1f)
+    fun color(rgbColor: Int?): StyleScope {
+        this.color = rgbColor?.let { Color(rgbColor).alpha(1f) }
         return this
     }
 
-    fun color(hexColor: String): StyleScope {
-        this.color = Color(hexColor)
+    fun color(hexColor: String?): StyleScope {
+        this.color = hexColor?.let { Color(it) }
         return this
     }
 
-    fun shadowColor(rgbColor: RGBColor): StyleScope {
+    fun shadowColor(rgbColor: RGBColor?): StyleScope {
         this.shadowColor = rgbColor
         return this
     }
 
-    fun shadowColor(rgbColor: Int): StyleScope {
-        this.shadowColor = Color(rgbColor).alpha(1f)
+    fun shadowColor(rgbColor: Int?): StyleScope {
+        this.shadowColor = rgbColor?.let { Color(it).alpha(1f) }
         return this
     }
 
-    fun bold(bold: Boolean = true): StyleScope {
+    fun bold(bold: Boolean? = true): StyleScope {
         this.bold = bold
         return this
     }
 
-    fun italic(italic: Boolean = true): StyleScope {
+    fun italic(italic: Boolean? = true): StyleScope {
         this.italic = italic
         return this
     }
 
-    fun underlined(underlined: Boolean = true): StyleScope {
+    fun underlined(underlined: Boolean? = true): StyleScope {
         this.underlined = underlined
         return this
     }
 
-    fun strikethrough(strikethrough: Boolean = true): StyleScope {
+    fun strikethrough(strikethrough: Boolean? = true): StyleScope {
         this.strikethrough = strikethrough
         return this
     }
 
-    fun obfuscated(obfuscated: Boolean = true): StyleScope {
+    fun obfuscated(obfuscated: Boolean? = true): StyleScope {
         this.obfuscated = obfuscated
         return this
     }
 
-    fun clickEvent(clickEvent: ClickEvent): StyleScope {
+    fun clickEvent(clickEvent: ClickEvent?): StyleScope {
         this.clickEvent = clickEvent
         return this
     }
@@ -109,7 +109,7 @@ class StyleScope {
         )
     }
 
-    fun hoverEvent(hoverEvent: HoverEvent): StyleScope {
+    fun hoverEvent(hoverEvent: HoverEvent?): StyleScope {
         this.hoverEvent = hoverEvent
         return this
     }
@@ -139,12 +139,12 @@ class StyleScope {
         return this
     }
 
-    fun insertion(insertion: String): StyleScope {
+    fun insertion(insertion: String?): StyleScope {
         this.insertion = insertion
         return this
     }
 
-    fun font(font: Identifier): StyleScope {
+    fun font(font: Identifier?): StyleScope {
         this.font = font
         return this
     }

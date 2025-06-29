@@ -3,38 +3,43 @@ package moe.forpleuvoir.ibukigourd.mod.what
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyPress
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.placeCompletion
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.tick
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
+import moe.forpleuvoir.ibukigourd.gui.modifier.MousePosition
+import moe.forpleuvoir.ibukigourd.gui.modifier.ScreenFPS
+import moe.forpleuvoir.ibukigourd.gui.modifier.ScreenRenderTime
+import moe.forpleuvoir.ibukigourd.gui.modifier.debugInfo
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.Canvas
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.what.ecs.*
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.plus
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.font.TextRenderer
 import java.util.*
 
 fun SankeGame(
+    modifier: Modifier = Modifier.debugInfo {
+        ScreenFPS()
+        ScreenRenderTime()
+        MousePosition()
+    },
     gameSpeed: Int = 3,
     cycle: Boolean = true
-) = RowScreen {
+) = RowScreen(modifier) {
     Column(
         horizontalAlignment = Alignment.Left,
     ) {
@@ -42,7 +47,7 @@ fun SankeGame(
         TextLabel(mutableStateBy {
             Text {
                 literal {
-                    context { "Scores: $scores" }
+                    content { "Scores: $scores" }
                     style {
                         color(Colors.WHITE)
                     }
@@ -73,10 +78,12 @@ fun ContainerScope.Snake(
     val canvasPosition = FloatPosition(0f, 0f)
 
     val world = World {
-//        +InputSystem
+        +GameController
+        +SnakeController
         +MoveSystem
         +CollisionSystem
         +EatSystem
+
         +RenderSystem
         //Setting
         createEntity {
@@ -100,7 +107,7 @@ fun ContainerScope.Snake(
         createEntity {
             val pos = Position(grid.halfWidth, grid.halfHeight).apply { +this }
             +SnakeHead(LinkedList<Entity>()).apply {
-                repeat(2) {
+                repeat(4) {
                     parts.add(world.createEntity {
                         +pos.copy(x = pos.x - 1 * (it + 1))
                         +SnakePart
@@ -126,32 +133,23 @@ fun ContainerScope.Snake(
                 canvasPosition.y = this.transform.worldY
             }
             .keyPress { event ->
-                event.tryUse(event.keyCode == Keyboard.P).onSuccess {
-                    world.running = !world.running
-                }
-                event.tryUse(event.keyCode == Keyboard.R).onSuccess {
-                    (this.parent() as? WidgetContainer)?.executeRecompose()
-                }
-                event.tryUse(event.keyCode in inputCode).onSuccess {
-                    world.queryTuple<SnakeHead, Direction, SnakeState>()
-                        .forEach { (entity, component) ->
-                            val (_, dir, state) = component
-                            world.addComponent(
-                                entity,
-                                when (event.keyCode) {
-                                    Keyboard.UP    -> if (Direction.UP in state.canChangeDirection) Direction.UP else dir
-                                    Keyboard.DOWN  -> if (Direction.DOWN in state.canChangeDirection) Direction.DOWN else dir
-                                    Keyboard.LEFT  -> if (Direction.LEFT in state.canChangeDirection) Direction.LEFT else dir
-                                    Keyboard.RIGHT -> if (Direction.RIGHT in state.canChangeDirection) Direction.RIGHT else dir
-                                    else           -> dir
-                                }
-                            )
-                        }
-                }
+                world.onInput(event.keyCode, KeyAction.PRESS, event.used)
+            }
+            .keyRelease { event ->
+                world.onInput(event.keyCode, KeyAction.RELEASE, event.used)
+            }
+            .mousePress { event ->
+                world.onInput(event.button, KeyAction.PRESS, event.used)
+            }
+            .mouseRelease { event ->
+                world.onInput(event.button, KeyAction.RELEASE, event.used)
             }
             .tick {
                 count++
                 if (count % actualGameSpeed == 0) {
+                    world.findFirst<GameRestartTag>()?.let {
+                        (this.parent() as? WidgetContainer)?.executeRecompose()
+                    }
                     world.tick()
                 }
             }
@@ -287,6 +285,46 @@ private data object Wall
 
 private data object Collider
 
+internal data object GameRestartTag
+
+//------------ Input ------------\\
+
+private val GameController = InputSystem { world, keyCode, action, used ->
+    if (used || action != KeyAction.PRESS) return@InputSystem used
+    when (keyCode) {
+        Keyboard.P -> {
+            world.running = !world.running
+            true
+        }
+
+        Keyboard.R -> {
+            world.createEntity { +GameRestartTag }
+            true
+        }
+
+        else       -> false
+    }
+}
+
+private val SnakeController = InputSystem { world, keyCode, action, used ->
+    if (used || action != KeyAction.PRESS || keyCode !in inputCode) return@InputSystem used
+    world.queryTuple<SnakeHead, Direction, SnakeState>()
+        .forEach { (entity, component) ->
+            val (_, dir, state) = component
+            world.addComponent(
+                entity,
+                when (keyCode) {
+                    Keyboard.UP    -> if (Direction.UP in state.canChangeDirection) Direction.UP else dir
+                    Keyboard.DOWN  -> if (Direction.DOWN in state.canChangeDirection) Direction.DOWN else dir
+                    Keyboard.LEFT  -> if (Direction.LEFT in state.canChangeDirection) Direction.LEFT else dir
+                    Keyboard.RIGHT -> if (Direction.RIGHT in state.canChangeDirection) Direction.RIGHT else dir
+                    else           -> dir
+                }
+            )
+        }
+    true
+}
+
 //------------ System ------------\\
 
 private val inputCode = listOf(Keyboard.UP, Keyboard.DOWN, Keyboard.LEFT, Keyboard.RIGHT)
@@ -376,6 +414,10 @@ private val EatSystem = System { world: World ->
 
 }
 
+private val text = Literal("GAME OVER").withColor(Colors.RED)
+    .appendNewLine()
+    .append(Literal("Press 'R' to restart").withColor(Colors.RED))
+
 private val RenderSystem = RenderSystem { world, ctx, deltaTime ->
     val map = world.query<MapGrid>().firstOrNull()?.value ?: return@RenderSystem
     val setting = world.query<RenderSetting>().firstOrNull()?.value ?: return@RenderSystem
@@ -398,6 +440,7 @@ private val RenderSystem = RenderSystem { world, ctx, deltaTime ->
     val snakeHeads = world.queryPair<SnakeHead, Position>().map { it.second.second.mapRenderBox(setting) }
     val snakeParts = world.queryPair<SnakePart, Position>().map { it.second.second.mapRenderBox(setting) }
 
+    val gameOver = world.gameOver
     ctx.batchRenderBox {
         //BG
         pushBox(mapBox, setting.bgColor.getValue())
@@ -422,19 +465,16 @@ private val RenderSystem = RenderSystem { world, ctx, deltaTime ->
         gridBox.forEach {
             pushBox(it, setting.gridColor.getValue())
         }
+        //GameOverBG
+        if (gameOver) {
+            val texts = text.wrapToTextLines(mapBox.width)
+            val box = Box(mapBox.position + Alignment.Center.align(mapBox, texts.size(0f)), texts.size(0f)).expandEdges(5f)
+            pushRoundBox(box, Colors.BLUE_JAY.alpha(.95f), 4)
+        }
     }
-    if (world.gameOver) {
+    if (gameOver) {
         ctx.batchRenderText {
-            pushTextLines(
-                Literal("GAME OVER").withColor(Colors.RED)
-                    .appendNewLine()
-                    .appendLiteral("Press 'R' to restart"),
-                mapBox,
-                verticalArrangement = Arrangement.spacedBy(
-                    5f,
-                    Alignment.CenterVertically
-                )
-            )
+            pushTextLines(text, mapBox, layerType = TextRenderer.TextLayerType.SEE_THROUGH)
         }
     }
 }

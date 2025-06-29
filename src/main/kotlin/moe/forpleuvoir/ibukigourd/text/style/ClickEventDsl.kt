@@ -31,3 +31,4 @@ data object SuggestCommand : ClickEventAction
 data object ChangePage : ClickEventAction
 
 data object CopyToClipboard : ClickEventAction
+

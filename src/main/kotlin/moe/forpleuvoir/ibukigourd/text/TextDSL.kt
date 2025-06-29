@@ -15,7 +15,7 @@ open class TextScope {
             return content
         }
 
-    private fun add(text: MutableText) {
+    fun append(text: MutableText) {
         if (::content.isInitialized) {
             content.append(text)
         } else {
@@ -28,23 +28,23 @@ open class TextScope {
     }
 
     fun literal(scope: LiteralScope.() -> Unit) {
-        add(LiteralScope().apply(scope).text)
+        append(LiteralScope().apply(scope).text)
     }
 
     fun literal(content: Any, scope: LiteralScope.() -> Unit = {}) {
         val a = LiteralScope().apply {
-            context(content.toString())
+            content(content.toString())
             scope.invoke(this)
         }
-        add(a.text)
+        append(a.text)
     }
 
     fun literal(content: Any) {
-        add(Literal(content.toString()))
+        append(Literal(content.toString()))
     }
 
     fun translatable(key: String, fallback: String?, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
-        add(TranslatableScope().apply {
+        append(TranslatableScope().apply {
             key { key }
             fallback { fallback }
             params(*params)
@@ -53,7 +53,7 @@ open class TextScope {
     }
 
     fun translatable(key: String, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
-        add(TranslatableScope().apply {
+        append(TranslatableScope().apply {
             key { key }
             params(*params)
             scope.invoke(this)
@@ -61,7 +61,7 @@ open class TextScope {
     }
 
     fun translatable(scope: TranslatableScope.() -> Unit) {
-        add(TranslatableScope().apply(scope).text)
+        append(TranslatableScope().apply(scope).text)
     }
 
 }
@@ -72,24 +72,24 @@ class LiteralScope {
 
     val text: MutableText
         get() {
-            check(::content.isInitialized) { "Content is not initialized" }
-            return Literal(content).setStyle(style)
+            check(::_content.isInitialized) { "Content is not initialized" }
+            return Literal(_content).setStyle(style)
         }
 
-    private lateinit var content: String
+    private lateinit var _content: String
 
     private var style: Style = Style.EMPTY
 
-    fun context(content: () -> Any) {
-        this.content = content().toString()
+    fun content(content: () -> Any) {
+        this._content = content().toString()
     }
 
-    fun context(content: String) {
-        this.content = content
+    fun content(content: String) {
+        this._content = content
     }
 
     fun style(style: StyleScope.() -> Unit) {
-        this.style = StyleScope().apply(style).style
+        this.style = StyleScope(this.style).apply(style).asStyle
     }
 
 }
@@ -124,7 +124,7 @@ class TranslatableScope {
     }
 
     fun style(style: StyleScope.() -> Unit) {
-        this.style = StyleScope().apply(style).style
+        this.style = StyleScope(this.style).apply(style).asStyle
     }
 
 }

@@ -96,27 +96,27 @@ interface Box : SizeFloat, Cloneable {
 
     fun contains(x: Float, y: Float): Boolean {
         return if (this.exist)
-            x in this.top..this.bottom && y in this.left..this.right
+            y in this.top..this.bottom && x in this.left..this.right
         else false
     }
 
     operator fun contains(vector3fc: Vector3fc): Boolean {
         return this.exist.pick(
-            vector3fc.x() in this.top..this.bottom && vector3fc.y() in this.left..this.right,
+            vector3fc.y() in this.top..this.bottom && vector3fc.x() in this.left..this.right,
             false
         )
     }
 
     operator fun contains(vector2fc: Vector2fc): Boolean {
         return this.exist.pick(
-            vector2fc.x() in this.top..this.bottom && vector2fc.y() in this.left..this.right,
+            vector2fc.y() in this.top..this.bottom && vector2fc.x() in this.left..this.right,
             false
         )
     }
 
     operator fun contains(vector2fc: Vector2ic): Boolean {
         return this.exist.pick(
-            vector2fc.x().toFloat() in this.top..this.bottom && vector2fc.y().toFloat() in this.left..this.right,
+            vector2fc.y().toFloat() in this.top..this.bottom && vector2fc.x().toFloat() in this.left..this.right,
             false
         )
     }

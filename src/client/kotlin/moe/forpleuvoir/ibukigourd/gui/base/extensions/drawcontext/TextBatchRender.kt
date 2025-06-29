@@ -295,7 +295,7 @@ open class TextBatchRenderScope internal constructor(
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val texts = text.wrapToTextLines(box.width)
-        val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+        val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { textRenderer.fontHeight.toFloat() })
         val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
@@ -329,7 +329,7 @@ open class TextBatchRenderScope internal constructor(
         rightToLeft: Boolean = textRenderer.isRightToLeft,
     ) {
         val texts = lines.wrapToTextLines(box.width)
-        val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+        val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { textRenderer.fontHeight.toFloat() })
         val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)

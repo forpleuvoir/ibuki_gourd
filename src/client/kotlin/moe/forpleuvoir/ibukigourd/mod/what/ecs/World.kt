@@ -1,9 +1,10 @@
 package moe.forpleuvoir.ibukigourd.mod.what.ecs
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
+import moe.forpleuvoir.ibukigourd.input.KeyCode
 import kotlin.reflect.KClass
 
-interface World : EntityManager, ComponentManager, SystemManager, RenderSystemManager {
+interface World : EntityManager, ComponentManager, SystemManager, RenderSystemManager, InputSystemManager {
 
     companion object {
 
@@ -17,6 +18,10 @@ interface World : EntityManager, ComponentManager, SystemManager, RenderSystemMa
     fun render(context: IGDrawContext, deltaTime: Float) {
         this.render(this, context, deltaTime)
     }
+
+    fun onInput(keyCode: KeyCode, action: KeyAction, used: Boolean) {
+        this.onInput(this, keyCode, action, used)
+    }
 }
 
 class DefaultWorld(
@@ -24,11 +29,13 @@ class DefaultWorld(
     private val componentManager: ComponentManager = DefaultComponentManager(),
     private val systemManager: SystemManager = DefaultSystemManager(),
     private val renderSystemManager: RenderSystemManager = DefaultRenderSystemManager(),
+    private val inputSystemManager: InputSystemManager = DefaultInputSystemManager()
 ) : World,
     EntityManager by entityManager,
     ComponentManager by componentManager,
     SystemManager by systemManager,
-    RenderSystemManager by renderSystemManager {
+    RenderSystemManager by renderSystemManager,
+    InputSystemManager by inputSystemManager {
 
     override fun destroyEntity(entity: Entity): Boolean {
         return if (entityManager.destroyEntity(entity)) {
@@ -58,6 +65,10 @@ class WorldDSL(val world: World) {
 
     inline operator fun <reified T : RenderSystem> T.unaryPlus() {
         world.addRenderSystem(this)
+    }
+
+    inline operator fun <reified T : InputSystem> T.unaryPlus() {
+        world.addInputSystem(this)
     }
 
     fun createEntity(block: EntityDSL.() -> Unit): Entity {

@@ -13,15 +13,16 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.text.totalHeight
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.font.TextRenderer.TextLayerType
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
+import kotlin.time.TimeSource
+import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 import kotlin.time.toDuration
 
 fun interface DebugInfoEntry {
@@ -36,16 +37,20 @@ data class DebugInfoScope(internal val entries: MutableList<DebugInfoEntry> = mu
 
 }
 
-private var IGScreen.renderInfoUpdateTime: Float
-    get() = (this as? IGScreenImpl)?.userData["#debug_render_info_update_time"] as? Float ?: 0f
-    set(value) {
-        this.userData["#debug_render_info_update_time"] = value
+private fun IGScreen.renderInfoUpdateTime(key: String): ValueTimeMark =
+    (this as? IGScreenImpl)?.userData["#debug_render_info_update_time_${key}"] as? ValueTimeMark ?: run {
+        val mark = TimeSource.Monotonic.markNow()
+        (this as? IGScreenImpl)?.userData["#debug_render_info_update_time_${key}"] = mark
+        mark
     }
 
-private inline fun IGScreen.updateRenderInfo(delta: Float, action: () -> Unit) {
-    this.renderInfoUpdateTime += delta
-    if (this.renderInfoUpdateTime > 10f) {
-        this.renderInfoUpdateTime = 0f
+private fun IGScreen.renderInfoUpdateTimeMark(key: String) {
+    this.userData["#debug_render_info_update_time_${key}"] = TimeSource.Monotonic.markNow()
+}
+
+private inline fun IGScreen.updateRenderInfo(key: String, action: () -> Unit) {
+    if (renderInfoUpdateTime(key).elapsedNow() > 0.5.seconds) {
+        renderInfoUpdateTimeMark(key)
         action()
     }
 }
@@ -71,28 +76,37 @@ private val IGScreen.debugAverageRenderTimes: Duration
         else it.toDuration(DurationUnit.NANOSECONDS)
     }
 
-fun DebugInfoScope.ScreenRenderTime() = info { screen, context, mouseX, mouseY, delta ->
+fun DebugInfoScope.ScreenRenderTime(format: String = "RenderTime:%s", color: ARGBColor = Colors.AQUA) = info { screen, context, mouseX, mouseY, delta ->
     (screen as? IGScreenImpl)?.let {
         it addDebugRenderTime screen.latestRenderTime
-        it.updateRenderInfo(delta) { it.userData["#debug_render_time"] = screen.debugAverageRenderTimes }
+        it.updateRenderInfo("renderTime") { it.userData["#debug_render_time"] = screen.debugAverageRenderTimes }
     }
-    Literal("RenderTime:${screen.userData["#debug_render_time"]}").style { color(Colors.AQUA) }
+    Literal(format.format(screen.userData["#debug_render_time"])).style { color(color) }
 }
 
-fun DebugInfoScope.ScreenFPS() = info { screen, context, mouseX, mouseY, delta ->
+fun DebugInfoScope.ScreenFPS(format: String = "FPS:%d", color: ARGBColor = Color(0x00FF00)) = info { screen, context, mouseX, mouseY, delta ->
     (screen as? IGScreenImpl)?.let {
         it addDebugRenderTime screen.latestRenderTime
-        it.updateRenderInfo(delta) { it.userData["#debug_render_fps"] = (1.seconds / screen.debugAverageRenderTimes).toInt() }
+        it.updateRenderInfo("fps") { it.userData["#debug_render_fps"] = (1.seconds / screen.debugAverageRenderTimes).toInt() }
     }
-    Literal("FPS:${screen.userData["#debug_render_fps"]}").style { color(0x00FF00) }
+    Literal(format.format(screen.userData["#debug_render_fps"])).style { color(color) }
 }
 
-fun DebugInfoScope.MouseCursor() = info { screen, context, mouseX, mouseY, delta ->
-    Literal("MouseCursor:${MouseCursor.current.name}").style { color(Colors.AQUA) }
+fun DebugInfoScope.MouseCursor(format: String = "MouseCursor:%s", color: ARGBColor = Colors.AQUA) = info { screen, context, mouseX, mouseY, delta ->
+    Literal(format.format(MouseCursor.current.name)).style { color(color) }
 }
 
-fun DebugInfoScope.MousePosition() = info { screen, context, mouseX, mouseY, delta ->
-    Literal("MouseX:$mouseX").style { color(Colors.RED) }.appendLiteral(", ").append(Literal("MouseY:$mouseY").style { color(0x00FF00) })
+fun DebugInfoScope.MousePosition(
+    xFormat: String = "MouseX:%.2f",
+    xColor: ARGBColor = Colors.RED,
+    yFormat: String = "MouseY:%.2f",
+    yColor: ARGBColor = Color(0x00FF00),
+    connector: String = "\n",
+    connectorColor: ARGBColor = Colors.BLACK
+) = info { screen, context, mouseX, mouseY, delta ->
+    Literal(xFormat.format(mouseX)).style { color(xColor) }
+        .append(Literal(connector).withColor(connectorColor))
+        .append(Literal(yFormat.format(mouseY)).style { color(yColor) })
 }
 
 fun Modifier.debugInfo(
@@ -108,16 +122,16 @@ fun Modifier.debugInfo(
     return this.renderOverlay { context, mouseX, mouseY, delta ->
         onRenderOverlay(context, mouseX, mouseY, delta)
         this as IGScreen
-        val texts = s.entries.map { it.text(this, context, mouseX, mouseY, delta) }
+        val texts = s.entries.map { it.text(this, context, mouseX, mouseY, delta) }.wrapToTextLines()
         val textSize = Size(texts.maxWidth, texts.totalHeight(verticalArrangement.spacing))
         val box = this.transform.asWorldCoordinateBox.trimEdges(padding.top, padding.bottom, padding.left, padding.right)
         val x = box.x + horizontalAlignment.align(box.width, textSize.width)
         val y = box.y + verticalArrangement.arrange(box.height, listOf(textSize.height))[0]
         context.batchRenderBox {
-            pushRoundBox(Box(x, y, textSize), bgColor, bgRound)
+            pushRoundBox(Box(x, y, textSize).expandEdges(bgRound.toFloat()), bgColor, bgRound)
         }
         context.batchRenderText {
-            pushTextLines(texts, box, horizontalAlignment, verticalArrangement, backgroundColor = textBgColor)
+            pushTextLines(texts, box, horizontalAlignment, verticalArrangement, backgroundColor = textBgColor, layerType = TextLayerType.SEE_THROUGH)
         }
     }
 }

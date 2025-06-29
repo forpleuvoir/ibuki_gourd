@@ -239,7 +239,7 @@ fun McText.wrapToTextLines(maxWidth: Float = 0f): List<McText> {
     }
     return this.string
         .wrapToLines(maxWidth)
-        .map { Literal(it).style { this.style } }
+        .map { Literal(it).style { this.asStyle } }
 }
 
 fun Iterable<McText>.wrapToTextLines(maxWidth: Float = 0f): List<McText> {

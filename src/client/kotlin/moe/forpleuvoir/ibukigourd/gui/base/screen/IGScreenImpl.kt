@@ -313,6 +313,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     override var onResize: ((MinecraftClient, Int, Int) -> Unit)? = null
 
     override fun resize(client: MinecraftClient, width: Int, height: Int) {
+        parentScreen?.resize(client, width, height)
         onResize?.invoke(client, width, height)
         transform.set(width.toFloat(), height.toFloat())
         remeasure()
@@ -708,7 +709,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         inline fun <T : Screen> T.open(): T = openScreen(this)
 
         @Suppress("NOTHING_TO_INLINE")
-        inline fun <T : IGScreenImpl> T.open(parentScreen: Screen?): T = openScreen(this).apply { this.parentScreen = parentScreen }
+        inline fun <T : IGScreenImpl> T.open(parentScreen: Screen? = mc.currentScreen): T = openScreen(this).apply { this.parentScreen = parentScreen }
+
+        @Suppress("NOTHING_TO_INLINE")
+        inline fun <T : IGScreenImpl> T.open(parentScreen: IGScreen?): T = openScreen(this).apply { this.parentScreen = parentScreen as? Screen }
 
     }
 }

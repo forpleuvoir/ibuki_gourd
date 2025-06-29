@@ -7,14 +7,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.modifier.MousePosition
+import moe.forpleuvoir.ibukigourd.gui.modifier.ScreenFPS
+import moe.forpleuvoir.ibukigourd.gui.modifier.ScreenRenderTime
+import moe.forpleuvoir.ibukigourd.gui.modifier.debugInfo
 import moe.forpleuvoir.ibukigourd.gui.screen.RowScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.Canvas
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
-import moe.forpleuvoir.ibukigourd.mod.what.ecs.RenderSystem
-import moe.forpleuvoir.ibukigourd.mod.what.ecs.System
-import moe.forpleuvoir.ibukigourd.mod.what.ecs.World
-import moe.forpleuvoir.ibukigourd.mod.what.ecs.findFirst
+import moe.forpleuvoir.ibukigourd.mod.what.ecs.*
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -23,9 +24,14 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import org.joml.Vector2f
 import kotlin.random.Random
 
-fun GameOfLife(
+fun GameOfLifeScreen(
+    modifier: Modifier = Modifier.debugInfo {
+        ScreenFPS()
+        ScreenRenderTime()
+        MousePosition()
+    },
     gameSpeed: Int = 2
-) = RowScreen {
+) = RowScreen(modifier) {
     GameOfLife(Size(320, 180), gameSpeed, gridUnitSize = 1.5f)
 }
 
@@ -45,6 +51,8 @@ fun ContainerScope.GameOfLife(
     val mouse = Vector2f(0f, 0f)
 
     val world = World {
+        +CellController
+        +GameController
         +CellSystem
         +RenderSystem
 
@@ -76,27 +84,24 @@ fun ContainerScope.GameOfLife(
                 canvasPosition.y = this.transform.worldY
             }
             .keyPress { event ->
-                event.tryUse(event.keyCode == Keyboard.P).onSuccess {
-                    world.running = !world.running
-                }
-                event.tryUse(event.keyCode == Keyboard.R).onSuccess {
-                    world.findFirst<Cells>()?.randomInit(initRatio)
-                }
-                event.tryUse(event.keyCode == Keyboard.C).onSuccess {
-                    world.findFirst<Cells>()?.clear()
-                }
+                world.onInput(event.keyCode, KeyAction.PRESS, event.used)
+            }
+            .keyRelease { event ->
+                world.onInput(event.keyCode, KeyAction.RELEASE, event.used)
             }
             .mousePress { event ->
-                event.tryUse(event.button == Mouse.LEFT && wasMouseOver).onSuccess {
-                    val x = (event.x - canvasPosition.x) / gridUnitSize
-                    val y = (event.y - canvasPosition.y) / gridUnitSize
-                    val cells = world.findFirst<Cells>() ?: return@onSuccess
-                    cells.cells[x.toInt()][y.toInt()] = !cells.cells[x.toInt()][y.toInt()]
-                }
+                world.onInput(event.button, KeyAction.PRESS, event.used)
+            }
+            .mouseRelease { event ->
+                world.onInput(event.button, KeyAction.RELEASE, event.used)
             }
             .tick {
                 count++
                 if (count % actualGameSpeed == 0) {
+                    world.query<GameRestartTag>().firstOrNull()?.let {
+                        world.findFirst<Cells>()?.randomInit(initRatio)
+                        world.removeAllComponent(it.key)
+                    }
                     world.tick()
                 }
             }
@@ -197,7 +202,7 @@ private var World.running
         }
     }
 
-val CellSystem = System { world: World ->
+private val CellSystem = System { world: World ->
     if (!world.running) return@System
     val cells = world.findFirst<Cells>() ?: return@System
     val temp = cells.generateTemp()
@@ -220,6 +225,44 @@ private data class GameSetting(
     val cellColor: State<ARGBColor>,
     val bgColor: State<ARGBColor>,
 )
+
+private val CellController = InputSystem { world, keyCode, action, used ->
+    if (used || action != KeyAction.PRESS || keyCode != Mouse.LEFT) return@InputSystem used
+    val cells = world.findFirst<Cells>() ?: return@InputSystem false
+    val (width, height) = cells.let { it.cells.size to it.cells[0].size }
+    val setting = world.query<GameSetting>().firstOrNull()?.value ?: return@InputSystem false
+    val canvasPosition = Vector2f(setting.canvasPosition.x, setting.canvasPosition.y)
+    val gridUnitSize = setting.gridUnitSize
+    val mapBox = Box(canvasPosition, width * gridUnitSize, height * gridUnitSize)
+    if (setting.mouse !in mapBox) return@InputSystem false
+
+    val x = (setting.mouse.x - canvasPosition.x) / gridUnitSize
+    val y = (setting.mouse.y - canvasPosition.y) / gridUnitSize
+    cells.cells[x.toInt()][y.toInt()] = !cells.cells[x.toInt()][y.toInt()]
+    true
+}
+
+private val GameController = InputSystem { world, keyCode, action, used ->
+    if (used || action != KeyAction.PRESS) return@InputSystem used
+    when (keyCode) {
+        Keyboard.P -> {
+            world.running = !world.running
+            true
+        }
+
+        Keyboard.R -> {
+            world.createEntity { +GameRestartTag }
+            true
+        }
+
+        Keyboard.C -> {
+            world.findFirst<Cells>()?.clear()
+            true
+        }
+
+        else       -> false
+    }
+}
 
 private val RenderSystem = RenderSystem { world, ctx, deltaTime ->
     val (width, height) = world.findFirst<Cells>()?.let { it.cells.size to it.cells[0].size } ?: return@RenderSystem

@@ -77,7 +77,7 @@ open class Text(
 
     fun style(style: StyleScope.() -> Unit): Text {
         return this.styled {
-            StyleScope().apply(style).style
+            StyleScope(it).apply(style).asStyle
         }
     }
 

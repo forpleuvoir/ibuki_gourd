@@ -2,21 +2,36 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
-import moe.forpleuvoir.ibukigourd.gui.widget.ColorPicker
-import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.richtext.RichText
 
 fun testScreen5() = ColumnScreen(
     verticalArrangement = Arrangement.spacedBy(5f, Alignment.CenterVertically)
 ) {
-    val color = mutableStateOf(GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR).apply {
-        subscribe {
-            GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR = Color(it.argb)
+    var text = ""
+    TextEditor {
+        textConsumer {
+            text = it
         }
     }
-    ColorPicker(color)
+    Button {
+        TextLabel("Parse")
+        click {
+            Toast.showToast(
+                RichText.parse(text).run {
+                    this
+                    copyToText()
+                },
+                Toast.LONG_DURATION
+            )
+        }
+    }
+
 }
 
 
