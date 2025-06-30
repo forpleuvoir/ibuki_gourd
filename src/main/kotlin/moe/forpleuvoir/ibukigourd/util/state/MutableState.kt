@@ -8,6 +8,12 @@ import java.util.function.Consumer
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 
+val <T> T.asMutableState: MutableState<T> get() = mutableStateOf(this)
+
+val <T> (() -> T).asMutableState: MutableState<T> get() = mutableStateBy(this)
+
+val <T> KMutableProperty0<T>.asMutableState: MutableState<T> get() = mutableStateOf(this)
+
 fun <T> mutableStateOf(value: T) = MutableState(value)
 
 fun <T> mutableStateBy(value: () -> T) = MutableState(value()).apply { onGetValue = { value() } }
@@ -54,6 +60,12 @@ data class MutableState<T>(private var value: T) : State<T> {
         if (oldValue != value) {
             currentValue = value
             onChange(this.value)
+        }
+    }
+
+    fun setWithoutNotify(value: T) {
+        disableNotification {
+            setValue(value)
         }
     }
 

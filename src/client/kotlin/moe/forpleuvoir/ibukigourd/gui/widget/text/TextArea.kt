@@ -30,6 +30,8 @@ import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.disableNotification
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -136,9 +138,17 @@ class TextAreaWidget(
     var text: String = ""
         set(value) {
             field = truncateForReplacement(value)
-            this.onTextChanged(field)
+            if (enableTextNotification) this.onTextChanged(field)
             onChange()
         }
+
+    var enableTextNotification = true
+
+    fun disableTextNotification(block: () -> Unit) {
+        enableTextNotification = false
+        block()
+        enableTextNotification = true
+    }
 
     var cursor: Int = 0
 
@@ -447,6 +457,7 @@ class TextAreaWidget(
                 history.undo(text, cursor).let {
                     replaceSelection(it.text, true)
                     cursor = it.cursor
+                    selectionEnd = it.cursor
                 }
                 return@tryUse true
             }
@@ -457,6 +468,7 @@ class TextAreaWidget(
                 history.redo(text, cursor).let {
                     replaceSelection(it.text, true)
                     cursor = it.cursor
+                    selectionEnd = it.cursor
                 }
                 return@tryUse true
             }
@@ -698,6 +710,20 @@ class TextAreaWidget(
                 }
             }
 
+        fun bindState(text: MutableState<String>) {
+            this.text = text.getValue()
+            text.subscribe {
+                text.disableNotification {
+                    this.text = it
+                }
+            }
+            textConsumer {
+                disableTextNotification {
+                    text.setValue(it)
+                }
+            }
+        }
+
         var hintText: Text?
             get() = owner().hintText
             set(value) {
@@ -755,6 +781,10 @@ class TextAreaWidget(
 
         fun amountConsumer(consumer: (Float) -> Unit) {
             owner().scrollState.subscribe(consumer)
+        }
+
+        fun disableTextNotification(block: () -> Unit) {
+            owner().disableTextNotification(block)
         }
     }
 

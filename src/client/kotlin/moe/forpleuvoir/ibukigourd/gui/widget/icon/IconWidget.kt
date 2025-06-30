@@ -11,12 +11,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 
 class IconWidget(
     iconTexture: WidgetTexture,
-    private var color: ARGBColor = Colors.WHITE
+    private val color: State<ARGBColor> = stateOf(Colors.WHITE)
 ) : IGWidgetImpl() {
 
     private var remeasureOnChange: Boolean = true
@@ -40,7 +42,7 @@ class IconWidget(
 
     override fun onRender(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         context.batchRenderTextureColored {
-            pushWidgetTexture(contentBox(true), iconTexture, color)
+            pushWidgetTexture(contentBox(true), iconTexture, color.getValue())
         }
     }
 
@@ -54,12 +56,6 @@ class IconWidget(
                 owner().remeasureOnChange = value
             }
 
-        var color: ARGBColor
-            get() = owner().color
-            set(value) {
-                owner().color = value
-            }
-
         fun texture(iconTexture: WidgetTexture) {
             owner().iconTexture = iconTexture
         }
@@ -70,19 +66,20 @@ class IconWidget(
 
 typealias IconScope = IconWidget.IconScope
 
+
 fun ContainerScope.Icon(
     texture: WidgetTexture,
     color: ARGBColor = Colors.WHITE,
     modifier: Modifier = Modifier,
     scope: IconScope.() -> Unit = {}
-) = addWidgetChild(IconWidget(texture, color)) {
+) = addWidgetChild(IconWidget(texture, stateOf(color))) {
     modifier.foldInApply()
     IconScope { this }.scope()
 }
 
 fun ContainerScope.Icon(
     texture: MutableState<WidgetTexture>,
-    color: ARGBColor = Colors.WHITE,
+    color: State<ARGBColor> = stateOf(Colors.WHITE),
     modifier: Modifier = Modifier,
     scope: IconScope.() -> Unit = {}
 ) = addWidgetChild(IconWidget(texture.getValue(), color)) {

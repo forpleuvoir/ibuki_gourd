@@ -38,6 +38,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.disableNotification
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -83,7 +84,6 @@ open class TextEditorWidget(
         }
 
     var enableTextNotification = true
-
 
     fun disableTextNotification(block: () -> Unit) {
         enableTextNotification = false
@@ -378,6 +378,7 @@ open class TextEditorWidget(
                 history.undo(text, cursor).let {
                     write(it.text, true)
                     cursor = it.cursor
+                    selectionEnd = cursor
                 }
                 return@tryUse true
             }
@@ -388,6 +389,7 @@ open class TextEditorWidget(
                 history.redo(text, cursor).let {
                     write(it.text, true)
                     cursor = it.cursor
+                    selectionEnd = cursor
                 }
                 return@tryUse true
             }
@@ -613,9 +615,18 @@ open class TextEditorWidget(
                 }
             }
 
-        fun text(text: MutableState<String>) {
+        fun bindState(text: MutableState<String>) {
             this.text = text.getValue()
-            textConsumer { text.setValue(it) }
+            text.subscribe {
+                text.disableNotification {
+                    this.text = it
+                }
+            }
+            textConsumer {
+                disableTextNotification {
+                    text.setValue(it)
+                }
+            }
         }
 
         var hintText: State<String?>

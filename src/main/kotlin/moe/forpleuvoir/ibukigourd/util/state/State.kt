@@ -41,6 +41,8 @@ value class ImmutableState<T>(private val value: T) : State<T> {
 
 fun <T> stateOf(value: T): State<T> = ImmutableState(value)
 
+val <T> T.asState: State<T> get() = stateOf(this)
+
 //------------ Extension ------------\\
 
 operator fun State<Boolean>.not(): Boolean = !this.getValue()

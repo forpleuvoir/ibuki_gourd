@@ -143,6 +143,7 @@ fun ContainerScope.SwitchButton(
  */
 fun ContainerScope.LockButton(
     lockState: MutableState<Boolean> = mutableStateOf(false),
+    color: State<ARGBColor> = stateOf(Colors.BLACK.alpha(.75f)),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -159,7 +160,7 @@ fun ContainerScope.LockButton(
         PressableTheme.UNLOCK.disabled,
     )
     val buttonScope = ButtonScope { this }
-    val lock = buttonScope.Icon(list.maxBy { it.width + it.height }) {
+    val lock = buttonScope.Icon(mutableStateOf(list.maxBy { it.width + it.height }), color) {
         remeasureOnChange = false
     }
     Modifier
