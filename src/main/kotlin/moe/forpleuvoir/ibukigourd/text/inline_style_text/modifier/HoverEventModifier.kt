@@ -1,7 +1,7 @@
-package moe.forpleuvoir.ibukigourd.text.richtext.modifier
+package moe.forpleuvoir.ibukigourd.text.inline_style_text.modifier
 
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.richtext.RichText
+import moe.forpleuvoir.ibukigourd.text.inline_style_text.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.text.style.style
 import net.minecraft.text.MutableText
 
@@ -23,7 +23,7 @@ object HoverEventModifier : TextModifier {
                 hover(Text {
                     val lines = content.split("\\n")
                     lines.forEach { line ->
-                        RichText.parse(line, supportedModifiers).let {
+                        InlineStyleTextParser.parse(line, supportedModifiers).let {
                             append(it)
                             if (line != lines.last()) newLine()
                         }

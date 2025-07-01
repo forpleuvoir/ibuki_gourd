@@ -1,11 +1,11 @@
-package moe.forpleuvoir.ibukigourd.text.richtext
+package moe.forpleuvoir.ibukigourd.text.inline_style_text
 
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.richtext.modifier.*
+import moe.forpleuvoir.ibukigourd.text.inline_style_text.modifier.*
 import net.minecraft.text.MutableText
 
-object RichText {
+object InlineStyleTextParser {
 
     @JvmStatic
     val regex = Regex("&\\{.*?}")

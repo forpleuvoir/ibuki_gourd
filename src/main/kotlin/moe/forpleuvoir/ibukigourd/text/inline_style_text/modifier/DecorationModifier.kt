@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.text.richtext.modifier
+package moe.forpleuvoir.ibukigourd.text.inline_style_text.modifier
 
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.nebula.common.util.primitive.pick

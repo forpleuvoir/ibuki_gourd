@@ -43,6 +43,7 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
@@ -757,10 +758,20 @@ fun <T> ContainerScope.NumberEditor(
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
     value.onSetValue = { it.coerceIn(valueRange) }
+    var validValue = value.getValue()
+    var valid = true
     TextEditor(
         modifier = Modifier
             .padding(3, 3, 3, 2)
             .disableRenderBackground()
+            .mousePress {
+                this as TextEditorWidget
+                onMousePress(it)
+                if (!isFocused && !valid) {
+                    text = valueMapper(validValue)
+                    valid = true
+                }
+            }
             .mouseScrolling { event ->
                 event.tryUse(wasMouseOver && isFocused).onSuccess {
                     val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScroller)
@@ -774,13 +785,22 @@ fun <T> ContainerScope.NumberEditor(
         var notifiable = true
         textConsumer {
             notifiable = false
-            value.setValue(textMapper(it))
+            valid = textPredicate(it)
+            if (valid) {
+                owner().textColor = textColor
+                value.setValue(textMapper(it))
+                validValue = value.getValue()
+            } else {
+                value.setValue(textMapper(it))
+                owner().textColor = HSVColor(15f, 1f, 1f)
+            }
             notifiable = true
         }
         value.subscribe {
             if (notifiable) text = valueMapper(value.getValue())
         }
-        textPredicate(textPredicate)
+
+//        textPredicate(textPredicate)
         editorScope()
     }
     Column(

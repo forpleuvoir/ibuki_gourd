@@ -2,6 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.text
 
+import moe.forpleuvoir.ibukigourd.text.inline_style_text.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.text.style.StyleScope
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.text.*
@@ -20,6 +21,11 @@ open class Text(
 ) : MutableText(content, siblings, style) {
 
     companion object {
+
+        @JvmStatic
+        fun inlineStyle(exp: String): Text {
+            return InlineStyleTextParser.parse(exp).copyToText()
+        }
 
         @JvmStatic
         fun literal(content: String): Text {

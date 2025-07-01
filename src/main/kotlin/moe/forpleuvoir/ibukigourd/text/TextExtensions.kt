@@ -10,6 +10,8 @@ import kotlin.reflect.KClass
 
 typealias McText = net.minecraft.text.Text
 
+fun InlineStyleText(exp: String): Text = Text.inlineStyle(exp)
+
 @JvmOverloads
 fun Literal(content: String = ""): Text = Text.literal(content)
 

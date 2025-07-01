@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.text.richtext.modifier
+package moe.forpleuvoir.ibukigourd.text.inline_style_text.modifier
 
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
