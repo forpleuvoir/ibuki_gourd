@@ -2,7 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.text.inline_style_text.InlineStyleTextParser
+import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.text.style.StyleScope
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.text.*

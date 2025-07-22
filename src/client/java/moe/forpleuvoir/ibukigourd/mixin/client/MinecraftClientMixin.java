@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
+import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler;
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
@@ -65,5 +66,10 @@ public abstract class MinecraftClientMixin {
     @Inject(method = "onResolutionChanged", at = @At("RETURN"))
     public void ibukigourd$onResolutionChanged(CallbackInfo ci) {
         Toast.onResize();
+    }
+
+    @Inject(method = "openGameMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;isIntegratedServerRunning()Z"))
+    public void ibukigourd$openGameMenu(boolean pauseOnly, CallbackInfo ci) {
+        ClientModConfigHandler.INSTANCE.asyncSave();
     }
 }

@@ -9,14 +9,16 @@ open class TextScope {
 
     private lateinit var content: MutableText
 
+    val isInitialized get() = ::content.isInitialized
+
     val text: MutableText
         get() {
-            check(::content.isInitialized) { "Content is not initialized" }
+            check(isInitialized) { "Content is not initialized" }
             return content
         }
 
     fun append(text: MutableText) {
-        if (::content.isInitialized) {
+        if (isInitialized) {
             content.append(text)
         } else {
             content = text

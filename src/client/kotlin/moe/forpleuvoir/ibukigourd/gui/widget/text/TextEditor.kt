@@ -599,7 +599,7 @@ open class TextEditorWidget(
         context.useScissor(contentBox(true)) {
             renderText(context)
         }
-        context.useScissor(transform.asWorldCoordinateBox) {
+        context.useScissor(contentBox(true).expandEdges(1f)) {
             renderCursor(context)
         }
     }

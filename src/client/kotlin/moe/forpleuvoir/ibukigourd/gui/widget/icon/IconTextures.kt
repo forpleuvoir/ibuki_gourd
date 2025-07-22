@@ -63,7 +63,7 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
     override fun getFabricId(): Identifier = identifier("icon")
 
 
-    var SEARCH = WidgetTexture(Corner.Unspecified, 3, 3, 14, 14, TEXTURE_INFO)
+    var SEARCH = WidgetTexture(Corner.Unspecified, 2, 2, 14, 14, TEXTURE_INFO)
         private set
 
     var OPACITY = WidgetTexture(Corner.Unspecified, 16, 0, 32, 16, TEXTURE_INFO)
@@ -76,6 +76,15 @@ object IconTextures : SimpleSynchronousResourceReloadListener {
         private set
 
     var EDIT = WidgetTexture(Corner.Unspecified, 67, 3, 77, 13, TEXTURE_INFO)
+        private set
+
+    var COPY = WidgetTexture(Corner.Unspecified, 83, 2, 93, 14, TEXTURE_INFO)
+        private set
+
+    var PASTE = WidgetTexture(Corner.Unspecified, 99, 2, 109, 14, TEXTURE_INFO)
+        private set
+
+    var CUT = WidgetTexture(Corner.Unspecified, 115, 3, 125, 13, TEXTURE_INFO)
         private set
 
     var CLOSE = WidgetTexture(Corner.Unspecified, 3, 19, 13, 29, TEXTURE_INFO)

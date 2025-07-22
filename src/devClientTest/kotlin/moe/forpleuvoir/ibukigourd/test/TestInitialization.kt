@@ -40,7 +40,7 @@ object TestInitialization {
                 openScreen(TestScreen())
             }
             register(Keyboard.KP_2) {
-                openScreen(TestScreen2())
+                TestScreen2()
             }
             register(Keyboard.KP_3) {
                 openScreen(testScreen3())

@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.configwrapper
 import moe.forpleuvoir.ibukigourd.config.item.*
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBind
 import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyBindBoolean
+import moe.forpleuvoir.ibukigourd.config.item.impl.ConfigKeyCode
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.expandableConfigContainerLimit
@@ -83,6 +84,7 @@ object ConfigWrapperMap {
         register<ConfigStringMap> { c, m -> StringMapConfigWrapper(c, modifier = m) }
         register<ConfigPairList<String, String>> { c, m -> StringPairListConfigWrapper(c, modifier = m) }
         register<ConfigKeyBind> { c, m -> ConfigKeyBindWrapper(c, m) }
+        register<ConfigKeyCode> { c, m -> ConfigKeyCodeWrapper(c, m) }
         register<ConfigKeyBindBoolean> { c, m -> ConfigKeyBindBooleanWrapper(c, m) }
 
         //------------ Other ------------\\

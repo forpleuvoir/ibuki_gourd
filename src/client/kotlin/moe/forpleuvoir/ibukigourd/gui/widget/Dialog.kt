@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -47,6 +48,22 @@ fun SimpleDialog(
     DialogContent(contentModifier(), contentOutlineColor, contentInnerColor, content)
 }
 
+data class ConfirmDialogScope(
+    val owner: WidgetContainer,
+    var onConfirm: () -> Unit,
+    var onCancel: () -> Unit
+) : ColumnScope {
+    override fun owner(): WidgetContainer = owner
+
+    fun confirm(block: () -> Unit) {
+        onConfirm = block
+    }
+
+    fun cancel(block: () -> Unit) {
+        onCancel = block
+    }
+}
+
 fun ConfirmDialog(
     title: State<Text>,
     modifier: Modifier = Modifier,
@@ -59,31 +76,34 @@ fun ConfirmDialog(
     onCancel: () -> Unit = {
         mc.currentScreen?.close()
     },
-    content: ColumnScope.() -> Unit
+    content: ConfirmDialogScope.() -> Unit
 ): IGScreenImpl = Dialog(
     modifier = modifier,
     screenModifier = screenModifier,
     bgColor = bgColor,
     parentScreen = parentScreen
 ) {
+    val scope = ConfirmDialogScope(this.owner(), onConfirm, onCancel)
     //Title
     TextLabel(title)
     //Content
-    content()
+    scope.content()
     //Button
     Row(
-        Modifier.matchSibling(),
+        Modifier.matchSibling().minWidth(120f),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
     ) {
         Button {
             TextLabel(IGLang.confirm)
             click {
-                onConfirm()
+                scope.onConfirm()
             }
         }
         Button {
             TextLabel(IGLang.cancel)
-            click { onCancel() }
+            click {
+                scope.onCancel()
+            }
         }
     }
 }

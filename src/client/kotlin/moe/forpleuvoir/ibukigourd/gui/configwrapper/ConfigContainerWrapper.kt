@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -18,13 +19,11 @@ import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRender
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
-import moe.forpleuvoir.ibukigourd.gui.widget.SimpleDialog
-import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
-import moe.forpleuvoir.ibukigourd.gui.widget.Widget
+import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
@@ -36,9 +35,8 @@ import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGui
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.showFirstConfigInContainer
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.ibukigourd.util.state.stateOf
-import moe.forpleuvoir.ibukigourd.util.state.switch
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
+import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.common.util.primitive.pick
@@ -122,7 +120,7 @@ fun ContainerScope.ExpandableConfigContainerWrapper(
         ) {
             TextLabel(config.translateText, Modifier.hoverText(config.comment))
             if (firstConfig != null) {
-                TextLabel("·", modifier = Modifier.margin(horizontal = 1f))
+                Rect(configContainerWrapperGuidelinesColor, modifier = Modifier.size(2f, 2f).margin(horizontal = 2f))
             }
             Row {
                 firstConfig?.guiWrapper(this, Modifier.weight(1).disableRenderBackground())
@@ -168,7 +166,6 @@ fun ContainerScope.ExpandableConfigContainerWrapper(
     )
 }
 
-
 fun ContainerScope.ConfigManagerWrapper(
     configManager: ConfigManager,
     modifier: Modifier = Modifier,
@@ -182,8 +179,93 @@ fun ContainerScope.ConfigManagerWrapper(
         }
         addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it to it.configs() })
     }
+    var currentGroup = map.firstOrNull()?.first?.key
+    var currentConfigs = map.firstOrNull { it.first.key == currentGroup }?.second ?: emptyList()
+
+    var onGroupChange by lateInitValueOf<() -> Unit>()
+
+    ColumnListWrapped(
+        modifier = Modifier.fill(),
+        listModifier = { Modifier.fill() },
+    ) {
+        val hoveredColor = Colors.CYAN.alpha(0.25f).asState
+        val pressedColor = Colors.CYAN.alpha(0.5f).asState
+        val idleColor = { key: String ->
+            if (currentGroup == key) Colors.CYAN.alpha(0.25f) else Colors.BLACK.alpha(0f)
+        }
+        map.forEach { (config, configs) ->
+            FlatButton(
+                modifier = Modifier.width((map.map { it.first.translateText }.maxWidth + 4f).coerceIn(100f, 160f)),
+                hoveredColor = hoveredColor,
+                pressedColor = pressedColor,
+                idleColor = mutableStateBy { idleColor(config.key) },
+                horizontalArrangement = Arrangement.Left
+            ) {
+                TextLabel(
+                    config.translateText,
+                    modifier = Modifier.hoverText(config.comment, Tip.DefaultSetting.copy(optionalDirection = Direction.clockwiseFromRight))
+                )
+                click {
+                    if (currentGroup != config.key) {
+                        currentGroup = config.key
+                        map.firstOrNull { it.first.key == currentGroup }?.second?.let {
+                            currentConfigs = it
+                            onGroupChange()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(3f),
+    ) {
+        var str = ""
+        val predicate = { c: ConfigSerializable ->
+            str.isEmpty() || c.matched(str.toRegex()) || c.translateText.plainText.contains(str) || c.comment.plainText.contains(str)
+        }
+        var onSearch by lateInitValueOf<() -> Unit>()
+        SearchBar(
+            textConsumer = {
+                str = it
+                onSearch()
+            },
+            hintText = stateOf(IGLang.search.plainText),
+            modifier = Modifier.fill(),
+            textEditorModifier = { Modifier.weight(1) }
+        )
+        Box {
+            ConfigsWrapper(
+                currentConfigs.filter(predicate),
+                modifier = Modifier.fill()
+            )
+            onSearch = {
+                this.executeRecompose()
+            }
+        }
+        onGroupChange = {
+            this.executeRecompose()
+        }
+    }
+
+}
+
+fun ContainerScope.ConfigManagerWrapperOld(
+    configManager: ConfigManager,
+    modifier: Modifier = Modifier,
+) = Row(
+    modifier,
+    horizontalArrangement = Arrangement.spacedBy(5f)
+) {
+    val map = buildList {
+        (configManager.configs().filterIsInstance<Config<*, *>>() as Collection<ConfigSerializable>).let {
+            if (it.isNotEmpty()) add(configManager as ConfigSerializable to it)
+        }
+        addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it to it.configs() })
+    }
     var (currentGroup, currentConfigs) = if (map.isEmpty()) {
-        Literal("empty") to notifiableList<ConfigSerializable>()
+        Literal("empty") to notifiableList()
     } else {
         map.first().first to notifiableList(map.first().second)
     }

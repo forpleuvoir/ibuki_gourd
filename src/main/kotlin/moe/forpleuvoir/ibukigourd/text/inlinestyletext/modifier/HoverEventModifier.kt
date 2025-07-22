@@ -1,19 +1,13 @@
-package moe.forpleuvoir.ibukigourd.text.inline_style_text.modifier
+package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.inline_style_text.InlineStyleTextParser
+import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.text.style.style
 import net.minecraft.text.MutableText
 
 object HoverEventModifier : TextModifier {
 
     private val pattern = """hover=>.+""".toRegex()
-
-    private val supportedModifiers = arrayOf(
-        DecorationModifier(),
-        ColorModifier,
-        LegacyChatFormattingModifier()
-    )
 
     override fun modifier(exp: String): ((MutableText) -> MutableText)? {
         if (!exp.matches(pattern)) return null
@@ -23,7 +17,7 @@ object HoverEventModifier : TextModifier {
                 hover(Text {
                     val lines = content.split("\\n")
                     lines.forEach { line ->
-                        InlineStyleTextParser.parse(line, supportedModifiers).let {
+                        InlineStyleTextParser.parse(line, InlineStyleTextParser.noneEventModifier).let {
                             append(it)
                             if (line != lines.last()) newLine()
                         }

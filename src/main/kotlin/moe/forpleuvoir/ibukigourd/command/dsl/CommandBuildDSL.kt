@@ -12,9 +12,9 @@ import java.util.stream.Stream
 
 
 @DslMarker
-annotation class ArgumentDslMark
+annotation class CommandDslMark
 
-@ArgumentDslMark
+@CommandDslMark
 open class ArgumentScope<S, T : ArgumentBuilder<S, T>>(
     val argumentBuilder: T,
 ) {
@@ -63,13 +63,23 @@ class RequiredArgumentScope<S, T>(
         suggests { _, builder -> CommandSource.suggestMatching(candidates, builder) }
     }
 
+    @JvmName("suggestsStream")
+    fun suggests(candidates: () -> Stream<String>) {
+        suggests { ctx, builder -> CommandSource.suggestMatching(candidates(), builder) }
+    }
+
     fun suggests(candidates: Iterable<String>) {
         suggests { _, builder -> CommandSource.suggestMatching(candidates, builder) }
     }
 
+    @JvmName("suggestsIterable")
+    fun suggests(candidates: () -> Iterable<String>) {
+        suggests { ctx, builder -> CommandSource.suggestMatching(candidates(), builder) }
+    }
+
 }
 
-@ArgumentDslMark
+@CommandDslMark
 fun <S> Command(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): LiteralArgumentBuilder<S> {
     return ArgumentScope(LiteralArgumentBuilder.literal<S>(name))
         .apply(scope)
@@ -77,7 +87,7 @@ fun <S> Command(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>
 }
 
 
-@ArgumentDslMark
+@CommandDslMark
 fun <S> CommandDispatcher<S>.registerCommand(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): CommandDispatcher<S> {
     this.register(Command(name, scope))
     return this

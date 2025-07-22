@@ -23,6 +23,12 @@ abstract class ListWidget(
 
     var enableScissor: Boolean = true
 
+    protected var _amountStep: Float? = null
+        set(value) {
+            field = value
+            if (value != null) scrollState.amountStep = value
+        }
+
     override fun amount(): Float = scrollState.amount
 
     init {
@@ -92,6 +98,10 @@ abstract class ListWidget(
 
         fun onRenderChild(render: (child: IGWidget, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit) {
             owner().onRenderChild = render
+        }
+
+        fun amountStep(step: Float) {
+            owner()._amountStep = step
         }
 
     }

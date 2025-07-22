@@ -33,7 +33,7 @@ object InputHandler : Tickable {
         return keyBinds.asSequence().filter {
             it !== keyBind
         }.filter {
-            it.keys.exactMatch(keyBind.keys)
+            it.setting.environment conflictOf keyBind.setting.environment && it.keys.exactMatch(keyBind.keys)
         }
     }
 

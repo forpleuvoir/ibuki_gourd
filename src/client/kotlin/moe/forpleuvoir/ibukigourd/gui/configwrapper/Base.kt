@@ -17,6 +17,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.config.ConfigSerializable
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 
 const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
 
@@ -46,11 +48,15 @@ fun <T : Resettable> ContainerScope.ConfigResetButton(
     onRest: (T) -> Unit = {}
 ): IGButtonWidget {
     val resettable = mutableStateOf(!config.isDefault())
+    var timeMark = TimeSource.Monotonic.markNow()
     return Button(
         Modifier
             .active(resettable)
             .renderOverlay { context, f, f1, f2 ->
-                resettable.setValue(!config.isDefault())
+                if (timeMark.elapsedNow() > 200.milliseconds) {
+                    timeMark = TimeSource.Monotonic.markNow()
+                    resettable.setValue(!config.isDefault())
+                }
             }
             .then(modifier)
     ) {

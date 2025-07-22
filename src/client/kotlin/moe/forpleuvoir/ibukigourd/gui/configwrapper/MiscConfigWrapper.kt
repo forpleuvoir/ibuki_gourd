@@ -66,16 +66,7 @@ fun ContainerScope.StringConfigWrapper(
         TextEditor(
             modifier = Modifier.width(120f)
         ) {
-            text = strValue.getValue()
-            textConsumer {
-                disableTextNotification {
-                    strValue.setValue(it)
-                }
-            }
-            strValue.subscribe {
-                text = it
-            }
-
+            bindState(strValue)
         }
         Button {
             Icon(IconTextures.EDIT)
@@ -84,13 +75,11 @@ fun ContainerScope.StringConfigWrapper(
                     TextAreaWrapped(
                         modifier = Modifier
                             .minHeight(150f).maxHeight(240f)
+                            .maxWidth(480f)
                             .disableRenderBackground()
                             .padding(0f)
                     ) {
-                        text = strValue.getValue()
-                        textConsumer {
-                            strValue.setValue(it)
-                        }
+                        bindState(strValue)
                     }
                 }.open()
             }

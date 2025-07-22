@@ -128,6 +128,7 @@ fun <T> ContainerScope.Selector(
     listWrapperModifier: BoxScope.() -> Modifier = { Modifier },
     listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = null,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
     check(options.any { checker(it, selected.getValue()) }) { "initialOption must be in options" }
@@ -148,6 +149,7 @@ fun <T> ContainerScope.Selector(
                 horizontalAlignment = Alignment.Left,
                 listModifier = listModifier
             ) {
+                amountStep?.let { amountStep(it) }
                 options.forEachIndexed { index, option ->
                     if (index != 0) {
                         Rect(
@@ -208,6 +210,7 @@ fun <T> ContainerScope.SelectorWithSearcher(
     listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
     listModifier: ColumnScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = null,
     scope: DropDownMenuScope.() -> Unit = {}
 ): IGButtonWidget {
     check(options.any { checker(it, selected.getValue()) }) { "initialOption must be in options" }
@@ -245,6 +248,7 @@ fun <T> ContainerScope.SelectorWithSearcher(
                     modifier = listModifier().attachLeft { padding(0f).disableRenderBackground() }.then(listWrapperModifier()),
                     horizontalAlignment = Alignment.Left
                 ) {
+                    amountStep?.let { amountStep(it) }
                     if (showList.isEmpty()) TextLabel(IGLang.hasNothing)
                     showList.forEachIndexed { index, option ->
                         if (index != 0) {
@@ -286,6 +290,7 @@ fun ContainerScope.Selector(
     listWrapperModifier: BoxScope.() -> Modifier = { Modifier },
     listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = null,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = Selector(
     options,
@@ -298,6 +303,7 @@ fun ContainerScope.Selector(
     listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
+    amountStep = amountStep,
     scope = scope
 )
 
@@ -307,6 +313,7 @@ fun <E : Enum<E>> ContainerScope.EnumSelector(
     onSelected: (E) -> Unit = {},
     modifier: Modifier = Modifier,
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = null
 ) = Selector(
     options = options,
     selected = selected,
@@ -323,7 +330,8 @@ fun <E : Enum<E>> ContainerScope.EnumSelector(
         )
     },
     modifier = modifier,
-    optionsDirection = optionsDirection
+    optionsDirection = optionsDirection,
+    amountStep = amountStep
 )
 
 fun ContainerScope.EventSelector(
@@ -332,6 +340,7 @@ fun ContainerScope.EventSelector(
     onSelected: (KClass<out Event>) -> Unit = {},
     modifier: Modifier = Modifier,
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = null
 ) = Selector(
     options = options,
     selected = selected,
@@ -348,5 +357,6 @@ fun ContainerScope.EventSelector(
         )
     },
     modifier = modifier,
-    optionsDirection = optionsDirection
+    optionsDirection = optionsDirection,
+    amountStep = amountStep
 )

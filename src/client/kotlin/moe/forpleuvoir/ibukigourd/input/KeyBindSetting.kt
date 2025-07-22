@@ -43,6 +43,8 @@ interface KeyBindSetting : Serializable, Deserializable, Matchable {
 	 */
 	fun copyFrom(target: KeyBindSetting): Boolean
 
+    fun restDefault() = copyFrom(KeyBindSettingImpl())
+
 }
 
 fun KeyBindSetting(

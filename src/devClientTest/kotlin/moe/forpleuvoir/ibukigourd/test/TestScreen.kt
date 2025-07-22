@@ -100,7 +100,7 @@ fun TestScreen() = BoxScreen(modifier()) {
         }
         TestColumn()
         FloatSlider(
-            mutableStateOf(GuiConfig.Screen::DEFAULT_BG_BLUR_RADIUS),
+            mutableStateOf(GuiConfig.Screen::defaultBgBlurRadius),
             0f..25f,
             textMapper = { Literal("背景模糊:%.2f".format(it)) },
             modifier = Modifier.minWidth(120f)

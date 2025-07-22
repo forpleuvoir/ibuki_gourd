@@ -36,7 +36,8 @@ class RowListWidget(
         scrollState {
             maxAmount = (totalSpace - contentWidth).coerceAtLeast(0f)
             barProportion = contentWidth / totalSpace
-            amountStep = when (widgetChildren().size) {
+
+            amountStep = _amountStep ?: when (widgetChildren().size) {
                 0    -> 0f
                 else -> widgetChildren().minOf { it.transform.width } / 2f
             }
@@ -112,9 +113,9 @@ class ColumnListWidget(
         scrollState {
             maxAmount = totalSpace - contentHeight
             barProportion = contentHeight / totalSpace
-            amountStep = when (widgetChildren().size) {
+            amountStep = _amountStep ?: when (widgetChildren().size) {
                 0    -> 0f
-                else -> widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
+                else -> widgetChildren().minOf { it.transform.height } / 2f
             }
         }
         super<ListWidget>.onMeasureCompletion()

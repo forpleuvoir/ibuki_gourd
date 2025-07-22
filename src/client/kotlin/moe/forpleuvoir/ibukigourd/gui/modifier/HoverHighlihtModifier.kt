@@ -55,7 +55,6 @@ private fun modifier(
     val upt = 1f / upTick
     val dnt = 1f / downTick
     var fraction = 0f
-    startColor.lerp(endColor, 0f)
     renderFunction.invoke(it) { context, mouseX, mouseY, delta ->
         fraction = if (it.wasMouseOver) {
             fraction + delta * upt

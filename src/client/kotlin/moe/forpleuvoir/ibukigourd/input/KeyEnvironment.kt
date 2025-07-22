@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.input.KeyEnvironment.entries
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
@@ -22,6 +21,11 @@ enum class KeyEnvironment(val key: String) : Serializable {
         fun fromKey(key: String): KeyEnvironment {
             return entries.first { it.key == key }
         }
+    }
+
+    infix fun conflictOf(environment: KeyEnvironment): Boolean {
+        return if (this == Both || environment == Both) true
+        else this == environment
     }
 
     fun envMatch(): Boolean {

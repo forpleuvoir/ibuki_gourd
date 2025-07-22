@@ -29,7 +29,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.input.*
-import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.WIDGET_TEST_OUTLINE_COLOR
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.widgetTestOutlineColor
 import moe.forpleuvoir.ibukigourd.render.renderBlur
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -464,7 +464,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         hoveredWidget.getValue()?.let { widget ->
-            WIDGET_TEST_OUTLINE_COLOR
+            widgetTestOutlineColor
                 .takeIf { it.alpha > 0 }
                 ?.let { context.batchRenderBox { pushBoxOutline(widget.transform, it) } }
         }

@@ -608,10 +608,7 @@ class TextAreaWidget(
         context.scissor(contentBox(true)) {
             renderText(context)
         }
-    }
-
-    override fun onRenderOverlay(context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
-        context.scissor(contentBox(true)) {
+        context.scissor(contentBox(true).expandEdges(1f)) {
             renderCursor(context)
         }
     }

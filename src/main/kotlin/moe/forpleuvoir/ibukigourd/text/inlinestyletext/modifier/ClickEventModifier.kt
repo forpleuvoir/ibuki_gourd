@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.text.inline_style_text.modifier
+package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
 import moe.forpleuvoir.ibukigourd.text.style.style
 import net.minecraft.text.ClickEvent

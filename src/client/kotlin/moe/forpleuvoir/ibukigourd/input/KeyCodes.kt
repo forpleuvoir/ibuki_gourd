@@ -5,9 +5,15 @@ package moe.forpleuvoir.ibukigourd.input
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.nebula.common.api.Matchable
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializer
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.client.util.InputUtil
 
-interface KeyCode {
+interface KeyCode : Matchable {
 
     val code: Int
 
@@ -19,7 +25,14 @@ interface KeyCode {
 
     val translationKey: String
 
-    companion object {
+    override fun matched(regex: Regex): Boolean {
+        return regex.containsMatchIn(keyName)
+                || regex.containsMatchIn(keyNameText.plainText)
+                || regex.containsMatchIn(translationKey)
+                || regex.containsMatchIn(code.toString())
+    }
+
+    companion object : Serializer<KeyCode>, Deserializer<KeyCode> {
 
         internal val keyMap: Map<Int, KeyCode> by lazy {
             buildMap {
@@ -28,9 +41,18 @@ interface KeyCode {
             }
         }
 
-
         @JvmStatic
         fun fromCode(code: Int): KeyCode = keyMap[code] ?: Keyboard.UNKNOWN
+
+        override fun serialization(target: KeyCode): SerializeElement = SerializePrimitive(target.translationKey)
+
+        override fun deserialization(serializeElement: SerializeElement): KeyCode {
+            return serializeElement.checkType<KeyCode> {
+                check<SerializePrimitive> {
+                    fromCode(InputUtil.fromTranslationKey(it.asString).code)
+                }
+            }.getOrThrow()
+        }
 
     }
 

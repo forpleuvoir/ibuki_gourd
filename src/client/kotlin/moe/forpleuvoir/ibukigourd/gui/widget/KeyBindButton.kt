@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
@@ -41,8 +42,57 @@ val KeyBind.hoverText: Text
         else text
     }
 
+fun ContainerScope.KeyCodeSetterButton(
+    keyCode: KeyCode,
+    modifier: Modifier = Modifier,
+    onKeyChanged: (KeyCode) -> Unit = {},
+): IGButtonWidget {
+    var inputting = false
+    var key = keyCode
 
-fun ContainerScope.KeyBindButton(
+    val inputtingColor = Colors.ORANGE
+    val conflictColor = Colors.RED
+
+    fun text() = key.keyNameText.apply {
+        if (InputHandler.detectKeyConflicts(KeyBind(key)).count() > 0) withColor(conflictColor)
+    }
+
+    return Button(
+        modifier = Modifier
+            .width(120f)
+            .mousePress { event ->
+                event.tryUse(inputting && event.button.code != Keyboard.BACKSPACE.code).onSuccess {
+                    key = event.button
+                    onKeyChanged(key)
+                    inputting = false
+                }
+                event.tryUse(!inputting && wasMouseOver && event.button == Mouse.LEFT).onSuccess {
+                    inputting = true
+                }
+            }
+            .keyPress { event ->
+                onKeyPress(event)
+                event.tryUse(inputting && event.keyCode != Keyboard.BACKSPACE).onSuccess {
+                    key = event.keyCode
+                    onKeyChanged(key)
+                    inputting = false
+                }
+            }
+            .hoverText(text = mutableStateBy {
+                if (inputting) IGLang.releaseToSaveSetting.withColor(inputtingColor)
+                else key.keyNameText
+            }, showDelay = 50.milliseconds)
+            .then(modifier)
+    ) {
+        TextLabel(mutableStateBy {
+            if (inputting) {
+                Literal(IGLang.pressToSetting.plainText).withColor(inputtingColor)
+            } else text()
+        }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
+    }
+}
+
+fun ContainerScope.KeyBindSetterButton(
     keyBind: KeyBind,
     modifier: Modifier = Modifier,
     onKeyChanged: (KeyBind) -> Unit = {},
@@ -110,11 +160,11 @@ fun ContainerScope.KeyBindButton(
                     inputtingText()
                 else Literal(IGLang.pressToSetting.plainText).withColor(inputtingColor)
             } else text()
-        })
+        }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
     }
 }
 
-fun ContainerScope.KeyBindSettingButton(
+fun ContainerScope.KeyBindSettingSetterButton(
     keyBind: KeyBind,
     title: Text,
     modifier: Modifier = Modifier,

@@ -19,7 +19,6 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.minecraft.client.util.InputUtil
 import java.util.*
 import java.util.function.Consumer
 
@@ -178,9 +177,7 @@ class KeyBind(
 
     override fun matched(regex: Regex): Boolean {
         return regex.run {
-            asTexts.forEach { if (this.containsMatchIn(it.string)) return@run true }
-            asTranslatableKey.forEach { if (this.containsMatchIn(it)) return@run true }
-            setting matched regex
+            keys.any { it matched this } || setting matched this
         }
     }
 
@@ -218,24 +215,25 @@ class KeyBind(
 
     override fun serialization(): SerializeElement {
         return serializeObject {
-            "keys" to serializeArray(asTranslatableKey)
-            "setting" to setting
+            "keys" to serializeArray(keys.map { KeyCode.serialization(it) })
+            if (setting != defaultSetting) "setting" to setting
         }
     }
 
     override fun deserialization(serializeElement: SerializeElement) {
+        val obj = serializeElement.asObject
+        keys.clear()
         runCatching {
-            val obj = serializeElement.asObject
-            keys.clear()
-            obj["keys"]!!.asArray.forEach { keys.add(KeyCode.fromCode(InputUtil.fromTranslationKey(it.asString).code)) }
-            setting.deserialization(obj["setting"]!!)
-            onChange(this)
+            obj["keys"]!!.asArray.forEach { keys.add(KeyCode.deserialization(it)) }
         }.onFailure {
-            keys.clear()
             keys.addAll(defaultKeys.toSet())
-            setting.copyFrom(defaultSetting)
-            log.error(it)
         }
+        runCatching {
+            setting.deserialization(obj["setting"]!!)
+        }.onFailure {
+            setting.copyFrom(defaultSetting)
+        }
+        onChange(this)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -13,9 +13,9 @@ fun ConfigSerializable.translationKey(
     acc + (if (c.parentContainer != null) "." else "") + c.key
 }
 
-private const val TRANSLATE_TEXT_KYE = "#translate_text"
+const val TRANSLATE_TEXT_KYE = "#translate_text"
 
-private const val COMMENT_KYE = "#comment"
+const val COMMENT_KYE = "#comment"
 
 fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String): Text {
     var count = 0
