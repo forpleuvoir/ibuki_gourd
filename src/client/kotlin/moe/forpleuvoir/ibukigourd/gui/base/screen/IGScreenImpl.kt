@@ -47,6 +47,8 @@ import net.minecraft.client.gui.navigation.GuiNavigationPath
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.tooltip.TooltipPositioner
 import net.minecraft.text.OrderedText
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -112,25 +114,29 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override val focusedWidget: MutableState<IGWidget?> = mutableStateOf(null)
 
-    private val tasks: MutableList<() -> Unit> = mutableListOf()
+    private val tasks: MutableList<() -> Unit> = CopyOnWriteArrayList()
 
-    private var eventProcessing = false
+    private val eventProcessing = AtomicBoolean(false)
 
     override fun execute(task: () -> Unit) {
         tasks.add(task)
     }
 
     private fun executeTasks() {
-        if (eventProcessing) return
-        tasks.forEach {
-            runCatching {
-                it.invoke()
-            }.onFailure {
-                Toast.showToast(text = Literal(it.message.toString()).withColor(Colors.RED))
-                _log.warn(it)
+        if (eventProcessing.get()) return
+        runCatching {
+            val removeList = mutableListOf<() -> Unit>()
+            tasks.forEach { task ->
+                task.invoke()
+                removeList.add(task)
             }
+            removeList.forEach {
+                tasks.remove(it)
+            }
+        }.onFailure {
+            Toast.showToast(text = Literal(it.message.toString()).withColor(Colors.RED))
+            _log.warn(it)
         }
-        tasks.clear()
     }
 
     override val coroutineScope: ScreenCoroutineScope = ScreenCoroutineScope(this)
@@ -410,6 +416,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
         latestRenderTime = measureTime {
 
+            executeTasks()
+
             if (mc.currentScreen == this) {
                 updateHoveredWidget()
                 MouseCursor.current = cursorSupplier()
@@ -493,9 +501,9 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         contract {
             callsInPlace(action, InvocationKind.EXACTLY_ONCE)
         }
-        eventProcessing = true
+        eventProcessing.set(true)
         val result = action()
-        eventProcessing = false
+        eventProcessing.set(false)
         executeTasks()
         return result
     }

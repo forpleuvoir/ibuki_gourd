@@ -12,6 +12,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
 import net.minecraft.util.Identifier
+import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
@@ -190,7 +191,7 @@ fun <K, V> Map<K, V>.forEachWithLimit(limit: Int, action: (K, V) -> Unit) {
 }
 
 fun <K, V> MutableMap<K, V>.renameKey(oldKey: K, newKey: K) {
-    if (this is LinkedHashMap) {
+    if (this is SequencedMap) {
         this.renameKey(oldKey, newKey)
     } else {
         this[oldKey]?.let { value ->
@@ -200,7 +201,7 @@ fun <K, V> MutableMap<K, V>.renameKey(oldKey: K, newKey: K) {
     }
 }
 
-fun <K, V> LinkedHashMap<K, V>.renameKey(oldKey: K, newKey: K) {
+fun <K, V> SequencedMap<K, V>.renameKey(oldKey: K, newKey: K) {
     val iterator = this.entries.iterator()
     val newMap = LinkedHashMap<K, V>()
 

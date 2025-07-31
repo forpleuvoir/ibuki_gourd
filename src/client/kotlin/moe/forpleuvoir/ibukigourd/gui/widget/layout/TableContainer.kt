@@ -11,10 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext.Companion.toIGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
@@ -26,11 +23,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainerImpl
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.mousePosition
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.util.math.MathHelper
@@ -78,7 +77,7 @@ class TableWidget(
             maxAmount = totalSpace - contentHeight
             barProportion = contentHeight / totalSpace
             amountStep = when (widgetChildren().size) {
-                0    -> 0f
+                0 -> 0f
                 else -> widgetChildren().minOf { it.transform.height }.coerceAtLeast(5f) / 2f
             }
         }
@@ -160,9 +159,11 @@ class TableWidget(
         onRenderCell(cell, cellBox, rowIndex, columnIndex, context, mouseX, mouseY, delta)
     }
 
-    var onRenderHeader: (header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::renderHeader
+    var onRenderHeader: (header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit =
+        ::renderHeader
 
-    var onRenderCell: (cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::renderCell
+    var onRenderCell: (cell: IGWidget, cellBox: Box, rowIndex: Int, columnIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) -> Unit =
+        ::renderCell
 
     fun renderHeader(header: IGWidget, headerBox: Box, rowIndex: Int, context: IGDrawContext, mouseX: Float, mouseY: Float, delta: Float) {
         if (!fixedHeader) {
@@ -301,37 +302,55 @@ fun <T> ContainerScope.TableWrapped(
     fixedHeader: Boolean = true,
     rowGap: Float = 1f,
     columnGap: Float = 1f,
-    scrollerModifier: RowScope.() -> Modifier = { Modifier },
+    scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     scrollState: ScrollState = ScrollState(),
     barThickness: Float = 9f,
     tableModifier: RowScope.() -> Modifier = { Modifier },
     scope: TableScope<T>.() -> Unit
-) = Row(
-    modifier = Modifier
-        .renderBackground { context, _, _, _ ->
-            context.batchRenderTextureColored {
-                pushWidgetTexture(transform, theme(WidgetTheme.ListLayout))
-            }
-        }
-        .padding(3).then(modifier),
-    horizontalArrangement = Arrangement.SpaceBetween,
-) {
-    Table(
-        userData = userData,
-        defaultAlignment = defaultAlignment,
-        fixedHeader = fixedHeader,
-        rowGap = rowGap,
-        columnGap = columnGap,
-        scrollState = scrollState,
-        modifier = tableModifier(),
-        scope = scope
-    )
-    Scroller(
-        scrollState = scrollState,
-        orientation = Orientation.Vertical,
+): RowWidget {
+    var recompose by lateInitValueOf {}
+    var renderBar = true
+    return Row(
         modifier = Modifier
-            .matchSibling()
-            .width(barThickness)
-            .margin(top = 1f, left = 1f) then scrollerModifier()
-    )
+            .renderBackground { context, _, _, _ ->
+                context.batchRenderTextureColored {
+                    pushWidgetTexture(transform, theme(WidgetTheme.ListLayout))
+                }
+            }
+            .layoutCompleted {
+                onLayoutCompletion()
+                val oldState = renderBar
+                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
+                if (oldState != renderBar) {
+                    recompose()
+                }
+            }
+            .padding(3).then(modifier),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Table(
+            userData = userData,
+            defaultAlignment = defaultAlignment,
+            fixedHeader = fixedHeader,
+            rowGap = rowGap,
+            columnGap = columnGap,
+            scrollState = scrollState,
+            modifier = tableModifier(),
+            scope = scope
+        )
+        Box(Modifier.matchSibling()) {
+            if (renderBar) {
+                Scroller(
+                    scrollState = scrollState,
+                    orientation = Orientation.Vertical,
+                    modifier = Modifier
+                        .fillHeight()
+                        .width(barThickness)
+                        .margin(top = 1f, left = 1f) then scrollerModifier()
+                )
+            }
+        }.apply {
+            recompose = { this.executeRecompose() }
+        }
+    }
 }

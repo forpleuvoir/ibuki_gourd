@@ -134,7 +134,7 @@ open class ScrollerWidget(
             this.transform.width - (scrollState.barProportion * this.transform.width).coerceAtLeast(9f)
         )
 
-    private val barPositionRange: ClosedFloatingPointRange<Float> get() = 0f..scrollableLength
+    private val barPositionRange: ClosedFloatingPointRange<Float> get() = 0f..if (scrollableLength.isFinite()) scrollableLength else 0f
 
     private fun updateBar() {
         scrollState.amount = scrollState.amount

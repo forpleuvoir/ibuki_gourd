@@ -45,6 +45,7 @@ fun <T : Comparable<T>> ContainerScope.Slider(
     value.onSetValue = { it.coerceIn(minValue, maxValue) }
     var notifiable = true
     var progress = progressMapper(value.getValue(), minValue, maxValue)
+    if (!progress.isFinite()) progress = 0.0
     value.subscribe {
         if (notifiable) progress = progressMapper(value.getValue(), minValue, maxValue)
     }

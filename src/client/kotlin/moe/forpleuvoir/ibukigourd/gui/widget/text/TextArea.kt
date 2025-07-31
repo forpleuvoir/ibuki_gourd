@@ -16,11 +16,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowWidget
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.WidgetTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -28,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -844,10 +844,13 @@ fun ContainerScope.TextAreaWrapped(
     scrollState: ScrollState = ScrollState(),
     modifier: Modifier = Modifier,
     textAreaModifier: RowScope .() -> Modifier = { Modifier },
-    scrollerModifier: RowScope.() -> Modifier = { Modifier },
+    scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     scope: TextAreaScope.() -> Unit = {}
 ): RowWidget {
     var textArea: TextAreaWidget? = null
+    var recompose by lateInitValueOf {}
+    var renderBar = false
+
     return Row(
         modifier = Modifier
             .padding(5.5f, 4f, 5.5f, 5.5f)
@@ -856,6 +859,13 @@ fun ContainerScope.TextAreaWrapped(
                     textArea?.let {
                         pushWidgetTexture(transform, it.theme(WidgetTheme.TextInput), it.bgShaderColor)
                     }
+                }
+            }.layoutCompleted {
+                onLayoutCompletion()
+                val oldState = renderBar
+                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
+                if (oldState != renderBar) {
+                    recompose()
                 }
             } then modifier
     ) {
@@ -882,14 +892,19 @@ fun ContainerScope.TextAreaWrapped(
         ) {
             scope()
         }
-        Scroller(
-            scrollState = scrollState,
-            orientation = Orientation.Vertical,
-            modifier = Modifier
-                .matchSibling()
-                .width(barThickness)
-                .margin(left = 1f) then scrollerModifier()
-        )
+        Box(Modifier.matchSibling()) {
+            if (renderBar) {
+                Scroller(
+                    scrollState = scrollState,
+                    orientation = Orientation.Vertical,
+                    modifier = Modifier
+                        .fillHeight()
+                        .width(barThickness)
+                        .margin(top = 1f, left = 1f) then scrollerModifier()
+                )
+            }
+        }.apply {
+            recompose = { this.executeRecompose() }
+        }
     }
-
 }

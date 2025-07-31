@@ -208,7 +208,7 @@ fun <T> ContainerScope.SelectorWithSearcher(
     modifier: Modifier = Modifier,
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier },
     listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
-    listModifier: ColumnScope.() -> Modifier = { Modifier },
+    listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = null,
     scope: DropDownMenuScope.() -> Unit = {}
@@ -245,7 +245,8 @@ fun <T> ContainerScope.SelectorWithSearcher(
                         textEditorModifier = { Modifier.weight(1) }
                     )
                 ColumnListWrapped(
-                    modifier = listModifier().attachLeft { padding(0f).disableRenderBackground() }.then(listWrapperModifier()),
+                    modifier = listWrapperModifier().attachLeft { padding(0f).disableRenderBackground() },
+                    listModifier = listModifier,
                     horizontalAlignment = Alignment.Left
                 ) {
                     amountStep?.let { amountStep(it) }

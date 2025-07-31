@@ -23,10 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.autoExpandConfigContainer
@@ -49,7 +46,7 @@ fun ContainerScope.ConfigsWrapper(
     configs: Iterable<ConfigSerializable>,
     modifier: Modifier = Modifier,
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1).fill() },
-    scrollerModifier: RowScope.() -> Modifier = { Modifier },
+    scrollerModifier: BoxScope.() -> Modifier = { Modifier },
 ) = ColumnListWrapped(
     modifier = modifier,
     listModifier = listModifier,
