@@ -206,10 +206,3 @@ BoxScreen {
 <img alt="img.png" src="doc/img.png" width="854"/>
 
 The GUI DSL facilitates intuitive layout and interaction design within Minecraft.
-
-## Acknowledgements
-
-Special thanks to [JetBrains](https://www.jetbrains.com) for providing free licenses for open-source projects,
-including [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai).
-
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com)

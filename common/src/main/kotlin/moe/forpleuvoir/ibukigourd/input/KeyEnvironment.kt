@@ -1,0 +1,48 @@
+package moe.forpleuvoir.ibukigourd.input
+
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+
+enum class KeyEnvironment(val key: String) : Serializable {
+    InGame("in_game"),
+    InScreen("in_screen"),
+    Both("both");
+
+    companion object : Deserializer<KeyEnvironment> {
+
+        override fun deserialization(serializeElement: SerializeElement): KeyEnvironment {
+            return fromKey(serializeElement.asString)
+        }
+
+        @JvmStatic
+        fun fromKey(key: String): KeyEnvironment {
+            return entries.first { it.key == key }
+        }
+    }
+
+    infix fun conflictOf(environment: KeyEnvironment): Boolean {
+        return if (this == Both || environment == Both) true
+        else this == environment
+    }
+
+    fun envMatch(): Boolean {
+        if (this == Both) return true
+        return this == currentEnv()
+    }
+
+    inline fun onEnvMatch(callback: () -> Unit) {
+        if (envMatch()) callback.invoke()
+    }
+
+    override fun serialization(): SerializeElement {
+        return SerializePrimitive(this.key)
+    }
+
+}
+
+fun currentEnv(): KeyEnvironment {
+    return if (mc.screen != null) KeyEnvironment.InScreen else KeyEnvironment.InGame
+}
