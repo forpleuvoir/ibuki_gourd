@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.renderAlignmentText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
@@ -96,7 +95,7 @@ fun <T : Comparable<T>> ContainerScope.Slider(
                     useScissor(box2) {
                         pushWidgetTexture(transform, theme, colorB)
                     }
-                    renderAlignmentText(
+                    pushAlignmentText(
                         textMapper(value.getValue()),
 //                        transform.asWorldCoordinateBox.copy(y = transform.worldY + ModernUICompat.textEngineEnabled(textRenderOffset.y(), 1f))
                         transform.asWorldCoordinateBox.copy(y = transform.worldY + 1f)

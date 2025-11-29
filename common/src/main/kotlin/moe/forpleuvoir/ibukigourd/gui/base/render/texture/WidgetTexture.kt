@@ -37,9 +37,9 @@ class WidgetTexture(
 
     }
 
-    val gpuTextureView: GpuTextureView = textureInfo.texture.asGpuTextureView
+    val gpuTextureView: GpuTextureView by lazy { textureInfo.texture.asGpuTextureView }
 
-    val textureSetup: TextureSetup = TextureSetup.singleTexture(gpuTextureView)
+    val textureSetup: TextureSetup by lazy { TextureSetup.singleTexture(gpuTextureView) }
 
     val u0 = uStart.toFloat() / textureInfo.width
 

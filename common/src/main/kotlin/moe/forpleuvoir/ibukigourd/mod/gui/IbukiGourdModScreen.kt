@@ -29,7 +29,7 @@ import moe.forpleuvoir.ibukigourd.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 
-private val icon = WidgetTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, resourceLocation("icon.png")))
+private val icon = WidgetTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, resourceLocation("ibukigourd.png")))
 
 private val what = arrayOf(
     Keyboard.KP_1,

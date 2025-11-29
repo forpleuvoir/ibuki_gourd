@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.button
 
 import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -182,8 +183,10 @@ fun ContainerScope.ColorButton(
             val hsvColor = color.getValue().toHSVColor()
             val trimEdgesBox = transform.asWorldCoordinateBox.trimEdges(2f)
             guiGraphics {
-                pushTiledBlit(trimEdgesBox, WidgetTextures.ALPHA, scissorBox = trimEdgesBox)
-                pushBox(trimEdgesBox, pressed.pick(hsvColor.reverse(), hsvColor), scissorBox = trimEdgesBox)
+                useScissor(trimEdgesBox) {
+                    pushTiledBlit(trimEdgesBox, WidgetTextures.ALPHA)
+                    pushBox(trimEdgesBox, pressed.pick(hsvColor.reverse(), hsvColor))
+                }
                 pushWidgetTexture(transform, theme(PressableTheme.ColorButton), hsvColor.clone().alpha(1f).saturation(hsvColor.saturation * 0.2f))
                 if (wasMouseOver) pushWidgetTexture(transform, WidgetTextures.COLOR_BUTTON_HOVERED_OUTLINE, if (pressed) hsvColor else hsvColor.reverse())
             }

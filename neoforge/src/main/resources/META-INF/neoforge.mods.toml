@@ -13,7 +13,7 @@ credits = "${credits}"
 authors = "${mod_author}"
 description = '''${description}'''
 
-modproperties = { ibukigourd = { package = ["moe.forpleuvoir.ibukigourd"] } }
+properties = { ibukigourd = { package = ["moe.forpleuvoir.ibukigourd"] } }
 
 [[mixins]]
 config = "${mod_id}.mixins.json"

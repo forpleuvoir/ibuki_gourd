@@ -16,8 +16,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics.Companion.toIGGUIGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen.Companion.applyZOffset
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.bgBlurRadius
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.parentCount
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
@@ -303,6 +301,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var onClose: (() -> Unit)? = null
 
+    override fun onClose() {
+        close()
+    }
+
     override fun close() {
         if (minecraft?.screen != this) return
         InputHandler.releaseAll()
@@ -427,23 +429,22 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
                 focusedWidget.setValue(null)
             }
 
-            val ctx = guiGraphics.toIGGUIGraphics()
+            val graphics = guiGraphics.toIGGUIGraphics()
 
             val (_mouseX, _mouseY) = guiGraphics.minecraft.mousePosition
-            parentCount
             applyZOffset {
 
-                renderBackground(ctx, _mouseX, _mouseY, delta)
+                renderBackground(graphics, _mouseX, _mouseY, delta)
 
-                render.invoke(ctx, _mouseX, _mouseY, delta)
+                render.invoke(graphics, _mouseX, _mouseY, delta)
 
                 renderableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
-                    if (drawableChild.visible) drawableChild.vanillaRender(ctx, _mouseX, _mouseY, delta)
+                    if (drawableChild.visible) drawableChild.vanillaRender(graphics, _mouseX, _mouseY, delta)
                 }
 
-                renderOverlay(ctx, _mouseX, _mouseY, delta)
+                renderOverlay(graphics, _mouseX, _mouseY, delta)
 
-                ctx.renderAfterRendering()
+                graphics.renderAfterRendering()
             }
         }
     }
@@ -457,7 +458,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         if (renderParentScreen) {
             parentScreen?.render(guiGraphics, mouseX.toInt(), mouseY.toInt(), delta)
         }
-        renderBlur(guiGraphics, bgBlurRadius)
+//        renderBlur(guiGraphics, bgBlurRadius)
     }
 
     protected fun renderBlur(guiGraphics: IGGuiGraphics, radius: Float) {

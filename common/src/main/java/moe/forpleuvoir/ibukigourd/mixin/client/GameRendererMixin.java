@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeStorage;endFrame()V", ordinal = 0, shift = At.Shift.AFTER))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderDeferredSubtitles()V", ordinal = 0, shift = At.Shift.AFTER))
     public void render(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci, @Local GuiGraphics guiGraphics, @Local(ordinal = 0) int mouseX, @Local(ordinal = 1) int mouseY) {
         var ctx = IGGuiGraphics.Companion.toIGGUIGraphics(guiGraphics);
         TipHandler.render(ctx, mouseX, mouseY, deltaTracker.getGameTimeDeltaTicks());

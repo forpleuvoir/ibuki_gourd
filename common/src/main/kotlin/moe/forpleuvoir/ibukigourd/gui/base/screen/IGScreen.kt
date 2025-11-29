@@ -93,10 +93,12 @@ interface IGScreen : GuiRenderableElementContainer, GuiWidgetContainer {
  * Just Init
  */
 fun Screen.init() {
-    (this as ScreenMixin).init()
+    (this as ScreenMixin).`ibukigourd$init`()
 }
 
-fun closeScreen() = mc.screen?.onClose()
+fun closeScreen() {
+    mc.screen?.onClose()
+}
 
 fun GuiElement.execute(task: () -> Unit) {
     if (this is IGScreen) execute(task)

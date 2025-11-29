@@ -115,8 +115,8 @@ object Toast : Tickable {
     fun showToast(
         text: String,
         duration: Duration = SHORT_DURATION,
-        fadeInDuration: Duration = Config.FADE_IN_DURATION,
-        fadeOutDuration: Duration = Config.FADE_OUT_DURATION,
+        fadeInDuration: Duration = FADE_IN_DURATION,
+        fadeOutDuration: Duration = FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
         modifier: Modifier = Modifier
     ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text) }
@@ -124,16 +124,16 @@ object Toast : Tickable {
     fun showToast(
         text: Text,
         duration: Duration = SHORT_DURATION,
-        fadeInDuration: Duration = Config.FADE_IN_DURATION,
-        fadeOutDuration: Duration = Config.FADE_OUT_DURATION,
+        fadeInDuration: Duration = FADE_IN_DURATION,
+        fadeOutDuration: Duration = FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
         modifier: Modifier = Modifier
     ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text) }
 
     fun showToast(
         duration: Duration = SHORT_DURATION,
-        fadeInDuration: Duration = Config.FADE_IN_DURATION,
-        fadeOutDuration: Duration = Config.FADE_OUT_DURATION,
+        fadeInDuration: Duration = FADE_IN_DURATION,
+        fadeOutDuration: Duration = FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
         modifier: Modifier = Modifier,
         content: BoxScope.() -> Unit

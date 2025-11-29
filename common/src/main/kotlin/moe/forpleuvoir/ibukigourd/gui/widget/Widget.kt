@@ -1,12 +1,12 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.renderBox
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.addWidgetChild
@@ -48,20 +48,22 @@ fun ContainerScope.Rect(
 
 fun ContainerScope.ColoredBox(
     color: ARGBColor,
+    bgTiledScale: Float,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = { }
-) = ColoredBox(stateOf(color), modifier, scope)
+) = ColoredBox(stateOf(color), bgTiledScale, modifier, scope)
 
 fun ContainerScope.ColoredBox(
     color: State<ARGBColor>,
+    bgTiledScale: Float,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = { }
 ) = Widget(Modifier.render { guiGraphics, _, _, _ ->
+    val size = WidgetTextures.ALPHA.toFloat()
+    val scale = bgTiledScale.coerceAtLeast(0.2f)
     guiGraphics {
-        useScissor(transform.asWorldCoordinateBox) {
-            pushTiledBlit(transform, WidgetTextures.ALPHA)
-        }
-        pushBox(transform.asWorldCoordinateBox, color.getValue())
+        pushTiledBlit(transform, WidgetTextures.ALPHA, Size(size.width * scale, size.height * scale))
+        pushBox(transform, color.getValue())
     }
 } then modifier, scope)
 

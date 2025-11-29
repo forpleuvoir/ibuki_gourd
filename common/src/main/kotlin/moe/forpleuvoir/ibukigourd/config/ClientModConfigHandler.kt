@@ -23,7 +23,7 @@ internal object ClientModConfigHandler : ModConfigHandler {
         get() = configManagers.values
 
     @Subscriber
-    fun init(event: ClientLifecycleEvent.ClientStartedEvent) {
+    fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
         log.info("init client mod config")
         scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ClientModConfigManager::class) }
             .forEach { (modId, classes) ->

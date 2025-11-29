@@ -3,7 +3,6 @@
 import java.util.*
 import kotlin.random.Random
 
-
 plugins {
     id("multiloader-loader")
     alias(libs.plugins.fabricLoom)
@@ -30,7 +29,19 @@ dependencies {
     modImplementation(libs.fabricKotlin)
     modImplementation(libs.modMenu)
 
+    implementation(libs.nebula)
     include("${libs.nebula.get()}:nebula")
+}
+
+sourceSets {
+    val devClient = create("devClientTest") {
+        compileClasspath += main.get().compileClasspath + main.get().output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output
+    }
+    named("test") {
+        compileClasspath += devClient.compileClasspath + devClient.output
+        runtimeClasspath += devClient.runtimeClasspath + devClient.output
+    }
 }
 
 loom {
@@ -48,10 +59,19 @@ loom {
             configName = "Fabric Client"
             ideConfigGenerated(true)
             runDir("runs/client")
-
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArgs("--username", name, "--uuid", uuid)
+        }
+        create("clientTest") {
+            client()
+            configName = "Fabric Client Test"
+            ideConfigGenerated(true)
+            runDir("runs/client")
+            val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
+            val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
+            programArgs("--username", name, "--uuid", uuid)
+            source(sourceSets["devClientTest"])
         }
         named("server") {
             server()

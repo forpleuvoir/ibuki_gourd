@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface ScreenMixin {
 
     @Invoker("init")
-    void init();
+    void ibukigourd$init();
 
 }

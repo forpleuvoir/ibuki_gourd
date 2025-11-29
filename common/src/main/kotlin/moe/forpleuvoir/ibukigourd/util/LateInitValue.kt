@@ -7,8 +7,7 @@ data class LateInitValue<T>(private var _value: T? = null) {
     fun getValue(): T = _value ?: throw IllegalStateException("value has not been initialized")
 
     fun setValue(value: T) {
-        if (_value == null) this._value = value
-        else throw IllegalStateException("value has been initialized")
+        this._value = value
     }
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>?): T = getValue()

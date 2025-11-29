@@ -19,7 +19,7 @@ dependencies {
     compileOnly(libs.bundles.kotlin)
     compileOnly(libs.mixin)
     compileOnly(libs.minxinExtras.common)
-    api(libs.nebula)
+    implementation(libs.nebula)
     annotationProcessor(libs.minxinExtras.common)
 }
 

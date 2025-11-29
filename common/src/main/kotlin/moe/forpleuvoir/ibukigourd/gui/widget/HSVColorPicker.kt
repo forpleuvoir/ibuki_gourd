@@ -144,7 +144,7 @@ fun ContainerScope.HueColorSlider(
             (it * 360f).toFloat()
         },
         modifier = Modifier.render { context, _, _, _ ->
-            colorComponentSliderRender(
+            renderColorComponentSlider(
                 context,
                 IGRenderPipelines.GUI_HSV_COLOR,
                 progress,

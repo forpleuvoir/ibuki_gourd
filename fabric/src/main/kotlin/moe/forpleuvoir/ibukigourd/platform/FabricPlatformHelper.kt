@@ -23,7 +23,7 @@ class FabricPlatformHelper : PlatformHelper {
                     mod.metadata.customValues[IbukiGourd.MOD_ID]?.apply {
                         asObject.get("package")?.asArray?.onEach { value ->
                             packs.add(value.asString)
-                            logger.info("Mod: ${mod.metadata.id} register Package: $value")
+                            logger.info("Mod: ${mod.metadata.id} register Package: ${value.asString}")
                         }
                     }
                     packsMapping.put(mod.metadata.id, packs.build())

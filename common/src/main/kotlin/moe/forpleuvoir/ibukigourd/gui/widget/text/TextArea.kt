@@ -53,8 +53,8 @@ import kotlin.time.TimeSource
 class TextAreaWidget(
     maxLength: Int = Int.MAX_VALUE,
     val scrollState: ScrollState = ScrollState(),
-    var textColor: ARGBColor = Color(0x303030),
-    var hintColor: ARGBColor = Color(0x707070),
+    var textColor: ARGBColor = Color(0xff303030),
+    var hintColor: ARGBColor = Color(0xff707070),
     var bgShaderColor: ARGBColor = Colors.WHITE,
     var selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
     var suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
@@ -595,7 +595,7 @@ class TextAreaWidget(
 
     override fun onCharTyped(event: CharTypedEvent) {
         event.tryUse { this.isFocused && StringUtil.isAllowedChatCharacter(event.codepoint) }.onSuccess {
-            replaceSelection(event.codepoint.toString())
+            replaceSelection(event.codepointAsString)
         }
     }
 
@@ -673,7 +673,7 @@ class TextAreaWidget(
     private fun renderCursor(guiGraphics: IGGuiGraphics) {
         if (focusedTicks % 15 >= 5 && isFocused) {
             val contentBox = contentBox(true)
-            val thickness = 0.75f
+            val thickness = 1f
             val xOffset =
                 text.substring(currentLine.beginIndex, cursor).width.let { if (cursor == text.length) it else it - thickness }
             val y = contentBox.top + currentLineIndex * (lineHeight + spacing) - amount - spacing
@@ -787,11 +787,11 @@ fun ContainerScope.TextArea(
     modifier: Modifier = Modifier,
     maxLength: Int = Int.MAX_VALUE,
     scrollState: ScrollState = ScrollState(),
-    textColor: ARGBColor = Color(0x303030),
-    hintColor: ARGBColor = Color(0x707070),
+    textColor: ARGBColor = Color(0xFF303030),
+    hintColor: ARGBColor = Color(0xFF707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color(0x007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color(0x008F72).alpha(0.45f),
+    selectedColor: ARGBColor = Color(0xFF007F8F).alpha(0.45f),
+    suggestionColor: ARGBColor = Color(0xff008F72).alpha(0.45f),
     cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
     spacing: Float = 1f,
     font: Font = mc.font,

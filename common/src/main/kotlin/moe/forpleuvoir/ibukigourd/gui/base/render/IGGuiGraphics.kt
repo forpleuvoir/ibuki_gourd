@@ -55,10 +55,6 @@ class IGGuiGraphics(
         fun GuiGraphics.toIGGUIGraphics(): IGGuiGraphics =
             this as? IGGuiGraphics ?: IGGuiGraphics(this.minecraft, this.pose(), this.guiRenderState)
 
-        private const val COLOR_MODULATOR_CACHE_SIZE = 200
-
-        private val colorModulatorCache = LinkedHashMap<Int, ARGBColor>(COLOR_MODULATOR_CACHE_SIZE)
-
         private val transparent = Color(0, 0, 0, 0)
     }
 
@@ -104,16 +100,13 @@ class IGGuiGraphics(
         colorModulator.argb = old
     }
 
-    private fun applyModulateColor(color: ARGBColor): ARGBColor {
+    private fun applyModulatedColor(color: ARGBColor): ARGBColor {
         return if (colorModulator.argb == -1) color
         else if (colorModulator.alpha == 0) transparent
-        else colorModulatorCache.getOrPut(color.argb) {
-            if (colorModulatorCache.size >= COLOR_MODULATOR_CACHE_SIZE) {
-                colorModulatorCache.remove(colorModulatorCache.keys.first())
-            }
-            color * colorModulator
-        }
+        else color * colorModulator
     }
+
+    fun peekScissorBox() = scissorStack.peek()?.let { Box(it.position.x, it.position.y, it.width, it.height) }
 
     /**
      * 原版的绘制坐标全是Int,现在只是换成Float重新实现一遍
@@ -134,12 +127,12 @@ class IGGuiGraphics(
         color: ARGBColor,
         pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = guiRenderState.submitGuiElement(
         IGBlitRenderState(
             x, y, x + width, y + height,
             u0, v0, u1, v1,
-            applyModulateColor(color), pose, pipeline, textureSetup, scissorBox?.asScreenRectangle
+            applyModulatedColor(color), pose, pipeline, textureSetup, scissorBox?.asScreenRectangle
         )
     )
 
@@ -148,7 +141,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = pushBlit(
         box.x, box.y, box.width, box.height,
         widgetTexture.u0, widgetTexture.v0, widgetTexture.u1, widgetTexture.v1,
@@ -160,7 +153,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = pushBlit(transform.asWorldCoordinateBox, widgetTexture, color, pipeline, scissorBox)
 
 
@@ -169,7 +162,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         val corner = widgetTexture.corner
         if (!widgetTexture.corner.isSpecified) {
@@ -355,7 +348,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = pushNineSlicedBlit(transform.asWorldCoordinateBox, widgetTexture, color, pipeline, scissorBox)
 
 
@@ -374,7 +367,7 @@ class IGGuiGraphics(
         textureHeight: Int,
         textureSetup: TextureSetup,
         pipeline: RenderPipeline,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         val u0 = u.toFloat() / textureWidth.toFloat()
         val v0 = v.toFloat() / textureHeight.toFloat()
@@ -384,7 +377,7 @@ class IGGuiGraphics(
             IGBlitRenderState(
                 x, y, x + width, y + height,
                 u0, v0, u1, v1,
-                applyModulateColor(color), pose, pipeline, textureSetup, scissorBox?.asScreenRectangle
+                applyModulatedColor(color), pose, pipeline, textureSetup, scissorBox?.asScreenRectangle
             )
         )
     }
@@ -394,7 +387,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = pushNineSlicedBlit(box, widgetTexture, color, pipeline, scissorBox)
 
     fun pushWidgetTexture(
@@ -402,7 +395,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = pushNineSlicedBlit(transform, widgetTexture, color, pipeline, scissorBox)
 
 
@@ -412,13 +405,13 @@ class IGGuiGraphics(
         tileSize: Size<Float> = Size(widgetTexture.uSize, widgetTexture.vSize).toFloat(),
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = guiRenderState.submitGuiElement(
         IGTiledBlitRenderState(
             box.x, box.y, box.endX, box.endY,
             widgetTexture.u0, widgetTexture.v0, widgetTexture.u1, widgetTexture.v1,
             tileSize.width, tileSize.height,
-            applyModulateColor(color), Matrix3x2f(pose()), pipeline, widgetTexture.textureSetup, scissorBox?.asScreenRectangle
+            applyModulatedColor(color), Matrix3x2f(pose()), pipeline, widgetTexture.textureSetup, scissorBox?.asScreenRectangle
         )
     )
 
@@ -426,10 +419,10 @@ class IGGuiGraphics(
     fun pushTiledBlit(
         transform: Transform,
         widgetTexture: WidgetTexture,
-        tileSize: Size<Float>,
+        tileSize: Size<Float> = Size(widgetTexture.uSize, widgetTexture.vSize).toFloat(),
         color: ARGBColor = Colors.WHITE,
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = pushTiledBlit(transform.asWorldCoordinateBox, widgetTexture, tileSize, color, pipeline, scissorBox)
 
 
@@ -458,26 +451,34 @@ class IGGuiGraphics(
         col4: ARGBColor,
         pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) = guiRenderState.submitGuiElement(
         ColoredBoxRenderState(
             x0, y0, x1, y1,
-            applyModulateColor(col1), applyModulateColor(col2), applyModulateColor(col3), applyModulateColor(col4),
+            applyModulatedColor(col1), applyModulatedColor(col2), applyModulatedColor(col3), applyModulatedColor(col4),
             pose, pipeline,
             scissorBox?.asScreenRectangle
         )
     )
 
 
-    fun pushBox(x: Float, y: Float, width: Float, height: Float, color: ARGBColor, pipeline: RenderPipeline = RenderPipelines.GUI, scissorBox: Box? = null) {
+    fun pushBox(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        color: ARGBColor,
+        pipeline: RenderPipeline = RenderPipelines.GUI,
+        scissorBox: Box? = peekScissorBox()
+    ) {
         pushBox(x, y, x + width, y + height, color, color, color, color, Matrix3x2f(pose()), pipeline, scissorBox)
     }
 
-    fun pushBox(box: Box, color: ARGBColor, pipeline: RenderPipeline = RenderPipelines.GUI, scissorBox: Box? = null) {
+    fun pushBox(box: Box, color: ARGBColor, pipeline: RenderPipeline = RenderPipelines.GUI, scissorBox: Box? = peekScissorBox()) {
         pushBox(box.x, box.y, box.endX, box.endY, color, color, color, color, Matrix3x2f(pose()), pipeline, scissorBox)
     }
 
-    fun pushBox(transform: Transform, color: ARGBColor, pipeline: RenderPipeline = RenderPipelines.GUI, scissorBox: Box? = null) {
+    fun pushBox(transform: Transform, color: ARGBColor, pipeline: RenderPipeline = RenderPipelines.GUI, scissorBox: Box? = peekScissorBox()) {
         pushBox(transform.asWorldCoordinateBox, color, pipeline, scissorBox)
     }
 
@@ -487,7 +488,7 @@ class IGGuiGraphics(
         borderSize: Float = 1f,
         inner: Boolean = false,
         pipeline: RenderPipeline = RenderPipelines.GUI,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         check(borderSize > 0) { "borderSize must be greater than 0" }
         val x = box.x
@@ -521,7 +522,7 @@ class IGGuiGraphics(
         borderSize: Float = 1f,
         inner: Boolean = false,
         pipeline: RenderPipeline = RenderPipelines.GUI,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         pushBoxOutline(transform.asWorldCoordinateBox, color, borderSize, inner, pipeline, scissorBox)
     }
@@ -532,18 +533,18 @@ class IGGuiGraphics(
         color2: ARGBColor,
         orientation: Orientation,
         pipeline: RenderPipeline = RenderPipelines.GUI,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         val state = orientation.peek({
             ColoredBoxRenderState.vertical(
                 box.x, box.y, box.endX, box.endY,
-                applyModulateColor(color1), applyModulateColor(color2), Matrix3x2f(pose()), pipeline,
+                applyModulatedColor(color1), applyModulatedColor(color2), Matrix3x2f(pose()), pipeline,
                 scissorBox?.asScreenRectangle
             )
         }, {
             ColoredBoxRenderState.horizontal(
                 box.x, box.y, box.endX, box.endY,
-                applyModulateColor(color1), applyModulateColor(color2), Matrix3x2f(pose()), pipeline,
+                applyModulatedColor(color1), applyModulatedColor(color2), Matrix3x2f(pose()), pipeline,
                 scissorBox?.asScreenRectangle
             )
         })
@@ -556,7 +557,7 @@ class IGGuiGraphics(
         color2: ARGBColor,
         orientation: Orientation,
         pipeline: RenderPipeline = RenderPipelines.GUI,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         pushGradientBox(transform.asWorldCoordinateBox, color1, color2, orientation, pipeline, scissorBox)
     }
@@ -570,7 +571,7 @@ class IGGuiGraphics(
         value: Float = 1f,
         alpha: Float = 1f,
         pipeline: RenderPipeline = IGRenderPipelines.GUI_HSV_COLOR,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         check(saturationRange.endInclusive >= saturationRange.start) { "Saturation range must be in ascending order" }
         check(saturationRange.endInclusive in 0f..1f && saturationRange.start in 0f..1f) {
@@ -590,7 +591,7 @@ class IGGuiGraphics(
         value: Float = 1f,
         alpha: Float = 1f,
         pipeline: RenderPipeline = IGRenderPipelines.GUI_HSV_COLOR,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         pushSaturationGradientBox(transform.asWorldCoordinateBox, orientation, inverse, saturationRange, hue, value, alpha, pipeline, scissorBox)
     }
@@ -604,7 +605,7 @@ class IGGuiGraphics(
         saturation: Float = 1f,
         alpha: Float = 1f,
         pipeline: RenderPipeline = IGRenderPipelines.GUI_HSV_COLOR,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         check(valueRange.endInclusive >= valueRange.start) { "Value range must be in ascending order" }
         check(valueRange.endInclusive in 0f..1f && valueRange.start in 0f..1f) {
@@ -624,7 +625,7 @@ class IGGuiGraphics(
         saturation: Float = 1f,
         alpha: Float = 1f,
         pipeline: RenderPipeline = IGRenderPipelines.GUI_HSV_COLOR,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         pushValueGradientBox(transform.asWorldCoordinateBox, orientation, inverse, valueRange, hue, saturation, alpha, pipeline, scissorBox)
     }
@@ -635,7 +636,7 @@ class IGGuiGraphics(
         round: Int,
         pixelSize: Float = 1f,
         pipeline: RenderPipeline = RenderPipelines.GUI,
-        scissorBox: Box? = null
+        scissorBox: Box? = peekScissorBox()
     ) {
         if (round > 0) {
             pushBox(
@@ -683,72 +684,78 @@ class IGGuiGraphics(
         text: FormattedCharSequence,
         x: Float,
         y: Float,
-        color: ARGBColor = Colors.WHITE,
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0f),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
-    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulateColor(color), backgroundColor, shadow, null))
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
+    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, scissorBox))
 
     fun pushText(
         text: Component,
         x: Float,
         y: Float,
-        color: ARGBColor = Colors.WHITE,
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0f),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
-    ) = pushText(text.visualOrderText, x, y, color, backgroundColor, shadow, pose, font)
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
+    ) = pushText(text.visualOrderText, x, y, color, backgroundColor, shadow, pose, font, scissorBox)
 
     fun pushText(
         text: String,
         x: Float,
         y: Float,
-        color: ARGBColor = Colors.WHITE,
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0f),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
-    ) = pushText(Language.getInstance().getVisualOrder(FormattedText.of(text)), x, y, color, backgroundColor, shadow, pose, font)
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
+    ) = pushText(Language.getInstance().getVisualOrder(FormattedText.of(text)), x, y, color, backgroundColor, shadow, pose, font, scissorBox)
 
     fun pushAlignmentText(
         text: FormattedCharSequence,
         box: Box,
         alignment: Alignment = Alignment.Center,
-        color: ARGBColor = Colors.WHITE,
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0f),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) = alignment.align(box, text.size).run {
-        pushText(text, box.x + x(), box.y + y(), color, backgroundColor, shadow, pose, font)
+        pushText(text, box.x + x(), box.y + y(), color, backgroundColor, shadow, pose, font, scissorBox)
     }
 
     fun pushAlignmentText(
         text: Component,
         box: Box,
         alignment: Alignment = Alignment.Center,
-        color: ARGBColor = Colors.WHITE,
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0f),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) = alignment.align(box, text.size).run {
-        pushText(text, box.x + x(), box.y + y(), color, backgroundColor, shadow, pose, font)
+        pushText(text, box.x + x(), box.y + y(), color, backgroundColor, shadow, pose, font, scissorBox)
     }
 
     fun pushAlignmentText(
         text: String,
         box: Box,
         alignment: Alignment = Alignment.Center,
-        color: ARGBColor = Colors.WHITE,
+        color: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0f),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) = alignment.align(box, text.size).run {
-        pushText(text, box.x + x(), box.y + y(), color, backgroundColor, shadow, pose, font)
+        pushText(text, box.x + x(), box.y + y(), color, backgroundColor, shadow, pose, font, scissorBox)
     }
 
     fun pushStringLines(
@@ -760,7 +767,8 @@ class IGGuiGraphics(
         backgroundColor: ARGBColor = Color(0),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) {
         val texts = string.wrapToLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { font.lineHeight.toFloat() })
@@ -768,7 +776,7 @@ class IGGuiGraphics(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font)
+            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font, scissorBox)
         }
     }
 
@@ -781,7 +789,8 @@ class IGGuiGraphics(
         backgroundColor: ARGBColor = Color(0),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) {
         val texts = string.wrapToLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.width, List(texts.size) { font.lineHeight.toFloat() })
@@ -789,7 +798,7 @@ class IGGuiGraphics(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font)
+            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font, scissorBox)
         }
     }
 
@@ -802,7 +811,8 @@ class IGGuiGraphics(
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) {
         val texts = text.wrapToTextLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { font.lineHeight.toFloat() })
@@ -810,7 +820,7 @@ class IGGuiGraphics(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font)
+            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font, scissorBox)
         }
     }
 
@@ -823,7 +833,8 @@ class IGGuiGraphics(
         backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
-        font: Font = this.font
+        font: Font = this.font,
+        scissorBox: Box? = peekScissorBox()
     ) {
         val texts = text.wrapToTextLines(box.width)
         val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { font.lineHeight.toFloat() })
@@ -831,7 +842,7 @@ class IGGuiGraphics(
         horizontalOffsets.zip(verticalOffsets) { x, y ->
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
-            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font)
+            pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font, scissorBox)
         }
     }
 }

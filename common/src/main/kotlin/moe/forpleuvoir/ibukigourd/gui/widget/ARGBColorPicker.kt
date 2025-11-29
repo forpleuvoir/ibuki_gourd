@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
+import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
@@ -168,6 +169,7 @@ fun ContainerScope.ColorResult(
     scope: WidgetScope.() -> Unit = { }
 ) = ColoredBox(
     color,
+    0.89f,
     Modifier.mousePress {
         it.tryUse(wasMouseOver && it.button == Mouse.LEFT).onSuccess {
             mc.keyboardHandler.clipboard = color.getValue().hexStr
@@ -256,9 +258,9 @@ fun ContainerScope.ColorComponentSlider(
         },
         modifier = Modifier
             .name("ColorComponentSlider")
-            .render { context, _, _, _ ->
-                colorComponentSliderRender(
-                    context,
+            .render { guiGraphics, _, _, _ ->
+                renderColorComponentSlider(
+                    guiGraphics,
                     RenderPipelines.GUI,
                     progress,
                     colorState.getValue(),
@@ -270,7 +272,7 @@ fun ContainerScope.ColorComponentSlider(
     )
 }
 
-internal fun GuiWidget.colorComponentSliderRender(
+internal fun GuiWidget.renderColorComponentSlider(
     guiGraphics: IGGuiGraphics,
     renderPipeline: RenderPipeline,
     progress: Double,
@@ -282,15 +284,15 @@ internal fun GuiWidget.colorComponentSliderRender(
     val bg = WidgetTextures.COLOR_SLIDER_BG
     val content = box.copy(box.x + bg.corner.left, box.y + bg.corner.top, box.width - bg.corner.width, box.height - bg.corner.height)
     guiGraphics {
-        pushTiledBlit(content, WidgetTextures.ALPHA, pipeline = renderPipeline, scissorBox = content)
+        pushTiledBlit(content, WidgetTextures.ALPHA, Size(7f, 7f))
         pushGradientBox(content, startColor, endColor, Orientation.Horizontal, renderPipeline)
-        pushNineSlicedBlit(box, bg, color + Color(0, 0, 0, 255), pipeline = renderPipeline)
-        pushNineSlicedBlit(
+        pushWidgetTexture(box, bg, color + Color(0, 0, 0, 255))
+        pushWidgetTexture(
             box.copy(
                 x = box.x + ((box.width - WidgetTextures.COLOR_SLIDER_ARROW.width.toFloat()) * progress.toFloat()),
                 width = WidgetTextures.COLOR_SLIDER_ARROW.width.toFloat()
             ),
-            WidgetTextures.COLOR_SLIDER_ARROW, pipeline = renderPipeline
+            WidgetTextures.COLOR_SLIDER_ARROW
         )
     }
 }

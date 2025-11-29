@@ -8,17 +8,17 @@ import net.minecraft.client.Minecraft
  */
 class ClientLifecycleEvent {
 
-    /**
-     * 客户端启动完成事件
-     * @property minecraftClient Minecraft
-     */
-    class ClientStartedEvent(@JvmField val minecraftClient: Minecraft) : Event
-
 //    /**
-//     * 客户端启动中事件
+//     * 客户端启动完成事件
 //     * @property minecraftClient Minecraft
 //     */
-//    class ClientStartingEvent(@JvmField val minecraftClient: Minecraft) : Event
+//    class ClientStartedEvent(@JvmField val minecraftClient: Minecraft) : Event
+
+    /**
+     * 客户端启动中事件
+     * @property minecraftClient Minecraft
+     */
+    class ClientStartingEvent(@JvmField val minecraftClient: Minecraft) : Event
 
     /**
      * 客户端关闭事件

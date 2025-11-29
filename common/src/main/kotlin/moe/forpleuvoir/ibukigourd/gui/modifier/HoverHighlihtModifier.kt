@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.modifier
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.WidgetModifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
@@ -55,18 +54,16 @@ private fun modifier(
     val upt = 1f / upTick
     val dnt = 1f / downTick
     var fraction = 0f
-    renderFunction.invoke(it) { context, mouseX, mouseY, delta ->
+    renderFunction.invoke(it) { guiGraphics, mouseX, mouseY, delta ->
         fraction = if (it.wasMouseOver) {
             fraction + delta * upt
         } else {
             fraction - delta * dnt
         }.coerceIn(0f..1f)
-        context.batchRenderBox {
-            pushRoundBox(
-                boxSupplier(it),
-                startColor.lerp(endColor, (if (it.wasMouseOver) upEscape(fraction) else downEscape(fraction)).coerceIn(0f..1f)),
-                round
-            )
-        }
+        guiGraphics.pushRoundBox(
+            boxSupplier(it),
+            startColor.lerp(endColor, (if (it.wasMouseOver) upEscape(fraction) else downEscape(fraction)).coerceIn(0f..1f)),
+            round
+        )
     }
 }

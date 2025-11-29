@@ -32,7 +32,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "run", at = @At("HEAD"))
     public void runStarting(CallbackInfo ci) {
-        EventBus.Companion.broadcast(new ClientLifecycleEvent.ClientStartedEvent((Minecraft) (Object) this));
+        EventBus.Companion.broadcast(new ClientLifecycleEvent.ClientStartingEvent((Minecraft) (Object) this));
     }
 
 //    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/jtracy/TracyClient;createDiscontinuousFrame(Ljava/lang/String;)Lcom/mojang/jtracy/DiscontinuousFrame;"))

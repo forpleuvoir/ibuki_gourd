@@ -2,8 +2,11 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.*
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.textRenderOffset
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrix3x2
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -473,7 +476,7 @@ open class TextEditorWidget(
         if (!isActive) return
         event.tryUse { StringUtil.isAllowedChatCharacter(event.codepoint) }
             .onSuccess {
-                write(event.codepoint.toString())
+                write(event.codepointAsString)
             }
     }
 
@@ -531,14 +534,14 @@ open class TextEditorWidget(
         if (focusedTicks % 15 >= 5 && isFocused) {
             val box = contentBox(true)
             val height = font.lineHeight.toFloat()
-            val thickness = 0.75f
+            val thickness = 1f
             val y = box.top + (box.height - height) / 2f
             val offset = text.substring(
                 min(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0),
                 max(firstCharacterIndex, cursor).coerceAtMost(text.length).coerceAtLeast(0)
             ).width
 
-            guiGraphics.renderBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
+            guiGraphics.pushBox(Box(box.left + offset - 0.85f, y, Size(thickness, height)), cursorColor)
         }
     }
 
@@ -546,15 +549,15 @@ open class TextEditorWidget(
         val contentBox = contentBox(true)
         guiGraphics.useMatrix3x2 { pose ->
             pose.translate(0f, textRenderOffset.y())
-            guiGraphics.batchRenderText(font) {
+            guiGraphics {
                 //"渲染提示文本"
                 if (text.isEmpty() && hintText.getValue() != null && !isFocused) {
-                    pushAlignmentText(hintText.getValue()!!, contentBox, color = hintColor, displayMode = Font.DisplayMode.SEE_THROUGH)
+                    pushAlignmentText(hintText.getValue()!!, contentBox, color = hintColor, alignment = Alignment.CenterLeft, font = font)
                 }
                 //"渲染文本本体"
                 val renderText = font.plainSubstrByWidth(text.substring(firstCharacterIndex), contentBox.width.toInt())
                 renderText.takeIf { it.isNotEmpty() }?.let {
-                    pushAlignmentText(it, contentBox, color = textColor, displayMode = Font.DisplayMode.SEE_THROUGH)
+                    pushAlignmentText(it, contentBox, color = textColor, alignment = Alignment.CenterLeft, font = font)
                 }
                 //"渲染文本建议"
                 suggestion?.invoke(text, cursor)?.let { suggestion ->
@@ -562,7 +565,7 @@ open class TextEditorWidget(
                         val renderTextWidth = renderText.width
                         val box =
                             Box(contentBox.position + Vector2f(renderTextWidth), contentBox.width - renderTextWidth, contentBox.height)
-                        pushAlignmentText(suggestion, box, color = suggestionColor, displayMode = Font.DisplayMode.SEE_THROUGH)
+                        pushAlignmentText(suggestion, box, color = suggestionColor, alignment = Alignment.CenterLeft, font = font)
                     }
                 }
             }

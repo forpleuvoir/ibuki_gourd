@@ -8,7 +8,6 @@ object FabricIbukiGourd : ModInitializer {
     override fun onInitialize() {
         IbukiGourd.init()
         ReloadListenerRegistry.register()
-
     }
 
 }

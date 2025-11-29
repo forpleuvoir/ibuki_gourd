@@ -1,13 +1,15 @@
 package moe.forpleuvoir.ibukigourd
 
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.IEventBus
+import net.neoforged.fml.ModContainer
 import net.neoforged.fml.common.Mod
-import net.neoforged.fml.javafmlmod.FMLModContainer
 
 @Mod(IbukiGourd.MOD_ID, dist = [Dist.CLIENT])
-class NeoforgeIbukigourdClient(container: FMLModContainer, modBus: IEventBus, dist: Dist) {
+class NeoforgeIbukigourdClient(eventBus: IEventBus, modContainer: ModContainer) {
     init {
         IbukiGourdClient.init()
+        IGConfig.init()
     }
 }

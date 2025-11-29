@@ -4,5 +4,5 @@ data class CharTypedEvent(
     val codepoint: Int,
     val modifiers: Int
 ) : GUIEvent() {
-    val codepointAsString by lazy { Character.toString(codepoint) }
+    val codepointAsString: String by lazy { Character.toString(codepoint) }
 }

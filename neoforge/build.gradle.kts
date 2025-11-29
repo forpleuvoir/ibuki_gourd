@@ -78,5 +78,6 @@ sourceSets.configureEach {
 
 dependencies {
     implementation(libs.forgeKotlin)
+    implementation(libs.nebula)
     jarJar("${libs.nebula.get()}:nebula")
 }

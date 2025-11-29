@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.modifier
 
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -16,8 +15,6 @@ import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.LightTexture
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -130,21 +127,14 @@ fun Modifier.debugInfo(
 
         guiGraphics {
             pushRoundBox(Box(x, y, textSize).expandEdges(bgRound.toFloat()), bgColor, bgRound)
-        }
-//        guiGraphics.batchRenderBox {
-//            pushRoundBox(Box(x, y, textSize).expandEdges(bgRound.toFloat()), bgColor, bgRound)
-//        }
-        guiGraphics.batchRenderText {
             pushTextLines(
                 texts,
                 box,
                 horizontalAlignment,
                 verticalArrangement,
-                false,
-                Font.DisplayMode.SEE_THROUGH,
                 Colors.BLACK,
                 textBgColor,
-                LightTexture.FULL_BRIGHT,
+                false
             )
         }
     }

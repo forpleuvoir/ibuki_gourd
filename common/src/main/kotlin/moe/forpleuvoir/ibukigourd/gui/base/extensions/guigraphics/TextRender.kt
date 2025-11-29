@@ -20,7 +20,7 @@ import org.joml.Vector3fc
 
 
 val textRenderOffset: Vector3fc by lazy {
-    Vector3f(0.0f, 0.0f, 0f)
+    Vector3f(0.0f, 0.4f, 0f)
 //    ModernUICompat.textEngineEnabled(
 //        Vector3f(0.0f, 0.0f, 0f), Vector3f(0.0f, 0.4f, 0f)
 //    )
