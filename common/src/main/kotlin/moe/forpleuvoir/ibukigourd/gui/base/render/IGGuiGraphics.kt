@@ -18,7 +18,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGGuiTextRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGTiledBlitRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
-import moe.forpleuvoir.ibukigourd.render.toMatrix4f
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
@@ -31,7 +30,6 @@ import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.render.TextureSetup
 import net.minecraft.client.gui.render.state.GuiRenderState
-import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
@@ -62,30 +60,26 @@ class IGGuiGraphics(
         private val transparent = Color(0, 0, 0, 0)
     }
 
-    private val afterRenderList: MutableList<Pair<Int, IGGuiGraphics.() -> Unit>> = mutableListOf()
-
-    val matrix4f get() = pose().toMatrix4f
-
-    val bufferSource: MultiBufferSource.BufferSource = client.gameRenderer.renderBuffers.bufferSource()
+    private val endRenderableList: MutableList<Pair<Int, IGGuiGraphics.() -> Unit>> = mutableListOf()
 
     val font: Font = client.font
 
-    private var afterRendering: Boolean = false
+    private var endRendering: Boolean = false
 
 //    val igScissorStack: IGScissorStack = IGScissorStack()
 
-    fun postRender(renderPriority: Int, render: IGGuiGraphics.() -> Unit) {
-        if (afterRendering) return
-        afterRenderList.add(renderPriority to render)
+    fun postEndRender(renderPriority: Int, render: IGGuiGraphics.() -> Unit) {
+        if (endRendering) return
+        endRenderableList.add(renderPriority to render)
     }
 
-    fun renderAfterRendering() {
-        if (afterRenderList.isEmpty()) return
-        afterRendering = true
-        afterRenderList.sortedBy { it.first }.forEach { (_, render) ->
+    fun renderEndRenderable() {
+        if (endRenderableList.isEmpty()) return
+        endRendering = true
+        endRenderableList.sortedBy { it.first }.forEach { (_, render) ->
             render.invoke(this)
         }
-        afterRendering = false
+        endRendering = false
     }
 
     inline operator fun invoke(block: IGGuiGraphics.() -> Unit) = block()

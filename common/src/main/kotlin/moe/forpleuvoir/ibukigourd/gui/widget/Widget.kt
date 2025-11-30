@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -36,8 +35,8 @@ fun ContainerScope.Rect(
     color: State<ARGBColor>,
     modifier: Modifier = Modifier,
     scope: WidgetScope.() -> Unit = { }
-) = Widget(Modifier.render { context, _, _, _ ->
-    context.renderBox(transform.asWorldCoordinateBox, color.getValue())
+) = Widget(Modifier.render { guiGraphics, _, _, _ ->
+    guiGraphics.pushBox(transform.asWorldCoordinateBox, color.getValue())
 } then modifier, scope)
 
 fun ContainerScope.Rect(

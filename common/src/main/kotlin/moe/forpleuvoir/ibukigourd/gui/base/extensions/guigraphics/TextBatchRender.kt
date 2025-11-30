@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics
 
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.text.style.argbColor
@@ -16,11 +15,6 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.network.chat.Component
 import net.minecraft.util.FormattedCharSequence
 import org.joml.Matrix4f
-
-fun IGGuiGraphics.batchRenderText(
-    font: Font = this.minecraft.font,
-    block: TextBatchRenderScope.() -> Unit
-) = font.batchRenderText(bufferSource, matrix4f, block)
 
 fun Font.batchRenderText(
     bufferSource: MultiBufferSource.BufferSource,

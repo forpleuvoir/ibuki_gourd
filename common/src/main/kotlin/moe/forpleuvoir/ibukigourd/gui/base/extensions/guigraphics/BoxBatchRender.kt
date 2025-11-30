@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.peek
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
@@ -26,14 +25,6 @@ import org.joml.Matrix4f
 import org.joml.Vector2fc
 import kotlin.math.abs
 import kotlin.math.min
-
-fun IGGuiGraphics.batchRenderBox(
-    renderType: RenderType = IGRenderType.GUI,
-    block: BoxBatchRenderScope.() -> Unit
-) {
-    block(BoxBatchRenderScope(bufferSource.getBuffer(renderType), matrix4f))
-    bufferSource.endBatch()
-}
 
 fun batchRenderBox(
     bufferSource: MultiBufferSource.BufferSource,

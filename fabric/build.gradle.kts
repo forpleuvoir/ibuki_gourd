@@ -34,13 +34,10 @@ dependencies {
 }
 
 sourceSets {
-    val devClient = create("devClientTest") {
-        compileClasspath += main.get().compileClasspath + main.get().output
-        runtimeClasspath += main.get().runtimeClasspath + main.get().output
-    }
-    named("test") {
-        compileClasspath += devClient.compileClasspath + devClient.output
-        runtimeClasspath += devClient.runtimeClasspath + devClient.output
+    create("devClientTest") {
+        val test = project(":common").sourceSets["devClientTest"]
+        compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
     }
 }
 
@@ -57,15 +54,6 @@ loom {
         named("client") {
             client()
             configName = "Fabric Client"
-            ideConfigGenerated(true)
-            runDir("runs/client")
-            val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
-            val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
-            programArgs("--username", name, "--uuid", uuid)
-        }
-        create("clientTest") {
-            client()
-            configName = "Fabric Client Test"
             ideConfigGenerated(true)
             runDir("runs/client")
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"

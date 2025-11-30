@@ -57,8 +57,8 @@ interface GuiRenderable : Renderable, GuiContext {
 
     //------------ Extension ------------\\
 
-    fun IGGuiGraphics.postRender(render: IGGuiGraphics.() -> Unit) {
-        this.postRender(this@GuiRenderable.renderPriority, render)
+    fun IGGuiGraphics.postEndRender(render: IGGuiGraphics.() -> Unit) {
+        this.postEndRender(this@GuiRenderable.renderPriority, render)
     }
 
 }

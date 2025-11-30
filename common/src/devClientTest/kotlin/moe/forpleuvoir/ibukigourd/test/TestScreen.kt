@@ -8,7 +8,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.modifier.renderHoveredOutlineBox
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.util.ScrollState
-import moe.forpleuvoir.ibukigourd.gui.widget.FloatSlider
 import moe.forpleuvoir.ibukigourd.gui.widget.Scroller
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
@@ -18,11 +17,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.overlayMessage
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import kotlin.time.Duration.Companion.seconds
 
@@ -93,12 +90,12 @@ fun TestScreen() = BoxScreen(modifier()) {
             }
         }
         TestColumn()
-        FloatSlider(
-            mutableStateOf(GuiConfig.Screen::defaultBgBlurRadius),
-            0f..25f,
-            textMapper = { Literal("背景模糊:%.2f".format(it)) },
-            modifier = Modifier.minWidth(120f)
-        )
+//        FloatSlider(
+//            mutableStateOf(GuiConfig.Screen::defaultBgBlurRadius),
+//            0f..25f,
+//            textMapper = { Literal("背景模糊:%.2f".format(it)) },
+//            modifier = Modifier.minWidth(120f)
+//        )
     }
 
 

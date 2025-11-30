@@ -446,7 +446,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
                 renderOverlay(graphics, _mouseX, _mouseY, delta)
 
-                graphics.renderAfterRendering()
+                graphics.renderEndRenderable()
             }
         }
     }
@@ -463,6 +463,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 //        renderBlur(guiGraphics, bgBlurRadius)
     }
 
+    @Deprecated("unused")
     protected fun renderBlur(guiGraphics: IGGuiGraphics, radius: Float) {
         if (radius > 0f) {
             guiGraphics.blurBeforeThisStratum()

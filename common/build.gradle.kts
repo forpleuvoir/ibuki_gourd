@@ -23,6 +23,12 @@ dependencies {
     annotationProcessor(libs.minxinExtras.common)
 }
 
+sourceSets {
+    create("devClientTest") {
+        compileClasspath += main.get().compileClasspath + main.get().output
+    }
+}
+
 configurations {
     create("commonJava") {
         isCanBeResolved = false

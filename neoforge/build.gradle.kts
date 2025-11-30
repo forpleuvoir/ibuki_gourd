@@ -9,6 +9,14 @@ plugins {
 
 val modId: String = project.properties["mod_id"].toString()
 
+sourceSets {
+    create("devClientTest") {
+        val test = project(":common").sourceSets["devClientTest"]
+        compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
+    }
+}
+
 neoForge {
     version = libs.versions.neoforge.get()
     // Automatically enable neoforge AccessTransformers if the file exists
@@ -30,6 +38,8 @@ neoForge {
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArguments.addAll("--username", name, "--uuid", uuid)
+            //好像并没有作用
+//            sourceSet = sourceSets["devClientTest"]
         }
         register("data") {
             clientData()

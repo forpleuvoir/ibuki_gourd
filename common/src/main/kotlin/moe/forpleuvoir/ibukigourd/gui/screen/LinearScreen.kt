@@ -5,12 +5,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.RowLayout
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.bgBlurRadius
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
-import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.defaultBgBlurRadius
 
 fun ColumnScreen(
     modifier: Modifier = Modifier,
@@ -23,7 +21,7 @@ fun ColumnScreen(
     override val alignment: Alignment.Horizontal get() = horizontalAlignment
 }.apply {
     Modifier
-        .bgBlurRadius(defaultBgBlurRadius)
+//        .bgBlurRadius(defaultBgBlurRadius)
         .name("ColumnScreen")
         .then(modifier).foldInApply()
 }
@@ -41,7 +39,7 @@ fun RowScreen(
 
 }.apply {
     Modifier
-        .bgBlurRadius(defaultBgBlurRadius)
+//        .bgBlurRadius(defaultBgBlurRadius)
         .name("RowScreen")
         .then(modifier).foldInApply()
 }

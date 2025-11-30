@@ -34,7 +34,6 @@ object TestInitialization {
                 IbukiGourdEventManager.eventSet().forEach {
                     println(it.qualifiedName)
                 }
-
             }
             register(Keyboard.KP_1) {
                 openScreen(TestScreen())
