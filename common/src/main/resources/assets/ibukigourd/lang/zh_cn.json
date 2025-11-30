@@ -57,8 +57,6 @@
   "event.moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent.comment": "服务器保存数据时触发的事件",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent": "客户端命令注册事件",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent.comment": "客户端命令在注册时触发的事件",
-  "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartedEvent": "客户端启动完成事件",
-  "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartedEvent.comment": "客户端启动完成后触发的事件",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartingEvent": "客户端开始启动事件",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartingEvent.comment": "客户端开始启动时触发的事件",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStopEvent": "客户端关闭事件",

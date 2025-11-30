@@ -4,7 +4,6 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.userdata.guiWrapper
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
@@ -136,8 +135,8 @@ fun ContainerScope.ExpandableConfigContainerWrapper(
                         .matchSibling()
                         .padding(0, 0, 2, 2)
                         .margin(4, 0.5, 0, 0)
-                        .render { context, _, _, _ ->
-                            context.renderBox(
+                        .render { guiGraphics, _, _, _ ->
+                            guiGraphics.pushBox(
                                 transform.asWorldCoordinateBox.trimEdges(padding.top, padding.bottom, padding.left, padding.right),
                                 configContainerWrapperGuidelinesColor
                             )

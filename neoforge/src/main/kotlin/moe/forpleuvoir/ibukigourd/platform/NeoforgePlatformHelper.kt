@@ -21,11 +21,9 @@ class NeoforgePlatformHelper : PlatformHelper {
             ImmutableMap.builder<String, Set<String>>().also { packsMapping ->
                 ModList.get().mods.forEach { modInfo ->
                     val packs = ImmutableSet.builder<String>()
-                    (modInfo.modProperties.get(IbukiGourd.MOD_ID) as? Map<*, *>)?.apply {
-                        (this["package"] as? Iterable<String>)?.forEach { value ->
-                            packs.add(value)
-                            logger.info("Mod: ${modInfo.modId} register Package: $value")
-                        }
+                    (modInfo.modProperties["package"] as? Iterable<String>)?.forEach { value ->
+                        packs.add(value)
+                        logger.info("Mod: ${modInfo.modId} register Package: $value")
                     }
                     packsMapping.put(modInfo.modId, packs.build())
                 }

@@ -57,8 +57,6 @@
   "event.moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent.comment": "An event triggered when the server is saving data",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent": "Client Command Registration Event",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent.comment": "An event triggered during client command registration",
-  "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartedEvent": "Client Started Event",
-  "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartedEvent.comment": "An event triggered after the client has started",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartingEvent": "Client Starting Event",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStartingEvent.comment": "An event triggered when the client starts",
   "event.moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent.ClientStopEvent": "Client Shut Down Event",

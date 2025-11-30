@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.element
 
-interface DrawableContainer {
+interface GuiRenderableContainer {
 
     fun renderableChildren(): List<GuiRenderable>
 

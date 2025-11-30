@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.RoundBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.roundBoxCache
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.roundBoxCacheSize
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
@@ -36,6 +37,9 @@ import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FormattedText
 import net.minecraft.util.FormattedCharSequence
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
 import org.joml.Matrix3x2f
 import org.joml.Matrix3x2fStack
 import kotlin.contracts.ExperimentalContracts
@@ -843,6 +847,28 @@ class IGGuiGraphics(
             Vector2f(box.x + x, box.y + y)
         }.forEachIndexed { index, offset ->
             pushText(texts[index], offset.x, offset.y, defaultColor, backgroundColor, shadow, pose, font, scissorBox)
+        }
+    }
+
+    //------------ Item ------------\\
+
+    fun pushItem(
+        itemStack: ItemStack,
+        x: Float,
+        y: Float,
+        scale: Float = 1f,
+        entity: LivingEntity? = minecraft.player,
+        level: Level? = minecraft.level,
+        seed: Int = 0
+    ) {
+        val x = x / scale
+        val y = y / scale
+        val xi = x.toInt()
+        val yi = y.toInt()
+        useMatrixStack {
+            it.scale(scale)
+            it.translate(x - xi, y - yi)
+            renderItem(entity, level, itemStack, xi, yi, seed)
         }
     }
 }

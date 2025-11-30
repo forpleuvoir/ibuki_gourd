@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.foreach
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import net.minecraft.client.gui.GuiGraphics
 
-interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContainer, DrawableContainer {
+interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContainer, GuiRenderableContainer {
 
     //------------ Tickable ------------\\
 

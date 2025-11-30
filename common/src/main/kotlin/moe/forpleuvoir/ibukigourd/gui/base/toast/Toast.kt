@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
 import moe.forpleuvoir.ibukigourd.gui.base.Padding
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrix3x2
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -64,7 +64,7 @@ object Toast : Tickable {
                 if (timeMark.elapsedNow() <= duration) {
                     val (alpha, offset) = calculateAlphaAndOffset(duration, fadeInDuration, fadeOutDuration, timeMark)
                     guiGraphics {
-                        useMatrix3x2 {
+                        useMatrixStack {
                             //TODO 或许应该直接修改组件的位置,原来有裁剪偏移,现在不知道有没有用
                             it.translate(offset.x(), offset.y())
                             modulateColor(Colors.WHITE.alpha(alpha)) {

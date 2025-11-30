@@ -379,8 +379,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     private var cursorSupplier: () -> MouseCursor = { MouseCursor.default }
 
     override val hoveredWidget: MutableState<GuiWidget?> = mutableStateOf<GuiWidget?>(null).apply {
-        subscribe {
-            var currentNode: GuiElement? = it
+        subscribe { widget ->
+            var currentNode: GuiElement? = widget
             while (currentNode != null) {
                 if (currentNode is GuiWidget) {
                     if (currentNode.mouseOverCursor != null) break
@@ -390,13 +390,15 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
             }
             cursorSupplier = { (currentNode as? GuiWidget)?.mouseOverCursor ?: MouseCursor.default }
 
-            it?.let hoverTip@{ widget ->
+            widget?.let hoverTip@{ widget ->
                 widget.findFirsInParentChain { element -> element is GuiWidget && element.hoverTip != null }
                     ?.let { hoveredWidget ->
                         hoveredWidget as GuiWidget
                         TipHandler.pushTip(SCREEN_HOVER_TIP, { hoveredWidget.transform }, hoveredWidget.hoverTip!!)
                         return@hoverTip
                     }
+                TipHandler.popTip(SCREEN_HOVER_TIP)
+            } ?: run {
                 TipHandler.popTip(SCREEN_HOVER_TIP)
             }
         }

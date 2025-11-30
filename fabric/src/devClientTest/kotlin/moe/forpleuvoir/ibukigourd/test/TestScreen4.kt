@@ -32,11 +32,7 @@ fun testScreen4() = RowScreen(
             Literal(screen()?.focusedWidget.toString()),
             Literal(screen()?.hoveredWidget.toString())
         )
-        guiGraphics {
-            pushTextLines(
-                lines, transform.asWorldCoordinateBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top
-            )
-        }
+        guiGraphics.pushTextLines(lines, transform.asWorldCoordinateBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top)
     }
 ) {
     IntEditor(

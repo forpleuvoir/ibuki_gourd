@@ -51,6 +51,7 @@ class DefaultComponentManager : ComponentManager {
         return stores.getOrPut(type) { mutableMapOf() } as MutableMap<Int, T>
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> addComponent(entity: Entity, component: T): T {
         val store = storeFor(component::class) as MutableMap<Int, T>
         store[entity] = component

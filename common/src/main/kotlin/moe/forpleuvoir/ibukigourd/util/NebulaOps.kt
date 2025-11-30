@@ -20,10 +20,10 @@ object NebulaOps : DynamicOps<SerializeElement> {
         input: SerializeElement
     ): U {
         if (input is SerializeObject) {
-            return convertMap<U?>(outOps, input)
+            return convertMap<U>(outOps, input)
         }
         if (input is SerializeArray) {
-            return convertList<U?>(outOps, input)
+            return convertList<U>(outOps, input)
         }
         if (input is SerializeNull) {
             return outOps.empty()

@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.renderAlignmentText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -133,7 +132,7 @@ fun Dialog(
                 guiGraphics.pushWidgetTexture(transform, WidgetTextures.DIALOG_BG, bgColor.getValue())
             }
             .renderOverlay { guiGraphics, _, _, _ ->
-                guiGraphics.renderAlignmentText(
+                guiGraphics.pushAlignmentText(
                     IGLang.clickBlankBack,
                     screen()!!.transform,
                     color = HSVColor(0f, 0f, 0.85f),

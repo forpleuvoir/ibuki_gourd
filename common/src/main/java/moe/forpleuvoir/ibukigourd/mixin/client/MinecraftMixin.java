@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler;
-import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler;
@@ -11,7 +10,6 @@ import moe.forpleuvoir.ibukigourd.task.ClientTickTaskSchedulerKt;
 import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.main.GameConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,10 +23,6 @@ public abstract class MinecraftMixin {
     @Shadow
     private volatile boolean running;
 
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
-    private void init(GameConfig gameConfig, CallbackInfo ci) {
-        IbukiGourdEventManager.INSTANCE.init();
-    }
 
     @Inject(method = "run", at = @At("HEAD"))
     public void runStarting(CallbackInfo ci) {

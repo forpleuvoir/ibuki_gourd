@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.widget.text
 import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.textRenderOffset
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrix3x2
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -547,7 +547,7 @@ open class TextEditorWidget(
 
     fun renderText(guiGraphics: IGGuiGraphics) {
         val contentBox = contentBox(true)
-        guiGraphics.useMatrix3x2 { pose ->
+        guiGraphics.useMatrixStack { pose ->
             pose.translate(0f, textRenderOffset.y())
             guiGraphics {
                 //"渲染提示文本"

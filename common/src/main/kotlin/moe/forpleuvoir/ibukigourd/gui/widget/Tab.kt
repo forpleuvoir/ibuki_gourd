@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrix3x2
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
@@ -156,7 +156,7 @@ data class TabScope(
                 Text(
                     t,
                     modifier = Modifier.render { context, x, y, d ->
-                        context.useMatrix3x2 {
+                        context.useMatrixStack {
                             it.translate(0f, yOffset)
                             onRender(context, x, y, d)
                         }

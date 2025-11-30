@@ -13,7 +13,7 @@ import kotlin.contracts.contract
 
 //val Matrix3x2fStack.positionMatrix: Matrix4f get() = peek().positionMatrix
 
-inline fun GuiGraphics.useMatrix3x2(block: GuiGraphics.(Matrix3x2fStack) -> Unit) {
+inline fun GuiGraphics.useMatrixStack(block: GuiGraphics.(Matrix3x2fStack) -> Unit) {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
     this.pose().pushMatrix()
     block(this, this.pose())

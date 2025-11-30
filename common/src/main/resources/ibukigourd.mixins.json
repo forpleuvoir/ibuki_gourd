@@ -4,7 +4,6 @@
   "package": "moe.forpleuvoir.ibukigourd.mixin",
   "compatibilityLevel": "JAVA_18",
   "mixins": [
-    "MainMixin",
     "MinecraftServerMixin"
   ],
   "client": [

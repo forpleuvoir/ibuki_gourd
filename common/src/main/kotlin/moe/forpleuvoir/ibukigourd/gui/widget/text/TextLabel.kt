@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.textRenderOffset
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrix3x2
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -214,7 +214,7 @@ class TextWidget(
         }
         guiGraphics {
             useScissor(transform.asWorldCoordinateBox.expandEdges(1f)) {
-                useMatrix3x2 { pose ->
+                useMatrixStack { pose ->
                     pose.translate(0.35f, textRenderOffset.y())
                     //------------ 开始渲染 ------------\\
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }

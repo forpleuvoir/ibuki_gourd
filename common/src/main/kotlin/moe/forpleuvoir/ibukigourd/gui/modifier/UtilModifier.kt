@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.gui.modifier
 
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
@@ -8,12 +7,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.widget.wasMouseOver
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 
-fun Modifier.renderHoveredOutlineBox(color: ARGBColor) = this.renderBackground { ctx, x, y, delta ->
-    this.onRenderBackground(ctx, x, y, delta)
+fun Modifier.renderHoveredOutlineBox(color: ARGBColor) = this.renderBackground { guiGraphics, x, y, delta ->
+    this.onRenderBackground(guiGraphics, x, y, delta)
     wasMouseOver {
-        ctx.batchRenderBox {
-            pushBoxOutline(transform, color)
-        }
+        guiGraphics.pushBoxOutline(transform, color)
     }
 }
 
