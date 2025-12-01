@@ -42,6 +42,7 @@ fun Minecraft.sendMessage(message: String) {
 
 fun Minecraft.chatMessage(message: McText) {
     gui.chat.addMessage(message)
+    narrator.saySystemChatQueued(message)
 }
 
 fun Minecraft.chatMessage(message: String) {

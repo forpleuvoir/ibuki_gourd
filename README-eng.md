@@ -194,10 +194,10 @@ BoxScreen {
    ) {
       Button {
           click {
-               Toast.showToast(text = "hello minecraft")
-            }
-         TextLabel("hello minecraft")
-         Icon(IconTextures.LOCK)
+              Toast.showToast(text = "hello minecraft")
+          }
+          Text("hello minecraft")
+          Icon(IconTextures.LOCK)
       }
    }
 }.open()  // Opens the screen

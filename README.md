@@ -174,9 +174,9 @@ BoxScreen {
    ) {
       Button {
          click {
-               Toast.showToast(text = "hello minecraft")
-            }
-         TextLabel("hello minecraft")
+             Toast.showToast(text = "hello minecraft")
+         }
+         Text("hello minecraft")
          Icon(IconTextures.LOCK)
       }
     }

@@ -2,8 +2,8 @@ package moe.forpleuvoir.ibukigourd.event.events.client
 
 import com.mojang.brigadier.CommandDispatcher
 import moe.forpleuvoir.nebula.event.Event
-import net.minecraft.client.multiplayer.ClientSuggestionProvider
 import net.minecraft.commands.CommandBuildContext
+import net.minecraft.commands.SharedSuggestionProvider
 
 /**
  * 客户端命令注册事件
@@ -14,6 +14,6 @@ import net.minecraft.commands.CommandBuildContext
  * @property buildContext 注册访问对象，允许访问注册表以支持命令的相关注册过程。
  */
 class ClientCommandRegisterEvent(
-    @JvmField val dispatcher: CommandDispatcher<ClientSuggestionProvider>,
+    @JvmField val dispatcher: CommandDispatcher<out SharedSuggestionProvider>,
     @JvmField val buildContext: CommandBuildContext,
 ) : Event
