@@ -6,7 +6,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.GuiRenderableElementContainer
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.parentCount
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainer
-import moe.forpleuvoir.ibukigourd.mixin.client.ScreenMixin
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -93,7 +92,7 @@ interface IGScreen : GuiRenderableElementContainer, GuiWidgetContainer {
  * Just Init
  */
 fun Screen.init() {
-    (this as ScreenMixin).`ibukigourd$init`()
+//    (this as ScreenMixin).`ibukigourd$init`()
 }
 
 fun closeScreen() {

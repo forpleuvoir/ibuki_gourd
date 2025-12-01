@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.platform
 
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ImmutableSet
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.platform.services.PlatformHelper
 import moe.forpleuvoir.ibukigourd.util.ModLogger
@@ -9,6 +8,7 @@ import net.neoforged.fml.ModList
 import net.neoforged.fml.loading.FMLLoader
 import net.neoforged.fml.loading.FMLPaths
 import java.io.File
+import kotlin.reflect.KClass
 
 class NeoforgePlatformHelper : PlatformHelper {
 
@@ -18,16 +18,25 @@ class NeoforgePlatformHelper : PlatformHelper {
 
         @Suppress("UNCHECKED_CAST")
         private val modPacks by lazy {
-            ImmutableMap.builder<String, Set<String>>().also { packsMapping ->
+            ImmutableMap.builder<String, Set<KClass<*>>>().also { packsMapping ->
                 ModList.get().mods.forEach { modInfo ->
-                    val packs = ImmutableSet.builder<String>()
-                    (modInfo.modProperties["package"] as? Iterable<String>)?.forEach { value ->
-                        packs.add(value)
+                    (modInfo.modProperties["package"] as? String)?.let { value ->
+                        packsMapping.put(modInfo.modId, scanModPackage(modInfo.modId) { it.startsWith(value) })
                         logger.info("Mod: ${modInfo.modId} register Package: $value")
                     }
-                    packsMapping.put(modInfo.modId, packs.build())
                 }
             }.build()
+        }
+
+        private fun scanModPackage(modId: String, filter: (String) -> Boolean): Set<KClass<*>> {
+            return buildSet {
+                ModList.get().getModFileById(modId).file.scanResult.classes
+                    .map { it.clazz.className }
+                    .filter(filter)
+                    .forEach {
+                        runCatching { add(Class.forName(it).kotlin) }
+                    }
+            }
         }
     }
 
@@ -37,7 +46,7 @@ class NeoforgePlatformHelper : PlatformHelper {
 
     override fun isDevEnvironment(): Boolean = !FMLLoader.getCurrent().isProduction
 
-    override fun getIGModPackage(): Map<String, Set<String>> = modPacks
+    override fun getIGModClasses(): Map<String, Set<KClass<*>>> = modPacks
 
     override fun getConfigDir(): File = FMLPaths.CONFIGDIR.get().toFile()
 

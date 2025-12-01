@@ -49,3 +49,18 @@ artifacts {
     add("commonKotlin", sourceSets.main.get().kotlin.sourceDirectories.filter { !it.name.endsWith("java") }.singleFile)
     add("commonResources", sourceSets.main.get().resources.sourceDirectories.singleFile)
 }
+
+publishing {
+    //https://reposilite.com/guide/gradle
+    repositories {
+        maven("https://repo.reposilite.com/repository/maven-releases/") {
+            name = "reposilite"
+            credentials {
+                username = System.getenv("REPOSILITE_USERNAME")
+                password = System.getenv("REPOSILITE_PASSWORD")
+            }
+        }
+    }
+
+
+}

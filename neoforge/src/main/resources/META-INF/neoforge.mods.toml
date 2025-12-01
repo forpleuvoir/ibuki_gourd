@@ -14,7 +14,7 @@ authors = "${mod_author}"
 description = '''${description}'''
 
 [modproperties."${mod_id}"]
-package = ["moe.forpleuvoir.ibukigourd"]
+package = "moe.forpleuvoir.ibukigourd"
 
 [[mixins]]
 config = "${mod_id}.mixins.json"

@@ -1,12 +1,13 @@
 package moe.forpleuvoir.ibukigourd.platform
 
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ImmutableSet
+import com.google.common.reflect.ClassPath
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.platform.services.PlatformHelper
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import net.fabricmc.loader.api.FabricLoader
 import java.io.File
+import kotlin.reflect.KClass
 
 class FabricPlatformHelper : PlatformHelper {
 
@@ -17,19 +18,32 @@ class FabricPlatformHelper : PlatformHelper {
         private val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 
         private val modPacks by lazy {
-            ImmutableMap.builder<String, Set<String>>().also { packsMapping ->
+            ImmutableMap.builder<String, Set<KClass<*>>>().also { packsMapping ->
                 loader.allMods.forEach { mod ->
-                    val packs = ImmutableSet.builder<String>()
                     mod.metadata.customValues[IbukiGourd.MOD_ID]?.apply {
-                        asObject.get("package")?.asArray?.onEach { value ->
-                            packs.add(value.asString)
-                            logger.info("Mod: ${mod.metadata.id} register Package: ${value.asString}")
+                        asObject.get("package")?.asString?.let { value ->
+                            packsMapping.put(mod.metadata.id, scanPackage(value))
+                            logger.info("Mod: ${mod.metadata.id} register Package: $value")
                         }
                     }
-                    packsMapping.put(mod.metadata.id, packs.build())
                 }
             }.build()
         }
+
+        private fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Set<KClass<*>> {
+            return buildSet {
+                ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack).forEach {
+                    runCatching {
+                        val clazz = Class.forName(it.name).kotlin
+                        clazz.java.declaredClasses.forEach { innerClass ->
+                            if (predicate(innerClass.kotlin)) add(innerClass.kotlin)
+                        }
+                        if (predicate(clazz)) add(clazz)
+                    }
+                }
+            }
+        }
+
     }
 
     override fun getPlatformName(): String = "Fabric"
@@ -38,7 +52,7 @@ class FabricPlatformHelper : PlatformHelper {
 
     override fun isDevEnvironment(): Boolean = loader.isDevelopmentEnvironment
 
-    override fun getIGModPackage(): Map<String, Set<String>> = modPacks
+    override fun getIGModClasses(): Map<String, Set<KClass<*>>> = modPacks
 
     override fun getConfigDir(): File = loader.configDir.toFile()
 

@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.platform.services
 
 import java.io.File
+import kotlin.reflect.KClass
 
 interface PlatformHelper {
 
@@ -15,11 +16,11 @@ interface PlatformHelper {
     }
 
     /**
-     * 获取定义了IG信息的模组的包
+     * 定义了IG信息的所有类
      *
-     * @return: Map<modId, packages>
+     * ModId:KClasses
      */
-    fun getIGModPackage(): Map<String, Set<String>>
+    fun getIGModClasses(): Map<String, Set<KClass<*>>>
 
     fun getConfigDir(): File
 

@@ -9,14 +9,12 @@ import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.resourceLocation
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
-import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.json.JsonParser
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import kotlin.reflect.full.isSubclassOf
 
 @Suppress("UNUSED")
-@EventSubscriber
 object IconTextures : SimpleResourceReloaderListener<SerializeObject>() {
 
     private val log = logger()

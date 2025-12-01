@@ -53,9 +53,7 @@
   },
   "custom": {
     "ibukigourd": {
-      "package": [
-        "moe.forpleuvoir.ibukigourd"
-      ]
+      "package": "moe.forpleuvoir.ibukigourd"
     },
     "modmenu": {
       "badges": [
