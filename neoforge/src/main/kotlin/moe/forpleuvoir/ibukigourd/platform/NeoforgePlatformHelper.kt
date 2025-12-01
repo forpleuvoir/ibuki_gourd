@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.platform.services.PlatformHelper
-import moe.forpleuvoir.ibukigourd.util.logger
+import moe.forpleuvoir.ibukigourd.util.ModLogger
 import net.neoforged.fml.ModList
 import net.neoforged.fml.loading.FMLLoader
 import net.neoforged.fml.loading.FMLPaths
@@ -14,7 +14,7 @@ class NeoforgePlatformHelper : PlatformHelper {
 
     companion object {
 
-        private val logger = logger(IbukiGourd.MOD_NAME)
+        private val logger = ModLogger("NeoforgePlatformHelper", IbukiGourd.MOD_NAME)
 
         @Suppress("UNCHECKED_CAST")
         private val modPacks by lazy {

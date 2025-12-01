@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.platform.services.PlatformHelper
-import moe.forpleuvoir.ibukigourd.util.logger
+import moe.forpleuvoir.ibukigourd.util.ModLogger
 import net.fabricmc.loader.api.FabricLoader
 import java.io.File
 
@@ -12,7 +12,7 @@ class FabricPlatformHelper : PlatformHelper {
 
     companion object {
 
-        private val logger = logger(IbukiGourd.MOD_NAME)
+        private val logger = ModLogger("FabricPlatformHelper", IbukiGourd.MOD_NAME)
 
         private val loader: FabricLoader by lazy { FabricLoader.getInstance() }
 

@@ -12,12 +12,14 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.soundManager
@@ -110,7 +112,7 @@ fun ContainerScope.ARGBColorPicker(
         IntEditor(
             mutableStateOf(colorState, { it.red }) { Color(colorState.getValue().argb).red(it) },
             range = 0..255,
-            modifier = Modifier.width(38f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -125,7 +127,7 @@ fun ContainerScope.ARGBColorPicker(
         IntEditor(
             mutableStateOf(colorState, { it.green }) { Color(colorState.getValue().argb).green(it) },
             range = 0..255,
-            modifier = Modifier.width(38f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -140,7 +142,7 @@ fun ContainerScope.ARGBColorPicker(
         IntEditor(
             mutableStateOf(colorState, { it.blue }) { Color(colorState.getValue().argb).blue(it) },
             range = 0..255,
-            modifier = Modifier.width(38f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -155,7 +157,7 @@ fun ContainerScope.ARGBColorPicker(
         IntEditor(
             mutableStateOf(colorState, { it.alpha }) { Color(colorState.getValue().argb).alpha(it) },
             range = 0..255,
-            modifier = Modifier.width(38f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -174,6 +176,7 @@ fun ContainerScope.ColorResult(
         it.tryUse(wasMouseOver && it.button == Mouse.LEFT).onSuccess {
             mc.keyboardHandler.clipboard = color.getValue().hexStr
             soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+            Toast.showToast { Text(IGLang.copyColorSuccess(color.getValue())) }
         }
     }
         .name("ColorResult")

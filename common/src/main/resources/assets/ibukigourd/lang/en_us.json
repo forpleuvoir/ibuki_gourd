@@ -111,6 +111,7 @@
   "ibukigourd.color.saturation": "Saturation",
   "ibukigourd.color.brightness": "Brightness",
   "ibukigourd.color.click_copy_color": "Click to copy color %s",
+  "ibukigourd.color.copy_success": "Success copied color %s",
   "$ConfigWrapper": "Config Wrapper",
   "ibukigourd.config_wrapper.not_in_range": "%s is not within the range [%s..%s]",
   "ibukigourd.config_wrapper.pair.first": "First",

@@ -81,6 +81,8 @@ object IGLang {
 
     fun clickCopyColor(color: ARGBColor) = lang("color.click_copy_color", color.hexStr)
 
+    fun copyColorSuccess(color: ARGBColor) = lang("color.copy_success", color.hexStr)
+
     //------------ ConfigWrapper ------------\\
 
     fun <T : Comparable<*>> notInRange(value: T, minValue: T, maxValue: T) = lang("config_wrapper.not_in_range", value, minValue, maxValue)

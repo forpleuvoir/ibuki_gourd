@@ -111,6 +111,7 @@
   "ibukigourd.color.saturation": "饱和度",
   "ibukigourd.color.brightness": "明度",
   "ibukigourd.color.click_copy_color": "点击复制颜色 %s",
+  "ibukigourd.color.copy_success": "成功复制颜色 %s",
   "$ConfigWrapper": "配置包装器",
   "ibukigourd.config_wrapper.not_in_range": "%s 不在 [%s..%s] 范围内",
   "ibukigourd.config_wrapper.pair.first": "第一个值",

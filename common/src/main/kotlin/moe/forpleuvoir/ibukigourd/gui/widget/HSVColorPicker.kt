@@ -42,7 +42,7 @@ fun ContainerScope.HSVColorPicker(
             mutableStateOf(colorState, { it.toHSVColor().hue }) { colorState.getValue().clone().toHSVColor().hue(it) },
             range = 0f..360f,
             valueMapper = { String.format("%.2f", it) },
-            modifier = Modifier.width(45f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -58,7 +58,7 @@ fun ContainerScope.HSVColorPicker(
             mutableStateOf(colorState, { it.toHSVColor().saturation * 100 }) { colorState.getValue().clone().toHSVColor().saturation(it / 100) },
             range = 0f..100f,
             valueMapper = { String.format("%.2f", it) },
-            modifier = Modifier.width(45f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -74,7 +74,7 @@ fun ContainerScope.HSVColorPicker(
             mutableStateOf(colorState, { it.toHSVColor().value * 100 }) { colorState.getValue().clone().toHSVColor().value(it / 100) },
             range = 0f..100f,
             valueMapper = { String.format("%.2f", it) },
-            modifier = Modifier.width(45f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
@@ -90,7 +90,7 @@ fun ContainerScope.HSVColorPicker(
             mutableStateOf(colorState, { it.alphaF * 100 }) { Color(colorState.getValue().argb).alpha(it / 100) },
             range = 0f..100f,
             valueMapper = { String.format("%.2f", it) },
-            modifier = Modifier.width(45f),
+            modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
         )
     }
