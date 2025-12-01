@@ -344,6 +344,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         recompose()
     }
 
+    fun igInit() {
+        init()
+    }
+
     override fun rebuildWidgets() {
         if (initialized) return
         super.rebuildWidgets()

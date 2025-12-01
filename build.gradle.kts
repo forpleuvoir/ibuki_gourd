@@ -21,7 +21,7 @@ val gitHash: String by lazy {
 val versionWithGitHashAndBuildTime: String = "v$version.$gitHash.$time"
 
 tasks {
-    register("publishAllSnapshots") {
+    register("publishModToSnapshotsRepository") {
         dependsOn(
             ":common:publishMavenJavaPublicationToSnapshotsRepository",
             ":fabric:publishMavenJavaPublicationToSnapshotsRepository",
@@ -29,7 +29,7 @@ tasks {
         )
     }
 
-    register<Copy>("collectAllJars") {
+    register<Copy>("buildAllModJar") {
         dependsOn(
             ":fabric:remapJar",
             ":neoforge:jar"

@@ -93,6 +93,7 @@ interface IGScreen : GuiRenderableElementContainer, GuiWidgetContainer {
  */
 fun Screen.init() {
 //    (this as ScreenMixin).`ibukigourd$init`()
+    if (this is IGScreenImpl) this.igInit()
 }
 
 fun closeScreen() {
