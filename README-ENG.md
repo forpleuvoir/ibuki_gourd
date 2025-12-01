@@ -1,10 +1,11 @@
 # IBUKI GOURD
 
-[简体中文](/README.md)
+[简体中文](/README.md) | English
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-[IbukiGourd](https://modrinth.com/mod/ibukigourd) is a `Minecraft Fabric MOD` primarily written in `Kotlin`. It is
+[IbukiGourd](https://modrinth.com/mod/ibukigourd) is a `Minecraft Fabric&Neoforge MOD` primarily written in `Kotlin`. It
+is
 designed to provide essential features for
 other mods, including:
 
@@ -14,12 +15,15 @@ other mods, including:
 - **GUI DSL**
 
 ![Modrinth Version](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth)
-![Maven Version](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmaven.forpleuvoir.moe%2Fsnapshots%2Fmoe%2Fforpleuvoir%2Fibukigourd%2Fmaven-metadata.xml)
 
 Dependencies:
 
-- [Fabric API](https://github.com/FabricMC/fabric)
-- [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
+- Fabric
+    - [Fabric API](https://github.com/FabricMC/fabric)
+    - [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
+
+- NeoForge
+    - [Kotlin for Forge](https://github.com/thedarkcolour/KotlinForForge)
 
 ## How to Use
 
@@ -61,7 +65,7 @@ Add the dependency:
 
 ```kts
 dependencies {
-    implementation("moe.forpleuvoir:ibukigourd:$version")
+    implementation("moe.forpleuvoir:ibukigourd-$platform-$minecraftVersion:$modVersion")
 }
 ```
 
@@ -80,24 +84,29 @@ object YourModConfigs : ClientModConfigManager(
    autoScan = AutoScan.close
 ) {
 
-   // When autoScan is disabled, manually add configuration objects to the container:
-   // addConfig(configEntry)
-   // Or use extension methods for configuration items
+    // When autoScan is disabled, manually add configuration objects to the container:
+    // addConfig(configEntry)
+    // Or use extension methods for configuration items
 
-   // Using property delegation
-   var stringConfig by ConfigString("config_key_1", "defaultValue")
+    // Using property delegation
+    var stringConfig by ConfigString("config_key_1", "defaultValue")
 
-   // When autoScan is disabled, the `string` method automatically adds the config item
-   // to the container. Generally, extension methods should be defined in the respective
-   // configuration class file.
-   var stringByExtension by string("config_key_1", "defaultValue")
+    // When autoScan is disabled, the `string` method automatically adds the config item
+    // to the container. Generally, extension methods should be defined in the respective
+    // configuration class file.
+    var stringByExtension by string("config_key_1", "defaultValue")
 
-   // Without delegation
-   val mapConfig = ConfigStringMap("config_key_2", mapOf("k1" to "v1", "k2" to "v2"))
+    // Without delegation
+    val mapConfig = ConfigStringMap("config_key_2", mapOf("k1" to "v1", "k2" to "v2"))
 
-   // Add a child container
-   object Other : ModConfigContainer("other") {
-      // Additional logic for nested settings
+    init {
+        //If autoScan is enabled, you do not need to manually add configuration items
+        addConfig(Other)
+    }
+
+    // Add a child container
+    object Other : ModConfigContainer("other") {
+        //......
     }
 }
 ```
@@ -129,25 +138,39 @@ ServerModConfigManager.init(MinecraftServer)
 
 To set up automatic configuration management:
 
-1. Add the following to `fabric.mod.json`:
+1. Add package information
+    - For Fabric, add in `fabric.mod.json`:
 
-    ```json
-    {
-      "custom": {
-        "ibukigourd": {
-          "package": [
-            "your.code.pack"
-          ]
+        ```json
+        {
+          "custom": {
+            "ibukigourd": {
+              "package": "your.code.pack"
+            }
+          }
         }
-      }
-    }
-    ```
+        ```
+    - For Neoforge, add in `neoforge.mods.toml`:
 
-2. Annotate the configuration manager with `@ModConfig("config_Key")`:
+        ```toml
+        [modproperties."ibukigourd"]
+        package = "moe.forpleuvoir.ibukigourd"
+        ```
+2. Add annotation `@ModConfig("config_Key")` to the configuration manager:
 
     ```kotlin
     @ModConfig("config_Key")
-    object YourModConfigs : ClientModConfigManager(yourModMeta, "key")
+    object YourModConfigs : ClientModConfigManager(yourModMeta,"key")
+    ```
+
+3. To use the configuration screen, wrap it with the configuration screen manager wrapper
+   `ConfigManagerWrapper(configManager: ConfigManager,modifier: Modifier = Modifier)`:
+
+    ```kotlin
+    //Example
+    BoxScreen {
+        ConfigManagerWrapper(YourModConfigs)
+    }
     ```
 
 ### Command DSL

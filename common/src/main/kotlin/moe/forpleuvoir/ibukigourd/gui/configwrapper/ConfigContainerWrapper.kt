@@ -164,7 +164,7 @@ fun ContainerScope.ExpandableConfigContainerWrapper(
 
 fun ContainerScope.ConfigManagerWrapper(
     configManager: ConfigManager,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) = Row(
     modifier,
     horizontalArrangement = Arrangement.spacedBy(5f)

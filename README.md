@@ -1,20 +1,24 @@
 # IBUKI GOURD
 
-[English](/README-eng.md)
+简体中文 | [English](/README-ENG.md)
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-[IbukiGourd](https://modrinth.com/mod/ibukigourd) 是一个主要由`kotlin`编写的`Minecraft Fabric MOD`,主要为其他MOD提供前置功能
+[IbukiGourd](https://modrinth.com/mod/ibukigourd) 是一个主要由`kotlin`编写的`Minecraft Fabric&Neoforge MOD`
+,主要为其他MOD提供前置功能
 
 如:`配置管理` `配置GUI` `指令DSL` `GUI DSL`
 
 ![Modrinth Version](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth)
-![Maven Version](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmaven.forpleuvoir.moe%2Fsnapshots%2Fmoe%2Fforpleuvoir%2Fibukigourd%2Fmaven-metadata.xml)
 
 依赖于:
 
-- [Fabric API](https://github.com/FabricMC/fabric)
-- [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
+- Fabric
+    - [Fabric API](https://github.com/FabricMC/fabric)
+    - [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
+
+- NeoForge
+    - [Kotlin for Forge](https://github.com/thedarkcolour/KotlinForForge)
 
 ## 如何使用
 
@@ -56,7 +60,7 @@ maven {
 
 ```kts
 dependencies {
-    implementation("moe.forpleuvoir:ibukigourd:$version")
+    implementation("moe.forpleuvoir:ibukigourd-$platform-$minecraftVersion:$modVersion")
 }
 ```
 
@@ -69,22 +73,27 @@ dependencies {
 ```kotlin
 object YourModConfigs : ClientModConfigManager(modMeta = yourModMeta, key = "key", autoScan = AutoScan.close) {
 
-   //自动扫描默认是关闭的,关闭时需要手动将配置对象添加到容器中
-   //addConfig(configEntry)
-   //或者使用配置项对应的扩展方法
+    //自动扫描默认是关闭的,关闭时需要手动将配置对象添加到容器中
+    //addConfig(configEntry)
+    //或者使用配置项对应的扩展方法
 
     //使用属性委托
     var stringConfig by ConfigString("config_key_1", "defaultValue")
 
-   //关闭自动扫描时,string 方法会自动将配置项添加到容器中,一般扩展方法都写在对应配置类的文件内
-   var stringConfig by string("config_key_1", "defaultValue")
+    //关闭自动扫描时,string 方法会自动将配置项添加到容器中,一般扩展方法都写在对应配置类的文件内
+    var stringConfig by string("config_key_1", "defaultValue")
 
     //不使用委托
     val mapConfig = ConfigStringMap("config_key_2", mapOf("k1" to "v1", "k2" to "v2"))
 
+    init {
+        //如果开启了自动扫描(autoScan),则不需要手动添加配置项
+        addConfig(Other)
+    }
+
     //添加子容器
     object Other : ModConfigContainer("other") {
-       //......
+        //......
     }
 
 }
@@ -112,25 +121,38 @@ ServerModConfigManager.init(MinecraftServer)
 
 自动管理配置
 
-1. 在`fabric.mod.json`中添加
+1. 添加包信息
+    - Fabric在`fabric.mod.json`中添加
 
-    ```json
-    {
-      "custom": {
-        "ibukigourd": {
-          "package": [
-            "your.code.pack"
-          ]
+        ```json
+        {
+          "custom": {
+            "ibukigourd": {
+              "package": "your.code.pack"
+            }
+          }
         }
-      }
-    }
-    ```
+        ```
+    - Neoforge在`neoforge.mods.toml`中添加
+
+        ```toml
+            [modproperties."ibukigourd"]
+            package = "moe.forpleuvoir.ibukigourd"
+        ```
 
 2. 在配置管理器上添加注解`@ModConfig("config_Key")`
 
     ```kotlin
     @ModConfig("config_Key")
     object YourModConfigs : ClientModConfigManager(yourModMeta,"key")
+    ```
+3. 若要使用配置屏幕,使用配置屏管理器包装器
+   `ConfigManagerWrapper(configManager: ConfigManager,modifier: Modifier = Modifier)`
+    ```kotlin
+   //示例
+    BoxScreen {
+        ConfigManagerWrapper(YourModConfigs)
+   }
     ```
 
 ### 指令DSL
@@ -146,7 +168,7 @@ fun <S> CommandDispatcher<S>.registerCommand(
 
 ```kotlin
 dispatcher.registerCommand("yourCommand") {
-   literal("subCommand") {
+    literal("subCommand") {
         suggests {
             //do something
         }
@@ -154,7 +176,7 @@ dispatcher.registerCommand("yourCommand") {
             //do something
         }
     }
-   argument("argName", ArgumentType) {
+    argument("argName", ArgumentType) {
         execute {
             //do something
         }
@@ -167,18 +189,18 @@ dispatcher.registerCommand("yourCommand") {
 
 ```kotlin   
 BoxScreen {
-   Row(
-      modifier = Modifier,
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally,
-   ) {
-      Button {
-         click {
-             Toast.showToast(text = "hello minecraft")
-         }
-         Text("hello minecraft")
-         Icon(IconTextures.LOCK)
-      }
+    Row(
+        modifier = Modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Button {
+            click {
+                Toast.showToast(text = "hello minecraft")
+            }
+            Text("hello minecraft")
+            Icon(IconTextures.LOCK)
+        }
     }
 }.open()//打开屏幕
 ```
