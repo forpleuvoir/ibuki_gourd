@@ -62,6 +62,10 @@ class IGGuiGraphics(
 
     private val endRenderableList: MutableList<Pair<Int, IGGuiGraphics.() -> Unit>> = mutableListOf()
 
+    fun getGuiRenderState() = this.guiRenderState
+
+    fun getScissorStack() = this.scissorStack
+
     val font: Font = client.font
 
     private var endRendering: Boolean = false

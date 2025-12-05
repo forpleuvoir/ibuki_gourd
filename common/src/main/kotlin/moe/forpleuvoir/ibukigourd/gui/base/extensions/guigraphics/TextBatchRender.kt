@@ -22,7 +22,6 @@ fun Font.batchRenderText(
     block: TextBatchRenderScope.() -> Unit
 ) {
     TextBatchRenderScope(this, bufferSource, pose).apply(block)
-    bufferSource.endBatch()
 }
 
 fun Font.batchRenderText(

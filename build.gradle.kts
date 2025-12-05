@@ -29,6 +29,22 @@ tasks {
         )
     }
 
+    register("publishModToReleasesRepository") {
+        dependsOn(
+            ":common:publishMavenJavaPublicationToReleasesRepository",
+            ":fabric:publishMavenJavaPublicationToReleasesRepository",
+            ":neoforge:publishMavenJavaPublicationToReleasesRepository"
+        )
+    }
+
+    register("publishModToLocalRepository") {
+        dependsOn(
+            ":common:publishMavenJavaPublicationToMavenLocal",
+            ":fabric:publishMavenJavaPublicationToMavenLocal",
+            ":neoforge:publishMavenJavaPublicationToMavenLocal"
+        )
+    }
+
     register<Copy>("buildAllModJar") {
         dependsOn(
             ":fabric:remapJar",

@@ -1,16 +1,16 @@
 package moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.blaze3d.vertex.VertexFormat
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
-import moe.forpleuvoir.ibukigourd.render.*
+import moe.forpleuvoir.ibukigourd.render.color
+import moe.forpleuvoir.ibukigourd.render.setShaderTexture
+import moe.forpleuvoir.ibukigourd.render.uv
+import moe.forpleuvoir.ibukigourd.render.vertex
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
-import net.minecraft.client.renderer.MultiBufferSource
 import org.joml.Matrix4f
 import kotlin.math.absoluteValue
 
@@ -21,13 +21,11 @@ import kotlin.math.absoluteValue
 //}
 
 fun batchRenderTextureColored(
-    bufferSource: MultiBufferSource.BufferSource,
+    vertexConsumer: VertexConsumer,
     matrix4f: Matrix4f,
     block: TextureBatchRenderScope.() -> Unit
 ) {
-    val bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR)
-    block.invoke(TextureBatchRenderScope(bufferBuilder, matrix4f))
-    bufferSource.endBatch()
+    block.invoke(TextureBatchRenderScope(vertexConsumer, matrix4f))
 }
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")

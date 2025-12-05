@@ -15,7 +15,7 @@ object IbukiGourd {
     const val MOD_NAME: String = "IbukiGourd"
 
     fun init() {
-        logger.info("Ibukigourd,platform:{},env:{}", PLATFORM.getPlatformName(), PLATFORM.getEnvironmentName())
+        logger.info("$MOD_ID,platform:{},env:{}", PLATFORM.getPlatformName(), PLATFORM.getEnvironmentName())
         IbukiGourdEventManager.init()
         EventBus.broadcast(IbukigourdInitializerEvent)
     }

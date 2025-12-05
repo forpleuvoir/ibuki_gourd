@@ -21,9 +21,11 @@ class FabricPlatformHelper : PlatformHelper {
             ImmutableMap.builder<String, Set<KClass<*>>>().also { packsMapping ->
                 loader.allMods.forEach { mod ->
                     mod.metadata.customValues[IbukiGourd.MOD_ID]?.apply {
-                        asObject.get("package")?.asString?.let { value ->
-                            packsMapping.put(mod.metadata.id, scanPackage(value))
-                            logger.info("Mod: ${mod.metadata.id} register Package: $value")
+                        runCatching {
+                            asObject.get("package")?.asString?.let { value ->
+                                packsMapping.put(mod.metadata.id, scanPackage(value))
+                                logger.info("Mod: ${mod.metadata.id} register Package: $value")
+                            }
                         }
                     }
                 }

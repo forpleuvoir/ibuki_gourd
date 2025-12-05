@@ -7,6 +7,10 @@ fun interface SimpleTaskExecutor<T> : TaskExecutor<T> {
 
     override fun execute(task: TickTask<T>, context: T)
 
+    override fun asString(): String {
+        return "SimpleTaskExecutor"
+    }
+
     override fun serialization(): SerializeElement = SerializeNull
 
 }

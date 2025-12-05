@@ -47,7 +47,6 @@ forgeKotlin = { group = "thedarkcolour", name = "kotlinforforge-neoforge", versi
 #ohter
 nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebula" }
 
-
 kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlinCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }

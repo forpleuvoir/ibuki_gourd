@@ -22,7 +22,7 @@ object Services {
 
 }
 
-val PLATFORM get() = Services.PLATFORM
+internal val PLATFORM get() = Services.PLATFORM
 
 val isDevEnv: Boolean by lazy { PLATFORM.isDevEnvironment() }
 

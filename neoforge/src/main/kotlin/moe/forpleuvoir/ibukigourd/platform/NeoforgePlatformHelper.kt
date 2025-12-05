@@ -20,9 +20,11 @@ class NeoforgePlatformHelper : PlatformHelper {
         private val modPacks by lazy {
             ImmutableMap.builder<String, Set<KClass<*>>>().also { packsMapping ->
                 ModList.get().mods.forEach { modInfo ->
-                    (modInfo.modProperties["package"] as? String)?.let { value ->
-                        packsMapping.put(modInfo.modId, scanModPackage(modInfo.modId) { it.startsWith(value) })
-                        logger.info("Mod: ${modInfo.modId} register Package: $value")
+                    runCatching {
+                        (modInfo.modProperties["package"] as? String)?.let { value ->
+                            packsMapping.put(modInfo.modId, scanModPackage(modInfo.modId) { it.startsWith(value) })
+                            logger.info("Mod: ${modInfo.modId} register Package: $value")
+                        }
                     }
                 }
             }.build()

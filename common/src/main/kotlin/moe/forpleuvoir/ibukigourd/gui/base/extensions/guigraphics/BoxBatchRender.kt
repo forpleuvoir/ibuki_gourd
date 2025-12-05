@@ -10,7 +10,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.ColoredBox
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.pointsInCircleRange
-import moe.forpleuvoir.ibukigourd.render.IGRenderType
 import moe.forpleuvoir.ibukigourd.render.color
 import moe.forpleuvoir.ibukigourd.render.defaultZOffset
 import moe.forpleuvoir.ibukigourd.render.vertex
@@ -19,21 +18,17 @@ import moe.forpleuvoir.ibukigourd.util.math.plus
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.color.alphaFRange
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
 import org.joml.Matrix4f
 import org.joml.Vector2fc
 import kotlin.math.abs
 import kotlin.math.min
 
 fun batchRenderBox(
-    bufferSource: MultiBufferSource.BufferSource,
+    vertexConsumer: VertexConsumer,
     matrix4f: Matrix4f,
-    renderType: RenderType = IGRenderType.GUI,
     block: BoxBatchRenderScope.() -> Unit
 ) {
-    block(BoxBatchRenderScope(bufferSource.getBuffer(renderType), matrix4f))
-    bufferSource.endBatch()
+    block(BoxBatchRenderScope(vertexConsumer, matrix4f))
 }
 
 @ConsistentCopyVisibility

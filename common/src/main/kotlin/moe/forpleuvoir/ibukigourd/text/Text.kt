@@ -18,7 +18,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
-open class Text(
+open class Text internal constructor(
     content: ComponentContents,
     siblings: MutableList<McText> = mutableListOf(),
     style: Style = Style.EMPTY
