@@ -19,9 +19,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.mod.what.EasterEggsScreen
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.FixedSizeQueue

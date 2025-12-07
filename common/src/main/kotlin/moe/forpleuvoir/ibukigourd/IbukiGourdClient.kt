@@ -7,6 +7,5 @@ object IbukiGourdClient {
     private val logger = logger()
 
     fun init() {
-
     }
 }

@@ -33,7 +33,7 @@ object GuiConfig : ModConfigContainer("gui") {
 
 //        var defaultBgBlurRadius by float("default_bg_blur_radius", 5f, 0f, 20f)
 
-        var widgetTestOutlineColor by color("widget_test_outline_color", Color(0))
+        var widgetTestOutlineColor by color("widget_test_outline_color", Color.ofARGB(0))
 
     }
 

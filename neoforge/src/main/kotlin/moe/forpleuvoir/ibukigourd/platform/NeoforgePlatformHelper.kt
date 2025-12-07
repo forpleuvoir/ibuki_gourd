@@ -9,6 +9,7 @@ import net.neoforged.fml.loading.FMLLoader
 import net.neoforged.fml.loading.FMLPaths
 import java.io.File
 import kotlin.reflect.KClass
+import kotlin.text.contains
 
 class NeoforgePlatformHelper : PlatformHelper {
 
@@ -34,9 +35,14 @@ class NeoforgePlatformHelper : PlatformHelper {
             return buildSet {
                 ModList.get().getModFileById(modId).file.scanResult.classes
                     .map { it.clazz.className }
-                    .filter(filter)
-                    .forEach {
-                        runCatching { add(Class.forName(it).kotlin) }
+                    .filter {
+                        filter(it) && !it.contains(".mixin")
+                    }
+                    .forEach { classInfo ->
+                        runCatching { add(Class.forName(classInfo).kotlin) }.onFailure {
+                            logger.warn("Failed to load class: ${classInfo}")
+                            logger.warn(it)
+                        }
                     }
             }
         }

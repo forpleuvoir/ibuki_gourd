@@ -34,15 +34,20 @@ class FabricPlatformHelper : PlatformHelper {
 
         private fun scanPackage(pack: String, predicate: (KClass<*>) -> Boolean = { true }): Set<KClass<*>> {
             return buildSet {
-                ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack).forEach {
-                    runCatching {
-                        val clazz = Class.forName(it.name).kotlin
-                        clazz.java.declaredClasses.forEach { innerClass ->
-                            if (predicate(innerClass.kotlin)) add(innerClass.kotlin)
+                ClassPath.from(IbukiGourd::class.java.classLoader).getTopLevelClassesRecursive(pack)
+                    .filter { !it.packageName.contains(".mixin") }
+                    .forEach { classInfo ->
+                        runCatching {
+                            val clazz = Class.forName(classInfo.name).kotlin
+                            clazz.java.declaredClasses.forEach { innerClass ->
+                                if (predicate(innerClass.kotlin)) add(innerClass.kotlin)
+                            }
+                            if (predicate(clazz)) add(clazz)
+                        }.onFailure {
+                            logger.warn("Failed to load class: ${classInfo.name}")
+                            logger.warn(it)
                         }
-                        if (predicate(clazz)) add(clazz)
                     }
-                }
             }
         }
 

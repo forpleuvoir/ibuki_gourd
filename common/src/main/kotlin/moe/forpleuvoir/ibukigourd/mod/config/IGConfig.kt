@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.gui.IbukiGourdModScreen
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.config.container.ConfigContainer
 
 @ModConfig("config")
 object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
