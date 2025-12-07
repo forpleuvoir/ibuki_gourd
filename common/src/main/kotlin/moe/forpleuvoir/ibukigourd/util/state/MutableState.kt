@@ -152,7 +152,7 @@ fun <R> MutableState<Boolean>.pick(block: () -> R, block2: () -> R) = this.getVa
 fun MutableState<Color>.toARGBColorState() =
     mutableStateOf(this.getValue() as ARGBColor).apply {
         subscribe {
-            this@toARGBColorState.setValue(Color(it.argb))
+            this@toARGBColorState.setValue(Color.ofARGB(it.argb))
         }
     }
 

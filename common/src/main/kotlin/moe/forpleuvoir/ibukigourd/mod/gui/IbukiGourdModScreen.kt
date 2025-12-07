@@ -74,8 +74,8 @@ fun IbukiGourdModScreen() = TabScreen(
         }
         onKeyPress(it)
     },
-    tabColor = stateOf(Color(0xffffccf0)),
-    inactiveColor = stateOf(Color(0xffb3f2ff))
+    tabColor = stateOf(Color.ofRGB(0XFFCCF0)),
+    inactiveColor = stateOf(Color.ofRGB(0XB3F2FF))
 ) {
     Config()
 }

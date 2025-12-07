@@ -16,6 +16,9 @@ java {
 
 kotlin {
     jvmToolchain(Integer.parseInt(libs.versions.java.get()))
+    compilerOptions {
+        freeCompilerArgs.add('-Xjvm-default=all')
+    }
 }
 
 repositories {

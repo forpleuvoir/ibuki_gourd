@@ -42,9 +42,9 @@ fun ContainerScope.GameOfLife(
     gridUnitSize: Float = 3f,
     gridLineWidth: Float = .25f,
     borderColor: State<ARGBColor> = stateOf(Colors.WHITE),
-    gridColor: State<ARGBColor> = stateOf(Color(0x2FFFFFFF)),
-    cellColor: State<ARGBColor> = stateOf(Color(0xFF17E5E5)),
-    bgColor: State<ARGBColor> = stateOf(Color(0xFF000000)),
+    gridColor: State<ARGBColor> = stateOf(Color.ofARGB(0x2FFFFFFF)),
+    cellColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFF17E5E5)),
+    bgColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFF000000)),
 ): GuiWidgetImpl {
     val canvasPosition = Vector2f(0f, 0f)
     val mouse = Vector2f(0f, 0f)

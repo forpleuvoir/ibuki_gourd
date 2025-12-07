@@ -63,11 +63,11 @@ fun ContainerScope.Snake(
     gridUnitSize: Float = 5f,
     gridLineWidth: Float = .25f,
     borderColor: State<ARGBColor> = stateOf(Colors.WHITE),
-    gridColor: State<ARGBColor> = stateOf(Color(0x2FFFFFFF)),
-    bgColor: State<ARGBColor> = stateOf(Color(0xFF000000)),
-    snakeHeadColor: State<ARGBColor> = stateOf(Color(0xFFEB57AE)),
-    snakePartColor: State<ARGBColor> = stateOf(Color(0xFFFF7F00)),
-    foodColor: State<ARGBColor> = stateOf(Color(0xFF17E5E5)),
+    gridColor: State<ARGBColor> = stateOf(Color.ofARGB(0x2FFFFFFF)),
+    bgColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFF000000)),
+    snakeHeadColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFFEB57AE)),
+    snakePartColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFFFF7F00)),
+    foodColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFF17E5E5)),
     wallColor: State<ARGBColor> = stateOf(Colors.WHITE),
 ): GuiWidgetImpl {
 

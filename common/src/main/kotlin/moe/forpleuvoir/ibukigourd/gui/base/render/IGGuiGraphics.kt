@@ -57,7 +57,7 @@ class IGGuiGraphics(
         fun GuiGraphics.toIGGUIGraphics(): IGGuiGraphics =
             this as? IGGuiGraphics ?: IGGuiGraphics(this.minecraft, this.pose(), this.guiRenderState)
 
-        private val transparent = Color(0, 0, 0, 0)
+        private val transparent = Color.ofARGB(0)
     }
 
     private val endRenderableList: MutableList<Pair<Int, IGGuiGraphics.() -> Unit>> = mutableListOf()

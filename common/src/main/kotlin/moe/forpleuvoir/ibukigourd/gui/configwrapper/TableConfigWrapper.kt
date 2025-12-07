@@ -113,7 +113,7 @@ fun <T> ContainerScope.TableWrappedButton(
                     .width(40f)
                     .hoverText(IGLang.add)
             ) {
-                Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
+                Icon(IconTextures.PLUS, Color.ofARGB(0xFF2EE62E), Modifier.size(8f, 8f))
                 click {
                     onAdd(newValue(userData))
                     table.executeRecompose()

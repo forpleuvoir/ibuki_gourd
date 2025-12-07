@@ -29,7 +29,7 @@ fun ContainerScope.ColorConfigWrapper(
         subscribe {
             if (config.getValue() is HSVColor)
                 config.setValue(it.toHSVColor())
-            else config.setValue(Color(it.argb))
+            else config.setValue(Color.ofARGB(it.argb))
         }
     }
     Row(

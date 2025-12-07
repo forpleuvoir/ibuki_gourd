@@ -54,10 +54,10 @@ fun ContainerScope.FlatButton(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     round: Int = 2,
-    disabledColor: State<out ARGBColor> = stateOf(Color(0)),
-    idleColor: State<out ARGBColor> = stateOf(Color(0)),
-    hoveredColor: State<out ARGBColor> = stateOf(Color(0)),
-    pressedColor: State<out ARGBColor> = stateOf(Color(0)),
+    disabledColor: State<out ARGBColor> = stateOf(Color.ofARGB(0)),
+    idleColor: State<out ARGBColor> = stateOf(Color.ofARGB(0)),
+    hoveredColor: State<out ARGBColor> = stateOf(Color.ofARGB(0)),
+    pressedColor: State<out ARGBColor> = stateOf(Color.ofARGB(0)),
     content: ButtonScope.() -> Unit = { }
 ) = addWidgetChild(IGButtonWidget(horizontalArrangement, verticalAlignment)) {
     Modifier.padding(round)
@@ -80,10 +80,10 @@ fun ContainerScope.FlatButton(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     round: Int = 2,
-    disabledColor: ARGBColor = Color(0),
-    idleColor: ARGBColor = Color(0),
-    hoveredColor: ARGBColor = Color(0),
-    pressedColor: ARGBColor = Color(0),
+    disabledColor: ARGBColor = Color.ofARGB(0),
+    idleColor: ARGBColor = Color.ofARGB(0),
+    hoveredColor: ARGBColor = Color.ofARGB(0),
+    pressedColor: ARGBColor = Color.ofARGB(0),
     content: ButtonScope.() -> Unit = { }
 ) = FlatButton(
     modifier,
@@ -102,8 +102,8 @@ fun ContainerScope.SwitchButton(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onColor: ARGBColor = Color(0XFFA9E2A9),
-    offColor: ARGBColor = Color(0XFFDC9F9F),
+    onColor: ARGBColor = Color.ofARGB(0XFFA9E2A9),
+    offColor: ARGBColor = Color.ofARGB(0XFFDC9F9F),
     scope: ButtonScope.() -> Unit = {}
 ) = Button(
     Modifier

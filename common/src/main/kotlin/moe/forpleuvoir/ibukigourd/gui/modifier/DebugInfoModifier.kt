@@ -81,7 +81,7 @@ fun DebugInfoScope.ScreenRenderTime(format: String = "RenderTime:%s", color: ARG
     Literal(format.format(screen.userData["#debug_render_time"])).style { color(color) }
 }
 
-fun DebugInfoScope.ScreenFPS(format: String = "FPS:%d", color: ARGBColor = Color(0x00FF00)) = info { screen, _, _, _, _ ->
+fun DebugInfoScope.ScreenFPS(format: String = "FPS:%d", color: ARGBColor = Color.ofRGB(0x00FF00)) = info { screen, _, _, _, _ ->
     (screen as? IGScreenImpl)?.let {
         it addDebugRenderTime screen.latestRenderTime
         it.updateRenderInfo("fps") { it.userData["#debug_render_fps"] = (1.seconds / screen.debugAverageRenderTimes).toInt() }
@@ -97,7 +97,7 @@ fun DebugInfoScope.MousePosition(
     xFormat: String = "MouseX:%.2f",
     xColor: ARGBColor = Colors.RED,
     yFormat: String = "MouseY:%.2f",
-    yColor: ARGBColor = Color(0x00FF00),
+    yColor: ARGBColor = Color.ofRGB(0x00FF00),
     connector: String = "\n",
     connectorColor: ARGBColor = Colors.BLACK
 ) = info { _, _, mouseX, mouseY, delta ->

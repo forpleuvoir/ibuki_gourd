@@ -55,7 +55,7 @@ class DropDownMenuScope(private val owner: IGButtonWidget, private val state: Mu
 
 }
 
-val DropDownMenuSeparatorColor = Color(0xFFCCCCCC)
+val DropDownMenuSeparatorColor = Color.ofRGB(0xCCCCCC)
 
 fun ContainerScope.DropDownMenu(
     modifier: Modifier = Modifier,

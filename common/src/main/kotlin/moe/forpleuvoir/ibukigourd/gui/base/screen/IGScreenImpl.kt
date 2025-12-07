@@ -500,7 +500,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         renderBackground(guiGraphics, mouseX.toInt(), mouseY.toInt(), delta)
 
     override fun renderTransparentBackground(guiGraphics: GuiGraphics) {
-        guiGraphics.toIGGUIGraphics().pushGradientBox(transform.asWorldCoordinateBox, Color(0xC0101010), Color(0xD0101010), Orientation.Vertical)
+        guiGraphics.toIGGUIGraphics().pushGradientBox(transform.asWorldCoordinateBox, Color.ofARGB(0xC0101010), Color.ofARGB(0xD0101010), Orientation.Vertical)
     }
 
 

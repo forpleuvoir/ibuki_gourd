@@ -110,7 +110,7 @@ fun ContainerScope.ARGBColorPicker(
             RedColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            mutableStateOf(colorState, { it.red }) { Color(colorState.getValue().argb).red(it) },
+            mutableStateOf(colorState, { it.red }) { Color.ofARGB(colorState.getValue().argb).red(it) },
             range = 0..255,
             modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
@@ -125,7 +125,7 @@ fun ContainerScope.ARGBColorPicker(
             GreenColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            mutableStateOf(colorState, { it.green }) { Color(colorState.getValue().argb).green(it) },
+            mutableStateOf(colorState, { it.green }) { Color.ofARGB(colorState.getValue().argb).green(it) },
             range = 0..255,
             modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
@@ -140,7 +140,7 @@ fun ContainerScope.ARGBColorPicker(
             BlueColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            mutableStateOf(colorState, { it.blue }) { Color(colorState.getValue().argb).blue(it) },
+            mutableStateOf(colorState, { it.blue }) { Color.ofARGB(colorState.getValue().argb).blue(it) },
             range = 0..255,
             modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
@@ -155,7 +155,7 @@ fun ContainerScope.ARGBColorPicker(
             AlphaColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         IntEditor(
-            mutableStateOf(colorState, { it.alpha }) { Color(colorState.getValue().argb).alpha(it) },
+            mutableStateOf(colorState, { it.alpha }) { Color.ofARGB(colorState.getValue().argb).alpha(it) },
             range = 0..255,
             modifier = Modifier.width(51f),
             editorModifier = { Modifier.weight(1) }
@@ -193,8 +193,8 @@ fun ContainerScope.RedColorSlider(
 ) = ColorComponentSlider(
     colorState,
     colorComponentGetter = { it.redF },
-    colorComponentSetter = { c, i -> Color(c.argb).red(i) },
-    renderColorComponentSetter = { c, i -> Color(c.argb).red(i).alpha(255) },
+    colorComponentSetter = { c, i -> Color.ofARGB(c.argb).red(i) },
+    renderColorComponentSetter = { c, i -> Color.ofARGB(c.argb).red(i).alpha(255) },
     modifier, scope
 )
 

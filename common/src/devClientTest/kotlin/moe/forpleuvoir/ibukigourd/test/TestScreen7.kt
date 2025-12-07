@@ -35,8 +35,8 @@ fun testScreen7() = TabScreen(
         MouseCursor()
         MousePosition()
     },
-    tabColor = stateOf(Color(0xffffccf0)),
-    inactiveColor = stateOf(Color(0xffb3f2ff))
+    tabColor = stateOf(Color.ofRGB(0XFFCCF0)),
+    inactiveColor = stateOf(Color.ofRGB(0XB3F2FF))
 ) {
     tab3()
     tab1()
@@ -73,7 +73,7 @@ fun TabScope.tab1() = Tab("测试用配置设置", true) {
 fun TabScope.tab2() = Tab("第二页,选择框颜色设置") {
     val color = mutableStateOf(GuiConfig.Screen.widgetTestOutlineColor).apply {
         subscribe {
-            GuiConfig.Screen.widgetTestOutlineColor = Color(it.argb)
+            GuiConfig.Screen.widgetTestOutlineColor = Color.ofARGB(it.argb)
         }
     }
     ColorPicker(color)

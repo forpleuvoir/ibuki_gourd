@@ -37,7 +37,7 @@ fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String
     return first
 }
 
-val ConfigSerializable.translateText: Text
+var ConfigSerializable.translateText: Text
     get() = runCatching {
         (getUserData(TRANSLATE_TEXT_KYE) as Text).copyToText()
     }.getOrElse {
@@ -45,13 +45,19 @@ val ConfigSerializable.translateText: Text
         setUserData(TRANSLATE_TEXT_KYE, text)
         text.copyToText()
     }
+    set(value) {
+        setUserData(TRANSLATE_TEXT_KYE, value)
+    }
 
 
-val ConfigSerializable.comment: Text
+var ConfigSerializable.comment: Text
     get() = runCatching {
         (getUserData(COMMENT_KYE) as Text).copyToText()
     }.getOrElse {
         val text = Translatable(translationKey() + ".comment", translateText.plainText)
         setUserData(COMMENT_KYE, text)
         text.copyToText()
+    }
+    set(value) {
+        setUserData(COMMENT_KYE, value)
     }

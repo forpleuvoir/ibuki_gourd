@@ -65,7 +65,6 @@ object Toast : Tickable {
                     val (alpha, offset) = calculateAlphaAndOffset(duration, fadeInDuration, fadeOutDuration, timeMark)
                     guiGraphics {
                         useMatrixStack {
-                            //TODO 或许应该直接修改组件的位置,原来有裁剪偏移,现在不知道有没有用
                             it.translate(offset.x(), offset.y())
                             modulateColor(Colors.WHITE.alpha(alpha)) {
                                 box.render(this, mouseX, mouseY, delta)

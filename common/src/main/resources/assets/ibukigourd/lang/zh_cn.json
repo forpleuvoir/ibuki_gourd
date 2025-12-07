@@ -119,7 +119,7 @@
   "ibukigourd.config_wrapper.map.key": "键",
   "ibukigourd.config_wrapper.map.value": "值",
   "ibukigourd.config_wrapper.key_exists": "键[%s]已存在",
-  "ibukigourd.config_wrapper.press_to_setting": "按下按键开始设置",
+  "ibukigourd.config_wrapper.press_to_setting": "点击按钮开始设置",
   "ibukigourd.config_wrapper.release_to_save_setting": "释放按键保存设置",
   "ibukigourd.config_wrapper.keybind_conflict": "按键冲突",
   "ibukigourd.config_wrapper.move": "移动",

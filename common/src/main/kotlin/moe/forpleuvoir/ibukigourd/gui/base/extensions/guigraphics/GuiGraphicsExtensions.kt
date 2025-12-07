@@ -9,10 +9,6 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-//val GuiGraphics.positionMatrix: Matrix4f get() = pose().positionMatrix
-
-//val Matrix3x2fStack.positionMatrix: Matrix4f get() = peek().positionMatrix
-
 inline fun <T : GuiGraphics> T.useMatrixStack(block: T.(Matrix3x2fStack) -> Unit) {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
     this.pose().pushMatrix()

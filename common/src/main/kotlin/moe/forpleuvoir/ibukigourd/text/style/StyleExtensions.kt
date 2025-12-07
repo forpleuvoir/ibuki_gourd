@@ -35,7 +35,7 @@ val Style.rgbColor: RGBColor?
     get() = argbColor
 
 val Style.argbColor: ARGBColor?
-    get() = this.color?.let { Color(it.value).alpha(255) }
+    get() = this.color?.let { Color.ofRGB(it.value) }
 
 fun Style.withColor(color: Int?): Style {
     return this.withColor(color?.let { TextColor.fromRgb(it) })

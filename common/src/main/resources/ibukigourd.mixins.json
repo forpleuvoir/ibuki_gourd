@@ -2,7 +2,17 @@
   "required": true,
   "minVersion": "0.8",
   "package": "moe.forpleuvoir.ibukigourd.mixin",
+  "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_18",
+  "mixins": [
+    "MinecraftServerMixin"
+  ],
+  "client": [
+    "client.GameRendererMixin",
+    "client.KeyboardHandlerMixin",
+    "client.MinecraftMixin",
+    "client.MouseHandlerMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

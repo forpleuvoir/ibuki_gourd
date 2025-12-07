@@ -53,7 +53,7 @@ class TextWidget(
 //        layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.SEE_THROUGH,
         rightToLeft: Boolean = false,
         defaultColor: ARGBColor = Colors.BLACK,
-        backgroundColor: ARGBColor = Color(0),
+        backgroundColor: ARGBColor = Color.ofARGB(0),
         font: Font = mc.font,
     ) : this(
         text,
@@ -69,7 +69,7 @@ class TextWidget(
 //        var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.SEE_THROUGH,
         var rightToLeft: Boolean = false,
         var defaultColor: ARGBColor = Colors.BLACK,
-        var backgroundColor: ARGBColor = Color(0),
+        var backgroundColor: ARGBColor = Color.ofARGB(0),
         var font: Font = mc.font,
         var textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval
     )

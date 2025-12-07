@@ -16,9 +16,9 @@ class StyleScope(parent: Style) {
 
     val asStyle: Style get() = style(color, shadowColor, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent)
 
-    private var color: RGBColor? = parent.color?.let { Color(it.value).alpha(1f) }
+    private var color: RGBColor? = parent.color?.let { Color.ofRGB(it.value) }
 
-    private var shadowColor: RGBColor? = parent.shadowColor?.let { Color(it).alpha(1f) }
+    private var shadowColor: RGBColor? = parent.shadowColor?.let { Color.ofRGB(it) }
 
     private var bold: Boolean? = parent.bold
 
@@ -44,12 +44,12 @@ class StyleScope(parent: Style) {
     }
 
     fun color(rgbColor: Int?): StyleScope {
-        this.color = rgbColor?.let { Color(rgbColor).alpha(1f) }
+        this.color = rgbColor?.let { Color.ofRGB(it) }
         return this
     }
 
     fun color(hexColor: String?): StyleScope {
-        this.color = hexColor?.let { Color(it) }
+        this.color = hexColor?.let { Color.ofString(it) }
         return this
     }
 
@@ -59,7 +59,7 @@ class StyleScope(parent: Style) {
     }
 
     fun shadowColor(rgbColor: Int?): StyleScope {
-        this.shadowColor = rgbColor?.let { Color(it).alpha(1f) }
+        this.shadowColor = rgbColor?.let { Color.ofRGB(it) }
         return this
     }
 

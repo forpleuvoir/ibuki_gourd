@@ -134,7 +134,7 @@ fun <T> ContainerScope.IterableWrappedButton(
                     .width(40f)
                     .hoverText(IGLang.add)
             ) {
-                Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
+                Icon(IconTextures.PLUS, Color.ofRGB(0x2EE62E), Modifier.size(8f, 8f))
                 click {
                     onAdd(newValue(iterable))
                     columnList?.executeRecompose()

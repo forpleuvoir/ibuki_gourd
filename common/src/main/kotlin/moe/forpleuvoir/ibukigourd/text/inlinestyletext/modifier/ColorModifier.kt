@@ -42,9 +42,9 @@ object ColorModifier : TextModifier {
             return { text ->
                 text.style {
                     if (shadow) {
-                        shadowColor(Color(exp).rgb)
+                        shadowColor(Color.ofString(exp).rgb)
                     } else {
-                        color(Color(exp).rgb)
+                        color(Color.ofString(exp).rgb)
                     }
                 }
             }
@@ -52,7 +52,7 @@ object ColorModifier : TextModifier {
         //&{#FF66CC->#FF88BB}
         if (exp.matches(Regex("#[0-9A-Fa-f]{6}->#[0-9A-Fa-f]{6}"))) {
             val (sStart, sEnd) = exp.split("->")
-            val (start, end) = Color(sStart) to Color(sEnd)
+            val (start, end) = Color.ofString(sStart) to Color.ofString(sEnd)
             return { text ->
                 gradientText(text, start, end, shadow)
             }
