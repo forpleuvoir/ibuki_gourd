@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.GuiElementUserData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.GuiRenderable
 import moe.forpleuvoir.ibukigourd.gui.base.element.findFirsInParentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Placeable
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
@@ -16,6 +17,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics.Companion.toIGGUIGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen.Companion.applyZOffset
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDirection
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDuration
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInOffset
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderPanorama
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
@@ -24,11 +29,17 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.mouseOverCursor
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.widgetTestOutlineColor
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.LateInitValue
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.bezier.CubicEasing
+import moe.forpleuvoir.ibukigourd.util.math.bezier.Easing
+import moe.forpleuvoir.ibukigourd.util.math.times
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -46,12 +57,17 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
+import org.joml.Vector2f
+import org.joml.Vector2fc
+import org.joml.times
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 import kotlin.time.measureTime
 
 abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
@@ -377,7 +393,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var renderPriority: Int = 0
 
-    var latestRenderTime: Duration = Duration.ZERO
+    var latestFrameRenderTime: Duration = Duration.ZERO
         protected set
 
     private var cursorSupplier: () -> MouseCursor = { MouseCursor.default }
@@ -419,11 +435,38 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         hoveredWidget.setValue(null)
     }
 
+    private var showTimeMark: LateInitValue<TimeSource.Monotonic.ValueTimeMark> = lateInitValueOf()
+
+    private fun calculateAlphaAndOffset(): Pair<Float, Vector2fc> {
+        if (fadeInOffset == 0f || fadeInDuration == Duration.ZERO) return 1f to Vector2f()
+        val currentMark = TimeSource.Monotonic.markNow() // 当前时间标记
+        val elapsedTime = currentMark - showTimeMark.getValue()
+
+        // 计算 fadeIn 进度
+        val fadeInProgress = CubicEasing.easeOut((elapsedTime / fadeInDuration).toFloat()).coerceIn(0f, 1f)
+
+        // 透明度 (alpha)：从 0 → 1
+        val alpha = fadeInProgress
+
+        // 偏移量 (offset)：从 fadeInOffset → 0
+        val offset = fadeInOffset * (1f - fadeInProgress)
+
+        // 根据当前方向计算偏移向量
+        return alpha to when (fadeInDirection) {
+            Top    -> Vector2f(0f, -offset)
+            Bottom -> Vector2f(0f, offset)
+            Left   -> Vector2f(-offset, 0f)
+            Right  -> Vector2f(offset, 0f)
+        }
+    }
+
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         if (!visible) return
-
-        latestRenderTime = measureTime {
+        if (!showTimeMark.isInit) {
+            showTimeMark.setValue(TimeSource.Monotonic.markNow())
+        }
+        latestFrameRenderTime = measureTime {
 
             executeTasks()
 
@@ -437,35 +480,41 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
             val graphics = guiGraphics.toIGGUIGraphics()
 
+            if (renderPanorama && minecraft!!.level == null) {
+                this.renderPanorama(guiGraphics, delta)
+            }
+            if (renderParentScreen) {
+                parentScreen?.render(guiGraphics, mouseX, mouseY, delta)
+            }
+
             val (_mouseX, _mouseY) = guiGraphics.minecraft.mousePosition
-            applyZOffset {
+            val (alpha, offset) = calculateAlphaAndOffset()
 
-                renderBackground(graphics, _mouseX, _mouseY, delta)
+            graphics.useMatrixStack {
+                it.translate(offset)
+                modulateColor(Colors.WHITE.alpha(alpha)) {
+                    applyZOffset {
 
-                render.invoke(graphics, _mouseX, _mouseY, delta)
+                        renderBackground(graphics, _mouseX, _mouseY, delta)
 
-                renderableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
-                    if (drawableChild.visible) drawableChild.vanillaRender(graphics, _mouseX, _mouseY, delta)
+                        render.invoke(graphics, _mouseX, _mouseY, delta)
+
+                        renderableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
+                            if (drawableChild.visible) drawableChild.vanillaRender(graphics, _mouseX, _mouseY, delta)
+                        }
+
+                        renderOverlay(graphics, _mouseX, _mouseY, delta)
+
+                        graphics.renderEndRenderable()
+                    }
                 }
-
-                renderOverlay(graphics, _mouseX, _mouseY, delta)
-
-                graphics.renderEndRenderable()
             }
         }
     }
 
     override var renderBackground: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
 
-    override fun onRenderBackground(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) {
-        if (minecraft!!.level == null) {
-            this.renderPanorama(guiGraphics, delta)
-        }
-        if (renderParentScreen) {
-            parentScreen?.render(guiGraphics, mouseX.toInt(), mouseY.toInt(), delta)
-        }
-//        renderBlur(guiGraphics, bgBlurRadius)
-    }
+    override fun onRenderBackground(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) = Unit
 
     @Deprecated("unused")
     protected fun renderBlur(guiGraphics: IGGuiGraphics, radius: Float) {
@@ -484,9 +533,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         hoveredWidget.getValue()?.let { widget ->
             widgetTestOutlineColor
                 .takeIf { it.alpha > 0 }
-                ?.let { guiGraphics.pushBoxOutline(widget.transform, it) }
+                ?.let { guiGraphics.pushBoxOutline(widget.transform, it, scissorBox = null) }
         }
-
     }
 
     //------------ Vanilla Drawable Override ------------\\

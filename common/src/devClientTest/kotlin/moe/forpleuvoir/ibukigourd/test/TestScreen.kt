@@ -33,10 +33,10 @@ private fun modifier(): Modifier {
             onTick()
             deltaCount++
             if (deltaCount % 10 == 0) {
-                fps = (1.seconds / this.latestRenderTime).toInt()
+                fps = (1.seconds / this.latestFrameRenderTime).toInt()
                 deltaCount = 0
             }
-            renderTime = this.latestRenderTime
+            renderTime = this.latestFrameRenderTime
 
         }
         .renderOverlay { guiGraphics, mouseX, mouseY, delta ->

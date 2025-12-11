@@ -44,7 +44,7 @@ fun Vector2d.coerceInOf(min: Vector2dc, max: Vector2dc): Vector2dc {
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Vector2d(x: Number = 0.0, y: Number = 0.0): Vector2d =
-    org.joml.Vector2d(x.toDouble(), y.toDouble())
+    Vector2d(x.toDouble(), y.toDouble())
 
 /**
  * 复制一个向量
@@ -128,12 +128,25 @@ operator fun Vector2dc.plus(vector2dc: Vector2dc): Vector2dc =
     this.copy(this.x() + vector2dc.x(), this.y() + vector2dc.y())
 
 /**
+ * 将两个向量[Vector2dc]相加返回一个新的副本
+ * @receiver [Vector2dc]
+ * @param value 目标向量[Vector2dc]
+ * @return [Vector2d]
+ */
+operator fun Vector2dc.plus(value: Number): Vector2dc =
+    this.copy(this.x() + value.toDouble(), this.y() + value.toDouble())
+
+/**
  * 将两个向量[Vector2dc]相加并赋值给自身
  * @receiver [Vector2d]
  * @param vector2dc 目标向量[Vector2dc]
  */
 operator fun Vector2d.plusAssign(vector2dc: Vector2dc) {
     this.add(vector2dc)
+}
+
+operator fun Vector2d.plusAssign(value: Number) {
+    this.add(value.toDouble(), value.toDouble())
 }
 
 /**
@@ -145,6 +158,9 @@ operator fun Vector2d.plusAssign(vector2dc: Vector2dc) {
 operator fun Vector2dc.minus(vector2dc: Vector2dc): Vector2dc =
     this.copy(this.x() - vector2dc.x(), this.y() - vector2dc.y())
 
+operator fun Vector2dc.minus(value: Number): Vector2dc =
+    this.copy(this.x() - value.toDouble(), this.y() - value.toDouble())
+
 /**
  * 将两个向量[Vector2dc]相减并赋值给自身
  * @receiver [Vector2d]
@@ -152,6 +168,10 @@ operator fun Vector2dc.minus(vector2dc: Vector2dc): Vector2dc =
  */
 operator fun Vector2d.minusAssign(vector2dc: Vector2dc) {
     this.sub(vector2dc)
+}
+
+operator fun Vector2d.minusAssign(value: Number) {
+    this.sub(value.toDouble(), value.toDouble())
 }
 
 /**
@@ -163,6 +183,9 @@ operator fun Vector2d.minusAssign(vector2dc: Vector2dc) {
 operator fun Vector2dc.times(vector2dc: Vector2dc): Vector2dc =
     this.copy(this.x() * vector2dc.x(), this.y() * vector2dc.y())
 
+operator fun Vector2dc.times(value: Number): Vector2dc =
+    this.copy(this.x() * value.toDouble(), this.y() * value.toDouble())
+
 /**
  * 将两个向量[Vector2dc]相乘并赋值给自身
  * @receiver [Vector2d]
@@ -170,6 +193,10 @@ operator fun Vector2dc.times(vector2dc: Vector2dc): Vector2dc =
  */
 operator fun Vector2d.timesAssign(vector2dc: Vector2dc) {
     this.mul(vector2dc)
+}
+
+operator fun Vector2d.timesAssign(value: Number) {
+    this.mul(value.toDouble())
 }
 
 /**
@@ -181,6 +208,9 @@ operator fun Vector2d.timesAssign(vector2dc: Vector2dc) {
 operator fun Vector2dc.div(vector2dc: Vector2dc): Vector2dc =
     this.copy(this.x() / vector2dc.x(), this.y() / vector2dc.y())
 
+operator fun Vector2dc.div(value: Number): Vector2dc =
+    this.copy(this.x() / value.toDouble(), this.y() / value.toDouble())
+
 /**
  * 将两个向量[Vector2dc]相除并赋值给自身
  * @receiver [Vector2d]
@@ -188,6 +218,10 @@ operator fun Vector2dc.div(vector2dc: Vector2dc): Vector2dc =
  */
 operator fun Vector2d.divAssign(vector2dc: Vector2dc) {
     this.div(vector2dc)
+}
+
+operator fun Vector2d.divAssign(value: Number) {
+    this.div(value.toDouble())
 }
 
 /**
@@ -199,6 +233,9 @@ operator fun Vector2d.divAssign(vector2dc: Vector2dc) {
 operator fun Vector2dc.rem(vector2dc: Vector2dc): Vector2dc =
     this.copy(this.x() % vector2dc.x(), this.y() % vector2dc.y())
 
+operator fun Vector2dc.rem(value: Number): Vector2dc =
+    this.copy(this.x() % value.toDouble(), this.y() % value.toDouble())
+
 /**
  * 将两个向量[Vector2dc]取余并赋值给自身
  * @receiver [Vector2d]
@@ -208,3 +245,9 @@ operator fun Vector2d.remAssign(vector2dc: Vector2dc) {
     this.x %= vector2dc.x()
     this.y %= vector2dc.y()
 }
+
+operator fun Vector2d.remAssign(value: Number) {
+    this.x %= value.toDouble()
+    this.y %= value.toDouble()
+}
+

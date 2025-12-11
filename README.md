@@ -136,8 +136,8 @@ ServerModConfigManager.init(MinecraftServer)
     - Neoforge在`neoforge.mods.toml`中添加
 
         ```toml
-            [modproperties."ibukigourd"]
-            package = "moe.forpleuvoir.ibukigourd"
+            [modproperties."$yourModId"]
+            package = "your.code.pack"
         ```
 
 2. 在配置管理器上添加注解`@ModConfig("config_Key")`

@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGBlitRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGGuiTextRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGTiledBlitRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.width
@@ -130,60 +131,64 @@ class IGGuiGraphics(
         pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline,
         scissorBox: Box? = peekScissorBox()
-    ) = guiRenderState.submitGuiElement(
-        IGBlitRenderState(
-            x, y, x + width, y + height,
-            u0, v0, u1, v1,
-            applyModulatedColor(color), pose, pipeline, textureSetup, scissorBox?.asScreenRectangle
+    ) = if (width + height > 0f) {
+        guiRenderState.submitGuiElement(
+            IGBlitRenderState(
+                x, y, x + width, y + height,
+                u0, v0, u1, v1,
+                applyModulatedColor(color), pose, pipeline, textureSetup, scissorBox?.asScreenRectangle
+            )
         )
-    )
+    } else Unit
 
     fun pushBlit(
         box: Box,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
     ) = pushBlit(
         box.x, box.y, box.width, box.height,
         widgetTexture.u0, widgetTexture.v0, widgetTexture.u1, widgetTexture.v1,
-        widgetTexture.textureSetup, color, Matrix3x2f(pose()), pipeline, scissorBox
+        widgetTexture.textureSetup, color, pose, pipeline, scissorBox
     )
 
     fun pushBlit(
         transform: Transform,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
-    ) = pushBlit(transform.asWorldCoordinateBox, widgetTexture, color, pipeline, scissorBox)
+    ) = pushBlit(transform.asWorldCoordinateBox, widgetTexture, color, pose, pipeline, scissorBox)
 
 
     fun pushNineSlicedBlit(
         box: Box,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
     ) {
         val corner = widgetTexture.corner
         if (!widgetTexture.corner.isSpecified) {
-            pushBlit(box, widgetTexture, color, pipeline, scissorBox)
+            pushBlit(box, widgetTexture, color, pose, pipeline, scissorBox)
             return
         }
 
-        val pose = Matrix3x2f(pose())
-        val textureSetup = widgetTexture.textureSetup
+        val texutre = widgetTexture.textureSetup
         val x = box.x
         val y = box.y
         val width = box.width
         val height = box.height
-        val u = widgetTexture.uStart
-        val v = widgetTexture.vStart
-        val uSize = widgetTexture.uSize
-        val vSize = widgetTexture.vSize
-        val textureWidth = widgetTexture.textureInfo.width
-        val textureHeight = widgetTexture.textureInfo.height
+        val u0 = widgetTexture.uStart
+        val v0 = widgetTexture.vStart
+        val u1 = widgetTexture.uSize
+        val v1 = widgetTexture.vSize
+        val tw = widgetTexture.textureInfo.width
+        val th = widgetTexture.textureInfo.height
 
         //corner.left
         val cl = corner.left.absoluteValue.toFloat()
@@ -212,146 +217,51 @@ class IGGuiGraphics(
         val centerY = if (corner.top >= 0) y + ct else y
         val bottomY = if (corner.bottom >= 0) y + (height - corner.bottom) else y + height
 
-        val leftU = if (corner.left >= 0) u else u - cl.toInt()
-        val centerU = if (corner.left >= 0) u + cl.toInt() else u
-        val rightU = if (corner.right >= 0) u + (uSize - cr.toInt()) else u + uSize
+        val leftU = if (corner.left >= 0) u0 else u0 - cl.toInt()
+        val centerU = if (corner.left >= 0) u0 + cl.toInt() else u0
+        val rightU = if (corner.right >= 0) u0 + (u1 - cr.toInt()) else u0 + u1
 
-        val topV = if (corner.top >= 0) v else v - ct.toInt()
-        val centerV = if (corner.top >= 0) v + ct.toInt() else v
-        val bottomV = if (corner.bottom >= 0) v + (vSize - cb.toInt()) else v + vSize
+        val topV = if (corner.top >= 0) v0 else v0 - ct.toInt()
+        val centerV = if (corner.top >= 0) v0 + ct.toInt() else v0
+        val bottomV = if (corner.bottom >= 0) v0 + (v1 - cb.toInt()) else v0 + v1
 
         val leftUS = cl.toInt()
-        val centerUS = uSize - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+        val centerUS = u1 - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
         val rightUS = cr.toInt()
 
         val topVS = ct.toInt()
-        val centerVS = vSize - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
+        val centerVS = v1 - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
         val bottomVS = cb.toInt()
         //top left
-        nineSlicedSegment(pose, leftX, topY, cl, ct, leftU, topV, leftUS, topVS, color, textureWidth, textureHeight, textureSetup, pipeline, scissorBox)
+        nineSlicedSegment(pose, leftX, topY, cl, ct, leftU, topV, leftUS, topVS, color, tw, th, texutre, pipeline, scissorBox)
         //top center
-        nineSlicedSegment(pose, centerX, topY, cw, ct, centerU, topV, centerUS, topVS, color, textureWidth, textureHeight, textureSetup, pipeline, scissorBox)
+        nineSlicedSegment(pose, centerX, topY, cw, ct, centerU, topV, centerUS, topVS, color, tw, th, texutre, pipeline, scissorBox)
         //top right
-        nineSlicedSegment(pose, rightX, topY, cr, ct, rightU, topV, rightUS, topVS, color, textureWidth, textureHeight, textureSetup, pipeline, scissorBox)
+        nineSlicedSegment(pose, rightX, topY, cr, ct, rightU, topV, rightUS, topVS, color, tw, th, texutre, pipeline, scissorBox)
 
         //center left
-        nineSlicedSegment(
-            pose,
-            leftX,
-            centerY,
-            cl,
-            ch,
-            leftU,
-            centerV,
-            leftUS,
-            centerVS,
-            color,
-            textureWidth,
-            textureHeight,
-            textureSetup,
-            pipeline,
-            scissorBox
-        )
+        nineSlicedSegment(pose, leftX, centerY, cl, ch, leftU, centerV, leftUS, centerVS, color, tw, th, texutre, pipeline, scissorBox)
         //center
-        nineSlicedSegment(
-            pose,
-            centerX,
-            centerY,
-            cw,
-            ch,
-            centerU,
-            centerV,
-            centerUS,
-            centerVS,
-            color,
-            textureWidth,
-            textureHeight,
-            textureSetup,
-            pipeline,
-            scissorBox
-        )
+        nineSlicedSegment(pose, centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, color, tw, th, texutre, pipeline, scissorBox)
         //center right
-        nineSlicedSegment(
-            pose,
-            rightX,
-            centerY,
-            cr,
-            ch,
-            rightU,
-            centerV,
-            rightUS,
-            centerVS,
-            color,
-            textureWidth,
-            textureHeight,
-            textureSetup,
-            pipeline,
-            scissorBox
-        )
+        nineSlicedSegment(pose, rightX, centerY, cr, ch, rightU, centerV, rightUS, centerVS, color, tw, th, texutre, pipeline, scissorBox)
 
         //bottom left
-        nineSlicedSegment(
-            pose,
-            leftX,
-            bottomY,
-            cl,
-            cb,
-            leftU,
-            bottomV,
-            leftUS,
-            bottomVS,
-            color,
-            textureWidth,
-            textureHeight,
-            textureSetup,
-            pipeline,
-            scissorBox
-        )
+        nineSlicedSegment(pose, leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, color, tw, th, texutre, pipeline, scissorBox)
         //bottom center
-        nineSlicedSegment(
-            pose,
-            centerX,
-            bottomY,
-            cw,
-            cb,
-            centerU,
-            bottomV,
-            centerUS,
-            bottomVS,
-            color,
-            textureWidth,
-            textureHeight,
-            textureSetup,
-            pipeline,
-            scissorBox
-        )
+        nineSlicedSegment(pose, centerX, bottomY, cw, cb, centerU, bottomV, centerUS, bottomVS, color, tw, th, texutre, pipeline, scissorBox)
         //bottom right
-        nineSlicedSegment(
-            pose,
-            rightX,
-            bottomY,
-            cr,
-            cb,
-            rightU,
-            bottomV,
-            rightUS,
-            bottomVS,
-            color,
-            textureWidth,
-            textureHeight,
-            textureSetup,
-            pipeline,
-            scissorBox
-        )
+        nineSlicedSegment(pose, rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, color, tw, th, texutre, pipeline, scissorBox)
     }
 
     fun pushNineSlicedBlit(
         transform: Transform,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
-    ) = pushNineSlicedBlit(transform.asWorldCoordinateBox, widgetTexture, color, pipeline, scissorBox)
+    ) = pushNineSlicedBlit(transform.asWorldCoordinateBox, widgetTexture, color, pose, pipeline, scissorBox)
 
 
     private fun nineSlicedSegment(
@@ -375,6 +285,7 @@ class IGGuiGraphics(
         val v0 = v.toFloat() / textureHeight.toFloat()
         val u1 = (u + uSize).toFloat() / textureWidth.toFloat()
         val v1 = (v + vSize).toFloat() / textureHeight.toFloat()
+        if (width <= 0f || height <= 0f || color.alpha == 0) return
         guiRenderState.submitGuiElement(
             IGBlitRenderState(
                 x, y, x + width, y + height,
@@ -384,21 +295,156 @@ class IGGuiGraphics(
         )
     }
 
+    fun pushSpeechBubbleTexture(
+        bubbleBox: Box,
+        bubble: WidgetTexture,
+        arrowBox: Box,
+        arrow: WidgetTexture,
+        /**
+         * 箭头所在的方向
+         */
+        arrowDirection: Direction,
+        color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
+        pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
+        scissorBox: Box? = peekScissorBox()
+    ) {
+        pushWidgetTexture(arrowBox, arrow, color, pose, pipeline, scissorBox)
+        val corner = bubble.corner
+        if (!bubble.corner.isSpecified) {
+            pushBlit(bubbleBox, bubble, color, pose, pipeline, scissorBox)
+            return
+        }
+
+        val aw = arrowBox.width
+        val ah = arrowBox.height
+        val ax = arrowBox.x
+        val ax2 = arrowBox.right
+        val ay = arrowBox.y
+        val ay2 = arrowBox.bottom
+
+        val texture = bubble.textureSetup
+        val x = bubbleBox.x
+        val y = bubbleBox.y
+        val width = bubbleBox.width
+        val height = bubbleBox.height
+        val u0 = bubble.uStart
+        val v0 = bubble.vStart
+        val u1 = bubble.uSize
+        val v1 = bubble.vSize
+        val tw = bubble.textureInfo.width
+        val th = bubble.textureInfo.height
+
+        //corner.left
+        val cl = corner.left.absoluteValue.toFloat()
+        //corner.right
+        val cr = corner.right.absoluteValue.toFloat()
+        //corner.top
+        val ct = corner.top.absoluteValue.toFloat()
+        //corner.bottom
+        val cb = corner.bottom.absoluteValue.toFloat()
+
+        /**
+         * centerWidth
+         */
+        val cw = width - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+
+        /**
+         * centerHeight
+         */
+        val ch = height - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
+
+        val leftX = if (corner.left >= 0) x else x - cl
+        val centerX = if (corner.left >= 0) x + cl else x
+        val rightX = if (corner.right >= 0) x + (width - corner.right) else x + width
+
+        val topY = if (corner.top >= 0) y else y - ct
+        val centerY = if (corner.top >= 0) y + ct else y
+        val bottomY = if (corner.bottom >= 0) y + (height - corner.bottom) else y + height
+
+        val leftU = if (corner.left >= 0) u0 else u0 - cl.toInt()
+        val centerU = if (corner.left >= 0) u0 + cl.toInt() else u0
+        val rightU = if (corner.right >= 0) u0 + (u1 - cr.toInt()) else u0 + u1
+
+        val topV = if (corner.top >= 0) v0 else v0 - ct.toInt()
+        val centerV = if (corner.top >= 0) v0 + ct.toInt() else v0
+        val bottomV = if (corner.bottom >= 0) v0 + (v1 - cb.toInt()) else v0 + v1
+
+        val leftUS = cl.toInt()
+        val centerUS = u1 - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+        val rightUS = cr.toInt()
+
+        val topVS = ct.toInt()
+        val centerVS = v1 - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
+        val bottomVS = cb.toInt()
+
+        //top left
+        nineSlicedSegment(pose, leftX, topY, cl, ct, leftU, topV, leftUS, topVS, color, tw, th, texture, pipeline, scissorBox)
+        //top center
+        if (arrowDirection == Direction.Top) {
+            if (cw - aw > 0) {
+                nineSlicedSegment(pose, centerX, topY, ax - centerX, ct, centerU, topV, centerUS, topVS, color, tw, th, texture, pipeline, scissorBox)
+                nineSlicedSegment(pose, ax2, topY, rightX - ax2, ct, centerU, topV, centerUS, topVS, color, tw, th, texture, pipeline, scissorBox)
+            }
+        } else {
+            nineSlicedSegment(pose, centerX, topY, cw, ct, centerU, topV, centerUS, topVS, color, tw, th, texture, pipeline, scissorBox)
+        }
+        //top right
+        nineSlicedSegment(pose, rightX, topY, cr, ct, rightU, topV, rightUS, topVS, color, tw, th, texture, pipeline, scissorBox)
+
+        //center left
+        if (arrowDirection == Direction.Left) {
+            if (ch - ah > 0) {
+                nineSlicedSegment(pose, leftX, centerY, cl, ay - centerY, leftU, centerV, leftUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+                nineSlicedSegment(pose, leftX, ay2, cl, bottomY - ay2, leftU, centerV, leftUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+            }
+        } else {
+            nineSlicedSegment(pose, leftX, centerY, cl, ch, leftU, centerV, leftUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+        }
+        //center
+        nineSlicedSegment(pose, centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+        //center right
+        if (arrowDirection == Direction.Right) {
+            if (ch - ah > 0) {
+                nineSlicedSegment(pose, rightX, centerY, cr, ay - centerY, rightU, centerV, rightUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+                nineSlicedSegment(pose, rightX, ay2, cr, bottomY - ay2, rightU, centerV, rightUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+            }
+        } else {
+            nineSlicedSegment(pose, rightX, centerY, cr, ch, rightU, centerV, rightUS, centerVS, color, tw, th, texture, pipeline, scissorBox)
+        }
+
+        //bottom left
+        nineSlicedSegment(pose, leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, color, tw, th, texture, pipeline, scissorBox)
+        //bottom center
+        if (arrowDirection == Direction.Bottom) {
+            if (cw - aw > 0) {
+                nineSlicedSegment(pose, centerX, bottomY, ax - centerX, cb, centerU, bottomV, centerUS, bottomVS, color, tw, th, texture, pipeline, scissorBox)
+                nineSlicedSegment(pose, ax2, bottomY, rightX - ax2, cb, centerU, bottomV, centerUS, bottomVS, color, tw, th, texture, pipeline, scissorBox)
+            }
+        } else {
+            nineSlicedSegment(pose, centerX, bottomY, cw, cb, centerU, bottomV, centerUS, bottomVS, color, tw, th, texture, pipeline, scissorBox)
+        }
+        //bottom right
+        nineSlicedSegment(pose, rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, color, tw, th, texture, pipeline, scissorBox)
+    }
+
     fun pushWidgetTexture(
         box: Box,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
-    ) = pushNineSlicedBlit(box, widgetTexture, color, pipeline, scissorBox)
+    ) = pushNineSlicedBlit(box, widgetTexture, color, pose, pipeline, scissorBox)
 
     fun pushWidgetTexture(
         transform: Transform,
         widgetTexture: WidgetTexture,
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
-    ) = pushNineSlicedBlit(transform, widgetTexture, color, pipeline, scissorBox)
+    ) = pushNineSlicedBlit(transform, widgetTexture, color, pose, pipeline, scissorBox)
 
 
     fun pushTiledBlit(
@@ -406,6 +452,7 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         tileSize: Size<Float> = Size(widgetTexture.uSize, widgetTexture.vSize).toFloat(),
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
     ) = guiRenderState.submitGuiElement(
@@ -413,7 +460,7 @@ class IGGuiGraphics(
             box.x, box.y, box.endX, box.endY,
             widgetTexture.u0, widgetTexture.v0, widgetTexture.u1, widgetTexture.v1,
             tileSize.width, tileSize.height,
-            applyModulatedColor(color), Matrix3x2f(pose()), pipeline, widgetTexture.textureSetup, scissorBox?.asScreenRectangle
+            applyModulatedColor(color), pose, pipeline, widgetTexture.textureSetup, scissorBox?.asScreenRectangle
         )
     )
 
@@ -423,9 +470,10 @@ class IGGuiGraphics(
         widgetTexture: WidgetTexture,
         tileSize: Size<Float> = Size(widgetTexture.uSize, widgetTexture.vSize).toFloat(),
         color: ARGBColor = Colors.WHITE,
+        pose: Matrix3x2f = Matrix3x2f(pose()),
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
-    ) = pushTiledBlit(transform.asWorldCoordinateBox, widgetTexture, tileSize, color, pipeline, scissorBox)
+    ) = pushTiledBlit(transform.asWorldCoordinateBox, widgetTexture, tileSize, color, pose, pipeline, scissorBox)
 
 
     //------------ Box ------------\\
@@ -766,7 +814,7 @@ class IGGuiGraphics(
         horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         defaultColor: ARGBColor = Colors.BLACK,
-        backgroundColor: ARGBColor = Color(0),
+        backgroundColor: ARGBColor = Color.ofARGB(0),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
         font: Font = this.font,
@@ -788,7 +836,7 @@ class IGGuiGraphics(
         horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         defaultColor: ARGBColor = Colors.BLACK,
-        backgroundColor: ARGBColor = Color(0),
+        backgroundColor: ARGBColor = Color.ofARGB(0),
         shadow: Boolean = false,
         pose: Matrix3x2f = Matrix3x2f(pose()),
         font: Font = this.font,

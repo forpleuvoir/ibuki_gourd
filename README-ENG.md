@@ -153,8 +153,8 @@ To set up automatic configuration management:
     - For Neoforge, add in `neoforge.mods.toml`:
 
         ```toml
-        [modproperties."ibukigourd"]
-        package = "moe.forpleuvoir.ibukigourd"
+        [modproperties."$yourModId"]
+        package = "your.code.pack"
         ```
 2. Add annotation `@ModConfig("config_Key")` to the configuration manager:
 

@@ -7,13 +7,16 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minSize
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDuration
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
+import moe.forpleuvoir.ibukigourd.util.math.bezier.CubicEasing
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -39,7 +42,7 @@ class Tip(
     )
 
     companion object {
-        val DefaultModifier get() = Modifier.padding(4).margin(4)
+        val DefaultModifier get() = Modifier.padding(4).margin(4).minSize(18f, 18f)
         val DefaultSetting = Setting()
     }
 
@@ -68,6 +71,7 @@ class Tip(
             measureCompletion()
             layout()
         }
+
     }
 
     fun show() {
@@ -92,7 +96,8 @@ class Tip(
         box.onTick()
     }
 
-    fun calculateAlphaAndOffset(): Pair<Float, Vector2f> {
+    private fun calculateAlphaAndOffset(): Pair<Float, Vector2f> {
+        if (settings.fadeInOffset == 0f || settings.fadeInDuration == Duration.ZERO) return 1f to Vector2f(0f, 0f)
         val currentMark = TimeSource.Monotonic.markNow() // 当前时间标记
         val elapsedTime = currentMark - showTimeMark
 
@@ -109,8 +114,8 @@ class Tip(
         return alpha to when (currentDirection.getValue()) {
             Top    -> Vector2f(0f, offset)
             Bottom -> Vector2f(0f, -offset)
-            Left  -> Vector2f(offset, 0f)
-            Right -> Vector2f(-offset, 0f)
+            Left   -> Vector2f(offset, 0f)
+            Right  -> Vector2f(-offset, 0f)
         }
     }
 }

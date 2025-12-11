@@ -6,6 +6,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDirection
+import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDuration
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHelper
 import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -33,6 +35,9 @@ fun WidgetScope.PopupTip(
     content: BoxScope.() -> Unit,
 ): IGScreenImpl = PopupScreen(screenModifier, screen) {
     val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
+    direction.subscribe {
+        this.owner().screen()?.let { it.fadeInDirection = direction.getValue() }
+    }
     optionalDirection.subscribe {
         if (it.isEmpty()) {
             direction.setValue(Top)

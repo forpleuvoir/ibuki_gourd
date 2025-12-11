@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd
 
+import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -35,7 +36,7 @@ object IGLang {
 
     val hasNothing get() = lang("misc.has_nothing")
 
-    val clickBlankBack get() = lang("misc.click_blank_back")
+    fun dialogReturnTip(keyCode: KeyCode) = lang("misc.dialog_return_tip", keyCode.keyNameText)
 
     val setting get() = lang("misc.setting")
 

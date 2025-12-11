@@ -89,10 +89,10 @@ fun <T : Comparable<T>> ContainerScope.Slider(
                 })
                 val theme = theme(PressableTheme.Button3, hover = wasMouseOver, pressed = pressed)
                 guiGraphics {
-                    useScissor(box1) {
+                    useScissor(box1.expandEdges(0f, 2f)) {
                         pushWidgetTexture(transform, theme, colorA)
                     }
-                    useScissor(box2) {
+                    useScissor(box2.expandEdges(0f, 2f)) {
                         pushWidgetTexture(transform, theme, colorB)
                     }
                     pushAlignmentText(

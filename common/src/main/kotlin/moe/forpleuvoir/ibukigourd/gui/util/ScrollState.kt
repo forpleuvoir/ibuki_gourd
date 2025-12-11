@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.util
 
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.nebula.common.api.Notifiable
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import java.util.function.Consumer
@@ -25,7 +26,7 @@ class ScrollState : Notifiable<Float> {
         }
 
     fun scroll(amount: Float) {
-        this.amount -= amountStep * amount
+        this.amount -= GuiConfig.Scroller.applyScrollMultiplier(amountStep * amount)
     }
 
     var progress: Float

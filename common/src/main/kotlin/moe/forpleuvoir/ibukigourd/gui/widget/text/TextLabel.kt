@@ -81,7 +81,7 @@ class TextWidget(
         val width = text.getValue().wrapToTextLines(if (setting.autoNewLine) (c.maxWidth - padding.width) else 0f)
             .maxOfOrNull { it.width } ?: (0f + padding.width)
         val spacing = setting.verticalArrangement.spacing
-        val height = text.getValue().totalHeight(spacing, width) + padding.height
+        val height = text.getValue().totalHeight(spacing, width) + padding.height + 1f
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         renderText = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
         return this
@@ -213,9 +213,9 @@ class TextWidget(
             } else text.size
         }
         guiGraphics {
-            useScissor(transform.asWorldCoordinateBox.expandEdges(1f)) {
+            useScissor(transform.asWorldCoordinateBox.expandEdges(2f,4f)) {
                 useMatrixStack { pose ->
-                    pose.translate(0.35f, textRenderOffset.y())
+                    pose.translate(0.4f, textRenderOffset.y())
                     //------------ 开始渲染 ------------\\
                     list.map { contentBox.left + setting.horizontalAlignment.align(contentBox.width, it.width) }
                         .zip(setting.verticalArrangement.arrange(contentBox.height, list.map { it.height }).map { contentBox.top + it })

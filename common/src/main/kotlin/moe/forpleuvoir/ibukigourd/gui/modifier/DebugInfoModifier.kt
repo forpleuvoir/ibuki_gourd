@@ -75,7 +75,7 @@ private val IGScreen.debugAverageRenderTimes: Duration
 
 fun DebugInfoScope.ScreenRenderTime(format: String = "RenderTime:%s", color: ARGBColor = Colors.AQUA) = info { screen, _, _, _, _ ->
     (screen as? IGScreenImpl)?.let {
-        it addDebugRenderTime screen.latestRenderTime
+        it addDebugRenderTime screen.latestFrameRenderTime
         it.updateRenderInfo("renderTime") { it.userData["#debug_render_time"] = screen.debugAverageRenderTimes }
     }
     Literal(format.format(screen.userData["#debug_render_time"])).style { color(color) }
@@ -83,7 +83,7 @@ fun DebugInfoScope.ScreenRenderTime(format: String = "RenderTime:%s", color: ARG
 
 fun DebugInfoScope.ScreenFPS(format: String = "FPS:%d", color: ARGBColor = Color.ofRGB(0x00FF00)) = info { screen, _, _, _, _ ->
     (screen as? IGScreenImpl)?.let {
-        it addDebugRenderTime screen.latestRenderTime
+        it addDebugRenderTime screen.latestFrameRenderTime
         it.updateRenderInfo("fps") { it.userData["#debug_render_fps"] = (1.seconds / screen.debugAverageRenderTimes).toInt() }
     }
     Literal(format.format(screen.userData["#debug_render_fps"])).style { color(color) }

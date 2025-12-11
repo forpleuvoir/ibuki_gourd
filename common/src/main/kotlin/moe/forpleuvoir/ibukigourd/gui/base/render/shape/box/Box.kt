@@ -64,7 +64,7 @@ interface Box : SizeFloat, Cloneable {
     fun trimEdges(top: Float = 0f, bottom: Float = 0f, left: Float = 0f, right: Float = 0f): Box =
         Box(this.x + left, this.y + top, this.endX - right, this.endY - bottom)
 
-    fun trimEdges(width: Float, height: Float): Box = trimEdges(width / 2, width / 2, height / 2, height / 2)
+    fun trimEdges(width: Float, height: Float): Box = trimEdges(height / 2, height / 2, width / 2, width / 2)
 
     fun trimEdges(size: Size<Float>): Box = trimEdges(size.width, size.height)
 
@@ -73,7 +73,7 @@ interface Box : SizeFloat, Cloneable {
     fun expandEdges(top: Float, bottom: Float, left: Float, right: Float): Box =
         Box(this.x - left, this.y - top, this.endX + right, this.endY + bottom)
 
-    fun expandEdges(width: Float, height: Float): Box = expandEdges(width / 2, width / 2, height / 2, height / 2)
+    fun expandEdges(width: Float, height: Float): Box = expandEdges(height / 2, height / 2, width / 2, width / 2)
 
     fun expandEdges(size: Size<Float>): Box = expandEdges(size.width, size.height)
 

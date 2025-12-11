@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.gui.screen
 
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.fadeInDuration
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.fadeInOffset
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyPress
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mousePress
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.name
@@ -9,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.init
 import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.enableReturnHotkey
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.returnHotkeyKeycode
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -22,6 +25,8 @@ fun PopupScreen(
     Modifier
         .name("PopupScreen")
         .renderParent(true)
+        .fadeInOffset(GuiConfig.PopupScreen.fadeInOffset)
+        .fadeInDuration(GuiConfig.PopupScreen.fadeInDuration)
 //        .bgBlurRadius(defaultBgBlurRadius)
         .keyPress {
             onKeyPress(it)

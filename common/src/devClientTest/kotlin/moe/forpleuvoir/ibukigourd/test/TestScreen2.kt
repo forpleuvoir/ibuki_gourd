@@ -5,6 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
@@ -29,10 +31,9 @@ fun TestScreen2() = ColumnScreen(
     ItemIcon(Items.MELON)
     Box(Modifier.height(10f)) {}
     Button(
-        Modifier.hoverTip {
+        Modifier.margin(right = 1f).hoverTip {
             Row {
-                ItemIcon(Items.GOLDEN_SWORD, scale = .75f)
-                Text("测试文本啊啊啊啊啊啊啊")
+                Text("物品的数量")
             }
         }
     ) {

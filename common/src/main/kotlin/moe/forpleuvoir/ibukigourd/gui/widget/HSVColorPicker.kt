@@ -87,7 +87,7 @@ fun ContainerScope.HSVColorPicker(
             AlphaColorSlider(colorState, modifier = Modifier.fill().align(Alignment.Center))
         }
         FloatEditor(
-            mutableStateOf(colorState, { it.alphaF * 100 }) { Color(colorState.getValue().argb).alpha(it / 100) },
+            mutableStateOf(colorState, { it.alphaF * 100 }) { Color.ofARGB(colorState.getValue().argb).alpha(it / 100) },
             range = 0f..100f,
             valueMapper = { String.format("%.2f", it) },
             modifier = Modifier.width(51f),

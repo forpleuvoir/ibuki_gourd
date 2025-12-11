@@ -142,6 +142,9 @@ fun Vector3i.deserialization(element: SerializeElement) {
 operator fun Vector3ic.plus(vector3ic: Vector3ic): Vector3ic =
     this.copy(this.x() + vector3ic.x(), this.y() + vector3ic.y(), this.z() + vector3ic.z())
 
+operator fun Vector3ic.plus(value: Number): Vector3ic =
+    this.copy(this.x() + value.toInt(), this.y() + value.toInt(), this.z() + value.toInt())
+
 /**
  * 将两个向量[Vector3ic]相加并赋值给自身
  * @receiver [Vector3i]
@@ -149,6 +152,10 @@ operator fun Vector3ic.plus(vector3ic: Vector3ic): Vector3ic =
  */
 operator fun Vector3i.plusAssign(vector3ic: Vector3ic) {
     this.add(vector3ic)
+}
+
+operator fun Vector3i.plusAssign(value: Number) {
+    this.add(value.toInt(), value.toInt(), value.toInt())
 }
 
 /**
@@ -160,6 +167,9 @@ operator fun Vector3i.plusAssign(vector3ic: Vector3ic) {
 operator fun Vector3ic.minus(vector3ic: Vector3ic): Vector3ic =
     this.copy(this.x() - vector3ic.x(), this.y() - vector3ic.y(), this.z() - vector3ic.z())
 
+operator fun Vector3ic.minus(value: Number): Vector3ic =
+    this.copy(this.x() - value.toInt(), this.y() - value.toInt(), this.z() - value.toInt())
+
 /**
  * 将两个向量[Vector3ic]相减并赋值给自身
  * @receiver [Vector3i]
@@ -167,6 +177,10 @@ operator fun Vector3ic.minus(vector3ic: Vector3ic): Vector3ic =
  */
 operator fun Vector3i.minusAssign(vector3ic: Vector3ic) {
     this.sub(vector3ic)
+}
+
+operator fun Vector3i.minusAssign(value: Number) {
+    this.sub(value.toInt(), value.toInt(), value.toInt())
 }
 
 /**
@@ -178,6 +192,9 @@ operator fun Vector3i.minusAssign(vector3ic: Vector3ic) {
 operator fun Vector3ic.times(vector3ic: Vector3ic): Vector3ic =
     this.copy(this.x() * vector3ic.x(), this.y() * vector3ic.y(), this.z() * vector3ic.z())
 
+operator fun Vector3ic.times(value: Number): Vector3ic =
+    this.copy(this.x() * value.toInt(), this.y() * value.toInt(), this.z() * value.toInt())
+
 /**
  * 将两个向量[Vector3ic]相乘并赋值给自身
  * @receiver [Vector3i]
@@ -185,6 +202,10 @@ operator fun Vector3ic.times(vector3ic: Vector3ic): Vector3ic =
  */
 operator fun Vector3i.timesAssign(vector3ic: Vector3ic) {
     this.mul(vector3ic)
+}
+
+operator fun Vector3i.timesAssign(value: Number) {
+    this.mul(value.toInt())
 }
 
 /**
@@ -196,6 +217,9 @@ operator fun Vector3i.timesAssign(vector3ic: Vector3ic) {
 operator fun Vector3ic.div(vector3ic: Vector3ic): Vector3ic =
     this.copy(this.x() / vector3ic.x(), this.y() / vector3ic.y(), this.z() / vector3ic.z())
 
+operator fun Vector3ic.div(value: Number): Vector3ic =
+    this.copy(this.x() / value.toInt(), this.y() / value.toInt(), this.z() / value.toInt())
+
 /**
  * 将两个向量[Vector3ic]相除并赋值给自身
  * @receiver [Vector3i]
@@ -203,6 +227,10 @@ operator fun Vector3ic.div(vector3ic: Vector3ic): Vector3ic =
  */
 operator fun Vector3i.divAssign(vector3ic: Vector3ic) {
     this.div(vector3ic)
+}
+
+operator fun Vector3i.divAssign(value: Number) {
+    this.div(value.toInt())
 }
 
 /**
@@ -214,6 +242,9 @@ operator fun Vector3i.divAssign(vector3ic: Vector3ic) {
 operator fun Vector3ic.rem(vector3ic: Vector3ic): Vector3ic =
     this.copy(this.x() % vector3ic.x(), this.y() % vector3ic.y(), this.z() % vector3ic.z())
 
+operator fun Vector3ic.rem(value: Number): Vector3ic =
+    this.copy(this.x() % value.toInt(), this.y() % value.toInt(), this.z() % value.toInt())
+
 /**
  * 将两个向量[Vector3ic]取余并赋值给自身
  * @receiver [Vector3i]
@@ -223,4 +254,10 @@ operator fun Vector3i.remAssign(vector3ic: Vector3ic) {
     this.x %= vector3ic.x()
     this.y %= vector3ic.y()
     this.z %= vector3ic.z()
+}
+
+operator fun Vector3i.remAssign(value: Number) {
+    this.x %= value.toInt()
+    this.y %= value.toInt()
+    this.z %= value.toInt()
 }

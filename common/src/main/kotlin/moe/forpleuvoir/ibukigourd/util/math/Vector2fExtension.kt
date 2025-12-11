@@ -119,6 +119,8 @@ fun Vector2f.deserialization(element: SerializeElement) {
  */
 operator fun Vector2fc.plus(vector2fc: Vector2fc): Vector2fc = this.copy(this.x() + vector2fc.x(), this.y() + vector2fc.y())
 
+operator fun Vector2fc.plus(value: Number): Vector2fc = this.copy(this.x() + value.toFloat(), this.y() + value.toFloat())
+
 /**
  * 将两个向量[Vector2fc]相加并赋值给自身
  * @receiver [vector2f]
@@ -126,6 +128,10 @@ operator fun Vector2fc.plus(vector2fc: Vector2fc): Vector2fc = this.copy(this.x(
  */
 operator fun Vector2f.plusAssign(vector2f: Vector2fc) {
     this.add(vector2f)
+}
+
+operator fun Vector2f.plusAssign(value: Number) {
+    this.add(value.toFloat(), value.toFloat())
 }
 
 /**
@@ -136,6 +142,8 @@ operator fun Vector2f.plusAssign(vector2f: Vector2fc) {
  */
 operator fun Vector2fc.minus(vector2fc: Vector2fc): Vector2fc = this.copy(this.x() - vector2fc.x(), this.y() - vector2fc.y())
 
+operator fun Vector2fc.minus(value: Number): Vector2fc = this.copy(this.x() - value.toFloat(), this.y() - value.toFloat())
+
 /**
  * 将两个向量[Vector2fc]相减并赋值给自身
  * @receiver [vector2f]
@@ -143,6 +151,10 @@ operator fun Vector2fc.minus(vector2fc: Vector2fc): Vector2fc = this.copy(this.x
  */
 operator fun Vector2f.minusAssign(vector2f: Vector2fc) {
     this.sub(vector2f)
+}
+
+operator fun Vector2f.minusAssign(value: Number) {
+    this.sub(value.toFloat(), value.toFloat())
 }
 
 /**
@@ -153,6 +165,8 @@ operator fun Vector2f.minusAssign(vector2f: Vector2fc) {
  */
 operator fun Vector2fc.times(vector2fc: Vector2fc): Vector2fc = this.copy(this.x() * vector2fc.x(), this.y() * vector2fc.y())
 
+operator fun Vector2fc.times(value: Number): Vector2fc = this.copy(this.x() * value.toFloat(), this.y() * value.toFloat())
+
 /**
  * 将两个向量[vector2fc]相乘并赋值给自身
  * @receiver [Vector2f]
@@ -160,6 +174,10 @@ operator fun Vector2fc.times(vector2fc: Vector2fc): Vector2fc = this.copy(this.x
  */
 operator fun Vector2f.timesAssign(vector2fc: Vector2fc) {
     this.mul(vector2fc)
+}
+
+operator fun Vector2f.timesAssign(value: Number) {
+    this.mul(value.toFloat())
 }
 
 /**
@@ -170,6 +188,8 @@ operator fun Vector2f.timesAssign(vector2fc: Vector2fc) {
  */
 operator fun Vector2fc.div(vector2fc: Vector2fc): Vector2fc = this.copy(this.x() / vector2fc.x(), this.y() / vector2fc.y())
 
+operator fun Vector2fc.div(value: Number): Vector2fc = this.copy(this.x() / value.toFloat(), this.y() / value.toFloat())
+
 /**
  * 将两个向量[vector2fc]相除并赋值给自身
  * @receiver [Vector2f]
@@ -179,6 +199,10 @@ operator fun Vector2f.divAssign(vector2fc: Vector2fc) {
     this.div(vector2fc)
 }
 
+operator fun Vector2f.divAssign(value: Number) {
+    this.div(value.toFloat())
+}
+
 /**
  * 将两个向量[vector2fc]取余返回一个新的副本
  * @receiver [vector2fc]
@@ -186,6 +210,8 @@ operator fun Vector2f.divAssign(vector2fc: Vector2fc) {
  * @return [Vector2f]
  */
 operator fun Vector2fc.rem(vector2fc: Vector2fc): Vector2fc = this.copy(this.x() % vector2fc.x(), this.y() % vector2fc.y())
+
+operator fun Vector2fc.rem(value: Number): Vector2fc = this.copy(this.x() % value.toFloat(), this.y() % value.toFloat())
 
 /**
  * 将两个向量[vector2fc]取余并赋值给自身
@@ -197,3 +223,7 @@ operator fun Vector2f.remAssign(vector2fc: Vector2fc) {
     this.y %= vector2fc.y()
 }
 
+operator fun Vector2f.remAssign(value: Number) {
+    this.x %= value.toFloat()
+    this.y %= value.toFloat()
+}

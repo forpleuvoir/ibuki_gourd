@@ -80,8 +80,15 @@ object TipHelper {
             ) to WidgetTextures.TIP_ARROW_LEFT
         }
         guiGraphics {
-            pushWidgetTexture(transform, WidgetTextures.TIP, color = bgColor)
-            pushWidgetTexture(Box(pos, Size.Companion(texture.width, texture.height).toFloat()), texture, color = bgColor)
+            pushSpeechBubbleTexture(
+                transform.asWorldCoordinateBox,
+                WidgetTextures.TIP,
+                Box(pos, Size(texture.width, texture.height).toFloat()),
+                texture,
+                direction.opposite(),
+                bgColor,
+                scissorBox = null
+            )
         }
     }
 

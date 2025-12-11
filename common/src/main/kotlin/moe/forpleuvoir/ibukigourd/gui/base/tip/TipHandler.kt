@@ -14,7 +14,7 @@ object TipHandler : Tickable {
 
     const val SCREEN_HOVER_TIP = "#screen_hover_tip"
 
-    private val tips: MutableMap<String, Tip> = mutableMapOf()
+    private val tips: MutableMap<String, Tip> = LinkedHashMap(5)
 
     fun pushTip(type: String, parent: () -> Transform, tip: Tip) {
         if (tips[type] == tip) return

@@ -205,8 +205,8 @@ fun ContainerScope.GreenColorSlider(
 ) = ColorComponentSlider(
     colorState,
     colorComponentGetter = { it.greenF },
-    colorComponentSetter = { c, i -> Color(c.argb).green(i) },
-    renderColorComponentSetter = { c, i -> Color(c.argb).green(i).alpha(255) },
+    colorComponentSetter = { c, i -> Color.ofARGB(c.argb).green(i) },
+    renderColorComponentSetter = { c, i -> Color.ofARGB(c.argb).green(i).alpha(255) },
     modifier, scope
 )
 
@@ -217,8 +217,8 @@ fun ContainerScope.BlueColorSlider(
 ) = ColorComponentSlider(
     colorState,
     colorComponentGetter = { it.blueF },
-    colorComponentSetter = { c, i -> Color(c.argb).blue(i) },
-    renderColorComponentSetter = { c, i -> Color(c.argb).blue(i).alpha(255) },
+    colorComponentSetter = { c, i -> Color.ofARGB(c.argb).blue(i) },
+    renderColorComponentSetter = { c, i -> Color.ofARGB(c.argb).blue(i).alpha(255) },
     modifier, scope
 )
 
@@ -229,8 +229,8 @@ fun ContainerScope.AlphaColorSlider(
 ) = ColorComponentSlider(
     colorState,
     colorComponentGetter = { it.alphaF },
-    colorComponentSetter = { c, i -> Color(c.argb).alpha(i) },
-    renderColorComponentSetter = { c, i -> Color(c.argb).alpha(i) },
+    colorComponentSetter = { c, i -> Color.ofARGB(c.argb).alpha(i) },
+    renderColorComponentSetter = { c, i -> Color.ofARGB(c.argb).alpha(i) },
     modifier, scope
 )
 

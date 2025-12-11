@@ -139,36 +139,74 @@ fun Vector3d.deserialization(element: SerializeElement) {
 operator fun Vector3dc.plus(vector3dc: Vector3dc): Vector3dc =
     this.copy(this.x() + vector3dc.x(), this.y() + vector3dc.y(), this.z() + vector3dc.z())
 
+operator fun Vector3dc.plus(value: Number): Vector3dc =
+    this.copy(this.x() + value.toDouble(), this.y() + value.toDouble(), this.z() + value.toDouble())
+
 operator fun Vector3d.plusAssign(vector3dc: Vector3dc) {
     this.add(vector3dc)
+}
+
+operator fun Vector3d.plusAssign(value: Number) {
+    this.add(value.toDouble(), value.toDouble(), value.toDouble())
 }
 
 operator fun Vector3dc.minus(vector3dc: Vector3dc): Vector3dc =
     this.copy(this.x() - vector3dc.x(), this.y() - vector3dc.y(), this.z() - vector3dc.z())
 
+operator fun Vector3dc.minus(value: Number): Vector3dc =
+    this.copy(this.x() - value.toDouble(), this.y() - value.toDouble(), this.z() - value.toDouble())
+
 operator fun Vector3d.minusAssign(vector3dc: Vector3dc) {
     this.sub(vector3dc)
+}
+
+operator fun Vector3d.minusAssign(value: Number) {
+    this.sub(value.toDouble(), value.toDouble(), value.toDouble())
 }
 
 operator fun Vector3dc.times(vector3dc: Vector3dc): Vector3dc =
     this.copy(this.x() * vector3dc.x(), this.y() * vector3dc.y(), this.z() * vector3dc.z())
 
+operator fun Vector3dc.times(value: Number): Vector3dc =
+    this.copy(this.x() * value.toDouble(), this.y() * value.toDouble(), this.z() * value.toDouble())
+
 operator fun Vector3d.timesAssign(vector3dc: Vector3dc) {
     this.mul(vector3dc)
+}
+
+operator fun Vector3d.timesAssign(value: Number) {
+    this.mul(value.toDouble())
 }
 
 operator fun Vector3dc.div(vector3dc: Vector3dc): Vector3dc =
     this.copy(this.x() / vector3dc.x(), this.y() / vector3dc.y(), this.z() / vector3dc.z())
 
+operator fun Vector3dc.div(value: Number): Vector3dc =
+    this.copy(this.x() / value.toDouble(), this.y() / value.toDouble(), this.z() / value.toDouble())
+
 operator fun Vector3d.divAssign(vector3dc: Vector3dc) {
     this.div(vector3dc)
+}
+
+operator fun Vector3d.divAssign(value: Number) {
+    this.div(value.toDouble())
 }
 
 operator fun Vector3dc.rem(vector3dc: Vector3dc): Vector3dc =
     this.copy(this.x() % vector3dc.x(), this.y() % vector3dc.y(), this.z() % vector3dc.z())
 
+operator fun Vector3dc.rem(value: Number): Vector3dc =
+    this.copy(this.x() % value.toDouble(), this.y() % value.toDouble(), this.z() % value.toDouble())
+
+
 operator fun Vector3d.remAssign(vector3dc: Vector3dc) {
     this.x %= vector3dc.x()
     this.y %= vector3dc.y()
     this.z %= vector3dc.z()
+}
+
+operator fun Vector3d.remAssign(value: Number) {
+    this.x %= value.toDouble()
+    this.y %= value.toDouble()
+    this.z %= value.toDouble()
 }

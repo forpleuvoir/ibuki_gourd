@@ -218,9 +218,6 @@ fun ContainerScope.ConfigManagerWrapper(
         verticalArrangement = Arrangement.spacedBy(3f),
     ) {
         var str = ""
-        val predicate = { c: ConfigSerializable ->
-            str.isEmpty() || c.matched(str.toRegex()) || c.translateText.plainText.contains(str) || c.comment.plainText.contains(str)
-        }
         var onSearch by lateInitValueOf<() -> Unit>()
         SearchBar(
             textConsumer = {
@@ -233,7 +230,7 @@ fun ContainerScope.ConfigManagerWrapper(
         )
         Box {
             ConfigsWrapper(
-                currentConfigs.filter(predicate),
+                currentConfigs.filter{it.searchPredicate(str)},
                 modifier = Modifier.fill()
             )
             onSearch = {
@@ -247,84 +244,11 @@ fun ContainerScope.ConfigManagerWrapper(
 
 }
 
-fun ContainerScope.ConfigManagerWrapperOld(
-    configManager: ConfigManager,
-    modifier: Modifier = Modifier,
-) = Row(
-    modifier,
-    horizontalArrangement = Arrangement.spacedBy(5f)
-) {
-    val map = buildList {
-        (configManager.configs().filterIsInstance<Config<*, *>>() as Collection<ConfigSerializable>).let {
-            if (it.isNotEmpty()) add(configManager as ConfigSerializable to it)
-        }
-        addAll(configManager.configs().filterIsInstance<ConfigContainer>().map { it to it.configs() })
+private fun ConfigSerializable.searchPredicate(rule: String): Boolean {
+    var result = rule.isEmpty() || this.matched(rule.toRegex()) || this.translateText.plainText.contains(rule) || this.comment.plainText.contains(rule)
+    if (this is ConfigContainer) {
+        result = result || configs().any { it.searchPredicate(rule) }
     }
-    var (currentGroup, currentConfigs) = if (map.isEmpty()) {
-        Literal("empty") to notifiableList()
-    } else {
-        map.first().first to notifiableList(map.first().second)
-    }
-
-    ColumnListWrapped(
-        modifier = Modifier.fill(),
-        listModifier = { Modifier.fill() },
-    ) {
-        map.forEach { (config, configs) ->
-            FlatButton(
-                modifier = Modifier.width((map.map { it.first.translateText }.maxWidth + 4f).coerceIn(100f, 160f)),
-                hoveredColor = Colors.CYAN.alpha(0.25f),
-                pressedColor = Colors.CYAN.alpha(0.5f),
-                horizontalArrangement = Arrangement.Left
-            ) {
-                Text(
-                    config.translateText,
-                    modifier = Modifier.hoverText(config.comment, Tip.DefaultSetting.copy(optionalDirection = Direction.clockwiseFromRight))
-                )
-                click {
-                    currentGroup = config.translateText
-                    currentConfigs.disableNotify {
-                        currentConfigs.clear()
-                        currentConfigs.addAll(configs)
-                    }
-                    currentConfigs.onChange(currentConfigs)
-                }
-            }
-        }
-    }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(3f),
-    ) {
-        SearchBar(
-            textConsumer = { str ->
-                currentConfigs.disableNotify {
-                    currentConfigs.clear()
-                    currentConfigs.addAll(
-                        map.find { (text, _) -> text.translateText == currentGroup }
-                            ?.second?.filter {
-                                it.matched(str.toRegex())
-                                        || it.translateText.plainText.contains(str)
-                                        || it.comment.plainText.contains(str)
-                            }
-                            ?: emptyList()
-                    )
-                }
-                currentConfigs.onChange(currentConfigs)
-            },
-            hintText = stateOf(IGLang.search.plainText),
-            modifier = Modifier.fill(),
-            textEditorModifier = { Modifier.weight(1) }
-        )
-        ConfigsWrapper(
-            currentConfigs,
-            modifier = Modifier.fill()
-        ).apply {
-            currentConfigs.subscribe {
-                executeRecompose()
-            }
-        }
-    }
-
+    return result
 }
 

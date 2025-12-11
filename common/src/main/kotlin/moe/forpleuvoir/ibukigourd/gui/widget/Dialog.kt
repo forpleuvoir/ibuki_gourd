@@ -16,6 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.State
@@ -24,6 +26,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
+import org.joml.Matrix3x2f
 
 fun SimpleDialog(
     title: State<Text>,
@@ -124,7 +127,7 @@ fun Dialog(
             .align(Alignment.Center)
             .mousePress {
                 onMousePress(it)
-                it.tryUse(!wasMouseOver && it.button == Mouse.LEFT).onSuccess {
+                it.tryUse(!wasMouseOver && (it.button == Mouse.LEFT || it.button == Mouse.RIGHT)).onSuccess {
                     screen()?.close()
                 }
             }
@@ -133,11 +136,12 @@ fun Dialog(
             }
             .renderOverlay { guiGraphics, _, _, _ ->
                 guiGraphics.pushAlignmentText(
-                    IGLang.clickBlankBack,
+                    IGLang.dialogReturnTip(GuiConfig.PopupScreen.returnHotkeyKeycode),
                     screen()!!.transform,
                     color = HSVColor(0f, 0f, 0.85f),
                     alignment = Alignment.biasedBy(0f, 0.95f),
-                    shadow = true
+                    shadow = true,
+                    pose = Matrix3x2f()
                 )
             }
             .then(modifier),

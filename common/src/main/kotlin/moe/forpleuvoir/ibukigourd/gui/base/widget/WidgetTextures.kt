@@ -113,16 +113,16 @@ object WidgetTextures : SimpleResourceReloaderListener<SerializeObject>() {
     var TIP: WidgetTexture = WidgetTexture(Corner(4), 48, 32, 64, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(left = -2), 75, 41, 80, 48, TEXTURE_INFO)
+    var TIP_ARROW_LEFT: WidgetTexture = WidgetTexture(Corner(left = -4), 68, 32, 73, 39, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(right = -2), 64, 41, 69, 48, TEXTURE_INFO)
+    var TIP_ARROW_RIGHT: WidgetTexture = WidgetTexture(Corner(right = -4), 64, 41, 69, 48, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(top = -2), 73, 34, 80, 39, TEXTURE_INFO)
+    var TIP_ARROW_TOP: WidgetTexture = WidgetTexture(Corner(top = -4), 48, 52, 55, 57, TEXTURE_INFO)
         private set
 
-    var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(bottom = -2), 64, 32, 71, 37, TEXTURE_INFO)
+    var TIP_ARROW_BOTTOM: WidgetTexture = WidgetTexture(Corner(bottom = -4), 57, 48, 64, 53, TEXTURE_INFO)
         private set
 
     var SCROLLER_BAR_IDLE: WidgetTexture = WidgetTexture(Corner(4), 48, 0, 64, 16, TEXTURE_INFO)

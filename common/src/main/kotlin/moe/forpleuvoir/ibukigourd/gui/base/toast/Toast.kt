@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.ibukigourd.util.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.scaledSize
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -62,13 +63,11 @@ object Toast : Tickable {
                 val fadeOutDuration = box.fadeOutDuration
                 // 检查是否已经超时
                 if (timeMark.elapsedNow() <= duration) {
-                    val (alpha, offset) = calculateAlphaAndOffset(duration, fadeInDuration, fadeOutDuration, timeMark)
-                    guiGraphics {
-                        useMatrixStack {
-                            it.translate(offset.x(), offset.y())
-                            modulateColor(Colors.WHITE.alpha(alpha)) {
-                                box.render(this, mouseX, mouseY, delta)
-                            }
+                    val (alpha, offset) = calculateAlphaAndOffset(timeMark, duration, FADE_IN_OFFSET, fadeInDuration, FADE_OUT_OFFSET, fadeOutDuration)
+                    guiGraphics.useMatrixStack {
+                        it.translate(offset.x(), offset.y())
+                        modulateColor(Colors.WHITE.alpha(alpha)) {
+                            box.render(guiGraphics, mouseX, mouseY, delta)
                         }
                     }
                 } else {
@@ -79,10 +78,12 @@ object Toast : Tickable {
     }
 
     private fun calculateAlphaAndOffset(
+        timeMark: ValueTimeMark,
         duration: Duration,
+        fadeInOffset: Vector2fc,
         fadeInDuration: Duration,
-        fadeOutDuration: Duration,
-        timeMark: ValueTimeMark
+        fadeOutOffset: Vector2fc,
+        fadeOutDuration: Duration
     ): Pair<Float, Vector2fc> {
         val progress = (timeMark.elapsedNow() / duration).coerceIn(0.0, 1.0)
         val fadeInRatio = (fadeInDuration / duration).coerceIn(0.001, 1.0)
@@ -90,15 +91,15 @@ object Toast : Tickable {
 
         // 计算透明度
         val alpha = when {
-            progress < fadeInRatio      -> (progress / fadeInRatio).toFloat()
+            progress < fadeInRatio      -> SineEasing.easeIn((progress / fadeInRatio).toFloat())
             progress < 1 - fadeOutRatio -> 1f
-            else                        -> (1f - (progress - (1 - fadeOutRatio)) / fadeOutRatio).toFloat()
+            else                        -> SineEasing.easeIn((1f - (progress - (1 - fadeOutRatio)) / fadeOutRatio).toFloat())
         }
         // 计算位移
         val offset = when {
-            progress < fadeInRatio      -> FADE_IN_OFFSET * (1f - progress / fadeInRatio)
+            progress < fadeInRatio      -> fadeInOffset * SineEasing.easeIn((1f - progress / fadeInRatio).toFloat())
             progress < 1 - fadeOutRatio -> Vector2f(0f, 0f)
-            else                        -> FADE_OUT_OFFSET * ((progress - (1 - fadeOutRatio)) / fadeOutRatio)
+            else                        -> fadeOutOffset * SineEasing.easeIn(((progress - (1 - fadeOutRatio)) / fadeOutRatio).toFloat())
         }
         return Pair(alpha.coerceIn(0f..1f), offset)
     }
@@ -138,7 +139,7 @@ object Toast : Tickable {
         content: BoxScope.() -> Unit
     ) {
         if (duration == Duration.ZERO) return
-        // 强制现有 Toast 提前淡出
+        // 强制弹出现有的 Toast
         toastQueue.replaceAll { (box, timeMark) ->
             val totalDuration = box.duration
             val elapsedTime = timeMark.elapsedNow()

@@ -136,6 +136,8 @@ fun Vector3f.deserialization(element: SerializeElement) {
  */
 operator fun Vector3fc.plus(vector3fc: Vector3fc): Vector3fc = this.copy(this.x() + vector3fc.x(), this.y() + vector3fc.y(), this.z() + vector3fc.z())
 
+operator fun Vector3fc.plus(value: Number): Vector3fc = this.copy(this.x() + value.toFloat(), this.y() + value.toFloat(), this.z() + value.toFloat())
+
 /**
  * 将两个向量[Vector3fc]相加并赋值给自身
  * @receiver [Vector3f]
@@ -143,6 +145,10 @@ operator fun Vector3fc.plus(vector3fc: Vector3fc): Vector3fc = this.copy(this.x(
  */
 operator fun Vector3f.plusAssign(vector3f: Vector3fc) {
     this.add(vector3f)
+}
+
+operator fun Vector3f.plusAssign(value: Number) {
+    this.add(value.toFloat(), value.toFloat(), value.toFloat())
 }
 
 /**
@@ -153,6 +159,8 @@ operator fun Vector3f.plusAssign(vector3f: Vector3fc) {
  */
 operator fun Vector3fc.minus(vector3fc: Vector3fc): Vector3fc = this.copy(this.x() - vector3fc.x(), this.y() - vector3fc.y(), this.z() - vector3fc.z())
 
+operator fun Vector3fc.minus(value: Number): Vector3fc = this.copy(this.x() - value.toFloat(), this.y() - value.toFloat(), this.z() - value.toFloat())
+
 /**
  * 将两个向量[Vector3fc]相减并赋值给自身
  * @receiver [Vector3f]
@@ -160,6 +168,10 @@ operator fun Vector3fc.minus(vector3fc: Vector3fc): Vector3fc = this.copy(this.x
  */
 operator fun Vector3f.minusAssign(vector3f: Vector3fc) {
     this.sub(vector3f)
+}
+
+operator fun Vector3f.minusAssign(value: Number) {
+    this.sub(value.toFloat(), value.toFloat(), value.toFloat())
 }
 
 /**
@@ -170,6 +182,8 @@ operator fun Vector3f.minusAssign(vector3f: Vector3fc) {
  */
 operator fun Vector3fc.times(vector3fc: Vector3fc): Vector3fc = this.copy(this.x() * vector3fc.x(), this.y() * vector3fc.y(), this.z() * vector3fc.z())
 
+operator fun Vector3fc.times(value: Number): Vector3fc = this.copy(this.x() * value.toFloat(), this.y() * value.toFloat(), this.z() * value.toFloat())
+
 /**
  * 将两个向量[Vector3fc]相乘并赋值给自身
  * @receiver [Vector3f]
@@ -177,6 +191,10 @@ operator fun Vector3fc.times(vector3fc: Vector3fc): Vector3fc = this.copy(this.x
  */
 operator fun Vector3f.timesAssign(vector3fc: Vector3fc) {
     this.mul(vector3fc)
+}
+
+operator fun Vector3f.timesAssign(value: Number) {
+    this.mul(value.toFloat())
 }
 
 /**
@@ -187,6 +205,8 @@ operator fun Vector3f.timesAssign(vector3fc: Vector3fc) {
  */
 operator fun Vector3fc.div(vector3fc: Vector3fc): Vector3fc = this.copy(this.x() / vector3fc.x(), this.y() / vector3fc.y(), this.z() / vector3fc.z())
 
+operator fun Vector3fc.div(value: Number): Vector3fc = this.copy(this.x() / value.toFloat(), this.y() / value.toFloat(), this.z() / value.toFloat())
+
 /**
  * 将两个向量[Vector3fc]相除并赋值给自身
  * @receiver [Vector3f]
@@ -194,6 +214,10 @@ operator fun Vector3fc.div(vector3fc: Vector3fc): Vector3fc = this.copy(this.x()
  */
 operator fun Vector3f.divAssign(vector3fc: Vector3fc) {
     this.div(vector3fc)
+}
+
+operator fun Vector3f.divAssign(value: Number) {
+    this.div(value.toFloat())
 }
 
 /**
@@ -204,6 +228,8 @@ operator fun Vector3f.divAssign(vector3fc: Vector3fc) {
  */
 operator fun Vector3fc.rem(vector3fc: Vector3fc): Vector3fc = this.copy(this.x() % vector3fc.x(), this.y() % vector3fc.y(), this.z() % vector3fc.z())
 
+operator fun Vector3fc.rem(value: Number): Vector3fc = this.copy(this.x() % value.toFloat(), this.y() % value.toFloat(), this.z() % value.toFloat())
+
 /**
  * 将两个向量[Vector3fc]取余并赋值给自身
  * @receiver [Vector3f]
@@ -213,4 +239,10 @@ operator fun Vector3f.remAssign(vector3fc: Vector3fc) {
     this.x %= vector3fc.x()
     this.y %= vector3fc.y()
     this.z %= vector3fc.z()
+}
+
+operator fun Vector3f.remAssign(value: Number) {
+    this.x %= value.toFloat()
+    this.y %= value.toFloat()
+    this.z %= value.toFloat()
 }
