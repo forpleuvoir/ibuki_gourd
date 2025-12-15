@@ -152,7 +152,7 @@ fun <T> ContainerScope.Selector(
                     if (index != 0) {
                         Rect(
                             DropDownMenuSeparatorColor,
-                            Modifier.height(.5f).matchSibling()
+                            Modifier.height(1f).matchSibling()
                         )
                     }
                     FlatButton(
@@ -253,7 +253,7 @@ fun <T> ContainerScope.SelectorWithSearcher(
                         if (index != 0) {
                             Rect(
                                 DropDownMenuSeparatorColor,
-                                Modifier.height(.5f).matchSibling()
+                                Modifier.height(1f).matchSibling()
                             )
                         }
                         FlatButton(

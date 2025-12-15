@@ -64,11 +64,6 @@ object TipHelper {
                 transform.worldBottom
             ) to WidgetTextures.TIP_ARROW_TOP
 
-            Direction.Right  -> Vector2f(
-                transform.worldLeft - WidgetTextures.TIP_ARROW_RIGHT.width,
-                parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
-            ) to WidgetTextures.TIP_ARROW_RIGHT
-
             Direction.Bottom -> Vector2f(
                 parentTransform.worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
                 transform.worldTop - WidgetTextures.TIP_ARROW_BOTTOM.height
@@ -78,8 +73,18 @@ object TipHelper {
                 transform.worldRight,
                 parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
             ) to WidgetTextures.TIP_ARROW_LEFT
+
+            Direction.Right  -> Vector2f(
+                transform.worldLeft - WidgetTextures.TIP_ARROW_RIGHT.width,
+                parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
+            ) to WidgetTextures.TIP_ARROW_RIGHT
+
         }
+        transform.worldX = transform.worldX.toInt().toFloat()
+        transform.worldY = transform.worldY.toInt().toFloat()
         guiGraphics {
+            pos.x = pos.x.toInt().toFloat()
+            pos.y = pos.y.toInt().toFloat()
             pushSpeechBubbleTexture(
                 transform.asWorldCoordinateBox,
                 WidgetTextures.TIP,

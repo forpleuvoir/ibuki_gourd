@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FormattedText
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.util.FormattedCharSequence
@@ -23,6 +24,10 @@ fun Iterable<FormattedText>.totalHeight(spacing: Float): Float {
 }
 
 fun MutableComponent.totalHeight(spacing: Float, maxWidth: Float = 0f): Float {
+    return this.wrapToTextLines(maxWidth).sumOf { it.height + spacing } - spacing
+}
+
+fun Component.totalHeight(spacing: Float, maxWidth: Float = 0f): Float {
     return this.wrapToTextLines(maxWidth).sumOf { it.height + spacing } - spacing
 }
 

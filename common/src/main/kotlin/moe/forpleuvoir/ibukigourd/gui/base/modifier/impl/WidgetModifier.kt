@@ -18,9 +18,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
+import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import net.minecraft.network.chat.Component
 import kotlin.time.Duration
 
 fun interface WidgetModifier : Modifier.Element {
@@ -267,7 +269,7 @@ fun Modifier.hoverTip(
 
 @JvmName("hoverTextState")
 fun Modifier.hoverText(
-    text: State<Text>,
+    text: State<Component>,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTip(settings, modifier) {
@@ -275,7 +277,7 @@ fun Modifier.hoverText(
 }
 
 fun Modifier.hoverText(
-    text: Text,
+    text: Component,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTip(settings, modifier) {
@@ -283,7 +285,7 @@ fun Modifier.hoverText(
 }
 
 fun Modifier.hoverText(
-    text: Text,
+    text: Component,
     showDelay: Duration = Tip.DefaultSetting.showDelay,
     hideDelay: Duration = Tip.DefaultSetting.hideDelay,
     fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
@@ -297,7 +299,7 @@ fun Modifier.hoverText(
 
 @JvmName("hoverTextState")
 fun Modifier.hoverText(
-    text: State<Text>,
+    text: State<Component>,
     showDelay: Duration = Tip.DefaultSetting.showDelay,
     hideDelay: Duration = Tip.DefaultSetting.hideDelay,
     fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,

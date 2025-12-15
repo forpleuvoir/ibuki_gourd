@@ -18,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
@@ -27,6 +28,7 @@ import moe.forpleuvoir.ibukigourd.util.scaledSize
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.duration
 import org.joml.Vector2fc
+import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -163,6 +165,8 @@ object Toast : Tickable {
             padding = Padding(4f)
             measureCompletion = {
                 transform.translateTo(alignment.align(mc.window.scaledSize.toFloat(), transform), true)
+                transform.x = transform.x.toInt().toFloat()
+                transform.y = transform.y.toInt().toFloat()
             }
             render = { guiGraphics, _, _, _ ->
                 guiGraphics.pushWidgetTexture(transform, WidgetTextures.TIP)

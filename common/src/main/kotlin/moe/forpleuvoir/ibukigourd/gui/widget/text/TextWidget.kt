@@ -30,6 +30,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gui.Font
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.world.item.Item
@@ -39,18 +40,17 @@ import kotlin.time.Duration
 import kotlin.time.TimeSource
 
 class TextWidget(
-    val text: State<Text>,
+    val text: State<out Component>,
     val setting: Setting
 ) : GuiWidgetImpl() {
 
     constructor(
-        text: State<Text>,
+        text: State<out Component>,
         horizontalAlignment: Alignment.Horizontal = Alignment.Left,
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,
         shadow: Boolean = false,
         scrollAxis: ScrollAxis = ScrollAxis.All,
         autoNewLine: Boolean = false,
-//        layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.SEE_THROUGH,
         rightToLeft: Boolean = false,
         defaultColor: ARGBColor = Colors.BLACK,
         backgroundColor: ARGBColor = Color.ofARGB(0),
@@ -66,7 +66,6 @@ class TextWidget(
         var shadow: Boolean = false,
         var scrollAxis: ScrollAxis = ScrollAxis.All,
         var autoNewLine: Boolean = false,
-//        var layerType: TextRenderer.TextLayerType = TextRenderer.TextLayerType.SEE_THROUGH,
         var rightToLeft: Boolean = false,
         var defaultColor: ARGBColor = Colors.BLACK,
         var backgroundColor: ARGBColor = Color.ofARGB(0),
@@ -93,7 +92,7 @@ class TextWidget(
 
     //------------ TextWidget ------------\\
 
-    private var latestText: Text = text.getValue()
+    private var latestText: Component = text.getValue()
 
     private var mark = TimeSource.Monotonic.markNow()
 
@@ -213,7 +212,7 @@ class TextWidget(
             } else text.size
         }
         guiGraphics {
-            useScissor(transform.asWorldCoordinateBox.expandEdges(2f,4f)) {
+            useScissor(transform.asWorldCoordinateBox.expandEdges(2f, 4f)) {
                 useMatrixStack { pose ->
                     pose.translate(0.4f, textRenderOffset.y())
                     //------------ 开始渲染 ------------\\
@@ -274,7 +273,7 @@ typealias TextWidgetScope = TextWidget.Scope
 typealias TextSetting = TextWidget.Setting
 
 fun ContainerScope.Text(
-    text: State<Text>,
+    text: State<out Component>,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
@@ -284,7 +283,7 @@ fun ContainerScope.Text(
 }
 
 fun ContainerScope.Text(
-    text: Text,
+    text: Component,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     withHoverEvent: Boolean = true,
@@ -296,13 +295,13 @@ fun ContainerScope.Text(
                 Column {
                     when (hoverEvent.action()) {
                         HoverEvent.Action.SHOW_TEXT   -> {
-                            Text((hoverEvent as HoverEvent.ShowText).value.copyToText(), withHoverEvent = false)
+                            Text((hoverEvent as HoverEvent.ShowText).value, withHoverEvent = false)
                         }
 
                         HoverEvent.Action.SHOW_ENTITY -> {
                             (hoverEvent as HoverEvent.ShowEntity).entity.tooltipLines
                                 .forEach {
-                                    Text(it.copyToText(), withHoverEvent = false)
+                                    Text(it, withHoverEvent = false)
                                 }
                         }
 
@@ -313,7 +312,7 @@ fun ContainerScope.Text(
                                     mc.player,
                                     mc.options.advancedItemTooltips.pick(TooltipFlag.ADVANCED, TooltipFlag.NORMAL)
                                 ).forEach {
-                                    Text(it.copyToText(), withHoverEvent = false)
+                                    Text(it, withHoverEvent = false)
                                 }
                         }
                     }

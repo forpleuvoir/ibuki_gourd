@@ -25,7 +25,7 @@ fun testScreen5() = ColumnScreen(
     ) { bindState(text) }
     Box(Modifier.width(120f).height(60f).margin(top = 5f)) {
         Text(mutableStateBy {
-            InlineStyleTextParser.parse(text.getValue(), InlineStyleTextParser.noneEventModifier).copyToText()
+            InlineStyleTextParser.parse(text.getValue(), InlineStyleTextParser.noneEventModifier)
         })
     }
 }

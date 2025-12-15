@@ -49,7 +49,7 @@ fun SankeGame(
                         color(Colors.WHITE)
                     }
                 }
-            }.copyToText()
+            }
         })
         Snake({ scores = it }, gameSpeed, Size(80, 40), cycle = cycle)
     }

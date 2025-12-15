@@ -21,15 +21,40 @@ import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.asMutableState
+import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
+import net.minecraft.network.chat.Component
 import org.joml.Matrix3x2f
 
 fun SimpleDialog(
-    title: State<Text>,
+    title: Component,
+    modifier: Modifier = Modifier,
+    contentModifier: ColumnScope.() -> Modifier = { Modifier },
+    screenModifier: Modifier = Modifier,
+    bgColor: State<ARGBColor> = stateOf(Color.ofRGB(0xF4D9FF)),
+    contentOutlineColor: State<ARGBColor> = bgColor,
+    contentInnerColor: State<ARGBColor> = stateOf(Colors.WHITE),
+    parentScreen: IGScreen? = mc.screen as IGScreen?,
+    content: BoxScope.() -> Unit
+)=SimpleDialog(
+    title = title.asState,
+    modifier = modifier,
+    contentModifier = contentModifier,
+    screenModifier = screenModifier,
+    bgColor = bgColor,
+    contentOutlineColor = contentOutlineColor,
+    contentInnerColor = contentInnerColor,
+    parentScreen = parentScreen,
+    content = content
+)
+
+fun SimpleDialog(
+    title: State<Component>,
     modifier: Modifier = Modifier,
     contentModifier: ColumnScope.() -> Modifier = { Modifier },
     screenModifier: Modifier = Modifier,
@@ -67,7 +92,31 @@ data class ConfirmDialogScope(
 }
 
 fun ConfirmDialog(
-    title: State<Text>,
+    title: Component,
+    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    bgColor: State<ARGBColor> = stateOf(Color.ofRGB(0xF4D9FF)),
+    parentScreen: IGScreen? = mc.screen as IGScreen?,
+    onConfirm: () -> Unit = {
+        closeScreen()
+    },
+    onCancel: () -> Unit = {
+        closeScreen()
+    },
+    content: ConfirmDialogScope.() -> Unit
+) = ConfirmDialog(
+    title = title.asState,
+    modifier = modifier,
+    screenModifier = screenModifier,
+    bgColor = bgColor,
+    parentScreen = parentScreen,
+    onConfirm = onConfirm,
+    onCancel = onCancel,
+    content = content
+)
+
+fun ConfirmDialog(
+    title: State<Component>,
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     bgColor: State<ARGBColor> = stateOf(Color.ofRGB(0xF4D9FF)),
