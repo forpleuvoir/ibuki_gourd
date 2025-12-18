@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.modifier.*
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenu
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.SelectorWithSearcher
@@ -61,7 +62,9 @@ fun testScreen3() = ColumnScreen(
             searchBarModifier = { Modifier.width(80f) },
             listModifier = { Modifier.width(80f) },
         )
-        DropDownMenu {
+        DropDownMenu(
+            optionsDirection =listOf(Direction.Bottom),
+        ) {
             Text(selectText)
             DropDownContent {
                 ColumnListWrapped(

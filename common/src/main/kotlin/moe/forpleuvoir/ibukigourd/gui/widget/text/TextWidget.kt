@@ -212,7 +212,7 @@ class TextWidget(
             } else text.size
         }
         guiGraphics {
-            useScissor(transform.asWorldCoordinateBox.expandEdges(2f, 4f)) {
+            useScissor(transform.asWorldCoordinateBox.expandEdges(2f, 2f)) {
                 useMatrixStack { pose ->
                     pose.translate(0.4f, textRenderOffset.y())
                     //------------ 开始渲染 ------------\\

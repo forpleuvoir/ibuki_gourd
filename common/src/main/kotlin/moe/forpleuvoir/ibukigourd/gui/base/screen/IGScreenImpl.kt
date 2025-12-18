@@ -190,7 +190,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     override var layoutCompletion: () -> Unit = ::onLayoutCompletion
 
     override fun measure(constraints: Constraints): Placeable {
-        return super.measure(constraints = constraints).also {
+        return super.measure(constraints).also {
             measureCompletion()
             layout()
         }

@@ -4,41 +4,91 @@ import moe.forpleuvoir.ibukigourd.gui.base.Margin
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
+import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.util.Direction.Bottom
+import moe.forpleuvoir.ibukigourd.gui.util.Direction.Left
+import moe.forpleuvoir.ibukigourd.gui.util.Direction.Right
+import moe.forpleuvoir.ibukigourd.gui.util.Direction.Top
 import moe.forpleuvoir.ibukigourd.util.math.component1
 import moe.forpleuvoir.ibukigourd.util.math.component2
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import org.joml.Vector2f
 import org.joml.Vector2fc
 
 object TipHelper {
 
+    private fun spaceByDirection(parent: Box, margin: Margin, direction: Direction): SizeFloat {
+        return when (direction) {
+            Top    -> Size(mc.window.guiScaledWidth.toFloat(), parent.top - margin.bottom)
+            Bottom -> Size(mc.window.guiScaledWidth.toFloat(), mc.window.guiScaledHeight.toFloat() - parent.bottom - margin.top)
+            Left   -> Size(parent.right - margin.left, mc.window.guiScaledHeight.toFloat())
+            Right  -> Size(mc.window.guiScaledWidth.toFloat() - parent.left - margin.right, mc.window.guiScaledHeight.toFloat())
+        }
+    }
+
+    private fun Size<Float>.calculateScore(baseSize: Size<Float>? = null): Float {
+        // 宽度得分 1:1 比例
+        val widthScore = width.coerceAtMost(baseSize?.width ?: Float.MAX_VALUE)
+        // 高度得分 1:1.7777778 比例（约等于 16:9 的比例系数）
+        val heightScore = height.coerceAtMost(baseSize?.width ?: Float.MAX_VALUE) * 1.7777778f
+
+        // 基础得分为宽高得分之和
+        val baseScore = widthScore + heightScore
+
+        // 如果宽高低于某个阈值，则对整体得分打折
+        val minWidthThreshold = 32f
+        val minHeightThreshold = 18f
+
+        val widthFactor = if (width < minWidthThreshold) width / minWidthThreshold else 1.0f
+        val heightFactor = if (height < minHeightThreshold) height / minHeightThreshold else 1.0f
+
+        // 应用折扣因子
+        return baseScore * minOf(widthFactor, heightFactor)
+    }
+
+    fun evaluatePlacementOptions(baseSize: Size<Float>?, parent: Box, margin: Margin, optionalDirection: List<Direction>): Pair<SizeFloat, Direction> {
+        // 如果只有一个可选方向，直接使用该方向的约束
+        if (optionalDirection.size == 1) {
+            return spaceByDirection(parent, margin, optionalDirection.first()) to optionalDirection.first()
+        }
+        // 根据可选方向的顺序优先级选择分数最高的方向
+        val suitableDirection = optionalDirection.maxByOrNull {
+            spaceByDirection(parent, margin, it).calculateScore(baseSize)
+        }!!
+        return spaceByDirection(parent, margin, suitableDirection) to suitableDirection
+    }
+
     /**
-     * 更新给定 `Transform` 的位置，基于当前的变换、边距、方向以及父变换等信息。
+     * 更新元素的位置，根据指定方向和约束条件计算新的坐标位置
      *
-     * @param transform 当前需要更新位置的变换对象。
-     * @param margin 边距信息，影响位置计算。
-     * @param direction 表示方向的可变状态，用于更新位置时的方向判断。
-     * @param parentTransform 父变换对象的提供函数，用于计算相对位置。
-     * @param optionalDirection 可迭代的方向列表，用于提供可能的方向选项。
+     * @param transform 元素的变换对象，包含位置和尺寸信息
+     * @param margin 元素的边距设置
+     * @param parent 父容器的变换对象
+     * @param optionalDirection 可选的方向集合
+     * @return 返回更新后的方向对象
      */
     fun updatePosition(
         transform: Transform,
         margin: Margin,
-        direction: MutableState<Direction>,
-        parentTransform: Transform,
-        optionalDirection: Iterable<Direction>
+        parent: Box,
+        direction: Direction,
     ) {
-        direction.setValue(checkDirection(transform, margin, parentTransform, optionalDirection))
-        calcPosition(transform, margin, parentTransform, direction.getValue())
-            .let { (x, y) -> transform.translateTo(x, y, false) }
-        val x = transform.worldX.coerceIn(0f, (mc.window.guiScaledWidth.toFloat() - transform.width).coerceAtLeast(0f))
-        val y = transform.worldY.coerceIn(0f, (mc.window.guiScaledHeight.toFloat() - transform.height).coerceAtLeast(0f))
-        transform.translateTo(x, y, true)
+        when (direction) {
+            Top    -> Vector2f(parent.centerX - transform.halfWidth, parent.top - margin.bottom - transform.height)
+            Right  -> Vector2f(parent.right + margin.left, parent.centerY - transform.halfHeight)
+            Bottom -> Vector2f(parent.centerX - transform.halfWidth, parent.bottom + margin.top)
+            Left   -> Vector2f(parent.left - margin.right - transform.width, parent.centerY - transform.halfHeight)
+        }.let { (x, y) ->
+            transform.translateTo(
+                x.coerceIn(0f, (mc.window.guiScaledWidth.toFloat() - transform.width).coerceAtLeast(0f)),
+                y.coerceIn(0f, (mc.window.guiScaledHeight.toFloat() - transform.height).coerceAtLeast(0f)),
+                true
+            )
+        }
     }
 
     /**
@@ -47,42 +97,44 @@ object TipHelper {
      * @param transform 当前提示框的变换信息。
      * @param context 绘图上下文，用于渲染内容。
      * @param direction 箭头方向，表示提示箭头指向的位置。
-     * @param parentTransform 父级变换信息，用于计算箭头的位置和尺寸。
+     * @param parentBox 父级变换信息，用于计算箭头的位置和尺寸。
      * @param bgColor 当前状态的背景颜色。
      */
     fun tipRender(
         transform: Transform,
         guiGraphics: IGGuiGraphics,
         direction: Direction,
-        parentTransform: Transform,
+        parentBox: Box,
         bgColor: ARGBColor
     ) {
         //计算箭头位置
         val (pos, texture) = when (direction) {
-            Direction.Top    -> Vector2f(
-                parentTransform.worldCenter.x() - WidgetTextures.TIP_ARROW_TOP.halfWidth,
+            Top    -> Vector2f(
+                parentBox.centerX - WidgetTextures.TIP_ARROW_TOP.halfWidth,
                 transform.worldBottom
             ) to WidgetTextures.TIP_ARROW_TOP
 
-            Direction.Bottom -> Vector2f(
-                parentTransform.worldCenter.x() - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
+            Bottom -> Vector2f(
+                parentBox.centerX - WidgetTextures.TIP_ARROW_BOTTOM.halfWidth,
                 transform.worldTop - WidgetTextures.TIP_ARROW_BOTTOM.height
             ) to WidgetTextures.TIP_ARROW_BOTTOM
 
-            Direction.Left   -> Vector2f(
+            Left   -> Vector2f(
                 transform.worldRight,
-                parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_LEFT.halfHeight
+                parentBox.centerY - WidgetTextures.TIP_ARROW_LEFT.halfHeight
             ) to WidgetTextures.TIP_ARROW_LEFT
 
-            Direction.Right  -> Vector2f(
+            Right  -> Vector2f(
                 transform.worldLeft - WidgetTextures.TIP_ARROW_RIGHT.width,
-                parentTransform.worldCenter.y() - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
+                parentBox.centerY - WidgetTextures.TIP_ARROW_RIGHT.halfHeight
             ) to WidgetTextures.TIP_ARROW_RIGHT
 
         }
+        //修正气泡位置 由于浮点位置小数点部分可能无法被 正常渲染,只能强制使用Int
         transform.worldX = transform.worldX.toInt().toFloat()
         transform.worldY = transform.worldY.toInt().toFloat()
         guiGraphics {
+            //修正箭头位置 由于浮点位置小数点部分可能无法被 正常渲染,只能强制使用Int
             pos.x = pos.x.toInt().toFloat()
             pos.y = pos.y.toInt().toFloat()
             pushSpeechBubbleTexture(
@@ -97,30 +149,33 @@ object TipHelper {
         }
     }
 
-    private fun calcPosition(ref: Size<Float>, margin: Margin, parent: Transform, direction: Direction): Vector2fc {
-        val pos = when (direction) {
-            Direction.Top    -> Vector2f(parent.halfWidth - ref.halfWidth, -margin.bottom - ref.height)
-            Direction.Right  -> Vector2f(parent.width + margin.left, parent.halfHeight - ref.halfHeight)
-            Direction.Bottom -> Vector2f(parent.halfWidth - ref.halfWidth, parent.height + margin.top)
-            Direction.Left   -> Vector2f(-margin.right - ref.width, parent.halfHeight - ref.halfHeight)
+    private fun calcPosition(ref: Size<Float>, margin: Margin, parent: Box, direction: Direction): Vector2fc {
+        return when (direction) {
+            Top    -> Vector2f(parent.halfWidth - ref.halfWidth, -margin.bottom - ref.height)
+            Right  -> Vector2f(parent.width + margin.left, parent.halfHeight - ref.halfHeight)
+            Bottom -> Vector2f(parent.halfWidth - ref.halfWidth, parent.height + margin.top)
+            Left   -> Vector2f(-margin.right - ref.width, parent.halfHeight - ref.halfHeight)
         }
-        return pos
     }
 
-    private fun checkDirection(ref: Size<Float>, margin: Margin, parent: Transform, optionalDirection: Iterable<Direction>): Direction {
-        //------------ 计算如果没有可放置位置则选择一个空间最大的方向放置 ------------\\
-        val leftSpace = Direction.Left to (parent.worldLeft)
-        val rightSpace = Direction.Right to (mc.window.guiScaledWidth - parent.worldRight)
-        val topSpace = Direction.Top to (parent.worldTop)
-        val bottomSpace = Direction.Bottom to (mc.window.guiScaledHeight - parent.worldBottom)
-        return optionalDirection.find {
+    /**
+     * 检查元素在指定方向上是否可以放置
+     *
+     * @param ref 要放置的元素尺寸信息，包含宽度和高度
+     * @param margin 元素的边距信息
+     * @param parent 父容器的边界信息
+     * @param optionalDirection 可选的放置方向列表
+     * @return 返回可以放置元素的方向列表，如果没有任何方向可以放置则返回空列表
+     */
+    fun canPlaceDirections(ref: Size<Float>, margin: Margin, parent: Box, optionalDirection: List<Direction>): List<Direction> {
+        return optionalDirection.filter {
             when (it) {
-                Direction.Left   -> leftSpace.second >= ref.width + margin.right
-                Direction.Right  -> rightSpace.second >= ref.width + margin.left
-                Direction.Top    -> topSpace.second >= ref.height + margin.bottom
-                Direction.Bottom -> bottomSpace.second >= ref.height + margin.top
+                Top    -> parent.top + margin.bottom >= ref.height
+                Right  -> mc.window.guiScaledWidth - parent.right - margin.left >= ref.width
+                Bottom -> mc.window.guiScaledHeight - parent.bottom - margin.top >= ref.height
+                Left   -> parent.left + margin.right >= ref.width
             }
-        } ?: arrayOf(leftSpace, rightSpace, topSpace, bottomSpace).maxBy { if (it.first in optionalDirection) it.second else -114514f }.first
+        }
     }
 
 }

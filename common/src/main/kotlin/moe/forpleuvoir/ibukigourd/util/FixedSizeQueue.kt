@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util
 
 class FixedSizeQueue<T>(private val capacity: Int) : Iterable<T> {
-    private val queue = ArrayDeque<T>()
+    private val queue = ArrayDeque<T>(capacity)
 
     fun add(element: T) {
         if (queue.size >= capacity) {

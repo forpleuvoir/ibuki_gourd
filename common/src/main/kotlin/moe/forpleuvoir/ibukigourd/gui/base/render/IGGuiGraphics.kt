@@ -172,6 +172,8 @@ class IGGuiGraphics(
         pipeline: RenderPipeline = RenderPipelines.GUI_TEXTURED,
         scissorBox: Box? = peekScissorBox()
     ) {
+        if (box.width <= 0 || box.height <= 0) return
+
         val corner = widgetTexture.corner
         if (!widgetTexture.corner.isSpecified) {
             pushBlit(box, widgetTexture, color, pose, pipeline, scissorBox)
@@ -310,6 +312,7 @@ class IGGuiGraphics(
         scissorBox: Box? = peekScissorBox()
     ) {
         pushWidgetTexture(arrowBox, arrow, color, pose, pipeline, scissorBox)
+        if (bubbleBox.width <= 0 || bubbleBox.height <= 0) return
         val corner = bubble.corner
         if (!bubble.corner.isSpecified) {
             pushBlit(bubbleBox, bubble, color, pose, pipeline, scissorBox)

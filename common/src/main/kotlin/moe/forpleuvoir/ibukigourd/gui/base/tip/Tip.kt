@@ -10,25 +10,21 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minSize
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
-import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDuration
+import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
-import moe.forpleuvoir.ibukigourd.util.math.bezier.CubicEasing
-import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
 import org.joml.Vector2f
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
 class Tip(
-    val settings: Setting = DefaultSetting,
+    val setting: Setting = DefaultSetting,
     val modifier: Modifier = DefaultModifier,
     val content: BoxScope.() -> Unit
 ) : Tickable {
@@ -39,7 +35,12 @@ class Tip(
         val fadeInOffset: Float = -2f,
         val optionalDirection: List<Direction> = Direction.clockwiseFromTop,
         val backgroundColor: ARGBColor = Colors.WHITE
-    )
+    ) {
+        init {
+            require(optionalDirection.isNotEmpty()) { "optionalDirection must not be empty" }
+            require(optionalDirection.size <= 4) { "optionalDirection must not be more than 4" }
+        }
+    }
 
     companion object {
         val DefaultModifier get() = Modifier.padding(4).margin(4).minSize(18f, 18f)
@@ -50,24 +51,41 @@ class Tip(
 
     private var showTimeMark: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
-    private var currentDirection = mutableStateOf(settings.optionalDirection.isNotEmpty().pick(settings.optionalDirection.first(), Top))
+    private var currentDirection = setting.optionalDirection.first()
 
     fun init(parent: () -> Transform) {
-        val directions = settings.optionalDirection
+        val directions = setting.optionalDirection
         box = BoxWidget().apply {
+            //第一次测量之后才能选择合适的方向,所以第一次渲染会重新测量一次选择更好的位置
+            var firstRemeasure = true
             setName("HoverTip")
             renderBackground = { _, _, _, _ ->
-                TipHelper.updatePosition(this.transform, this.margin, currentDirection, parent(), directions)
+                val parentBox = parent().asWorldCoordinateBox
+                //如果当前Box不在可放置的方向上,则重新测量最合适的方向
+                TipHelper.canPlaceDirections(transform, margin, parentBox, setting.optionalDirection).let { directions ->
+                    if (currentDirection !in directions || firstRemeasure) {
+                        val (maxConstraints, direction) = TipHelper.evaluatePlacementOptions(transform, parentBox, margin, directions)
+                        constraints = Constraints.of(maxSize = maxConstraints)
+                        remeasure()
+                        currentDirection = direction
+                        if (firstRemeasure) firstRemeasure = false
+                    }
+                }
+                TipHelper.updatePosition(transform, margin, parentBox, currentDirection)
             }
             render = { guiGraphics, _, _, _ ->
-                TipHelper.tipRender(this.transform, guiGraphics, currentDirection.getValue(), parent(), settings.backgroundColor)
+                TipHelper.tipRender(transform, guiGraphics, currentDirection, parent().asWorldCoordinateBox, setting.backgroundColor)
             }
             if (transform.parent() != parent()) transform.parent = { parent() }
             modifier.foldInApply()
 
             Compose { BoxScope { this }.content() }
 
-            measure(Constraints.of(0f, mc.window.guiScaledWidth.toFloat(), 0f, mc.window.guiScaledHeight.toFloat()))
+            val parentBox = parent().asWorldCoordinateBox
+            val (maxConstraints, direction) = TipHelper.evaluatePlacementOptions(null, parentBox, margin, directions)
+            currentDirection = direction
+            constraints = Constraints.of(maxSize = maxConstraints)
+            measure(Constraints.of())
             measureCompletion()
             layout()
         }
@@ -75,7 +93,7 @@ class Tip(
     }
 
     fun show() {
-        showTimeMark = TimeSource.Monotonic.markNow() + settings.showDelay
+        showTimeMark = TimeSource.Monotonic.markNow() + setting.showDelay
     }
 
     fun render(guiGraphics: IGGuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
@@ -97,21 +115,21 @@ class Tip(
     }
 
     private fun calculateAlphaAndOffset(): Pair<Float, Vector2f> {
-        if (settings.fadeInOffset == 0f || settings.fadeInDuration == Duration.ZERO) return 1f to Vector2f(0f, 0f)
+        if (setting.fadeInOffset == 0f || setting.fadeInDuration == Duration.ZERO) return 1f to Vector2f(0f, 0f)
         val currentMark = TimeSource.Monotonic.markNow() // 当前时间标记
         val elapsedTime = currentMark - showTimeMark
 
         // 计算 fadeIn 进度
-        val fadeInProgress = (elapsedTime / settings.fadeInDuration).toFloat().coerceIn(0f, 1f)
+        val fadeInProgress = (elapsedTime / setting.fadeInDuration).toFloat().coerceIn(0f, 1f)
 
         // 透明度 (alpha)：从 0 → 1
         val alpha = fadeInProgress
 
         // 偏移量 (offset)：从 fadeInOffset → 0
-        val offset = settings.fadeInOffset * (1f - fadeInProgress)
+        val offset = setting.fadeInOffset * (1f - fadeInProgress)
 
         // 根据当前方向计算偏移向量
-        return alpha to when (currentDirection.getValue()) {
+        return alpha to when (currentDirection) {
             Top    -> Vector2f(0f, offset)
             Bottom -> Vector2f(0f, -offset)
             Left   -> Vector2f(offset, 0f)

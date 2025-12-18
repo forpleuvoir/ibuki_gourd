@@ -6,12 +6,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.AbsoluteLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.Compose
-import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainerImpl
 
 class AbsoluteWidget : GuiWidgetContainerImpl(), AbsoluteLayout
 
-fun interface AbsoluteScope : GuiScope<GuiWidgetContainer>, AbsoluteLayoutScope
+fun interface AbsoluteScope : GuiScope<AbsoluteWidget>, AbsoluteLayoutScope
 
 fun ContainerScope.Absolute(
     modifier: Modifier = Modifier,

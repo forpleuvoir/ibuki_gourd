@@ -61,9 +61,9 @@ interface SizeFloat : Size<Float> {
 
     override val height: Float
 
-    override val halfWidth: Float get() = width / 2
+    override val halfWidth: Float get() = width * 0.5f
 
-    override val halfHeight: Float get() = height / 2
+    override val halfHeight: Float get() = height * 0.5f
 
 }
 
@@ -73,9 +73,9 @@ interface SizeDouble : Size<Double> {
 
     override val height: Double
 
-    override val halfWidth: Double get() = width / 2
+    override val halfWidth: Double get() = width * 0.5
 
-    override val halfHeight: Double get() = height / 2
+    override val halfHeight: Double get() = height * 0.5
 }
 
 interface SizeInt : Size<Int> {
@@ -147,13 +147,13 @@ interface MutableSizeFloat : MutableSize<Float> {
     override var height: Float
 
     override var halfWidth: Float
-        get() = width / 2
+        get() = width * 0.5f
         set(value) {
             width = value * 2
         }
 
     override var halfHeight: Float
-        get() = height / 2
+        get() = height * 0.5f
         set(value) {
             height = value * 2
         }
@@ -166,13 +166,13 @@ interface MutableSizeDouble : MutableSize<Double> {
     override var height: Double
 
     override var halfWidth: Double
-        get() = width / 2
+        get() = width * 0.5
         set(value) {
             width = value * 2
         }
 
     override var halfHeight: Double
-        get() = height / 2
+        get() = height * 0.5
         set(value) {
             height = value * 2
         }

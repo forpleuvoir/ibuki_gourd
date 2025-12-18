@@ -64,12 +64,6 @@ interface IGScreen : GuiRenderableElementContainer, GuiWidgetContainer {
      */
     fun execute(task: () -> Unit)
 
-    //------------ Override ------------\\
-
-    override var parentData: Any?
-
-    override fun remeasure()
-
     //------------ Coroutine ------------\\
 
     val coroutineScope: ScreenCoroutineScope

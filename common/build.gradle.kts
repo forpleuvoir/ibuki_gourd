@@ -21,6 +21,8 @@ dependencies {
     compileOnly(libs.minxinExtras.common)
     implementation(libs.nebula)
     annotationProcessor(libs.minxinExtras.common)
+
+    testImplementation(kotlin("test"))
 }
 
 sourceSets {

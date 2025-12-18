@@ -191,7 +191,7 @@ class Transform(
     override var center: WidgetPosition
         get() = Vector2f(x + this.halfWidth, y + this.halfHeight)
         set(value) {
-            translate(value.x - center.x, value.y - center.y)
+            translate(value.x - centerX, value.y - centerY)
         }
 
     val worldCenter: WidgetPosition get() = Vector2f(worldX + this.halfWidth, worldY + this.halfHeight)

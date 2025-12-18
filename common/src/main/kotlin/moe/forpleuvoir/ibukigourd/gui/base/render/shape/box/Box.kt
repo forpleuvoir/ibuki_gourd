@@ -12,6 +12,7 @@ import org.joml.Vector2ic
 import org.joml.Vector3fc
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 interface Box : SizeFloat, Cloneable {
 
@@ -55,11 +56,15 @@ interface Box : SizeFloat, Cloneable {
 
     val endY: Float get() = y + height
 
-    val center: Vector2fc get() = Vector2f(x + this.width / 2, y + this.height / 2)
+    val center: Vector2fc get() = Vector2f(centerX, centerY)
+
+    val centerX: Float get() = x + halfWidth
+
+    val centerY: Float get() = y + halfHeight
 
     val exist: Boolean get() = this.width > 0 && this.height > 0
 
-    val asScreenRectangle: ScreenRectangle get() = ScreenRectangle(this.x.toInt(), this.y.toInt(), this.width.toInt(), this.height.toInt())
+    val asScreenRectangle: ScreenRectangle get() = ScreenRectangle(this.x.toInt(), this.y.toInt(), this.width.roundToInt(), this.height.roundToInt())
 
     fun trimEdges(top: Float = 0f, bottom: Float = 0f, left: Float = 0f, right: Float = 0f): Box =
         Box(this.x + left, this.y + top, this.endX - right, this.endY - bottom)
