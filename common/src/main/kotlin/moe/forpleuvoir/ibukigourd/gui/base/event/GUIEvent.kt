@@ -67,13 +67,7 @@ open class GUIEvent {
      * @param condition 要执行的代码块。
      * @return Result<Boolean> 成功（true）如果事件已使用，失败（false）否则。
      */
-    inline fun tryUse(condition: () -> Boolean): Result<Unit> {
-        if (canUse && condition()) {
-            this.use()
-            return Result.success(Unit)
-        }
-        return Result.failure(Exception("Event cannot be used."))
-    }
+    inline fun tryUse(condition: () -> Boolean): Result<Unit> = tryUse(condition())
 
     fun tryUse(condition: Boolean = true): Result<Unit> {
         if (canUse && condition) {

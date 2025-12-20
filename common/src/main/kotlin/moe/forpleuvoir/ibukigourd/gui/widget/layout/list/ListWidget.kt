@@ -23,7 +23,7 @@ abstract class ListWidget(
 
     var enableScissor: Boolean = true
 
-    protected var _amountStep: Float? = null
+    protected var _amountStep: Float? = 15f
         set(value) {
             field = value
             if (value != null) scrollState.amountStep = value

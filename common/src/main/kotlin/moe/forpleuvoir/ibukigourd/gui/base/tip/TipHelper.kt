@@ -107,6 +107,9 @@ object TipHelper {
         parentBox: Box,
         bgColor: ARGBColor
     ) {
+        //修正气泡位置 由于浮点位置小数点部分可能无法被 正常渲染,只能强制使用Int
+        transform.worldX = transform.worldX.toInt().toFloat()
+        transform.worldY = transform.worldY.toInt().toFloat()
         //计算箭头位置
         val (pos, texture) = when (direction) {
             Top    -> Vector2f(
@@ -130,13 +133,10 @@ object TipHelper {
             ) to WidgetTextures.TIP_ARROW_RIGHT
 
         }
-        //修正气泡位置 由于浮点位置小数点部分可能无法被 正常渲染,只能强制使用Int
-        transform.worldX = transform.worldX.toInt().toFloat()
-        transform.worldY = transform.worldY.toInt().toFloat()
         guiGraphics {
             //修正箭头位置 由于浮点位置小数点部分可能无法被 正常渲染,只能强制使用Int
-            pos.x = pos.x.toInt().toFloat()
-            pos.y = pos.y.toInt().toFloat()
+//            pos.x = pos.x.toInt().toFloat()
+//            pos.y = pos.y.toInt().toFloat()
             pushSpeechBubbleTexture(
                 transform.asWorldCoordinateBox,
                 WidgetTextures.TIP,

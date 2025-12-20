@@ -63,7 +63,7 @@ fun testScreen3() = ColumnScreen(
             listModifier = { Modifier.width(80f) },
         )
         DropDownMenu(
-            optionsDirection =listOf(Direction.Bottom),
+            optionsDirection =listOf(Direction.Top),
         ) {
             Text(selectText)
             DropDownContent {

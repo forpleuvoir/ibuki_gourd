@@ -28,7 +28,7 @@ fun TestScreen2() = ColumnScreen(
         guiGraphics.pushTextLines(lines, transform.asWorldCoordinateBox, horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.Top)
     }
 ) {
-    ItemIcon(Items.MELON)
+    ItemIcon(Items.MELON, scale = 1f)
     Box(Modifier.height(10f)) {}
     Button(
         Modifier.margin(right = 1f).hoverTip {
