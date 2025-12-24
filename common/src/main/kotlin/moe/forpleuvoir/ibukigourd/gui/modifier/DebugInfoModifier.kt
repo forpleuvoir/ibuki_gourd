@@ -23,7 +23,7 @@ import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 import kotlin.time.toDuration
 
 fun interface DebugInfoEntry {
-    fun text(screen: IGScreen, guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float): Text
+    fun text(screen: IGScreen, guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float): MutableText
 }
 
 data class DebugInfoScope(internal val entries: MutableList<DebugInfoEntry> = mutableListOf()) {

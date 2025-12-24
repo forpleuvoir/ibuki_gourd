@@ -1,11 +1,11 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.text.style.StyleScope
+import moe.forpleuvoir.ibukigourd.text.style.StyleBuilder
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 
 @TextDslMark
-open class TextScope {
+open class TextBuilder {
 
     private lateinit var content: MutableComponent
 
@@ -29,12 +29,12 @@ open class TextScope {
         literal("\n")
     }
 
-    fun literal(scope: LiteralScope.() -> Unit) {
-        append(LiteralScope().apply(scope).text)
+    fun literal(scope: LiteralBuilder.() -> Unit) {
+        append(LiteralBuilder().apply(scope).text)
     }
 
-    fun literal(content: Any, scope: LiteralScope.() -> Unit = {}) {
-        val a = LiteralScope().apply {
+    fun literal(content: Any, scope: LiteralBuilder.() -> Unit = {}) {
+        val a = LiteralBuilder().apply {
             content(content.toString())
             scope.invoke(this)
         }
@@ -45,8 +45,8 @@ open class TextScope {
         append(Literal(content.toString()))
     }
 
-    fun translatable(key: String, fallback: String?, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
-        append(TranslatableScope().apply {
+    fun translatable(key: String, fallback: String?, vararg params: Any, scope: TranslatableBuilder.() -> Unit = {}) {
+        append(TranslatableBuilder().apply {
             key { key }
             fallback { fallback }
             params(*params)
@@ -54,23 +54,23 @@ open class TextScope {
         }.text)
     }
 
-    fun translatable(key: String, vararg params: Any, scope: TranslatableScope.() -> Unit = {}) {
-        append(TranslatableScope().apply {
+    fun translatable(key: String, vararg params: Any, scope: TranslatableBuilder.() -> Unit = {}) {
+        append(TranslatableBuilder().apply {
             key { key }
             params(*params)
             scope.invoke(this)
         }.text)
     }
 
-    fun translatable(scope: TranslatableScope.() -> Unit) {
-        append(TranslatableScope().apply(scope).text)
+    fun translatable(scope: TranslatableBuilder.() -> Unit) {
+        append(TranslatableBuilder().apply(scope).text)
     }
 
 }
 
 
 @TextDslMark
-class LiteralScope {
+class LiteralBuilder {
 
     val text: MutableComponent
         get() {
@@ -90,14 +90,14 @@ class LiteralScope {
         this._content = content
     }
 
-    fun style(style: StyleScope.() -> Unit) {
-        this.style = StyleScope(this.style).apply(style).asStyle
+    fun style(style: StyleBuilder.() -> Unit) {
+        this.style = StyleBuilder(this.style).apply(style).asStyle
     }
 
 }
 
 @TextDslMark
-class TranslatableScope {
+class TranslatableBuilder {
 
     val text: MutableComponent
         get() {
@@ -125,12 +125,12 @@ class TranslatableScope {
         this.fallback = fallback().toString()
     }
 
-    fun style(style: StyleScope.() -> Unit) {
-        this.style = StyleScope(this.style).apply(style).asStyle
+    fun style(style: StyleBuilder.() -> Unit) {
+        this.style = StyleBuilder(this.style).apply(style).asStyle
     }
 
 }
 
-fun buildText(content: TextScope.() -> Unit): MutableComponent {
-    return TextScope().apply(content).text
+fun buildText(content: TextBuilder.() -> Unit): MutableComponent {
+    return TextBuilder().apply(content).text
 }

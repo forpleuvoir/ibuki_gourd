@@ -91,7 +91,7 @@ class TextAreaWidget(
 
     val height by transform::height
 
-    var hintText: Text? = null
+    var hintText: MutableText? = null
 
     private val lines: MutableList<Substring> = ArrayList()
 
@@ -113,7 +113,7 @@ class TextAreaWidget(
         return -1
     }
 
-    var suggestion: ((text: String, preWord: String, cursor: Int) -> Iterable<Text>)? = null
+    var suggestion: ((text: String, preWord: String, cursor: Int) -> Iterable<MutableText>)? = null
 
     private val currentLine: Substring
         get() = this.getOffsetLine(0)
@@ -715,7 +715,7 @@ class TextAreaWidget(
             }
         }
 
-        var hintText: Text?
+        var hintText: MutableText?
             get() = owner().hintText
             set(value) {
                 owner().hintText = value
@@ -762,7 +762,7 @@ class TextAreaWidget(
                 owner().spacing = value
             }
 
-        fun suggestion(suggestion: ((text: String, preWord: String, cursor: Int) -> Iterable<Text>)) {
+        fun suggestion(suggestion: ((text: String, preWord: String, cursor: Int) -> Iterable<MutableText>)) {
             owner().suggestion = suggestion
         }
 

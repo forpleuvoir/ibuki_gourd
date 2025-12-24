@@ -34,9 +34,13 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
+import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.text.style
 import moe.forpleuvoir.ibukigourd.text.width
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.ibukigourd.util.renameKey
@@ -88,7 +92,7 @@ fun ContainerScope.MoveButton(
 }
 
 fun <T> ContainerScope.IterableWrappedButton(
-    title: Text,
+    title: MutableText,
     iterable: Iterable<T>,
     onAdd: (T) -> Unit,
     newValue: (Iterable<T>) -> T,
@@ -146,7 +150,7 @@ fun <T> ContainerScope.IterableWrappedButton(
 
 fun <T> ContainerScope.ListConfigWrappedButton(
     config: ConfigList<T>,
-    title: Text = config.translateText.style { hover(config.comment) },
+    title: MutableText = config.translateText.style { hover(config.comment) },
     iterable: Iterable<T> = config.getValue(),
     onAdd: (T) -> Unit = { config.getValue().add(it) },
     newValue: (Iterable<T>) -> T,
@@ -356,7 +360,7 @@ fun <K, V> mapEntry(key: K, value: V) = object : Map.Entry<K, V> {
 
 fun <K, V> ContainerScope.MapConfigWrappedButton(
     config: Config<MutableMap<K, V>, *>,
-    title: Text = config.translateText.style { hover(config.comment) },
+    title: MutableText = config.translateText.style { hover(config.comment) },
     iterable: Iterable<Map.Entry<K, V>> = config.getValue().entries,
     onAdd: (Map.Entry<K, V>) -> Unit = { config.getValue().put(it.key, it.value) },
     newValue: (Iterable<Map.Entry<K, V>>) -> Map.Entry<K, V>,
@@ -435,7 +439,8 @@ fun <K, V> ContainerScope.MapConfigEntryWrapper(
                     }
                     if (config.getValue().containsKey(newKey)) {
                         editor?.let {
-                            TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                            TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                            CONFIG_WRAPPER_TIP = TipHandler.pushTip(2.seconds, it, Tip {
                                 Text(IGLang.keyExists(keyToSting(newKey)).withColor(Colors.RED))
                             })
                         }

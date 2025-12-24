@@ -13,7 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.theme.PressableTheme
 import moe.forpleuvoir.ibukigourd.gui.widget.theme.theme
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.soundManager
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -31,7 +31,7 @@ fun <T : Comparable<T>> ContainerScope.Slider(
     maxValue: T,
     progressMapper: (value: T, minVale: T, maxValue: T) -> Double,
     valueMapper: (progress: Double) -> T,
-    textMapper: (T) -> Text = { Literal(it.toString()) },
+    textMapper: (T) -> MutableText = { Literal(it.toString()) },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
     colorB: ARGBColor = SliderColorB,
@@ -113,7 +113,7 @@ fun <T> ContainerScope.NumberSlider(
     minValue: T,
     maxValue: T,
     valueMapper: (progress: Double) -> T,
-    textMapper: (T) -> Text = { Literal(it.toString()) },
+    textMapper: (T) -> MutableText = { Literal(it.toString()) },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
     colorB: ARGBColor = SliderColorB,
@@ -136,7 +136,7 @@ fun <T> ContainerScope.NumberSlider(
 fun ContainerScope.IntSlider(
     value: MutableState<Int>,
     range: IntRange,
-    textMapper: (Int) -> Text = { Literal(it.toString()) },
+    textMapper: (Int) -> MutableText = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Int = { (range.first + (range.last - range.first) * it).toInt() },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
@@ -159,7 +159,7 @@ fun ContainerScope.IntSlider(
 fun ContainerScope.LongSlider(
     value: MutableState<Long>,
     range: LongRange,
-    textMapper: (Long) -> Text = { Literal(it.toString()) },
+    textMapper: (Long) -> MutableText = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Long = { (range.first + (range.last - range.first) * it).toLong() },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
@@ -182,7 +182,7 @@ fun ContainerScope.LongSlider(
 fun ContainerScope.FloatSlider(
     value: MutableState<Float>,
     range: ClosedFloatingPointRange<Float>,
-    textMapper: (Float) -> Text = { Literal("%.2f".format(it)) },
+    textMapper: (Float) -> MutableText = { Literal("%.2f".format(it)) },
     valueMapper: (progress: Double) -> Float = { (range.start + (range.endInclusive - range.start) * it).toFloat() },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
@@ -205,7 +205,7 @@ fun ContainerScope.FloatSlider(
 fun ContainerScope.DoubleSlider(
     value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double>,
-    textMapper: (Double) -> Text = { Literal("%.2f".format(it)) },
+    textMapper: (Double) -> MutableText = { Literal("%.2f".format(it)) },
     valueMapper: (progress: Double) -> Double = { (range.start + (range.endInclusive - range.start) * it) },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
@@ -228,7 +228,7 @@ fun ContainerScope.DoubleSlider(
 fun ContainerScope.PercentageSlider(
     value: MutableState<Double>,
     range: ClosedFloatingPointRange<Double> = 0.0..1.0,
-    textMapper: (Double) -> Text = { Literal("%.2f".format(it * 100) + "%") },
+    textMapper: (Double) -> MutableText = { Literal("%.2f".format(it * 100) + "%") },
     valueMapper: (progress: Double) -> Double = { (range.start + (range.endInclusive - range.start) * it) },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,
@@ -251,7 +251,7 @@ fun ContainerScope.PercentageSlider(
 fun ContainerScope.DurationSlider(
     value: MutableState<Duration>,
     range: ClosedRange<Duration>,
-    textMapper: (Duration) -> Text = { Literal(it.toString()) },
+    textMapper: (Duration) -> MutableText = { Literal(it.toString()) },
     valueMapper: (progress: Double) -> Duration = { range.start + (range.endInclusive - range.start) * it },
     orientation: Orientation = Orientation.Horizontal,
     colorA: ARGBColor = SliderColorA,

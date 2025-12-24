@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import moe.forpleuvoir.ibukigourd.command.clientSource
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 import net.minecraft.commands.SharedSuggestionProvider
@@ -21,10 +21,10 @@ object TestCommand {
 
     fun CommandDispatcher<out SharedSuggestionProvider>.testCommand() = registerCommand("igtest") {
         requires {
-            this.clientSource.sender.hasPermissions(2)
+            clientSource.sender.isCreative
         }
         execute {
-            source.clientSource.sendFeedback(Text.literal("直接执行了 test"))
+            clientSource.sendFeedback(Texts.literal("直接执行了 test"))
         }
         "sub1" {
             execute {

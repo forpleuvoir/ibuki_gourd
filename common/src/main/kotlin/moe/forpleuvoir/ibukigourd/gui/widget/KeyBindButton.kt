@@ -17,9 +17,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.input.*
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -28,17 +26,21 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import kotlin.time.Duration.Companion.milliseconds
 
-val KeyBind.hoverText: Text
+val KeyBind.hoverText: MutableText
     get() {
         val conflictText = IGLang.keybindConflict
-        val text = Literal(keys.map { it.keyNameText }.joinToString(separator = " + ") { it.plainText })
+        val text = Literal(keys.joinToString(separator = " + ") {
+            if (InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)) {
+                it.translationKey
+            } else it.keyName
+        })
         if (keys.count() == 0) text.append(IGLang.pressToSetting)
         var count = 0
         InputHandler.detectKeyConflicts(this).forEach {
             count++
             conflictText.appendNewLine().appendLiteral(" - ").append(it.name)
         }
-        return if (count > 0) text.copyToText().appendNewLine().append(conflictText)
+        return if (count > 0) text.copy().appendNewLine().append(conflictText)
         else text
     }
 
@@ -80,15 +82,15 @@ fun ContainerScope.KeyCodeSetterButton(
             }
             .hoverText(text = mutableStateBy {
                 if (inputting) IGLang.releaseToSaveSetting.withColor(inputtingColor)
-                else key.keyNameText
-            }, showDelay = 50.milliseconds)
+                else if(InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)) Texts.literal(key.translationKey) else key.keyNameText
+            }, textLabelUpdateInterval = 20.milliseconds)
             .then(modifier)
     ) {
         Text(mutableStateBy {
             if (inputting) {
                 Literal(IGLang.pressToSetting.plainText).withColor(inputtingColor)
             } else text()
-        }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
+        }, setting = TextSetting(textLabelUpdateInterval = 5.milliseconds))
     }
 }
 
@@ -151,7 +153,7 @@ fun ContainerScope.KeyBindSetterButton(
             .hoverText(text = mutableStateBy {
                 if (inputting) IGLang.releaseToSaveSetting.withColor(inputtingColor)
                 else keyBind.hoverText
-            }, showDelay = 50.milliseconds)
+            }, textLabelUpdateInterval = 20.milliseconds)
             .then(modifier)
     ) {
         Text(mutableStateBy {
@@ -166,7 +168,7 @@ fun ContainerScope.KeyBindSetterButton(
 
 fun ContainerScope.KeyBindSettingSetterButton(
     keyBind: KeyBind,
-    title: Text,
+    title: MutableText,
     modifier: Modifier = Modifier,
     onSettingChange: (KeyBindSetting) -> Unit = {}
 ): IGButtonWidget {

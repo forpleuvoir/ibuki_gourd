@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.command
 
+import com.mojang.brigadier.context.CommandContext
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
@@ -31,3 +32,5 @@ interface ClientCommandSource : SharedSuggestionProvider {
 }
 
 val SharedSuggestionProvider.clientSource: ClientCommandSource get() = ClientCommandSourceImpl(this, mc)
+
+val CommandContext<out SharedSuggestionProvider>.clientSource: ClientCommandSource get() = ClientCommandSourceImpl(this.source, mc)

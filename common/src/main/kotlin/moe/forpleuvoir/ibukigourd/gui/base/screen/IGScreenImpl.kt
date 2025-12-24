@@ -23,30 +23,26 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInOffset
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderPanorama
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderParentScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
-import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.mouseOverCursor
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.widgetTestOutlineColor
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.LateInitValue
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.math.bezier.CubicEasing
-import moe.forpleuvoir.ibukigourd.util.math.bezier.Easing
-import moe.forpleuvoir.ibukigourd.util.math.times
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ComponentPath
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Renderable
@@ -59,14 +55,12 @@ import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
 import org.joml.Vector2f
 import org.joml.Vector2fc
-import org.joml.times
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 import kotlin.time.measureTime
 
@@ -325,7 +319,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         if (minecraft?.screen != this) return
         InputHandler.releaseAll()
         onClose?.invoke()
-        TipHandler.popTip(SCREEN_HOVER_TIP)
+        TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
         MouseCursor.clear()
         coroutineScope.cancel()
         minecraft?.setScreen(parentScreen)
@@ -335,28 +329,28 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override fun added() = onDisplayed?.invoke() ?: Unit
 
-    override var onResize: ((Minecraft, Int, Int) -> Unit)? = null
+    override var onResize: ((Int, Int) -> Unit)? = null
 
-    override fun resize(client: Minecraft, width: Int, height: Int) {
-        parentScreen?.resize(client, width, height)
-        onResize?.invoke(client, width, height)
+    override fun resize(width: Int, height: Int) {
+        parentScreen?.resize(width, height)
+        onResize?.invoke(width, height)
         transform.set(width.toFloat(), height.toFloat())
         remeasure()
     }
 
-    override var onFirstInit: ((Minecraft, Int, Int) -> Unit)? = null
+    override var onFirstInit: ((Int, Int) -> Unit)? = null
 
-    override fun init(client: Minecraft, width: Int, height: Int) {
-        onFirstInit?.invoke(client, width, height)
+    override fun init(width: Int, height: Int) {
+        onFirstInit?.invoke(width, height)
         transform.set(width.toFloat(), height.toFloat())
-        super.init(client, width, height)
+        super.init(width, height)
     }
 
     override var onInit: (() -> Unit)? = null
 
     override fun init() {
         onInit?.invoke()
-        TipHandler.popTip(SCREEN_HOVER_TIP)
+        TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
         recompose()
     }
 
@@ -413,13 +407,14 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
             widget?.let hoverTip@{ widget ->
                 widget.findFirsInParentChain { element -> element is GuiWidget && element.hoverTip != null }
                     ?.let { hoveredWidget ->
-                        hoveredWidget as GuiWidget
-                        TipHandler.pushTip(SCREEN_HOVER_TIP, { hoveredWidget.transform }, hoveredWidget.hoverTip!!)
+                        val tip = (hoveredWidget as GuiWidget).hoverTip!!
+                        if (tip != TipHandler.SCREEN_HOVER_TIP) TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
+                        TipHandler.SCREEN_HOVER_TIP = TipHandler.pushTip({ hoveredWidget.transform }, tip)
                         return@hoverTip
                     }
-                TipHandler.popTip(SCREEN_HOVER_TIP)
+                TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
             } ?: run {
-                TipHandler.popTip(SCREEN_HOVER_TIP)
+                TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
             }
         }
     }

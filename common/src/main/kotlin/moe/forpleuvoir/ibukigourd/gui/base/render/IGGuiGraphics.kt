@@ -19,6 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGTiledBlitRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
@@ -48,15 +49,17 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
-class IGGuiGraphics(
+class IGGuiGraphics private constructor(
     client: Minecraft,
     pose: Matrix3x2fStack,
-    guiRenderState: GuiRenderState
-) : GuiGraphics(client, pose, guiRenderState) {
+    guiRenderState: GuiRenderState,
+    mouseX: Int,
+    mouseY: Int
+) : GuiGraphics(client, pose, guiRenderState, mouseX, mouseY) {
 
     companion object {
         fun GuiGraphics.toIGGUIGraphics(): IGGuiGraphics =
-            this as? IGGuiGraphics ?: IGGuiGraphics(this.minecraft, this.pose(), this.guiRenderState)
+            this as? IGGuiGraphics ?: IGGuiGraphics(this.minecraft, this.pose(), this.guiRenderState, mouseX, mouseY)
 
         private val transparent = Color.ofARGB(0)
     }
@@ -743,7 +746,7 @@ class IGGuiGraphics(
         pose: Matrix3x2f = Matrix3x2f(pose()),
         font: Font = this.font,
         scissorBox: Box? = peekScissorBox()
-    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, scissorBox))
+    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, false, scissorBox))
 
     fun pushText(
         text: Component,
@@ -856,7 +859,7 @@ class IGGuiGraphics(
     }
 
     fun pushTextLines(
-        text: Component,
+        text: Text,
         box: Box,
         horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
         verticalArrangement: Arrangement.Vertical = Arrangement.Center,

@@ -15,11 +15,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCur
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
-import moe.forpleuvoir.ibukigourd.text.McText
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.network.chat.Component
@@ -163,7 +163,12 @@ fun Modifier.margin(left: Number? = null, right: Number? = null, top: Number? = 
 
 fun Modifier.margin(horizontal: Number? = null, vertical: Number? = null) = this then WidgetModifier { widget ->
     widget.margin =
-        Margin(left = horizontal ?: widget.margin.left, right = horizontal ?: widget.margin.right, top = vertical ?: widget.margin.top, bottom = vertical ?: widget.margin.bottom)
+        Margin(
+            left = horizontal ?: widget.margin.left,
+            right = horizontal ?: widget.margin.right,
+            top = vertical ?: widget.margin.top,
+            bottom = vertical ?: widget.margin.bottom
+        )
 }
 
 fun Modifier.margin(all: Number) = this then WidgetModifier { widget ->
@@ -270,10 +275,11 @@ fun Modifier.hoverTip(
 @JvmName("hoverTextState")
 fun Modifier.hoverText(
     text: State<Component>,
+    textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTip(settings, modifier) {
-    Text(text, setting = TextWidget.Setting(autoNewLine = true))
+    Text(text, setting = TextWidget.Setting(autoNewLine = true, textLabelUpdateInterval = textLabelUpdateInterval))
 }
 
 fun Modifier.hoverText(
@@ -300,6 +306,7 @@ fun Modifier.hoverText(
 @JvmName("hoverTextState")
 fun Modifier.hoverText(
     text: State<Component>,
+    textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval,
     showDelay: Duration = Tip.DefaultSetting.showDelay,
     hideDelay: Duration = Tip.DefaultSetting.hideDelay,
     fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
@@ -308,16 +315,17 @@ fun Modifier.hoverText(
     backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
     modifier: Modifier = Modifier
 ) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
-    Text(text, setting = TextWidget.Setting(autoNewLine = true))
+    Text(text, setting = TextWidget.Setting(autoNewLine = true, textLabelUpdateInterval = textLabelUpdateInterval))
 }
 
 @JvmName("hoverTextString")
 fun Modifier.hoverText(
     text: State<String>,
+    textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval,
     settings: Tip.Setting = Tip.DefaultSetting,
     modifier: Modifier = Modifier
 ) = hoverTip(settings, modifier) {
-    Text(text, setting = TextWidget.Setting(autoNewLine = true))
+    Text(text, setting = TextWidget.Setting(autoNewLine = true, textLabelUpdateInterval = textLabelUpdateInterval))
 }
 
 fun Modifier.hoverText(
@@ -343,6 +351,7 @@ fun Modifier.hoverText(
 
 fun Modifier.hoverText(
     text: State<String>,
+    textLabelUpdateInterval: Duration = GuiConfig.textLabelUpdateInterval,
     showDelay: Duration = Tip.DefaultSetting.showDelay,
     hideDelay: Duration = Tip.DefaultSetting.hideDelay,
     fadeInDuration: Duration = Tip.DefaultSetting.fadeInDuration,
@@ -351,5 +360,5 @@ fun Modifier.hoverText(
     backgroundColor: ARGBColor = Tip.DefaultSetting.backgroundColor,
     modifier: Modifier = Modifier
 ) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
-    Text(text, setting = TextWidget.Setting(autoNewLine = true))
+    Text(text, setting = TextWidget.Setting(autoNewLine = true, textLabelUpdateInterval = textLabelUpdateInterval))
 }

@@ -22,7 +22,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.toHSVColor
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -230,7 +230,7 @@ fun <S : ContainerScope, T> S.RadioButtons(
 
 
 fun ContainerScope.DeleteButton(
-    confirmMessage: () -> Text,
+    confirmMessage: () -> MutableText,
     recompose: () -> Unit,
     deleteAction: () -> Unit,
 ) = FlatButton(

@@ -53,9 +53,9 @@ interface IGScreen : GuiRenderableElementContainer, GuiWidgetContainer {
 
     var onDisplayed: (() -> Unit)?
 
-    var onResize: ((client: Minecraft, width: Int, height: Int) -> Unit)?
+    var onResize: ((width: Int, height: Int) -> Unit)?
 
-    var onFirstInit: ((client: Minecraft, width: Int, height: Int) -> Unit)?
+    var onFirstInit: ((width: Int, height: Int) -> Unit)?
 
     var onInit: (() -> Unit)?
 

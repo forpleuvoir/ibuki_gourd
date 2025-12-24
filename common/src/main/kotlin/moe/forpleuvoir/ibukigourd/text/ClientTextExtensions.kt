@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.text
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import net.minecraft.network.chat.Component
@@ -159,24 +160,24 @@ fun Iterable<String>.wrapToLines(
 /**
  * 对可变文本进行换行处理，将其转化为多段文本 (List<McText>)
  *
- * 这个函数将一个 [MutableComponent] 对象包装成一个 [McText] 对象列表。每一个 [McText] 对象
+ * 这个函数将一个 [MutableComponent] 对象包装成一个 [Texts] 对象列表。每一个 [Texts] 对象
  * 代表一行文本。这个函数的制作思路是：逐个检查原文本的字符，如果当前字符需要换行（需要换行的条件由参数 `needNewLine` 决定），
  * 或者在保持原有文本排版的条件下，增加当前字符的宽度超过了参数 `maxWidth` 规定的最大宽度，这个函数就会切割这行文本，
- * 并创建一个新的 [McText] 对象，继续处理余下的文本。
+ * 并创建一个新的 [Texts] 对象，继续处理余下的文本。
  *
  * @param maxWidth 每行文本的最大宽度，默认为 0，即不进行超过最大宽度时的换行处理
  * @param needNewLine 判断字符是否需要换新行的函数，默认为判断字符是否为 '\n'，
  * 若该函数判断结果为 true，则对应字符会被处理为新一行的开始
- * @return [List]<[McText]> 返回多段文本的列表，其中每段文本表示一行的内容
+ * @return [List]<[Texts]> 返回多段文本的列表，其中每段文本表示一行的内容
  */
 fun MutableComponent.wrapToTextLines(
     maxWidth: Float = 0f,
     needNewLine: (Char) -> Boolean = { it == '\n' }
-): List<McText> {
+): List<Text> {
     // 对当前可变文本进行扁平化处理，得到 McText 列表
     val flatList = this.flat()
     // 声明用于盛放处理后的Text对象的 list
-    val texts = mutableListOf<Text>()
+    val texts = mutableListOf<MutableText>()
     // 声明用于构建每一行字符串的 StringBuilder
     val currentLineString = StringBuilder()
     // 迭代处理每一段文本
@@ -227,18 +228,18 @@ fun MutableComponent.wrapToTextLines(
 }
 
 /**
- * 该函数是用于将[McText]文本对象格式化到规定宽度的文本行中的工具函数
+ * 该函数是用于将[Texts]文本对象格式化到规定宽度的文本行中的工具函数
  *
- * 当[McText]是[MutableComponent]类型时，直接调用[wrapToTextLines]来分行。
+ * 当[Texts]是[MutableComponent]类型时，直接调用[wrapToTextLines]来分行。
  * 如果不是，则先将其转换为字符串并按最大宽度`maxWidth`进行分行，
  * 然后将每一行文本转换为`Literal`类型并保留原来的样式。
  *
- * 作为结果的[McText]对象列表中，每一个元素都代表着一个独立的文本行。
+ * 作为结果的[Texts]对象列表中，每一个元素都代表着一个独立的文本行。
  *
  * @param maxWidth 单行文本的最大宽度, 默认为0, 表示无宽度限制
- * @return 返回格式化后的[McText]对象列表
+ * @return 返回格式化后的[Texts]对象列表
  */
-fun McText.wrapToTextLines(maxWidth: Float = 0f): List<McText> {
+fun Text.wrapToTextLines(maxWidth: Float = 0f): List<Text> {
     if (this is MutableComponent) {
         return this.wrapToTextLines(maxWidth)
     }
@@ -247,7 +248,7 @@ fun McText.wrapToTextLines(maxWidth: Float = 0f): List<McText> {
         .map { Literal(it).style { this.asStyle } }
 }
 
-fun Iterable<McText>.wrapToTextLines(maxWidth: Float = 0f): List<McText> {
+fun Iterable<Text>.wrapToTextLines(maxWidth: Float = 0f): List<Text> {
     return buildList {
         for (text in this@wrapToTextLines) {
             addAll(text.wrapToTextLines(maxWidth))
@@ -269,7 +270,7 @@ fun Iterable<String>.wrapToSingle(maxWidth: Float = 0f): String {
     }
 }
 
-fun Iterable<McText>.wrapToSingleText(maxWidth: Float = 0f): McText {
+fun Iterable<Text>.wrapToSingleText(maxWidth: Float = 0f): Text {
     return Literal(buildString {
         this@wrapToSingleText.forEachIndexed { index, text ->
             text.wrapToTextLines(maxWidth).let {

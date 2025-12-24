@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -21,9 +21,9 @@ internal fun logger(name: String): ModLogger {
     return ModLogger(name, IbukiGourd.MOD_NAME)
 }
 
-fun resourceLocation(nameSpace: String, path: String): ResourceLocation = ResourceLocation.fromNamespaceAndPath(nameSpace, path)
+fun identifier(nameSpace: String, path: String): Identifier = Identifier.fromNamespaceAndPath(nameSpace, path)
 
-internal fun resourceLocation(path: String) = resourceLocation(IbukiGourd.MOD_ID, path)
+internal fun identifier(path: String) = identifier(IbukiGourd.MOD_ID, path)
 
 fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -> a == b }): Boolean {
     return if (this.size == list.size) {

@@ -18,17 +18,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.math.bezier.SineEasing
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.scaledSize
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.item.impl.duration
+import net.minecraft.network.chat.Component
 import org.joml.Vector2fc
-import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -124,7 +122,7 @@ object Toast : Tickable {
     ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text) }
 
     fun showToast(
-        text: Text,
+        text: Component,
         duration: Duration = SHORT_DURATION,
         fadeInDuration: Duration = FADE_IN_DURATION,
         fadeOutDuration: Duration = FADE_OUT_DURATION,

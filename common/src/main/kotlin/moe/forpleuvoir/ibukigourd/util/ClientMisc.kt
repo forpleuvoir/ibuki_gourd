@@ -3,7 +3,8 @@ package moe.forpleuvoir.ibukigourd.util
 import com.mojang.blaze3d.platform.Window
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Texts
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.screens.Screen
@@ -40,7 +41,7 @@ fun Minecraft.sendMessage(message: String) {
     }
 }
 
-fun Minecraft.chatMessage(message: McText) {
+fun Minecraft.chatMessage(message: Text) {
     gui.chat.addMessage(message)
     narrator.saySystemChatQueued(message)
 }
@@ -49,7 +50,7 @@ fun Minecraft.chatMessage(message: String) {
     chatMessage(Literal(message))
 }
 
-fun Minecraft.overlayMessage(message: McText, tinted: Boolean = false) {
+fun Minecraft.overlayMessage(message: Text, tinted: Boolean = false) {
     this.gui.setOverlayMessage(message, tinted)
 }
 

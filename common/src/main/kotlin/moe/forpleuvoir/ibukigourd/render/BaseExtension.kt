@@ -2,8 +2,6 @@
 
 package moe.forpleuvoir.ibukigourd.render
 
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.textures.GpuTextureView
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -11,14 +9,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.textureManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.client.renderer.texture.AbstractTexture
+import net.minecraft.resources.Identifier
 import org.joml.*
-
-val tesselator: Tesselator get() = Tesselator.getInstance()
-
-val Minecraft.bufferSource: MultiBufferSource.BufferSource get() = gameRenderer.renderBuffers.bufferSource()
 
 val PoseStack.pose: Matrix4f get() = this.last().pose()
 
@@ -56,14 +49,7 @@ inline fun Matrix4f.getPosition(): Vector3f {
     return Vector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
 }
 
-val ResourceLocation.asGpuTextureView: GpuTextureView get() = textureManager.getTexture(this).textureView
-
-inline fun setShaderTexture(texture: ResourceLocation) = RenderSystem.setShaderTexture(0, texture.asGpuTextureView)
-
-inline fun setShaderTexture(texture: GpuTextureView) = RenderSystem.setShaderTexture(0, texture)
-
-inline fun lineWidth(width: Number) = RenderSystem.lineWidth(width.toFloat())
-
+val Identifier.asTexture: AbstractTexture get() = textureManager.getTexture(this)
 
 /**
  * - 默认的Z轴坐标值，用于在渲染时指定顶点的Z轴位置。

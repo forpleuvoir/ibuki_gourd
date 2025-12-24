@@ -108,7 +108,7 @@ class TextWidget(
 
     private val textRenderer by setting::font
 
-    private var renderText: List<McText> = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
+    private var renderText: List<Text> = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)
 
     fun onChanged() {
         renderText = text.getValue().wrapToTextLines(if (setting.autoNewLine) contentWidth else 0f)

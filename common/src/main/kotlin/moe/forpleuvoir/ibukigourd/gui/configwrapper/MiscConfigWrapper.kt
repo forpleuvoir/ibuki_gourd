@@ -166,11 +166,11 @@ fun ContainerScope.ConfigDurationWrapper(
                             closeScreen()
                         } else {
                             editor?.let {
-                                TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                                TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                                CONFIG_WRAPPER_TIP = TipHandler.pushTip(2.seconds, it, Tip {
                                     Text(IGLang.notInRange(duration, config.minDuration, config.maxDuration))
                                 })
                             }
-//                            Toast.showToast(text = IGLang.notInRange(duration, config.minDuration, config.maxDuration))
                         }
                     },
                     screenModifier = Modifier.onClose {

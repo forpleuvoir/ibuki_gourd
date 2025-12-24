@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
-import com.mojang.blaze3d.textures.GpuTextureView
-import moe.forpleuvoir.ibukigourd.render.asGpuTextureView
+import moe.forpleuvoir.ibukigourd.render.asTexture
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -37,9 +36,11 @@ class WidgetTexture(
 
     }
 
-    val gpuTextureView: GpuTextureView by lazy { textureInfo.texture.asGpuTextureView }
-
-    val textureSetup: TextureSetup by lazy { TextureSetup.singleTexture(gpuTextureView) }
+    val textureSetup: TextureSetup by lazy {
+        textureInfo.texture.asTexture.let {
+            TextureSetup.singleTexture(it.textureView, it.sampler)
+        }
+    }
 
     val u0 = uStart.toFloat() / textureInfo.width
 

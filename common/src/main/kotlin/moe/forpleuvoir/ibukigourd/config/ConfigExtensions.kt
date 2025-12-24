@@ -1,9 +1,6 @@
 package moe.forpleuvoir.ibukigourd.config
 
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.fold
 
@@ -17,7 +14,7 @@ const val TRANSLATE_TEXT_KYE = "#translate_text"
 
 const val COMMENT_KYE = "#comment"
 
-fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String): Text {
+fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String): MutableText {
     var count = 0
     val path = mutableListOf<ConfigSerializable>()
     var currentNode: ConfigSerializable? = this
@@ -37,26 +34,26 @@ fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String
     return first
 }
 
-var ConfigSerializable.translateText: Text
+var ConfigSerializable.translateText: MutableText
     get() = runCatching {
-        (getUserData(TRANSLATE_TEXT_KYE) as Text).copyToText()
+        (getUserData(TRANSLATE_TEXT_KYE) as MutableText).copy()
     }.getOrElse {
         val text = Translatable(translationKey())
         setUserData(TRANSLATE_TEXT_KYE, text)
-        text.copyToText()
+        text.copy()
     }
     set(value) {
         setUserData(TRANSLATE_TEXT_KYE, value)
     }
 
 
-var ConfigSerializable.comment: Text
+var ConfigSerializable.comment: MutableText
     get() = runCatching {
-        (getUserData(COMMENT_KYE) as Text).copyToText()
+        (getUserData(COMMENT_KYE) as MutableText).copy()
     }.getOrElse {
         val text = Translatable(translationKey() + ".comment", translateText.plainText)
         setUserData(COMMENT_KYE, text)
-        text.copyToText()
+        text.copy()
     }
     set(value) {
         setUserData(COMMENT_KYE, value)

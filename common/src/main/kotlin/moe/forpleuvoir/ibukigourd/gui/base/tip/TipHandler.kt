@@ -9,67 +9,71 @@ import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
+import kotlin.time.TimeSource
 
 object TipHandler : Tickable {
 
-    const val SCREEN_HOVER_TIP = "#screen_hover_tip"
+    var SCREEN_HOVER_TIP: Tip? = null
 
-    private val tips: MutableMap<String, Tip> = LinkedHashMap(5)
+    private val tips: MutableList<Tip> = ArrayList(5)
 
-    fun pushTip(type: String, parent: () -> Transform, tip: Tip) {
-        if (tips[type] == tip) return
-        tips[type] = tip
-        with(tip) {
+    private val popList: MutableMap<Tip, TimeSource.Monotonic.ValueTimeMark> = mutableMapOf()
+
+    fun pushTip(parent: () -> Transform, tip: Tip): Tip {
+        return if (tip in tips) tip
+        else tip.apply {
+            tips += this
             init(parent)
             show()
         }
     }
 
-    fun pushTip(type: String, duration: Duration, parent: () -> Transform, tip: Tip) {
-        pushTip(type, parent, tip)
-        launch {
-            delay(duration)
-            if (getCurrentTip(type) == tip) {
-                popTip(type)
-            }
+    fun pushTip(duration: Duration, parent: () -> Transform, tip: Tip): Tip {
+        if (tip in tips && tip !in popList.keys) {
+            popList[tip] = TimeSource.Monotonic.markNow() + duration
+        }
+        return pushTip(parent, tip)
+    }
+
+    fun cancelPop(tip: Tip?) {
+        if (tip == null) return
+        if (tip in popList.keys) {
+            popList.remove(tip)
         }
     }
 
-    fun getCurrentTip(type: String): Tip? = tips[type]
+    fun popTip(tip: Tip?) {
+        if (tip == null) return
+        if (tip in tips && tip !in popList.keys) {
+            popList[tip] = TimeSource.Monotonic.markNow()
+        }
+    }
 
-    fun popTip(type: String) {
-        tips.remove(type)
+    private fun handlerRemovedTip() {
+        tips.removeIf { tip ->
+            if (tip in popList.keys) {
+                if (popList[tip]!!.elapsedNow() >= tip.setting.hideDelay) {
+                    popList.remove(tip)
+                    true
+                } else false
+            } else false
+        }
     }
 
     @JvmStatic
     fun render(guiGraphics: IGGuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+        handlerRemovedTip()
         runWithZOffset(IGScreen.currentScreenZOffset + IGScreen.POPUP_Z_OFFSET) {
-            tips.values.forEach {
+            tips.forEach {
                 it.render(guiGraphics, mouseX, mouseY, delta)
             }
         }
     }
 
     override fun onTick() {
-        tips.values.forEach {
+        tips.forEach {
             it.onTick()
         }
     }
-
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-
-    fun launch(
-        context: CoroutineContext = EmptyCoroutineContext,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        block: suspend CoroutineScope.() -> Unit
-    ): Job = coroutineScope.launch(context, start, block)
-
-    fun <T> async(
-        context: CoroutineContext = EmptyCoroutineContext,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        block: suspend CoroutineScope.() -> T
-    ): Deferred<T> = coroutineScope.async(context, start, block)
-
-    fun cancel() = coroutineScope.cancel()
 
 }

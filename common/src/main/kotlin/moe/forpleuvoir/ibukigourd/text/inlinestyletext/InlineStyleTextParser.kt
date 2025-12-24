@@ -1,7 +1,8 @@
 package moe.forpleuvoir.ibukigourd.text.inlinestyletext
 
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.buildText
 import moe.forpleuvoir.ibukigourd.text.flat
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier.*
@@ -63,7 +64,7 @@ object InlineStyleTextParser {
         }
     }
 
-    fun inline(text: McText): String {
+    fun inline(text: Text): String {
         if (text !is MutableComponent) return text.string
         return buildString {
             text.flat().forEach { t ->

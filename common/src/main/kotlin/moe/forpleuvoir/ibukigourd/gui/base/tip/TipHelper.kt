@@ -31,13 +31,17 @@ object TipHelper {
     }
 
     private fun Size<Float>.calculateScore(baseSize: Size<Float>? = null): Float {
-        // 宽度得分 1:1 比例
-        val widthScore = width.coerceAtMost(baseSize?.width ?: Float.MAX_VALUE)
-        // 高度得分 1:1.7777778 比例（约等于 16:9 的比例系数）
-        val heightScore = height.coerceAtMost(baseSize?.width ?: Float.MAX_VALUE) * 1.7777778f
+        val isWidthAtMaximum = baseSize != null && width >= baseSize.width
+        val isHeightAtMaximum = baseSize != null && height >= baseSize.height
 
-        // 基础得分为宽高得分之和
-        val baseScore = widthScore + heightScore
+        if (isWidthAtMaximum && isHeightAtMaximum) {
+            return 114514f
+        }
+
+        // 宽度得分 1:1 比例
+        val widthScore = if (isWidthAtMaximum) baseSize.width else width
+        // 高度得分 1:1.7777778 比例（约等于 16:9 的比例系数）
+        val heightScore = (if (isHeightAtMaximum) baseSize.height else height) * 1.7777778f
 
         // 如果宽高低于某个阈值，则对整体得分打折
         val minWidthThreshold = 32f
@@ -47,7 +51,8 @@ object TipHelper {
         val heightFactor = if (height < minHeightThreshold) height / minHeightThreshold else 1.0f
 
         // 应用折扣因子
-        return baseScore * minOf(widthFactor, heightFactor)
+        return widthScore * if (isWidthAtMaximum) 1f else widthFactor +
+                heightScore * if (isHeightAtMaximum) 1f else heightFactor
     }
 
     fun evaluatePlacementOptions(baseSize: Size<Float>?, parent: Box, margin: Margin, optionalDirection: List<Direction>): Pair<SizeFloat, Direction> {
@@ -146,15 +151,6 @@ object TipHelper {
                 bgColor,
                 scissorBox = null
             )
-        }
-    }
-
-    private fun calcPosition(ref: Size<Float>, margin: Margin, parent: Box, direction: Direction): Vector2fc {
-        return when (direction) {
-            Top    -> Vector2f(parent.halfWidth - ref.halfWidth, -margin.bottom - ref.height)
-            Right  -> Vector2f(parent.width + margin.left, parent.halfHeight - ref.halfHeight)
-            Bottom -> Vector2f(parent.halfWidth - ref.halfWidth, parent.height + margin.top)
-            Left   -> Vector2f(-margin.right - ref.width, parent.halfHeight - ref.halfHeight)
         }
     }
 

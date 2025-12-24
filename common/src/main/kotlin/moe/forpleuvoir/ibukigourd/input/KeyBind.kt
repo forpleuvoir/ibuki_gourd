@@ -5,7 +5,9 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode.*
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.exactMatch
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -44,7 +46,7 @@ class KeyBind(
 
     var name: Text = Literal(uuid.toString())
 
-    private val defaultKeys: MutableList<KeyCode> = keyCodes.toMutableList()
+    private val defaultKeys: List<KeyCode> = keyCodes.toList()
 
     val setting: KeyBindSetting = KeyBindSetting().apply { copyFrom(defaultSetting) }
 
@@ -63,7 +65,7 @@ class KeyBind(
      */
     private var tickCount: Long = 0
 
-    fun name(name: Text): KeyBind {
+    fun name(name: MutableText): KeyBind {
         this.name = name
         return this
     }
@@ -156,13 +158,13 @@ class KeyBind(
         if (!wasPress) tickCount = 0
     }
 
-    val asTexts: List<Text>
+    val asTexts: List<MutableText>
         get() = keys.map { it.keyNameText }
 
     val asTranslatableKey: List<String>
         get() = keys.map { it.translationKey }
 
-    val asText: Text
+    val asText: MutableText
         get() {
             val texts = asTexts
             return if (texts.isEmpty()) {

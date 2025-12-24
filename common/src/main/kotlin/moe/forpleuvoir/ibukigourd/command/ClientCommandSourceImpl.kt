@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd.command
 
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Texts
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.chatMessage
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.Minecraft
@@ -16,12 +18,12 @@ class ClientCommandSourceImpl(
     override val client: Minecraft
 ) : ClientCommandSource, SharedSuggestionProvider by source {
 
-    override fun sendFeedback(message: Component) {
+    override fun sendFeedback(message: Text) {
         client.chatMessage(message)
     }
 
-    override fun sendError(message: Component) {
-        sendFeedback(Text.Companion.empty().append(message).withColor(Colors.RED))
+    override fun sendError(message: Text) {
+        sendFeedback(Texts.empty().append(message).withColor(Colors.RED))
     }
 
     override val sender: LocalPlayer

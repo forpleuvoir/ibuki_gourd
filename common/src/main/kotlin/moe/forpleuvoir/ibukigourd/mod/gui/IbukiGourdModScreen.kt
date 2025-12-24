@@ -24,12 +24,14 @@ import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.what.EasterEggsScreen
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.text.style
 import moe.forpleuvoir.ibukigourd.util.FixedSizeQueue
-import moe.forpleuvoir.ibukigourd.util.resourceLocation
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 
-private val icon = WidgetTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, resourceLocation("icon.png")))
+private val icon = WidgetTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, identifier("icon.png")))
 
 private val what = arrayOf(
     Keyboard.KP_1,

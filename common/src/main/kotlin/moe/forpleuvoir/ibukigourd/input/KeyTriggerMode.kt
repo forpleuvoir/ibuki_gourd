@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -25,10 +25,10 @@ enum class KeyTriggerMode(val key: String) {
     //按键按下和释放时都会触发一次
     Both("both");
 
-    val displayName: Text
+    val displayName: MutableText
         get() = Translatable("ibuki_gourd.key_bind.trigger_mode.${key}")
 
-    val description: Text
+    val description: MutableText
         get() = Translatable("ibuki_gourd.key_bind.trigger_mode.${key}.description")
 
 

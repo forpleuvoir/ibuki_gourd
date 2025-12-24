@@ -33,8 +33,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
+import moe.forpleuvoir.ibukigourd.text.appendLiteral
+import moe.forpleuvoir.ibukigourd.text.style
 import moe.forpleuvoir.ibukigourd.text.width
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.renameKey
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -71,7 +74,7 @@ fun <T> TableWidget.Scope.ColumnBuilder<T>.MoveableTableColumCell(
 
 fun <T> ContainerScope.TableWrappedButton(
     userData: Iterable<T>,
-    title: Text,
+    title: MutableText,
     onAdd: (T) -> Unit,
     newValue: (Iterable<T>) -> T,
     //hover
@@ -125,7 +128,7 @@ fun <T> ContainerScope.TableWrappedButton(
 
 fun <T> ContainerScope.TableConfigListWrappedButton(
     config: ConfigList<T>,
-    title: Text = config.translateText.style { hover(config.comment) },
+    title: MutableText = config.translateText.style { hover(config.comment) },
     onAdd: (T) -> Unit = { config.add(it) },
     newValue: (Iterable<T>) -> T,
     //hover
@@ -198,7 +201,8 @@ fun <K, V> TableScope<Map.Entry<K, V>>.TableConfigMapKeyColumn(
                     }
                     if (config.getValue().containsKey(newKey)) {
                         editor?.let {
-                            TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                            TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                            CONFIG_WRAPPER_TIP = TipHandler.pushTip(2.seconds, it, Tip {
                                 Text(IGLang.keyExists(keyToSting(newKey)).withColor(Colors.RED))
                             })
                         }
@@ -326,7 +330,7 @@ fun <K> TableScope<Map.Entry<K, String>>.TableConfigMapStringValueColumn(
 
 fun <K, V> ContainerScope.TableConfigMapWrappedButton(
     config: Config<MutableMap<K, V>, *>,
-    title: Text = config.translateText.style { hover(config.comment) },
+    title: MutableText = config.translateText.style { hover(config.comment) },
     onAdd: (Map.Entry<K, V>) -> Unit = { config.getValue().put(it.key, it.value) },
     newValue: (Iterable<Map.Entry<K, V>>) -> Map.Entry<K, V>,
     //hover
@@ -371,8 +375,8 @@ fun <K, V> ContainerScope.TableConfigMapWrappedButton(
 fun ContainerScope.StringPairListConfigWrapper(
     config: ConfigPairList<String, String>,
     modifier: Modifier = Modifier,
-    firstTableName: Text = IGLang.pairFirst,
-    secondTableName: Text = IGLang.pairSecond,
+    firstTableName: MutableText = IGLang.pairFirst,
+    secondTableName: MutableText = IGLang.pairSecond,
     showIndex: Boolean = false
 ) = ConfigRowWrapper(config, modifier) {
     Row(
@@ -477,7 +481,7 @@ fun ContainerScope.StringPairListConfigWrapper(
 fun ContainerScope.StringListConfigWrapper(
     config: ConfigStringList,
     modifier: Modifier = Modifier,
-    contentTableName: Text = IGLang.content,
+    contentTableName: MutableText = IGLang.content,
     showIndex: Boolean = false
 ) = ConfigRowWrapper(config, modifier) {
     Row(
@@ -529,8 +533,8 @@ fun ContainerScope.StringListConfigWrapper(
 fun ContainerScope.StringMapConfigWrapper(
     config: ConfigStringMap,
     modifier: Modifier = Modifier,
-    keyTableName: Text = IGLang.mapKey,
-    valueTableName: Text = IGLang.mapValue,
+    keyTableName: MutableText = IGLang.mapKey,
+    valueTableName: MutableText = IGLang.mapValue,
 ) = ConfigRowWrapper(config, modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(5f)

@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGui
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.showFirstConfigInContainer
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.Colors

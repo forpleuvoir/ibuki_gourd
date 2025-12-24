@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
-import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.ibukigourd.text.Texts
 import net.minecraft.network.chat.MutableComponent
 
 object TextContentModifier : TextModifier {
@@ -17,7 +17,7 @@ object TextContentModifier : TextModifier {
         return if (exp == "ts") {
             { text ->
                 val key = text.string
-                McText.translatable(key).setStyle(text.style)
+                Texts.translatable(key).setStyle(text.style)
             }
         } else null
     }
@@ -26,7 +26,7 @@ object TextContentModifier : TextModifier {
         return if (exp == "kb") {
             { text ->
                 val key = text.string
-                McText.keybind(key).setStyle(text.style)
+                Texts.keyBind(key).setStyle(text.style)
             }
         } else null
     }

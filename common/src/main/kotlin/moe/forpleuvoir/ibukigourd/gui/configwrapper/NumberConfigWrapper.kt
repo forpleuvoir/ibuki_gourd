@@ -14,7 +14,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
@@ -28,7 +28,7 @@ fun ContainerScope.IntConfigWrapper(
     config: ConfigInt,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
-    textMapper: (Int) -> Text = { Literal(it.toString()) }
+    textMapper: (Int) -> MutableText = { Literal(it.toString()) }
 ) = ConfigRowWrapper(config, modifier) {
     val intValue = mutableStateOf(config.getValue()).apply {
         subscribe {
@@ -58,7 +58,7 @@ fun ContainerScope.LongConfigWrapper(
     config: ConfigLong,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
-    textMapper: (Long) -> Text = { Literal(it.toString()) }
+    textMapper: (Long) -> MutableText = { Literal(it.toString()) }
 ) = ConfigRowWrapper(config, modifier) {
     val longValue = mutableStateOf(config.getValue()).apply {
         subscribe {
@@ -88,7 +88,7 @@ fun ContainerScope.FloatConfigWrapper(
     config: ConfigFloat,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
-    textMapper: (Float) -> Text = { Literal("%.2f".format(it)) }
+    textMapper: (Float) -> MutableText = { Literal("%.2f".format(it)) }
 ) = ConfigRowWrapper(config, modifier) {
     val floatValue = mutableStateOf(config.getValue()).apply {
         subscribe {
@@ -118,7 +118,7 @@ fun ContainerScope.DoubleConfigWrapper(
     config: ConfigDouble,
     modifier: Modifier = Modifier,
     width: Float = EDITOR_WIDTH,
-    textMapper: (Double) -> Text = { Literal("%.2f".format(it)) }
+    textMapper: (Double) -> MutableText = { Literal("%.2f".format(it)) }
 ) = ConfigRowWrapper(config, modifier) {
     val doubleValue = mutableStateOf(config.getValue()).apply {
         subscribe {

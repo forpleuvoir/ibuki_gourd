@@ -61,7 +61,10 @@ fun testScreen4() = RowScreen(
 
     SwitchButton(
         switchState,
-        modifier = Modifier.hoverText(mutableStateOf(switchState) { it.toString() }, Tip.DefaultSetting.copy(optionalDirection = listOf(Direction.Left)))
+        modifier = Modifier.hoverText(
+            mutableStateOf(switchState) { it.toString() },
+            optionalDirection = listOf(Direction.Left)
+        )
     )
     Selector(
         listOf("下拉菜单", "选项1", "选项2", "选项3"),

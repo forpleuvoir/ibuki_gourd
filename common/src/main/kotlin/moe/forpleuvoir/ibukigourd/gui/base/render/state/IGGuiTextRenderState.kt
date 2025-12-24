@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.render.state.GuiTextRenderState
 import net.minecraft.util.FormattedCharSequence
+import net.minecraft.world.phys.shapes.BooleanOp
 import org.joml.Matrix3x2f
 
 class IGGuiTextRenderState(
@@ -17,12 +18,13 @@ class IGGuiTextRenderState(
     color: ARGBColor,
     backgroundColor: ARGBColor,
     dropShadow: Boolean,
+    includeEmpty: Boolean,
     scissor: Box?
-) : GuiTextRenderState(font, text, pose, xf.toInt(), yf.toInt(), color.argb, backgroundColor.argb, dropShadow, scissor?.asScreenRectangle) {
+) : GuiTextRenderState(font, text, pose, xf.toInt(), yf.toInt(), color.argb, backgroundColor.argb, dropShadow, includeEmpty, scissor?.asScreenRectangle) {
 
     override fun ensurePrepared(): Font.PreparedText {
         if (this.preparedText == null) {
-            this.preparedText = this.font.prepareText(this.text, xf, yf, this.color, this.dropShadow, this.backgroundColor)
+            this.preparedText = this.font.prepareText(this.text, xf, yf, this.color, this.dropShadow,this.includeEmpty, this.backgroundColor)
             var screenRectangle = this.preparedText!!.bounds()
             if (screenRectangle != null) {
                 screenRectangle =

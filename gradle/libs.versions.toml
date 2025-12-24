@@ -2,33 +2,33 @@
 java = "21"
 kotlin = "2.2.20"
 kotlinCoroutines = "1.10.2"
-minecraft = "1.21.10"
-minecraftRange = "[1.21.10,1.22)"
+minecraft = "1.21.11"
+minecraftRange = "[1.21.11,1.22)"
 
 #Fabric checks these on https://fabricmc.net/versions.html
-fabricApi = "0.135.0+1.21.10"
-fabricLoader = "0.17.2"
-fabricLoom = "1.11-SNAPSHOT"
+fabricApi = "0.139.5+1.21.11"
+fabricLoader = "0.18.2"
+fabricLoom = "1.13-SNAPSHOT"
 fabricKotlin = "1.13.6+kotlin.2.2.20"
 
-modMenu = "16.0.0-rc.1"
+modMenu = "17.0.0-beta.1"
 
-#Neoforge
-neoforgedModDev = "2.0.115"
-neoForm = "1.21.10-20251010.172816"
-neoforge = "21.10.8-beta"
+# NeoForge, see https://projects.neoforged.net/ for new versions
+neoforgedModDev = "2.0.134"
+neoForm = "1.21.11-20251209.172050"
+neoforge = "21.11.13-beta"
 neoforgeRange = "[4,)"
 forgeKotlin = "6.0.0"
 forgeKotlinRange = "[6.0,)"
-
-parchmentMinecraft = "1.21.9"
-parchment = "2025.10.05"
+#https://parchmentmc.org/docs/getting-started#choose-a-version
+parchmentMinecraft = "1.21.10"
+parchment = "2025.10.12"
 
 mixin = "0.8.5"
 minxinExtras = "0.3.5"
 
 #other
-nebula = "0.2.29"
+nebula = "0.2.30"
 
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }

@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.IGButtonWidget
@@ -20,7 +21,7 @@ import moe.forpleuvoir.nebula.config.ConfigSerializable
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
-const val CONFIG_WRAPPER_TIP = "#config_wrapper_tip"
+var CONFIG_WRAPPER_TIP: Tip? = null
 
 fun <T : ConfigSerializable> ContainerScope.ConfigRowWrapper(
     configSerializable: T,
@@ -37,7 +38,7 @@ fun <T : ConfigSerializable> ContainerScope.ConfigRowWrapper(
         },
     horizontalArrangement = Arrangement.SpaceBetween
 ) {
-    ConfigTextLabel(configSerializable, textWrapperModifier(), textModifier)
+    ConfigName(configSerializable, textWrapperModifier(), textModifier)
     content()
 }
 
@@ -52,8 +53,8 @@ fun <T : Resettable> ContainerScope.ConfigResetButton(
     return Button(
         Modifier
             .active(resettable)
-            .renderOverlay { context, f, f1, f2 ->
-                if (timeMark.elapsedNow() > 200.milliseconds) {
+            .renderOverlay { _, _, _, _ ->
+                if (timeMark.elapsedNow() > 100.milliseconds) {
                     timeMark = TimeSource.Monotonic.markNow()
                     resettable.setValue(!config.isDefault())
                 }
@@ -69,7 +70,7 @@ fun <T : Resettable> ContainerScope.ConfigResetButton(
     }
 }
 
-fun <T : ConfigSerializable> RowScope.ConfigTextLabel(
+fun <T : ConfigSerializable> RowScope.ConfigName(
     config: T,
     modifier: Modifier = Modifier,
     textModifier: RowScope.() -> Modifier = { Modifier }

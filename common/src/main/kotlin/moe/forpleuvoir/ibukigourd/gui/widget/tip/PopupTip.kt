@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDirection
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHelper
 import moe.forpleuvoir.ibukigourd.gui.screen.PopupScreen
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -64,7 +65,7 @@ fun WidgetScope.PopupTip(
                     TipHelper.canPlaceDirections(transform, margin, parentBox, optionalDirection).let { directions ->
                         if (direction.getValue() !in directions || firstRemeasure) {
                             val (maxConstraints, dir) = TipHelper.evaluatePlacementOptions(transform, parentBox, margin, directions)
-                            constraints = Constraints.of(maxSize = maxConstraints)
+                            constraints = Constraints.of(minSize = Tip.minSize, maxSize = maxConstraints)
                             remeasure()
                             direction.setValue(dir)
                             if (firstRemeasure) firstRemeasure = false
@@ -79,7 +80,7 @@ fun WidgetScope.PopupTip(
                     if (transform.parent() != parentTransform()) transform.parent = parentTransform
                 } then modifier,
         ) {
-            owner().constraints = Constraints.of(maxSize = size)
+            owner().constraints = Constraints.of(minSize = Tip.minSize, maxSize = size)
             content()
         }
     }

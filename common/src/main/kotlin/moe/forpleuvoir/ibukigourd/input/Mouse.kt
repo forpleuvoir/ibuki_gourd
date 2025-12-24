@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.input
 
 import com.mojang.blaze3d.platform.InputConstants
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -67,7 +67,7 @@ enum class Mouse(override val code: Int) : KeyCode {
     override val translationKey: String
         get() = InputConstants.Type.MOUSE.getOrCreate(code).name
 
-    override val keyNameText: Text
+    override val keyNameText: MutableText
         get() = when (this) {
             LEFT, RIGHT, MIDDLE -> Translatable(translationKey)
             else -> Translatable("key.mouse", null, this.code + 1)

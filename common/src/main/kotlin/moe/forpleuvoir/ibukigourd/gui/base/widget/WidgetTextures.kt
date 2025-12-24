@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.resourceLocation
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.json.JsonParser
@@ -17,13 +17,13 @@ object WidgetTextures : SimpleResourceReloaderListener<SerializeObject>() {
 
     private val log = logger()
 
-    private val TEXTURE_INFO_RESOURCES = resourceLocation("texture/gui/ibukigourd_widget.json")
+    private val TEXTURE_INFO_RESOURCES = identifier("texture/gui/ibukigourd_widget.json")
 
-    private val TEXTURE_RESOURCES = resourceLocation("texture/gui/ibukigourd_widget.png")
+    private val TEXTURE_RESOURCES = identifier("texture/gui/ibukigourd_widget.png")
 
     private val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
 
-    val RESOURCE_ID = resourceLocation("id")
+    val RESOURCE_ID = identifier("id")
 
     @OptIn(ExperimentalApi::class)
     override fun prepare(sharedState: PreparableReloadListener.SharedState): SerializeObject {

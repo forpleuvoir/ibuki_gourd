@@ -1,15 +1,16 @@
 package moe.forpleuvoir.ibukigourd
 
 import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.RGBColor
 
 object IGLang {
 
-    private fun lang(key: String, vararg args: Any): Text {
+    private fun lang(key: String, vararg args: Any): MutableText {
         return Translatable(IbukiGourd.MOD_ID + ".${key}", args = args)
     }
 

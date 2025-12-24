@@ -48,11 +48,11 @@ fun PopupScreen(
 ) {
     owner().parentScreen = parentScreen as Screen?
     owner().screen()?.let { s ->
-        s.onResize = { client, width, height ->
-            s.parentScreen?.resize(client, width, height)
+        s.onResize = { width, height ->
+            s.parentScreen?.resize(width, height)
         }
-        s.onFirstInit = { client, width, height ->
-            s.parentScreen?.init(client, width, height)
+        s.onFirstInit = { width, height ->
+            s.parentScreen?.init(width, height)
         }
         s.onInit = {
             s.parentScreen?.init()

@@ -4,8 +4,8 @@ package moe.forpleuvoir.ibukigourd.input
 
 import com.mojang.blaze3d.platform.InputConstants
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.MutableText
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializer
@@ -21,8 +21,8 @@ interface KeyCode : Matchable {
     val keyName: String
         get() = keyNameText.plainText
 
-    val keyNameText: Text
-        get() = InputConstants.getKey(KeyEvent(code, 0, 0)).displayName.copyToText()
+    val keyNameText: MutableText
+        get() = InputConstants.getKey(KeyEvent(code, 0, 0)).displayName.copy()
 
     val translationKey: String
 

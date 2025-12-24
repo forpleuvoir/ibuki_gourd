@@ -1,19 +1,19 @@
 package moe.forpleuvoir.ibukigourd.gui.base.render.texture
 
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeInt
-import moe.forpleuvoir.ibukigourd.util.resourceLocation
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 data class TextureInfo(
     override val width: Int = 256,
     override val height: Int = 256,
-    val texture: ResourceLocation
+    val texture: Identifier
 ) : Serializable, SizeInt {
 
     companion object : Deserializer<TextureInfo> {
@@ -23,7 +23,7 @@ data class TextureInfo(
                     TextureInfo(
                         it["width"]!!.asInt,
                         it["height"]!!.asInt,
-                        resourceLocation(it["texture"]!!.asString)
+                        identifier(it["texture"]!!.asString)
                     )
                 }
             }.getOrThrow()

@@ -2,6 +2,7 @@ accessWidener v2 named
 
 #Common
 #MutableComponent
+extendable class net/minecraft/network/chat/MutableComponent
 extendable method net/minecraft/network/chat/MutableComponent <init> (Lnet/minecraft/network/chat/ComponentContents;Ljava/util/List;Lnet/minecraft/network/chat/Style;)V
 #TranslatableTextContent
 extendable method net/minecraft/network/chat/contents/TranslatableContents decompose ()V
@@ -19,21 +20,20 @@ accessible field net/minecraft/network/chat/Style font Lnet/minecraft/util/Ident
 
 #Client
 #GuiGraphics
-accessible method net/minecraft/client/gui/GuiGraphics <init> (Lnet/minecraft/client/Minecraft;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/gui/render/state/GuiRenderState;)V
+accessible method net/minecraft/client/gui/GuiGraphics <init> (Lnet/minecraft/client/Minecraft;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/gui/render/state/GuiRenderState;II)V
 accessible method net/minecraft/client/gui/GuiGraphics renderItem (Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;III)V
 accessible field net/minecraft/client/gui/GuiGraphics minecraft Lnet/minecraft/client/Minecraft;
+accessible field net/minecraft/client/gui/GuiGraphics mouseX I
+accessible field net/minecraft/client/gui/GuiGraphics mouseY I
 accessible field net/minecraft/client/gui/GuiGraphics guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
 accessible field net/minecraft/client/gui/GuiGraphics scissorStack Lnet/minecraft/client/gui/GuiGraphics$ScissorStack;
 accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
 #Screen
-extendable method net/minecraft/client/gui/screens/Screen init (Lnet/minecraft/client/Minecraft;II)V
+extendable method net/minecraft/client/gui/screens/Screen init (II)V
 accessible field net/minecraft/client/gui/screens/Screen initialized Z
-#GameRenderer
-accessible field net/minecraft/client/renderer/GameRenderer BLUR_POST_CHAIN_ID Lnet/minecraft/resources/ResourceLocation;
-accessible field net/minecraft/client/renderer/GameRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
-accessible field net/minecraft/client/renderer/GameRenderer resourcePool Lcom/mojang/blaze3d/resource/CrossFrameResourcePool;
 #GuiTextRenderState
 extendable class net/minecraft/client/gui/render/state/GuiTextRenderState
+accessible field net/minecraft/client/gui/render/state/GuiTextRenderState includeEmpty Z
 accessible field net/minecraft/client/gui/render/state/GuiTextRenderState preparedText Lnet/minecraft/client/gui/Font$PreparedText;
 accessible field net/minecraft/client/gui/render/state/GuiTextRenderState bounds Lnet/minecraft/client/gui/navigation/ScreenRectangle;
 #RenderPipeline
