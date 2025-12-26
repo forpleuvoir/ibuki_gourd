@@ -51,7 +51,7 @@ fun MutableText.appendLiteral(content: String) = this.append(content)
 
 fun MutableText.appendNewLine() = this.appendLiteral("\n")
 
-fun MutableText.appendTranslate(key: String, fallback: String? = null, vararg args: Any) = this.append(Texts.translatable(key, fallback, *args))
+fun MutableText.appendTranslate(key: String, fallback: String? = null, vararg args: Any) = this.append(Translatable(key, fallback, *args))
 
 @OptIn(ExperimentalContracts::class)
 inline fun MutableText.append(text: () -> Text): MutableText {

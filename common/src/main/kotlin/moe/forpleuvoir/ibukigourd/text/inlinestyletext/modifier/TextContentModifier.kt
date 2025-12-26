@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Texts
 import net.minecraft.network.chat.MutableComponent
 
@@ -17,7 +18,7 @@ object TextContentModifier : TextModifier {
         return if (exp == "ts") {
             { text ->
                 val key = text.string
-                Texts.translatable(key).setStyle(text.style)
+                Text.translatable(key).setStyle(text.style)
             }
         } else null
     }

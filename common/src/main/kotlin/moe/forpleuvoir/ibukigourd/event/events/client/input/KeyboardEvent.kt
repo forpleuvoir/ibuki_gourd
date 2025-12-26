@@ -17,7 +17,7 @@ class KeyboardEvent {
      * @property name 表示被按下键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的键盘环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    class KeyPressEvent(
+    data class KeyPressEvent(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
@@ -38,7 +38,7 @@ class KeyboardEvent {
      * @property name 按键的本地化名称。
      * @property env 当前按键的运行环境。
      */
-    class KeyReleaseEvent(
+    data class KeyReleaseEvent(
         @JvmField
         val keyCode: KeyCode,
         @JvmField

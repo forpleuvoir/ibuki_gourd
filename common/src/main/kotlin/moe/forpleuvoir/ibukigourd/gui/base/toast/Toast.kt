@@ -18,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.math.bezier.SineEasing
@@ -119,7 +120,7 @@ object Toast : Tickable {
         fadeOutDuration: Duration = FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
         modifier: Modifier = Modifier
-    ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text) }
+    ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text, setting = TextSetting(autoNewLine = true)) }
 
     fun showToast(
         text: Component,
@@ -128,7 +129,7 @@ object Toast : Tickable {
         fadeOutDuration: Duration = FADE_OUT_DURATION,
         alignment: Alignment = Alignment.biasedBy(0f, 0.75f),
         modifier: Modifier = Modifier
-    ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text) }
+    ) = showToast(duration, fadeInDuration, fadeOutDuration, alignment, modifier) { Text(text, setting = TextSetting(autoNewLine = true)) }
 
     fun showToast(
         duration: Duration = SHORT_DURATION,

@@ -17,7 +17,7 @@ class MouseEvent {
      * @property name 表示被按下鼠标按键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的鼠标运行环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    class MousePressEvent(
+    data class MousePressEvent(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
@@ -38,7 +38,7 @@ class MouseEvent {
      * @property name 表示被释放鼠标按键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的鼠标运行环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    class MouseReleaseEvent(
+    data class MouseReleaseEvent(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
@@ -59,7 +59,7 @@ class MouseEvent {
      * @property amount 表示鼠标滚动的量，正值向上滚动，负值向下滚动。
      * @property env 表示触发事件时的键盘环境，用于标识滚动操作发生在游戏内还是屏幕上的环境。
      */
-    class MouseScrollEvent(
+    data class MouseScrollEvent(
         @JvmField
         val amount: Double,
         @JvmField
@@ -79,7 +79,7 @@ class MouseEvent {
      * @property y 当前鼠标光标的Y轴位置。
      * @property env 事件触发时的键盘环境，用于区分鼠标移动发生时的上下文，例如游戏内部还是屏幕交互。
      */
-    class MouseMoveEvent(
+    data class MouseMoveEvent(
         @JvmField
         val x: Double,
         @JvmField
@@ -102,7 +102,7 @@ class MouseEvent {
      * @property y 表示拖拽时鼠标的 Y 坐标位置。
      * @property env 表示触发事件时的环境，包含游戏内和屏幕上的情况。
      */
-    class MouseDraggingEvent(
+    data class MouseDraggingEvent(
         @JvmField
         val keyCode: KeyCode,
         @JvmField

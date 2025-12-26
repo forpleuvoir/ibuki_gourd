@@ -9,13 +9,13 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainerImpl
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setHoverTip
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCursor
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.hoverable
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.mouseOverCursor
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.setMouseOverCursorMapping
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
 import moe.forpleuvoir.ibukigourd.input.MouseCursorMapping
@@ -259,7 +259,7 @@ fun <W : GuiWidget> Modifier.mouseOverCursor(mapping: MouseCursorMapping<W>) = t
 }
 
 fun Modifier.mouseOverCursor(cursor: MouseCursor) = this then WidgetModifier { widget ->
-    widget.setMouseOverCursor(cursor)
+    widget.mouseOverCursor = cursor
 }
 
 //------------ HoverText ------------\\
@@ -269,7 +269,7 @@ fun Modifier.hoverTip(
     modifier: Modifier = Modifier,
     content: BoxScope.() -> Unit
 ) = this then WidgetModifier { widget ->
-    widget.setHoverTip(Tip(settings, Tip.DefaultModifier.then(modifier), content))
+    widget.hoverTip = Tip(settings, Tip.DefaultModifier.then(modifier), content)
 }
 
 @JvmName("hoverTextState")
@@ -361,4 +361,10 @@ fun Modifier.hoverText(
     modifier: Modifier = Modifier
 ) = hoverTip(Tip.Setting(showDelay, hideDelay, fadeInDuration, fadeInOffset, optionalDirection, backgroundColor), modifier) {
     Text(text, setting = TextWidget.Setting(autoNewLine = true, textLabelUpdateInterval = textLabelUpdateInterval))
+}
+
+//------------ Hoverable ------------\\
+
+fun Modifier.hoverable(condition: (GuiWidget) -> Boolean) = this then WidgetModifier { widget ->
+    widget.hoverable = condition
 }

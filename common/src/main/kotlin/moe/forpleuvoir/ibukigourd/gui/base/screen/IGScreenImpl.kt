@@ -16,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Orientation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics.Companion.toIGGUIGraphics
+import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen.Companion.applyZOffset
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDirection
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDuration
@@ -103,14 +104,20 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var placeCompletion: () -> Unit = ::onPlaceCompletion
 
+    override val interactableBox: Box
+        get() = transform.asWorldCoordinateBox
+
+    override val interactableContentBox: Box
+        get() = contentBox(true)
+
     /**
      * 鼠标是否在组件中
      */
     override val wasMouseOver: Boolean
-        get() = transform.isMouseOvered(mc.mousePosition)
+        get() = mc.mousePosition in interactableBox && mc.screen == this
 
     override val wasMouseOverContent: Boolean
-        get() = (mc.mousePosition in contentBox(true)) && mc.screen == screen()
+        get() = mc.mousePosition in interactableContentBox && mc.screen == this
 
     /**
      * 组件是否在拖动中
@@ -316,13 +323,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     }
 
     override fun close() {
-        if (minecraft?.screen != this) return
+        if (minecraft.screen != this) return
         InputHandler.releaseAll()
         onClose?.invoke()
         TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
         MouseCursor.clear()
         coroutineScope.cancel()
-        minecraft?.setScreen(parentScreen)
+        minecraft.setScreen(parentScreen)
     }
 
     override var onDisplayed: (() -> Unit)? = null
@@ -475,7 +482,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
             val graphics = guiGraphics.toIGGUIGraphics()
 
-            if (renderPanorama && minecraft!!.level == null) {
+            if (renderPanorama && minecraft.level == null) {
                 this.renderPanorama(guiGraphics, delta)
             }
             if (renderParentScreen) {
@@ -494,7 +501,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
                         render.invoke(graphics, _mouseX, _mouseY, delta)
 
-                        renderableChildren().sortedBy { it.renderPriority }.foreachWithIterator { drawableChild ->
+                        renderableChildren().sortedBy { renderable -> renderable.renderPriority }.foreachWithIterator { drawableChild ->
                             if (drawableChild.visible) drawableChild.vanillaRender(graphics, _mouseX, _mouseY, delta)
                         }
 
@@ -760,6 +767,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
                     action(iterator.next())
                 }
             }.onFailure {
+                closeScreen()
                 logger.error(it)
             }
         }

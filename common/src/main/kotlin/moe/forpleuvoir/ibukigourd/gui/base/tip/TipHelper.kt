@@ -161,7 +161,7 @@ object TipHelper {
      * @param margin 元素的边距信息
      * @param parent 父容器的边界信息
      * @param optionalDirection 可选的放置方向列表
-     * @return 返回可以放置元素的方向列表，如果没有任何方向可以放置则返回空列表
+     * @return 返回可以放置元素的方向列表，如果没有任何方向可以放置则返回空列表.表示需要重新测量
      */
     fun canPlaceDirections(ref: Size<Float>, margin: Margin, parent: Box, optionalDirection: List<Direction>): List<Direction> {
         return optionalDirection.filter {

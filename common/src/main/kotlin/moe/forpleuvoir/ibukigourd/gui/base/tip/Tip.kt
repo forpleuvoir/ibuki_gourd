@@ -65,6 +65,14 @@ class Tip(
                 val parentBox = parent().asWorldCoordinateBox
                 //如果当前Box不在可放置的方向上,则重新测量最合适的方向
                 TipHelper.canPlaceDirections(transform, margin, parentBox, setting.optionalDirection).let { directions ->
+                    if (directions.isEmpty()) {
+                        val (maxConstraints, direction) = TipHelper.evaluatePlacementOptions(transform, parentBox, margin, setting.optionalDirection)
+                        constraints = Constraints.of(minSize = minSize, maxSize = maxConstraints)
+                        remeasure()
+                        currentDirection = direction
+                        if (!firstRemeasure) firstRemeasure = true
+                        return@let
+                    }
                     if (currentDirection !in directions || firstRemeasure) {
                         val (maxConstraints, direction) = TipHelper.evaluatePlacementOptions(transform, parentBox, margin, directions)
                         constraints = Constraints.of(minSize = minSize, maxSize = maxConstraints)

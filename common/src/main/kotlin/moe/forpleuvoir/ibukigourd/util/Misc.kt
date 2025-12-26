@@ -21,7 +21,7 @@ internal fun logger(name: String): ModLogger {
     return ModLogger(name, IbukiGourd.MOD_NAME)
 }
 
-fun identifier(nameSpace: String, path: String): Identifier = Identifier.fromNamespaceAndPath(nameSpace, path)
+fun identifier(namespace: String, path: String): Identifier = Identifier.fromNamespaceAndPath(namespace, path)
 
 internal fun identifier(path: String) = identifier(IbukiGourd.MOD_ID, path)
 

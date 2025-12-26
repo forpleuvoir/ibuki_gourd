@@ -63,6 +63,14 @@ fun WidgetScope.PopupTip(
                     //是否需要重新放置
                     //如果当前Box不在可放置的方向上,则重新测量最合适的方向
                     TipHelper.canPlaceDirections(transform, margin, parentBox, optionalDirection).let { directions ->
+                        if (directions.isEmpty()) {
+                            val (maxConstraints, dir) = TipHelper.evaluatePlacementOptions(transform, parentBox, margin, optionalDirection)
+                            constraints = Constraints.of(minSize = Tip.minSize, maxSize = maxConstraints)
+                            remeasure()
+                            direction.setValue(dir)
+                            if (!firstRemeasure) firstRemeasure = true
+                            return@let
+                        }
                         if (direction.getValue() !in directions || firstRemeasure) {
                             val (maxConstraints, dir) = TipHelper.evaluatePlacementOptions(transform, parentBox, margin, directions)
                             constraints = Constraints.of(minSize = Tip.minSize, maxSize = maxConstraints)

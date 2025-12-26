@@ -7,6 +7,7 @@ import moe.forpleuvoir.nebula.event.eventName
 import moe.forpleuvoir.nebula.event.eventSimpleName
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.contents.TranslatableContents
 import kotlin.reflect.KClass
 
 typealias Text = Component
@@ -14,12 +15,12 @@ typealias Text = Component
 fun InlineStyleText(exp: String): MutableText = Texts.inlineStyle(exp)
 
 @JvmOverloads
-fun Literal(content: String = ""): MutableText = Texts.literal(content)
+fun Literal(content: String = ""): MutableText = Text.literal(content)
 
-fun Literal(content: StringBuilder): MutableText = Texts.literal(content.toString())
+fun Literal(content: StringBuilder): MutableText = Text.literal(content.toString())
 
 @JvmOverloads
-fun Translatable(key: String, fallback: String? = null, vararg args: Any): MutableText = Texts.translatable(key, fallback, *args)
+fun Translatable(key: String, fallback: String? = null, vararg args: Any): MutableText = MutableText.create(TranslatableContents(key, fallback, args))
 
 
 /**
@@ -30,7 +31,7 @@ fun Translatable(key: String, fallback: String? = null, vararg args: Any): Mutab
  * 这对于文本处理和渲染非常有用，因为它允许统一处理所有子文本，
  * 而不必单独处理每个子文本的样式和内容
  *
- * @return 返回一个包含扁平化文本的列表，每个文本都是不可变的[Texts]实例
+ * @return 返回一个包含扁平化文本的列表，每个文本都是不可变的[Text]实例
  */
 fun MutableComponent.flat(): List<Text> {
     // 创建一个列表构建器，用于收集扁平化的文本对象

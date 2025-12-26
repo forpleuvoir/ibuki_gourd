@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
+import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.mc
 
@@ -30,13 +31,36 @@ abstract class GuiWidgetImpl : GuiRenderableElementImpl(), GuiWidget, Measurable
 
     override var placeCompletion: () -> Unit = ::onPlaceCompletion
 
+    override val interactableBox: Box
+        get() {
+            val parent = parent()
+            return if (parent is GuiWidget) {
+                parent.interactableBox.intersectWith(transform.asWorldCoordinateBox)
+            } else {
+                transform.asWorldCoordinateBox
+            }
+        }
+
+    override val interactableContentBox: Box
+        get() {
+            val parent = parent()
+            return if (parent is GuiWidget) {
+                parent.interactableContentBox.intersectWith(contentBox(true))
+            } else {
+                contentBox(true)
+            }
+        }
+
     /**
      * 鼠标是否在组件中
      */
-    override val wasMouseOver: Boolean get() = transform.isMouseOvered(mc.mousePosition) && mc.screen == screen()
+    override val wasMouseOver: Boolean
+        get() {
+            return mc.mousePosition in interactableBox && mc.screen == screen()
+        }
 
     override val wasMouseOverContent: Boolean
-        get() = (mc.mousePosition in contentBox(true)) && mc.screen == screen()
+        get() = mc.mousePosition in interactableContentBox && mc.screen == screen()
 
     /**
      * 组件是否在拖动中

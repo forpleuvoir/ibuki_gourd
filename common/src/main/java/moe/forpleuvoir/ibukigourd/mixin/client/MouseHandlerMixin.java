@@ -45,9 +45,9 @@ public abstract class MouseHandlerMixin {
                 if (InputHandler.onKeyPress(keyCode)) ci.cancel();
             } else {
                 this.activeButton = new MouseButtonInfo(-1, 0);
-                final var keyEvent = new MouseEvent.MouseReleaseEvent(keyCode, keyCode.getKeyName(), currentEnv());
-                EventBus.Companion.broadcast(keyEvent);
-                if (keyEvent.getCanceled()) {
+                final var event = new MouseEvent.MouseReleaseEvent(keyCode, keyCode.getKeyName(), currentEnv());
+                EventBus.Companion.broadcast(event);
+                if (event.getCanceled()) {
                     ci.cancel();
                     return;
                 }

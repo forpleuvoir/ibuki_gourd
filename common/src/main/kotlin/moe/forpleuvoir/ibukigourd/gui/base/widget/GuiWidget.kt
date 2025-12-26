@@ -30,6 +30,10 @@ interface GuiWidget : GuiRenderableElement, Layoutable {
      */
     val wasDragging: Boolean
 
+    val interactableBox: Box
+
+    val interactableContentBox: Box
+
     val contentWidth: Float get() = transform.width - padding.width
 
     val contentHeight: Float get() = transform.height - padding.height

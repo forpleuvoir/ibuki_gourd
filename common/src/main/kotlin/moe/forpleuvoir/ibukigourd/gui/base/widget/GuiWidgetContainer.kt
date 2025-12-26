@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.gui.base.widget
 import moe.forpleuvoir.ibukigourd.gui.base.element.GuiElement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layout
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetUserData.isHoverable
 import java.util.*
 
 interface GuiWidgetContainer : GuiWidget, Layout {
@@ -14,12 +15,12 @@ interface GuiWidgetContainer : GuiWidget, Layout {
         // 遍历所有子组件
         for (child in widgetChildren()) {
             // 检查组件是否激活
-            if (!child.active) continue
+            if (!child.isHoverable) continue
 
             // 如果组件是 WidgetContainer，递归检查它的子组件
             if (child is GuiWidgetContainer) {
                 val hovered = child.hoveredWidget()
-                if (hovered != null && hovered.active) {
+                if (hovered != null && hovered.isHoverable) {
                     return hovered
                 }
             }

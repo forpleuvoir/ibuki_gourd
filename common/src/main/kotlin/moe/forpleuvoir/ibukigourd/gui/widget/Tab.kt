@@ -5,6 +5,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.util.FillMode
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverable
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderPriority
@@ -27,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.withColor
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -172,7 +175,7 @@ data class TabScope(
             is ColumnWidget ->
                 ColumnScope { owner }.run { weight(weight) }
 
-            is RowWidget ->
+            is RowWidget    ->
                 RowScope { owner }.run { weight(weight) }
 
             else            -> throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
@@ -226,7 +229,7 @@ private fun ContainerScope.ColumnTabs(
     contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
 ) = Column(modifier) {
-    var tabScope: TabScope? = null
+    var tabScope by lateInitValueOf<TabScope>()
     Row(
         Modifier
             .renderPriority(1)
@@ -244,10 +247,10 @@ private fun ContainerScope.ColumnTabs(
         modifier = Modifier
             .padding(5)
             .render { guiGraphics, _, _, _ ->
-                guiGraphics.pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
+                guiGraphics.pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope.tabColor.getValue())
             }.then(contentModifier)
     ) {
-        userData["#tab_scope"] = tabScope!!
+        userData["#tab_scope"] = tabScope
         Proxy(tabScope.content)
     }
     if (direction == Bottom) owner().swapWidgetChildren(0, 1)
@@ -260,7 +263,7 @@ private fun ContainerScope.RowTabs(
     contentModifier: Modifier = Modifier,
     scope: TabScope.() -> Unit
 ) = Row(modifier) {
-    var tabScope: TabScope? = null
+    var tabScope by lateInitValueOf<TabScope>()
     Column(
         Modifier
             .renderPriority(1)
@@ -278,10 +281,10 @@ private fun ContainerScope.RowTabs(
         modifier = Modifier
             .padding(5)
             .render { guiGraphics, _, _, _ ->
-                guiGraphics.pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope!!.tabColor.getValue())
+                guiGraphics.pushWidgetTexture(transform, WidgetTextures.TABS_BACKGROUND, tabScope.tabColor.getValue())
             }.then(contentModifier)
     ) {
-        userData["#tab_scope"] = tabScope!!
+        userData["#tab_scope"] = tabScope
         Proxy(tabScope.content)
     }
     if (direction == Right) owner().swapWidgetChildren(0, 1)
