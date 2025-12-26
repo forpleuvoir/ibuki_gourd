@@ -46,7 +46,7 @@ object NebulaOps : DynamicOps<SerializeElement> {
                 if (input.isInt) outOps.createInt(input.asInt)
                 else if (input.isByte) outOps.createByte(input.asByte)
                 else if (input.isLong) outOps.createLong(input.asLong)
-                else if (input.isString) outOps.createShort(input.asShort)
+                else if (input.isShort) outOps.createShort(input.asShort)
                 else if (input.isFloat) outOps.createFloat(input.asFloat)
                 else if (input.isDouble) outOps.createDouble(input.asDouble)
                 else if (input.isString) outOps.createString(input.asString)
@@ -261,10 +261,12 @@ object NebulaOps : DynamicOps<SerializeElement> {
         return DataResult.error { "Not a list: $input" }
     }
 
-    override fun getList(input: SerializeElement): DataResult<Consumer<Consumer<SerializeElement>>> {
+    override fun getList(input: SerializeElement): DataResult<Consumer<Consumer<SerializeElement?>>> {
         if (input is SerializeArray) {
             return DataResult.success(Consumer { c ->
-                input.forEach { c.accept(it) }
+                input.forEach { element ->
+                    c.accept(if(element.isNull) null else element)
+                }
             })
         }
         return DataResult.error { "Not a list: $input" }
