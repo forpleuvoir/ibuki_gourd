@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
 import moe.forpleuvoir.ibukigourd.text.style.style
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.network.chat.MutableComponent
 
 data class DecorationMapping(
@@ -42,7 +42,7 @@ data class DecorationMapping(
 data class DecorationModifier(val decorationMapping: DecorationMapping = DecorationMapping()) : TextModifier {
     override fun modifier(exp: String): ((MutableComponent) -> MutableComponent)? {
         val inverted = exp.startsWith('!')
-        val cs = if (exp.isNotEmpty()) inverted.pick(exp.substring(1), exp) else exp
+        val cs = if (exp.isNotEmpty()) inverted.either(exp.substring(1), exp) else exp
         return when (cs) {
             in decorationMapping.obfuscated    -> { text -> text.style { obfuscated(!inverted) } }
             in decorationMapping.bold          -> { text -> text.style { bold(!inverted) } }

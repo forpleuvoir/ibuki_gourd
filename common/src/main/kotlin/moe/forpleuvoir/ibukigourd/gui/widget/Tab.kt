@@ -36,7 +36,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 
 data class TabScope(
     val owner: GuiWidgetContainer,
@@ -122,7 +122,8 @@ data class TabScope(
                 }
             )
             .render { guiGraphics, _, _, _ ->
-                guiGraphics.pushWidgetTexture(transform, tabButtonTexture(direction, active), active.pick(inactiveColor.getValue(), activeColor.getValue()))
+                guiGraphics.pushWidgetTexture(transform, tabButtonTexture(direction, active), active.either({ inactiveColor.getValue() },
+                    { activeColor.getValue() }))
             }.then(modifier)
     ) {
         this@TabScope.addTab(this.owner(), onTabChanged, content)
@@ -292,8 +293,8 @@ private fun ContainerScope.RowTabs(
 
 
 private fun tabButtonTexture(direction: Direction, active: Boolean): WidgetTexture = when (direction) {
-    Top    -> active.pick(WidgetTextures.TAB_INACTIVE_TOP, WidgetTextures.TAB_ACTIVE_TOP)
-    Right  -> active.pick(WidgetTextures.TAB_INACTIVE_RIGHT, WidgetTextures.TAB_ACTIVE_RIGHT)
-    Bottom -> active.pick(WidgetTextures.TAB_INACTIVE_BOTTOM, WidgetTextures.TAB_ACTIVE_BOTTOM)
-    Left   -> active.pick(WidgetTextures.TAB_INACTIVE_LEFT, WidgetTextures.TAB_ACTIVE_LEFT)
+    Top    -> active.either(WidgetTextures.TAB_INACTIVE_TOP, WidgetTextures.TAB_ACTIVE_TOP)
+    Right  -> active.either(WidgetTextures.TAB_INACTIVE_RIGHT, WidgetTextures.TAB_ACTIVE_RIGHT)
+    Bottom -> active.either(WidgetTextures.TAB_INACTIVE_BOTTOM, WidgetTextures.TAB_ACTIVE_BOTTOM)
+    Left   -> active.either(WidgetTextures.TAB_INACTIVE_LEFT, WidgetTextures.TAB_ACTIVE_LEFT)
 }

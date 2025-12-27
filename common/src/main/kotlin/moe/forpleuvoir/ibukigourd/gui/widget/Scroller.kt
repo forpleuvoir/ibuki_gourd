@@ -22,7 +22,7 @@ import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.input.mouseX
 import moe.forpleuvoir.ibukigourd.input.mouseY
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -226,7 +226,7 @@ fun ContainerScope.Scroller(
     scope: ScrollerScope.() -> Unit = {}
 ) = addWidgetChild(ScrollerWidget(scrollState, orientation, barTheme, bgTheme)) {
     Modifier.mouseOverCursor<ScrollerWidget> {
-        it.bar.isMouseOvered(mc.mousePosition).pick(MouseCursor.POINTING_HAND_CURSOR, MouseCursor.default)
+        it.bar.isMouseOvered(mc.mousePosition).either(MouseCursor.POINTING_HAND_CURSOR, MouseCursor.default)
     }.then(modifier).foldInApply()
     ScrollerScope { this }.scope()
 }

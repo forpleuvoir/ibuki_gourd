@@ -27,7 +27,7 @@ import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 
 fun ContainerScope.Button(
     modifier: Modifier = Modifier,
@@ -113,10 +113,10 @@ fun ContainerScope.SwitchButton(
         .render { guiGraphics, _, _, _ ->
             val b = transform.asWorldCoordinateBox
             val proportion = 0.55f
-            val box = b.copy(switchState.getValue().pick(b.x + b.width * (1 - proportion), b.x), width = b.width * proportion)
+            val box = b.copy(switchState.getValue().either(b.x + b.width * (1 - proportion), b.x), width = b.width * proportion)
             guiGraphics {
                 pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_BORDER)
-                pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_CONTENT, switchState.pick(onColor, offColor))
+                pushWidgetTexture(transform, WidgetTextures.SWITCH_BUTTON_BACKGROUND_CONTENT, switchState.either(onColor, offColor))
                 pushWidgetTexture(box, WidgetTextures.SWITCH_BUTTON)
             }
         }.then(modifier),
@@ -163,7 +163,7 @@ fun ContainerScope.LockButton(
         .mouseOverCursor(MouseCursor.POINTING_HAND_CURSOR)
         .render { _, _, _, _ ->
             this as IGButtonWidget
-            lock.iconTexture = theme(lockState.getValue().pick(PressableTheme.LOCK, PressableTheme.UNLOCK))
+            lock.iconTexture = theme(lockState.getValue().either(PressableTheme.LOCK, PressableTheme.UNLOCK))
         }
         .padding(2f)
         .then(modifier).foldInApply()
@@ -185,7 +185,7 @@ fun ContainerScope.ColorButton(
             guiGraphics {
                 useScissor(trimEdgesBox) {
                     pushTiledBlit(trimEdgesBox, WidgetTextures.ALPHA)
-                    pushBox(trimEdgesBox, pressed.pick(hsvColor.reverse(), hsvColor))
+                    pushBox(trimEdgesBox, pressed.either(hsvColor.reverse(), hsvColor))
                 }
                 pushWidgetTexture(transform, theme(PressableTheme.ColorButton), hsvColor.clone().alpha(1f).saturation(hsvColor.saturation * 0.2f))
                 if (wasMouseOver) pushWidgetTexture(transform, WidgetTextures.COLOR_BUTTON_HOVERED_OUTLINE, if (pressed) hsvColor else hsvColor.reverse())

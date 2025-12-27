@@ -36,7 +36,7 @@ import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
@@ -122,7 +122,7 @@ fun ContainerScope.ExpandableConfigContainerWrapper(
             Row {
                 firstConfig?.guiWrapper(this, Modifier.weight(1).disableRenderBackground())
                 Icon(
-                    mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
+                    mutableStateOf(expanded) { it.either(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
                     modifier = Modifier.margin(right = 5f, left = 2f)
                 )
             }

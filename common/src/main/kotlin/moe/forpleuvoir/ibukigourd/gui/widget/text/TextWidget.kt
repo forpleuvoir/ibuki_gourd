@@ -28,7 +28,7 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
@@ -310,7 +310,7 @@ fun ContainerScope.Text(
                                 .getTooltipLines(
                                     Item.TooltipContext.EMPTY,
                                     mc.player,
-                                    mc.options.advancedItemTooltips.pick(TooltipFlag.ADVANCED, TooltipFlag.NORMAL)
+                                    mc.options.advancedItemTooltips.either(TooltipFlag.ADVANCED, TooltipFlag.NORMAL)
                                 ).forEach {
                                     Text(it, withHoverEvent = false)
                                 }

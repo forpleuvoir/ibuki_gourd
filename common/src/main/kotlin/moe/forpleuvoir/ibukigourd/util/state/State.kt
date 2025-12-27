@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util.state
 
 import moe.forpleuvoir.nebula.common.api.Notifiable
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import java.util.function.Consumer
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -47,6 +47,6 @@ val <T> T.asState: State<T> get() = stateOf(this)
 
 operator fun State<Boolean>.not(): Boolean = !this.getValue()
 
-fun <T> State<Boolean>.pick(a: T, b: T) = this.getValue().pick(a, b)
+fun <T> State<Boolean>.either(a: T, b: T) = this.getValue().either(a, b)
 
-inline fun <R> State<Boolean>.pick(a: () -> R, b: () -> R): R = this.getValue().pick(a, b)
+inline fun <R> State<Boolean>.either(a: () -> R, b: () -> R): R = this.getValue().either(a, b)

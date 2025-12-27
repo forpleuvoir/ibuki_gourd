@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.element.GuiRenderableElement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.Layoutable
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -41,16 +41,16 @@ interface GuiWidget : GuiRenderableElement, Layoutable {
     val contentSize: Size<Float> get() = Size(contentWidth, contentHeight)
 
     fun contentLeft(worldCoordinatesMode: Boolean) =
-        worldCoordinatesMode.pick(transform.worldLeft, 0f) + padding.left
+        worldCoordinatesMode.either(transform.worldLeft, 0f) + padding.left
 
     fun contentRight(worldCoordinatesMode: Boolean) =
-        worldCoordinatesMode.pick(transform.worldRight, 0f) + padding.right
+        worldCoordinatesMode.either(transform.worldRight, 0f) + padding.right
 
     fun contentTop(worldCoordinatesMode: Boolean) =
-        worldCoordinatesMode.pick(transform.worldTop, 0f) + padding.top
+        worldCoordinatesMode.either(transform.worldTop, 0f) + padding.top
 
     fun contentBottom(worldCoordinatesMode: Boolean) =
-        worldCoordinatesMode.pick(transform.worldBottom, 0f) + padding.bottom
+        worldCoordinatesMode.either(transform.worldBottom, 0f) + padding.bottom
 
     fun contentBox(worldCoordinatesMode: Boolean): Box =
         Box(x = contentLeft(worldCoordinatesMode), y = contentTop(worldCoordinatesMode), width = contentWidth, height = contentHeight)

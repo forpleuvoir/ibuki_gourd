@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.util.state
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import java.util.function.Consumer
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
@@ -144,9 +144,9 @@ fun MutableState<Boolean>.switch(): MutableState<Boolean> {
     return this
 }
 
-fun <T> MutableState<Boolean>.pick(v1: T, v2: T) = this.getValue().pick(v1, v2)
+fun <T> MutableState<Boolean>.either(v1: T, v2: T) = this.getValue().either(v1, v2)
 
-fun <R> MutableState<Boolean>.pick(block: () -> R, block2: () -> R) = this.getValue().pick(block, block2)
+fun <R> MutableState<Boolean>.either(block: () -> R, block2: () -> R) = this.getValue().either(block, block2)
 
 @JvmName("colorToARGBColorState")
 fun MutableState<Color>.toARGBColorState() =

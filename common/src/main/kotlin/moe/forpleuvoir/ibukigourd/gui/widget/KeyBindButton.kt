@@ -23,7 +23,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import kotlin.time.Duration.Companion.milliseconds
 
 val KeyBind.hoverText: MutableText
@@ -199,7 +199,7 @@ fun ContainerScope.KeyBindSettingSetterButton(
                     ) {
                         Text(IGLang.nextAction)
                         val nextAction = mutableStateOf(setting.nextAction.value).apply {
-                            subscribe { setting.nextAction = it.pick(NextAction.Cancel, NextAction.Continue) }
+                            subscribe { setting.nextAction = it.either(NextAction.Cancel, NextAction.Continue) }
                         }
                         SwitchButton(nextAction, Modifier.width(40f))
                     }

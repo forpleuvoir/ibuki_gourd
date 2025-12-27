@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.gui.util
 
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig
 import moe.forpleuvoir.nebula.common.api.Notifiable
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import java.util.function.Consumer
 
 
@@ -30,7 +30,7 @@ class ScrollState : Notifiable<Float> {
     }
 
     var progress: Float
-        get() = (amount / maxAmount).let { (it.isNaN() || it.isInfinite()).pick(0f, it.coerceIn(0f..1f)) }
+        get() = (amount / maxAmount).let { (it.isNaN() || it.isInfinite()).either(0f, it.coerceIn(0f..1f)) }
         set(value) {
             amount = maxAmount * value.coerceIn(0f..1f)
         }

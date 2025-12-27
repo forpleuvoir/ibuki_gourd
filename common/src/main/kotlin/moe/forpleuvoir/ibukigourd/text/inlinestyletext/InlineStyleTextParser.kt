@@ -7,7 +7,7 @@ import moe.forpleuvoir.ibukigourd.text.buildText
 import moe.forpleuvoir.ibukigourd.text.flat
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier.*
 import moe.forpleuvoir.nebula.common.util.primitive.fillBefore
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.contents.KeybindContents
 import net.minecraft.network.chat.contents.TranslatableContents
@@ -89,19 +89,19 @@ object InlineStyleTextParser {
                                     append("s#${style.color!!.value.toUInt().toString(16).fillBefore(6, '0').uppercase()},")
                                 }
                                 if (style.bold != null) {
-                                    append(style.bold.pick("b,", "!b,"))
+                                    append(style.bold.either("b,", "!b,"))
                                 }
                                 if (style.italic != null) {
-                                    append(style.italic.pick("i,", "!i,"))
+                                    append(style.italic.either("i,", "!i,"))
                                 }
                                 if (style.underlined != null) {
-                                    append(style.underlined.pick("l,", "!l,"))
+                                    append(style.underlined.either("l,", "!l,"))
                                 }
                                 if (style.strikethrough != null) {
-                                    append(style.strikethrough.pick("s,", "!s,"))
+                                    append(style.strikethrough.either("s,", "!s,"))
                                 }
                                 if (style.obfuscated != null) {
-                                    append(style.obfuscated.pick("o,", "!o,"))
+                                    append(style.obfuscated.either("o,", "!o,"))
                                 }
                                 append("}")
                             }.let {

@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.input.MousePosition
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.math.asVector2fc
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import org.joml.Vector2fc
 import org.joml.Vector2ic
@@ -106,28 +106,28 @@ interface Box : SizeFloat, Cloneable {
     }
 
     operator fun contains(vector3fc: Vector3fc): Boolean {
-        return this.exist.pick(
+        return this.exist.either(
             vector3fc.y() in this.top..this.bottom && vector3fc.x() in this.left..this.right,
             false
         )
     }
 
     operator fun contains(vector2fc: Vector2fc): Boolean {
-        return this.exist.pick(
+        return this.exist.either(
             vector2fc.y() in this.top..this.bottom && vector2fc.x() in this.left..this.right,
             false
         )
     }
 
     operator fun contains(vector2fc: Vector2ic): Boolean {
-        return this.exist.pick(
+        return this.exist.either(
             vector2fc.y().toFloat() in this.top..this.bottom && vector2fc.x().toFloat() in this.left..this.right,
             false
         )
     }
 
     operator fun contains(position: MousePosition): Boolean {
-        return this.exist.pick(
+        return this.exist.either(
             position.y in this.top..this.bottom && position.x in this.left..this.right,
             false
         )

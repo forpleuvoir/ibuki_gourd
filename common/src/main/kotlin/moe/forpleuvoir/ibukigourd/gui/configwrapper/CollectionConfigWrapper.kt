@@ -48,7 +48,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.impl.ConfigList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringList
@@ -65,7 +65,7 @@ fun ContainerScope.MoveButton(
         round = 0,
         modifier = Modifier.hoverText(IGLang.moveUp).padding(1).active(index > 0)
     ) {
-        Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).pick(1f, .25f)))
+        Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).either(1f, .25f)))
 
         click {
             listValue.moveElement(index, (index - 1).coerceAtLeast(0))
@@ -81,7 +81,7 @@ fun ContainerScope.MoveButton(
         Icon(
             IconTextures.DOWN,
             modifier = Modifier,
-            color = Colors.GRAY.alpha((index != listValue.lastIndex).pick(1f, .25f))
+            color = Colors.GRAY.alpha((index != listValue.lastIndex).either(1f, .25f))
         )
 
         click {

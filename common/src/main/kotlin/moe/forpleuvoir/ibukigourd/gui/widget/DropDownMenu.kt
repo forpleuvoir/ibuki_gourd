@@ -36,7 +36,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.event.Event
 import kotlin.reflect.KClass
 
@@ -78,7 +78,7 @@ fun ContainerScope.DropDownMenu(
     dropDownContent = dropDownMenuScope.dropDownContent
     val icon = mutableStateOf(WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
     expandState.subscribe {
-        icon.setValue(it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
+        icon.setValue(it.either(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN))
     }
     click {
         expandState.switch()

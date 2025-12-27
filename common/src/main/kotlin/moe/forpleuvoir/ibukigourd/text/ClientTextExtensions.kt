@@ -3,7 +3,7 @@ package moe.forpleuvoir.ibukigourd.text
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
 import moe.forpleuvoir.ibukigourd.text.style.style
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FormattedText
@@ -91,7 +91,7 @@ fun String.wrapToLines(
             strings.add(temp.toString())
             end = start + temp.length
             lineWrapping(start, end)
-            start = (!needNewLine(chr)).pick(end, end + 1)
+            start = (!needNewLine(chr)).either(end, end + 1)
             temp.clear()
         }
         if (!needNewLine(chr)) {

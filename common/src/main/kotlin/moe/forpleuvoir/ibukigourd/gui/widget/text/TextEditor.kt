@@ -47,7 +47,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.components.Whence
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -312,7 +312,7 @@ open class TextEditorWidget(
     override fun measure(constraints: Constraints): Placeable {
         val c = this.constraints.merge(constraints)
         val width =
-            text.isNotEmpty().pick(text.width, hintText.getValue()?.width ?: 0).toFloat() + padding.width + 5f
+            text.isNotEmpty().either(text.width, hintText.getValue()?.width ?: 0).toFloat() + padding.width + 5f
         val height = font.lineHeight + padding.height
         transform.set(width.coerceIn(c.widthRange), height.coerceIn(c.heightRange))
         return this
@@ -524,7 +524,7 @@ open class TextEditorWidget(
         if (!isActive) return
         event.tryUse { wasMouseOver }
             .onSuccess {
-                moveCursor(Whence.RELATIVE, (event.verticalAmount < 0f).pick(1, -1))
+                moveCursor(Whence.RELATIVE, (event.verticalAmount < 0f).either(1, -1))
             }
     }
 

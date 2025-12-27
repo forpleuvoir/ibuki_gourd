@@ -25,7 +25,7 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notification
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 
 fun WidgetScope.PopupTip(
     parentTransform: () -> Transform = { owner().transform },
@@ -37,7 +37,7 @@ fun WidgetScope.PopupTip(
     content: BoxScope.() -> Unit,
 ): IGScreenImpl = PopupScreen(screenModifier, screen) {
     require(optionalDirection.isNotEmpty()) { "optionalDirection must not be empty" }
-    val direction = mutableStateOf(optionalDirection.isNotEmpty().pick(optionalDirection.first(), Top))
+    val direction = mutableStateOf(optionalDirection.isNotEmpty().either(optionalDirection.first(), Top))
     direction.subscribe {
         this.owner().screen()?.let { it.fadeInDirection = direction.getValue() }
     }

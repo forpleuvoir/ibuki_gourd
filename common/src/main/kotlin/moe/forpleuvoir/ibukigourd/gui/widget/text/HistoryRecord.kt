@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.gui.widget.text
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 
 class HistoryRecord(private val maxStackSize: Int = 50, var currentRecord: Record) : Tickable {
 
@@ -46,7 +46,7 @@ class HistoryRecord(private val maxStackSize: Int = 50, var currentRecord: Recor
      */
     private var inputting: Boolean
         set(value) {
-            tickCount = value.pick(inputTime, 0)
+            tickCount = value.either(inputTime, 0)
         }
         get() = tickCount > 0
 
