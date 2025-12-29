@@ -16,7 +16,6 @@ object IbukiGourd {
 
     fun init() {
         logger.info("$MOD_ID,platform:{},env:{}", PLATFORM.getPlatformName(), PLATFORM.getEnvironmentName())
-        IbukiGourdEventManager.init()
         EventBus.broadcast(IbukigourdInitializerEvent)
     }
 
