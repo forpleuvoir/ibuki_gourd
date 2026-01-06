@@ -8,8 +8,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
+import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
+import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.ItemIcon
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
@@ -38,5 +41,12 @@ fun TestScreen2() = ColumnScreen(
         }
     ) {
         Text("物品测试")
+        click {
+            ConfirmDialog(Literal("测试"), screenModifier = Modifier.padding(vertical = 20f)) {
+                Box(Modifier.width(200f).height(500f)) {
+
+                }
+            }.open()
+        }
     }
 }.open()

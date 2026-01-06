@@ -138,7 +138,7 @@ fun ConfirmDialog(
     scope.content()
     //Button
     Row(
-        Modifier.matchSibling().minWidth(120f),
+        Modifier.align(Alignment.Right).minWidth(120f).priority(10),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
     ) {
         Button {

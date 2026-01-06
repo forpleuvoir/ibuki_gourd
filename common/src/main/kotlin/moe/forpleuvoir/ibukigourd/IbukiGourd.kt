@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd
 
-import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.IbukigourdInitializerEvent
 import moe.forpleuvoir.ibukigourd.platform.PLATFORM
 import moe.forpleuvoir.ibukigourd.util.logger

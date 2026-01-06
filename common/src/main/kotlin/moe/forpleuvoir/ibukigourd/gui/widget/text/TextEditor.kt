@@ -714,7 +714,25 @@ fun ContainerScope.TextEditor(
     TextEditorScope { this }.scope()
 }
 
-data class ValueStep<T>(val click: T, val shift: T, val ctrl: T, val alt: T, val mouseScroller: T) where T : Comparable<T>, T : Number
+data class ValueStep<T>(val click: T, val mouseScroller: T, val shiftRatio: T, val ctrlRatio: T, val altRatio: T) where T : Comparable<T>, T : Number {
+    fun clickValue(times: (T, T) -> T): T {
+        return when {
+            InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)   -> times(click, shiftRatio)
+            InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL) -> times(click, ctrlRatio)
+            InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)     -> times(click, altRatio)
+            else                                              -> click
+        }
+    }
+
+    fun mouseScrollerValue(times: (T, T) -> T): T {
+        return when {
+            InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)   -> times(mouseScroller, shiftRatio)
+            InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL) -> times(mouseScroller, ctrlRatio)
+            InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)     -> times(mouseScroller, altRatio)
+            else                                              -> mouseScroller
+        }
+    }
+}
 
 fun <T> ContainerScope.NumberEditor(
     value: MutableState<T>,
@@ -723,16 +741,17 @@ fun <T> ContainerScope.NumberEditor(
     textMapper: (String) -> T,
     plus: (T, T) -> T,
     minus: (T, T) -> T,
+    times: (T, T) -> T,
     step: ValueStep<T>,
     textPredicate: (String) -> Boolean,
     modifier: Modifier = Modifier,
     editorModifier: RowScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color.ofARGB(0xFF303030),
-    hintColor: ARGBColor = Color.ofARGB(0xFF707070),
+    textColor: ARGBColor = Color.ofRGB(0x303030),
+    hintColor: ARGBColor = Color.ofRGB(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color.ofARGB(0xFF007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color.ofARGB(0xFF008F72).alpha(0.45f),
-    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    selectedColor: ARGBColor = Color.ofARGB(0x73007F8F),
+    suggestionColor: ARGBColor = Color.ofARGB(0x73008F72),
+    cursorColor: ARGBColor = Color.ofARGB(0xCC000000),
     font: Font = mc.font,
     scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope .() -> Unit = {}
@@ -770,8 +789,8 @@ fun <T> ContainerScope.NumberEditor(
             }
             .mouseScrolling { event ->
                 event.tryUse(wasMouseOver && isFocused).onSuccess {
-                    val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScroller)
-                    else minus(value.getValue(), step.mouseScroller)
+                    val s = if (event.verticalAmount > 0) plus(value.getValue(), step.mouseScrollerValue(times))
+                    else minus(value.getValue(), step.mouseScrollerValue(times))
                     value.setValue(s)
                 }
             }.then(editorModifier()),
@@ -795,8 +814,6 @@ fun <T> ContainerScope.NumberEditor(
         value.subscribe {
             if (notifiable) text = valueMapper(value.getValue())
         }
-
-//        textPredicate(textPredicate)
         editorScope()
     }
     Column(
@@ -812,13 +829,7 @@ fun <T> ContainerScope.NumberEditor(
                 Icon(IconTextures.PLUS, Colors.BLACK)
             }
             click {
-                val s = when {
-                    InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
-                    InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
-                    InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
-                    else                                              -> step.click
-                }
-                value.setValue(plus(value.getValue(), s))
+                value.setValue(plus(value.getValue(), step.clickValue(times)))
             }
         }
         FlatButton(
@@ -830,13 +841,7 @@ fun <T> ContainerScope.NumberEditor(
                 Icon(IconTextures.MINUS, Colors.BLACK)
             }
             click {
-                val s = when {
-                    InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)   -> step.shift
-                    InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL) -> step.ctrl
-                    InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)     -> step.alt
-                    else                                              -> step.click
-                }
-                value.setValue(minus(value.getValue(), s))
+                value.setValue(minus(value.getValue(), step.clickValue(times)))
             }
         }
     }
@@ -847,16 +852,16 @@ fun <T> ContainerScope.NumberEditor(
 fun ContainerScope.IntEditor(
     value: MutableState<Int>,
     range: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
-    step: ValueStep<Int> = ValueStep(1, 5, 10, 15, 1),
+    step: ValueStep<Int> = ValueStep(1, 1, 5, 10, 15),
     valueMapper: (Int) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     editorModifier: RowScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color.ofARGB(0xFF303030),
-    hintColor: ARGBColor = Color.ofARGB(0xFF707070),
+    textColor: ARGBColor = Color.ofRGB(0x303030),
+    hintColor: ARGBColor = Color.ofRGB(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color.ofARGB(0xFF007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color.ofARGB(0xFF008F72).alpha(0.45f),
-    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    selectedColor: ARGBColor = Color.ofARGB(0x73007F8F),
+    suggestionColor: ARGBColor = Color.ofARGB(0x73008F72),
+    cursorColor: ARGBColor = Color.ofARGB(0xCC000000),
     font: Font = mc.font,
     scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
@@ -865,6 +870,7 @@ fun ContainerScope.IntEditor(
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
+    times = { a, b -> a * b },
     valueMapper = valueMapper,
     textMapper = { runCatching { it.toInt() }.getOrElse { 0 } },
     step = step,
@@ -885,16 +891,16 @@ fun ContainerScope.IntEditor(
 fun ContainerScope.LongEditor(
     value: MutableState<Long>,
     range: LongRange = Long.MIN_VALUE..Int.MAX_VALUE,
-    step: ValueStep<Long> = ValueStep(1, 5, 10, 15, 1),
+    step: ValueStep<Long> = ValueStep(1, 1, 5, 10, 15),
     valueMapper: (Long) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     editorModifier: RowScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color.ofARGB(0xFF303030),
-    hintColor: ARGBColor = Color.ofARGB(0xFF707070),
+    textColor: ARGBColor = Color.ofRGB(0x303030),
+    hintColor: ARGBColor = Color.ofRGB(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color.ofARGB(0xFF007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color.ofARGB(0xFF008F72).alpha(0.45f),
-    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    selectedColor: ARGBColor = Color.ofARGB(0x73007F8F),
+    suggestionColor: ARGBColor = Color.ofARGB(0x73008F72),
+    cursorColor: ARGBColor = Color.ofARGB(0xCC000000),
     font: Font = mc.font,
     scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
@@ -903,6 +909,7 @@ fun ContainerScope.LongEditor(
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
+    times = { a, b -> a * b },
     valueMapper = valueMapper,
     textMapper = { runCatching { it.toLong() }.getOrElse { 0L } },
     step = step,
@@ -922,17 +929,17 @@ fun ContainerScope.LongEditor(
 
 fun ContainerScope.FloatEditor(
     value: MutableState<Float>,
-    range: ClosedFloatingPointRange<Float> = Float.NEGATIVE_INFINITY..Float.POSITIVE_INFINITY,
-    step: ValueStep<Float> = ValueStep(1f, 5f, 10f, 15f, 1f),
+    range: ClosedFloatingPointRange<Float> = -Float.MAX_VALUE..Float.MAX_VALUE,
+    step: ValueStep<Float> = ValueStep(1f, 1f, 5f, 10f, 15f),
     valueMapper: (Float) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     editorModifier: RowScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color.ofARGB(0xFF303030),
-    hintColor: ARGBColor = Color.ofARGB(0xFF707070),
+    textColor: ARGBColor = Color.ofRGB(0x303030),
+    hintColor: ARGBColor = Color.ofRGB(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color.ofARGB(0xFF007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color.ofARGB(0xFF008F72).alpha(0.45f),
-    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    selectedColor: ARGBColor = Color.ofARGB(0x73007F8F),
+    suggestionColor: ARGBColor = Color.ofARGB(0x73008F72),
+    cursorColor: ARGBColor = Color.ofARGB(0xCC000000),
     font: Font = mc.font,
     scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
@@ -941,6 +948,7 @@ fun ContainerScope.FloatEditor(
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
+    times = { a, b -> a * b },
     valueMapper = valueMapper,
     textMapper = { runCatching { it.toFloat() }.getOrElse { 0f } },
     step = step,
@@ -964,17 +972,17 @@ fun ContainerScope.FloatEditor(
 
 fun ContainerScope.DoubleEditor(
     value: MutableState<Double>,
-    range: ClosedFloatingPointRange<Double> = Double.NEGATIVE_INFINITY..Double.POSITIVE_INFINITY,
-    step: ValueStep<Double> = ValueStep(1.0, 5.0, 10.0, 15.0, 1.0),
+    range: ClosedFloatingPointRange<Double> = -Double.MAX_VALUE..Double.MAX_VALUE,
+    step: ValueStep<Double> = ValueStep(1.0, 1.0, 5.0, 10.0, 15.0),
     valueMapper: (Double) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     editorModifier: RowScope.() -> Modifier = { Modifier },
-    textColor: ARGBColor = Color.ofARGB(0xFF303030),
-    hintColor: ARGBColor = Color.ofARGB(0xFF707070),
+    textColor: ARGBColor = Color.ofRGB(0x303030),
+    hintColor: ARGBColor = Color.ofRGB(0x707070),
     bgShaderColor: ARGBColor = Colors.WHITE,
-    selectedColor: ARGBColor = Color.ofARGB(0xFF007F8F).alpha(0.45f),
-    suggestionColor: ARGBColor = Color.ofARGB(0xFF008F72).alpha(0.45f),
-    cursorColor: ARGBColor = Colors.BLACK.alpha(.8f),
+    selectedColor: ARGBColor = Color.ofARGB(0x73007F8F),
+    suggestionColor: ARGBColor = Color.ofARGB(0x73008F72),
+    cursorColor: ARGBColor = Color.ofARGB(0xCC000000),
     font: Font = mc.font,
     scope: RowScope.() -> Unit = {},
     editorScope: TextEditorScope.() -> Unit = {}
@@ -983,6 +991,7 @@ fun ContainerScope.DoubleEditor(
     valueRange = range,
     plus = { a, b -> a + b },
     minus = { a, b -> a - b },
+    times = { a, b -> a * b },
     valueMapper = valueMapper,
     textMapper = { runCatching { it.toDouble() }.getOrElse { 0.0 } },
     step = step,

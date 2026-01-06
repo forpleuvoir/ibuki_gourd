@@ -44,8 +44,10 @@ class FabricPlatformHelper : PlatformHelper {
                             }
                             if (predicate(clazz)) add(clazz)
                         }.onFailure {
-                            logger.warn("Failed to load class: ${classInfo.name}")
-                            logger.warn(it)
+                            if (isDevEnv) {
+                                logger.warn("Failed to load class: ${classInfo.name}")
+                                logger.warn(it)
+                            }
                         }
                     }
             }

@@ -38,8 +38,7 @@ neoForge {
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArguments.addAll("--username", name, "--uuid", uuid)
-            //好像并没有作用
-//            sourceSet = sourceSets["devClientTest"]
+            gameDirectory = file("run/client")
         }
         register("data") {
             clientData()
@@ -55,6 +54,7 @@ neoForge {
         }
         register("server") {
             server()
+            gameDirectory = file("run/server")
         }
     }
     mods {

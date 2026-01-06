@@ -51,6 +51,11 @@ interface LinearLayoutScope<T : Alignment.Linear> {
     fun Modifier.fill(): Modifier = fillMode(FillMode.MatchParent)
 
     /**
+     * 优先级,数值越高越先被测量,默认值为0
+     */
+    fun Modifier.priority(priority: Int): Modifier
+
+    /**
      * 当前组件的对齐方式
      *
      * 在Row中为水平对齐[Alignment.Horizontal],Column中为垂直对齐[Alignment.Vertical]
@@ -80,6 +85,13 @@ interface RowLayoutScope : LinearLayoutScope<Alignment.Vertical> {
         }
     }
 
+    override fun Modifier.priority(priority: Int) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is RowLayout.WrappedRowLayoutData -> it.parentData = parentData.copy(priority = priority)
+            null                              -> it.parentData = RowLayout.WrappedRowLayoutData(priority = priority)
+        }
+    }
+
     override fun Modifier.align(alignment: Alignment.Vertical) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is RowLayout.WrappedRowLayoutData -> it.parentData = parentData.copy(alignment = alignment)
@@ -103,6 +115,13 @@ interface ColumnLayoutScope : LinearLayoutScope<Alignment.Horizontal> {
         when (val parentData = it.parentData) {
             is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(fillMode = fillMode)
             null                                    -> it.parentData = ColumnLayout.WrappedColumnLayoutData(fillMode = fillMode)
+        }
+    }
+
+    override fun Modifier.priority(priority: Int) = this then WidgetModifier {
+        when (val parentData = it.parentData) {
+            is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(priority = priority)
+            null                              -> it.parentData = RowLayout.WrappedRowLayoutData(priority = priority)
         }
     }
 

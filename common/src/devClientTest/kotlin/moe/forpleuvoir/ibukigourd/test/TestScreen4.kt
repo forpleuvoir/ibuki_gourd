@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.text.DoubleEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -85,6 +86,8 @@ fun testScreen4() = RowScreen(
         FloatSlider(mutableStateOf(30f), -50f..100f, modifier = Modifier.size(120f, 16f))
         DoubleSlider(mutableStateOf(30.0), -50.0..100.0, modifier = Modifier.size(120f, 16f))
         PercentageSlider(mutableStateOf(0.5), 0.0..1.0, modifier = Modifier.size(120f, 16f))
+
+        DoubleEditor(mutableStateOf(30.0), modifier = Modifier.width(120f))
     }
     Row {
         val selected: MutableState<String?> = mutableStateOf("选项3")

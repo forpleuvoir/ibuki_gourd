@@ -9,7 +9,6 @@ object FabricIbukiGourd : ModInitializer {
     override fun onInitialize() {
         IbukiGourdEventManager.init()
         IbukiGourd.init()
-        ReloadListenerRegistry.register()
     }
 
 }

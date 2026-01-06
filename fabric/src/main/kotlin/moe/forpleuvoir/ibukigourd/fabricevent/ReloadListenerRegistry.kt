@@ -9,17 +9,13 @@ import net.minecraft.server.packs.resources.PreparableReloadListener
 
 object ReloadListenerRegistry {
 
-    fun register() {
+    fun registerClientResource() {
         registerClientResource(WidgetTextures.RESOURCE_ID, WidgetTextures)
         registerClientResource(IconTextures.RESOURCE_ID, IconTextures)
     }
 
     private fun registerClientResource(id: Identifier, listener: PreparableReloadListener) {
         ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id, listener)
-    }
-
-    private fun registerServerData(id: Identifier, listener: PreparableReloadListener) {
-        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id, listener)
     }
 
 }

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.gui.base.layout
 
+import moe.forpleuvoir.ibukigourd.gui.base.layout.ColumnLayout.WrappedColumnLayoutData
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
@@ -34,6 +35,11 @@ interface WrappedLinearLayoutData {
     val fillMode: FillMode
 
     /**
+     * 优先级,数值越高越先被测量
+     */
+    val priority: Int
+
+    /**
      * 控制子组件如何在父组件中对齐的参数。
      * 其类型为 `Alignment.Linear?`，表示它可以为空，
      * 代表子组件的对齐方式可以是线性的或未定义的。
@@ -48,6 +54,7 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
     data class WrappedColumnLayoutData(
         override val weight: Int = 0,
         override val fillMode: FillMode = FillMode.None,
+        override val priority: Int = 0,
         override val alignment: Alignment.Horizontal? = null
     ) : WrappedLinearLayoutData {
         companion object : WrappedLayoutDataUtil<WrappedColumnLayoutData> {
@@ -69,6 +76,8 @@ interface ColumnLayout : LinearLayout<Arrangement.Vertical, Alignment.Horizontal
         var maxChildWidth = 0f
         //内容的最大高度
         val contentMaxHeight = (maxHeight - widget.padding.height).coerceAtLeast(0f)
+        //按优先级排序
+        val measurables = measurables.sortedByDescending { WrappedColumnLayoutData.getOrDefault(it).priority }
         //所有元素的parentData
         val parentData = WrappedColumnLayoutData.wrappedData(measurables)
         //使用的高度
@@ -187,6 +196,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
     data class WrappedRowLayoutData(
         override val weight: Int = 0,
         override val fillMode: FillMode = FillMode.None,
+        override val priority: Int = 0,
         override val alignment: Alignment.Vertical? = null
     ) : WrappedLinearLayoutData {
         companion object : WrappedLayoutDataUtil<WrappedRowLayoutData> {
@@ -208,6 +218,8 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
         var maxChildHeight = 0f
         //内容的最大高度
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
+        //按优先级排序
+        val measurables = measurables.sortedByDescending { WrappedColumnLayoutData.getOrDefault(it).priority }
         //所有元素的parentData
         val parentData = WrappedRowLayoutData.wrappedData(measurables)
         //使用的宽度

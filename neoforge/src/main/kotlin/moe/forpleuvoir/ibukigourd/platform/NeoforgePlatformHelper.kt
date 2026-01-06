@@ -40,8 +40,10 @@ class NeoforgePlatformHelper : PlatformHelper {
                     }
                     .forEach { classInfo ->
                         runCatching { add(Class.forName(classInfo).kotlin) }.onFailure {
-                            logger.warn("Failed to load class: ${classInfo}")
-                            logger.warn(it)
+                            if (isDevEnv) {
+                                logger.warn("Failed to load class: $classInfo")
+                                logger.warn(it)
+                            }
                         }
                     }
             }

@@ -196,6 +196,19 @@ data class TabScope(
         }
     }
 
+    override fun Modifier.priority(priority: Int): Modifier {
+        return when (owner) {
+            is ColumnWidget ->
+                ColumnScope { owner }.run { priority(priority) }
+
+            is RowWidget    ->
+                RowScope { owner }.run { priority(priority) }
+
+            else            ->
+                throw IllegalStateException("Invalid owner type: Expected types are RowWidget or ColumnWidget, but a different type was found.")
+        }
+    }
+
     override fun Modifier.align(alignment: Alignment.Linear): Modifier {
         return when (owner) {
             is ColumnWidget ->
