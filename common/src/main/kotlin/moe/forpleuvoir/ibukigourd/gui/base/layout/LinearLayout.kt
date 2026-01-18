@@ -219,7 +219,7 @@ interface RowLayout : LinearLayout<Arrangement.Horizontal, Alignment.Vertical> {
         //内容的最大高度
         val contentMaxWidth = (maxWidth - widget.padding.width).coerceAtLeast(0f)
         //按优先级排序
-        val measurables = measurables.sortedByDescending { WrappedColumnLayoutData.getOrDefault(it).priority }
+        val measurables = measurables.sortedByDescending { WrappedRowLayoutData.getOrDefault(it).priority }
         //所有元素的parentData
         val parentData = WrappedRowLayoutData.wrappedData(measurables)
         //使用的宽度

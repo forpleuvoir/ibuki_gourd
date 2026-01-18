@@ -6,6 +6,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.element.GuiElementUserData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.GuiRenderableElementImpl
 import moe.forpleuvoir.ibukigourd.gui.base.element.findLastInParentChain
+import moe.forpleuvoir.ibukigourd.gui.base.element.isInParentChain
+import moe.forpleuvoir.ibukigourd.gui.base.element.parentChain
 import moe.forpleuvoir.ibukigourd.gui.base.event.*
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Constraints
 import moe.forpleuvoir.ibukigourd.gui.base.layout.measure.Measurable
@@ -13,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.input.mousePosition
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.util.primitive.onTrue
 
 /**
  * 所有组件的基类,实现任何组件都应该继承此类
@@ -107,21 +110,23 @@ abstract class GuiWidgetImpl : GuiRenderableElementImpl(), GuiWidget, Measurable
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
 
+    private var _wasMouseOver: Boolean = false
+
     @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
         //判断鼠标是否在组件内
         if (event.position in transform.asWorldCoordinateBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
-            if (!wasMouseOver) {
+            if (!_wasMouseOver) {
                 mouseEnter(MouseEnterEvent(event.x, event.y))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
-            if (wasMouseOver) {
+            if (_wasMouseOver) {
                 mouseLeave(MouseLeaveEvent(event.x, event.y))
             }
         }
-
+        _wasMouseOver = wasMouseOver
     }
 
     override fun onMousePress(event: MousePressEvent) {

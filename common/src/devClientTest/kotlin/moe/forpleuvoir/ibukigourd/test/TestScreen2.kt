@@ -10,6 +10,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderOverlay
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.tip.pushHoverTip
 import moe.forpleuvoir.ibukigourd.gui.screen.ColumnScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -20,6 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
 import net.minecraft.world.item.Items
+import kotlin.time.Duration.Companion.seconds
 
 fun TestScreen2() = ColumnScreen(
     Modifier.renderOverlay { guiGraphics, x, y, d ->
@@ -34,19 +38,13 @@ fun TestScreen2() = ColumnScreen(
     ItemIcon(Items.MELON, scale = 1f)
     Box(Modifier.height(10f)) {}
     Button(
-        Modifier.margin(right = 1f).hoverTip {
-            Row {
-                Text("物品的数量")
-            }
-        }
+        Modifier.margin(right = 1f)
     ) {
         Text("物品测试")
         click {
-            ConfirmDialog(Literal("测试"), screenModifier = Modifier.padding(vertical = 20f)) {
-                Box(Modifier.width(200f).height(500f)) {
-
-                }
-            }.open()
+            TipHandler.pushHoverTip(2.seconds, { owner().transform }, Tip {
+                Text("悬浮测试")
+            })
         }
     }
 }.open()

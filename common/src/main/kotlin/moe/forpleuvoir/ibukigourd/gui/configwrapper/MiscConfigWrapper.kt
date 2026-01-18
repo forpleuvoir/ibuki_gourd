@@ -11,6 +11,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.tip.popHoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.pushHoverTip
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.DurationSlider
@@ -166,15 +168,14 @@ fun ContainerScope.ConfigDurationWrapper(
                             closeScreen()
                         } else {
                             editor?.let {
-                                TipHandler.popTip(CONFIG_WRAPPER_TIP)
-                                CONFIG_WRAPPER_TIP = TipHandler.pushTip(2.seconds, it, Tip {
+                                TipHandler.pushHoverTip(2.seconds, it, Tip {
                                     Text(IGLang.notInRange(duration, config.minDuration, config.maxDuration))
                                 })
                             }
                         }
                     },
                     screenModifier = Modifier.onClose {
-                        TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                        TipHandler.popHoverTip()
                     }
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(5f)) {

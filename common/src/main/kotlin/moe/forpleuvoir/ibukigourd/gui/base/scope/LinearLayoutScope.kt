@@ -121,7 +121,7 @@ interface ColumnLayoutScope : LinearLayoutScope<Alignment.Horizontal> {
     override fun Modifier.priority(priority: Int) = this then WidgetModifier {
         when (val parentData = it.parentData) {
             is ColumnLayout.WrappedColumnLayoutData -> it.parentData = parentData.copy(priority = priority)
-            null                              -> it.parentData = RowLayout.WrappedRowLayoutData(priority = priority)
+            null                              -> it.parentData = ColumnLayout.WrappedColumnLayoutData(priority = priority)
         }
     }
 

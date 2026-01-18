@@ -16,6 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.tip.popHoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.pushHoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
@@ -201,8 +203,7 @@ fun <K, V> TableScope<Map.Entry<K, V>>.TableConfigMapKeyColumn(
                     }
                     if (config.getValue().containsKey(newKey)) {
                         editor?.let {
-                            TipHandler.popTip(CONFIG_WRAPPER_TIP)
-                            CONFIG_WRAPPER_TIP = TipHandler.pushTip(2.seconds, it, Tip {
+                            TipHandler.pushHoverTip(2.seconds, it, Tip {
                                 Text(IGLang.keyExists(keyToSting(newKey)).withColor(Colors.RED))
                             })
                         }
@@ -213,7 +214,7 @@ fun <K, V> TableScope<Map.Entry<K, V>>.TableConfigMapKeyColumn(
                     recompose()
                 },
                 screenModifier = Modifier.onClose {
-                    TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                    TipHandler.popHoverTip()
                 }
             ) {
                 editor = keyEditorWrapper(key, value, config.getValue()) { newKey = it }
@@ -466,7 +467,10 @@ fun ContainerScope.StringPairListConfigWrapper(
                             }.open()
                         }
                     }
-                    DeleteButton({ IGLang.removeConfirm("${config.getValue()[index].first} → ${config.getValue()[index].second}") }, recompose) {
+                    DeleteButton(
+                        confirmMessage = { IGLang.removeConfirm("${config.getValue()[index].first} → ${config.getValue()[index].second}") },
+                        recompose = recompose
+                    ) {
                         config.removeAt(index)
                     }
                 }
@@ -519,7 +523,7 @@ fun ContainerScope.StringListConfigWrapper(
             Header {
                 Text(IGLang.edit, modifier = Modifier.padding(bottom = 3f))
             }.Column { index, _ ->
-                DeleteButton({ IGLang.removeConfirm("[$index]${config[index]}") }, recompose) {
+                DeleteButton(confirmMessage = { IGLang.removeConfirm("[$index]${config[index]}") }, recompose = recompose) {
                     config.removeAt(index)
                 }
             }
@@ -585,8 +589,8 @@ fun ContainerScope.StringMapConfigWrapper(
                 )
             }.Column { _, (key, _) ->
                 DeleteButton(
-                    { IGLang.removeConfirm("$key → ${config[key]}") },
-                    { this@TableConfigMapWrappedButton.executeRecompose() }
+                    confirmMessage = { IGLang.removeConfirm("$key → ${config[key]}") },
+                    recompose = { this@TableConfigMapWrappedButton.executeRecompose() }
                 ) {
                     config.remove(key)
                 }

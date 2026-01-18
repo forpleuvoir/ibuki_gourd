@@ -230,14 +230,17 @@ fun <S : ContainerScope, T> S.RadioButtons(
 
 
 fun ContainerScope.DeleteButton(
+    modifier: Modifier = Modifier,
+    iconColor: ARGBColor = Colors.RED,
+    hoveredColor: ARGBColor = Colors.LIGHT_RED,
     confirmMessage: () -> MutableText,
     recompose: () -> Unit,
     deleteAction: () -> Unit,
 ) = FlatButton(
-    hoveredColor = Colors.LIGHT_RED,
-    modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
+    hoveredColor = hoveredColor,
+    modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove).then(modifier)
 ) {
-    Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
+    Icon(IconTextures.DELETE, iconColor, Modifier.size(10f, 10f))
     click {
         if (InputHandler.wasKeyPressed(Keyboard.LEFT_CONTROL)) {
             deleteAction()

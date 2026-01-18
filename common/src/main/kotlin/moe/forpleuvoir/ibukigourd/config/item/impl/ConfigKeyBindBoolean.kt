@@ -32,7 +32,7 @@ class ConfigKeyBindBoolean(
     override fun init() {
         super.init()
         InputHandler.register(configValue.keyBind)
-        configValue.keyBind.name((this.parentContainer?.translateText?.appendLiteral("->") ?: Literal()).append(this.translateText))
+        configValue.keyBind.name((this.parentContainer?.translateText?.appendLiteral("→") ?: Literal()).append(this.translateText))
     }
 
     override fun setValue(value: KeyBindWithBoolean) {
@@ -69,7 +69,7 @@ fun ConfigContainer.keyBindBoolean(
     defaultValue: KeyBindWithBoolean,
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
         Toast.showToast(
-            text = translateTextWithParent(1, "->").append(Literal(" : ")).append(coloredSwitch(it))
+            text = translateTextWithParent(1, "→").append(Literal(" : ")).append(coloredSwitch(it))
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, defaultValue, onSwitch))
@@ -80,7 +80,7 @@ fun ConfigContainer.keyBindBoolean(
     keyBind: KeyBind = KeyBind(),
     onSwitch: ConfigKeyBindBoolean.(Boolean) -> Unit = {
         Toast.showToast(
-            text = translateTextWithParent(1, "->").append(Literal(" : ")).append(coloredSwitch(it))
+            text = translateTextWithParent(1, "→").append(Literal(" : ")).append(coloredSwitch(it))
         )
     }
 ) = addConfig(ConfigKeyBindBoolean(key, KeyBindWithBoolean(keyBind, value), onSwitch))

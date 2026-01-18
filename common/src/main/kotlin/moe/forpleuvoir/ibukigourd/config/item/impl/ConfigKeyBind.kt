@@ -20,7 +20,7 @@ class ConfigKeyBind(
     override fun init() {
         super.init()
         InputHandler.register(configValue)
-        configValue.name((this.parentContainer?.translateText?.appendLiteral("->") ?: Literal()).append(this.translateText))
+        configValue.name((this.parentContainer?.translateText?.appendLiteral("→") ?: Literal()).append(this.translateText))
     }
 
     override fun setValue(value: KeyBind) {

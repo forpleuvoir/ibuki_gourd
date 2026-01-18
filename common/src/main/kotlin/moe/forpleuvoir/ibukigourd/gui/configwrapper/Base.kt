@@ -21,8 +21,6 @@ import moe.forpleuvoir.nebula.config.ConfigSerializable
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
-var CONFIG_WRAPPER_TIP: Tip? = null
-
 fun <T : ConfigSerializable> ContainerScope.ConfigRowWrapper(
     configSerializable: T,
     modifier: Modifier = Modifier,

@@ -23,7 +23,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInDuration
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.fadeInOffset
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderPanorama
 import moe.forpleuvoir.ibukigourd.gui.base.screen.ScreenUserData.renderParentScreen
+import moe.forpleuvoir.ibukigourd.gui.base.tip.SCREEN_HOVER_TIP
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.tip.popScreenHoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.pushScreenHoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainer
@@ -326,7 +329,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         if (minecraft.screen != this) return
         InputHandler.releaseAll()
         onClose?.invoke()
-        TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
+        TipHandler.popScreenHoverTip()
         MouseCursor.clear()
         coroutineScope.cancel()
         minecraft.setScreen(parentScreen)
@@ -357,7 +360,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override fun init() {
         onInit?.invoke()
-        TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
+        TipHandler.popScreenHoverTip()
         recompose()
     }
 
@@ -415,13 +418,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
                 widget.findFirsInParentChain { element -> element is GuiWidget && element.hoverTip != null }
                     ?.let { hoveredWidget ->
                         val tip = (hoveredWidget as GuiWidget).hoverTip!!
-                        if (tip != TipHandler.SCREEN_HOVER_TIP) TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
-                        TipHandler.SCREEN_HOVER_TIP = TipHandler.pushTip({ hoveredWidget.transform }, tip)
+                        if (tip != SCREEN_HOVER_TIP) TipHandler.popScreenHoverTip()
+                        TipHandler.pushScreenHoverTip({ hoveredWidget.transform }, tip)
                         return@hoverTip
                     }
-                TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
+                TipHandler.popScreenHoverTip()
             } ?: run {
-                TipHandler.popTip(TipHandler.SCREEN_HOVER_TIP)
+                TipHandler.popScreenHoverTip()
             }
         }
     }
@@ -470,7 +473,12 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
         latestFrameRenderTime = measureTime {
 
-            executeTasks()
+            runCatching {
+                executeTasks()
+            }.onFailure {
+                logger.warn("Error in IGScreen executing tasks: $it")
+                closeScreen()
+            }
 
             if (mc.screen == this) {
                 updateHoveredWidget()
@@ -582,20 +590,24 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var mouseMove: (event: MouseMoveEvent) -> Unit = ::onMouseMove
 
+    private var _wasMouseOver: Boolean = false
+
     @Suppress("DuplicatedCode")
     override fun onMouseMove(event: MouseMoveEvent) {
         //判断鼠标是否在组件内
         if (event.position in transform.asWorldCoordinateBox) {
             //如果之前的[wasMouseOver]状态为False,则更新状态并且触发[MouseEnterEvent]
-            if (!wasMouseOver) {
+            if (!_wasMouseOver) {
                 mouseEnter(MouseEnterEvent(event.x, event.y))
             }
         } else {
             //如果之前的[wasMouseOver]状态为True,则更新状态并触发[MouseLeaveEvent]
-            if (wasMouseOver) {
+            if (_wasMouseOver) {
                 mouseLeave(MouseLeaveEvent(event.x, event.y))
             }
         }
+
+        _wasMouseOver = wasMouseOver
 
         elementChildren().foreachWithIterator {
             if (it.active) it.mouseMove.invoke(event)

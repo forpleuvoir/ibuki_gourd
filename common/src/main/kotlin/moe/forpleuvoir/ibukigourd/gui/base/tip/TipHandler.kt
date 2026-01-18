@@ -1,19 +1,14 @@
 package moe.forpleuvoir.ibukigourd.gui.base.tip
 
-import kotlinx.coroutines.*
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.render.runWithZOffset
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.TimeSource
 
 object TipHandler : Tickable {
-
-    var SCREEN_HOVER_TIP: Tip? = null
 
     private val tips: MutableList<Tip> = ArrayList(5)
 
@@ -29,10 +24,11 @@ object TipHandler : Tickable {
     }
 
     fun pushTip(duration: Duration, parent: () -> Transform, tip: Tip): Tip {
-        if (tip in tips && tip !in popList.keys) {
-            popList[tip] = TimeSource.Monotonic.markNow() + duration
+        return pushTip(parent, tip).apply {
+            if (tip in tips) {
+                popList[tip] = TimeSource.Monotonic.markNow() + duration
+            }
         }
-        return pushTip(parent, tip)
     }
 
     fun cancelPop(tip: Tip?) {
@@ -44,7 +40,7 @@ object TipHandler : Tickable {
 
     fun popTip(tip: Tip?) {
         if (tip == null) return
-        if (tip in tips && tip !in popList.keys) {
+        if (tip in tips) {
             popList[tip] = TimeSource.Monotonic.markNow()
         }
     }
