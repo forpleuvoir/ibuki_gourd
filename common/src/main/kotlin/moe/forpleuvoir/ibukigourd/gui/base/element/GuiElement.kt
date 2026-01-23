@@ -28,6 +28,13 @@ interface GuiElement : GuiEventListener, GuiContext, ModifiableGuiHandler {
 
     //------------ Vanilla Element ------------\\
 
+    @Deprecated("如果要覆写,请使用onProcess方法", replaceWith = ReplaceWith("onProcess(delta)"))
+    override fun process(delta: Float) {
+        process.invoke(delta)
+    }
+
+    override fun onProcess(delta: Float) = Unit
+
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
         if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()))
     }

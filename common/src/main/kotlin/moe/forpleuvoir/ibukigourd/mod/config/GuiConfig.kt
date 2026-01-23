@@ -24,7 +24,7 @@ object GuiConfig : ModConfigContainer("gui") {
 
     val expandableConfigContainerLimit by int("expandable_config_container_limit", 15, 0, 30)
 
-    val textLabelUpdateInterval by duration("text_label_update_interval", 0.5.seconds, 0.seconds, 2.seconds)
+    val textLabelUpdateInterval by duration("text_label_update_interval", 16.milliseconds, 0.seconds, 1.seconds)
 
     init {
         addConfig(Screen)

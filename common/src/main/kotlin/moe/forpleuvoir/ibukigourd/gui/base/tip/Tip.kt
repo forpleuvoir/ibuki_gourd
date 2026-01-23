@@ -61,7 +61,7 @@ class Tip(
             //第一次测量之后才能选择合适的方向,所以第一次渲染会重新测量一次选择更好的位置
             var firstRemeasure = true
             setName("HoverTip")
-            renderBackground = { _, _, _, _ ->
+            process = {
                 val parentBox = parent().asWorldCoordinateBox
                 //如果当前Box不在可放置的方向上,则重新测量最合适的方向
                 TipHelper.canPlaceDirections(transform, margin, parentBox, setting.optionalDirection).let { directions ->

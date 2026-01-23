@@ -6,6 +6,29 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 interface GuiHandler : Tickable {
 
     /**
+     * 仅内部实现使用
+     *
+     * 如果想在外部覆写请使用 [ModifiableGuiHandler.process]高阶函数
+     * ```kotlin
+     * //widget is [ModifiableGuiHandler]
+     * widget.process = { delta->
+     *    //do something
+     * }
+     * ```
+     */
+    @Deprecated("如果要覆写,请使用onProcess方法", replaceWith = ReplaceWith("onProcess(delta)"))
+    fun process(delta: Float)
+
+    /**
+     * 处理逻辑
+     *
+     * 此方法会在每一帧渲染之前调用
+     *
+     * @param delta 距离上一次调用此函数经过的时间,单位秒
+     */
+    fun onProcess(delta: Float)
+
+    /**
      * 当鼠标移动到元素内时
      */
     fun onMouseEnter(event: MouseEnterEvent)

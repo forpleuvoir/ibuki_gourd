@@ -57,7 +57,7 @@ fun WidgetScope.PopupTip(
                 }
                 .margin(4f)
                 .padding(4f)
-                .renderBackground { _, _, _, _ ->
+                .process {
                     this as BoxWidget
                     val parentBox = parentTransform().asWorldCoordinateBox
                     //是否需要重新放置

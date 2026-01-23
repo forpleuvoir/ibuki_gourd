@@ -50,34 +50,19 @@ interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContai
 
     //------------ Drawable ------------\\
 
-    override var renderPriority: Int
-
-    override var visible: Boolean
-
-    override fun onRender(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float)
-
-    override var render: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit
-
     override fun onRenderOverlay(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) = Unit
 
-    override var renderOverlay: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit
-
     override fun onRenderBackground(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) = Unit
-
-    override var renderBackground: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit
 
 
     //------------ IGElement ------------\\
 
-    override var mouseEnter: (event: MouseEnterEvent) -> Unit
 
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 
-    override var mouseLeave: (event: MouseLeaveEvent) -> Unit
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
 
-    override var mouseMove: (event: MouseMoveEvent) -> Unit
 
     override fun onMouseMove(event: MouseMoveEvent) {
         elementChildren().foreachWithIterator {
@@ -85,15 +70,11 @@ interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContai
         }
     }
 
-    override var mousePress: (event: MousePressEvent) -> Unit
-
     override fun onMousePress(event: MousePressEvent) {
         elementChildren().foreachWithIterator {
             if (it.active) it.mousePress.invoke(event)
         }
     }
-
-    override var focused: (event: FocusedEvent) -> Unit
 
     override fun onFocused(event: FocusedEvent) {
         elementChildren().foreachWithIterator {
@@ -101,15 +82,11 @@ interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContai
         }
     }
 
-    override var mouseRelease: (event: MouseReleaseEvent) -> Unit
-
     override fun onMouseRelease(event: MouseReleaseEvent) {
         elementChildren().foreachWithIterator {
             if (it.active) it.mouseRelease.invoke(event)
         }
     }
-
-    override var mouseDragging: (event: MouseDragEvent) -> Unit
 
     override fun onMouseDragging(event: MouseDragEvent) {
         elementChildren().foreachWithIterator {
@@ -117,15 +94,11 @@ interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContai
         }
     }
 
-    override var mouseScrolling: (event: MouseScrollEvent) -> Unit
-
     override fun onMouseScrolling(event: MouseScrollEvent) {
         elementChildren().foreachWithIterator {
             if (it.active) it.mouseScrolling.invoke(event)
         }
     }
-
-    override var keyPress: (event: KeyPressEvent) -> Unit
 
     override fun onKeyPress(event: KeyPressEvent) {
         elementChildren().foreachWithIterator {
@@ -133,15 +106,11 @@ interface GuiRenderableElementContainer : GuiRenderableElement, GuiElementContai
         }
     }
 
-    override var keyRelease: (event: KeyReleaseEvent) -> Unit
-
     override fun onKeyRelease(event: KeyReleaseEvent) {
         elementChildren().foreachWithIterator {
             if (it.active) it.keyRelease.invoke(event)
         }
     }
-
-    override var charTyped: (event: CharTypedEvent) -> Unit
 
     override fun onCharTyped(event: CharTypedEvent) {
         elementChildren().foreachWithIterator {

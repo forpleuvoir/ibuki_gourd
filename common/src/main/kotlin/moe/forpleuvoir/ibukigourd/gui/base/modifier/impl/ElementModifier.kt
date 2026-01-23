@@ -18,6 +18,10 @@ fun Modifier.tick(action: GuiWidget.() -> Unit) = this then WidgetModifier { ele
     element.tick = { element.action() }
 }
 
+fun Modifier.process(action: GuiWidget.(Float) -> Unit) = this then WidgetModifier { element ->
+    element.process = { element.action(it) }
+}
+
 fun Modifier.mouseEnter(action: GuiWidget.(MouseEnterEvent) -> Unit) = this then WidgetModifier { element ->
     element.mouseEnter = { element.action(it) }
 }

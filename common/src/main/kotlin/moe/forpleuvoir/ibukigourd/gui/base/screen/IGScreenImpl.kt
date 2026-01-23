@@ -465,28 +465,43 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
+    @Deprecated("如果要覆写,请使用onProcess方法", replaceWith = ReplaceWith("onProcess(delta)"))
+    override fun process(delta: Float) {
+        process.invoke(delta)
+        elementChildren.forEach {
+            @Suppress("DEPRECATION")
+            it.process(delta)
+        }
+
+        runCatching {
+            executeTasks()
+        }.onFailure {
+            logger.warn("Error in IGScreen executing tasks: $it")
+            closeScreen()
+        }
+
+        if (mc.screen == this) {
+            updateHoveredWidget()
+            MouseCursor.current = cursorSupplier()
+        } else {
+            hoveredWidget.setValue(null)
+            focusedWidget.setValue(null)
+        }
+    }
+
+    override var process: (delta: Float) -> Unit = ::onProcess
+
     @Suppress("LocalVariableName", "DuplicatedCode")
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+        @Suppress("DEPRECATION")
+        //理论上来说转换为秒是*20,但是不确定是否客户端的tps固定为20
+        process(delta * 20)
+
         if (!visible) return
         if (!showTimeMark.isInit) {
             showTimeMark.setValue(TimeSource.Monotonic.markNow())
         }
         latestFrameRenderTime = measureTime {
-
-            runCatching {
-                executeTasks()
-            }.onFailure {
-                logger.warn("Error in IGScreen executing tasks: $it")
-                closeScreen()
-            }
-
-            if (mc.screen == this) {
-                updateHoveredWidget()
-                MouseCursor.current = cursorSupplier()
-            } else {
-                hoveredWidget.setValue(null)
-                focusedWidget.setValue(null)
-            }
 
             val graphics = guiGraphics.toIGGUIGraphics()
 

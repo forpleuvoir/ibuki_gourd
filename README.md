@@ -9,7 +9,7 @@
 
 如:`配置管理` `配置GUI` `指令DSL` `GUI DSL`
 
-![Modrinth Version](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth)
+![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
 依赖于:
 

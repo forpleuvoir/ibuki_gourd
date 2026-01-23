@@ -50,15 +50,9 @@ abstract class GuiRenderableElementImpl : GuiRenderableElement {
 
     override var renderBackground: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderBackground
 
-    abstract override fun onRenderBackground(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float)
-
     override var render: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRender
 
-    abstract override fun onRender(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float)
-
     override var renderOverlay: (guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float) -> Unit = ::onRenderOverlay
-
-    abstract override fun onRenderOverlay(guiGraphics: IGGuiGraphics, mouseX: Float, mouseY: Float, delta: Float)
 
 
     //------------ IGElement ------------\\
@@ -87,6 +81,8 @@ abstract class GuiRenderableElementImpl : GuiRenderableElement {
     override fun clearActive() {
         _active = null
     }
+
+    override var process: (delta: Float) -> Unit = ::onProcess
 
     override var mouseEnter: (event: MouseEnterEvent) -> Unit = ::onMouseEnter
 

@@ -26,6 +26,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.event.*
 interface ModifiableGuiHandler : GuiHandler {
 
     /**
+     * 处理逻辑
+     *
+     * 此方法会在每一帧渲染之前调用
+     *
+     * @param delta 距离上一次调用此函数经过的时间,单位秒
+     */
+    var process: (delta: Float) -> Unit
+
+    /**
      * 当鼠标移动到元素内时
      */
     var mouseEnter: (event: MouseEnterEvent) -> Unit

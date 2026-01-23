@@ -87,6 +87,13 @@ abstract class GuiWidgetContainerImpl : GuiWidgetImpl(), GuiWidgetContainer {
         widgetChildren().forEach { it.tick() }
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("如果要覆写,请使用onProcess方法", replaceWith = ReplaceWith("onProcess(delta)"))
+    override fun process(delta: Float) {
+        super<GuiWidgetImpl>.process(delta)
+        widgetChildren().forEach { it.process(delta) }
+    }
+
     override fun onMouseEnter(event: MouseEnterEvent) = Unit
 
     override fun onMouseLeave(event: MouseLeaveEvent) = Unit
