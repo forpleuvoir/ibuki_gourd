@@ -38,6 +38,7 @@ import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.widgetTestOutlineC
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.LateInitValue
+import moe.forpleuvoir.ibukigourd.util.animation.ProgressAnimator
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.math.bezier.CubicEasing
@@ -440,18 +441,14 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         hoveredWidget.setValue(null)
     }
 
-    private var showTimeMark: LateInitValue<TimeSource.Monotonic.ValueTimeMark> = lateInitValueOf()
-
     private fun calculateAlphaAndOffset(): Pair<Float, Vector2fc> {
         if (fadeInOffset == 0f || fadeInDuration == Duration.ZERO) return 1f to Vector2f()
-        val currentMark = TimeSource.Monotonic.markNow() // 当前时间标记
-        val elapsedTime = currentMark - showTimeMark.getValue()
 
         // 计算 fadeIn 进度
-        val fadeInProgress = CubicEasing.easeOut((elapsedTime / fadeInDuration).toFloat()).coerceIn(0f, 1f)
+        val fadeInProgress = fadeInAnimator.getValue().value.getValue().toFloat()
 
         // 透明度 (alpha)：从 0 → 1
-        val alpha = fadeInProgress
+        val alpha = fadeInProgress.coerceIn(0f, 1f)
 
         // 偏移量 (offset)：从 fadeInOffset → 0
         val offset = fadeInOffset * (1f - fadeInProgress)
@@ -465,6 +462,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
+    private val fadeInAnimator: LateInitValue<ProgressAnimator> = lateInitValueOf()
+
     @Deprecated("如果要覆写,请使用onProcess方法", replaceWith = ReplaceWith("onProcess(delta)"))
     override fun process(delta: Float) {
         process.invoke(delta)
@@ -472,6 +471,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
             @Suppress("DEPRECATION")
             it.process(delta)
         }
+
+        if (fadeInAnimator.isInit) fadeInAnimator.getValue().update()
 
         runCatching {
             executeTasks()
@@ -498,9 +499,12 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         process(delta * 20)
 
         if (!visible) return
-        if (!showTimeMark.isInit) {
-            showTimeMark.setValue(TimeSource.Monotonic.markNow())
+
+        if (!fadeInAnimator.isInit) {
+            fadeInAnimator.setValue(ProgressAnimator(fadeInDuration))
+            fadeInAnimator.getValue().play()
         }
+
         latestFrameRenderTime = measureTime {
 
             val graphics = guiGraphics.toIGGUIGraphics()

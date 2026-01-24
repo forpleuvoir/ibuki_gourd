@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.Direction.*
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxWidget
+import moe.forpleuvoir.ibukigourd.util.animation.ProgressAnimator
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import org.joml.Vector2f
@@ -108,6 +109,9 @@ class Tip(
     }
 
     fun render(guiGraphics: IGGuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+        @Suppress("DEPRECATION")
+        box.process( delta)
+
         if (!this::box.isInitialized || showTimeMark.elapsedNow() < setting.showDelay) return
         val (alpha, offset) = calculateAlphaAndOffset()
         guiGraphics {
