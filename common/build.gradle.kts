@@ -19,7 +19,7 @@ dependencies {
     compileOnly(libs.bundles.kotlin)
     compileOnly(libs.mixin)
     compileOnly(libs.minxinExtras.common)
-    implementation(libs.nebula)
+    compileOnly(libs.nebula)
     annotationProcessor(libs.minxinExtras.common)
 
     testImplementation(kotlin("test"))

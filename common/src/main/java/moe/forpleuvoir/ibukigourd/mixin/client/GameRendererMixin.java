@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics;
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler;
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast;

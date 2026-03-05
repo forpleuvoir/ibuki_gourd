@@ -1,10 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "moe.forpleuvoir.ibukigourd.mixin",
+  "package": "moe.forpleuvoir.ibukigourd.mixin.neoforge",
   "compatibilityLevel": "JAVA_21",
   "server": [],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+  ]
 }
