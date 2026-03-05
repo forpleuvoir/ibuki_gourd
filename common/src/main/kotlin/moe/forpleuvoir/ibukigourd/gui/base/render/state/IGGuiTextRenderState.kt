@@ -18,13 +18,12 @@ class IGGuiTextRenderState(
     color: ARGBColor,
     backgroundColor: ARGBColor,
     dropShadow: Boolean,
-    includeEmpty: Boolean,
     scissor: Box?
-) : GuiTextRenderState(font, text, pose, xf.toInt(), yf.toInt(), color.argb, backgroundColor.argb, dropShadow, includeEmpty, scissor?.asScreenRectangle) {
+) : GuiTextRenderState(font, text, pose, xf.toInt(), yf.toInt(), color.argb, backgroundColor.argb, dropShadow, scissor?.asScreenRectangle) {
 
     override fun ensurePrepared(): Font.PreparedText {
         if (this.preparedText == null) {
-            this.preparedText = this.font.prepareText(this.text, xf, yf, this.color, this.dropShadow,this.includeEmpty, this.backgroundColor)
+            this.preparedText = this.font.prepareText(this.text, xf, yf, this.color, this.dropShadow, this.backgroundColor)
             var screenRectangle = this.preparedText!!.bounds()
             if (screenRectangle != null) {
                 screenRectangle =

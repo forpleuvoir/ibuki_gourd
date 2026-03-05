@@ -12,9 +12,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.gui.navigation.FocusNavigationEvent
 import net.minecraft.client.gui.navigation.ScreenDirection
 import net.minecraft.client.gui.navigation.ScreenRectangle
-import net.minecraft.client.input.CharacterEvent
-import net.minecraft.client.input.KeyEvent
-import net.minecraft.client.input.MouseButtonEvent
 
 interface GuiElement : GuiEventListener, GuiContext, ModifiableGuiHandler {
 
@@ -39,18 +36,18 @@ interface GuiElement : GuiEventListener, GuiContext, ModifiableGuiHandler {
         if (active) mouseMove(MouseMoveEvent(mouseX.toFloat(), mouseY.toFloat()))
     }
 
-    override fun mouseClicked(event: MouseButtonEvent, isDoubleClick: Boolean): Boolean {
-        if (active) mousePress(MousePressEvent(event.x.toFloat(), event.y.toFloat(), Mouse.fromCode(event.button()), isDoubleClick))
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button), false))
         return false
     }
 
-    override fun mouseReleased(event: MouseButtonEvent): Boolean {
-        if (active) mouseRelease(MouseReleaseEvent(event.x.toFloat(), event.y.toFloat(), Mouse.fromCode(event.button())))
+    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (active) mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)))
         return false
     }
 
-    override fun mouseDragged(event: MouseButtonEvent, mouseX: Double, mouseY: Double): Boolean {
-        if (active) mouseDragging(MouseDragEvent(event.x.toFloat(), event.y.toFloat(), Mouse.fromCode(event.button()), mouseX.toFloat(), mouseY.toFloat()))
+    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
+        if (active) mouseDragging(MouseDragEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button), dragX.toFloat(), dragY.toFloat()))
         return false
     }
 
@@ -59,18 +56,18 @@ interface GuiElement : GuiEventListener, GuiContext, ModifiableGuiHandler {
         return false
     }
 
-    override fun keyPressed(event: KeyEvent): Boolean {
-        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(event.key), event.scancode, event.modifiers))
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
         return false
     }
 
-    override fun keyReleased(event: KeyEvent): Boolean {
-        if (active) keyRelease(KeyReleaseEvent(Keyboard.fromCode(event.key), event.scancode, event.modifiers))
+    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (active) keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
         return false
     }
 
-    override fun charTyped(event: CharacterEvent): Boolean {
-        if (active) charTyped.invoke(CharTypedEvent(event.codepoint(), event.modifiers))
+    override fun charTyped(codePoint: Char, modifiers: Int): Boolean {
+        if (active) charTyped.invoke(CharTypedEvent(codePoint.code, modifiers))
         return false
     }
 

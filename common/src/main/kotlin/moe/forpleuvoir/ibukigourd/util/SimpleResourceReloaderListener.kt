@@ -1,23 +1,25 @@
 package moe.forpleuvoir.ibukigourd.util
 
 import net.minecraft.server.packs.resources.PreparableReloadListener
+import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.util.profiling.Profiler
+import net.minecraft.util.profiling.ProfilerFiller
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 
 abstract class SimpleResourceReloaderListener<T> : PreparableReloadListener {
     override fun reload(
-        sharedState: PreparableReloadListener.SharedState,
-        exectutor: Executor,
         barrier: PreparableReloadListener.PreparationBarrier,
-        applyExectutor: Executor
+        manager: ResourceManager,
+        applyExectutor: Executor,
+        gameExecutor: Executor
     ): CompletableFuture<Void> {
-        val prepareStep = CompletableFuture.supplyAsync<T>({ this.prepare(sharedState) }, exectutor)
-        return prepareStep.thenCompose<T> { result -> barrier.wait(result!!) }
-            .thenAcceptAsync(Consumer { prepared: T -> this.apply(prepared, sharedState) }, applyExectutor)
+        return CompletableFuture.supplyAsync<T>({ this.prepare(manager, Profiler.get()) }, gameExecutor)
+            .thenCompose<T> { result -> barrier.wait(result!!) }
+            .thenAcceptAsync({ prepared -> this.apply(prepared, manager, Profiler.get()) }, gameExecutor)
     }
 
-    protected abstract fun prepare(sharedState: PreparableReloadListener.SharedState): T
+    protected abstract fun prepare(resourceManager: ResourceManager, profiler: ProfilerFiller): T
 
-    protected abstract fun apply(prepared: T, sharedState: PreparableReloadListener.SharedState)
+    protected abstract fun apply(prepared: T, resourceManager: ResourceManager, profiler: ProfilerFiller)
 }

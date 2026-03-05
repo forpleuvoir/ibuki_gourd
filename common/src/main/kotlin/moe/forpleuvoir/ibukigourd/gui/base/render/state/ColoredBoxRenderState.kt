@@ -78,10 +78,10 @@ data class ColoredBoxRenderState(
 
     override fun bounds(): ScreenRectangle? = bounds
 
-    override fun buildVertices(consumer: VertexConsumer) {
-        consumer.vertex(pose, x0, y0).color(col1)
-        consumer.vertex(pose, x0, y1).color(col2)
-        consumer.vertex(pose, x1, y1).color(col3)
-        consumer.vertex(pose, x1, y0).color(col4)
+    override fun buildVertices(consumer: VertexConsumer, z: Float) {
+        consumer.vertex(pose, x0, y0, z).color(col1)
+        consumer.vertex(pose, x0, y1, z).color(col2)
+        consumer.vertex(pose, x1, y1, z).color(col3)
+        consumer.vertex(pose, x1, y0, z).color(col4)
     }
 }

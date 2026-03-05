@@ -98,7 +98,7 @@ enum class MouseCursor(val value: Int) {
             set(value) {
                 if (value == field) return
                 field = value
-                glfwSetCursor(mc.window.handle(), glfwCreateStandardCursor(value.value))
+                glfwSetCursor(mc.window.window, glfwCreateStandardCursor(value.value))
             }
     }
 

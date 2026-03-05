@@ -7,7 +7,6 @@ import moe.forpleuvoir.ibukigourd.input.MouseKt;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
-import net.minecraft.client.input.MouseButtonInfo;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,14 +27,14 @@ public abstract class MouseHandlerMixin {
     private double mousePressedTime;
 
     @Shadow
-    private MouseButtonInfo activeButton;
+    private int activeButton;
 
-    @Inject(method = "onButton", at = @At("HEAD"), cancellable = true)
-    public void onMouseButton(long p_window, MouseButtonInfo buttonInfo, int action, CallbackInfo ci) {
-        if (p_window == this.minecraft.getWindow().handle()) {
-            final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(buttonInfo.button());
+    @Inject(method = "onPress", at = @At("HEAD"), cancellable = true)
+    public void onPress(long windowPointer, int button, int action, int modifiers, CallbackInfo ci) {
+        if (windowPointer == this.minecraft.getWindow().getWindow()) {
+            final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(button);
             if (action == 1) {
-                this.activeButton = buttonInfo;
+                this.activeButton = button;
                 final var event = new MouseEvent.MousePressEvent(keyCode, keyCode.getKeyName(), currentEnv());
                 EventBus.Companion.broadcast(event);
                 if (event.getCanceled()) {
@@ -44,7 +43,7 @@ public abstract class MouseHandlerMixin {
                 }
                 if (InputHandler.onKeyPress(keyCode)) ci.cancel();
             } else {
-                this.activeButton = new MouseButtonInfo(-1, 0);
+                this.activeButton = -1;
                 final var event = new MouseEvent.MouseReleaseEvent(keyCode, keyCode.getKeyName(), currentEnv());
                 EventBus.Companion.broadcast(event);
                 if (event.getCanceled()) {
@@ -58,7 +57,7 @@ public abstract class MouseHandlerMixin {
 
     @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
     public void onMouseScroll(long windowPointer, double horizontal, double vertical, CallbackInfo ci) {
-        if (windowPointer == this.minecraft.getWindow().handle()) {
+        if (windowPointer == this.minecraft.getWindow().getWindow()) {
             final double amount = (this.minecraft.options.discreteMouseScroll().get() ? Math.signum(vertical) : vertical) * this.minecraft.options.mouseWheelSensitivity().get();
             final var event = new MouseEvent.MouseScrollEvent(amount, currentEnv());
             EventBus.Companion.broadcast(event);
@@ -70,7 +69,7 @@ public abstract class MouseHandlerMixin {
 
     @Inject(method = "onMove", at = @At("HEAD"), cancellable = true)
     public void onMove(long windowPointer, double xpos, double ypos, CallbackInfo ci) {
-        if (windowPointer == this.minecraft.getWindow().handle()) {
+        if (windowPointer == this.minecraft.getWindow().getWindow()) {
             final var position = MouseKt.getMousePosition(this.minecraft);
             final var event = new MouseEvent.MouseMoveEvent(position.getX(), position.getY(), currentEnv());
             EventBus.Companion.broadcast(event);
@@ -78,8 +77,8 @@ public abstract class MouseHandlerMixin {
                 ci.cancel();
                 return;
             }
-            if (this.activeButton != null && this.activeButton.button() != -1 && this.mousePressedTime > 0.0) {
-                final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(activeButton.button());
+            if (this.activeButton != -1 && this.mousePressedTime > 0.0) {
+                final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(activeButton);
                 final var draggingEvent = new MouseEvent.MouseDraggingEvent(keyCode, keyCode.getKeyName(), position.getX(), position.getY(), currentEnv());
                 EventBus.Companion.broadcast(draggingEvent);
                 if (draggingEvent.getCanceled()) {

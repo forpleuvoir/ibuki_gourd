@@ -37,17 +37,13 @@ import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.Screen.widgetTestOutlineColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.withColor
-import moe.forpleuvoir.ibukigourd.util.LateInitValue
+import moe.forpleuvoir.ibukigourd.util.*
 import moe.forpleuvoir.ibukigourd.util.animation.ProgressAnimator
-import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
-import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.math.bezier.CubicEasing
-import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.openScreen
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ComponentPath
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Renderable
@@ -55,9 +51,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.gui.narration.NarratableEntry
 import net.minecraft.client.gui.navigation.FocusNavigationEvent
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.client.input.CharacterEvent
-import net.minecraft.client.input.KeyEvent
-import net.minecraft.client.input.MouseButtonEvent
 import org.joml.Vector2f
 import org.joml.Vector2fc
 import java.util.concurrent.CopyOnWriteArrayList
@@ -66,7 +59,6 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.Duration
-import kotlin.time.TimeSource
 import kotlin.time.measureTime
 
 abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
@@ -327,13 +319,13 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
     }
 
     override fun close() {
-        if (minecraft.screen != this) return
+        if (minecraft!!.screen != this) return
         InputHandler.releaseAll()
         onClose?.invoke()
         TipHandler.popScreenHoverTip()
         MouseCursor.clear()
         coroutineScope.cancel()
-        minecraft.setScreen(parentScreen)
+        minecraft!!.setScreen(parentScreen)
     }
 
     override var onDisplayed: (() -> Unit)? = null
@@ -342,8 +334,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var onResize: ((Int, Int) -> Unit)? = null
 
-    override fun resize(width: Int, height: Int) {
-        parentScreen?.resize(width, height)
+    override fun resize(minecraft: Minecraft, width: Int, height: Int) {
+        parentScreen?.resize(minecraft, width, height)
         onResize?.invoke(width, height)
         transform.set(width.toFloat(), height.toFloat())
         remeasure()
@@ -351,10 +343,11 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
     override var onFirstInit: ((Int, Int) -> Unit)? = null
 
-    override fun init(width: Int, height: Int) {
+
+     override fun init(minecraft: Minecraft, width: Int, height: Int) {
         onFirstInit?.invoke(width, height)
         transform.set(width.toFloat(), height.toFloat())
-        super.init(width, height)
+        super.init(minecraft, width, height)
     }
 
     override var onInit: (() -> Unit)? = null
@@ -509,7 +502,7 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
 
             val graphics = guiGraphics.toIGGUIGraphics()
 
-            if (renderPanorama && minecraft.level == null) {
+            if (renderPanorama && minecraft!!.level == null) {
                 this.renderPanorama(guiGraphics, delta)
             }
             if (renderParentScreen) {
@@ -633,8 +626,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
-    override fun mouseClicked(event: MouseButtonEvent, isDoubleClick: Boolean): Boolean = eventProcessing {
-        if (active) mousePress(MousePressEvent(event.x.toFloat(), event.y.toFloat(), Mouse.fromCode(event.button()), isDoubleClick))
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
+        if (active) mousePress(MousePressEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button), false))
         false
     }
 
@@ -664,10 +657,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
-    override fun mouseReleased(event: MouseButtonEvent): Boolean = eventProcessing {
+    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean = eventProcessing {
         if (active) {
-            parentScreen?.mouseReleased(event)
-            mouseRelease(MouseReleaseEvent(event.x.toFloat(), event.y.toFloat(), Mouse.fromCode(event.button())))
+            parentScreen?.mouseReleased(mouseX, mouseY, button)
+            mouseRelease(MouseReleaseEvent(mouseX.toFloat(), mouseY.toFloat(), Mouse.fromCode(button)))
         }
         return false
     }
@@ -682,14 +675,14 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
-    override fun mouseDragged(event: MouseButtonEvent, mouseX: Double, mouseY: Double): Boolean = eventProcessing {
+    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean = eventProcessing {
         if (active && wasDragging) mouseDragging(
             MouseDragEvent(
-                event.x.toFloat(),
-                event.y.toFloat(),
-                Mouse.fromCode(event.button()),
                 mouseX.toFloat(),
-                mouseY.toFloat()
+                mouseY.toFloat(),
+                Mouse.fromCode(button),
+                dragX.toFloat(),
+                dragY.toFloat()
             )
         )
         return false
@@ -716,8 +709,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
-    override fun keyPressed(event: KeyEvent): Boolean = eventProcessing {
-        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(event.key), event.scancode, event.modifiers))
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
+        if (active) keyPress(KeyPressEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
         return true
     }
 
@@ -731,10 +724,10 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
             .onSuccess { close() }
     }
 
-    override fun keyReleased(event: KeyEvent): Boolean = eventProcessing {
+    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean = eventProcessing {
         if (active) {
-            parentScreen?.keyReleased(event)
-            keyRelease(KeyReleaseEvent(Keyboard.fromCode(event.key), event.scancode, event.modifiers))
+            parentScreen?.keyReleased(keyCode, scanCode, modifiers)
+            keyRelease(KeyReleaseEvent(Keyboard.fromCode(keyCode), scanCode, modifiers))
         }
         return false
     }
@@ -747,8 +740,8 @@ abstract class IGScreenImpl : Screen(Literal("ibuki gourd screen")), IGScreen {
         }
     }
 
-    override fun charTyped(event: CharacterEvent): Boolean = eventProcessing {
-        if (active) charTyped.invoke(CharTypedEvent(event.codepoint, event.modifiers))
+    override fun charTyped(codePoint: Char, modifiers: Int): Boolean = eventProcessing {
+        if (active) charTyped.invoke(CharTypedEvent(codePoint.code, modifiers))
         return false
     }
 

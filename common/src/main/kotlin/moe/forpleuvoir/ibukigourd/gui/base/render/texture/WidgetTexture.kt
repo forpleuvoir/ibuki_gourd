@@ -38,7 +38,7 @@ class WidgetTexture(
 
     val textureSetup: TextureSetup by lazy {
         textureInfo.texture.asTexture.let {
-            TextureSetup.singleTexture(it.textureView, it.sampler)
+            TextureSetup.singleTexture(it.textureView)
         }
     }
 

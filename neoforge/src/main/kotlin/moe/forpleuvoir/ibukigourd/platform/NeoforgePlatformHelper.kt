@@ -9,7 +9,6 @@ import net.neoforged.fml.loading.FMLLoader
 import net.neoforged.fml.loading.FMLPaths
 import java.io.File
 import kotlin.reflect.KClass
-import kotlin.text.contains
 
 class NeoforgePlatformHelper : PlatformHelper {
 
@@ -54,7 +53,7 @@ class NeoforgePlatformHelper : PlatformHelper {
 
     override fun isModLoaded(modId: String): Boolean = ModList.get().isLoaded(modId)
 
-    override fun isDevEnvironment(): Boolean = !FMLLoader.getCurrent().isProduction
+    override fun isDevEnvironment(): Boolean = !FMLLoader.isProduction()
 
     override fun getIGModClasses(): Map<String, Set<KClass<*>>> = modPacks
 

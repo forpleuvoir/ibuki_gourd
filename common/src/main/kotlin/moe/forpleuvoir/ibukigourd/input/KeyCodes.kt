@@ -12,7 +12,6 @@ import moe.forpleuvoir.nebula.serialization.Serializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import net.minecraft.client.input.KeyEvent
 
 interface KeyCode : Matchable {
 
@@ -22,7 +21,7 @@ interface KeyCode : Matchable {
         get() = keyNameText.plainText
 
     val keyNameText: MutableText
-        get() = InputConstants.getKey(KeyEvent(code, 0, 0)).displayName.copy()
+        get() = InputConstants.getKey(code, 0).displayName.copy()
 
     val translationKey: String
 
@@ -195,5 +194,5 @@ enum class Keyboard(override val code: Int) : KeyCode {
     }
 
     override val translationKey: String
-        get() = InputConstants.getKey(KeyEvent(code, 0, 0)).name
+        get() = InputConstants.getKey(code, 0).name
 }

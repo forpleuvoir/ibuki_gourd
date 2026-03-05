@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.text.style
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.network.chat.*
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 
@@ -36,7 +37,7 @@ class StyleBuilder(parent: Style) {
 
     private var insertion: String? = parent.insertion
 
-    private var font: FontDescription? = parent.font
+    private var font: ResourceLocation? = parent.font
 
     fun color(rgbColor: RGBColor?): StyleBuilder {
         this.color = rgbColor
@@ -123,7 +124,7 @@ class StyleBuilder(parent: Style) {
         return this
     }
 
-    fun font(font: FontDescription?): StyleBuilder {
+    fun font(font: ResourceLocation?): StyleBuilder {
         this.font = font
         return this
     }

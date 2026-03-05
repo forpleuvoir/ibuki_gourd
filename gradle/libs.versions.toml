@@ -2,27 +2,27 @@
 java = "21"
 kotlin = "2.2.20"
 kotlinCoroutines = "1.10.2"
-minecraft = "1.21.11"
-minecraftRange = "[1.21.11,1.22)"
+minecraft = "1.21.8"
+minecraftRange = "[1.21.8,)"
 
 #Fabric checks these on https://fabricmc.net/versions.html
-fabricApi = "0.139.5+1.21.11"
+fabricApi = "0.136.1+1.21.8"
 fabricLoader = "0.18.2"
 fabricLoom = "1.13-SNAPSHOT"
 fabricKotlin = "1.13.6+kotlin.2.2.20"
 
-modMenu = "17.0.0-beta.1"
+modMenu = "15.0.1"
 
 # NeoForge, see https://projects.neoforged.net/ for new versions
-neoforgedModDev = "2.0.134"
-neoForm = "1.21.11-20251209.172050"
-neoforge = "21.11.13-beta"
+neoforgedModDev = "2.0.140"
+neoForm = "1.21.8-20250717.133445"
+neoforge = "21.8.52"
 neoforgeRange = "[4,)"
-forgeKotlin = "6.0.0"
-forgeKotlinRange = "[6.0,)"
+forgeKotlin = "5.10.0"
+forgeKotlinRange = "[5.10.0,)"
 #https://parchmentmc.org/docs/getting-started#choose-a-version
-parchmentMinecraft = "1.21.10"
-parchment = "2025.10.12"
+parchmentMinecraft = "1.21.8"
+parchment = "2025.09.14"
 
 mixin = "0.8.5"
 minxinExtras = "0.3.5"

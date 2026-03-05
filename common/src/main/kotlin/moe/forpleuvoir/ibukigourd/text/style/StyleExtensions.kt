@@ -4,6 +4,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.network.chat.*
+import net.minecraft.resources.ResourceLocation
 
 fun style(
     color: RGBColor? = null,
@@ -16,7 +17,7 @@ fun style(
     clickEvent: ClickEvent? = null,
     hoverEvent: HoverEvent? = null,
     insertion: String? = null,
-    font: FontDescription? = null
+    font: ResourceLocation? = null
 ) = Style(
     color?.let { TextColor.fromRgb(it.rgb) },
     shadowColor?.rgb,
@@ -97,7 +98,7 @@ fun Style.insertion(insertion: String?): Style {
     return this.withInsertion(insertion)
 }
 
-fun Style.font(font: FontDescription?): Style {
+fun Style.font(font: ResourceLocation?): Style {
     return this.withFont(font)
 }
 

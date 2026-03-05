@@ -594,7 +594,7 @@ class TextAreaWidget(
     }
 
     override fun onCharTyped(event: CharTypedEvent) {
-        event.tryUse { this.isFocused && StringUtil.isAllowedChatCharacter(event.codepoint) }.onSuccess {
+        event.tryUse { this.isFocused && StringUtil.isAllowedChatCharacter(Char(event.codepoint)) }.onSuccess {
             replaceSelection(event.codepointAsString)
         }
     }

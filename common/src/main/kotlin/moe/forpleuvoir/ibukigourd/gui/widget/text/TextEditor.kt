@@ -48,12 +48,12 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.primitive.either
+import net.minecraft.Util
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.components.Whence
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.StringUtil
-import net.minecraft.util.Util
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -474,7 +474,7 @@ open class TextEditorWidget(
 
     override fun onCharTyped(event: CharTypedEvent) {
         if (!isActive) return
-        event.tryUse { StringUtil.isAllowedChatCharacter(event.codepoint) }
+        event.tryUse { StringUtil.isAllowedChatCharacter(Char(event.codepoint)) }
             .onSuccess {
                 write(event.codepointAsString)
             }

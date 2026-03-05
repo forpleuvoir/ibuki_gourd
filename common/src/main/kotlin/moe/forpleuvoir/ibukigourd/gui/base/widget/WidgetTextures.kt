@@ -11,6 +11,8 @@ import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.json.JsonParser
 import net.minecraft.server.packs.resources.PreparableReloadListener
+import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.util.profiling.ProfilerFiller
 import kotlin.reflect.full.isSubclassOf
 
 object WidgetTextures : SimpleResourceReloaderListener<SerializeObject>() {
@@ -23,13 +25,13 @@ object WidgetTextures : SimpleResourceReloaderListener<SerializeObject>() {
 
     private val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
 
-    val RESOURCE_ID = identifier("id")
+    val RESOURCE_ID = identifier("widget")
 
     @OptIn(ExperimentalApi::class)
-    override fun prepare(sharedState: PreparableReloadListener.SharedState): SerializeObject {
+    override fun prepare(resourceManager: ResourceManager, profiler: ProfilerFiller): SerializeObject {
         log.info("widget textures loading...")
         return runCatching {
-            sharedState.resourceManager().getResource(TEXTURE_INFO_RESOURCES).get().let { resource ->
+            resourceManager.getResource(TEXTURE_INFO_RESOURCES).get().let { resource ->
                 JsonParser.parse(CharStreams.toString(resource.open().reader())).asObject
             }
         }.onFailure {
@@ -37,7 +39,7 @@ object WidgetTextures : SimpleResourceReloaderListener<SerializeObject>() {
         }.getOrDefault(SerializeObject())
     }
 
-    override fun apply(prepared: SerializeObject, sharedState: PreparableReloadListener.SharedState) {
+    override fun apply(prepared: SerializeObject, resourceManager: ResourceManager, profiler: ProfilerFiller) {
         log.info("widget textures parsing...")
         runCatching {
             this.javaClass.declaredFields

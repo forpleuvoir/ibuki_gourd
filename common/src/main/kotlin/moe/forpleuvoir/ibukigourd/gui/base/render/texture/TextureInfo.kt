@@ -8,12 +8,12 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 
 data class TextureInfo(
     override val width: Int = 256,
     override val height: Int = 256,
-    val texture: Identifier
+    val texture: ResourceLocation
 ) : Serializable, SizeInt {
 
     companion object : Deserializer<TextureInfo> {

@@ -12,6 +12,8 @@ import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.json.JsonParser
 import net.minecraft.server.packs.resources.PreparableReloadListener
+import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.util.profiling.ProfilerFiller
 import kotlin.reflect.full.isSubclassOf
 
 @Suppress("UNUSED")
@@ -28,10 +30,10 @@ object IconTextures : SimpleResourceReloaderListener<SerializeObject>() {
     val RESOURCE_ID = identifier("icon")
 
     @OptIn(ExperimentalApi::class)
-    override fun prepare(sharedState: PreparableReloadListener.SharedState): SerializeObject {
+    override fun prepare(resourceManager: ResourceManager, profiler: ProfilerFiller): SerializeObject {
         log.info("icon textures loading...")
         return runCatching {
-            sharedState.resourceManager().getResource(TEXTURE_INFO_RESOURCES).get().let { resource ->
+            resourceManager.getResource(TEXTURE_INFO_RESOURCES).get().let { resource ->
                 JsonParser.parse(CharStreams.toString(resource.open().reader())).asObject
             }
         }.onFailure {
@@ -39,7 +41,7 @@ object IconTextures : SimpleResourceReloaderListener<SerializeObject>() {
         }.getOrDefault(SerializeObject())
     }
 
-    override fun apply(prepared: SerializeObject, sharedState: PreparableReloadListener.SharedState) {
+    override fun apply(prepared: SerializeObject, resourceManager: ResourceManager, profiler: ProfilerFiller) {
         log.info("icon textures parsing...")
         runCatching {
             this.javaClass.declaredFields

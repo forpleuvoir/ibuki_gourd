@@ -40,7 +40,7 @@ data class IGTiledBlitRenderState(
 
     override fun bounds(): ScreenRectangle? = bounds
 
-    override fun buildVertices(consumer: VertexConsumer) {
+    override fun buildVertices(consumer: VertexConsumer, z: Float) {
         val width = x1 - x0;
         val height = y1 - y0
 
@@ -67,10 +67,10 @@ data class IGTiledBlitRenderState(
                 val cY0 = y0 + usedHeight
                 val cY1 = y0 + usedHeight + currentHeight
 
-                consumer.vertex(pose, cX0, cY0).uv(u0, v0).color(color)
-                consumer.vertex(pose, cX0, cY1).uv(u0, currentV).color(color)
-                consumer.vertex(pose, cX1, cY1).uv(currentU, currentV).color(color)
-                consumer.vertex(pose, cX1, cY0).uv(currentU, v0).color(color)
+                consumer.vertex(pose, cX0, cY0, z).uv(u0, v0).color(color)
+                consumer.vertex(pose, cX0, cY1, z).uv(u0, currentV).color(color)
+                consumer.vertex(pose, cX1, cY1, z).uv(currentU, currentV).color(color)
+                consumer.vertex(pose, cX1, cY0, z).uv(currentU, v0).color(color)
 
                 usedHeight += tileHeight
             }

@@ -53,13 +53,11 @@ class IGGuiGraphics private constructor(
     client: Minecraft,
     pose: Matrix3x2fStack,
     guiRenderState: GuiRenderState,
-    mouseX: Int,
-    mouseY: Int
-) : GuiGraphics(client, pose, guiRenderState, mouseX, mouseY) {
+) : GuiGraphics(client, pose, guiRenderState) {
 
     companion object {
         fun GuiGraphics.toIGGUIGraphics(): IGGuiGraphics =
-            this as? IGGuiGraphics ?: IGGuiGraphics(this.minecraft, this.pose(), this.guiRenderState, mouseX, mouseY)
+            this as? IGGuiGraphics ?: IGGuiGraphics(this.minecraft, this.pose(), this.guiRenderState)
 
         private val transparent = Color.ofARGB(0)
     }
@@ -746,7 +744,7 @@ class IGGuiGraphics private constructor(
         pose: Matrix3x2f = Matrix3x2f(pose()),
         font: Font = this.font,
         scissorBox: Box? = peekScissorBox()
-    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, false, scissorBox))
+    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, scissorBox))
 
     fun pushText(
         text: Component,

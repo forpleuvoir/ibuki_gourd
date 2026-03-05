@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -21,7 +21,7 @@ internal fun logger(name: String): ModLogger {
     return ModLogger(name, IbukiGourd.MOD_NAME)
 }
 
-fun identifier(namespace: String, path: String): Identifier = Identifier.fromNamespaceAndPath(namespace, path)
+fun identifier(namespace: String, path: String): ResourceLocation = ResourceLocation.fromNamespaceAndPath(namespace, path)
 
 internal fun identifier(path: String) = identifier(IbukiGourd.MOD_ID, path)
 

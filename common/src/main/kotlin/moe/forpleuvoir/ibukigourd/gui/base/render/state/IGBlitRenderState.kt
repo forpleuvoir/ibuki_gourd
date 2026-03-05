@@ -44,11 +44,11 @@ data class IGBlitRenderState(
 
     override fun bounds(): ScreenRectangle? = bounds
 
-    override fun buildVertices(consumer: VertexConsumer) {
-        consumer.vertex(pose, x0, y0).uv(u0, v0).color(color)
-        consumer.vertex(pose, x0, y1).uv(u0, v1).color(color)
-        consumer.vertex(pose, x1, y1).uv(u1, v1).color(color)
-        consumer.vertex(pose, x1, y0).uv(u1, v0).color(color)
+    override fun buildVertices(consumer: VertexConsumer, z: Float) {
+        consumer.vertex(pose, x0, y0, z).uv(u0, v0).color(color)
+        consumer.vertex(pose, x0, y1, z).uv(u0, v1).color(color)
+        consumer.vertex(pose, x1, y1, z).uv(u1, v1).color(color)
+        consumer.vertex(pose, x1, y0, z).uv(u1, v0).color(color)
     }
 
 

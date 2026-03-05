@@ -3,14 +3,13 @@
 package moe.forpleuvoir.ibukigourd.render
 
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexConsumer
 import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.textureManager
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.client.renderer.texture.AbstractTexture
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import org.joml.*
 
 val PoseStack.pose: Matrix4f get() = this.last().pose()
@@ -49,7 +48,7 @@ inline fun Matrix4f.getPosition(): Vector3f {
     return Vector3f(this.get(3, 0), this.get(3, 1), this.get(3, 2))
 }
 
-val Identifier.asTexture: AbstractTexture get() = textureManager.getTexture(this)
+val ResourceLocation.asTexture: AbstractTexture get() = textureManager.getTexture(this)
 
 /**
  * - 默认的Z轴坐标值，用于在渲染时指定顶点的Z轴位置。
@@ -85,9 +84,9 @@ inline fun VertexConsumer.vertex(poseStack: PoseStack, vector3: Vector3fc): Vert
 inline fun VertexConsumer.vertex(poseStack: PoseStack, vector2fc: Vector2fc, z: Float = defaultZOffset): VertexConsumer =
     this.vertex(poseStack.pose, vector2fc, z)
 
-fun VertexConsumer.vertex(pose: Matrix3x2f, x: Float, y: Float): VertexConsumer {
+fun VertexConsumer.vertex(pose: Matrix3x2f, x: Float, y: Float, z: Float = 0f): VertexConsumer {
     val vector2f = pose.transformPosition(x, y, Vector2f())
-    return addVertex(vector2f.x(), vector2f.y(), defaultZOffset)
+    return addVertex(vector2f.x(), vector2f.y(), z + defaultZOffset)
 }
 
 inline fun VertexConsumer.uv(uv: UVVertex): VertexConsumer =
