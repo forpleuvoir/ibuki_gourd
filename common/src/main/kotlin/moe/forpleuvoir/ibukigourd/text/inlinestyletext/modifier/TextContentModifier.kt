@@ -9,7 +9,7 @@ object TextContentModifier : TextModifier {
         if (exp.startsWith("c:")) {
             val exp = exp.substring(2)
             translationContent(exp)?.let { return it }
-            translationContent(exp)?.let { return it }
+            keybindContent(exp)?.let { return it }
         }
         return null
     }
