@@ -9,6 +9,7 @@
   ],
   "client": [
     "client.GameRendererMixin",
+    "client.GuiTextRenderStateMixin",
     "client.KeyboardHandlerMixin",
     "client.MinecraftMixin",
     "client.MouseHandlerMixin"

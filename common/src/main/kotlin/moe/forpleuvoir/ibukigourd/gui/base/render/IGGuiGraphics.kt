@@ -16,6 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.state.ColoredBoxRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGBlitRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGGuiTextRenderState
 import moe.forpleuvoir.ibukigourd.gui.base.render.state.IGTiledBlitRenderState
+import moe.forpleuvoir.ibukigourd.gui.base.render.state.setXF
+import moe.forpleuvoir.ibukigourd.gui.base.render.state.setYF
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
@@ -32,6 +34,7 @@ import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.render.TextureSetup
 import net.minecraft.client.gui.render.state.GuiRenderState
+import net.minecraft.client.gui.render.state.GuiTextRenderState
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
@@ -746,7 +749,26 @@ class IGGuiGraphics private constructor(
         pose: Matrix3x2f = Matrix3x2f(pose()),
         font: Font = this.font,
         scissorBox: Box? = peekScissorBox()
-    ) = guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, false, scissorBox))
+    ) {
+//        guiRenderState.submitText(IGGuiTextRenderState(font, text, pose, x, y, applyModulatedColor(color), backgroundColor, shadow, false, scissorBox))
+        guiRenderState.submitText(
+            GuiTextRenderState(
+                font,
+                text,
+                pose,
+                x.toInt(),
+                y.toInt(),
+                applyModulatedColor(color).argb,
+                backgroundColor.argb,
+                shadow,
+                false,
+                scissorBox?.asScreenRectangle
+            ).apply {
+                setXF(x)
+                setYF(y)
+            }
+        )
+    }
 
     fun pushText(
         text: Component,

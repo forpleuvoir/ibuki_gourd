@@ -6,8 +6,8 @@ minecraft = "1.21.11"
 minecraftRange = "[1.21.11,1.22)"
 
 #Fabric checks these on https://fabricmc.net/versions.html
-fabricApi = "0.139.5+1.21.11"
-fabricLoader = "0.18.2"
+fabricApi = "0.141.3+1.21.11"
+fabricLoader = "0.18.4"
 fabricLoom = "1.13-SNAPSHOT"
 fabricKotlin = "1.13.6+kotlin.2.2.20"
 
@@ -21,8 +21,8 @@ neoforgeRange = "[4,)"
 forgeKotlin = "6.0.0"
 forgeKotlinRange = "[6.0,)"
 #https://parchmentmc.org/docs/getting-started#choose-a-version
-parchmentMinecraft = "1.21.10"
-parchment = "2025.10.12"
+parchmentMinecraft = "1.21.11"
+parchment = "2025.12.20"
 
 mixin = "0.8.5"
 minxinExtras = "0.3.5"

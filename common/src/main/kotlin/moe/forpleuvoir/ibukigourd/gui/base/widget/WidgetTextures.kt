@@ -10,6 +10,7 @@ import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.json.JsonParser
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import kotlin.reflect.full.isSubclassOf
 
@@ -23,7 +24,7 @@ object WidgetTextures : SimpleResourceReloaderListener<SerializeObject>() {
 
     private val TEXTURE_INFO = TextureInfo(256, 256, TEXTURE_RESOURCES)
 
-    val RESOURCE_ID = identifier("id")
+    val RESOURCE_ID: Identifier = identifier("widget")
 
     @OptIn(ExperimentalApi::class)
     override fun prepare(sharedState: PreparableReloadListener.SharedState): SerializeObject {
