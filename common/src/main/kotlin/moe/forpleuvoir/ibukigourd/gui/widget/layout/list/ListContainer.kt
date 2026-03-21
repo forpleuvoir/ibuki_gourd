@@ -71,27 +71,32 @@ fun ContainerScope.RowListWrapped(
     scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     content: RowListScope.() -> Unit
 ): ColumnWidget {
-    var recompose by lateInitValueOf {}
+    var scrollerRecompose by lateInitValueOf {}
     var renderBar = false
     return Column(
         modifier = Modifier
             .renderBackground { guiGraphics, _, _, _ ->
                 guiGraphics.pushWidgetTexture(transform, theme(WidgetTheme.ListLayout))
             }
-            .padding(3)
-            .layoutCompleted {
-                onLayoutCompletion()
-                val oldState = renderBar
-                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
-                if (oldState != renderBar) {
-                    recompose()
+            .mouseScrolling { event ->
+                onMouseScrolling(event)
+                event.tryUse(wasMouseOver).onSuccess {
+                    scrollState.scroll(event.verticalAmount)
                 }
             }
+            .padding(3)
             .then(modifier),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         RowList(
-            modifier = Modifier then listModifier(),
+            modifier = Modifier.layoutCompleted {
+                onLayoutCompletion()
+                val oldState = renderBar
+                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
+                if (oldState != renderBar) {
+                    scrollerRecompose()
+                }
+            } then listModifier(),
             scrollState = scrollState,
             spacing = spacing,
             verticalAlignment = verticalAlignment,
@@ -109,7 +114,7 @@ fun ContainerScope.RowListWrapped(
                 )
             }
         }.apply {
-            recompose = { this.executeRecompose() }
+            scrollerRecompose = { this.executeRecompose() }
         }
     }
 }
@@ -163,27 +168,33 @@ fun ContainerScope.ColumnListWrapped(
     scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     content: ColumnListScope.() -> Unit
 ): RowWidget {
-    var recompose by lateInitValueOf {}
+    var scrollerRecompose by lateInitValueOf {}
     var renderBar = true
     return Row(
         modifier = Modifier
             .renderBackground { guiGraphics, _, _, _ ->
                 guiGraphics.pushWidgetTexture(transform, theme(WidgetTheme.ListLayout))
             }
-            .padding(3)
-            .layoutCompleted {
-                onLayoutCompletion()
-                val oldState = renderBar
-                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
-                if (oldState != renderBar) {
-                    recompose()
+            .mouseScrolling { event ->
+                onMouseScrolling(event)
+                event.tryUse(wasMouseOver).onSuccess {
+                    scrollState.scroll(event.verticalAmount)
                 }
             }
+            .padding(3)
             .then(modifier),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         ColumnList(
-            modifier = listModifier(),
+            modifier = Modifier
+                .layoutCompleted {
+                    onLayoutCompletion()
+                    val oldState = renderBar
+                    renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
+                    if (oldState != renderBar) {
+                        scrollerRecompose()
+                    }
+                } then listModifier(),
             scrollState = scrollState,
             spacing = spacing,
             horizontalAlignment = horizontalAlignment,
@@ -201,7 +212,7 @@ fun ContainerScope.ColumnListWrapped(
                 )
             }
         }.apply {
-            recompose = { this.executeRecompose() }
+            scrollerRecompose = { this.executeRecompose() }
         }
     }
 }

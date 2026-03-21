@@ -324,12 +324,10 @@ fun <T> ContainerScope.TableWrapped(
             .renderBackground { guiGraphics, _, _, _ ->
                 guiGraphics.pushWidgetTexture(transform, theme(WidgetTheme.ListLayout))
             }
-            .layoutCompleted {
-                onLayoutCompletion()
-                val oldState = renderBar
-                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
-                if (oldState != renderBar) {
-                    recompose()
+            .mouseScrolling { event ->
+                onMouseScrolling(event)
+                event.tryUse(wasMouseOver).onSuccess {
+                    scrollState.scroll(event.verticalAmount)
                 }
             }
             .padding(3).then(modifier),
@@ -342,7 +340,14 @@ fun <T> ContainerScope.TableWrapped(
             rowGap = rowGap,
             columnGap = columnGap,
             scrollState = scrollState,
-            modifier = tableModifier(),
+            modifier = Modifier.layoutCompleted {
+                onLayoutCompletion()
+                val oldState = renderBar
+                renderBar = scrollState.barProportion != 1f && scrollState.barProportion != 0f
+                if (oldState != renderBar) {
+                    recompose()
+                }
+            } then tableModifier(),
             scope = scope
         ).apply(onCreate)
         Box(Modifier.matchSibling()) {
