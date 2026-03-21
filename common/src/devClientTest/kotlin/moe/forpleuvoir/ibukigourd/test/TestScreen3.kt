@@ -48,7 +48,7 @@ fun testScreen3() = ColumnScreen(
     val listString = listOf("东风谷早苗", "博丽灵梦", "雾雨魔理沙", "伊吹萃香", "本居小铃")
     Row {
         SelectorWithSearcher(
-            listString,
+            listString+listString+listString+listString,
             { str, s ->
                 str.contains(s)
             },
@@ -59,7 +59,7 @@ fun testScreen3() = ColumnScreen(
             optionWrapper = {
                 Text(it, modifier = Modifier.width(80f))
             },
-            searchBarModifier = { Modifier.width(80f) },
+            searchBarModifier = { Modifier.width(91f) },
             listModifier = { Modifier.width(80f) },
         )
         DropDownMenu(

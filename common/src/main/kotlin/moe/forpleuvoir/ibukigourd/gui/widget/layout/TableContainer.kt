@@ -313,6 +313,7 @@ fun <T> ContainerScope.TableWrapped(
     scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     scrollState: ScrollState = ScrollState(),
     barThickness: Float = 9f,
+    onCreate: TableWidget.() -> Unit = {},
     tableModifier: RowScope.() -> Modifier = { Modifier },
     scope: TableScope<T>.() -> Unit
 ): RowWidget {
@@ -343,7 +344,7 @@ fun <T> ContainerScope.TableWrapped(
             scrollState = scrollState,
             modifier = tableModifier(),
             scope = scope
-        )
+        ).apply(onCreate)
         Box(Modifier.matchSibling()) {
             if (renderBar) {
                 Scroller(

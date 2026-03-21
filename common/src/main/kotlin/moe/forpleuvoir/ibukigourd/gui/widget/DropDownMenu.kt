@@ -27,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -97,7 +98,7 @@ fun ContainerScope.DropDownMenu(
     }
 
     Row(
-        modifier = Modifier.width(13f),
+        modifier = Modifier.width(13f).priority(1),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Rect(
@@ -229,15 +230,14 @@ fun <T> ContainerScope.SelectorWithSearcher(
             Column(
                 horizontalAlignment = Alignment.Left,
             ) {
-                val showList = notifiableList(options.toList())
+                val showList = options.toMutableList()
+                var listRecompose by lateInitValueOf<() -> Unit>()
                 if (options.count() > searchBarHideLimit)
                     SearchBar(
                         textConsumer = { str ->
-                            showList.disableNotify {
-                                showList.clear()
-                                showList.addAll(options.toList().filter { predicate(it, str) })
-                            }
-                            showList.onChange(showList)
+                            showList.clear()
+                            showList.addAll(options.filter { predicate(it, str) })
+                            listRecompose()
                         },
                         hintText = stateOf(IGLang.search.plainText),
                         modifier = searchBarModifier(),
@@ -246,7 +246,10 @@ fun <T> ContainerScope.SelectorWithSearcher(
                 ColumnListWrapped(
                     modifier = listWrapperModifier().attachLeft { padding(0f).disableRenderBackground() },
                     listModifier = listModifier,
-                    horizontalAlignment = Alignment.Left
+                    horizontalAlignment = Alignment.Left,
+                    onCreate = {
+                        listRecompose = { this.executeRecompose() }
+                    }
                 ) {
                     amountStep?.let { amountStep(it) }
                     if (showList.isEmpty()) Text(IGLang.hasNothing)
@@ -268,10 +271,6 @@ fun <T> ContainerScope.SelectorWithSearcher(
                                 this@DropDownMenu.toggle()
                             }
                         }
-                    }
-                }.apply {
-                    showList.subscribe {
-                        executeRecompose()
                     }
                 }
             }

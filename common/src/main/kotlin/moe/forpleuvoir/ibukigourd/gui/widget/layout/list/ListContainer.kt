@@ -66,6 +66,7 @@ fun ContainerScope.RowListWrapped(
     spacing: Float = 0f,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     barThickness: Float = 9f,
+    onCreate: RowListWidget.() -> Unit = {},
     listModifier: ColumnScope.() -> Modifier = { Modifier },
     scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     content: RowListScope.() -> Unit
@@ -95,7 +96,7 @@ fun ContainerScope.RowListWrapped(
             spacing = spacing,
             verticalAlignment = verticalAlignment,
             content = content
-        )
+        ).apply(onCreate)
         Box(Modifier.matchSibling()) {
             if (renderBar) {
                 Scroller(
@@ -157,6 +158,7 @@ fun ContainerScope.ColumnListWrapped(
     spacing: Float = 0f,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     barThickness: Float = 9f,
+    onCreate: ColumnListWidget.() -> Unit = {},
     listModifier: RowScope.() -> Modifier = { Modifier },
     scrollerModifier: BoxScope.() -> Modifier = { Modifier },
     content: ColumnListScope.() -> Unit
@@ -186,7 +188,7 @@ fun ContainerScope.ColumnListWrapped(
             spacing = spacing,
             horizontalAlignment = horizontalAlignment,
             content = content
-        )
+        ).apply(onCreate)
         Box(Modifier.matchSibling()) {
             if (renderBar) {
                 Scroller(
