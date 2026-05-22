@@ -5,31 +5,16 @@ import moe.forpleuvoir.ibukigourd.text.Texts
 import net.minecraft.network.chat.MutableComponent
 
 object TextContentModifier : TextModifier {
-    override fun modifier(exp: String): ((MutableComponent) -> MutableComponent)? {
-        if (exp.startsWith("c:")) {
-            val exp = exp.substring(2)
-            translationContent(exp)?.let { return it }
-            keybindContent(exp)?.let { return it }
+
+    private val pattern = """(ts|kb)=>(.+)""".toRegex()
+
+    override fun modify(exp: String, current: MutableComponent): MutableComponent? {
+        val (contentType, content) = pattern.matchEntire(exp)?.destructured ?: return null
+        return when (contentType) {
+            "ts" -> Text.translatable(content).setStyle(current.style)
+            "kb" -> Text.keybind(content).setStyle(current.style)
+            else -> null
         }
-        return null
-    }
-
-    private fun translationContent(exp: String): ((MutableComponent) -> MutableComponent)? {
-        return if (exp == "ts") {
-            { text ->
-                val key = text.string
-                Text.translatable(key).setStyle(text.style)
-            }
-        } else null
-    }
-
-    private fun keybindContent(exp: String): ((MutableComponent) -> MutableComponent)? {
-        return if (exp == "kb") {
-            { text ->
-                val key = text.string
-                Texts.keyBind(key).setStyle(text.style)
-            }
-        } else null
     }
 
 }

@@ -4,8 +4,8 @@ import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 
 
 class TickTask<T>(
@@ -23,23 +23,13 @@ class TickTask<T>(
     constructor(delay: Int = 0, period: Int = 1, times: Int = 1, action: (TickTask<T>, T) -> Unit) :
             this(delay, period, times, SimpleTaskExecutor(action))
 
-    data class Setting(val delay: Int = 0, val period: Int = 1, val times: Int = 1) : Serializable {
-        override fun serialization(): SerializeElement = serializeObject {
-            "delay" to delay
-            "period" to period
-            "times" to times
-        }
+    data class Setting(val delay: Int = 0, val period: Int = 1, val times: Int = 1) {
 
-        companion object : Deserializer<Setting> {
-            override fun deserialization(serializeElement: SerializeElement): Setting =
-                serializeElement.checkType<SerializeObject, Setting> {
-                    Setting(
-                        it["delay"]!!.asInt.coerceAtLeast(0),
-                        it["period"]!!.asInt.coerceAtLeast(1),
-                        it["times"]!!.asInt.coerceAtLeast(1)
-                    )
-                }.getOrDefault(Setting())
-        }
+        companion object : Codec<Setting> by Codec.create<Setting>()
+            .field<Int>("delay").getter(Setting::delay).default(0).codec(Codec.int)
+            .field<Int>("period").getter(Setting::period).default(1).codec(Codec.int)
+            .field<Int>("times").getter(Setting::times).default(1).codec(Codec.int)
+            .build(::Setting)
     }
 
     init {
@@ -79,9 +69,11 @@ class TickTask<T>(
     }
 
 
-    override fun serialization(): SerializeElement = serializeObject {
-        "setting" to setting.serialization()
-        "executor" to executor.serialization()
+    override fun serialization(): SerializeElement {
+        val obj = SerializeObject()
+        obj["setting"] = Setting.serialization(setting)
+        obj["executor"] = executor.serialization()
+        return obj
     }
 
     override fun toString(): String {

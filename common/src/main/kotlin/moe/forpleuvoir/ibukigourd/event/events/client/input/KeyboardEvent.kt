@@ -1,11 +1,15 @@
 package moe.forpleuvoir.ibukigourd.event.events.client.input
 
+import moe.forpleuvoir.ibukigourd.event.CancellableContext
+import moe.forpleuvoir.ibukigourd.event.CancellableContextImpl
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.KeyEnvironment
 import moe.forpleuvoir.ibukigourd.input.currentEnv
-import moe.forpleuvoir.nebula.event.CancellableEvent
 
-class KeyboardEvent {
+object KeyboardEvent {
+
+    @JvmField
+    val Pressed = CancellableContext.createEvent<PressedContext>()
 
     /**
      * 表示键盘按下事件的类。
@@ -17,17 +21,17 @@ class KeyboardEvent {
      * @property name 表示被按下键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的键盘环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    data class KeyPressEvent(
+    class PressedContext(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
         val name: String = keyCode.keyName,
         @JvmField
         val env: KeyEnvironment = currentEnv()
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
 
+    @JvmField
+    val Released = CancellableContext.createEvent<ReleasedContext>()
 
     /**
      * 表示键盘按键释放事件的类。
@@ -38,14 +42,12 @@ class KeyboardEvent {
      * @property name 按键的本地化名称。
      * @property env 当前按键的运行环境。
      */
-    data class KeyReleaseEvent(
+    class ReleasedContext(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
         val name: String = keyCode.keyName,
         @JvmField
         val env: KeyEnvironment = currentEnv()
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
 }

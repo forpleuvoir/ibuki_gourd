@@ -1,38 +1,51 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
-import moe.forpleuvoir.nebula.config.container.ConfigContainer
-import moe.forpleuvoir.nebula.config.item.impl.ConfigList
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.ConfigSerde
+import moe.forpleuvoir.nebula.config.config
+import moe.forpleuvoir.nebula.config.item.configList
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.default
 
-class ConfigPairList<A, B>(
-    override val key: String,
-    defaultValue: List<Pair<A, B>>,
-    private val aSerializer: (A) -> SerializeElement,
-    private val aDeserializer: (SerializeElement) -> A,
-    private val bSerializer: (B) -> SerializeElement,
-    private val bDeserializer: (SerializeElement) -> B
-) : ConfigList<Pair<A, B>>(
-    key, defaultValue,
-    serializer = {
-        serializeArray(aSerializer(it.first), bSerializer(it.second))
-        serializeObject {
-            "first" to it.first
-            "second" to it.second
-        }
-    },
-    deserializer = {
-        it.checkType<Pair<A, B>> {
-            check<SerializeObject> {
-                aDeserializer(it["first"]!!) to bDeserializer(it["second"]!!)
-            }
-        }.getOrThrow()
-    }
+fun <A : Any, B : Any> Codec.Companion.pair(
+    codecA: Codec<A>,
+    codecB: Codec<B>
+): Codec<Pair<A, B>> = Codec.create<Pair<A, B>>()
+    .field<A>("first").getter(Pair<A, B>::first).codec(codecA)
+    .field<B>("second").getter(Pair<A, B>::second).codec(codecB)
+    .build { a, b -> a to b }
+
+context(group: ConfigGroup)
+fun <A : Any, B : Any> configPair(
+    name: String,
+    defaultValue: Pair<A, B>,
+    serdeA: ConfigSerde<A>,
+    serdeB: ConfigSerde<B>
+) = config(
+    name,
+    defaultValue,
+    Codec.pair(serdeA.asCodec.default(defaultValue.first), serdeB.asCodec.default(defaultValue.second))
 )
 
-fun ConfigContainer.stringPairList(key: String, defaultValue: List<Pair<String, String>>): ConfigPairList<String, String> =
-    addConfig(ConfigPairList(key, defaultValue, { SerializePrimitive(it) }, { it.asString }, { SerializePrimitive(it) }, { it.asString }))
+context(group: ConfigGroup)
+fun configStringPair(
+    name: String,
+    defaultValue: Pair<String, String>,
+) = config(
+    name,
+    defaultValue,
+    Codec.pair(Codec.string(defaultValue.first), Codec.string(defaultValue.second))
+)
+
+context(group: ConfigGroup)
+fun <A : Any, B : Any> configPairList(
+    name: String,
+    defaultValue: List<Pair<A, B>>,
+    serdeA: ConfigSerde<A>,
+    serdeB: ConfigSerde<B>
+) = configList(
+    name,
+    defaultValue,
+    Codec.pair(serdeA.asCodec, serdeB.asCodec)
+)
+

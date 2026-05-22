@@ -19,18 +19,17 @@ repositories {
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${libs.versions.parchmentMinecraft.get()}:${libs.versions.parchment.get()}@zip")
-    })
-    modImplementation(libs.fabricLoader)
-    modImplementation(libs.fabricApi)
 
-    modImplementation(libs.fabricKotlin)
-    modImplementation(libs.modMenu)
+    //Fabric
+    implementation(libs.fabricLoader)
+    implementation(libs.fabricApi)
 
-    implementation(libs.nebula)
-    include("${libs.nebula.get()}:nebula")
+    implementation(libs.fabricKotlin)
+    implementation(libs.modMenu)
+
+    //nebula
+    api(libs.nebula)
+    include(libs.nebula)
 }
 
 sourceSets {
@@ -42,14 +41,11 @@ sourceSets {
 }
 
 loom {
-    val aw = project(":common").file("src/main/resources/${modId}.accesswidener")
+    val aw = project(":common").file("src/main/resources/${modId}.classtweaker")
     if (aw.exists()) {
         accessWidenerPath.set(aw)
     }
 
-    mixin {
-        defaultRefmapName.set("${modId}.refmap.json")
-    }
     runs {
         named("client") {
             client()
@@ -69,3 +65,25 @@ loom {
         }
     }
 }
+
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+listOf<String>(
+    "apiElements", "runtimeElements", "sourcesElements", "includeInternal", "modCompileClasspath"
+).forEach {
+    configurations.named(it) {
+        attributes {
+            attribute(loaderAttribute, "fabric")
+        }
+    }
+}
+
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach {
+        configurations.named(it) {
+            attributes {
+                attribute(loaderAttribute, "fabric")
+            }
+        }
+    }
+}
+

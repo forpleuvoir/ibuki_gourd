@@ -2,13 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import org.joml.Vector2fc
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.Vector3f
 import org.joml.Vector3fc
 
@@ -16,7 +10,7 @@ fun Vector3fc.isEmpty() = this.x() == 0f && this.y() == 0f && this.z() == 0f
 
 fun Vector3fc.isNotEmpty() = this.x() != 0f && this.y() != 0f && this.z() != 0f
 
-fun Vector2fc.asVector3fc(): Vector3fc = Vector3f(x, y, 0f)
+fun Vector3fc.asVector3fc(): Vector3fc = Vector3f(x, y, 0f)
 
 operator fun Vector3fc.component1(): Float = x()
 
@@ -86,47 +80,22 @@ val Vector3fc.y: Float
 val Vector3fc.z: Float
     get() = this.z()
 
-/**
- * 将[Vector3f]序列化
- * @receiver [Vector3fc]
- * @return [SerializeElement]
- */
-fun Vector3fc.serialization(): SerializeElement = serializeObject {
-    "x" to x()
-    "y" to y()
-    "z" to z()
-}
-
-object Vector3fcDeserializer : Deserializer<Vector3fc> {
-    override fun deserialization(serializeElement: SerializeElement): Vector3fc {
-        return serializeElement.checkType<Vector3fc>()
-            .check<SerializeArray> {
-                Vector3f(it[0].asFloat, it[1].asFloat, it[2].asFloat)
-            }.check<SerializeObject> {
-                Vector3f(it["x"]!!.asFloat, it["y"]!!.asFloat, it["z"]!!.asFloat)
-            }.getOrThrow()
+val Codec.Companion.vector3fc: Codec<Vector3fc> by lazy {
+    context(Codec.float) {
+        Codec.create<Vector3fc>()
+            .field<Float>("x").getter(Vector3fc::x).codec
+            .field<Float>("y").getter(Vector3fc::y).codec
+            .field<Float>("z").getter(Vector3fc::z).codec
+            .build(::Vector3f)
     }
-
 }
 
+fun Codec.Companion.vector3fc(start: Vector3fc, end: Vector3fc) = Codec.create<Vector3fc>()
+    .field<Float>("x").getter(Vector3fc::x).codec(Codec.float(start.x..end.x))
+    .field<Float>("y").getter(Vector3fc::y).codec(Codec.float(start.y..end.y))
+    .field<Float>("z").getter(Vector3fc::z).codec(Codec.float(start.z..end.z))
+    .build(::Vector3f)
 
-/**
- * 将[Vector3f]反序列化
- * @receiver [Vector3f]
- * @param element [SerializeElement]
- */
-fun Vector3f.deserialization(element: SerializeElement) {
-    element.checkType<Unit>()
-        .check<SerializeArray> {
-            this.x = it[0].asFloat
-            this.y = it[1].asFloat
-            this.z = it[2].asFloat
-        }.check<SerializeObject> {
-            this.x = it["x"]!!.asFloat
-            this.y = it["y"]!!.asFloat
-            this.z = it["z"]!!.asFloat
-        }.getOrThrow()
-}
 
 /**
  * 将两个向量[Vector3fc]相加返回一个新的副本

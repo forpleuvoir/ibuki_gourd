@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.util.Size
+import moe.forpleuvoir.ibukigourd.util.SizeFloat
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
@@ -181,7 +181,7 @@ fun MutableComponent.wrapToTextLines(
     // 声明用于构建每一行字符串的 StringBuilder
     val currentLineString = StringBuilder()
     // 迭代处理每一段文本
-    flatList.forEachIndexed { index, text ->
+    flatList.forEach { text ->
         // 声明一个临时的StringBuilder用于存储临时字符
         val temp = StringBuilder()
         // 迭代处理每一段文本的每一个字符

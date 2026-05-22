@@ -5,9 +5,10 @@ import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 
 fun Style.hover(itemStack: ItemStack): Style {
-    this.withHoverEvent(HoverEvent.ShowItem(itemStack))
+    this.withHoverEvent(HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(itemStack)))
     return this
 }
 

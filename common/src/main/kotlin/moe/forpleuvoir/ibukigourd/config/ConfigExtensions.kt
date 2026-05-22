@@ -1,26 +1,24 @@
 package moe.forpleuvoir.ibukigourd.config
 
 import moe.forpleuvoir.ibukigourd.text.*
-import moe.forpleuvoir.nebula.config.ConfigSerializable
-import moe.forpleuvoir.nebula.config.fold
+import moe.forpleuvoir.nebula.config.ConfigNode
+import moe.forpleuvoir.nebula.config.path
 
-fun ConfigSerializable.translationKey(
-    prefix: String = this.configManager().let { if (it is ModConfigManager) "${it.modId}." else "" }
-): String = fold(prefix) { acc, c ->
-    acc + (if (c.parentContainer != null) "." else "") + c.key
-}
+fun ConfigNode.translationKey(
+    prefix: String = this.root.let { if (it is ModConfigManager) "${it.modId}." else "" }
+): String = prefix + path
 
 const val TRANSLATE_TEXT_KYE = "#translate_text"
 
 const val COMMENT_KYE = "#comment"
 
-fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String): MutableText {
+fun ConfigNode.translateTextWithParent(level: Int = 1, connector: String): MutableText {
     var count = 0
-    val path = mutableListOf<ConfigSerializable>()
-    var currentNode: ConfigSerializable? = this
+    val path = mutableListOf<ConfigNode>()
+    var currentNode: ConfigNode? = this
     while (currentNode != null && count <= level) {
         path.add(currentNode)
-        currentNode = currentNode.parentContainer
+        currentNode = currentNode.parent
         count++
     }
     val first = Literal("")
@@ -34,27 +32,27 @@ fun ConfigSerializable.translateTextWithParent(level: Int = 1, connector: String
     return first
 }
 
-var ConfigSerializable.translateText: MutableText
+var ConfigNode.translateText: MutableText
     get() = runCatching {
-        (getUserData(TRANSLATE_TEXT_KYE) as MutableText).copy()
+        (getMetadata(TRANSLATE_TEXT_KYE) as MutableText).copy()
     }.getOrElse {
         val text = Translatable(translationKey())
-        setUserData(TRANSLATE_TEXT_KYE, text)
+        setMetadata(TRANSLATE_TEXT_KYE, text)
         text.copy()
     }
     set(value) {
-        setUserData(TRANSLATE_TEXT_KYE, value)
+        setMetadata(TRANSLATE_TEXT_KYE, value)
     }
 
 
-var ConfigSerializable.comment: MutableText
+var ConfigNode.comment: MutableText
     get() = runCatching {
-        (getUserData(COMMENT_KYE) as MutableText).copy()
+        (getMetadata(COMMENT_KYE) as MutableText).copy()
     }.getOrElse {
         val text = Translatable(translationKey() + ".comment", translateText.plainText)
-        setUserData(COMMENT_KYE, text)
+        setMetadata(COMMENT_KYE, text)
         text.copy()
     }
     set(value) {
-        setUserData(COMMENT_KYE, value)
+        setMetadata(COMMENT_KYE, value)
     }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants
 import moe.forpleuvoir.ibukigourd.input.KeyCode.Companion.keyMap
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.Minecraft
@@ -64,14 +65,19 @@ enum class Mouse(override val code: Int) : KeyCode {
         fun fromCode(code: Int): Mouse = keyMap[code] as Mouse
     }
 
-    override val translationKey: String
-        get() = InputConstants.Type.MOUSE.getOrCreate(code).name
-
     override val keyNameText: MutableText
-        get() = when (this) {
+        get() = _keyNameText.plainCopy()
+
+    override val keyName: String by lazy { _keyNameText.plainText }
+
+    override val translationKey: String by lazy { InputConstants.Type.MOUSE.getOrCreate(code).name }
+
+    private val _keyNameText: MutableText by lazy {
+        when (this) {
             LEFT, RIGHT, MIDDLE -> Translatable(translationKey)
-            else -> Translatable("key.mouse", null, this.code + 1)
+            else                -> Translatable("key.mouse", null, this.code + 1)
         }
+    }
 }
 
 enum class MouseCursor(val value: Int) {
@@ -90,7 +96,7 @@ enum class MouseCursor(val value: Int) {
 
         val default = ARROW_CURSOR
 
-        fun clear() {
+        fun reset() {
             current = default
         }
 

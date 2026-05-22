@@ -1,15 +1,15 @@
 package moe.forpleuvoir.ibukigourd.config
 
 import moe.forpleuvoir.ibukigourd.platform.PLATFORM
+import moe.forpleuvoir.nebula.config.persistence.ConfigPersistence
+import moe.forpleuvoir.nebula.config.persistence.yaml
 import java.io.File
 import java.nio.file.Path
 
 abstract class ClientModConfigManager(
     modId: String,
-    key: String,
-    autoScan: AutoScan = AutoScan.close
-) : ModConfigManager(modId, key, autoScan) {
-    override val configPath: Path
-        get() = File(PLATFORM.getConfigDir(), modId).toPath()
-
+    name: String,
+    persistence: context(ModConfigManager)() -> ConfigPersistence = { yaml() }
+) : ModConfigManager(modId, name, persistence) {
+    override val configPath: Path = File(PLATFORM.getConfigDir(), modId).toPath()
 }

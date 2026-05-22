@@ -4,9 +4,8 @@ import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.withColor
-import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.color.RGBColor
 
 object IGLang {
 
@@ -28,7 +27,7 @@ object IGLang {
 
     fun switch(switch: Boolean) = if (switch) switchOn else switchOff
 
-    fun coloredSwitch(switch: Boolean, onColor: RGBColor = Colors.LIMEGREEN, offColor: RGBColor = Colors.RED) =
+    fun coloredSwitch(switch: Boolean, onColor: Color = Colors.LIMEGREEN, offColor: Color = Colors.RED) =
         if (switch) switchOn.withColor(onColor) else switchOff.withColor(offColor)
 
     val unsupported get() = lang("misc.unsupported")
@@ -81,9 +80,9 @@ object IGLang {
 
     val brightness get() = lang("color.brightness")
 
-    fun clickCopyColor(color: ARGBColor) = lang("color.click_copy_color", color.hexStr)
+    fun clickCopyColor(color: Color) = lang("color.click_copy_color", color.hexStr)
 
-    fun copyColorSuccess(color: ARGBColor) = lang("color.copy_success", color.hexStr)
+    fun copyColorSuccess(color: Color) = lang("color.copy_success", color.hexStr)
 
     //------------ ConfigWrapper ------------\\
 

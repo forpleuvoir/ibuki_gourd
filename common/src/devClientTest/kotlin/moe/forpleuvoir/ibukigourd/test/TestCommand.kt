@@ -4,22 +4,21 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import moe.forpleuvoir.ibukigourd.command.clientSource
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
-import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent
+import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegistrationEvent
 import moe.forpleuvoir.ibukigourd.text.Texts
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
+import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.commands.SharedSuggestionProvider
 
-@EventSubscriber
-object TestCommand {
+object TestCommand : Initializable {
 
-    @Subscriber
-    fun register(event: ClientCommandRegisterEvent) {
-        println("注册指令...")
-        event.dispatcher.testCommand()
+    override fun init() {
+        ClientCommandRegistrationEvent.register {
+            testCommand()
+        }
     }
 
-    fun CommandDispatcher<out SharedSuggestionProvider>.testCommand() = registerCommand("igtest") {
+    context(context: CommandDispatcher<out SharedSuggestionProvider>)
+    fun testCommand() = registerCommand("igtest") {
         requires {
             clientSource.sender.isCreative
         }

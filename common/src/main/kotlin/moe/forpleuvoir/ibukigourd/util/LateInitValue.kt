@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.util
 
 import kotlin.reflect.KProperty
 
-data class LateInitValue<T>(private var _value: T? = null) {
+class LateInitValue<T>(private var _value: T? = null) {
 
     fun getValue(): T = _value ?: throw IllegalStateException("value has not been initialized")
 

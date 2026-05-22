@@ -1,10 +1,10 @@
 package moe.forpleuvoir.ibukigourd.text.style
 
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.network.chat.*
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 
 fun MutableComponent.style(style: StyleBuilder.() -> Unit): MutableComponent {
     return this.withStyle {
@@ -16,9 +16,9 @@ class StyleBuilder(parent: Style) {
 
     val asStyle: Style get() = style(color, shadowColor, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent)
 
-    private var color: RGBColor? = parent.color?.let { Color.ofRGB(it.value) }
+    private var color: Color? = parent.color?.let { Color.fromRGB(it.value) }
 
-    private var shadowColor: RGBColor? = parent.shadowColor?.let { Color.ofRGB(it) }
+    private var shadowColor: Color? = parent.shadowColor?.let { Color.fromRGB(it) }
 
     private var bold: Boolean? = parent.bold
 
@@ -38,28 +38,28 @@ class StyleBuilder(parent: Style) {
 
     private var font: FontDescription? = parent.font
 
-    fun color(rgbColor: RGBColor?): StyleBuilder {
+    fun color(rgbColor: Color?): StyleBuilder {
         this.color = rgbColor
         return this
     }
 
     fun color(rgbColor: Int?): StyleBuilder {
-        this.color = rgbColor?.let { Color.ofRGB(it) }
+        this.color = rgbColor?.let { Color.fromRGB(it) }
         return this
     }
 
     fun color(hexColor: String?): StyleBuilder {
-        this.color = hexColor?.let { Color.ofString(it) }
+        this.color = hexColor?.let { Color.fromHexString(it) }
         return this
     }
 
-    fun shadowColor(rgbColor: RGBColor?): StyleBuilder {
+    fun shadowColor(rgbColor: Color?): StyleBuilder {
         this.shadowColor = rgbColor
         return this
     }
 
     fun shadowColor(rgbColor: Int?): StyleBuilder {
-        this.shadowColor = rgbColor?.let { Color.ofRGB(it) }
+        this.shadowColor = rgbColor?.let { Color.fromRGB(it) }
         return this
     }
 
@@ -99,7 +99,7 @@ class StyleBuilder(parent: Style) {
     }
 
     fun hover(itemStack: ItemStack): StyleBuilder {
-        hoverEvent(HoverEvent.ShowItem(itemStack))
+        hoverEvent(HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(itemStack)))
         return this
     }
 

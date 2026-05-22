@@ -1,7 +1,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.SizeFloat
+import moe.forpleuvoir.ibukigourd.util.Size
+import moe.forpleuvoir.ibukigourd.util.SizeFloat
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import net.minecraft.network.chat.FormattedText
 import net.minecraft.util.FormattedCharSequence
@@ -57,16 +57,17 @@ interface TextSizeSupplier {
     }
 }
 
+@PublishedApi
 internal var textWidthSupplier: TextSizeSupplier = TextSizeSupplier
 
-val String?.size: SizeFloat get() = textWidthSupplier.size(this)
-val FormattedText.size: SizeFloat get() = textWidthSupplier.size(this)
-val FormattedCharSequence.size: SizeFloat get() = textWidthSupplier.size(this)
+inline val String?.size: SizeFloat get() = textWidthSupplier.size(this)
+inline val FormattedText.size: SizeFloat get() = textWidthSupplier.size(this)
+inline val FormattedCharSequence.size: SizeFloat get() = textWidthSupplier.size(this)
 
-val String?.width: Float get() = textWidthSupplier.width(this)
-val FormattedText.width: Float get() = textWidthSupplier.width(this)
-val FormattedCharSequence.width: Float get() = textWidthSupplier.width(this)
+inline val String?.width: Float get() = textWidthSupplier.width(this)
+inline val FormattedText.width: Float get() = textWidthSupplier.width(this)
+inline val FormattedCharSequence.width: Float get() = textWidthSupplier.width(this)
 
-val String?.height: Float get() = textWidthSupplier.height(this)
-val FormattedText.height: Float get() = textWidthSupplier.height(this)
-val FormattedCharSequence.height: Float get() = textWidthSupplier.height(this)
+inline val String?.height: Float get() = textWidthSupplier.height(this)
+inline val FormattedText.height: Float get() = textWidthSupplier.height(this)
+inline val FormattedCharSequence.height: Float get() = textWidthSupplier.height(this)

@@ -1,10 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util.state
 
-import moe.forpleuvoir.nebula.common.color.ARGBColor
-import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.HSVColor
+import moe.forpleuvoir.nebula.common.api.Observable
 import moe.forpleuvoir.nebula.common.util.primitive.either
-import java.util.function.Consumer
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
 
@@ -20,9 +17,7 @@ fun <T> mutableStateBy(value: () -> T) = MutableState(value()).apply { onGetValu
 
 fun <T> mutableStateOf(value: KMutableProperty0<T>) =
     MutableState(value.get()).apply {
-        subscribe {
-            value.set(it)
-        }
+        observe { value.set(it) }
     }
 
 fun <A, B> mutableStateOf(state: State<B>, map: (B) -> A): MutableState<A> =
@@ -33,7 +28,7 @@ fun <A, B> mutableStateOf(state: MutableState<B>, mapA: (B) -> A, mapB: (A) -> B
         MutableState.bind(this, state, mapB, mapA)
     }
 
-data class MutableState<T>(private var value: T) : State<T> {
+class MutableState<T>(private var value: T) : State<T> {
 
     var onSetValue: (T) -> T = { it }
 
@@ -49,7 +44,7 @@ data class MutableState<T>(private var value: T) : State<T> {
         this.value = onSetValue(value)
         if (oldValue != value) {
             currentValue = value
-            onChange(this.value)
+            notifyChange(this.value)
         }
     }
 
@@ -59,7 +54,7 @@ data class MutableState<T>(private var value: T) : State<T> {
         this.value = onSetValue(value)
         if (oldValue != value) {
             currentValue = value
-            onChange(this.value)
+            notifyChange(this.value)
         }
     }
 
@@ -74,30 +69,31 @@ data class MutableState<T>(private var value: T) : State<T> {
         if (!enableNotification) return v
         if (currentValue != v) {
             currentValue = v
-            onChange(v)
+            notifyChange(v)
         }
         return v
     }
 
-    private val observers: MutableList<Consumer<T>> = ArrayList()
+    private val observers: MutableList<(T) -> Unit> = ArrayList()
 
-    override fun onChange(value: T) {
-        if (enableNotification) observers.forEach { it.accept(value) }
+    override fun notifyChange(value: T) {
+        if (enableNotification) observers.forEach { it(value) }
     }
 
-    override fun subscribe(callback: Consumer<T>) {
+
+    override fun observe(callback: (T) -> Unit): Observable.Disposable {
         observers.add(callback)
+        return Observable.Disposable { observers.remove(callback) }
     }
-
 
     fun <A> bind(otherState: State<A>, map: (A) -> T) {
-        otherState.subscribe {
+        otherState.observe {
             this.setValue(map(it))
         }
     }
 
     fun bind(otherState: State<T>) {
-        otherState.subscribe {
+        otherState.observe {
             this.setValue(it)
         }
     }
@@ -109,12 +105,12 @@ data class MutableState<T>(private var value: T) : State<T> {
     companion object {
 
         fun <A, B> bind(a: MutableState<A>, b: MutableState<B>, mapA2B: (A) -> B, mapB2A: (B) -> A) {
-            a.subscribe {
+            a.observe {
                 a.disableNotification {
                     b.setValue(mapA2B(it))
                 }
             }
-            b.subscribe {
+            b.observe {
                 b.disableNotification {
                     a.setValue(mapB2A(it))
                 }
@@ -147,19 +143,3 @@ fun MutableState<Boolean>.switch(): MutableState<Boolean> {
 fun <T> MutableState<Boolean>.either(v1: T, v2: T) = this.getValue().either(v1, v2)
 
 fun <R> MutableState<Boolean>.either(block: () -> R, block2: () -> R) = this.getValue().either(block, block2)
-
-@JvmName("colorToARGBColorState")
-fun MutableState<Color>.toARGBColorState() =
-    mutableStateOf(this.getValue() as ARGBColor).apply {
-        subscribe {
-            this@toARGBColorState.setValue(Color.ofARGB(it.argb))
-        }
-    }
-
-@JvmName("hsvColorToARGBColorState")
-fun MutableState<HSVColor>.toARGBColorState() =
-    mutableStateOf(this.getValue() as ARGBColor).apply {
-        subscribe {
-            this@toARGBColorState.setValue(HSVColor(it.argb))
-        }
-    }

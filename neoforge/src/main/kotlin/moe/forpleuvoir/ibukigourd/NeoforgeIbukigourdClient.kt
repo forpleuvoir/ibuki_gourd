@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd
 
-import moe.forpleuvoir.ibukigourd.mod.gui.IbukiGourdModScreen
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.ModContainer
@@ -15,7 +14,7 @@ class NeoforgeIbukigourdClient(eventBus: IEventBus, modContainer: ModContainer) 
         //模组菜单配置接口
         modContainer.registerExtensionPoint(
             IConfigScreenFactory::class.java,
-            IConfigScreenFactory { _, modListScreen -> IbukiGourdModScreen().apply { parentScreen = modListScreen } }
+            IConfigScreenFactory { _, modListScreen -> TODO() }
         )
     }
 

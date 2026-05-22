@@ -1,12 +1,15 @@
 package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
-import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.exactMatch
 
 object InputHandler : Tickable {
 
-    private val keyBinds: MutableList<KeyBind> = ArrayList()
+    fun interface Disposable {
+        fun dispose()
+    }
+
+    private val keybinds: MutableList<Keybind> = ArrayList()
 
     private val beforePressKeyCode: MutableList<KeyCode> = ArrayList()
 
@@ -15,78 +18,72 @@ object InputHandler : Tickable {
      */
     private val currentPressKeyCode: MutableList<KeyCode> = ArrayList()
 
-    fun register(keyBind: KeyBind): KeyBind {
-        keyBinds.add(keyBind)
-        return keyBind
+    fun register(keyBind: Keybind): Disposable {
+        keybinds.add(keyBind)
+        return { keybinds.remove(keyBind) }
     }
 
     fun register(
         vararg keyCodes: KeyCode,
-        defaultSetting: KeyBindSetting = KeyBindSetting(),
-        action: KeyBind.() -> Unit = {}
-    ): KeyBind {
-        return register(KeyBind(keyCodes = keyCodes, defaultSetting, action))
+        defaultSetting: KeybindSetting = KeybindSetting(),
+        action: Keybind.() -> Unit = {}
+    ): Disposable {
+        return register(Keybind(keyCodes = keyCodes, defaultSetting, action))
     }
 
-    fun detectKeyConflicts(keyBind: KeyBind): Sequence<KeyBind> {
+    fun detectKeyConflicts(keyBind: Keybind): Sequence<Keybind> {
         if (keyBind.keys.isEmpty()) return emptySequence()
-        return keyBinds.asSequence().filter {
+        return keybinds.asSequence().filter {
             it !== keyBind
         }.filter {
-            it.setting.environment conflictOf keyBind.setting.environment && it.keys.exactMatch(keyBind.keys)
+            it.setting.env conflictOf keyBind.setting.env && it.keys.exactMatch(keyBind.keys)
         }
-    }
-
-    fun unregister(keyBind: KeyBind) {
-        keyBinds.remove(keyBind)
     }
 
     override fun onTick() {
-        keyBinds.forEach {
-            it.onTick()
-        }
+        keybinds.forEach(Keybind::onTick)
     }
 
     fun releaseAll() {
-        keyBinds.forEach(KeyBind::rest)
+        keybinds.forEach(Keybind::resetState)
         currentPressKeyCode.clear()
         beforePressKeyCode.clear()
     }
 
     @JvmStatic
     @JvmName("onKeyPress")
-    fun onKeyPress(keyCode: KeyCode): NextAction {
+    fun onKeyPress(keyCode: KeyCode): Boolean {
         if (!currentPressKeyCode.contains(keyCode)) {
             //changed
             currentPressKeyCode.add(keyCode)
-            var action = NextAction.Continue
-            keyBinds.forEach loop@{
+            var action = true
+            keybinds.forEach loop@{
                 action = it.onKeyPress(beforePressKeyCode, currentPressKeyCode)
-                if (action == NextAction.Cancel) return@loop
+                if (!action) return@loop
             }
             beforePressKeyCode.clear()
             beforePressKeyCode.addAll(currentPressKeyCode)
             return action
         }
-        return NextAction.Continue
+        return true
     }
 
     @JvmStatic
     @JvmName("onKeyRelease")
-    fun onKeyRelease(keyCode: KeyCode): NextAction {
+    fun onKeyRelease(keyCode: KeyCode): Boolean {
         if (currentPressKeyCode.contains(keyCode)) {
             //changed
             currentPressKeyCode.remove(keyCode)
-            var action = NextAction.Continue
-            keyBinds.forEach loop@{
+            var action = true
+            keybinds.forEach loop@{
                 action = it.onKeyRelease(beforePressKeyCode, currentPressKeyCode)
-                if (action == NextAction.Cancel) return@loop
+                if (!action) return@loop
             }
             beforePressKeyCode.clear()
             beforePressKeyCode.addAll(currentPressKeyCode)
             return action
         }
-        return NextAction.Continue
+        return true
     }
 
     val pressedKeys: Set<KeyCode> get() = currentPressKeyCode.toSet()

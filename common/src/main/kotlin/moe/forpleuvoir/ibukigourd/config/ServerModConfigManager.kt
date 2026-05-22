@@ -1,14 +1,16 @@
 package moe.forpleuvoir.ibukigourd.config
 
+import moe.forpleuvoir.nebula.config.persistence.ConfigPersistence
+import moe.forpleuvoir.nebula.config.persistence.yaml
 import net.minecraft.server.MinecraftServer
 import java.io.File
 import java.nio.file.Path
 
 abstract class ServerModConfigManager(
     modId: String,
-    key: String,
-    autoScan: AutoScan = AutoScan.close
-) : ModConfigManager(modId, key, autoScan) {
+    name: String,
+    persistence: context(ModConfigManager)() -> ConfigPersistence = { yaml() }
+) : ModConfigManager(modId, name, persistence) {
 
     protected open lateinit var server: MinecraftServer
 
@@ -17,7 +19,6 @@ abstract class ServerModConfigManager(
         init()
     }
 
-    override val configPath: Path
-        get() = File(server.storageSource.levelDirectory.directoryName(), this@ServerModConfigManager.modId).toPath()
+    override val configPath: Path get() = File(server.storageSource.levelDirectory.directoryName(), this@ServerModConfigManager.modId).toPath()
 
 }

@@ -1,5 +1,5 @@
 [mod_info]
 name = "IbukiGourd"
 id = "ibukigourd"
-version = "0.10.4+beta"
-minecraft_version = "1.21.11"
+version = "0.11.0+alpha"
+minecraft_version = "26.1.2"

@@ -2,13 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import org.joml.Vector2dc
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.Vector3d
 import org.joml.Vector3dc
 
@@ -16,7 +10,7 @@ fun Vector3dc.isEmpty() = this.x() == 0.0 && this.y() == 0.0 && this.z() == 0.0
 
 fun Vector3dc.isNotEmpty() = this.x() != 0.0 || this.y() != 0.0 || this.z() != 0.0
 
-fun Vector2dc.asVector3dc(): Vector3dc = Vector3d(x(), y(), 0.0)
+fun Vector3dc.asVector3dc(): Vector3dc = Vector3d(x(), y(), 0.0)
 
 operator fun Vector3dc.component1(): Double = x()
 
@@ -92,46 +86,21 @@ val Vector3dc.y: Double
 val Vector3dc.z: Double
     get() = this.z()
 
-/**
- * 将[Vector3d]序列化
- * @receiver [Vector3dc]
- * @return [SerializeElement]
- */
-fun Vector3dc.serialization(): SerializeElement = serializeObject {
-    "x" to x()
-    "y" to y()
-    "z" to z()
-}
-
-object Vector3dcDeserializer : Deserializer<Vector3dc> {
-    override fun deserialization(serializeElement: SerializeElement): Vector3dc {
-        return serializeElement.checkType<Vector3dc>()
-            .check<SerializeArray> {
-                Vector3d(it[0].asDouble, it[1].asDouble, it[2].asDouble)
-            }.check<SerializeObject> {
-                Vector3d(it["x"]!!.asDouble, it["y"]!!.asDouble, it["z"]!!.asDouble)
-            }.getOrThrow()
+val Codec.Companion.vector3dc: Codec<Vector3dc> by lazy {
+    context(Codec.double) {
+        Codec.create<Vector3dc>()
+            .field<Double>("x").getter(Vector3dc::x).codec
+            .field<Double>("y").getter(Vector3dc::y).codec
+            .field<Double>("z").getter(Vector3dc::z).codec
+            .build(::Vector3d)
     }
-
 }
 
-/**
- * 将[Vector3d]反序列化
- * @receiver [Vector3d]
- * @param element [SerializeElement]
- */
-fun Vector3d.deserialization(element: SerializeElement) {
-    element.checkType<Unit>()
-        .check<SerializeArray> {
-            this.x = it[0].asDouble
-            this.y = it[1].asDouble
-            this.z = it[2].asDouble
-        }.check<SerializeObject> {
-            this.x = it["x"]!!.asDouble
-            this.y = it["y"]!!.asDouble
-            this.z = it["z"]!!.asDouble
-        }.getOrThrow()
-}
+fun Codec.Companion.vector3dc(start: Vector3dc, end: Vector3dc) = Codec.create<Vector3dc>()
+    .field<Double>("x").getter(Vector3dc::x).codec(Codec.double(start.x..end.x))
+    .field<Double>("y").getter(Vector3dc::y).codec(Codec.double(start.y..end.y))
+    .field<Double>("z").getter(Vector3dc::z).codec(Codec.double(start.z..end.z))
+    .build(::Vector3d)
 
 /**
  * 操作符重载实现 (+, -, *, /, %)，并生成新向量

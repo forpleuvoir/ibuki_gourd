@@ -11,7 +11,6 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.HolderLookup
-import net.minecraft.network.chat.Component
 
 class ClientCommandSourceImpl(
     private val source: SharedSuggestionProvider,
@@ -32,8 +31,9 @@ class ClientCommandSourceImpl(
     override val level: ClientLevel
         get() = client.level!!
 
-    override fun getCustomTabSugggestions(): Collection<String> {
-        return source.customTabSugggestions
+
+    override fun getCustomTabSuggestions(): Collection<String> {
+        return source.customTabSuggestions
     }
 
     override fun getSelectedEntities(): Collection<String> {

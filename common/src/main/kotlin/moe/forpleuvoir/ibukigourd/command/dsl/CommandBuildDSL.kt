@@ -36,7 +36,7 @@ open class ArgumentScope<S, T : ArgumentBuilder<S, T>>(
     }
 
     fun execute(action: CommandContext<S>.() -> Unit) {
-        argumentBuilder.executes { action(it);1 }
+        argumentBuilder.executes { action(it); 1 }
     }
 
     fun executes(action: CommandContext<S>.() -> Int) {
@@ -46,7 +46,7 @@ open class ArgumentScope<S, T : ArgumentBuilder<S, T>>(
 
 }
 
-
+@CommandDslMark
 class RequiredArgumentScope<S, T>(
     argumentBuilder: RequiredArgumentBuilder<S, T>,
 ) : ArgumentScope<S, RequiredArgumentBuilder<S, T>>(argumentBuilder) {
@@ -79,16 +79,24 @@ class RequiredArgumentScope<S, T>(
 
 }
 
-@CommandDslMark
-fun <S> Command(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): LiteralArgumentBuilder<S> {
+fun <S> createCommand(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): LiteralArgumentBuilder<S> {
     return ArgumentScope(LiteralArgumentBuilder.literal<S>(name))
         .apply(scope)
         .argumentBuilder
 }
 
+@JvmName("registerCommand$1")
+context(dispatcher: CommandDispatcher<S>)
+fun <S> registerCommand(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): CommandDispatcher<S> {
+    dispatcher.register(createCommand(name, scope))
+    return dispatcher
+}
 
-@CommandDslMark
-fun <S> CommandDispatcher<S>.registerCommand(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): CommandDispatcher<S> {
-    this.register(Command(name, scope))
-    return this
+
+fun <S> CommandDispatcher<S>.registerCommand(
+    name: String,
+    scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit
+): CommandDispatcher<S> = context(this) {
+    this.register(createCommand(name, scope))
+    this
 }

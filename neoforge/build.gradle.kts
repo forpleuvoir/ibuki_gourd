@@ -9,6 +9,12 @@ plugins {
 
 val modId: String = project.properties["mod_id"].toString()
 
+dependencies {
+    implementation(libs.forgeKotlin)
+    implementation(libs.nebula)
+    jarJar(libs.nebula)
+}
+
 sourceSets {
     create("devClientTest") {
         val test = project(":common").sourceSets["devClientTest"]
@@ -19,26 +25,21 @@ sourceSets {
 
 neoForge {
     version = libs.versions.neoforge.get()
-    // Automatically enable neoforge AccessTransformers if the file exists
     val at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")
     if (at.exists()) {
-        accessTransformers.from(at.absolutePath)
-    }
-    parchment {
-        minecraftVersion = libs.versions.parchmentMinecraft
-        mappingsVersion = libs.versions.parchment
+        accessTransformers.from(at)
     }
     runs {
         configureEach {
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
-            ideName = "NeoForge ${name.capitalized()} (${project.path})" // Unify the run config names with fabric
+            ideName = "NeoForge ${name.capitalized()} (${project().path})"
         }
         register("client") {
             client()
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArguments.addAll("--username", name, "--uuid", uuid)
-            gameDirectory = file("run/client")
+            gameDirectory = file("runs/client")
         }
         register("data") {
             clientData()
@@ -54,7 +55,7 @@ neoForge {
         }
         register("server") {
             server()
-            gameDirectory = file("run/server")
+            gameDirectory = file("runs/server")
         }
     }
     mods {
@@ -68,7 +69,7 @@ sourceSets.main.get().resources { srcDir("src/generated/resources") }
 
 val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
 
-listOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements").forEach {
+listOf("apiElements", "runtimeElements", "sourcesElements").forEach {
     configurations.named(it) {
         attributes {
             attribute(loaderAttribute, "neoforge")
@@ -84,10 +85,4 @@ sourceSets.configureEach {
             }
         }
     }
-}
-
-dependencies {
-    implementation(libs.forgeKotlin)
-    implementation(libs.nebula)
-    jarJar("${libs.nebula.get()}:nebula")
 }

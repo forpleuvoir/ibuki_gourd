@@ -1,21 +1,21 @@
 package moe.forpleuvoir.ibukigourd.util.state
 
-import moe.forpleuvoir.nebula.common.api.Notifiable
+import moe.forpleuvoir.nebula.common.api.Observable
+import moe.forpleuvoir.nebula.common.api.Observable.Disposable
 import moe.forpleuvoir.nebula.common.util.primitive.either
-import java.util.function.Consumer
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KProperty
 
-sealed interface State<T> : Notifiable<T> {
+sealed interface State<T> : Observable<T> {
 
     fun getValue(): T
 
     var enableNotification: Boolean
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T = getValue()
-    override fun onChange(value: T) = Unit
-    override fun subscribe(callback: Consumer<T>) = Unit
+    override fun notifyChange(value: T) = Unit
+    override fun observe(callback: (T) -> Unit): Disposable = Disposable {}
 }
 
 @OptIn(ExperimentalContracts::class)

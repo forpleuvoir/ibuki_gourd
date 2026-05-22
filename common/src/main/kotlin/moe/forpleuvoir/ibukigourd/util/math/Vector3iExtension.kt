@@ -2,13 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import org.joml.Vector2ic
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.Vector3i
 import org.joml.Vector3ic
 
@@ -16,7 +10,7 @@ fun Vector3ic.isEmpty() = this.x() == 0 && this.y() == 0 && this.z() == 0
 
 fun Vector3ic.isNotEmpty() = this.x() != 0 || this.y() != 0 || this.z() != 0
 
-fun Vector2ic.asVector3ic(): Vector3ic = Vector3i(x, y, 0)
+fun Vector3ic.asVector3ic(): Vector3ic = Vector3i(x, y, 0)
 
 operator fun Vector3ic.component1(): Int = x()
 
@@ -92,46 +86,21 @@ val Vector3ic.y: Int
 val Vector3ic.z: Int
     get() = this.z()
 
-/**
- * 将[Vector3i]序列化
- * @receiver [Vector3ic]
- * @return [SerializeElement]
- */
-fun Vector3ic.serialization(): SerializeElement = serializeObject {
-    "x" to x()
-    "y" to y()
-    "z" to z()
-}
-
-object Vector3icDeserializer : Deserializer<Vector3ic> {
-    override fun deserialization(serializeElement: SerializeElement): Vector3ic {
-        return serializeElement.checkType<Vector3ic>()
-            .check<SerializeArray> {
-                Vector3i(it[0].asInt, it[1].asInt, it[2].asInt)
-            }.check<SerializeObject> {
-                Vector3i(it["x"]!!.asInt, it["y"]!!.asInt, it["z"]!!.asInt)
-            }.getOrThrow()
+val Codec.Companion.vector3ic: Codec<Vector3ic> by lazy {
+    context(Codec.int) {
+        Codec.create<Vector3ic>()
+            .field<Int>("x").getter(Vector3ic::x).codec
+            .field<Int>("y").getter(Vector3ic::y).codec
+            .field<Int>("z").getter(Vector3ic::z).codec
+            .build(::Vector3i)
     }
-
 }
 
-/**
- * 将[Vector3i]反序列化
- * @receiver [Vector3i]
- * @param element [SerializeElement]
- */
-fun Vector3i.deserialization(element: SerializeElement) {
-    element.checkType<Unit>()
-        .check<SerializeArray> {
-            this.x = it[0].asInt
-            this.y = it[1].asInt
-            this.z = it[2].asInt
-        }.check<SerializeObject> {
-            this.x = it["x"]!!.asInt
-            this.y = it["y"]!!.asInt
-            this.z = it["z"]!!.asInt
-        }.getOrThrow()
-}
+fun Codec.Companion.vector3ic(start: Vector3ic, end: Vector3ic) = Codec.create<Vector3ic>()
+    .field<Int>("x").getter(Vector3ic::x).codec(Codec.int(start.x..end.x))
+    .field<Int>("y").getter(Vector3ic::y).codec(Codec.int(start.y..end.y))
+    .field<Int>("z").getter(Vector3ic::z).codec(Codec.int(start.z..end.z))
+    .build(::Vector3i)
 
 /**
  * 将两个向量[Vector3ic]相加返回一个新的副本

@@ -3,12 +3,9 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
-import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler;
-import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.task.ClientTickTaskSchedulerKt;
 import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler;
-import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,43 +23,38 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "run", at = @At("HEAD"))
     public void runStarting(CallbackInfo ci) {
-        EventBus.Companion.broadcast(new ClientLifecycleEvent.ClientStartingEvent((Minecraft) (Object) this));
+        ClientLifecycleEvent.Starting.invoker().invoke((Minecraft) (Object) this);
     }
-
-//    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/jtracy/TracyClient;createDiscontinuousFrame(Ljava/lang/String;)Lcom/mojang/jtracy/DiscontinuousFrame;"))
-//    public void runStarted(CallbackInfo ci) {
-//        EventBus.Companion.broadcast(new ClientLifecycleEvent.ClientStartedEvent((Minecraft) (Object) this));
-//    }
 
     @Inject(method = "stop", at = @At("HEAD"))
     private void stop(CallbackInfo ci) {
         if (this.running) {
-            EventBus.Companion.broadcast(new ClientLifecycleEvent.ClientStopEvent((Minecraft) (Object) this));
+            ClientLifecycleEvent.Stopping.invoker().invoke((Minecraft) (Object) this);
         }
     }
-
-    @Inject(method = "tick", at = @At("HEAD"))
-    public void tickStart(CallbackInfo ci) {
-        InputHandler.INSTANCE.onTick();
-        Toast.INSTANCE.onTick();
-        TipHandler.INSTANCE.onTick();
-        ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).startTick((Minecraft) (Object) this);
-        EventBus.Companion.broadcast(new ClientTickEvent.ClientTickStartEvent((Minecraft) (Object) this));
-    }
+//
+//    @Inject(method = "tick", at = @At("HEAD"))
+//    public void tickStart(CallbackInfo ci) {
+//        InputHandler.INSTANCE.onTick();
+//        Toast.INSTANCE.onTick();
+//        TipHandler.INSTANCE.onTick();
+//        ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).startTick((Minecraft) (Object) this);
+//        ClientTickEvent.TickStart.invoker().invoke((Minecraft) (Object) this);
+//    }
 
     @Inject(method = "tick", at = @At("RETURN"))
     public void tickEnd(CallbackInfo ci) {
         ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).endTick((Minecraft) (Object) this);
-        EventBus.Companion.broadcast(new ClientTickEvent.ClientTickEndEvent((Minecraft) (Object) this));
+        ClientTickEvent.TickEnd.invoker().invoke((Minecraft) (Object) this);
     }
 
-    @Inject(method = "resizeDisplay", at = @At("RETURN"))
-    public void onResolutionChanged(CallbackInfo ci) {
-        Toast.onResize();
-    }
+//    @Inject(method = "resizeGui", at = @At("RETURN"))
+//    public void onResolutionChanged(CallbackInfo ci) {
+//        Toast.onResize();
+//    }
 
     @Inject(method = "pauseGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasSingleplayerServer()Z"))
-    public void openGameMenu(boolean pauseOnly, CallbackInfo ci) {
-        ClientModConfigHandler.INSTANCE.asyncSave();
+    public void openGameMenu(boolean suppressPauseMenuIfWeReallyArePausing, CallbackInfo ci) {
+        ClientLifecycleEvent.OpenGameMenu.invoker().invoke((Minecraft) (Object) this);
     }
 }

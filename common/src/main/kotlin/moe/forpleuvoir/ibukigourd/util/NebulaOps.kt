@@ -7,24 +7,14 @@ import com.mojang.serialization.DynamicOps
 import com.mojang.serialization.MapLike
 import com.mojang.serialization.RecordBuilder
 import it.unimi.dsi.fastutil.bytes.ByteArrayList
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeNull
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.base.*
+import moe.forpleuvoir.nebula.serialization.base.builder.build
 import java.nio.ByteBuffer
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 import java.util.stream.IntStream
 import java.util.stream.LongStream
 import java.util.stream.Stream
-import kotlin.collections.all
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.forEach
-import kotlin.collections.map
 
 /**
  * Not fully tested
@@ -43,14 +33,14 @@ object NebulaOps : DynamicOps<SerializeElement> {
             is SerializeObject    -> convertMap(outOps, input)
             is SerializeArray     -> convertList(outOps, input)
             is SerializePrimitive -> {
-                if (input.isInt) outOps.createInt(input.asInt)
-                else if (input.isByte) outOps.createByte(input.asByte)
-                else if (input.isLong) outOps.createLong(input.asLong)
-                else if (input.isShort) outOps.createShort(input.asShort)
-                else if (input.isFloat) outOps.createFloat(input.asFloat)
-                else if (input.isDouble) outOps.createDouble(input.asDouble)
-                else if (input.isString) outOps.createString(input.asString)
-                else if (input.isBoolean) outOps.createBoolean(input.asBoolean)
+                if (input.isInt) outOps.createInt(input.asInt!!)
+                else if (input.isByte) outOps.createByte(input.asByte!!)
+                else if (input.isLong) outOps.createLong(input.asLong!!)
+                else if (input.isShort) outOps.createShort(input.asShort!!)
+                else if (input.isFloat) outOps.createFloat(input.asFloat!!)
+                else if (input.isDouble) outOps.createDouble(input.asDouble!!)
+                else if (input.isString) outOps.createString(input.asString!!)
+                else if (input.isBoolean) outOps.createBoolean(input.asBoolean!!)
                 else if (input.isNumber) outOps.createNumeric(input.asNumber)
                 else throw IllegalStateException("Don't know how to convert $input")
             }
@@ -62,13 +52,6 @@ object NebulaOps : DynamicOps<SerializeElement> {
             return DataResult.success(input.asNumber)
         }
         return DataResult.error { "Not a number: $input" }
-    }
-
-    override fun get(
-        input: SerializeElement?,
-        key: String?
-    ): DataResult<SerializeElement?>? {
-        return super.get(input, key)
     }
 
     override fun createNumeric(value: Number): SerializeElement = SerializePrimitive(value)
@@ -111,7 +94,7 @@ object NebulaOps : DynamicOps<SerializeElement> {
             if (input.isEmpty()) {
                 return DataResult.success(SerializeArray(value))
             }
-            return DataResult.success(serializeArray {
+            return DataResult.success(SerializeArray.build {
                 addAll(input)
                 add(value)
             })
@@ -130,7 +113,7 @@ object NebulaOps : DynamicOps<SerializeElement> {
             if (input.isEmpty()) {
                 return DataResult.success(SerializeArray(SerializeArray(*values.toTypedArray())))
             }
-            return DataResult.success(serializeArray {
+            return DataResult.success(SerializeArray.build {
                 addAll(input)
                 addAll(values)
             })
@@ -140,17 +123,17 @@ object NebulaOps : DynamicOps<SerializeElement> {
 
     override fun mergeToMap(input: SerializeElement, key: SerializeElement, value: SerializeElement): DataResult<SerializeElement> {
         if (input == empty()) {
-            return DataResult.success(serializeObject { key.asString to value })
+            return DataResult.success(SerializeObject.build { obj[key.asString] = value })
         }
         if (input is SerializeObject) {
             if (input.isEmpty()) {
-                return DataResult.success(serializeObject { key.asString to value })
+                return DataResult.success(SerializeObject.build { obj[key.asString] = value })
             }
-            serializeObject {
+            SerializeObject.build {
                 input.forEach { (key, value) ->
-                    key to value
+                    obj[key] = value
                 }
-                key.asString to value
+                obj[key.asString] = value
             }.let {
                 return DataResult.success(it)
             }
@@ -160,8 +143,8 @@ object NebulaOps : DynamicOps<SerializeElement> {
 
     override fun mergeToMap(input: SerializeElement, values: Map<SerializeElement, SerializeElement>): DataResult<SerializeElement> {
         if (input == empty()) {
-            return DataResult.success(serializeObject {
-                values.forEach { (key, value) -> key.asString to value }
+            return DataResult.success(SerializeObject.build {
+                values.forEach { (key, value) -> obj[key.asString] = value }
             })
         }
         if (input is SerializeObject) {
@@ -169,13 +152,13 @@ object NebulaOps : DynamicOps<SerializeElement> {
                 return DataResult.success(input)
             }
             if (input.isEmpty()) {
-                return DataResult.success(serializeObject {
-                    values.forEach { (key, value) -> key.asString to value }
+                return DataResult.success(SerializeObject.build {
+                    values.forEach { (key, value) -> obj[key.asString] = value }
                 })
             }
-            serializeObject {
-                input.forEach { (key, value) -> key to value }
-                values.forEach { (key, value) -> key.asString to value }
+            SerializeObject.build {
+                input.forEach { (key, value) -> obj[key] = value }
+                values.forEach { (key, value) -> obj[key.asString] = value }
             }.let {
                 return DataResult.success(it)
             }
@@ -183,8 +166,8 @@ object NebulaOps : DynamicOps<SerializeElement> {
         return DataResult.error { "Not a map: $input" }
     }
 
-    private fun MapLike<SerializeElement>.toObject() = serializeObject {
-        entries().forEach { it.first.asString to it.second }
+    private fun MapLike<SerializeElement>.toObject() = SerializeObject.build {
+        entries().forEach { obj[it.first.asString] = it.second }
     }
 
 
@@ -200,9 +183,9 @@ object NebulaOps : DynamicOps<SerializeElement> {
             if (!valuesIterator.hasNext()) {
                 return DataResult.success(input)
             }
-            serializeObject {
-                input.forEach { (string, element) -> string to element }
-                valuesIterator.forEachRemaining { it.first to it.second }
+            SerializeObject.build {
+                input.forEach { (string, element) -> obj[string] = element }
+                valuesIterator.forEachRemaining { obj[it.first.asString!!] = it.second }
             }
         }
         return DataResult.error { "Not a map: $input" }
@@ -229,9 +212,9 @@ object NebulaOps : DynamicOps<SerializeElement> {
     }
 
     override fun createMap(map: Stream<Pair<SerializeElement, SerializeElement>>): SerializeElement {
-        return serializeObject {
+        return SerializeObject.build {
             map.forEach {
-                it.first.asString to it.second
+                obj[it.first.asString!!] = it.second
             }
         }
     }
@@ -249,8 +232,8 @@ object NebulaOps : DynamicOps<SerializeElement> {
     }
 
     override fun createMap(map: Map<SerializeElement, SerializeElement>): SerializeElement {
-        return serializeObject {
-            map.forEach { (k, v) -> k.asString to v }
+        return SerializeObject.build {
+            map.forEach { (k, v) -> obj[k.asString!!] = v }
         }
     }
 
@@ -265,7 +248,7 @@ object NebulaOps : DynamicOps<SerializeElement> {
         if (input is SerializeArray) {
             return DataResult.success(Consumer { c ->
                 input.forEach { element ->
-                    c.accept(if(element.isNull) null else element)
+                    c.accept(if (element.isNull) null else element)
                 }
             })
         }
@@ -274,12 +257,14 @@ object NebulaOps : DynamicOps<SerializeElement> {
 
 
     override fun createList(input: Stream<SerializeElement>): SerializeElement {
-        return serializeArray(input.iterator())
+        return SerializeArray.build {
+            input.forEach { add(it) }
+        }
     }
 
     override fun getByteBuffer(input: SerializeElement?): DataResult<ByteBuffer?>? {
         if (input is SerializeArray && input.all { it is SerializePrimitive && it.isByte }) {
-            return DataResult.success(ByteBuffer.wrap(input.map { it.asByte }.toByteArray()))
+            return DataResult.success(ByteBuffer.wrap(input.map { it.asByte!! }.toByteArray()))
         }
         return DataResult.error { "Not a byte list: $input" }
     }
@@ -289,26 +274,26 @@ object NebulaOps : DynamicOps<SerializeElement> {
         val result = ByteArrayList()
         result.size(wholeBuff.capacity())
         wholeBuff.get(0, result.elements(), 0, result.size)
-        return serializeArray { result.elements().forEach { add(createByte(it)) } }
+        return SerializeArray.build { result.elements().forEach { add(createByte(it)) } }
     }
 
     override fun getIntStream(input: SerializeElement): DataResult<IntStream> {
         if (input is SerializeArray && input.all { it is SerializePrimitive && it.isInt }) {
             val builder = IntStream.builder().apply {
-                input.forEach { this.add(it.asInt) }
+                input.forEach { this.add(it.asInt!!) }
             }
             return DataResult.success(builder.build())
         }
         return DataResult.error { "Not a list: $input" }
     }
 
-    override fun createIntList(input: IntStream): SerializeElement = serializeArray { input.forEach { add(createInt(it)) } }
+    override fun createIntList(input: IntStream): SerializeElement = SerializeArray.build { input.forEach { add(createInt(it)) } }
 
     override fun getLongStream(input: SerializeElement?): DataResult<LongStream?>? {
         if (input is SerializeArray && input.all { it is SerializePrimitive && it.isLong }) {
             val builder = LongStream.builder().apply {
                 input.forEach {
-                    this.add(it.asLong)
+                    this.add(it.asLong!!)
                 }
             }
             return DataResult.success(builder.build())
@@ -316,7 +301,7 @@ object NebulaOps : DynamicOps<SerializeElement> {
         return DataResult.error { "Not a list: $input" }
     }
 
-    override fun createLongList(input: LongStream): SerializeElement = serializeArray { input.forEach { add(createLong(it)) } }
+    override fun createLongList(input: LongStream): SerializeElement = SerializeArray.build { input.forEach { add(createLong(it)) } }
 
     override fun remove(input: SerializeElement, key: String): SerializeElement {
         if (input is SerializeObject) {
@@ -336,7 +321,7 @@ object NebulaOps : DynamicOps<SerializeElement> {
     private class FixedMapBuilder(ops: DynamicOps<SerializeElement>) :
         RecordBuilder.AbstractUniversalBuilder<SerializeElement, ImmutableMap.Builder<SerializeElement, SerializeElement>>(ops) {
 
-        override fun initBuilder(): ImmutableMap.Builder<SerializeElement, SerializeElement>? {
+        override fun initBuilder(): ImmutableMap.Builder<SerializeElement, SerializeElement> {
             return ImmutableMap.builder()
         }
 

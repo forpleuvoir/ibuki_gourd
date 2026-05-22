@@ -5,17 +5,15 @@ import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.enum
 
 enum class KeyEnvironment(val key: String) : Serializable {
     InGame("in_game"),
-    InScreen("in_screen"),
-    Both("both");
+    InGui("in_gui"),
+    Any("any");
 
-    companion object : Deserializer<KeyEnvironment> {
-
-        override fun deserialization(serializeElement: SerializeElement): KeyEnvironment {
-            return fromKey(serializeElement.asString)
-        }
+    companion object : Codec<KeyEnvironment> by Codec.enum<KeyEnvironment>() {
 
         @JvmStatic
         fun fromKey(key: String): KeyEnvironment {
@@ -24,12 +22,12 @@ enum class KeyEnvironment(val key: String) : Serializable {
     }
 
     infix fun conflictOf(environment: KeyEnvironment): Boolean {
-        return if (this == Both || environment == Both) true
+        return if (this == Any || environment == Any) true
         else this == environment
     }
 
     fun envMatch(): Boolean {
-        if (this == Both) return true
+        if (this == Any) return true
         return this == currentEnv()
     }
 
@@ -44,5 +42,5 @@ enum class KeyEnvironment(val key: String) : Serializable {
 }
 
 fun currentEnv(): KeyEnvironment {
-    return if (mc.screen != null) KeyEnvironment.InScreen else KeyEnvironment.InGame
+    return if (mc.screen != null) KeyEnvironment.InGui else KeyEnvironment.InGame
 }

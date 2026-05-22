@@ -4,7 +4,8 @@ package moe.forpleuvoir.ibukigourd.text
 
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.text.style.StyleBuilder
-import moe.forpleuvoir.nebula.common.color.RGBColor
+import moe.forpleuvoir.nebula.common.color.Color
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.contents.KeybindContents
 import net.minecraft.network.chat.contents.PlainTextContents
@@ -29,7 +30,7 @@ object Texts {
 
     @JvmStatic
     fun empty(): MutableText {
-        return MutableText.create(PlainTextContents.create(""))
+        return Component.empty()
     }
 
     @JvmStatic
@@ -39,15 +40,18 @@ object Texts {
     }
 
     @JvmStatic
-    fun keyBind(translationKey: String): MutableText {
+    fun keybind(translationKey: String): MutableText {
         return MutableText.create(KeybindContents(translationKey))
     }
 
 }
 
-val MutableText.plainText: String get() = this.string
+inline val Text.plainText: String get() = this.string
 
 fun MutableText.appendLiteral(content: String) = this.append(content)
+
+fun MutableText.appendLTRArrow() =this.appendLiteral(" → ")
+fun MutableText.appendRTLArrow() =this.appendLiteral(" ← ")
 
 fun MutableText.appendNewLine() = this.appendLiteral("\n")
 
@@ -63,6 +67,6 @@ inline fun MutableText.append(text: () -> Text): MutableText {
 
 fun MutableText.style(builder: StyleBuilder.() -> Unit) = withStyle { StyleBuilder(it).apply(builder).asStyle }
 
-fun MutableText.withColor(rgbColor: RGBColor) = withColor(rgbColor.rgb)
+fun MutableText.withColor(rgbColor: Color) = withColor(rgbColor.rgb)
 
-fun MutableText.withShadowColor(rgbColor: RGBColor) = style { shadowColor(rgbColor) }
+fun MutableText.withShadowColor(rgbColor: Color) = style { shadowColor(rgbColor) }

@@ -15,7 +15,7 @@
   },
   "license": "${license}",
   "icon": "${mod_id}.png",
-  "accessWidener": "${mod_id}.accesswidener",
+  "accessWidener": "${mod_id}.classtweaker",
   "environment": "*",
   "entrypoints": {
     "main": [

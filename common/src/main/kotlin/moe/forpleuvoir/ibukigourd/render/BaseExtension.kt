@@ -3,12 +3,10 @@
 package moe.forpleuvoir.ibukigourd.render
 
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexConsumer
-import moe.forpleuvoir.ibukigourd.gui.base.render.vertex.UVVertex
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.textureManager
-import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.renderer.texture.AbstractTexture
 import net.minecraft.resources.Identifier
 import org.joml.*
@@ -90,13 +88,10 @@ fun VertexConsumer.vertex(pose: Matrix3x2f, x: Float, y: Float): VertexConsumer 
     return addVertex(vector2f.x(), vector2f.y(), defaultZOffset)
 }
 
-inline fun VertexConsumer.uv(uv: UVVertex): VertexConsumer =
-    this.setUv(uv.u, uv.v)
-
 inline fun VertexConsumer.uv(u: Number, v: Number): VertexConsumer =
     this.setUv(u.toFloat(), v.toFloat())
 
-inline fun VertexConsumer.color(color: ARGBColor): VertexConsumer = this.setColor(color.red, color.green, color.blue, color.alpha)
+inline fun VertexConsumer.color(color: Color): VertexConsumer = this.setColor(color.argb)
 
 inline fun VertexConsumer.normal(normal: Vector3fc): VertexConsumer = this.setNormal(normal.x(), normal.y(), normal.z())
 

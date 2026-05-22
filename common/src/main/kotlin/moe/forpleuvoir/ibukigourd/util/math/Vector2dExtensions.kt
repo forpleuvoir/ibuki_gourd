@@ -1,11 +1,6 @@
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.Vector2d
 import org.joml.Vector2dc
 import org.joml.Vector2fc
@@ -80,43 +75,19 @@ val Vector2dc.x: Double
 val Vector2dc.y: Double
     get() = this.y()
 
-/**
- * 将[Vector2d]序列化
- * @receiver [Vector2dc]
- * @return [SerializeElement]
- */
-fun Vector2dc.serialization(): SerializeElement = serializeObject {
-    "x" to x()
-    "y" to y()
-}
-
-object Vector2dcDeserializer : Deserializer<Vector2dc> {
-    override fun deserialization(serializeElement: SerializeElement): Vector2dc {
-        return serializeElement.checkType<Vector2dc>()
-            .check<SerializeArray> {
-                Vector2d(it[0].asDouble, it[1].asDouble)
-            }.check<SerializeObject> {
-                Vector2d(it["x"]!!.asDouble, it["y"]!!.asDouble)
-            }.getOrThrow()
+val Codec.Companion.vector2dc: Codec<Vector2dc> by lazy {
+    context(Codec.double) {
+        Codec.create<Vector2dc>()
+            .field<Double>("x").getter(Vector2dc::x).codec
+            .field<Double>("y").getter(Vector2dc::y).codec
+            .build(::Vector2d)
     }
-
 }
 
-/**
- * 将[Vector2d]反序列化
- * @receiver [Vector2d]
- * @param element [SerializeElement]
- */
-fun Vector2d.deserialization(element: SerializeElement) {
-    element.checkType<Unit>()
-        .check<SerializeArray> {
-            this.x = it[0].asDouble
-            this.y = it[1].asDouble
-        }.check<SerializeObject> {
-            this.x = it["x"]!!.asDouble
-            this.y = it["y"]!!.asDouble
-        }.getOrThrow()
-}
+fun Codec.Companion.vector2dc(start: Vector2dc, end: Vector2dc) = Codec.create<Vector2dc>()
+    .field<Double>("x").getter(Vector2dc::x).codec(Codec.double(start.x..end.x))
+    .field<Double>("y").getter(Vector2dc::y).codec(Codec.double(start.y..end.y))
+    .build(::Vector2d)
 
 /**
  * 将两个向量[Vector2dc]相加返回一个新的副本

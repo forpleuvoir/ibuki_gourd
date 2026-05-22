@@ -1,13 +1,11 @@
 package moe.forpleuvoir.ibukigourd.text.style
 
-import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.network.chat.*
 
 fun style(
-    color: RGBColor? = null,
-    shadowColor: RGBColor? = null,
+    color: Color? = null,
+    shadowColor: Color? = null,
     bold: Boolean? = null,
     italic: Boolean? = null,
     underlined: Boolean? = null,
@@ -31,17 +29,14 @@ fun style(
     font
 )
 
-val Style.rgbColor: RGBColor?
-    get() = argbColor
-
-val Style.argbColor: ARGBColor?
-    get() = this.color?.let { Color.ofRGB(it.value) }
+val Style.color: Color?
+    get() = this.color?.let { Color.fromARGB(it.value) }
 
 fun Style.withColor(color: Int?): Style {
     return this.withColor(color?.let { TextColor.fromRgb(it) })
 }
 
-fun Style.color(rgbColor: RGBColor?): Style {
+fun Style.color(rgbColor: Color?): Style {
     return this.withColor(rgbColor?.rgb)
 }
 
@@ -61,7 +56,7 @@ fun Style.withShadowColor(shadowColor: Int?): Style {
     )
 }
 
-fun Style.shadowColor(shadowColor: RGBColor?): Style {
+fun Style.shadowColor(shadowColor: Color?): Style {
     return this.withShadowColor(shadowColor?.rgb)
 }
 

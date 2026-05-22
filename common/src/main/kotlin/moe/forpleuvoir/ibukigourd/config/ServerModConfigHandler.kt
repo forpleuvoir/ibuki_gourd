@@ -2,20 +2,13 @@ package moe.forpleuvoir.ibukigourd.config
 
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent
+import moe.forpleuvoir.ibukigourd.platform.Services
 import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.scanModPackage
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
-import java.util.*
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.isSubclassOf
+import moe.forpleuvoir.nebula.common.api.Initializable
+import moe.forpleuvoir.nebula.config.startup
+import net.minecraft.server.MinecraftServer
 
-@Suppress("unused")
-@EventSubscriber
-internal object ServerModConfigHandler : ModConfigHandler {
+internal object ServerModConfigHandler : ModConfigHandler, Initializable {
     private val log = logger()
 
     private val configManagers = HashMap<String, ServerModConfigManager>()
@@ -23,69 +16,39 @@ internal object ServerModConfigHandler : ModConfigHandler {
     override val managers: Iterable<ModConfigManager>
         get() = configManagers.values
 
-    private fun init() {
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                configManagers.forEach { (key, manager) ->
-                    if (manager.savable()) {
-                        log.info("[{}]auto save server config...", key)
-                        manager.asyncSave().let {
-                            log.info("[{}]saved server config,saving time:$it", key)
-                        }
-                    }
-                }
-            }
-        }, 0, 1000 * 30)
+
+    override fun init() {
+        ServerLifecycleEvent.Starting.register { initManager(it) }
+        ServerLifecycleEvent.Stopping.register { serverStop() }
+        ServerLifecycleEvent.Saving.register { serverSave() }
     }
 
-
-    @Subscriber
-    fun init(event: ServerLifecycleEvent.ServerStartingEvent) {
+    fun initManager(server: MinecraftServer) {
         log.info("init server mod config...")
-        init()
-        scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ServerModConfigManager::class) }.forEach { (modId, classes) ->
-            classes.forEach { kClass ->
-
-                val instance = runCatching {
-                    // 尝试创建实例
-                    kClass.createInstance() as ServerModConfigManager
-                }.recoverCatching {
-                    // 如果创建实例失败，尝试获取 objectInstance
-                    kClass.objectInstance as ServerModConfigManager
-                }.getOrElse {
-                    // 如果两者都失败，抛出异常
-                    throw Exception("Unable to create instance of ${kClass.qualifiedName}, must have noArgsConstructor or be objectInstance")
+        configManagers.clear()
+        Services.SERVER_CONFIG_MANAGER.forEach { manager ->
+            manager.init(server)
+            log.info("[${manager.modId} - ${manager.name}]server config init")
+            runBlocking {
+                runCatching {
+                    manager.load()
+                }.onFailure {
+                    manager.forceSave()
+                    log.error("[${manager.modId}] server config load failed", it)
                 }
-
-                val annotation = kClass.findAnnotation<ModConfig>()!!
-                instance.init(event.server)
-                log.info("[${modId} - ${annotation.name}]server config init")
-                runBlocking {
-                    runCatching {
-                        instance.load()
-                    }.onFailure {
-                        instance.forceSave()
-                        log.warn(it)
-                    }
-                    if (instance.savable()) {
-                        instance.save()
-                    }
-                }
-                configManagers["${modId} - ${annotation.name}"] = instance
             }
+            configManagers["${manager.modId} -> ${manager.name}"] = manager
         }
     }
 
-    @Subscriber
-    fun stop(event: ServerLifecycleEvent.ServerStoppingEvent) {
+    fun serverStop() {
         log.info("server mod config saving...")
         runBlocking {
             save()
         }
     }
 
-    @Subscriber
-    fun serverSave(event: ServerSavingEvent) {
+    fun serverSave() {
         configManagers.forEach { (key, value) ->
             if (value.savable()) {
                 log.info("[{}]auto async save server config...", key)

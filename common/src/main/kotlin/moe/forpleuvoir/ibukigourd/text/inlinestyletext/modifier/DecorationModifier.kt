@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.network.chat.MutableComponent
 
-data class DecorationMapping(
+class DecorationMapping(
     val obfuscated: Array<String> = arrayOf("o", "obfuscated"),
     val bold: Array<String> = arrayOf("b", "bold"),
     val italic: Array<String> = arrayOf("i", "italic"),
@@ -12,44 +12,27 @@ data class DecorationMapping(
     val underline: Array<String> = arrayOf("l", "underline"),
     val rest: Array<String> = arrayOf("r", "rest"),
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as DecorationMapping
-
-        if (!obfuscated.contentEquals(other.obfuscated)) return false
-        if (!bold.contentEquals(other.bold)) return false
-        if (!italic.contentEquals(other.italic)) return false
-        if (!strikethrough.contentEquals(other.strikethrough)) return false
-        if (!underline.contentEquals(other.underline)) return false
-        if (!rest.contentEquals(other.rest)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = obfuscated.contentHashCode()
-        result = 31 * result + bold.contentHashCode()
-        result = 31 * result + italic.contentHashCode()
-        result = 31 * result + strikethrough.contentHashCode()
-        result = 31 * result + underline.contentHashCode()
-        result = 31 * result + rest.contentHashCode()
-        return result
+    companion object {
+        val DEFAULT = DecorationMapping()
     }
 }
 
-data class DecorationModifier(val decorationMapping: DecorationMapping = DecorationMapping()) : TextModifier {
-    override fun modifier(exp: String): ((MutableComponent) -> MutableComponent)? {
-        val inverted = exp.startsWith('!')
-        val cs = if (exp.isNotEmpty()) inverted.either(exp.substring(1), exp) else exp
-        return when (cs) {
-            in decorationMapping.obfuscated    -> { text -> text.style { obfuscated(!inverted) } }
-            in decorationMapping.bold          -> { text -> text.style { bold(!inverted) } }
-            in decorationMapping.strikethrough -> { text -> text.style { strikethrough(!inverted) } }
-            in decorationMapping.underline     -> { text -> text.style { underlined(!inverted) } }
-            in decorationMapping.italic        -> { text -> text.style { italic(!inverted) } }
-            in decorationMapping.rest -> { text -> text.withStyle { style() } }
+class DecorationModifier(val decorationMapping: DecorationMapping = DecorationMapping.DEFAULT) : TextModifier {
+    override fun modify(exp: String, current: MutableComponent): MutableComponent? {
+        if (exp.isBlank()) return null
+
+        val (cleanExp, state) =
+            if (exp.startsWith("!")) exp.substring(1) to false
+            else if (exp.startsWith("?")) exp.substring(1) to null
+            else exp to false
+
+        return when (cleanExp) {
+            in decorationMapping.obfuscated    -> current.style { obfuscated(state) }
+            in decorationMapping.bold          -> current.style { bold(state) }
+            in decorationMapping.strikethrough -> current.style { strikethrough(state) }
+            in decorationMapping.underline     -> current.style { underlined(state) }
+            in decorationMapping.italic        -> current.style { italic(state) }
+            in decorationMapping.rest          -> current.withStyle { style() }
             else                               -> null
         }
     }

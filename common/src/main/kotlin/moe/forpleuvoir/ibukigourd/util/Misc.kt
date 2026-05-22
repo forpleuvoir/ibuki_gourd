@@ -43,11 +43,9 @@ fun <T> MutableList<T>.moveElement(fromIndex: Int, toIndex: Int) {
 }
 
 fun <T> Iterable<T>.forEachWithLimit(limit: Int, action: (T) -> Unit) {
-    var count = 0
-    for (element in this) {
+    for ((count, element) in this.withIndex()) {
         if (count >= limit) break
         action(element)
-        count++
     }
 }
 

@@ -4,6 +4,9 @@ plugins {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
+    implementation("org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:${libs.versions.kotlin.get()}")
+//    implementation("org.jetbrains.compose:org.jetbrains.compose.gradle.plugin:${libs.versions.compose.plugin.get()}")
+
 }
 
 repositories {

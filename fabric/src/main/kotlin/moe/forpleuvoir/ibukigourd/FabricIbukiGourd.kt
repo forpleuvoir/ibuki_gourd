@@ -1,14 +1,17 @@
 package moe.forpleuvoir.ibukigourd
 
-import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
-import moe.forpleuvoir.ibukigourd.fabricevent.ReloadListenerRegistry
+import moe.forpleuvoir.ibukigourd.event.events.server.ServerCommandRegistrationEvent
+import moe.forpleuvoir.nebula.event.invoke
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 
 object FabricIbukiGourd : ModInitializer {
 
     override fun onInitialize() {
-        IbukiGourdEventManager.init()
         IbukiGourd.init()
+        CommandRegistrationCallback.EVENT.register { dispatcher, context, selection ->
+            ServerCommandRegistrationEvent()(dispatcher, context, selection)
+        }
     }
 
 }

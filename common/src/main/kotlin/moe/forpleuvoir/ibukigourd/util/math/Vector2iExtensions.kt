@@ -1,11 +1,6 @@
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.*
 
 fun Vector2ic.isEmpty() = this.x() == 0 && this.y() == 0
@@ -13,8 +8,6 @@ fun Vector2ic.isEmpty() = this.x() == 0 && this.y() == 0
 fun Vector2ic.isNotEmpty() = this.x() != 0 && this.y() != 0
 
 fun Vector3ic.asVector2ic(): Vector2ic = Vector2i(x(), y())
-
-fun Vector2fc.asInt(): Vector2ic = Vector2i(x().toInt(), y().toInt())
 
 fun Vector2dc.asInt(): Vector2ic = Vector2i(x().toInt(), y().toInt())
 
@@ -73,43 +66,20 @@ val Vector2ic.x: Int
 val Vector2ic.y: Int
     get() = this.y()
 
-/**
- * 将[Vector2i]序列化
- * @receiver [Vector2ic]
- * @return [SerializeElement]
- */
-fun Vector2ic.serialization(): SerializeElement = serializeObject {
-    "x" to x()
-    "y" to y()
-}
-
-object Vector2icDeserializer : Deserializer<Vector2ic> {
-    override fun deserialization(serializeElement: SerializeElement): Vector2ic {
-        return serializeElement.checkType<Vector2ic>()
-            .check<SerializeArray> {
-                Vector2i(it[0].asInt, it[1].asInt)
-            }.check<SerializeObject> {
-                Vector2i(it["x"]!!.asInt, it["y"]!!.asInt)
-            }.getOrThrow()
+val Codec.Companion.vector2ic: Codec<Vector2ic> by lazy {
+    context(Codec.int) {
+        Codec.create<Vector2ic>()
+            .field<Int>("x").getter(Vector2ic::x).codec
+            .field<Int>("y").getter(Vector2ic::y).codec
+            .build(::Vector2i)
     }
-
 }
 
-/**
- * 将[Vector2i]反序列化
- * @receiver [Vector2i]
- * @param element [SerializeElement]
- */
-fun Vector2i.deserialization(element: SerializeElement) {
-    element.checkType<Unit>()
-        .check<SerializeArray> {
-            this.x = it[0].asInt
-            this.y = it[1].asInt
-        }.check<SerializeObject> {
-            this.x = it["x"]!!.asInt
-            this.y = it["y"]!!.asInt
-        }.getOrThrow()
-}
+fun Codec.Companion.vector2ic(start: Vector2ic, end: Vector2ic) = Codec.create<Vector2ic>()
+    .field<Int>("x").getter(Vector2ic::x).codec(Codec.int(start.x..end.x))
+    .field<Int>("y").getter(Vector2ic::y).codec(Codec.int(start.y..end.y))
+    .build(::Vector2i)
+
 
 /**
  * 将两个向量[vector2fc]相加返回一个新的副本

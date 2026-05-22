@@ -1,11 +1,15 @@
 package moe.forpleuvoir.ibukigourd.event.events.client.input
 
+import moe.forpleuvoir.ibukigourd.event.CancellableContext
+import moe.forpleuvoir.ibukigourd.event.CancellableContextImpl
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.KeyEnvironment
 import moe.forpleuvoir.ibukigourd.input.currentEnv
-import moe.forpleuvoir.nebula.event.CancellableEvent
 
-class MouseEvent {
+object MouseEvent {
+
+    @JvmField
+    val Pressed = CancellableContext.createEvent<PressedContext>()
 
     /**
      * 表示鼠标按下事件的类。
@@ -17,16 +21,17 @@ class MouseEvent {
      * @property name 表示被按下鼠标按键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的鼠标运行环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    data class MousePressEvent(
+    class PressedContext(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
         val name: String = keyCode.keyName,
         @JvmField
         val env: KeyEnvironment = currentEnv(),
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
+
+    @JvmField
+    val Released = CancellableContext.createEvent<ReleasedContext>()
 
     /**
      * 表示鼠标按钮释放事件的类。
@@ -38,16 +43,17 @@ class MouseEvent {
      * @property name 表示被释放鼠标按键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的鼠标运行环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    data class MouseReleaseEvent(
+    class ReleasedContext(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
         val name: String = keyCode.keyName,
         @JvmField
         val env: KeyEnvironment = currentEnv(),
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
+
+    @JvmField
+    val Scrolling = CancellableContext.createEvent<ScrollingContext>()
 
     /**
      * 表示鼠标滚轮事件的类。
@@ -56,17 +62,21 @@ class MouseEvent {
      * 此事件包含滚动量与当前触发环境的信息。
      * 该事件可被取消，取消后滚动行为将不会被进一步处理。
      *
-     * @property amount 表示鼠标滚动的量，正值向上滚动，负值向下滚动。
+     * @property xoffset 表示鼠标在X轴的滚动量
+     * @property yoffset 表示鼠标在Y轴的滚动量
      * @property env 表示触发事件时的键盘环境，用于标识滚动操作发生在游戏内还是屏幕上的环境。
      */
-    data class MouseScrollEvent(
+    class ScrollingContext(
         @JvmField
-        val amount: Double,
+        val xoffset: Double,
+        @JvmField
+        val yoffset: Double,
         @JvmField
         val env: KeyEnvironment = currentEnv(),
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
+
+    @JvmField
+    val Moving = CancellableContext.createEvent<MovingContext>()
 
     /**
      * 表示鼠标移动事件的类。
@@ -79,16 +89,17 @@ class MouseEvent {
      * @property y 当前鼠标光标的Y轴位置。
      * @property env 事件触发时的键盘环境，用于区分鼠标移动发生时的上下文，例如游戏内部还是屏幕交互。
      */
-    data class MouseMoveEvent(
+    class MovingContext(
         @JvmField
         val x: Double,
         @JvmField
         val y: Double,
         @JvmField
         val env: KeyEnvironment = currentEnv(),
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
+
+    @JvmField
+    val Dragging = CancellableContext.createEvent<DraggingContext>()
 
     /**
      * 表示鼠标拖拽事件的类。
@@ -102,7 +113,7 @@ class MouseEvent {
      * @property y 表示拖拽时鼠标的 Y 坐标位置。
      * @property env 表示触发事件时的环境，包含游戏内和屏幕上的情况。
      */
-    data class MouseDraggingEvent(
+    class DraggingContext(
         @JvmField
         val keyCode: KeyCode,
         @JvmField
@@ -113,8 +124,6 @@ class MouseEvent {
         val y: Double,
         @JvmField
         val env: KeyEnvironment = currentEnv(),
-    ) : CancellableEvent {
-        override var canceled: Boolean = false
-    }
+    ) : CancellableContextImpl()
 
 }

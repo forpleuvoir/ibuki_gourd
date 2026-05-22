@@ -1,24 +1,27 @@
 package moe.forpleuvoir.ibukigourd.event.events.client
 
-import moe.forpleuvoir.nebula.event.Event
+import moe.forpleuvoir.nebula.event.EventFactory
 import net.minecraft.client.Minecraft
 
 /**
  * 客户端tick事件
  */
-class ClientTickEvent {
+object ClientTickEvent {
 
-	/**
-	 * 客户端tick结束事件
+    /**
+     * 客户端tick开始事件
+     */
+    @JvmField
+    val TickStart = EventFactory.create<(Minecraft) -> Unit>({}) { listener ->
+        { client -> listener.forEach { it(client) } }
+    }
 
-	 * @property minecraftClient Minecraft
-	 */
-    class ClientTickEndEvent(@JvmField val minecraftClient: Minecraft) : Event
-
-	/**
-	 * 客户端tick开始事件
-	 * @property minecraftClient Minecraft
-	 */
-    class ClientTickStartEvent(@JvmField val minecraftClient: Minecraft) : Event
+    /**
+     * 客户端tick结束事件
+     */
+    @JvmField
+    val TickEnd = EventFactory.create<(Minecraft) -> Unit>({}) { listener ->
+        { client -> listener.forEach { it(client) } }
+    }
 
 }

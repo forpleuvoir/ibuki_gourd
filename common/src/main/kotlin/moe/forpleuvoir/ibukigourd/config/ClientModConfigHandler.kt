@@ -2,18 +2,12 @@ package moe.forpleuvoir.ibukigourd.config
 
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
+import moe.forpleuvoir.ibukigourd.platform.Services
 import moe.forpleuvoir.ibukigourd.util.logger
-import moe.forpleuvoir.ibukigourd.util.scanModPackage
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.isSubclassOf
+import moe.forpleuvoir.nebula.common.api.Initializable
+import moe.forpleuvoir.nebula.common.util.ioLaunch
 
-@Suppress("unused")
-@EventSubscriber
-internal object ClientModConfigHandler : ModConfigHandler {
+internal object ClientModConfigHandler : ModConfigHandler, Initializable {
 
     private val log = logger()
 
@@ -22,45 +16,42 @@ internal object ClientModConfigHandler : ModConfigHandler {
     override val managers: Iterable<ModConfigManager>
         get() = configManagers.values
 
-    @Subscriber
-    fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
-        log.info("init client mod config")
-        scanModPackage { it.hasAnnotation<ModConfig>() && it.isSubclassOf(ClientModConfigManager::class) }
-            .forEach { (modId, classes) ->
-                classes.forEach { kClass ->
-
-                    val instance = runCatching {
-                        // 尝试创建实例
-                        kClass.createInstance() as ClientModConfigManager
-                    }.recoverCatching {
-                        // 如果创建实例失败，尝试获取 objectInstance
-                        kClass.objectInstance as ClientModConfigManager
-                    }.getOrElse {
-                        // 如果两者都失败，抛出异常
-                        throw Exception("Unable to create instance of ${kClass.qualifiedName}, must have noArgsConstructor or be objectInstance")
-                    }
-
-                    val annotation = kClass.findAnnotation<ModConfig>()!!
-                    instance.init()
-                    log.info("[${modId} - ${annotation.name}]client config init")
-                    runBlocking {
-                        runCatching {
-                            instance.load()
-                        }.onFailure {
-                            instance.forceSave()
-                            log.warn(it)
-                        }
-                    }
-                    configManagers["$modId - ${annotation.name}"] = instance
-                }
-            }
+    override fun init() {
+        ClientLifecycleEvent.Starting.register { initManager() }
+        ClientLifecycleEvent.Stopping.register { stop() }
+        ClientLifecycleEvent.OpenGameMenu.register { clientSave() }
     }
 
-    @Subscriber
-    fun stop(event: ClientLifecycleEvent.ClientStopEvent) {
+    private fun initManager() {
+        log.info("init client mod config")
+        Services.CLIENT_CONFIG_MANAGER.forEach { manager ->
+            manager.init()
+            log.info("[${manager.modId} - ${manager.name}]client config init")
+            runBlocking {
+                runCatching {
+                    manager.load()
+                }.onFailure {
+                    manager.forceSave()
+                    log.error("[${manager.modId}] client config load failed", it)
+                }
+            }
+            configManagers["${manager.modId} -> ${manager.name}"] = manager
+        }
+    }
+
+    fun stop() {
         log.info("client mod config saving...")
-        runBlocking {
-            save()
+        runBlocking { save() }
+    }
+
+    fun clientSave() {
+        configManagers.forEach { (key, value) ->
+            if (value.savable()) {
+                log.info("[{}]auto async save client config...", key)
+                value.asyncSave().let {
+                    log.info("[{}]async saved client config,saving time:$it", key)
+                }
+            }
         }
     }
 

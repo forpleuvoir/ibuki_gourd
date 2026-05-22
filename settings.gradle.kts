@@ -7,24 +7,11 @@ pluginManagement {
             forRepository {
                 maven {
                     name = "Fabric"
-                    url = uri("https://maven.fabricmc.net")
+                    url = uri("https://maven.fabricmc.net/")
                 }
             }
             filter {
-                includeGroup("net.fabricmc")
-                includeGroup("net.fabricmc.unpick")
-                includeGroup("fabric-loom")
-            }
-        }
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = "Sponge"
-                    url = uri("https://repo.spongepowered.org/repository/maven-public")
-                }
-            }
-            filter {
-                includeGroupAndSubgroups("org.spongepowered")
+                includeGroupByRegex("net\\.fabricmc.*")
             }
         }
         maven { url = uri("https://maven.fabricmc.net/") }
@@ -33,12 +20,13 @@ pluginManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention").version("0.8.0")
+    id("org.gradle.toolchains.foojay-resolver-convention").version("1.0.0")
 }
 
 
-rootProject.name = "ibukigourd"
+rootProject.name = "IbukiGourd"
 
 include("common")
 include("fabric")
 include("neoforge")
+include("compose-test")

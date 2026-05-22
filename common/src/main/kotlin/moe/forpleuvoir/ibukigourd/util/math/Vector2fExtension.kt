@@ -1,11 +1,7 @@
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.*
 
 fun Vector2fc.isEmpty() = this.x() == 0.0f && this.y() == 0.0f
@@ -73,43 +69,19 @@ val Vector2fc.x: Float
 val Vector2fc.y: Float
     get() = this.y()
 
-/**
- * 将[Vector2f]序列化
- * @receiver [Vector2fc]
- * @return [SerializeElement]
- */
-fun Vector2fc.serialization(): SerializeElement = serializeObject {
-    "x" to x()
-    "y" to y()
-}
-
-object Vector2fcDeserializer : Deserializer<Vector2fc> {
-    override fun deserialization(serializeElement: SerializeElement): Vector2fc {
-        return serializeElement.checkType<Vector2fc>()
-            .check<SerializeArray> {
-                Vector2f(it[0].asFloat, it[1].asFloat)
-            }.check<SerializeObject> {
-                Vector2f(it["x"]!!.asFloat, it["y"]!!.asFloat)
-            }.getOrThrow()
+val Codec.Companion.vector2fc: Codec<Vector2fc> by lazy {
+    context(Codec.float) {
+        Codec.create<Vector2fc>()
+            .field<Float>("x").getter(Vector2fc::x).codec
+            .field<Float>("y").getter(Vector2fc::y).codec
+            .build(::Vector2f)
     }
-
 }
 
-/**
- * 将[Vector2f]反序列化
- * @receiver [Vector2f]
- * @param element [SerializeElement]
- */
-fun Vector2f.deserialization(element: SerializeElement) {
-    element.checkType<Unit>()
-        .check<SerializeArray> {
-            this.x = it[0].asFloat
-            this.y = it[1].asFloat
-        }.check<SerializeObject> {
-            this.x = it["x"]!!.asFloat
-            this.y = it["y"]!!.asFloat
-        }.getOrThrow()
-}
+fun Codec.Companion.vector2fc(start: Vector2fc, end: Vector2fc) = Codec.create<Vector2fc>()
+    .field<Float>("x").getter(Vector2fc::x).codec(Codec.float(start.x..end.x))
+    .field<Float>("y").getter(Vector2fc::y).codec(Codec.float(start.y..end.y))
+    .build(::Vector2f)
 
 /**
  * 将两个向量[vector2fc]相加返回一个新的副本

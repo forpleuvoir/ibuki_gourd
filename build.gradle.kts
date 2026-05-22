@@ -1,4 +1,3 @@
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -9,18 +8,15 @@ plugins {
 
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
 
-val gitHash: String by lazy {
-    val stdout = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "--short", "HEAD") // 获取短哈希值
-        standardOutput = stdout
-    }
-    stdout.toString().trim()
+val gitHash: Provider<String> by lazy {
+    providers.exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+    }.standardOutput.asText.map { it.trim() }
 }
 
-val versionWithGitHashAndBuildTime: String = "v$version.$gitHash.$time"
+val versionWithGitHashAndBuildTime: String = "v$version.${gitHash.get()}.$time"
 
-run{
+run {
     //只是为了生成一个toml方便https://shields.io/读取
     val outputDir: File = project.rootDir
 
@@ -39,46 +35,50 @@ run{
 
 tasks {
     register("publishModToSnapshotsRepository") {
+        description = "推送到本地仓库"
         dependsOn(
-            ":common:publishMavenJavaPublicationToSnapshotsRepository",
-            ":fabric:publishMavenJavaPublicationToSnapshotsRepository",
-            ":neoforge:publishMavenJavaPublicationToSnapshotsRepository"
+            ":common:publishModPublicationToSnapshotsRepository",
+            ":fabric:publishModPublicationToSnapshotsRepository",
+            ":neoforge:publishModPublicationToSnapshotsRepository"
         )
     }
 
     register("publishModToReleasesRepository") {
+        description = "推送到发布仓库"
         dependsOn(
-            ":common:publishMavenJavaPublicationToReleasesRepository",
-            ":fabric:publishMavenJavaPublicationToReleasesRepository",
-            ":neoforge:publishMavenJavaPublicationToReleasesRepository"
+            ":common:publishModPublicationToReleasesRepository",
+            ":fabric:publishModPublicationToReleasesRepository",
+            ":neoforge:publishModPublicationToReleasesRepository"
         )
     }
 
     register("publishModToLocalRepository") {
+        description = "推送到快照仓库"
         dependsOn(
-            ":common:publishMavenJavaPublicationToMavenLocal",
-            ":fabric:publishMavenJavaPublicationToMavenLocal",
-            ":neoforge:publishMavenJavaPublicationToMavenLocal"
+            ":common:publishModPublicationToMavenLocal",
+            ":fabric:publishModPublicationToMavenLocal",
+            ":neoforge:publishModPublicationToMavenLocal"
         )
     }
 
     register<Copy>("buildAllModJar") {
+        description = "构建模组Jar"
         dependsOn(
-            ":fabric:remapJar",
+            ":fabric:jar",
             ":neoforge:jar"
         )
         val minecraftVersion = libs.versions.minecraft.get()
         doFirst {
-            val outputDir = File(project.rootDir, "modJar/$minecraftVersion")
+            val outputDir = File(project.rootDir, "modJar/$minecraftVersion/$version")
             outputDir.mkdirs()
         }
 
-        from(project(":fabric").tasks.named<AbstractArchiveTask>("remapJar").get().archiveFile) {
+        from(project(":fabric").tasks.named<AbstractArchiveTask>("jar").get().archiveFile) {
             rename { "${project.name}-fabric-$versionWithGitHashAndBuildTime-minecraft.$minecraftVersion.jar" }
         }
         from(project(":neoforge").tasks.named<AbstractArchiveTask>("jar").get().archiveFile) {
             rename { "${project.name}-neoforge-$versionWithGitHashAndBuildTime-minecraft.$minecraftVersion.jar" }
         }
-        into(file("modJar/$minecraftVersion"))
+        into(file("modJar/$minecraftVersion/$version"))
     }
 }

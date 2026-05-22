@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.fabricevent
 
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
@@ -10,12 +8,12 @@ import net.minecraft.server.packs.resources.PreparableReloadListener
 object ReloadListenerRegistry {
 
     fun registerClientResource() {
-        registerClientResource(WidgetTextures.RESOURCE_ID, WidgetTextures)
-        registerClientResource(IconTextures.RESOURCE_ID, IconTextures)
+//        registerClientResource(WidgetTextures.RESOURCE_ID, WidgetTextures)
+//        registerClientResource(IconTextures.RESOURCE_ID, IconTextures)
     }
 
     private fun registerClientResource(id: Identifier, listener: PreparableReloadListener) {
-        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id, listener)
+        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id, listener)
     }
 
 }

@@ -4,7 +4,6 @@ import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.input.KeyCode;
 import moe.forpleuvoir.ibukigourd.input.MouseKt;
-import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -31,23 +30,23 @@ public abstract class MouseHandlerMixin {
     private MouseButtonInfo activeButton;
 
     @Inject(method = "onButton", at = @At("HEAD"), cancellable = true)
-    public void onMouseButton(long p_window, MouseButtonInfo buttonInfo, int action, CallbackInfo ci) {
-        if (p_window == this.minecraft.getWindow().handle()) {
-            final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(buttonInfo.button());
+    public void onMouseButton(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
+        if (handle == this.minecraft.getWindow().handle()) {
+            final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(rawButtonInfo.button());
             if (action == 1) {
-                this.activeButton = buttonInfo;
-                final var event = new MouseEvent.MousePressEvent(keyCode, keyCode.getKeyName(), currentEnv());
-                EventBus.Companion.broadcast(event);
-                if (event.getCanceled()) {
+                this.activeButton = rawButtonInfo;
+                final var context = new MouseEvent.PressedContext(keyCode, keyCode.getKeyName(), currentEnv());
+                MouseEvent.Pressed.invoker().invoke(context);
+                if (context.isCancelled()) {
                     ci.cancel();
                     return;
                 }
                 if (InputHandler.onKeyPress(keyCode)) ci.cancel();
             } else {
                 this.activeButton = new MouseButtonInfo(-1, 0);
-                final var event = new MouseEvent.MouseReleaseEvent(keyCode, keyCode.getKeyName(), currentEnv());
-                EventBus.Companion.broadcast(event);
-                if (event.getCanceled()) {
+                final var context = new MouseEvent.ReleasedContext(keyCode, keyCode.getKeyName(), currentEnv());
+                MouseEvent.Released.invoker().invoke(context);
+                if (context.isCancelled()) {
                     ci.cancel();
                     return;
                 }
@@ -57,32 +56,35 @@ public abstract class MouseHandlerMixin {
     }
 
     @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
-    public void onMouseScroll(long windowPointer, double horizontal, double vertical, CallbackInfo ci) {
-        if (windowPointer == this.minecraft.getWindow().handle()) {
-            final double amount = (this.minecraft.options.discreteMouseScroll().get() ? Math.signum(vertical) : vertical) * this.minecraft.options.mouseWheelSensitivity().get();
-            final var event = new MouseEvent.MouseScrollEvent(amount, currentEnv());
-            EventBus.Companion.broadcast(event);
-            if (event.getCanceled()) {
+    public void onMouseScroll(long handle, double xoffset, double yoffset, CallbackInfo ci) {
+        if (handle == this.minecraft.getWindow().handle()) {
+            boolean discreteScroll = this.minecraft.options.discreteMouseScroll().get();
+            double scrollSensitivity = this.minecraft.options.mouseWheelSensitivity().get();
+            double scaledXOffset = (discreteScroll ? Math.signum(xoffset) : xoffset) * scrollSensitivity;
+            double scaledYOffset = (discreteScroll ? Math.signum(yoffset) : yoffset) * scrollSensitivity;
+            final var context = new MouseEvent.ScrollingContext(scaledXOffset, scaledYOffset, currentEnv());
+            MouseEvent.Scrolling.invoker().invoke(context);
+            if (context.isCancelled()) {
                 ci.cancel();
             }
         }
     }
 
     @Inject(method = "onMove", at = @At("HEAD"), cancellable = true)
-    public void onMove(long windowPointer, double xpos, double ypos, CallbackInfo ci) {
-        if (windowPointer == this.minecraft.getWindow().handle()) {
+    public void onMove(long handle, double xpos, double ypos, CallbackInfo ci) {
+        if (handle == this.minecraft.getWindow().handle()) {
             final var position = MouseKt.getMousePosition(this.minecraft);
-            final var event = new MouseEvent.MouseMoveEvent(position.getX(), position.getY(), currentEnv());
-            EventBus.Companion.broadcast(event);
-            if (event.getCanceled()) {
+            final var movingContext = new MouseEvent.MovingContext(position.getX(), position.getY(), currentEnv());
+            MouseEvent.Moving.invoker().invoke(movingContext);
+            if (movingContext.isCancelled()) {
                 ci.cancel();
                 return;
             }
             if (this.activeButton != null && this.activeButton.button() != -1 && this.mousePressedTime > 0.0) {
                 final var keyCode = (moe.forpleuvoir.ibukigourd.input.Mouse) KeyCode.fromCode(activeButton.button());
-                final var draggingEvent = new MouseEvent.MouseDraggingEvent(keyCode, keyCode.getKeyName(), position.getX(), position.getY(), currentEnv());
-                EventBus.Companion.broadcast(draggingEvent);
-                if (draggingEvent.getCanceled()) {
+                final var draggingContext = new MouseEvent.DraggingContext(keyCode, keyCode.getKeyName(), position.getX(), position.getY(), currentEnv());
+                MouseEvent.Dragging.invoker().invoke(draggingContext);
+                if (draggingContext.isCancelled()) {
                     ci.cancel();
                 }
             }
