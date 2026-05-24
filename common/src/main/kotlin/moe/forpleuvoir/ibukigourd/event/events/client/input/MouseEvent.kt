@@ -8,49 +8,43 @@ import moe.forpleuvoir.ibukigourd.input.currentEnv
 
 object MouseEvent {
 
-    @JvmField
-    val Pressed = CancellableContext.createEvent<PressedContext>()
-
     /**
-     * 表示鼠标按下事件的类。
-     *
-     * 此事件会在鼠标按键被按下时触发，通过广播事件，可以捕获并处理鼠标输入。
+     * 此事件会在鼠标按键被按下以及释放时触发，通过广播事件，可以捕获并处理鼠标输入。
      * 该事件可被取消，取消后鼠标输入将不会被进一步处理。
      *
-     * @property keyCode 表示被按下鼠标按键的键码。
-     * @property name 表示被按下鼠标按键的本地化名称，默认为键码对应的本地化字符串。
+     * @property keyCode 鼠标按键的键码。
+     * @property modifiers 按键修饰符
+     * @property isPressed 是否为按下状态
+     * @property name 鼠标按键的本地化名称，默认为键码对应的本地化字符串。
      * @property env 表示触发事件时的鼠标运行环境，用于区分事件发生在游戏内还是屏幕上的情况。
      */
-    class PressedContext(
+    class MouseKeyContext(
         @JvmField
         val keyCode: KeyCode,
+        @JvmField
+        val modifiers: Int,
+        @JvmField
+        val isPressed: Boolean,
         @JvmField
         val name: String = keyCode.keyName,
         @JvmField
         val env: KeyEnvironment = currentEnv(),
-    ) : CancellableContextImpl()
+    ) : CancellableContextImpl(){
+        @JvmField
+        val isReleased = !isPressed
+
+        fun isShiftPressed() = (modifiers and 1) != 0
+
+        fun isCtrlPressed() = (modifiers and 2) != 0
+
+        fun isAltPressed() = (modifiers and 4) != 0
+    }
 
     @JvmField
-    val Released = CancellableContext.createEvent<ReleasedContext>()
+    val Pressed = CancellableContext.createEvent<MouseKeyContext>()
 
-    /**
-     * 表示鼠标按钮释放事件的类。
-     *
-     * 此事件会在鼠标按键被释放时触发，通过广播事件，可以捕获并处理鼠标释放操作。
-     * 该事件可被取消，取消后鼠标释放操作将不会被进一步处理。
-     *
-     * @property keyCode 表示被释放鼠标按键的键码。
-     * @property name 表示被释放鼠标按键的本地化名称，默认为键码对应的本地化字符串。
-     * @property env 表示触发事件时的鼠标运行环境，用于区分事件发生在游戏内还是屏幕上的情况。
-     */
-    class ReleasedContext(
-        @JvmField
-        val keyCode: KeyCode,
-        @JvmField
-        val name: String = keyCode.keyName,
-        @JvmField
-        val env: KeyEnvironment = currentEnv(),
-    ) : CancellableContextImpl()
+    @JvmField
+    val Released = CancellableContext.createEvent<MouseKeyContext>()
 
     @JvmField
     val Scrolling = CancellableContext.createEvent<ScrollingContext>()

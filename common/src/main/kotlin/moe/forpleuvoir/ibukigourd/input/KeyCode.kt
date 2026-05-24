@@ -33,7 +33,7 @@ sealed interface KeyCode : Matchable<Regex> {
 
         internal val keyMap: Map<Int, KeyCode> by lazy {
             buildMap {
-                putAll(Mouse.entries.map { it.code to it })
+                putAll(MouseButton.entries.map { it.code to it })
                 putAll(Keyboard.entries.map { it.code to it })
             }
         }

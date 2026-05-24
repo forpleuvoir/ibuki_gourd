@@ -29,7 +29,14 @@ public abstract class KeyboardHandlerMixin {
             var keyCode = KeyCode.fromCode(event.key());
             //key press
             if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-                final var context = new KeyboardEvent.PressedContext(keyCode, keyCode.getKeyName(), currentEnv());
+                final var context = new KeyboardEvent.KeyboardContext(
+                        keyCode,
+                        event.modifiers(),
+                        true,
+                        action == GLFW_REPEAT,
+                        keyCode.getKeyName(),
+                        currentEnv()
+                );
                 KeyboardEvent.Pressed.invoker().invoke(context);
                 if (context.isCancelled()) {
                     ci.cancel();
@@ -39,7 +46,13 @@ public abstract class KeyboardHandlerMixin {
             }
             //key release
             else if (action == GLFW_RELEASE) {
-                final var context = new KeyboardEvent.ReleasedContext(keyCode, keyCode.getKeyName(), currentEnv());
+                final var context = new KeyboardEvent.KeyboardContext(
+                        keyCode,
+                        event.modifiers(),
+                        false, false,
+                        keyCode.getKeyName(),
+                        currentEnv()
+                );
                 KeyboardEvent.Released.invoker().invoke(context);
                 if (context.isCancelled()) {
                     ci.cancel();

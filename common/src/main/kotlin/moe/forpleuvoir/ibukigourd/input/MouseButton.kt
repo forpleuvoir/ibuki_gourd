@@ -6,9 +6,7 @@ import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
-import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.Minecraft
-import org.lwjgl.glfw.GLFW.*
 
 
 val Minecraft.mouseX: Float get() = mouseHandler.getScaledXPos(window).toFloat()
@@ -50,7 +48,7 @@ infix fun MousePosition.notEquals(mousePosition: MousePosition): Boolean = !(thi
 val MousePosition.asString: String get() = "($x, $y)"
 
 
-enum class Mouse(override val code: Int) : KeyCode {
+enum class MouseButton(override val code: Int) : KeyCode {
     LEFT(0),
     RIGHT(1),
     MIDDLE(2),
@@ -62,7 +60,7 @@ enum class Mouse(override val code: Int) : KeyCode {
 
     companion object {
         @JvmStatic
-        fun fromCode(code: Int): Mouse = keyMap[code] as Mouse
+        fun fromCode(code: Int): MouseButton = keyMap[code] as MouseButton
     }
 
     override val keyNameText: MutableText
@@ -78,38 +76,4 @@ enum class Mouse(override val code: Int) : KeyCode {
             else                -> Translatable("key.mouse", null, this.code + 1)
         }
     }
-}
-
-enum class MouseCursor(val value: Int) {
-    ARROW_CURSOR(GLFW_ARROW_CURSOR),
-    IBEAM_CURSOR(GLFW_IBEAM_CURSOR),
-    CROSSHAIR_CURSOR(GLFW_CROSSHAIR_CURSOR),
-    POINTING_HAND_CURSOR(GLFW_POINTING_HAND_CURSOR),
-    RESIZE_EW_CURSOR(GLFW_RESIZE_EW_CURSOR),
-    RESIZE_NS_CURSOR(GLFW_RESIZE_NS_CURSOR),
-    RESIZE_NWSE_CURSOR(GLFW_RESIZE_NWSE_CURSOR),
-    RESIZE_NESW_CURSOR(GLFW_RESIZE_NESW_CURSOR),
-    RESIZE_ALL_CURSOR(GLFW_RESIZE_ALL_CURSOR),
-    NOT_ALLOWED_CURSOR(GLFW_NOT_ALLOWED_CURSOR);
-
-    companion object {
-
-        val default = ARROW_CURSOR
-
-        fun reset() {
-            current = default
-        }
-
-        var current: MouseCursor = default
-            set(value) {
-                if (value == field) return
-                field = value
-                glfwSetCursor(mc.window.handle(), glfwCreateStandardCursor(value.value))
-            }
-    }
-
-}
-
-fun interface MouseCursorMapping<T : Any> {
-    operator fun invoke(input: T): MouseCursor
 }
