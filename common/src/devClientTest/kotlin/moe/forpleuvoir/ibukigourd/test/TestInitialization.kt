@@ -3,24 +3,23 @@ package moe.forpleuvoir.ibukigourd.test
 import com.google.gson.GsonBuilder
 import com.mojang.serialization.JavaOps
 import moe.forpleuvoir.ibukigourd.IbukiGourd
-import moe.forpleuvoir.ibukigourd.event.events.IbukigourdInitializerEvent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
+import moe.forpleuvoir.ibukigourd.ui.open
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
 
-object TestInitialization {
+class TestInitialization: ModInitialization {
     private val logger = logger(IbukiGourd.MOD_NAME)
 
     val registryAccess get() = mc.player?.level()?.registryAccess()!!
 
-    @OptIn(ExperimentalApi::class)
-    fun init(event: IbukigourdInitializerEvent) {
+    override fun init() {
         logger.info("测试环境")
         InputHandler.apply {
             register(Keyboard.P) {
@@ -41,6 +40,10 @@ object TestInitialization {
                         logger.info(gson.toJson(it))
                     }
                 }
+            }
+
+            register(Keyboard.KP_1) {
+                testScreen1().open()
             }
 
         }

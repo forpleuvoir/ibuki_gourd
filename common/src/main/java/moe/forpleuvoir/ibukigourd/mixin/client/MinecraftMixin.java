@@ -1,11 +1,10 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
-import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
-import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.task.ClientTickTaskSchedulerKt;
 import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler;
+import moe.forpleuvoir.ibukigourd.ui.ComposeScreen;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +23,11 @@ public abstract class MinecraftMixin {
     @Inject(method = "run", at = @At("HEAD"))
     public void runStarting(CallbackInfo ci) {
         ClientLifecycleEvent.Starting.invoker().invoke((Minecraft) (Object) this);
+    }
+
+    @Inject(method = "run", at = @At("RETURN"))
+    public void afterInitWindow(CallbackInfo ci) {
+        ComposeScreen.Companion.init();
     }
 
     @Inject(method = "stop", at = @At("HEAD"))

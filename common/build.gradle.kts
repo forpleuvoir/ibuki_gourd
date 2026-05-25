@@ -19,8 +19,11 @@ dependencies {
     annotationProcessor(libs.mixinExtras.common)
 
     api(libs.nebula)
-    api(libs.compose.runtime)
-    api(libs.compose.runtime.saveable)
+
+    api(compose.desktop.currentOs)
+
+//    api(libs.compose.runtime)
+//    api(libs.compose.runtime.saveable)
 
     testImplementation(kotlin("test-junit5"))
 }
@@ -49,7 +52,7 @@ configurations {
 artifacts {
     add("commonJava", sourceSets.main.get().java.sourceDirectories.singleFile)
     add("commonKotlin", sourceSets.main.get().kotlin.sourceDirectories.filter { !it.name.endsWith("java") }.singleFile)
-    add("commonResources", sourceSets.main.get().resources.sourceDirectories.singleFile)
+    add("commonResources", file("src/main/resources"))
 }
 
 val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)

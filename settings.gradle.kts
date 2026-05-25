@@ -14,7 +14,6 @@ pluginManagement {
                 includeGroupByRegex("net\\.fabricmc.*")
             }
         }
-        maven { url = uri("https://maven.fabricmc.net/") }
         maven { url = uri("https://www.jitpack.io") }
     }
 }
@@ -29,4 +28,3 @@ rootProject.name = "IbukiGourd"
 include("common")
 include("fabric")
 include("neoforge")
-include("compose-test")

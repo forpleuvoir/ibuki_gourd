@@ -47,7 +47,7 @@ public abstract class MouseHandlerMixin {
                     ci.cancel();
                     return;
                 }
-                if (InputHandler.onKeyPress(keyCode)) ci.cancel();
+                if (!InputHandler.onKeyPress(keyCode)) ci.cancel();
             } else {
                 this.activeButton = new MouseButtonInfo(-1, 0);
                 final var context = new MouseEvent.MouseKeyContext(
@@ -62,7 +62,7 @@ public abstract class MouseHandlerMixin {
                     ci.cancel();
                     return;
                 }
-                if (InputHandler.onKeyRelease(keyCode)) ci.cancel();
+                if (!InputHandler.onKeyRelease(keyCode)) ci.cancel();
             }
         }
     }

@@ -42,7 +42,7 @@ public abstract class KeyboardHandlerMixin {
                     ci.cancel();
                     return;
                 }
-                if (InputHandler.onKeyPress(keyCode)) ci.cancel();
+                if (!InputHandler.onKeyPress(keyCode)) ci.cancel();
             }
             //key release
             else if (action == GLFW_RELEASE) {
@@ -58,7 +58,7 @@ public abstract class KeyboardHandlerMixin {
                     ci.cancel();
                     return;
                 }
-                if (InputHandler.onKeyRelease(keyCode)) ci.cancel();
+                if (!InputHandler.onKeyRelease(keyCode)) ci.cancel();
             }
         }
     }

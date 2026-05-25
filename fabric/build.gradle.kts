@@ -28,8 +28,18 @@ dependencies {
     implementation(libs.modMenu)
 
     //nebula
-    api(libs.nebula)
     include(libs.nebula)
+    implementation(libs.nebula)
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
+    implementation(compose.desktop.currentOs)
+    //compose
+    includeInternal(compose.desktop.currentOs){
+        exclude(module = "kotlin-stdlib")
+        exclude(module = "kotlin-stdlib-jdk7")
+        exclude(module = "kotlin-stdlib-jdk8")
+        exclude(module = "annotations")
+    }
 }
 
 sourceSets {

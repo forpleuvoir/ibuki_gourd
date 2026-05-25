@@ -9,10 +9,38 @@ plugins {
 
 val modId: String = project.properties["mod_id"].toString()
 
+val jarJarInternal by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements.JAR))
+        attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
+        attribute(Bundling.BUNDLING_ATTRIBUTE, project.objects.named(Bundling.EXTERNAL))
+    }
+}
+
 dependencies {
     implementation(libs.forgeKotlin)
-    implementation(libs.nebula)
     jarJar(libs.nebula)
+
+    implementation(compose.desktop.currentOs)
+    jarJarInternal(compose.desktop.currentOs) {
+        isTransitive = true
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+        exclude(group = "org.jetbrains", module = "annotations")
+    }
+}
+
+// 解析 compose 传递树，以 Maven 依赖注入到 jarJar（jarJar task 会处理 module name 校验以外的内容）
+configurations.named("jarJar") {
+    dependencies.addAllLater(project.provider {
+        val resolved = configurations.named("jarJarInternal").get().resolvedConfiguration.lenientConfiguration.artifacts
+        resolved.map { artifact ->
+            val id = artifact.moduleVersion.id
+            project.dependencies.create("${id.group}:${id.name}:${id.version}")
+        }
+    })
 }
 
 sourceSets {

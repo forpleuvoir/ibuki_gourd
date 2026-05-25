@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderPipelines
 
 object IGRenderPipelines {
 
+
     private val GUI_HSV_COLOR_SNIPPET: RenderPipeline.Snippet = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
         .withVertexShader("core/gui")
         .withFragmentShader(identifier("core/position_hsv_color"))
