@@ -25,10 +25,10 @@ public abstract class MinecraftMixin {
         ClientLifecycleEvent.Starting.invoker().invoke((Minecraft) (Object) this);
     }
 
-    @Inject(method = "run", at = @At("RETURN"))
-    public void afterInitWindow(CallbackInfo ci) {
-        ComposeScreen.Companion.init();
-    }
+//    @Inject(method = "run", at = @At("RETURN"))
+//    public void afterInitWindow(CallbackInfo ci) {
+//        ComposeScreen.Companion.init();
+//    }
 
     @Inject(method = "stop", at = @At("HEAD"))
     private void stop(CallbackInfo ci) {

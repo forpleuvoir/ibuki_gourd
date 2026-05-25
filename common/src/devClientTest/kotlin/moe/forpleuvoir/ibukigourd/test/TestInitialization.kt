@@ -14,7 +14,7 @@ import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
 
-class TestInitialization: ModInitialization {
+class TestInitialization : ModInitialization {
     private val logger = logger(IbukiGourd.MOD_NAME)
 
     val registryAccess get() = mc.player?.level()?.registryAccess()!!
@@ -44,6 +44,9 @@ class TestInitialization: ModInitialization {
 
             register(Keyboard.KP_1) {
                 testScreen1().open()
+            }
+            register(Keyboard.KP_2) {
+                testScreen2().open()
             }
 
         }

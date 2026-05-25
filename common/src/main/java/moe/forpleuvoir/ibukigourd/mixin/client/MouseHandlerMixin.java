@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
+import com.mojang.blaze3d.platform.Window;
 import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.input.KeyCode;
-import moe.forpleuvoir.ibukigourd.input.MouseButtonKt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -28,6 +28,12 @@ public abstract class MouseHandlerMixin {
 
     @Shadow
     private MouseButtonInfo activeButton;
+
+    @Shadow
+    public abstract double getScaledXPos(Window window);
+
+    @Shadow
+    public abstract double getScaledYPos(Window window);
 
     @Inject(method = "onButton", at = @At("HEAD"), cancellable = true)
     public void onMouseButton(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
@@ -85,8 +91,9 @@ public abstract class MouseHandlerMixin {
     @Inject(method = "onMove", at = @At("HEAD"), cancellable = true)
     public void onMove(long handle, double xpos, double ypos, CallbackInfo ci) {
         if (handle == this.minecraft.getWindow().handle()) {
-            final var position = MouseButtonKt.getMousePosition(this.minecraft);
-            final var movingContext = new MouseEvent.MovingContext(position.getX(), position.getY(), currentEnv());
+            var x = getScaledXPos(this.minecraft.getWindow());
+            var y = getScaledYPos(this.minecraft.getWindow());
+            final var movingContext = new MouseEvent.MovingContext(x, y, currentEnv());
             MouseEvent.Moving.invoker().invoke(movingContext);
             if (movingContext.isCancelled()) {
                 ci.cancel();
@@ -94,7 +101,7 @@ public abstract class MouseHandlerMixin {
             }
             if (this.activeButton != null && this.activeButton.button() != -1 && this.mousePressedTime > 0.0) {
                 final var keyCode = (moe.forpleuvoir.ibukigourd.input.MouseButton) KeyCode.fromCode(activeButton.button());
-                final var draggingContext = new MouseEvent.DraggingContext(keyCode, keyCode.getKeyName(), position.getX(), position.getY(), currentEnv());
+                final var draggingContext = new MouseEvent.DraggingContext(keyCode, keyCode.getKeyName(), x, y, currentEnv());
                 MouseEvent.Dragging.invoker().invoke(draggingContext);
                 if (draggingContext.isCancelled()) {
                     ci.cancel();
