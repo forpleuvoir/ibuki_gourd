@@ -44,8 +44,6 @@ class ComposeRender {
     @Volatile
     private var height = 0
 
-    private data class ResizeMessage(val width: Int, val height: Int, val uiScale: Float, val fontScale: Float)
-
     fun init(width: Int, height: Int, uiScale: Float, fontScale: Float, content: @Composable () -> Unit) {
         this.width = width
         this.height = height
@@ -68,9 +66,8 @@ class ComposeRender {
             composeScene.density = Density(uiScale, fontScale)
             composeScene.size = IntSize(width, height)
             composeScene.setContent(content)
-            render()  // ← 立即渲染第一帧，不等 FrameDispatcher
+//            render()  // ← 立即渲染第一帧，不等 FrameDispatcher
         }
-
     }
 
     fun render() {

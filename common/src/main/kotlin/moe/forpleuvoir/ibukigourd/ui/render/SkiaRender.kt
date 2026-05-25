@@ -39,6 +39,7 @@ class PreInitTexture(gpuTex: GpuTexture, gpuView: GpuTextureView) : AbstractText
 }
 
 class SkiaRender {
+
     var windowId: Long = -1
         private set
     var frameBufferId = -1
@@ -58,6 +59,19 @@ class SkiaRender {
 
     companion object {
         val SKIA_OUTPUT_ID = Identifier.fromNamespaceAndPath(IbukiGourd.MOD_ID, "skia_output")
+
+        private val pipeline = RenderPipeline.builder()
+            .withLocation("custom/cpu_render_compose")
+            .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+            .withUniform("Projection", UniformType.UNIFORM_BUFFER)
+            .withVertexShader("core/position_tex")
+            .withFragmentShader("core/position_tex")
+            .withSampler("Sampler0")
+            .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
+            .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
+            .withDepthStencilState(DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
+            .withCull(false)
+            .build()
     }
 
     /** 必须在 Minecraft 渲染线程调用 */
@@ -75,19 +89,6 @@ class SkiaRender {
             SKIA_OUTPUT_ID, PreInitTexture(tex, gpuView!!)
         )
 
-        val pipeline = RenderPipeline.builder()
-            .withLocation("custom/cpu_render_compose")
-            .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
-            .withUniform("Projection", UniformType.UNIFORM_BUFFER)
-            .withVertexShader("core/position_tex")
-            .withFragmentShader("core/position_tex")
-            .withSampler("Sampler0")
-            .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
-            .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
-            .withDepthStencilState(DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
-            .withCull(false)
-            .build()
-
         renderType = RenderType.create(
             "cpu_render_compose",
             RenderSetup.builder(pipeline)
@@ -95,6 +96,7 @@ class SkiaRender {
                 .bufferSize(768 * 1024)
                 .createRenderSetup()
         )
+
     }
 
     fun prepareTexture() {
@@ -144,14 +146,9 @@ class SkiaRender {
         val oldWindow = glfwGetCurrentContext()
         glfwMakeContextCurrent(windowId)
 
-        // 1. 改了纹理大小
         glBindTexture(GL_TEXTURE_2D, textureId)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL)
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0)
-
-//        // 2. 标红——如果渲染路径是通的，屏幕应该变红
-//        glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
-//        glClear(GL_COLOR_BUFFER_BIT)
 
         surface.close()
         val renderTarget = BackendRenderTarget.makeGL(width, height, 0, 8, frameBufferId, GL_RGBA8)
@@ -160,8 +157,6 @@ class SkiaRender {
         ) ?: throw IllegalStateException("Failed to recreate Surface")
 
         glfwMakeContextCurrent(oldWindow)
-
-        println("[SkiaRender] resized to $width x $height, textureId=$textureId")
     }
 
 
