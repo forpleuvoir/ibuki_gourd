@@ -12,32 +12,7 @@ accessible field net/minecraft/network/chat/Style underlined Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style strikethrough Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style obfuscated Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style font Lnet/minecraft/network/chat/FontDescription;
-#Client
-#GuiGraphics
-accessible method net/minecraft/client/gui/GuiGraphicsExtractor <init> (Lnet/minecraft/client/Minecraft;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/renderer/state/gui/GuiRenderState;II)V
-accessible method net/minecraft/client/gui/GuiGraphicsExtractor item (Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;III)V
-accessible field net/minecraft/client/gui/GuiGraphicsExtractor minecraft Lnet/minecraft/client/Minecraft;
-accessible field net/minecraft/client/gui/GuiGraphicsExtractor mouseX I
-accessible field net/minecraft/client/gui/GuiGraphicsExtractor mouseY I
-accessible field net/minecraft/client/gui/GuiGraphicsExtractor guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
-accessible field net/minecraft/client/gui/GuiGraphicsExtractor scissorStack Lnet/minecraft/client/gui/GuiGraphics$ScissorStack;
-accessible class net/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack
-#Screen
-extendable method net/minecraft/client/gui/screens/Screen init (II)V
-accessible field net/minecraft/client/gui/screens/Screen initialized Z
-#GuiTextRenderState
-extendable class net/minecraft/client/renderer/state/gui/GuiTextRenderState
-accessible field net/minecraft/client/renderer/state/gui/GuiTextRenderState includeEmpty Z
-accessible field net/minecraft/client/renderer/state/gui/GuiTextRenderState preparedText Lnet/minecraft/client/gui/Font$PreparedText;
-accessible field net/minecraft/client/renderer/state/gui/GuiTextRenderState bounds Lnet/minecraft/client/gui/navigation/ScreenRectangle;
-#RenderPipeline
-accessible field net/minecraft/client/renderer/RenderPipelines MATRICES_PROJECTION_SNIPPET Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
-accessible method net/minecraft/client/renderer/RenderPipelines register (Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;
-#RenderType
-accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;
-accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;ILcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
-accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;IZZLcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
-#Server
+
 #MinecraftServer
 accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
 accessible field net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess levelDirectory Lnet/minecraft/world/level/storage/LevelStorageSource$LevelDirectory;

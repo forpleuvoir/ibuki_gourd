@@ -12,6 +12,7 @@ object FabricIbukiGourdClient : ClientModInitializer {
         IbukiGourdClient.init()
         ReloadListenerRegistry.registerClientResource()
         registerClientCommand()
+
     }
 
     fun registerClientCommand() {

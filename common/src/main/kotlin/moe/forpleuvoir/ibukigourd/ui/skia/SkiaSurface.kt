@@ -13,7 +13,7 @@ import moe.forpleuvoir.ibukigourd.ui.skia.internal.FrameRetirement
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.GpuFrame
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.SkiaTexture
 import moe.forpleuvoir.ibukigourd.util.identifier
-import net.minecraft.client.Minecraft
+import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import org.jetbrains.skia.*
 import java.util.*
@@ -131,7 +131,7 @@ class SkiaSurface {
         val frame = activeFrame ?: return
 
         if (!isRegistered) {
-            Minecraft.getInstance().textureManager.register(textureId, boundTexture)
+            mc.textureManager.register(textureId, boundTexture)
             isRegistered = true
         }
 
