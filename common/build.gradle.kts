@@ -18,18 +18,19 @@ dependencies {
     compileOnly(libs.mixinExtras.common)
     annotationProcessor(libs.mixinExtras.common)
 
-    api(libs.nebula)
+    compileOnly(libs.nebula)
 
-    api(compose.desktop.currentOs)
-
-//    api(libs.compose.runtime)
-//    api(libs.compose.runtime.saveable)
+    compileOnly("org.jetbrains.compose.material3:material3:1.9.0")
+    compileOnly("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0")
+    compileOnly(compose.desktop.currentOs){
+        exclude(module = "material-desktop")
+    }
 
     testImplementation(kotlin("test-junit5"))
 }
 
 sourceSets {
-    create("devClientTest") {
+    create("devOnly") {
         compileClasspath += main.get().compileClasspath + main.get().output
     }
 }

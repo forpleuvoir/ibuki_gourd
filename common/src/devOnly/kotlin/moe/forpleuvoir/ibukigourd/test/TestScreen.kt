@@ -7,18 +7,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
+import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.network.chat.ClickEvent
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
+import java.net.URI
 
 
 @Composable
@@ -31,9 +37,10 @@ fun CenteredBox(content: @Composable BoxScope.() -> Unit) {
     }
 }
 
-fun testScreen1() = ComposeScreen {
+@Composable
+fun TestScreen1() {
     MaterialTheme(
-        colors = darkColors()
+        colorScheme = darkColorScheme(),
     ) {
         CenteredBox {
             var size by remember { mutableStateOf(1f) }
@@ -56,8 +63,12 @@ fun testScreen1() = ComposeScreen {
                     }
                     Slider(size, {
                         size = it
-                    }, modifier = Modifier.width(200.dp))
+                    }, modifier = Modifier.height(20.dp).width(200.dp))
                 }
+                Text(IGLang.content.style {
+                    color(Colors.LIME)
+                    clickEvent(ClickEvent.OpenUrl(URI("https://modrinth.com/mod/ibukigourd")))
+                })
 
                 TextField(rememberTextFieldState(), modifier = Modifier.size(320.dp, 120.dp))
                 TextField(rememberTextFieldState(), modifier = Modifier.size(320.dp, 120.dp))
@@ -67,10 +78,10 @@ fun testScreen1() = ComposeScreen {
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
-fun testScreen2() = ComposeScreen {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TestScreen2() {
     CenteredBox {
-
         val list = remember { buildList { repeat(60) { add(it) } }.toMutableStateList() }
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState()).background(Color(255, 255, 255, 127), shape = RoundedCornerShape(4.dp))
@@ -88,13 +99,14 @@ fun testScreen2() = ComposeScreen {
                     ExposedDropdownMenu(expend, onDismissRequest = { expend = false }) {
                         list.forEach { item ->
                             DropdownMenuItem(
+                                text = {
+                                    Text("这是第${item}个")
+                                },
                                 onClick = {
                                     selected = "这是第${item}个"
                                     expend = false
                                 }
-                            ) {
-                                Text(text = "这是第${item}个")
-                            }
+                            )
                         }
                     }
                 }

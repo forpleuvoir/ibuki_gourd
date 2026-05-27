@@ -20,16 +20,30 @@ val jarJarInternal by configurations.creating {
     }
 }
 
+
+fun ExternalModuleDependency.composeExclude() {
+    exclude(group = "org.jetbrains.kotlin")
+    exclude(group = "org.jetbrains.kotlinx")
+    exclude(module = "annotations")
+}
+
 dependencies {
     implementation(libs.forgeKotlin)
     jarJar(libs.nebula)
+    implementation(libs.nebula)
 
-    implementation(compose.desktop.currentOs)
-    jarJarInternal(compose.desktop.currentOs) {
-        isTransitive = true
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
-        exclude(group = "org.jetbrains", module = "annotations")
-    }
+
+    jarJarInternal(implementation("org.jetbrains.compose.material3:material3:1.9.0"){
+        composeExclude()
+    })
+    jarJarInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0") {
+        composeExclude()
+    })
+    jarJarInternal(implementation(compose.desktop.currentOs){
+        exclude(module = "material-desktop")
+        composeExclude()
+    })
+
 }
 
 // 解析 compose 传递树，以 Maven 依赖注入到 jarJar（jarJar task 会处理 module name 校验以外的内容）
@@ -44,8 +58,8 @@ configurations.named("jarJar") {
 }
 
 sourceSets {
-    create("devClientTest") {
-        val test = project(":common").sourceSets["devClientTest"]
+    create("devOnly") {
+        val test = project(":common").sourceSets["devOnly"]
         compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
         runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
     }

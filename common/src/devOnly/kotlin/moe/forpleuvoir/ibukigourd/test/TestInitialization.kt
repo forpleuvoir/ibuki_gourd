@@ -6,7 +6,7 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
-import moe.forpleuvoir.ibukigourd.ui.open
+import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -43,10 +43,14 @@ class TestInitialization : ModInitialization {
             }
 
             register(Keyboard.KP_1) {
-                testScreen1().open()
+                openComposeScreen {
+                    TestScreen1()
+                }
             }
             register(Keyboard.KP_2) {
-                testScreen2().open()
+                openComposeScreen {
+                    TestScreen2()
+                }
             }
 
         }

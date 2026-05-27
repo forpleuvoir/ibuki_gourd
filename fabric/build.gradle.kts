@@ -17,6 +17,13 @@ repositories {
     }
 }
 
+
+fun ExternalModuleDependency.composeExclude() {
+    exclude(group = "org.jetbrains.kotlin")
+    exclude(group = "org.jetbrains.kotlinx")
+    exclude(module = "annotations")
+}
+
 dependencies {
     minecraft(libs.minecraft)
 
@@ -28,23 +35,24 @@ dependencies {
     implementation(libs.modMenu)
 
     //nebula
-    include(libs.nebula)
     implementation(libs.nebula)
+    include(libs.nebula)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
-    implementation(compose.desktop.currentOs)
-    //compose
-    includeInternal(compose.desktop.currentOs){
-        exclude(module = "kotlin-stdlib")
-        exclude(module = "kotlin-stdlib-jdk7")
-        exclude(module = "kotlin-stdlib-jdk8")
-        exclude(module = "annotations")
-    }
+    includeInternal(implementation("org.jetbrains.compose.material3:material3:1.9.0") {
+        composeExclude()
+    })
+    includeInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0") {
+        composeExclude()
+    })
+    includeInternal(implementation(compose.desktop.currentOs) {
+        exclude(module = "material-desktop")
+        composeExclude()
+    })
 }
 
 sourceSets {
-    create("devClientTest") {
-        val test = project(":common").sourceSets["devClientTest"]
+    create("devOnly") {
+        val test = project(":common").sourceSets["devOnly"]
         compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
         runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
     }
@@ -65,7 +73,7 @@ loom {
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArgs("--username", name, "--uuid", uuid)
-            source(sourceSets["devClientTest"])
+            source(sourceSets["devOnly"])
         }
         named("server") {
             server()

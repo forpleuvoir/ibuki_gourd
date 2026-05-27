@@ -7,6 +7,7 @@ kotlinxSerialization = "1.11.0"
 
 #other
 nebula = "0.3.5"
+#compose
 compose = "1.11.0"
 
 #minecraft
@@ -52,8 +53,6 @@ forgeKotlin = { group = "thedarkcolour", name = "kotlinforforge-neoforge", versi
 
 #ohter
 nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebula" }
-#compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime-desktop", version.ref = "compose-runtime" }
-#compose-runtime-saveable = { group = "org.jetbrains.compose.runtime", name = "runtime-saveable-desktop", version.ref = "compose-runtime" }
 
 kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }

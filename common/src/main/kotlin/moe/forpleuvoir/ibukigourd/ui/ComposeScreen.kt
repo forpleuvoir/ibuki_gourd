@@ -50,3 +50,7 @@ open class ComposeScreen(
 fun Screen.open() {
     mc.setScreen(this)
 }
+
+fun openComposeScreen(content: @Composable () -> Unit) {
+    ComposeScreen(content = content).open()
+}
