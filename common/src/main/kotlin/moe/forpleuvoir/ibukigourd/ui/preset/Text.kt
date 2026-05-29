@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import net.minecraft.util.Util
 
 @Suppress("NOTHING_TO_INLINE")
@@ -72,44 +73,45 @@ inline fun Text(
 fun Component.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
     flat().forEach { c ->
         val s = c.style
+        if (s != Style.EMPTY) {
+            // 收集样式
+            val color = s.color?.let { Color(it.value).copy(alpha = 1f) } ?: Color.Unspecified
+            val fontWeight = if (s.bold == true) FontWeight.Bold else null
+            val fontStyle = if (s.italic == true) FontStyle.Italic else null
+            val textDecoration = buildList {
+                if (s.strikethrough == true) add(TextDecoration.LineThrough)
+                if (s.underlined == true) add(TextDecoration.Underline)
+            }.takeIf { it.isNotEmpty() }?.let { TextDecoration.combine(it) }
+            val shadow = s.shadowColor?.let { Shadow(Color(it).copy(alpha = 1f), Offset(2f, 2f)) }
 
-        // 收集样式
-        val color = s.color?.let { Color(it.value).copy(alpha = 1f) } ?: Color.Unspecified
-        val fontWeight = if (s.bold == true) FontWeight.Bold else null
-        val fontStyle = if (s.italic == true) FontStyle.Italic else null
-        val textDecoration = buildList {
-            if (s.strikethrough == true) add(TextDecoration.LineThrough)
-            if (s.underlined == true) add(TextDecoration.Underline)
-        }.takeIf { it.isNotEmpty() }?.let { TextDecoration.combine(it) }
-        val shadow = s.shadowColor?.let { Shadow(Color(it).copy(alpha = 1f), Offset(2f, 2f)) }
-
-        // 点击事件（ClickableText 需要）
-        s.clickEvent?.let { event ->
-            val link = LinkAnnotation.Clickable(event.action().serializedName) {
-                when (event) {
-                    //TODO 添加 Dialog 提示
-                    is ClickEvent.OpenFile   -> Util.getPlatform().openFile(event.file())
-                    is ClickEvent.OpenUrl   -> Util.getPlatform().openUri(event.uri())
-                    is ClickEvent.RunCommand -> mc.player?.connection?.sendUnattendedCommand(Commands.trimOptionalPrefix(event.command), mc.screen);
-                    is ClickEvent.CopyToClipboard -> mc.keyboardHandler.clipboard = event.value
+            // 点击事件（ClickableText 需要）
+            s.clickEvent?.let { event ->
+                val link = LinkAnnotation.Clickable(event.action().serializedName) {
+                    when (event) {
+                        //TODO 添加 Dialog 提示
+                        is ClickEvent.OpenFile        -> Util.getPlatform().openFile(event.file())
+                        is ClickEvent.OpenUrl         -> Util.getPlatform().openUri(event.uri())
+                        is ClickEvent.RunCommand      -> mc.player?.connection?.sendUnattendedCommand(Commands.trimOptionalPrefix(event.command), mc.screen)
+                        is ClickEvent.CopyToClipboard -> mc.keyboardHandler.clipboard = event.value
+                    }
                 }
+                pushLink(link)
             }
-            pushLink(link)
-        }
-
-        // 应用样式并追加文字
-        withStyle(
-            SpanStyle(
-                color = color,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle,
-                textDecoration = textDecoration,
-                shadow = shadow
-            )
-        ) {
+            // 应用样式并追加文字
+            withStyle(
+                SpanStyle(
+                    color = color,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    textDecoration = textDecoration,
+                    shadow = shadow
+                )
+            ) {
+                append(c.string)
+            }
+            if (s.clickEvent != null) pop()
+        } else {
             append(c.string)
         }
-
-        if (s.clickEvent != null) pop()
     }
 }

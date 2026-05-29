@@ -8,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -17,12 +16,10 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.input.EditCommand
-import com.mojang.blaze3d.platform.GLX
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
-import moe.forpleuvoir.ibukigourd.ui.scene.LocalLanguage
 import moe.forpleuvoir.ibukigourd.util.mc
 import org.lwjgl.glfw.GLFW
 
@@ -51,10 +48,7 @@ class MinecraftPlatformContext : PlatformContext {
     var inputCommandSink: ((List<EditCommand>) -> Unit)? = null
         private set
 
-    /** 当前游戏语言代码 */
-    val localeLanguage = mutableStateOf(minecraft.options.languageCode)
-
-    private val clipboard = MinecraftClipboard(mc)
+    private val clipboard = MinecraftClipboard
 
     override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
         try {
@@ -95,11 +89,6 @@ class MinecraftPlatformContext : PlatformContext {
 
     /** 获取系统剪贴板实现 */
     fun getClipboard(): Clipboard = clipboard
-
-    /** 将当前游戏语言同步到 [localeLanguage] */
-    fun syncLocale() {
-        localeLanguage.value = minecraft.options.languageCode
-    }
 
     fun resetCursors() {
         MouseCursor.reset()

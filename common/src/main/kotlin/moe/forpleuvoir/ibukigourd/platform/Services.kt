@@ -16,10 +16,6 @@ object Services {
 
     val INITS = loadAll(ModInitialization::class.java)
 
-    val CLIENT_CONFIG_MANAGER = loadAll(ClientModConfigManager::class.java)
-
-    val SERVER_CONFIG_MANAGER = loadAll(ServerModConfigManager::class.java)
-
     fun <T> load(clazz: Class<T>): T {
         val loadedService = ServiceLoader.load(clazz)
             .findFirst()

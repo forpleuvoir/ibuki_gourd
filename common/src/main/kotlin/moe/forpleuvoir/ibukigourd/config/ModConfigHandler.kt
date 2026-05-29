@@ -4,9 +4,11 @@ import kotlinx.coroutines.awaitAll
 import moe.forpleuvoir.nebula.common.util.ioAsync
 import kotlin.time.Duration
 
-interface ModConfigHandler {
+interface ModConfigHandler<T : ModConfigManager> {
 
-    val managers: Iterable<ModConfigManager>
+    val managers: Iterable<T>
+
+    fun register(manager: T)
 
     suspend fun save() {
         managers.forEach { it.save() }

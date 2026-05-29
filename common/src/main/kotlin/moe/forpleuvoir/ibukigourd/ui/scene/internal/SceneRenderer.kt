@@ -32,15 +32,13 @@ internal class SceneRenderer(
         mouseY: Int,
         partialTick: Float,
     ) {
-        ctx.platformContext.syncLocale()
         ctx.scene.sendPointerEvent(
             PointerEventType.Move,
             Offset(mouseX * ctx.scale, mouseY * ctx.scale)
         )
-        val currentTime = currentNanoTime()
 
         ctx.surface.update(guiGraphics) {
-            ctx.scene.render(it, currentTime)
+            ctx.scene.render(it, currentNanoTime())
         }
     }
 }

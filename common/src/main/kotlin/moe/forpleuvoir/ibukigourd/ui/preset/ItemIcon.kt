@@ -5,6 +5,7 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -47,7 +49,7 @@ fun ItemIcon(
         color = Colors.WHITE.toComposeColor,
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
-        shadow = Shadow(Colors.BLACK.alpha(0.5).toComposeColor, Offset(3f,3f), blurRadius = 1f)
+        shadow = Shadow(Colors.BLACK.alpha(0.5).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
     ),
 ) {
     val surface = LocalSkiaSurface.current
@@ -78,7 +80,7 @@ fun ItemIcon(
     }
 
     bitmap?.let {
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(modifier = modifier.defaultMinSize(32.dp, 32.dp)) {
             Image(
                 bitmap = it,
                 contentDescription = item.itemName.plainText,

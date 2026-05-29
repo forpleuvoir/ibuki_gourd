@@ -11,8 +11,8 @@ import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
 import moe.forpleuvoir.nebula.common.util.requireType
+import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
-import moe.forpleuvoir.nebula.config.ConfigItem
 import moe.forpleuvoir.nebula.config.config
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Serde
@@ -34,7 +34,7 @@ class ToggleKeybind(
 
     override fun deserialization(data: SerializeElement) = DeserializationException.runCatching {
         data.checkType<SerializeObject, Unit> { obj ->
-            keybind.deserialization(obj.requireKey("value").requireType<SerializeObject>())
+            keybind.deserialization(obj.requireKey("keybind").requireType<SerializeObject>())
             enabled = Codec.boolean.deserialization(obj.requireKey("enabled").requireType<SerializePrimitive>()).getOrThrow()
         }
     }.getOrThrow()
@@ -66,7 +66,7 @@ class ToggleKeybind(
 class ConfigKeybind(
     name: String,
     defaultValue: Keybind
-) : ConfigItem<Keybind>(name, Keybind(defaultValue)) {
+) : Config<Keybind>(name, Keybind(defaultValue)) {
 
     override fun init() {
         super.init()
@@ -103,7 +103,7 @@ class ConfigToggleKeybind(
     name: String,
     defaultEnabled: Boolean,
     defaultKeybind: Keybind
-) : ConfigItem<ToggleKeybind>(name, ToggleKeybind(defaultKeybind, defaultEnabled)) {
+) : Config<ToggleKeybind>(name, ToggleKeybind(defaultKeybind, defaultEnabled)) {
 
     override fun init() {
         super.init()

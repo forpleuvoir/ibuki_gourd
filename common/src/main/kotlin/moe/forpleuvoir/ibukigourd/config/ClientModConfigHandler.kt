@@ -1,20 +1,26 @@
 package moe.forpleuvoir.ibukigourd.config
 
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
-import moe.forpleuvoir.ibukigourd.platform.Services
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.common.util.ioLaunch
 
-internal object ClientModConfigHandler : ModConfigHandler, Initializable {
+
+object ClientModConfigHandler : ModConfigHandler<ClientModConfigManager>, Initializable {
 
     private val log = logger()
 
-    private val configManagers = HashMap<String, ClientModConfigManager>()
+    private val configManagers = LinkedHashMap<String, ClientModConfigManager>()
 
-    override val managers: Iterable<ModConfigManager>
+    override val managers: Iterable<ClientModConfigManager>
         get() = configManagers.values
+
+    override fun register(manager: ClientModConfigManager) {
+        configManagers["${manager.modId} -> ${manager.name}"] = manager
+    }
 
     override fun init() {
         ClientLifecycleEvent.Starting.register { initManager() }
@@ -24,7 +30,7 @@ internal object ClientModConfigHandler : ModConfigHandler, Initializable {
 
     private fun initManager() {
         log.info("init client mod config")
-        Services.CLIENT_CONFIG_MANAGER.forEach { manager ->
+        managers.forEach { manager ->
             manager.init()
             log.info("[${manager.modId} - ${manager.name}]client config init")
             runBlocking {
@@ -35,7 +41,6 @@ internal object ClientModConfigHandler : ModConfigHandler, Initializable {
                     log.error("[${manager.modId}] client config load failed", it)
                 }
             }
-            configManagers["${manager.modId} -> ${manager.name}"] = manager
         }
     }
 
@@ -48,8 +53,9 @@ internal object ClientModConfigHandler : ModConfigHandler, Initializable {
         configManagers.forEach { (key, value) ->
             if (value.savable()) {
                 log.info("[{}]auto async save client config...", key)
-                value.asyncSave().let {
-                    log.info("[{}]async saved client config,saving time:$it", key)
+                val deferred = value.asyncSave()
+                ioLaunch {
+                    log.info("[$key]async saved client config,saving time:${deferred.await()}")
                 }
             }
         }

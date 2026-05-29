@@ -2,20 +2,22 @@ package moe.forpleuvoir.ibukigourd.config
 
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent
-import moe.forpleuvoir.ibukigourd.platform.Services
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.common.api.Initializable
-import moe.forpleuvoir.nebula.config.startup
+import moe.forpleuvoir.nebula.common.util.ioLaunch
 import net.minecraft.server.MinecraftServer
 
-internal object ServerModConfigHandler : ModConfigHandler, Initializable {
+object ServerModConfigHandler : ModConfigHandler<ServerModConfigManager>, Initializable {
     private val log = logger()
 
-    private val configManagers = HashMap<String, ServerModConfigManager>()
+    private val configManagers = LinkedHashMap<String, ServerModConfigManager>()
 
-    override val managers: Iterable<ModConfigManager>
+    override val managers: Iterable<ServerModConfigManager>
         get() = configManagers.values
 
+    override fun register(manager: ServerModConfigManager) {
+        configManagers["${manager.modId} -> ${manager.name}"] = manager
+    }
 
     override fun init() {
         ServerLifecycleEvent.Starting.register { initManager(it) }
@@ -26,7 +28,7 @@ internal object ServerModConfigHandler : ModConfigHandler, Initializable {
     fun initManager(server: MinecraftServer) {
         log.info("init server mod config...")
         configManagers.clear()
-        Services.SERVER_CONFIG_MANAGER.forEach { manager ->
+        managers.forEach { manager ->
             manager.init(server)
             log.info("[${manager.modId} - ${manager.name}]server config init")
             runBlocking {
@@ -52,8 +54,9 @@ internal object ServerModConfigHandler : ModConfigHandler, Initializable {
         configManagers.forEach { (key, value) ->
             if (value.savable()) {
                 log.info("[{}]auto async save server config...", key)
-                value.asyncSave().let {
-                    log.info("[{}]async saved server config,saving time:$it", key)
+                val deferred = value.asyncSave()
+                ioLaunch {
+                    log.info("[$key]async saved server config,saving time:${deferred.await()}")
                 }
             }
         }

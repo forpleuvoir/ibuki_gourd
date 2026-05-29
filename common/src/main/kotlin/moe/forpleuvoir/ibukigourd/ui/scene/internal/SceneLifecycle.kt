@@ -31,7 +31,7 @@ internal class SceneLifecycle(
 
         val newSize = IntSize(window.width, window.height)
         if (ctx.scene.size != newSize) ctx.scene.size = newSize
-        val newDensity = Density(ctx.scale * 0.5f, 1.0f)
+        val newDensity = Density(ctx.scale * 0.375f, 1f)
         if (ctx.scene.density != newDensity) ctx.scene.density = newDensity
 
         ctx.platformContext.windowInfo.containerSize = newSize

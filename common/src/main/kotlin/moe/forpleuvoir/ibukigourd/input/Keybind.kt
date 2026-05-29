@@ -15,6 +15,7 @@ import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
 import moe.forpleuvoir.nebula.common.util.requireKeys
+import moe.forpleuvoir.nebula.common.util.requireKeysOrNull
 import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Serde
@@ -251,11 +252,14 @@ class Keybind(
                     log.warn("Failed to deserialize Keybind keys,Will use default value", it)
                 }.getOrDefault(this.keys).toSet()
 
-                val setting = KeybindSetting.deserialization(
-                    obj.requireKey("keys").requireType<SerializeObject>("Keybind setting decode ")
-                ).onFailure {
-                    log.warn("Failed to deserialize Keybind setting,Will use default value", it)
-                }.getOrDefault(this.setting)
+
+                val setting = obj.requireKeysOrNull("setting")?.let { obj ->
+                    KeybindSetting.deserialization(
+                        obj.requireKey("setting").requireType<SerializeObject>("Keybind setting decode,")
+                    ).onFailure {
+                        log.warn("Failed to deserialize Keybind setting,Will use default value", it)
+                    }.getOrDefault(this.setting)
+                } ?: setting
 
                 if (setFrom(keys.toList(), setting)) {
                     notifyChange(this)

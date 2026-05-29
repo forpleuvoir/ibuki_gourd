@@ -127,7 +127,7 @@ fun TestScreen2() {
                     .background(Color(0xFF9fFF00), RoundedCornerShape(4.dp)),
                 horizontalAlignment = Alignment.End
             ) {
-                ItemIcon(ItemStack(Items.IRON_SWORD, 16), modifier = Modifier.size(32.dp), scale = 0.75f)
+                ItemIcon(ItemStack(Items.IRON_SWORD, 16))
                 Text("?")
             }
         }

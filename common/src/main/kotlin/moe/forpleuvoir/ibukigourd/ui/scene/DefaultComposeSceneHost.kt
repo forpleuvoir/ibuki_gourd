@@ -4,11 +4,8 @@ package moe.forpleuvoir.ibukigourd.ui.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
@@ -17,7 +14,6 @@ import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneInputBridge
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneLifecycle
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneRenderer
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
-import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
@@ -59,7 +55,6 @@ open class DefaultComposeSceneHost(
             CompositionLocalProvider(
                 LocalSkiaSurface provides ctx.surface,
                 LocalClipboard provides binding.getClipboard(),
-                LocalLanguage provides binding.localeLanguage.value,
             ) {
                 content()
             }
@@ -93,10 +88,5 @@ open class DefaultComposeSceneHost(
 
     override fun keyReleased(event: KeyEvent) =
         inputBridge.keyReleased(event)
-}
-
-
-val LocalLanguage = compositionLocalOf {
-    mc.options.languageCode
 }
 

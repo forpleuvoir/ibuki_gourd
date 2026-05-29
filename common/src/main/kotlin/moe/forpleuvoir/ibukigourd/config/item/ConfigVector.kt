@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.config.item
 import moe.forpleuvoir.ibukigourd.util.math.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.ConfigItem
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.default
@@ -13,7 +14,7 @@ private class ConfigVector<T : Any>(
     defaultValue: T,
     private val clamp: (T) -> T,
     serde: ConfigSerde<T>
-) : Config<T>(name, defaultValue, serde) {
+) : ConfigItem<T>(name, defaultValue, serde) {
 
     init {
         require(clamp(defaultValue) valueEquals defaultValue) { "Default value out of clamp range, please adjust the default value or clamp bounds" }

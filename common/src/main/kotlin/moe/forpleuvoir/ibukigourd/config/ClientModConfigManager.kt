@@ -11,5 +11,5 @@ abstract class ClientModConfigManager(
     name: String,
     persistence: context(ModConfigManager)() -> ConfigPersistence = { yaml() }
 ) : ModConfigManager(modId, name, persistence) {
-    override val configPath: Path = File(PLATFORM.getConfigDir(), modId).toPath()
+    override val configPath: Path get() = File(PLATFORM.getConfigDir(), modId).toPath()
 }

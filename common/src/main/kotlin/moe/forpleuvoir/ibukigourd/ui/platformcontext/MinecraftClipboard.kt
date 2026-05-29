@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.NativeClipboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import moe.forpleuvoir.ibukigourd.IbukiGourd
+import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.Minecraft
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
@@ -15,12 +16,21 @@ import java.awt.datatransfer.Transferable
 
 private val awtClipboard = java.awt.datatransfer.Clipboard(IbukiGourd.MOD_ID)
 
-class MinecraftClipboard(private val minecraft: Minecraft) : Clipboard {
+/**
+ * 弹出层可能需要手动提供此对象
+ * ```kotlin
+ *  CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+ *      //TODO
+ *  }
+ *
+ * ```
+ */
+object MinecraftClipboard : Clipboard {
     override val nativeClipboard: NativeClipboard = awtClipboard
 
     @OptIn(ExperimentalComposeUiApi::class)
     override suspend fun getClipEntry(): ClipEntry {
-        val text = minecraft.keyboardHandler.clipboard
+        val text = mc.keyboardHandler.clipboard
         return ClipEntry(StringSelection(text))
     }
 
@@ -33,7 +43,7 @@ class MinecraftClipboard(private val minecraft: Minecraft) : Clipboard {
                     transferable.getTransferData(DataFlavor.stringFlavor)
                 } as? String
                 if (text != null) {
-                    minecraft.keyboardHandler.clipboard = text
+                    mc.keyboardHandler.clipboard = text
                     awtClipboard.setContents(StringSelection(text), null)
                 }
             } catch (_: Exception) {
