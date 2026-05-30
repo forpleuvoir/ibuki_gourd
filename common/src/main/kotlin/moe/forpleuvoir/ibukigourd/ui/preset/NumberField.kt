@@ -75,8 +75,9 @@ val LocalNumberFieldStyle = compositionLocalOf {
  *
  * @param value 当前值
  * @param onValueChange 值变更回调
- * @param valuePredicate 输入字符串校验函数
- * @param valueMapper 输入字符串到类型 T 的转换函数
+ * @param valueParser 输入解析函数，返回 null 表示格式无效，非 null 为有效值
+ * @param valueFix 修正数值
+ * @param valueDisplay 数值到显示文本的转换函数
  * @param valueStep 步进配置
  * @param valuePlus 加法运算（用于步进增加）
  * @param valueMinus 减法运算（用于步进减少）
@@ -87,8 +88,8 @@ val LocalNumberFieldStyle = compositionLocalOf {
 fun <T : Comparable<T>> ComparableField(
     value: T,
     onValueChange: (T) -> Unit,
-    valuePredicate: (String) -> Boolean,
-    valueMapper: (String) -> T,
+    valueParser: (String) -> T?,
+    valueFix: (T?) -> T,
     valueDisplay: (T) -> String,
     valueStep: ValueStep<T>,
     valuePlus: (T, T) -> T,
@@ -120,55 +121,74 @@ fun <T : Comparable<T>> ComparableField(
 ) {
     val textFieldState = rememberTextFieldState(valueDisplay(value))
     var lastValidValue by remember { mutableStateOf(value) }
+
     var isError by remember { mutableStateOf(false) }
+
     var focused by remember { mutableStateOf(false) }
 
-    // 外部 value 变更 → 同步到输入框
+    var internalModify by remember { mutableStateOf(false) }
+
+    // 外部 value 变更 → 同步到输入框（不触发 onValueChange）
     LaunchedEffect(value) {
-        lastValidValue = value
-        val displayText = valueDisplay(value)
-        if (textFieldState.text.toString() != displayText) {
-            textFieldState.setTextAndPlaceCursorAtEnd(displayText)
+        if (internalModify) {
+            internalModify = false
+            return@LaunchedEffect
         }
-        isError = false
+        val fixed = valueFix(value)
+        if (fixed != lastValidValue) {
+            lastValidValue = fixed
+            textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
+        }
     }
 
-    // 输入框内容变更 → 校验 & 同步
-    LaunchedEffect(textFieldState) {
+    //用户手动修改输入框内容
+    LaunchedEffect(textFieldState.text) {
         snapshotFlow { textFieldState.text.toString() }
-            .collect { newText ->
-                if (newText != valueDisplay(lastValidValue) && !valuePredicate(newText)) {
-                    isError = true
-                } else {
-                    lastValidValue = valueMapper(newText)
-                    isError = false
+            .collect { text ->
+                val parsed = valueParser(text)
+                if (parsed != lastValidValue) {
+                    lastValidValue = valueFix(parsed)
+                    internalModify = true
                     onValueChange(lastValidValue)
                 }
+                isError = parsed != lastValidValue
             }
     }
 
-    val interactionSource = remember { interactionSource ?: MutableInteractionSource() }
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val hovered by interactionSource.collectIsHoveredAsState()
 
     val modifierApplied = modifier
         .hoverable(interactionSource)
         .onPointerEvent(PointerEventType.Scroll) { event ->
+            //是否限制为单行                                       是否悬浮    是否聚焦
             if (lineLimits == TextFieldLineLimits.SingleLine && hovered && focused) {
                 val change = event.changes.first()
+                //更新数值
                 val scrollDelta = if (event.keyboardModifiers.isShiftPressed) change.scrollDelta.x else change.scrollDelta.y
-                lastValidValue = if (scrollDelta < 0)
+                val newValue = if (scrollDelta < 0)
                     valuePlus(lastValidValue, valueStep.process(valueTimes))
                 else
                     valueMinus(lastValidValue, valueStep.process(valueTimes))
-                textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
+
+                //修正数值
+                lastValidValue = valueFix(newValue)
+                internalModify = true
                 onValueChange(lastValidValue)
+                //应用更新,消费事件
+                textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
                 isError = false
                 change.consume()
             }
         }
         .onFocusChanged { focusState ->
-            if (!focusState.isFocused) {
-                if (isError) {
+            if (!focusState.isFocused) {//失焦时
+                val currentText = textFieldState.text.toString()
+                if (currentText.isNotEmpty()) {
+                    val parsed = valueParser(currentText)
+                    lastValidValue = valueFix(parsed)
+                    internalModify = true
+                    onValueChange(lastValidValue)
                     textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
                     isError = false
                 }
@@ -284,12 +304,15 @@ fun IntField(
     ComparableField(
         value = value,
         onValueChange = onValueChange,
-        valuePredicate = { str ->
-            //是否为整数     是否在范围内,如果范围为空则不判断                           是否为空字符串,应该解析为0
-            (str.isInteger && range?.let { str.toIntOrNull() in it } ?: true) || str.isEmpty()
+        valueFix = { value ->
+            //如果有范围限制那么限制值在范围内,如果值解析失败则返回最小值,没有范围则返回值本身,如果还解析失败则返回0
+            range?.let { value?.coerceIn(it) ?: it.first } ?: value ?: 0
+        },
+        valueParser = { str ->
+            //尝试解析为 Int
+            str.toIntOrNull()
         },
         valueDisplay = valueDisplay,
-        valueMapper = { it.toIntOrNull() ?: 0 },
         valueStep = valueStep,
         valuePlus = Int::plus,
         valueMinus = Int::minus,
@@ -319,11 +342,6 @@ fun IntField(
         interactionSource = interactionSource
     )
 }
-
-private val String.isLong: Boolean
-    get() = runCatching {
-        toLongOrNull() != null
-    }.getOrNull() ?: false
 
 /**
  * 长整数输入框
@@ -367,11 +385,15 @@ fun LongField(
     ComparableField(
         value = value,
         onValueChange = onValueChange,
-        valuePredicate = { str ->
-            (str.isLong && range?.let { str.toLongOrNull() in it } ?: true) || str.isEmpty()
+        valueFix = { value ->
+            //如果有范围限制那么限制值在范围内,如果值解析失败则返回最小值,没有范围则返回值本身,如果还解析失败则返回0
+            range?.let { value?.coerceIn(it) ?: it.first } ?: value ?: 0L
+        },
+        valueParser = { str ->
+            //尝试解析为 Long
+            str.toLongOrNull()
         },
         valueDisplay = valueDisplay,
-        valueMapper = { it.toLongOrNull() ?: 0L },
         valueStep = valueStep,
         valuePlus = Long::plus,
         valueMinus = Long::minus,
@@ -401,9 +423,6 @@ fun LongField(
         interactionSource = interactionSource
     )
 }
-
-private val String.isFloat: Boolean
-    get() = toFloatOrNull()?.isFinite() ?: false
 
 /**
  * 浮点数输入框
@@ -447,11 +466,16 @@ fun FloatField(
     ComparableField(
         value = value,
         onValueChange = onValueChange,
-        valuePredicate = { str ->
-            (str.isFloat && range?.let { r -> str.toFloatOrNull()?.let { it in r } ?: false } ?: true) || str.isEmpty()
+        valueFix = { value ->
+            //如果有范围限制那么限制值在范围内,如果值解析失败则返回最小值,没有范围则返回值本身,如果还解析失败则返回0
+            range?.let { value?.coerceIn(it) ?: it.start } ?: value ?: 0f
+        },
+        valueParser = { str ->
+            //尝试解析为 Long
+            str.toFloatOrNull()
+            //如果成功检测是否在范围内,否则返回解析结果
         },
         valueDisplay = valueDisplay,
-        valueMapper = { it.toFloatOrNull() ?: 0f },
         valueStep = valueStep,
         valuePlus = Float::plus,
         valueMinus = Float::minus,
@@ -481,9 +505,6 @@ fun FloatField(
         interactionSource = interactionSource
     )
 }
-
-private val String.isDouble: Boolean
-    get() = toDoubleOrNull()?.isFinite() ?: false
 
 /**
  * 双精度浮点数输入框
@@ -527,11 +548,16 @@ fun DoubleField(
     ComparableField(
         value = value,
         onValueChange = onValueChange,
-        valuePredicate = { str ->
-            (str.isDouble && range?.let { r -> str.toDoubleOrNull()?.let { it in r } ?: false } ?: true) || str.isEmpty()
+        valueFix = { value ->
+            //如果有范围限制那么限制值在范围内,如果值解析失败则返回最小值,没有范围则返回值本身,如果还解析失败则返回0
+            range?.let { value?.coerceIn(it) ?: it.start } ?: value ?: 0.0
+        },
+        valueParser = { str ->
+            //尝试解析为 Long
+            str.toDoubleOrNull()
+            //如果成功检测是否在范围内,否则返回解析结果
         },
         valueDisplay = valueDisplay,
-        valueMapper = { it.toDoubleOrNull() ?: 0.0 },
         valueStep = valueStep,
         valuePlus = Double::plus,
         valueMinus = Double::minus,

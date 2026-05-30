@@ -1,8 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -10,7 +9,6 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -139,7 +137,12 @@ fun IntConfigWrapper(
 
         val interval = ConfigRowWrapper.valuePollInterval
 
-        val sliderAnim = remember { Animatable(value.toFloat()) }
+        val sliderAnim = remember {
+            val initFraction = if (range != null && range.last - range.first != 0)
+                (value - range.first).toFloat() / (range.last - range.first)
+            else 0f
+            Animatable(initFraction)
+        }
         val scope = rememberCoroutineScope()
 
         LaunchedEffect(config.pathWithRoot) {
@@ -157,43 +160,57 @@ fun IntConfigWrapper(
             }
         }
 
-
         Row(
             modifier = Modifier.size(ConfigRowWrapper.entrySize),
             horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             var editor by remember { mutableStateOf(!(range != null && (range.first - range.last) < 1000)) }
-            if (editor) {
-                IntField(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    range = range,
-                    valueDisplay = valueDisplay,
-                    modifier = modifier.weight(1f),
-                    label = {
-                        Text("Int [$range]")
-                    }
-                )
-            } else if (range != null) {
-                val sliderValue = (range.first + sliderAnim.value * (range.last - range.first)).fastRoundToInt()
-                IntSlider(
-                    value = sliderValue,
-                    onValueChange = {
-                        config.setValue(it)
-                        scope.launch {
-                            val fraction = (it - range.first).toFloat() / (range.last - range.first)
-                            sliderAnim.snapTo(fraction)
+            AnimatedContent(
+                targetState = editor,
+                modifier = Modifier.weight(1f),
+                transitionSpec = {
+                    (slideInVertically() + fadeIn()) togetherWith (slideOutVertically() + fadeOut())
+                },
+                label = "editor_animation"
+            ) { currentEditor ->
+                if (currentEditor) {
+                    IntField(
+                        value = value,
+                        onValueChange = {
+                            config.setValue(it)
+                            if (range != null) {
+                                scope.launch {
+                                    val fraction = (it - range.first).toFloat() / (range.last - range.first)
+                                    sliderAnim.snapTo(fraction)
+                                }
+                            }
+                            value = it
+                        },
+                        range = range,
+                        valueDisplay = valueDisplay,
+                        modifier = Modifier.weight(1f),
+                        label = {
+                            Text(if (range != null) "Int [$range]" else "Int")
                         }
-                        value = it
-                    },
-                    valueRange = range,
-                    valueDisplay = valueDisplay,
-                    modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
-                )
+                    )
+                } else if (range != null) {
+                    val sliderValue = (range.first + sliderAnim.value * (range.last - range.first)).fastRoundToInt()
+                    IntSlider(
+                        value = sliderValue,
+                        onValueChange = {
+                            config.setValue(it)
+                            scope.launch {
+                                val fraction = (it - range.first).toFloat() / (range.last - range.first)
+                                sliderAnim.snapTo(fraction)
+                            }
+                            value = it
+                        },
+                        valueRange = range,
+                        valueDisplay = valueDisplay,
+                        modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
+                    )
+                }
             }
             if (range != null) {
                 val rotation = remember { Animatable(0f) }
@@ -230,9 +247,26 @@ fun LongConfigWrapper(
         val range = remember { if (config is ConfigRange<Long>) config.minValue..config.maxValue else null }
 
         val interval = ConfigRowWrapper.valuePollInterval
+
+        val sliderAnim = remember {
+            val initFraction = if (range != null && range.last - range.first != 0L)
+                (value - range.first).toFloat() / (range.last - range.first)
+            else 0f
+            Animatable(initFraction)
+        }
+        val scope = rememberCoroutineScope()
+
         LaunchedEffect(config.pathWithRoot) {
             while (isActive) {
-                value = config.getValue()
+                val newValue = config.getValue()
+                if (newValue != value && range != null) {
+                    value = newValue
+                    val fraction = (newValue - range.first).toFloat() / (range.last - range.first)
+                    sliderAnim.animateTo(
+                        targetValue = fraction,
+                        animationSpec = tween(durationMillis = 200)
+                    )
+                }
                 delay(interval)
             }
         }
@@ -242,31 +276,51 @@ fun LongConfigWrapper(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             var editor by remember { mutableStateOf(!(range != null && (range.first - range.last) < 1000)) }
-            if (editor) {
-                LongField(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    range = range,
-                    valueDisplay = valueDisplay,
-                    modifier = modifier.weight(1f),
-                    label = {
-                        Text("Long [$range]")
-                    }
-                )
-            } else if (range != null) {
-                LongSlider(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    valueRange = range,
-                    valueDisplay = valueDisplay,
-                    modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
-                )
+            AnimatedContent(
+                targetState = editor,
+                modifier = Modifier.weight(1f),
+                transitionSpec = {
+                    (slideInVertically() + fadeIn()) togetherWith (slideOutVertically() + fadeOut())
+                },
+                label = "editor_animation"
+            ) { currentEditor ->
+                if (currentEditor) {
+                    LongField(
+                        value = value,
+                        onValueChange = {
+                            config.setValue(it)
+                            if (range != null) {
+                                scope.launch {
+                                    val fraction = (it - range.first).toFloat() / (range.last - range.first)
+                                    sliderAnim.snapTo(fraction)
+                                }
+                            }
+                            value = it
+                        },
+                        range = range,
+                        valueDisplay = valueDisplay,
+                        modifier = Modifier.weight(1f),
+                        label = {
+                            Text(if (range != null) "Long [$range]" else "Long")
+                        }
+                    )
+                } else if (range != null) {
+                    val sliderValue = (range.first + sliderAnim.value * (range.last - range.first)).toLong()
+                    LongSlider(
+                        value = sliderValue,
+                        onValueChange = {
+                            config.setValue(it)
+                            scope.launch {
+                                val fraction = (it - range.first).toFloat() / (range.last - range.first)
+                                sliderAnim.snapTo(fraction)
+                            }
+                            value = it
+                        },
+                        valueRange = range,
+                        valueDisplay = valueDisplay,
+                        modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
+                    )
+                }
             }
             if (range != null) {
                 val rotation = remember { Animatable(0f) }
@@ -303,9 +357,26 @@ fun FloatConfigWrapper(
         val range = remember { if (config is ConfigRange<Float>) config.minValue..config.maxValue else null }
 
         val interval = ConfigRowWrapper.valuePollInterval
+
+        val sliderAnim = remember {
+            val initFraction = if (range != null && range.endInclusive - range.start != 0f)
+                (value - range.start) / (range.endInclusive - range.start)
+            else 0f
+            Animatable(initFraction)
+        }
+        val scope = rememberCoroutineScope()
+
         LaunchedEffect(config.pathWithRoot) {
             while (isActive) {
-                value = config.getValue()
+                val newValue = config.getValue()
+                if (newValue != value && range != null) {
+                    value = newValue
+                    val fraction = (newValue - range.start) / (range.endInclusive - range.start)
+                    sliderAnim.animateTo(
+                        targetValue = fraction,
+                        animationSpec = tween(durationMillis = 200)
+                    )
+                }
                 delay(interval)
             }
         }
@@ -315,31 +386,51 @@ fun FloatConfigWrapper(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             var editor by remember { mutableStateOf(!(range != null && (range.start - range.endInclusive) < 1000)) }
-            if (editor) {
-                FloatField(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    range = range,
-                    valueDisplay = valueDisplay,
-                    modifier = modifier.weight(1f),
-                    label = {
-                        Text("Float [$range]")
-                    }
-                )
-            } else if (range != null) {
-                FloatSlider(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    valueRange = range,
-                    valueDisplay = { valueDisplay("%.2f".format(it).toFloat()) },
-                    modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
-                )
+            AnimatedContent(
+                targetState = editor,
+                modifier = Modifier.weight(1f),
+                transitionSpec = {
+                    (slideInVertically() + fadeIn()) togetherWith (slideOutVertically() + fadeOut())
+                },
+                label = "editor_animation"
+            ) { currentEditor ->
+                if (currentEditor) {
+                    FloatField(
+                        value = value,
+                        onValueChange = {
+                            config.setValue(it)
+                            if (range != null) {
+                                scope.launch {
+                                    val fraction = (it - range.start) / (range.endInclusive - range.start)
+                                    sliderAnim.snapTo(fraction)
+                                }
+                            }
+                            value = it
+                        },
+                        range = range,
+                        valueDisplay = valueDisplay,
+                        modifier = Modifier.weight(1f),
+                        label = {
+                            Text(if (range != null) "Float [$range]" else "Float")
+                        }
+                    )
+                } else if (range != null) {
+                    val sliderValue = range.start + sliderAnim.value * (range.endInclusive - range.start)
+                    FloatSlider(
+                        value = sliderValue,
+                        onValueChange = {
+                            config.setValue(it)
+                            scope.launch {
+                                val fraction = (it - range.start) / (range.endInclusive - range.start)
+                                sliderAnim.snapTo(fraction)
+                            }
+                            value = it
+                        },
+                        valueRange = range,
+                        valueDisplay = { valueDisplay("%.2f".format(it).toFloat()) },
+                        modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
+                    )
+                }
             }
             if (range != null) {
                 val rotation = remember { Animatable(0f) }
@@ -376,9 +467,26 @@ fun DoubleConfigWrapper(
         val range = remember { if (config is ConfigRange<Double>) config.minValue..config.maxValue else null }
 
         val interval = ConfigRowWrapper.valuePollInterval
+
+        val sliderAnim = remember {
+            val initFraction = if (range != null && range.endInclusive - range.start != 0.0)
+                ((value - range.start) / (range.endInclusive - range.start)).toFloat()
+            else 0f
+            Animatable(initFraction)
+        }
+        val scope = rememberCoroutineScope()
+
         LaunchedEffect(config.pathWithRoot) {
             while (isActive) {
-                value = config.getValue()
+                val newValue = config.getValue()
+                if (newValue != value && range != null) {
+                    value = newValue
+                    val fraction = ((newValue - range.start) / (range.endInclusive - range.start)).toFloat()
+                    sliderAnim.animateTo(
+                        targetValue = fraction,
+                        animationSpec = tween(durationMillis = 200)
+                    )
+                }
                 delay(interval)
             }
         }
@@ -388,31 +496,51 @@ fun DoubleConfigWrapper(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             var editor by remember { mutableStateOf(!(range != null && (range.start - range.endInclusive) < 1000)) }
-            if (editor) {
-                DoubleField(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    range = range,
-                    valueDisplay = valueDisplay,
-                    modifier = modifier.weight(1f),
-                    label = {
-                        Text("Double [$range]")
-                    }
-                )
-            } else if (range != null) {
-                DoubleSlider(
-                    value = value,
-                    onValueChange = {
-                        config.setValue(it)
-                        value = it
-                    },
-                    valueRange = range,
-                    valueDisplay = { valueDisplay("%.2f".format(it).toDouble()) },
-                    modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
-                )
+            AnimatedContent(
+                targetState = editor,
+                modifier = Modifier.weight(1f),
+                transitionSpec = {
+                    (slideInVertically() + fadeIn()) togetherWith (slideOutVertically() + fadeOut())
+                },
+                label = "editor_animation"
+            ) { currentEditor ->
+                if (currentEditor) {
+                    DoubleField(
+                        value = value,
+                        onValueChange = {
+                            config.setValue(it)
+                            if (range != null) {
+                                scope.launch {
+                                    val fraction = (it - range.start) / (range.endInclusive - range.start)
+                                    sliderAnim.snapTo(fraction.toFloat())
+                                }
+                            }
+                            value = it
+                        },
+                        range = range,
+                        valueDisplay = valueDisplay,
+                        modifier = Modifier.weight(1f),
+                        label = {
+                            Text(if (range != null) "Double [$range]" else "Double")
+                        }
+                    )
+                } else if (range != null) {
+                    val sliderValue = range.start + sliderAnim.value * (range.endInclusive - range.start)
+                    DoubleSlider(
+                        value = sliderValue,
+                        onValueChange = {
+                            config.setValue(it)
+                            scope.launch {
+                                val fraction = ((it - range.start) / (range.endInclusive - range.start)).toFloat()
+                                sliderAnim.snapTo(fraction)
+                            }
+                            value = it
+                        },
+                        valueRange = range,
+                        valueDisplay = { valueDisplay("%.2f".format(it).toDouble()) },
+                        modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
+                    )
+                }
             }
             if (range != null) {
                 val rotation = remember { Animatable(0f) }

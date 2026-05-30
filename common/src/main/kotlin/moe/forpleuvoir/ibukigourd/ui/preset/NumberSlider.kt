@@ -33,21 +33,27 @@ object NumberSlider {
     val labelDismissDelay: Duration
         @Composable @ReadOnlyComposable get() = LocalNumberSliderLabelDismissDelay.current
 
-    val LocalNumberSliderLabelDismissDelay = compositionLocalOf {
+    val LocalNumberSliderLabelDismissDelay = staticCompositionLocalOf {
         500.milliseconds
     }
 
     val labelAnimationDuration: Int
         @Composable @ReadOnlyComposable get() = LocalNumberSliderLabelAnimationDuration.current
 
-    val LocalNumberSliderLabelAnimationDuration = compositionLocalOf {
+    val LocalNumberSliderLabelAnimationDuration = staticCompositionLocalOf {
         200
     }
 
     val trackGap: Dp
         @Composable @ReadOnlyComposable get() = LocalNumberSliderTrackGap.current
 
-    val LocalNumberSliderTrackGap = compositionLocalOf { 4.dp }
+    val LocalNumberSliderTrackGap = staticCompositionLocalOf { 4.dp }
+
+    val alwaysShowLabel: Boolean
+        @Composable @ReadOnlyComposable get() = LocalNumberSliderAlwaysShowLabel.current
+
+    val LocalNumberSliderAlwaysShowLabel = staticCompositionLocalOf { true }
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -105,7 +111,7 @@ fun IntSlider(
     val span = (valueRange.last - valueRange.first)
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (showLabel) 1f else 0f,
+        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -192,7 +198,7 @@ fun LongSlider(
     val span = (valueRange.last - valueRange.first)
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (showLabel) 1f else 0f,
+        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -277,7 +283,7 @@ fun FloatSlider(
     val delay = NumberSlider.labelDismissDelay
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (showLabel) 1f else 0f,
+        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -363,7 +369,7 @@ fun DoubleSlider(
     val span = valueRange.endInclusive - valueRange.start
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (showLabel) 1f else 0f,
+        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )

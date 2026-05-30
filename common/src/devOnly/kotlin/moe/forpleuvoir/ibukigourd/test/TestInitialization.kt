@@ -80,6 +80,14 @@ class TestInitialization : ModInitialization {
                     TestScreen2()
                 }
             }
+            register(Keyboard.KP_3) {
+                openComposeScreen {
+                    CenteredBox {
+                        ColorPicker()
+                    }
+                }
+            }
+
 
             register(Keyboard.KP_7) {
                 openComposeScreen {

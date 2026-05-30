@@ -34,6 +34,11 @@ object MinecraftClipboard : Clipboard {
         return ClipEntry(StringSelection(text))
     }
 
+    fun setClipboardText(text: String) {
+        mc.keyboardHandler.clipboard = text
+        awtClipboard.setContents(StringSelection(text), null)
+    }
+
     @OptIn(ExperimentalComposeUiApi::class)
     override suspend fun setClipEntry(clipEntry: ClipEntry?) {
         val transferable = clipEntry?.nativeClipEntry as? Transferable
