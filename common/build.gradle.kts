@@ -20,8 +20,8 @@ dependencies {
 
     compileOnly(libs.nebula)
 
-    compileOnly("org.jetbrains.compose.material3:material3:1.9.0")
-    compileOnly("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0")
+    compileOnly("org.jetbrains.compose.material3:material3:1.11.0-alpha07")
+    compileOnly("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07")
     compileOnly(compose.desktop.currentOs){
         exclude(module = "material-desktop")
     }

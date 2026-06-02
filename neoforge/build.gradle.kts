@@ -33,10 +33,10 @@ dependencies {
     implementation(libs.nebula)
 
 
-    jarJarInternal(implementation("org.jetbrains.compose.material3:material3:1.9.0"){
+    jarJarInternal(implementation("org.jetbrains.compose.material3:material3:1.11.0-alpha07"){
         composeExclude()
     })
-    jarJarInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0") {
+    jarJarInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
         composeExclude()
     })
     jarJarInternal(implementation(compose.desktop.currentOs){

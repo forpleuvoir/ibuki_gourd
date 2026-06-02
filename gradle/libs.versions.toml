@@ -6,7 +6,7 @@ kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
 
 #other
-nebula = "0.3.7"
+nebula = "0.3.8"
 #compose
 compose = "1.11.0"
 

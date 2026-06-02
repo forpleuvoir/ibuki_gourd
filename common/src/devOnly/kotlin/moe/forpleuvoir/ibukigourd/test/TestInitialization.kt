@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,11 +31,13 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.LightMode
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
+import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
@@ -83,7 +86,13 @@ class TestInitialization : ModInitialization {
             register(Keyboard.KP_3) {
                 openComposeScreen {
                     CenteredBox {
-                        ColorPicker()
+                        Column {
+                            var color by remember { mutableStateOf(Color.fromARGB(0xFFFFFF00)) }
+                            Text(color.hexStr)
+                            Card {
+                                ColorPicker(color, { color = it })
+                            }
+                        }
                     }
                 }
             }

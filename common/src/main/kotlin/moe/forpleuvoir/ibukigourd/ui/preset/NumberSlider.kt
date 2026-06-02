@@ -90,6 +90,7 @@ fun IntSlider(
     valueDisplay: (Int) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     track: @Composable (SliderState) -> Unit = { sliderState ->
@@ -111,7 +112,7 @@ fun IntSlider(
     val span = (valueRange.last - valueRange.first)
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
+        targetValue = if (showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -137,6 +138,9 @@ fun IntSlider(
         },
         interactionSource = interactionSource,
         modifier = modifier.hoverable(interactionSource),
+        enabled = enabled,
+        onValueChangeFinished = onValueChangeFinished,
+        colors = colors,
         track = track,
         thumb = {
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
@@ -177,6 +181,7 @@ fun LongSlider(
     valueDisplay: (Long) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     track: @Composable (SliderState) -> Unit = { sliderState ->
@@ -198,7 +203,7 @@ fun LongSlider(
     val span = (valueRange.last - valueRange.first)
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
+        targetValue = if (showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -225,6 +230,9 @@ fun LongSlider(
         interactionSource = interactionSource,
         modifier = modifier.hoverable(interactionSource),
         track = track,
+        enabled = enabled,
+        onValueChangeFinished = onValueChangeFinished,
+        colors = colors,
         thumb = {
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
@@ -264,6 +272,7 @@ fun FloatSlider(
     valueDisplay: (Float) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     track: @Composable (SliderState) -> Unit = { sliderState ->
@@ -283,7 +292,7 @@ fun FloatSlider(
     val delay = NumberSlider.labelDismissDelay
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
+        targetValue = if (showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -309,6 +318,9 @@ fun FloatSlider(
         interactionSource = interactionSource,
         modifier = modifier.hoverable(interactionSource),
         track = track,
+        enabled = enabled,
+        onValueChangeFinished = onValueChangeFinished,
+        colors = colors,
         thumb = {
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
@@ -348,6 +360,7 @@ fun DoubleSlider(
     valueDisplay: (Double) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     track: @Composable (SliderState) -> Unit = { sliderState ->
@@ -369,7 +382,7 @@ fun DoubleSlider(
     val span = valueRange.endInclusive - valueRange.start
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if(showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
+        targetValue = if (showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
         animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
         label = "labelAlpha",
     )
@@ -396,6 +409,9 @@ fun DoubleSlider(
         interactionSource = interactionSource,
         modifier = modifier.hoverable(interactionSource),
         track = track,
+        enabled = enabled,
+        onValueChangeFinished = onValueChangeFinished,
+        colors = colors,
         thumb = {
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {

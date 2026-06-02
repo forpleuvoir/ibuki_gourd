@@ -114,7 +114,7 @@ fun ConfigName(
                 Text(config.comment.plainText)
             }
         },
-        state = rememberTooltipState(isPersistent = true),
+        state = rememberTooltipState(),
         modifier = modifier
     ) {
         Column(
@@ -179,7 +179,7 @@ fun <T : Resettable> ResetButton(
                     Text(IGLang.reset.plainText)
                 }
             },
-            state = rememberTooltipState(isPersistent = true),
+            state = rememberTooltipState(),
         ) {
             Icon(
                 Icons.Replay,

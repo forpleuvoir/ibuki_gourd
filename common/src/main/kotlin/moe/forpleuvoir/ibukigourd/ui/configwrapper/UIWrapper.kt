@@ -3,9 +3,11 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 import androidx.compose.runtime.Composable
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigNode
+import moe.forpleuvoir.nebula.config.item.ConfigEnum
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -89,14 +91,15 @@ object UIWrappers {
             ConfigGroupWrapper(it as ConfigGroup)
         }
         //region Primitive
-        registerCheckValueType<Int>(::IntConfigWrapper)
-        registerCheckValueType<Long>(::LongConfigWrapper)
-        registerCheckValueType<Float>(::FloatConfigWrapper)
-        registerCheckValueType<Double>(::DoubleConfigWrapper)
-        registerCheckValueType<Boolean>(::BooleanConfigWrapper)
-        registerCheckValueType<String>(::StringConfigWrapper)
+        registerCheckValueType<Int> { IntConfigWrapper(it) }
+        registerCheckValueType<Long> { LongConfigWrapper(it) }
+        registerCheckValueType<Float> { FloatConfigWrapper(it) }
+        registerCheckValueType<Double> { DoubleConfigWrapper(it) }
+        registerCheckValueType<Boolean> { BooleanConfigWrapper(it) }
+        registerCheckValueType<String> { StringConfigWrapper(it) }
         //endregion
-
+        register<ConfigEnum<*>> { EnumConfigWrapper(it) }
+        registerCheckValueType<Color> { ColorConfigWrapper(it) }
     }
 
 }

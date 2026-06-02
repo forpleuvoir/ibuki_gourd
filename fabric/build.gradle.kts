@@ -38,10 +38,10 @@ dependencies {
     implementation(libs.nebula)
     include(libs.nebula)
 
-    includeInternal(implementation("org.jetbrains.compose.material3:material3:1.9.0") {
+    includeInternal(implementation("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
         composeExclude()
     })
-    includeInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0") {
+    includeInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
         composeExclude()
     })
     includeInternal(implementation(compose.desktop.currentOs) {
