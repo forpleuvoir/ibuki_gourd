@@ -5,7 +5,11 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -105,12 +109,26 @@ fun StringConfigWrapper(
                 title = { Text(config.translateText.plainText) },
                 text = {
                     CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
-                        OutlinedTextField(
-                            state = state,
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(min = 200.dp),
-                        )
+                                .height(200.dp),
+                        ) {
+                            val scrollState = rememberScrollState()
+                            OutlinedTextField(
+                                state = state,
+                                scrollState = scrollState,
+                                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                            )
+                            VerticalScrollbar(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                adapter = rememberScrollbarAdapter(scrollState),
+                                style = defaultScrollbarStyle().copy(
+                                    hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                    unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                                )
+                            )
+                        }
                     }
                 },
                 confirmButton = {
@@ -136,10 +154,10 @@ fun StringConfigWrapper(
 @Composable
 fun IntConfigWrapper(
     config: Config<Int>,
+    valueDisplay: (Int) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    valueDisplay: (Int) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
         var value by remember { mutableStateOf(config.getValue()) }

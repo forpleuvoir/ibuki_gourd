@@ -15,13 +15,12 @@ import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.config.item.*
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.nebula.serialization.codec.enum
 import net.minecraft.core.Direction
 import kotlin.time.Duration.Companion.seconds
 
 object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
 
-    var testInt by configInt("test_int", 256, 0, 999).apply {
+    var testInt by configInt("test_int", 256, 0, 1024).apply {
         translateText = Text.literal("测试Int")
         comment = Text.literal("测试用的Int\n测试一下换行")
     }
@@ -45,6 +44,8 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
     var testColor by configColor("test_color", Colors.BLUE_LOTUS)
 
     var testDuration by configDuration("test_duration", 30.seconds, 0.seconds, 60.seconds)
+
+    var testDuration2 by configDuration("test_duration2", 30.seconds)
 
     var testKeyBind by configKeybind("test_key_bind", Keybind {
         println("按下了测试按键")

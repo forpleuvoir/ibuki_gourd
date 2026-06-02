@@ -16,9 +16,8 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.UiWrapper
 
 @Composable
 fun ConfigTest() {
-    val scrollState = rememberScrollState()
-
     Box {
+        val scrollState = rememberScrollState()
         Column(Modifier.verticalScroll(scrollState)) {
             UiWrapper(TestConfig)
         }

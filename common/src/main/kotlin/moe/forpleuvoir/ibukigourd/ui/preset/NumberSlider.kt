@@ -440,3 +440,94 @@ fun DoubleSlider(
         }
     )
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DurationSlider(
+    value: Duration,
+    onValueChange: (Duration) -> Unit,
+    valueRange: ClosedRange<Duration>,
+    valueDisplay: (Duration) -> String = { it.toString() },
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onValueChangeFinished: (() -> Unit)? = null,
+    colors: SliderColors = SliderDefaults.colors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    track: @Composable (SliderState) -> Unit = { sliderState ->
+        SliderDefaults.Track(colors = colors, enabled = enabled, sliderState = sliderState, thumbTrackGapSize = NumberSlider.trackGap)
+    }
+) {
+    val textMeasurer = rememberTextMeasurer()
+
+    val labelStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface)
+
+    val bgColor = MaterialTheme.colorScheme.inverseSurface
+
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    var showLabel by remember { mutableStateOf(false) }
+
+    val delay = NumberSlider.labelDismissDelay
+
+    val span = valueRange.endInclusive - valueRange.start
+
+    val animatedAlpha by animateFloatAsState(
+        targetValue = if (showLabel || NumberSlider.alwaysShowLabel) 1f else 0f,
+        animationSpec = tween(durationMillis = NumberSlider.labelAnimationDuration),
+        label = "labelAlpha",
+    )
+
+    var initial by remember { mutableStateOf(true) }
+    LaunchedEffect(value, isHovered) {
+        if (initial) {
+            initial = false
+            return@LaunchedEffect
+        }
+        if (isHovered) {
+            showLabel = true
+        } else {
+            showLabel = true
+            delay(delay)
+            showLabel = false
+        }
+    }
+    Slider(
+        value = (value / span).toFloat().coerceIn(0f, 1f),
+        onValueChange = {
+            onValueChange((valueRange.start + span * it.toDouble()).coerceIn(valueRange))
+        },
+        interactionSource = interactionSource,
+        modifier = modifier.hoverable(interactionSource),
+        track = track,
+        enabled = enabled,
+        onValueChangeFinished = onValueChangeFinished,
+        colors = colors,
+        thumb = {
+            SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
+                if (animatedAlpha > 0.01f) {
+                    val measuredText = textMeasurer.measure(
+                        AnnotatedString(valueDisplay(value)),
+                        style = labelStyle.copy(
+                            color = labelStyle.color.copy(alpha = animatedAlpha)
+                        ),
+                    )
+                    val bgWidth = measuredText.size.width + 12.dp.toPx()
+                    val bgHeight = measuredText.size.height + 4.dp.toPx()
+                    val bgX = -bgWidth / 2
+                    val bgY = -bgHeight - 4.dp.toPx()
+                    drawRoundRect(
+                        color = bgColor.copy(alpha = animatedAlpha),
+                        topLeft = Offset(bgX, bgY),
+                        size = Size(bgWidth, bgHeight),
+                        cornerRadius = CornerRadius(4.dp.toPx()),
+                    )
+                    drawText(
+                        textLayoutResult = measuredText,
+                        topLeft = Offset(bgX + 6.dp.toPx(), bgY + 2.dp.toPx()),
+                    )
+                }
+            })
+        }
+    )
+}

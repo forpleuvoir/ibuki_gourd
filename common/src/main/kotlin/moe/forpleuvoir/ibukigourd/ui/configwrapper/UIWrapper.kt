@@ -11,6 +11,7 @@ import moe.forpleuvoir.nebula.config.item.ConfigEnum
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
+import kotlin.time.Duration
 
 //region Metadata
 private const val UI_WRAPPER_KEY = "#ui_wrapper"
@@ -100,6 +101,7 @@ object UIWrappers {
         //endregion
         register<ConfigEnum<*>> { EnumConfigWrapper(it) }
         registerCheckValueType<Color> { ColorConfigWrapper(it) }
+        registerCheckValueType<Duration> { DurationConfigWrapper(it) }
     }
 
 }

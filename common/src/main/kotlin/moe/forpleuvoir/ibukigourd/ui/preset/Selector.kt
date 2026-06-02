@@ -53,12 +53,11 @@ fun <T> Selector(
     var menuWidth by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     val windowHeightPx = LocalWindowInfo.current.containerSize.height.toFloat()
-    // 以两者中较大的作为共同宽度，最终收敛到实际更大的那一边
     Box {
         OutlinedButton(
             onClick = { expanded = !expanded },
             modifier = Modifier
-                .then(modifier)                   // 用户显式 modifier（如 .width(x)）依然能覆盖
+                .then(modifier)
                 .onSizeChanged { buttonWidth = it.width }
                 .onGloballyPositioned {
                     buttonTopPx = it.positionInWindow().y
