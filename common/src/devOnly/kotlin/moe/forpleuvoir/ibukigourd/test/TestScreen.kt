@@ -15,9 +15,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.input.Keybind
+import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.preset.KeyBindSettingSetButton
+import moe.forpleuvoir.ibukigourd.ui.preset.KeyCodeSetButton
+import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -127,6 +133,25 @@ fun TestScreen2() {
                 { selected = it },
                 items = enumEntries<Direction>()
             )
+
+            var keyCode by remember { mutableStateOf<KeyCode>(MouseButton.BUTTON_4) }
+            KeyCodeSetButton(keyCode, { keyCode = it })
+
+            val keybind = remember { Keybind() }
+            Row {
+                KeybindSetButton(keybind, {})
+                var setting by remember { mutableStateOf(keybind.setting) }
+                KeyBindSettingSetButton(setting, {
+                    setting = it
+                    keybind.setting = setting
+                })
+
+                Button(onClick = {
+                    println(keybind.setting)
+                }) {
+                    Text("Print")
+                }
+            }
         }
     }
 }

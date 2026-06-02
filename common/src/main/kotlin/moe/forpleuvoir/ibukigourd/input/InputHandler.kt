@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.input
 
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.util.exactMatch
+import java.util.concurrent.CopyOnWriteArrayList
 
 object InputHandler : Tickable {
 
@@ -9,7 +10,7 @@ object InputHandler : Tickable {
         fun dispose()
     }
 
-    private val keybinds: MutableList<Keybind> = ArrayList()
+    private val keybinds: MutableList<Keybind> = CopyOnWriteArrayList()
 
     private val beforePressKeyCode: MutableList<KeyCode> = ArrayList()
 

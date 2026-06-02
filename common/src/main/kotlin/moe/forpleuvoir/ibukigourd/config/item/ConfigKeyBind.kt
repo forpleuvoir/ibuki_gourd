@@ -77,8 +77,15 @@ class ConfigKeybind(
         }
     }
 
+    override var configValue: Keybind = Keybind(this.defaultValue)
+
+    override fun resetDefault() {
+        if (isDefault()) return
+        setValue(defaultValue)
+    }
+
     override fun setValue(value: Keybind) {
-        getValue().setFrom(value)
+        getValue().setFrom(value, false)
     }
 
     override fun deserialization(data: SerializeElement) {
@@ -119,11 +126,23 @@ class ConfigToggleKeybind(
         }
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun getEnabled(): Boolean = getValue().enabled
+    override var configValue: ToggleKeybind = ToggleKeybind(Keybind(this.defaultValue.keybind), this.defaultValue.enabled)
+
+    override fun resetDefault() {
+        if (isDefault()) return
+        setValue(defaultValue)
+    }
+
+    inline var enabled: Boolean
+        get() = getValue().enabled
+        set(value) {
+            if (value != enabled) toggle()
+        }
+
+    inline val keybind: Keybind get() = getValue().keybind
 
     fun toggle() {
-        getValue().enabled = !getEnabled()
+        getValue().enabled = !enabled
         notifyChange()
     }
 
@@ -134,7 +153,7 @@ class ConfigToggleKeybind(
             getValue().enabled = value.enabled
             needNotify = true
         }
-        needNotify = needNotify && getValue().keybind.setFrom(value.keybind, false) == false
+        needNotify = getValue().keybind.setFrom(value.keybind, false) == false && needNotify
         if (needNotify) {
             notifyChange()
         }

@@ -5,8 +5,8 @@ import moe.forpleuvoir.nebula.config.ConfigNode
 import moe.forpleuvoir.nebula.config.path
 
 fun ConfigNode.translationKey(
-    prefix: String = this.root.let { if (it is ModConfigManager) "${it.modId}." else "" }
-): String = prefix + path
+    prefix: String = this.root.let { if (it is ModConfigManager) it.modId else "" }
+): String = if(path.isNotEmpty()) "$prefix.$path" else prefix
 
 const val TRANSLATE_TEXT_KYE = "#translate_text"
 

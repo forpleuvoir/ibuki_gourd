@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -27,8 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Checkerboard
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorSettingButton
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.Config
@@ -55,15 +59,14 @@ fun ColorConfigWrapper(
         }
     }
 
-    Box(
-        modifier = modifier.size(ConfigRowWrapper.entrySize),
-        contentAlignment = Alignment.CenterEnd
+    Row(
+        modifier = Modifier.size(ConfigRowWrapper.entrySize),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
     ) {
-        ColorSettingButton(
-            value,
-            {
-                value = it
-                config.setValue(it)
+        AssistChip(
+            onClick = {
+                MinecraftClipboard.setClipboardText(value.hexStr)
             },
             label = {
                 Row(
@@ -83,11 +86,13 @@ fun ColorConfigWrapper(
                         Box(Modifier.fillMaxSize().background(value.toComposeColor, shape))
                     }
                     Spacer(Modifier.width(8.dp))
-                    Text(it.hexStr, style = MaterialTheme.typography.labelSmall)
+                    Text(value.hexStr, style = MaterialTheme.typography.labelSmall)
                 }
-            },
-            modifier = modifier
+            }
         )
+        ColorSettingButton(value, { value = it; config.setValue(value) }, title = {
+            Text(config.translateText)
+        })
     }
 
 }

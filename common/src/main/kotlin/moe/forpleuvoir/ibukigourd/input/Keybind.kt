@@ -14,7 +14,6 @@ import moe.forpleuvoir.nebula.common.api.Observable
 import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
-import moe.forpleuvoir.nebula.common.util.requireKeys
 import moe.forpleuvoir.nebula.common.util.requireKeysOrNull
 import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.serialization.DeserializationException
@@ -98,7 +97,7 @@ class Keybind(
         val beforeMatched = if (setting.strict) {
             keys == beforeKeyCode
         } else {
-            keys == beforeKeyCode || beforeKeyCode.matchKeys(keys)
+            beforeKeyCode.isNotEmpty() && (keys == beforeKeyCode || beforeKeyCode.matchKeys(keys))
         }
         wasPress = if (setting.strict) {
             keys == currentKeyCode
@@ -106,7 +105,7 @@ class Keybind(
             keys == currentKeyCode || currentKeyCode.matchKeys(keys)
         }
         if (wasPress && !beforeMatched) {
-            return if (setting.trigger == Press || setting.trigger == Both) {
+            return if (setting.trigger == Press || setting.trigger == PressAndRelease) {
                 action()
                 setting.passthrough
             } else true
@@ -135,7 +134,7 @@ class Keybind(
             keys == currentKeyCode || currentKeyCode.matchKeys(keys)
         }
         if (beforeMatched && !currentMath) {
-            return if (setting.trigger == Release || setting.trigger == Both) {
+            return if (setting.trigger == Release || setting.trigger == PressAndRelease) {
                 action()
                 setting.passthrough
             } else true
@@ -216,11 +215,11 @@ class Keybind(
 
     private fun setFrom(keys: List<KeyCode>, setting: KeybindSetting): Boolean {
         var valueChange = false
-        if (this.setting == setting) {
+        if (this.setting != setting) {
             this.setting = setting
             valueChange = true
         }
-        if (this.keys == keys) {
+        if (this.keys != keys) {
             _keys.clear()
             _keys.addAll(keys)
             valueChange = true
@@ -230,7 +229,7 @@ class Keybind(
 
     fun setFrom(target: Keybind, action: Boolean = true): Boolean {
         var valueChange = setFrom(target.keys, target.setting)
-        if (action && this.action == target.action) {
+        if (action && this.action != target.action) {
             this.action = target.action
             valueChange = true
         }
