@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
 import moe.forpleuvoir.ibukigourd.text.style.style
-import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.network.chat.MutableComponent
 
 class DecorationMapping(

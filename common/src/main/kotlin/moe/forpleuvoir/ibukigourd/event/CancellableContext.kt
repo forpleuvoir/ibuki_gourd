@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.event
 
+import moe.forpleuvoir.ibukigourd.event.CancellableContext.Companion.createEvent
 import moe.forpleuvoir.nebula.event.Event
 import moe.forpleuvoir.nebula.event.EventFactory
 import java.util.concurrent.atomic.AtomicBoolean

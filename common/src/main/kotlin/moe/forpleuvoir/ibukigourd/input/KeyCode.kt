@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package moe.forpleuvoir.ibukigourd.input
 
 import com.mojang.blaze3d.platform.InputConstants

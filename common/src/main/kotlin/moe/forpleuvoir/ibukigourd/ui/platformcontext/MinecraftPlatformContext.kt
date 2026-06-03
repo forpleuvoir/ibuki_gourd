@@ -42,8 +42,6 @@ class MinecraftPlatformContext : PlatformContext {
 
     override val inputModeManager: InputModeManager = InputModeManagerImpl()
 
-    private val minecraft = mc
-
     /** 当前活动输入法会话的编辑命令回调 */
     var inputCommandSink: ((List<EditCommand>) -> Unit)? = null
         private set

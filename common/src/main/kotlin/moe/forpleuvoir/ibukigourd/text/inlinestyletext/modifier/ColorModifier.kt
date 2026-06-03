@@ -1,17 +1,11 @@
 package moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier
 
-import moe.forpleuvoir.ibukigourd.text.MutableText
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.flat
-import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.text.style
-import moe.forpleuvoir.ibukigourd.text.withColor
-import moe.forpleuvoir.ibukigourd.text.withShadowColor
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.network.chat.MutableComponent
 import java.text.BreakIterator
-import java.util.Locale
+import java.util.*
 
 object ColorModifier : TextModifier {
 

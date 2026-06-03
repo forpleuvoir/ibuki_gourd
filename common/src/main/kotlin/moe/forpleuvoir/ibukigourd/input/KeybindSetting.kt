@@ -29,9 +29,7 @@ data class KeybindSetting(
         .field<Boolean>("strict").getter(KeybindSetting::strict).default(true).codec(Codec.boolean)
         .field<Int>("longPressThreshold").getter(KeybindSetting::longPressThreshold).default(20).codec(Codec.int)
         .field<Int>("repeatInterval").getter(KeybindSetting::repeatInterval).default(5).codec(Codec.int)
-        .build(::KeybindSetting) {
-
-    }
+        .build(::KeybindSetting)
 
     override fun matched(target: Regex): Boolean =
         target.containsMatchIn(env.key) ||

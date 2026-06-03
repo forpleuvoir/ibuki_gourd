@@ -6,6 +6,7 @@ import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import org.jetbrains.skiko.currentNanoTime
 import org.lwjgl.glfw.GLFW
 
 /**
@@ -36,6 +37,12 @@ internal class SceneLifecycle(
 
         ctx.platformContext.windowInfo.containerSize = newSize
         ctx.platformContext.windowInfo.containerDpSize = newDensity.run { newSize.toSize().toDpSize() }
+
+        // 预热：提前触发首次 Compose 场景渲染，将组合/布局/绘制/着色器编译
+        // 的开销从渲染帧转移到初始化阶段，避免首帧卡顿
+        ctx.surface.warmUpScene {
+            ctx.scene.render(it, currentNanoTime())
+        }
 
         if (ctx.charCallback == null) {
             ctx.charCallback = GLFW.glfwSetCharCallback(ctx.minecraft.window.handle()) { _, codepoint ->

@@ -1,13 +1,11 @@
 package moe.forpleuvoir.ibukigourd.util
 
 import com.mojang.blaze3d.platform.Window
-import moe.forpleuvoir.ibukigourd.util.Size
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.client.multiplayer.chat.GuiMessageSource
 import net.minecraft.client.renderer.texture.TextureManager
 import net.minecraft.client.sounds.SoundManager
 import net.minecraft.server.packs.resources.ReloadableResourceManager

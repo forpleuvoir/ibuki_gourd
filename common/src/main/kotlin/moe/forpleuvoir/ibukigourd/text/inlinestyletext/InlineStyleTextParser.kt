@@ -7,7 +7,6 @@ import moe.forpleuvoir.ibukigourd.text.inlinestyletext.modifier.*
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.primitive.either
-import moe.forpleuvoir.nebula.common.util.primitive.fillBefore
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.contents.KeybindContents
 import net.minecraft.network.chat.contents.TranslatableContents

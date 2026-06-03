@@ -1,9 +1,9 @@
+@file:Suppress("DuplicatedCode")
+
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.defaultScrollbarStyle
@@ -35,7 +35,6 @@ import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
 import moe.forpleuvoir.nebula.config.pathWithRoot
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun BooleanConfigWrapper(

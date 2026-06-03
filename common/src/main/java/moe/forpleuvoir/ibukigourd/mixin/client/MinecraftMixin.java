@@ -2,9 +2,9 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent;
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent;
+import moe.forpleuvoir.ibukigourd.input.InputHandler;
 import moe.forpleuvoir.ibukigourd.task.ClientTickTaskSchedulerKt;
 import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler;
-import moe.forpleuvoir.ibukigourd.ui.ComposeScreen;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,11 +25,6 @@ public abstract class MinecraftMixin {
         ClientLifecycleEvent.Starting.invoker().invoke((Minecraft) (Object) this);
     }
 
-//    @Inject(method = "run", at = @At("RETURN"))
-//    public void afterInitWindow(CallbackInfo ci) {
-//        ComposeScreen.Companion.init();
-//    }
-
     @Inject(method = "stop", at = @At("HEAD"))
     private void stop(CallbackInfo ci) {
         if (this.running) {
@@ -37,25 +32,18 @@ public abstract class MinecraftMixin {
         }
     }
 //
-//    @Inject(method = "tick", at = @At("HEAD"))
-//    public void tickStart(CallbackInfo ci) {
-//        InputHandler.INSTANCE.onTick();
-//        Toast.INSTANCE.onTick();
-//        TipHandler.INSTANCE.onTick();
-//        ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).startTick((Minecraft) (Object) this);
-//        ClientTickEvent.TickStart.invoker().invoke((Minecraft) (Object) this);
-//    }
+    @Inject(method = "tick", at = @At("HEAD"))
+    public void tickStart(CallbackInfo ci) {
+        InputHandler.INSTANCE.onTick();
+        ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).startTick((Minecraft) (Object) this);
+        ClientTickEvent.TickStart.invoker().invoke((Minecraft) (Object) this);
+    }
 
     @Inject(method = "tick", at = @At("RETURN"))
     public void tickEnd(CallbackInfo ci) {
         ClientTickTaskSchedulerKt.getClient(TickTaskScheduler.Companion).endTick((Minecraft) (Object) this);
         ClientTickEvent.TickEnd.invoker().invoke((Minecraft) (Object) this);
     }
-
-//    @Inject(method = "resizeGui", at = @At("RETURN"))
-//    public void onResolutionChanged(CallbackInfo ci) {
-//        Toast.onResize();
-//    }
 
     @Inject(method = "pauseGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasSingleplayerServer()Z"))
     public void openGameMenu(boolean suppressPauseMenuIfWeReallyArePausing, CallbackInfo ci) {

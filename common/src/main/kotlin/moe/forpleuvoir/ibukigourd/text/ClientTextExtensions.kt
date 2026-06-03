@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.text
 
+import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.Size
 import moe.forpleuvoir.ibukigourd.util.SizeFloat
-import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import net.minecraft.network.chat.Component

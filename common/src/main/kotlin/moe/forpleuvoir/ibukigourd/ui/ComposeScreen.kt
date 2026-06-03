@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui
 
 import androidx.compose.runtime.Composable
+import moe.forpleuvoir.ibukigourd.platform.isDevEnv
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
@@ -9,11 +10,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
+import kotlin.time.TimeSource
 
 open class ComposeScreen(
     val pauseGame: Boolean = false,
     content: @Composable () -> Unit,
 ) : Screen(Text.literal("Compose Screen")) {
+    private val mark = TimeSource.Monotonic.markNow()
     private val host: ComposeSceneHost = ComposeSceneFactory.create(content)
 
     override fun init() {
@@ -25,8 +28,14 @@ open class ComposeScreen(
         host.onClose()
     }
 
+    private var init = false
+
     override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         host.extractRenderState(graphics, mouseX, mouseY, partialTick)
+        if (!init && isDevEnv) {
+            println("第一帧耗时${mark.elapsedNow()}")
+            init = true
+        }
     }
 
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean =

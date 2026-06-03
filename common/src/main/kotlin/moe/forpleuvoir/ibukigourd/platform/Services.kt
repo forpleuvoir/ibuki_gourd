@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.platform
 
-import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
-import moe.forpleuvoir.ibukigourd.config.ServerModConfigManager
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.platform.services.PlatformHelper
 import moe.forpleuvoir.ibukigourd.util.logger

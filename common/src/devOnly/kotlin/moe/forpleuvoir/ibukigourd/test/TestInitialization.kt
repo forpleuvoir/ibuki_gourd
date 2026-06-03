@@ -1,19 +1,10 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,23 +15,26 @@ import com.google.gson.GsonBuilder
 import com.mojang.serialization.JavaOps
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
+import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.icon.DarkMode
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.LightMode
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.event.Event
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
+import kotlin.time.measureTime
 
 class TestInitialization : ModInitialization {
     private val logger = logger(IbukiGourd.MOD_NAME)
@@ -49,6 +43,15 @@ class TestInitialization : ModInitialization {
 
     override fun init() {
         logger.info("测试环境")
+        ClientLifecycleEvent.Starting.register("TestInitialization") {
+            println(measureTime {
+                ComposeSceneWarmup.warmUp {
+                    ConfigTest()
+                }
+            })
+            ComposeSceneWarmup.warmUp()
+        }
+        ClientLifecycleEvent.Starting.addPhaseOrdering(Event.DEFAULT_PHASE, "TestInitialization")
 
         ClientModConfigHandler.register(TestConfig)
 

@@ -257,11 +257,6 @@ fun <T : Comparable<T>> ComparableField(
     }
 }
 
-private val String.isInteger: Boolean
-    get() = runCatching {
-        toIntOrNull() != null
-    }.getOrNull() ?: false
-
 /**
  * 整数输入框
  *

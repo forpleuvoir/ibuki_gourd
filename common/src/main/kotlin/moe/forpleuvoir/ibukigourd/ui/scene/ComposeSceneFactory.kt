@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.scene
 
 import androidx.compose.runtime.Composable
-import moe.forpleuvoir.ibukigourd.ui.scene.DefaultComposeSceneHost
 
 /**
  * Factory for creating [ComposeSceneHost] instances.

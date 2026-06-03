@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.config
 
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.util.logger

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.skia
 
+import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext.submit
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.common.api.Initializable
 import org.jetbrains.skia.DirectContext

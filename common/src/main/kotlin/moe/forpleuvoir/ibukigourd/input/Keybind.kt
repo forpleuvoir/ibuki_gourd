@@ -27,7 +27,7 @@ import moe.forpleuvoir.nebula.serialization.codec.list
 import java.util.concurrent.CopyOnWriteArrayList
 
 
-@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
+@Suppress("MemberVisibilityCanBePrivate")
 class Keybind(
     vararg keyCodes: KeyCode,
     private val defaultSetting: KeybindSetting = KeybindSetting(),

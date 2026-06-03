@@ -1,26 +1,12 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.defaultScrollbarStyle
-import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,8 +24,8 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Add
 import moe.forpleuvoir.ibukigourd.ui.icon.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 
 @Composable
@@ -78,7 +64,7 @@ fun <V : Any> MapConfigWrapper(
     }
 
     if (showEditDialog) {
-        val snapshot = remember { config.entries.map { it.key to it.value }.toMap() }
+        val snapshot = remember { config.entries.associate { it.key to it.value } }
 
         MapEditDialog(
             config = config,

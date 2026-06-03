@@ -8,8 +8,8 @@ object BounceEasing : Easing {
     }
 
     override fun easeOut(t: Float): Float {
-        val n1: Float = 7.5625f
-        val d1: Float = 2.75f
+        val n1 = 7.5625f
+        val d1 = 2.75f
 
         return when {
             t < 1f / d1   -> n1 * t * t

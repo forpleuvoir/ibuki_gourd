@@ -29,7 +29,7 @@ val Icons.Delete: ImageVector
                         strokeLineCap = StrokeCap.Butt,
                         strokeLineJoin = StrokeJoin.Bevel,
                         strokeLineMiter = 1f,
-                        pathFillType = PathFillType.Companion.NonZero,
+                        pathFillType = PathFillType.NonZero,
                     ) {
                         moveTo(7f, 21f)
                         quadTo(6.18f, 21f, 5.59f, 20.41f)

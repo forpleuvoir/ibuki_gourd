@@ -2,13 +2,11 @@ package test
 
 import moe.forpleuvoir.ibukigourd.util.page
 import kotlin.random.Random
-import kotlin.sequences.forEach
 import kotlin.test.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
-import kotlin.uuid.Uuid.Companion.random
 
 class UtilTest {
 

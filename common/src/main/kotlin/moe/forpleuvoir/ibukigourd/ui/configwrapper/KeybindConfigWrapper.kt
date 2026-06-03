@@ -11,8 +11,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
-import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
+import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
 import moe.forpleuvoir.nebula.config.pathWithRoot
 
 @Composable

@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
                         strokeLineCap = StrokeCap.Butt,
                         strokeLineJoin = StrokeJoin.Bevel,
                         strokeLineMiter = 1f,
-                        pathFillType = PathFillType.Companion.NonZero,
+                        pathFillType = PathFillType.NonZero,
                     ) {
                         moveTo(12f, 20f)
                         quadToRelative(-0.82f, 0f, -1.41f, -0.59f)

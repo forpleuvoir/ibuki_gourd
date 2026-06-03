@@ -106,12 +106,39 @@ class SkiaSurface {
 
         activeFrame = GpuFrame(fbo, gpuTexture, textureView, skiaSurface!!, renderTarget!!)
         boundTexture.bindTexture(gpuTexture, textureView)
+        isRegistered = false
     }
 
     private val postRenderDeque: Deque<GuiGraphicsExtractor.() -> Unit> = ArrayDeque()
 
     fun postRender(block: GuiGraphicsExtractor.() -> Unit) {
         postRenderDeque.addLast(block)
+    }
+
+    /**
+     * 预热场景渲染（不输出到 GUI 缓冲区）。
+     *
+     * 在 [update] 之前调用，提前触发 Compose 的首次组合/布局/绘制以及 Skia 着色器编译，
+     * 将首次渲染的开销从渲染帧转移到初始化阶段。
+     *
+     * @param renderBlock  场景渲染回调（通常为 `scene.render`）
+     */
+    fun warmUpScene(renderBlock: (Canvas) -> Unit) {
+        val frame = activeFrame ?: return
+        ensureRegistered()
+        SkiaContext.submit {
+            SkiaContext.sharedContext.resetGLAll()
+            frame.skiaSurface.canvas.clear(0)
+            renderBlock(frame.skiaSurface.canvas.asComposeCanvas())
+            frame.skiaSurface.flushAndSubmit()
+        }
+    }
+
+    private fun ensureRegistered() {
+        if (!isRegistered) {
+            mc.textureManager.register(textureId, boundTexture)
+            isRegistered = true
+        }
     }
 
     /**
@@ -130,10 +157,7 @@ class SkiaSurface {
 
         val frame = activeFrame ?: return
 
-        if (!isRegistered) {
-            mc.textureManager.register(textureId, boundTexture)
-            isRegistered = true
-        }
+        ensureRegistered()
 
         SkiaContext.submit {
             SkiaContext.sharedContext.resetGLAll()

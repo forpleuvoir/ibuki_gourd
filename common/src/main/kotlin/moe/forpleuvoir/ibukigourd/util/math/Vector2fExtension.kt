@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.util.math
 
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import org.joml.*
 

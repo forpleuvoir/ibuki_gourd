@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.milliseconds
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 

@@ -19,13 +19,7 @@ import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.text.style.style
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
-import moe.forpleuvoir.ibukigourd.ui.preset.KeyCodeSetButton
-import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
-import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.ClickEvent
