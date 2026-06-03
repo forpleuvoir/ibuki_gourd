@@ -1,16 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui.preset
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,15 +19,26 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.ui.icon.Check
 import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.KeyboardAlt
-import moe.forpleuvoir.ibukigourd.ui.icon.KeyboardArrowDown
-import moe.forpleuvoir.ibukigourd.ui.util.toNebulaColor
+
 import kotlin.time.Duration.Companion.milliseconds
 
 private val ALL_KEYS by lazy {
     Keyboard.entries.map { it as KeyCode } + MouseButton.entries.map { it as KeyCode }
+}
+
+private val captureKeybind = Keybind(
+    *ALL_KEYS.toTypedArray(),
+    defaultSetting = KeybindSetting(
+        passthrough = false,
+        strict = false,
+        env = KeyEnvironment.Any,
+    )
+).apply {
+    name = Literal("#${IbukiGourd.MOD_ID}.capture_keybind")
 }
 
 val Keybind.hoverText: MutableText
@@ -66,15 +70,6 @@ fun KeyCodeSetButton(
     LaunchedEffect(inputting) {
         if (!inputting) return@LaunchedEffect
 
-        val captureKeybind = Keybind(
-            *ALL_KEYS.toTypedArray(),
-            defaultSetting = KeybindSetting(
-                passthrough = false,
-                strict = false,
-                env = KeyEnvironment.Any,
-            ),
-        )
-        captureKeybind.name = Literal("#${IbukiGourd.MOD_ID}.capture_keybind")
         val disposable = InputHandler.register(captureKeybind)
         try {
             while (isActive) {
@@ -153,18 +148,14 @@ fun KeybindSetButton(
     var inputting by remember { mutableStateOf(false) }
     var displayKeys by remember { mutableStateOf<List<KeyCode>>(emptyList()) }
 
+    val conflictColors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+    )
+
     LaunchedEffect(inputting) {
         if (!inputting) return@LaunchedEffect
 
-        val captureKeybind = Keybind(
-            *ALL_KEYS.toTypedArray(),
-            defaultSetting = KeybindSetting(
-                passthrough = false,
-                strict = false,
-                env = KeyEnvironment.Any
-            )
-        )
-        captureKeybind.name = Literal("#${IbukiGourd.MOD_ID}.capture_keybind")
         val disposable = InputHandler.register(captureKeybind)
         try {
             val trackedKeys = mutableListOf<KeyCode>()
@@ -234,6 +225,12 @@ fun KeybindSetButton(
             state = tooltipState,
             modifier = tooltipModifier,
         ) {
+            val conflicted by remember(keybind) {
+                derivedStateOf {
+                    InputHandler.keybindVersion
+                    InputHandler.detectKeyConflicts(keybind).count() > 0
+                }
+            }
             Button(
                 onClick = {
                     if (!inputting) {
@@ -243,14 +240,10 @@ fun KeybindSetButton(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
+                colors = if(conflicted) conflictColors else ButtonDefaults.buttonColors()
             ) {
                 Icon(Icons.KeyboardAlt, null)
                 Spacer(Modifier.width(8.dp))
-                //TODO 优化冲突显示
-                if (InputHandler.detectKeyConflicts(keybind).count() > 0) {
-                    Spacer(Modifier.width(8.dp))
-                    Icon(Icons.KeyboardAlt, null)
-                }
                 Text(
                     if (inputting) {
                         val text = displayKeys.joinToString(" + ") { it.keyName }
@@ -265,7 +258,7 @@ fun KeybindSetButton(
 
 
 @Composable
-fun KeyBindSettingSetButton(
+fun KeybindSettingSetButton(
     keybindSetting: KeybindSetting,
     onValueChange: (KeybindSetting) -> Unit,
     modifier: Modifier = Modifier,
@@ -306,14 +299,13 @@ fun KeyBindSettingSetButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun KeybindSettingColumn(
     keybindSetting: KeybindSetting,
     onValueChange: (KeybindSetting) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var envExpanded by remember { mutableStateOf(false) }
-    var triggerExpanded by remember { mutableStateOf(false) }
     var longPressThresholdText by remember { mutableStateOf(keybindSetting.longPressThreshold.toString()) }
     var repeatIntervalText by remember { mutableStateOf(keybindSetting.repeatInterval.toString()) }
 
@@ -345,45 +337,49 @@ fun KeybindSettingColumn(
 
         Text("Environment")
         Spacer(Modifier.height(4.dp))
-        Box {
-            OutlinedButton(onClick = { envExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(keybindSetting.env.key, modifier = Modifier.weight(1f))
-                Icon(Icons.KeyboardArrowDown, null)
-            }
-            DropdownMenu(expanded = envExpanded, onDismissRequest = { envExpanded = false }) {
-                KeyEnvironment.entries.forEach { env ->
-                    DropdownMenuItem(
-                        text = { Text(env.key) },
-                        onClick = {
-                            onValueChange(keybindSetting.copy(env = env))
-                            envExpanded = false
-                        },
-                    )
-                }
-            }
-        }
+        EnumSelector(
+            selected = keybindSetting.env,
+            onSelect = { onValueChange(keybindSetting.copy(env = it)) },
+            selectedLabel = { Text(it.key, modifier = Modifier.weight(1f)) },
+            itemLabel = { selectedItem, item, close ->
+                DropdownMenuItem(
+                    selected = item == selectedItem,
+                    onClick = {
+                        onValueChange(keybindSetting.copy(env = item))
+                        close()
+                    },
+                    text = { Text(item.key) },
+                    shapes = MenuDefaults.itemShapes(),
+                    selectedLeadingIcon = { Icon(Icons.Check, null) },
+                    interactionSource = remember { MutableInteractionSource() }
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
 
         Spacer(Modifier.height(12.dp))
 
         Text("Trigger")
         Spacer(Modifier.height(4.dp))
-        Box {
-            OutlinedButton(onClick = { triggerExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(keybindSetting.trigger.displayName.plainText, modifier = Modifier.weight(1f))
-                Icon(Icons.KeyboardArrowDown, null)
-            }
-            DropdownMenu(expanded = triggerExpanded, onDismissRequest = { triggerExpanded = false }) {
-                KeyTriggerTiming.entries.forEach { trigger ->
-                    DropdownMenuItem(
-                        text = { Text(trigger.displayName.plainText) },
-                        onClick = {
-                            onValueChange(keybindSetting.copy(trigger = trigger))
-                            triggerExpanded = false
-                        },
-                    )
-                }
-            }
-        }
+        EnumSelector(
+            selected = keybindSetting.trigger,
+            onSelect = { onValueChange(keybindSetting.copy(trigger = it)) },
+            selectedLabel = { Text(it.displayName.plainText, modifier = Modifier.weight(1f)) },
+            itemLabel = { selectedItem, item, close ->
+                DropdownMenuItem(
+                    selected = item == selectedItem,
+                    onClick = {
+                        onValueChange(keybindSetting.copy(trigger = item))
+                        close()
+                    },
+                    text = { Text(item.displayName.plainText) },
+                    shapes = MenuDefaults.itemShapes(),
+                    selectedLeadingIcon = { Icon(Icons.Check, null) },
+                    interactionSource = remember { MutableInteractionSource() }
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
 
         AnimatedVisibility(
             visible = keybindSetting.trigger == KeyTriggerTiming.LongPress || keybindSetting.trigger == KeyTriggerTiming.WhileLongPressed,

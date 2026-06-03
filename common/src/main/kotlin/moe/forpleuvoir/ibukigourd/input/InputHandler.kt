@@ -1,5 +1,8 @@
 package moe.forpleuvoir.ibukigourd.input
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.util.exactMatch
 import java.util.concurrent.CopyOnWriteArrayList
@@ -8,6 +11,14 @@ object InputHandler : Tickable {
 
     fun interface Disposable {
         fun dispose()
+    }
+
+    var keybindVersion: Long by mutableStateOf(0L)
+
+    private fun updateVersion() {
+        if (keybindVersion <= 1145141919810)
+            keybindVersion++
+        else keybindVersion = 0
     }
 
     private val keybinds: MutableList<Keybind> = CopyOnWriteArrayList()
@@ -19,9 +30,15 @@ object InputHandler : Tickable {
      */
     private val currentPressKeyCode: MutableList<KeyCode> = ArrayList()
 
-    fun register(keyBind: Keybind): Disposable {
-        keybinds.add(keyBind)
-        return { keybinds.remove(keyBind) }
+    fun register(keybind: Keybind): Disposable {
+        keybinds.add(keybind)
+        updateVersion()
+        val obsDisposable = keybind.observe { updateVersion() }
+        return {
+            obsDisposable.dispose()
+            keybinds.remove(keybind)
+            updateVersion()
+        }
     }
 
     fun register(

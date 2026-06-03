@@ -21,7 +21,7 @@ object SkiaContext : Initializable {
 
     override fun init() {
         if (contextId != 0L) {
-            logger.info("GpuTaskScheduler is already initialized.")
+            logger.info("SkiaContext is already initialized.")
             return
         }
         contextId = WGL.wglCreateContext(null, WGL.wglGetCurrentDC())

@@ -10,6 +10,8 @@ import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigNode
 import moe.forpleuvoir.nebula.config.item.ConfigEnum
+import moe.forpleuvoir.nebula.config.item.ConfigList
+import moe.forpleuvoir.nebula.config.item.ConfigMap
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -106,6 +108,18 @@ object UIWrappers {
         registerCheckValueType<Duration> { DurationConfigWrapper(it) }
         register<ConfigKeybind> { KeybindConfigWrapper(it) }
         register<ConfigToggleKeybind> { ToggleKeybindConfigWrapper(it) }
+        register({ it is ConfigList<*> && it.elementType == String::class }) {
+            @Suppress("UNCHECKED_CAST")
+            StringListConfigWrapper(it as ConfigList<String>)
+        }
+        register({ it is ConfigMap<*> && it.entryValueType == String::class }) {
+            @Suppress("UNCHECKED_CAST")
+            StringMapConfigWrapper(it as ConfigMap<String>)
+        }
+        register({ it is ConfigList<*> && it.elementType == Pair::class && (it.isEmpty() || it[0].let { v -> v is Pair<*, *> && v.first is String && v.second is String }) }) {
+            @Suppress("UNCHECKED_CAST")
+            StringPairListConfigWrapper(it as ConfigList<Pair<String, String>>)
+        }
     }
 
 }

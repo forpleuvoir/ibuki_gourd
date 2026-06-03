@@ -21,7 +21,7 @@ import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.preset.KeyBindSettingSetButton
+import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeyCodeSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
@@ -141,9 +141,9 @@ fun TestScreen2() {
             Row {
                 KeybindSetButton(keybind, {})
                 var setting by remember { mutableStateOf(keybind.setting) }
-                KeyBindSettingSetButton(setting, {
+                KeybindSettingSetButton(setting, {
                     setting = it
-                    keybind.setting = setting
+                    keybind.setFrom(setting)
                 })
 
                 Button(onClick = {

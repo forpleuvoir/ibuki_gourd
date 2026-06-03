@@ -1,0 +1,310 @@
+package moe.forpleuvoir.ibukigourd.ui.configwrapper
+
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.background
+import androidx.compose.foundation.defaultScrollbarStyle
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.icon.Add
+import moe.forpleuvoir.ibukigourd.ui.icon.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.DragIndicator
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.nebula.config.item.ConfigMap
+
+@Composable
+fun <V : Any> MapConfigWrapper(
+    config: ConfigMap<V>,
+    modifier: Modifier = Modifier,
+    dialogModifier: Modifier = Modifier,
+    keyHeader: @Composable () -> Unit = { Text(IGLang.mapKey) },
+    valueHeader: @Composable () -> Unit = { Text(IGLang.mapValue) },
+    valueEditor: @Composable (key: String) -> Unit,
+    addDialog: @Composable (onConfirm: (key: String, value: V) -> Unit, onDismiss: () -> Unit) -> Unit,
+) {
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+
+    var displaySize by remember { mutableStateOf(config.size) }
+    val pollInterval = ConfigRowWrapper.valuePollInterval
+    LaunchedEffect(config) {
+        while (isActive) {
+            delay(pollInterval)
+            displaySize = config.size
+        }
+    }
+
+    ConfigRowWrapper(config = config, modifier = modifier) {
+        TextButton(onClick = { showEditDialog = true }) {
+            Text(IGLang.mapConfigWrapperText(displaySize))
+        }
+    }
+
+    if (showAddDialog) {
+        addDialog(
+            { key, value -> config[key] = value; showAddDialog = false },
+            { showAddDialog = false },
+        )
+    }
+
+    if (showEditDialog) {
+        val snapshot = remember { config.entries.map { it.key to it.value }.toMap() }
+
+        MapEditDialog(
+            config = config,
+            keyHeader = keyHeader,
+            valueHeader = valueHeader,
+            valueEditor = valueEditor,
+            dialogModifier = dialogModifier,
+            onAddClick = { showAddDialog = true },
+            onConfirm = { showEditDialog = false },
+            onCancel = {
+                config.clear()
+                snapshot.forEach { (k, v) -> config[k] = v }
+                showEditDialog = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun <V : Any> MapEditDialog(
+    config: ConfigMap<V>,
+    keyHeader: @Composable () -> Unit,
+    valueHeader: @Composable () -> Unit,
+    valueEditor: @Composable (key: String) -> Unit,
+    dialogModifier: Modifier = Modifier,
+    onAddClick: () -> Unit,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    var itemCount by remember { mutableStateOf(config.size) }
+    var configVersion by remember { mutableStateOf(0) }
+
+    val pollInterval = ConfigRowWrapper.valuePollInterval
+    LaunchedEffect(config) {
+        while (isActive) {
+            delay(pollInterval)
+            if (itemCount != config.size) {
+                itemCount = config.size
+                configVersion++
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onCancel,
+        modifier = dialogModifier,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        title = { Text(config.translateText) },
+        text = {
+            CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(min = 640.dp)
+                        .heightIn(max = 500.dp),
+                ) {
+                    val scrollState = rememberScrollState()
+
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        if (itemCount > 0) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, bottom = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
+                                    Text(IGLang.move, style = MaterialTheme.typography.labelSmall)
+                                }
+                                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { keyHeader() }
+                                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { valueHeader() }
+                                Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
+                                    Text(IGLang.remove, style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                            HorizontalDivider()
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .verticalScroll(scrollState)
+                                    .padding(top = 4.dp, bottom = 56.dp),
+                            ) {
+                                ReorderableItemList(
+                                    itemCount = itemCount,
+                                    version = configVersion,
+                                    onMove = { from, to ->
+                                        val entries = config.entries.toMutableList()
+                                        val moved = entries.removeAt(from)
+                                        entries.add(to, moved)
+                                        config.clear()
+                                        entries.forEach { (k, v) -> config[k] = v }
+                                        configVersion++
+                                    },
+                                ) { index, dragModifier ->
+                                    val handleInteraction = remember { MutableInteractionSource() }
+                                    val handleHovered by handleInteraction.collectIsHoveredAsState()
+                                    val entries = config.entries.toList()
+                                    val entry = entries.getOrNull(index) ?: return@ReorderableItemList
+                                    val currentKey = entry.key
+                                    var showKeyEditDialog by remember { mutableStateOf(false) }
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 2.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            Icons.DragIndicator,
+                                            contentDescription = null,
+                                            modifier = dragModifier
+                                                .hoverable(handleInteraction)
+                                                .background(
+                                                    if (handleHovered) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                                                    CircleShape,
+                                                )
+                                                .size(24.dp),
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        OutlinedButton(
+                                            onClick = { showKeyEditDialog = true },
+                                            modifier = Modifier.weight(1f),
+                                            shape = RoundedCornerShape(4.dp),
+                                        ) {
+                                            Text(Literal(currentKey), maxLines = 1)
+                                        }
+                                        Spacer(Modifier.width(8.dp))
+                                        Box(modifier = Modifier.weight(1f)) {
+                                            valueEditor(currentKey)
+                                        }
+                                        IconButton(onClick = {
+                                            config.remove(currentKey)
+                                            configVersion++
+                                        }) {
+                                            Icon(Icons.Delete, IGLang.remove.plainText, Modifier.size(24.dp))
+                                        }
+
+                                        if (showKeyEditDialog) {
+                                            var newKey by remember { mutableStateOf(currentKey) }
+                                            val isDuplicate = newKey.isNotBlank() && newKey != currentKey && config.containsKey(newKey)
+                                            AlertDialog(
+                                                onDismissRequest = { showKeyEditDialog = false },
+                                                properties = DialogProperties(usePlatformDefaultWidth = false),
+                                                title = { Text(IGLang.edit) },
+                                                text = {
+                                                    CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                                                        OutlinedTextField(
+                                                            value = newKey,
+                                                            onValueChange = { newKey = it },
+                                                            singleLine = true,
+                                                            isError = isDuplicate,
+                                                            label = {
+                                                                if (isDuplicate) Text(IGLang.keyExists(newKey))
+                                                                else Text(IGLang.mapKey)
+                                                            },
+                                                        )
+                                                    }
+                                                },
+                                                confirmButton = {
+                                                    TextButton(
+                                                        onClick = {
+                                                            if (newKey.isNotBlank() && newKey != currentKey && !config.containsKey(newKey)) {
+                                                                val v = config.remove(currentKey)
+                                                                if (v != null) {
+                                                                    config[newKey] = v
+                                                                    configVersion++
+                                                                }
+                                                            }
+                                                            showKeyEditDialog = false
+                                                        },
+                                                        enabled = newKey.isNotBlank() && (newKey == currentKey || !config.containsKey(newKey)),
+                                                    ) {
+                                                        Text(IGLang.confirm)
+                                                    }
+                                                },
+                                                dismissButton = {
+                                                    TextButton(onClick = { showKeyEditDialog = false }) {
+                                                        Text(IGLang.cancel)
+                                                    }
+                                                },
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            VerticalScrollbar(
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .fillMaxHeight(),
+                                adapter = rememberScrollbarAdapter(scrollState),
+                                style = defaultScrollbarStyle().copy(
+                                    hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                    unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                                ),
+                            )
+                        }
+                    }
+
+                    FloatingActionButton(
+                        onClick = onAddClick,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(12.dp)
+                            .size(40.dp),
+                    ) {
+                        Icon(Icons.Add, IGLang.add.plainText)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(IGLang.confirm)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text(IGLang.cancel)
+            }
+        },
+    )
+}

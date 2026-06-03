@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
-import moe.forpleuvoir.ibukigourd.ui.preset.KeyBindSettingSetButton
+import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
 import moe.forpleuvoir.nebula.config.pathWithRoot
 
@@ -44,8 +44,8 @@ fun KeybindConfigWrapper(
         ) {
             key(version) {
                 KeybindSetButton(config.getValue(), { update() }, Modifier.weight(1f))
-                KeyBindSettingSetButton(config.getValue().setting, {
-                    config.getValue().setting = it
+                KeybindSettingSetButton(config.getValue().setting, {
+                    config.getValue().setFrom(it)
                     update()
                 })
             }
@@ -101,8 +101,8 @@ fun ToggleKeybindConfigWrapper(
             Switch(enabled, { config.enabled = it; enabled = it; update() })
             key(version) {
                 KeybindSetButton(config.keybind, { update() }, Modifier.weight(1f))
-                KeyBindSettingSetButton(config.keybind.setting, {
-                    config.keybind.setting = it
+                KeybindSettingSetButton(config.keybind.setting, {
+                    config.keybind.setFrom(it)
                     update()
                 })
             }

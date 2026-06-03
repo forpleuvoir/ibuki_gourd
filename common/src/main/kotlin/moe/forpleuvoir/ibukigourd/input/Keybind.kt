@@ -59,6 +59,7 @@ class Keybind(
     private val defaultKeys: List<KeyCode> = keyCodes.toSet().toList()
 
     var setting: KeybindSetting = defaultSetting
+        private set
 
     private val _keys: MutableList<KeyCode> = ArrayList(defaultKeys)
     val keys: List<KeyCode> get() = _keys
@@ -231,6 +232,16 @@ class Keybind(
         var valueChange = setFrom(target.keys, target.setting)
         if (action && this.action != target.action) {
             this.action = target.action
+            valueChange = true
+        }
+        if (valueChange) notifyChange(this)
+        return valueChange
+    }
+
+    fun setFrom(setting: KeybindSetting): Boolean {
+        var valueChange = false
+        if (this.setting != setting) {
+            this.setting = setting
             valueChange = true
         }
         if (valueChange) notifyChange(this)
