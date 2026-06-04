@@ -1,12 +1,25 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendLTRArrow
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastStrategy
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
@@ -14,6 +27,7 @@ import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.config
+import moe.forpleuvoir.nebula.config.pathWithRoot
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Serde
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -21,6 +35,8 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
+import net.minecraft.world.level.levelgen.SurfaceRules.state
+import kotlin.time.Duration.Companion.milliseconds
 
 class ToggleKeybind(
     val keybind: Keybind,
@@ -109,7 +125,8 @@ fun configKeybind(name: String, vararg defaultKeys: KeyCode, setting: KeybindSet
 class ConfigToggleKeybind(
     name: String,
     defaultEnabled: Boolean,
-    defaultKeybind: Keybind
+    defaultKeybind: Keybind,
+    private val onSwitch: ConfigToggleKeybind.() -> Unit
 ) : Config<ToggleKeybind>(name, ToggleKeybind(defaultKeybind, defaultEnabled)) {
 
     override fun init() {
@@ -117,6 +134,7 @@ class ConfigToggleKeybind(
         getValue().keybind.apply {
             action = {
                 toggle()
+                onSwitch()
             }
             InputHandler.register(this)
             name = (this@ConfigToggleKeybind.parent?.translateText?.appendLTRArrow() ?: Literal()).append(translateText)
@@ -170,8 +188,27 @@ class ConfigToggleKeybind(
 }
 
 context(group: ConfigGroup)
-fun configToggleKeybind(name: String, defaultEnabled: Boolean, defaultValue: Keybind) =
-    group.addConfig(ConfigToggleKeybind(name, defaultEnabled, defaultValue))
+fun configToggleKeybind(
+    name: String,
+    defaultEnabled: Boolean,
+    defaultValue: Keybind,
+    onSwitch: ConfigToggleKeybind.() -> Unit = {
+        ToastHandler.show(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
+            ToastContent {
+                val config = remember { this }
+                var enabled by remember { mutableStateOf(config.enabled) }
+                LaunchedEffect(Unit) {
+                    while (isActive) {
+                        enabled = config.enabled
+                        delay(16.milliseconds)
+                    }
+                }
+                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.coloredSwitch(enabled)))
+            }
+        }
+    }
+) =
+    group.addConfig(ConfigToggleKeybind(name, defaultEnabled, defaultValue, onSwitch))
 
 context(group: ConfigGroup)
 fun configToggleKeybind(
@@ -179,9 +216,23 @@ fun configToggleKeybind(
     defaultEnabled: Boolean,
     vararg defaultKeys: KeyCode,
     setting: KeybindSetting = KeybindSetting(),
-    action: Keybind.() -> Unit
+    onSwitch: ConfigToggleKeybind.() -> Unit = {
+        ToastHandler.show(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
+            ToastContent {
+                val config = remember { this }
+                var enabled by remember { mutableStateOf(config.enabled) }
+                LaunchedEffect(Unit) {
+                    while (isActive) {
+                        enabled = config.enabled
+                        delay(16.milliseconds)
+                    }
+                }
+                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.coloredSwitch(enabled)))
+            }
+        }
+    }
 ) =
-    group.addConfig(ConfigToggleKeybind(name, defaultEnabled, Keybind(*defaultKeys, defaultSetting = setting, action = action)))
+    group.addConfig(ConfigToggleKeybind(name, defaultEnabled, Keybind(*defaultKeys, defaultSetting = setting), onSwitch))
 
 
 context(group: ConfigGroup)

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
@@ -20,10 +21,7 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.DragIndicator
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.*
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigMap
@@ -51,8 +49,26 @@ fun <V : Any> MapConfigWrapper(
     }
 
     ConfigRowWrapper(config = config, modifier = modifier) {
-        TextButton(onClick = { showEditDialog = true }) {
-            Text(IGLang.mapConfigWrapperText(displaySize))
+        Row(
+            modifier = Modifier.size(ConfigRowWrapper.entrySize),
+            horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AssistChip(
+                {},
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(IGLang.listConfigWrapperText(displaySize), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    }
+                },
+                modifier = Modifier.weight(1f).height(40.dp)
+            )
+            IconButton(onClick = { showEditDialog = true }) {
+                Icon(Icons.EditNote, IGLang.edit.plainText)
+            }
         }
     }
 

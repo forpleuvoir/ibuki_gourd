@@ -31,7 +31,7 @@ public abstract class MinecraftMixin {
             ClientLifecycleEvent.Stopping.invoker().invoke((Minecraft) (Object) this);
         }
     }
-//
+
     @Inject(method = "tick", at = @At("HEAD"))
     public void tickStart(CallbackInfo ci) {
         InputHandler.INSTANCE.onTick();

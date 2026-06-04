@@ -11,7 +11,8 @@
     "client.GameRendererMixin",
     "client.KeyboardHandlerMixin",
     "client.MinecraftMixin",
-    "client.MouseHandlerMixin"
+    "client.MouseHandlerMixin",
+    "client.WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

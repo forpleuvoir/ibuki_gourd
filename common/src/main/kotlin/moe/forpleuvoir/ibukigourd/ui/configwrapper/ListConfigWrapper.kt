@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
@@ -21,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Add
 import moe.forpleuvoir.ibukigourd.ui.icon.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.DragIndicator
+import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
@@ -48,8 +50,26 @@ fun <E : Any> ListConfigWrapper(
     }
 
     ConfigRowWrapper(config = config, modifier = modifier) {
-        TextButton(onClick = { showEditDialog = true }) {
-            Text(IGLang.listConfigWrapperText(displaySize))
+        Row(
+            modifier = Modifier.size(ConfigRowWrapper.entrySize),
+            horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AssistChip(
+                {},
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(IGLang.listConfigWrapperText(displaySize), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    }
+                },
+                modifier = Modifier.weight(1f).height(40.dp)
+            )
+            IconButton(onClick = { showEditDialog = true }) {
+                Icon(Icons.EditNote, IGLang.edit.plainText)
+            }
         }
     }
 
@@ -169,9 +189,9 @@ private fun <E : Any> EditDialog(
                                             modifier = dragModifier
                                                 .hoverable(handleInteraction)
                                                 .background(
-                                                if (handleHovered) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                                                CircleShape,
-                                            )
+                                                    if (handleHovered) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                                                    CircleShape,
+                                                )
                                                 .size(24.dp),
                                         )
                                         Spacer(Modifier.width(8.dp))

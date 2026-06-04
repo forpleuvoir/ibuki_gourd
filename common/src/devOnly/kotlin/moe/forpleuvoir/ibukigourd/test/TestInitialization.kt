@@ -43,15 +43,16 @@ class TestInitialization : ModInitialization {
 
     override fun init() {
         logger.info("测试环境")
-        ClientLifecycleEvent.Starting.register("TestInitialization") {
+        ClientLifecycleEvent.Starting.register {
             println(measureTime {
-                ComposeSceneWarmup.warmUp {
-                    ConfigTest()
-                }
+                ComposeSceneWarmup.warmUp { ConfigTest() }
             })
+            ComposeSceneWarmup.warmUp { ConfigTest() }
+            ComposeSceneWarmup.warmUp { ConfigTest() }
+            ComposeSceneWarmup.warmUp { ConfigTest() }
+            ComposeSceneWarmup.warmUp { ConfigTest() }
             ComposeSceneWarmup.warmUp()
         }
-        ClientLifecycleEvent.Starting.addPhaseOrdering(Event.DEFAULT_PHASE, "TestInitialization")
 
         ClientModConfigHandler.register(TestConfig)
 

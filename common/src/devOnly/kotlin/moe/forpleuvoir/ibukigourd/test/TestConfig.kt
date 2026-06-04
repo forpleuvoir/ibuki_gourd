@@ -53,6 +53,10 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
 
     var testKeyBindBoolean by configToggleKeybind("test_key_bind_boolean", false, Keybind(Keyboard.H))
 
+    var testKeyBindBoolean2 by configToggleKeybind("test_key_bind_boolean2", false, Keybind(Keyboard.J))
+
+    var testKeyBindBoolean3 by configToggleKeybind("test_key_bind_boolean3", false, Keybind(Keyboard.K))
+
     val testStringList by configList(
         "test_string_list", listOf(
             "测试1", "测试2", "测试4"
