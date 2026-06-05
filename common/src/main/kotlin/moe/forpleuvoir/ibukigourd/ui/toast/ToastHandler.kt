@@ -27,25 +27,20 @@ object ToastHandler {
     fun show(
         duration: Duration = 2.seconds,
         strategy: ToastStrategy = ToastStrategy.ReplaceAll,
+        animation: ToastAnimation? = null,
         content: @Composable () -> Unit
     ) {
         synchronized(lock) {
             val toast = Toast(
                 content = content,
                 duration = duration,
-                tag = (strategy as? ToastStrategy.Tagged)?.tag
+                tag = (strategy as? ToastStrategy.Tagged)?.tag,
+                animation = animation
             )
 
             when (strategy) {
                 is ToastStrategy.ReplaceAll -> replaceActive(toast)
-                is ToastStrategy.Refresh -> {
-                    if (_active.isNotEmpty()) {
-                        refreshActive(duration)
-                    } else {
-                        queue.clear()
-                        addToActive(toast)
-                    }
-                }
+                is ToastStrategy.Refresh -> refreshActive(duration, toast)
                 is ToastStrategy.Enqueue -> {
                     queue.addLast(toast)
                     tryDequeue()
@@ -75,21 +70,25 @@ object ToastHandler {
 
     private fun replaceActive(toast: Toast) {
         queue.clear()
-        if (_active.isNotEmpty()) {
-            for (state in _active) {
-                state.toast = toast
-                state.remaining = toast.duration
-                state.refreshCounter++
-            }
-        } else {
-            addToActive(toast)
+        for (state in _active) {
+            state.remaining = Duration.ZERO
         }
+        addToActive(toast)
     }
 
-    private fun refreshActive(duration: Duration) {
+    private fun refreshActive(duration: Duration, toast: Toast) {
+        if (_active.isEmpty()) {
+            queue.clear()
+            addToActive(toast)
+            return
+        }
         val state = _active.first()
-        state.remaining = duration
-        state.refreshCounter++
+        if (state.remaining <= Duration.ZERO) {
+            addToActive(toast)
+        } else {
+            state.remaining = duration
+            state.refreshCounter++
+        }
     }
 
     private fun addToActive(toast: Toast) {
@@ -113,17 +112,29 @@ object ToastHandler {
             is ToastStrategy.Tagged.Refresh -> {
                 val existing = _active.firstOrNull { it.toast.tag == tag }
                 if (existing != null) {
-                    existing.remaining = duration
-                    existing.refreshCounter++
+                    if (existing.remaining <= Duration.ZERO) {
+                        addToActive(toast)
+                    } else {
+                        existing.remaining = duration
+                        existing.refreshCounter++
+                    }
                 } else {
-                    reShow(duration, strategy.fallback, toast)
+                    val queued = queue.indexOfFirst { it.tag == tag }.takeIf { it >= 0 }
+                    if (queued != null) {
+                        queue[queued] = toast
+                    } else {
+                        reShow(duration, strategy.fallback, toast)
+                    }
                 }
             }
 
             is ToastStrategy.Tagged.Replace -> {
-                val removed = _active.removeAll { it.toast.tag == tag }
+                val tagged = _active.filter { it.toast.tag == tag }
                 queue.removeAll { it.tag == tag }
-                if (removed) {
+                if (tagged.isNotEmpty()) {
+                    for (state in tagged) {
+                        state.remaining = Duration.ZERO
+                    }
                     addToActive(toast)
                 } else {
                     reShow(duration, strategy.fallback, toast)
@@ -145,14 +156,7 @@ object ToastHandler {
     ) {
         when (strategy) {
             is ToastStrategy.ReplaceAll -> replaceActive(toast)
-            is ToastStrategy.Refresh -> {
-                if (_active.isNotEmpty()) {
-                    refreshActive(duration)
-                } else {
-                    queue.clear()
-                    addToActive(toast)
-                }
-            }
+            is ToastStrategy.Refresh -> refreshActive(duration, toast)
             is ToastStrategy.Enqueue -> {
                 queue.addLast(toast)
                 tryDequeue()

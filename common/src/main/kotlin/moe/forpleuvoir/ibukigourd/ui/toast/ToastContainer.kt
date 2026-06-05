@@ -2,17 +2,11 @@
 
 package moe.forpleuvoir.ibukigourd.ui.toast
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -52,15 +46,11 @@ private val ToastPlacement = Alignment { size, space, _ ->
 
 @Composable
 fun ToastContainer() {
-    val anim = LocalToastAnimation.current
     Box(Modifier.fillMaxSize()) {
-        Column(
-            Modifier.align(ToastPlacement),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            ToastHandler.active.forEach { state ->
-                key(state) {
-                    ToastItem(state, anim)
+        ToastHandler.active.forEach { state ->
+            key(state) {
+                Box(Modifier.align(ToastPlacement)) {
+                    ToastItem(state)
                 }
             }
         }
@@ -118,35 +108,31 @@ private fun ToastProgressBar(duration: Duration) {
 }
 
 @Composable
-private fun ToastItem(state: ToastHandler.ToastState, anim: ToastAnimation) {
+private fun ToastItem(state: ToastHandler.ToastState) {
+    val anim = LocalToastAnimation.current
+    val toastAnim = state.toast.animation ?: anim
     val transitionState = remember { MutableTransitionState(false) }
 
     LaunchedEffect(state, state.refreshCounter) {
         transitionState.targetState = state.remaining > Duration.ZERO
-        snapshotFlow { state.remaining }
-            .first { it <= Duration.ZERO }
-        transitionState.targetState = false
+        if (state.remaining > Duration.ZERO) {
+            snapshotFlow { state.remaining }
+                .first { it <= Duration.ZERO }
+            transitionState.targetState = false
+        }
     }
 
     AnimatedVisibility(
         visibleState = transitionState,
-        enter = anim.enter,
-        exit = anim.exit
+        enter = toastAnim.enter,
+        exit = toastAnim.exit
     ) {
-        AnimatedContent(
-            targetState = state.toast,
-            contentAlignment = Alignment.TopCenter,
-            transitionSpec = {
-                fadeIn(tween(200)) togetherWith fadeOut(tween(200)) using SizeTransform(clip = false) { _, _ -> tween(0) }
-            }
-        ) { toast ->
-            CompositionLocalProvider(
-                LocalToastAnimation provides anim,
-                LocalToastDuration provides toast.duration,
-                LocalToastRefreshCounter provides state.refreshCounter
-            ) {
-                toast.content()
-            }
+        CompositionLocalProvider(
+            LocalToastAnimation provides toastAnim,
+            LocalToastDuration provides state.toast.duration,
+            LocalToastRefreshCounter provides state.refreshCounter
+        ) {
+            state.toast.content()
         }
     }
 }
