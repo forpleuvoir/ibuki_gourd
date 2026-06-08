@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -82,6 +83,7 @@ fun <T> Selector(
                     ((buttonTopPx.coerceAtLeast(windowHeightPx - buttonBottomPx)).toDp() - 50.dp).coerceAtLeast(0.dp)
                 })
                 .onSizeChanged { menuWidth = it.width }
+
         ) {
             items.forEach { t ->
                 itemLabel(selected, t) { expanded = false }

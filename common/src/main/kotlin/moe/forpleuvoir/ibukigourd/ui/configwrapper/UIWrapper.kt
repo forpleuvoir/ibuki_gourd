@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.runtime.Composable
-import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.Config
@@ -87,7 +87,7 @@ object UIWrappers {
     @Composable
     fun UnspecifiedConfigWrapper(config: ConfigNode) {
         ConfigRowWrapper(config) {
-            Text(IGLang.unsupported)
+            Text(IGLang.Misc.unsupported)
         }
     }
 

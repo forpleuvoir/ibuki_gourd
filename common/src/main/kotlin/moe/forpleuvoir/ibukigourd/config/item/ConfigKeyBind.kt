@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -16,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendLTRArrow
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
@@ -27,6 +28,7 @@ import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.config
+import moe.forpleuvoir.nebula.config.item.ConfigRange
 import moe.forpleuvoir.nebula.config.pathWithRoot
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Serde
@@ -35,7 +37,6 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import net.minecraft.world.level.levelgen.SurfaceRules.state
 import kotlin.time.Duration.Companion.milliseconds
 
 class ToggleKeybind(
@@ -197,13 +198,14 @@ fun configToggleKeybind(
             ToastContent {
                 val config = remember { this }
                 var enabled by remember { mutableStateOf(config.enabled) }
+                val interval= ConfigRowWrapper.valuePollInterval
                 LaunchedEffect(Unit) {
                     while (isActive) {
                         enabled = config.enabled
-                        delay(16.milliseconds)
+                        delay(interval)
                     }
                 }
-                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.coloredSwitch(enabled)))
+                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
             }
         }
     }
@@ -221,13 +223,14 @@ fun configToggleKeybind(
             ToastContent {
                 val config = remember { this }
                 var enabled by remember { mutableStateOf(config.enabled) }
+                val interval= ConfigRowWrapper.valuePollInterval
                 LaunchedEffect(Unit) {
                     while (isActive) {
                         enabled = config.enabled
-                        delay(16.milliseconds)
+                        delay(interval)
                     }
                 }
-                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.coloredSwitch(enabled)))
+                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
             }
         }
     }

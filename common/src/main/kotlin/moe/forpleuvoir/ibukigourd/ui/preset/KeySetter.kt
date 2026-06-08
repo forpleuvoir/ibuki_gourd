@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.text.*
@@ -43,13 +43,13 @@ private val captureKeybind = Keybind(
 
 val Keybind.hoverText: MutableText
     get() {
-        val conflictText = IGLang.keybindConflict
+        val conflictText = IGLang.Input.keybindConflict
         val text = Literal(keys.joinToString(separator = " + ") {
             if (InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)) {
                 it.translationKey
             } else it.keyName
         })
-        if (keys.count() == 0) text.append(IGLang.pressToSetting)
+        if (keys.count() == 0) text.append(IGLang.Input.pressToSetting)
         var count = 0
         InputHandler.detectKeyConflicts(this).forEach {
             count++
@@ -98,13 +98,13 @@ fun KeyCodeSetButton(
             tooltip = {
                 var keyTooltip by remember {
                     mutableStateOf(
-                        if (inputting) IGLang.releaseToSaveSetting
+                        if (inputting) IGLang.Input.releaseToSaveSetting
                         else if (InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)) Texts.literal(value.translationKey) else value.keyNameText
                     )
                 }
                 LaunchedEffect(Unit) {
                     while (isActive) {
-                        keyTooltip = if (inputting) IGLang.releaseToSaveSetting
+                        keyTooltip = if (inputting) IGLang.Input.releaseToSaveSetting
                         else if (InputHandler.wasKeyPressed(Keyboard.LEFT_SHIFT)) Texts.literal(value.translationKey) else value.keyNameText
                         delay(16.milliseconds)
                     }
@@ -130,7 +130,7 @@ fun KeyCodeSetButton(
                 Icon(Icons.KeyboardAlt, null)
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    if (inputting) IGLang.pressToSetting
+                    if (inputting) IGLang.Input.pressToSetting
                     else value.keyNameText
                 )
             }
@@ -195,7 +195,7 @@ fun KeybindSetButton(
             tooltip = {
                 var keyTooltip by remember {
                     mutableStateOf(
-                        if (inputting) IGLang.releaseToSaveSetting
+                        if (inputting) IGLang.Input.releaseToSaveSetting
                         else keybind.hoverText
                     )
                 }
@@ -203,9 +203,9 @@ fun KeybindSetButton(
                     while (isActive) {
                         keyTooltip = if (inputting) {
                             val keys = displayKeys
-                            if (keys.isEmpty()) IGLang.releaseToSaveSetting
+                            if (keys.isEmpty()) IGLang.Input.releaseToSaveSetting
                             else Literal(keys.joinToString(" + ") { it.keyName }).also {
-                                it.appendNewLine().append(IGLang.releaseToSaveSetting)
+                                it.appendNewLine().append(IGLang.Input.releaseToSaveSetting)
                             }
                         } else keybind.hoverText
                         delay(16.milliseconds)
@@ -240,14 +240,14 @@ fun KeybindSetButton(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = if(conflicted) conflictColors else ButtonDefaults.buttonColors()
+                colors = if (conflicted) conflictColors else ButtonDefaults.buttonColors()
             ) {
                 Icon(Icons.KeyboardAlt, null)
                 Spacer(Modifier.width(8.dp))
                 Text(
                     if (inputting) {
                         val text = displayKeys.joinToString(" + ") { it.keyName }
-                        if (text.isEmpty()) IGLang.pressToSetting
+                        if (text.isEmpty()) IGLang.Input.pressToSetting
                         else Literal(text)
                     } else keybind.asText
                 )
@@ -273,7 +273,7 @@ fun KeybindSettingSetButton(
         },
         modifier = modifier,
     ) {
-        Icon(Icons.EditNote, IGLang.edit.plainText)
+        Icon(Icons.EditNote, IGLang.Misc.edit.plainText)
     }
 
     if (showDialog) {
@@ -290,10 +290,10 @@ fun KeybindSettingSetButton(
                 TextButton(onClick = {
                     onValueChange(tempSetting)
                     showDialog = false
-                }) { Text(IGLang.confirm) }
+                }) { Text(IGLang.Misc.confirm) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text(IGLang.cancel) }
+                TextButton(onClick = { showDialog = false }) { Text(IGLang.Misc.cancel) }
             }
         )
     }
@@ -318,7 +318,7 @@ fun KeybindSettingColumn(
 
     Column(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Passthrough", modifier = Modifier.weight(1f))
+            Text(IGLang.Input.KeybindSetting.passthrough, modifier = Modifier.weight(1f))
             Switch(checked = keybindSetting.passthrough, onCheckedChange = {
                 onValueChange(keybindSetting.copy(passthrough = it))
             })
@@ -327,7 +327,7 @@ fun KeybindSettingColumn(
         Spacer(Modifier.height(8.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Strict", modifier = Modifier.weight(1f))
+            Text(IGLang.Input.KeybindSetting.strict, modifier = Modifier.weight(1f))
             Switch(checked = keybindSetting.strict, onCheckedChange = {
                 onValueChange(keybindSetting.copy(strict = it))
             })
@@ -335,7 +335,7 @@ fun KeybindSettingColumn(
 
         Spacer(Modifier.height(12.dp))
 
-        Text("Environment")
+        Text(IGLang.Input.KeybindSetting.env)
         Spacer(Modifier.height(4.dp))
         EnumSelector(
             selected = keybindSetting.env,
@@ -359,7 +359,7 @@ fun KeybindSettingColumn(
 
         Spacer(Modifier.height(12.dp))
 
-        Text("Trigger")
+        Text(IGLang.Input.KeybindSetting.trigger)
         Spacer(Modifier.height(4.dp))
         EnumSelector(
             selected = keybindSetting.trigger,
@@ -394,7 +394,7 @@ fun KeybindSettingColumn(
                             onValueChange(keybindSetting.copy(longPressThreshold = value))
                         }
                     },
-                    label = { Text("Long Press Threshold") },
+                    label = { Text(IGLang.Input.KeybindSetting.longPressThreshold) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -415,7 +415,7 @@ fun KeybindSettingColumn(
                             onValueChange(keybindSetting.copy(repeatInterval = value))
                         }
                     },
-                    label = { Text("Repeat Interval") },
+                    label = { Text(IGLang.Input.KeybindSetting.repeatInterval) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),

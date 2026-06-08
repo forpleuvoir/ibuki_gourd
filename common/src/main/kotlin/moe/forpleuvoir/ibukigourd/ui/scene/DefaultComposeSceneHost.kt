@@ -2,12 +2,16 @@
 
 package moe.forpleuvoir.ibukigourd.ui.scene
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.scene.CanvasLayersComposeScene
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.Material3ContextMenuRepresentation
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneContext
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneInputBridge
@@ -28,6 +32,7 @@ import net.minecraft.client.input.MouseButtonEvent
  *
  * 共享状态通过 [SceneContext] 统一管理，组件之间不直接耦合。
  */
+@OptIn(ExperimentalFoundationApi::class)
 open class DefaultComposeSceneHost(
     private val content: @Composable () -> Unit,
 ) : ComposeSceneHost {
@@ -54,7 +59,8 @@ open class DefaultComposeSceneHost(
         ctx.scene.setContent {
             CompositionLocalProvider(
                 LocalSkiaSurface provides ctx.surface,
-                LocalClipboard provides binding.getClipboard(),
+                LocalClipboard provides MinecraftClipboard,
+                LocalContextMenuRepresentation provides Material3ContextMenuRepresentation
             ) {
                 content()
             }

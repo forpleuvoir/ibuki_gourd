@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,12 +15,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.Material3ContextMenuRepresentation
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
@@ -29,6 +32,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.times
 import kotlin.time.toDuration
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DurationConfigWrapper(
     config: Config<Duration>,
@@ -93,7 +97,7 @@ fun DurationConfigWrapper(
         }
         var showDialog by remember { mutableStateOf(false) }
         IconButton(onClick = { showDialog = true }) {
-            Icon(Icons.EditNote, IGLang.edit.plainText)
+            Icon(Icons.EditNote, IGLang.Misc.edit.plainText)
         }
 
         if (showDialog) {
@@ -110,6 +114,7 @@ fun DurationConfigWrapper(
                     CompositionLocalProvider(
                         LocalClipboard provides MinecraftClipboard,
                         LocalNumberFieldStyle provides NumberFieldStyle.Outlined,
+                        LocalContextMenuRepresentation provides Material3ContextMenuRepresentation,
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -141,12 +146,12 @@ fun DurationConfigWrapper(
                         config.setValue(duration)
                         showDialog = false
                     }) {
-                        Text(IGLang.confirm)
+                        Text(IGLang.Misc.confirm)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDialog = false }) {
-                        Text(IGLang.cancel)
+                        Text(IGLang.Misc.cancel)
                     }
                 }
             )

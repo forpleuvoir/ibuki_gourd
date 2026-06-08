@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
@@ -68,7 +68,7 @@ fun TestScreen1() {
                         size = it
                     }, modifier = Modifier.height(20.dp).width(200.dp))
                 }
-                Text(IGLang.content.style {
+                Text(IGLang.Misc.content.style {
                     color(Colors.LIME)
                     clickEvent(ClickEvent.OpenUrl(URI("https://modrinth.com/mod/ibukigourd")))
                 })

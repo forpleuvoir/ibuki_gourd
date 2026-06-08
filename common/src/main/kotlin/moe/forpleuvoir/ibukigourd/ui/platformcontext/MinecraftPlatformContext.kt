@@ -46,8 +46,6 @@ class MinecraftPlatformContext : PlatformContext {
     var inputCommandSink: ((List<EditCommand>) -> Unit)? = null
         private set
 
-    private val clipboard = MinecraftClipboard
-
     override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
         try {
             inputCommandSink = request.onEditCommand
@@ -82,11 +80,6 @@ class MinecraftPlatformContext : PlatformContext {
             else                  -> MouseCursor.ArrowCursor
         }.apply()
     }
-
-    // ── 内部 API（供 SceneBootstrapper / SceneInputBridge 调用） ──────────
-
-    /** 获取系统剪贴板实现 */
-    fun getClipboard(): Clipboard = clipboard
 
     fun resetCursors() {
         MouseCursor.reset()

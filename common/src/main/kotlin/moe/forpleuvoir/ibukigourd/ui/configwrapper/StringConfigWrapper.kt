@@ -12,7 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigList
@@ -30,7 +31,7 @@ fun StringListConfigWrapper(
         dialogModifier = dialogModifier,
         header = {
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(IGLang.content)
+                Text(IGLang.Misc.content)
             }
         },
         element = { index ->
@@ -61,9 +62,9 @@ fun StringListConfigWrapper(
             var newValue by remember { mutableStateOf("") }
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text(IGLang.add) },
+                title = { Text(IGLang.Misc.add) },
                 text = {
-                    CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                    CompositionTextContextProvider {
                         OutlinedTextField(
                             value = newValue,
                             onValueChange = { newValue = it },
@@ -73,12 +74,12 @@ fun StringListConfigWrapper(
                 },
                 confirmButton = {
                     TextButton(onClick = { onConfirm(newValue) }) {
-                        Text(IGLang.confirm)
+                        Text(IGLang.Misc.confirm)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text(IGLang.cancel)
+                        Text(IGLang.Misc.cancel)
                     }
                 },
             )
@@ -125,9 +126,9 @@ fun StringMapConfigWrapper(
 
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text(IGLang.add) },
+                title = { Text(IGLang.Misc.add) },
                 text = {
-                    CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                    CompositionTextContextProvider {
                     Column {
                         OutlinedTextField(
                             value = newKey,
@@ -135,8 +136,8 @@ fun StringMapConfigWrapper(
                             singleLine = true,
                             isError = isDuplicate,
                             label = {
-                                if (isDuplicate) Text(IGLang.keyExists(newKey))
-                                else Text(IGLang.mapKey)
+                                if (isDuplicate) Text(IGLang.ConfigWrapper.keyExists(newKey))
+                                else Text(IGLang.ConfigWrapper.mapKey)
                             },
                         )
                         Spacer(Modifier.height(8.dp))
@@ -144,7 +145,7 @@ fun StringMapConfigWrapper(
                             value = newValue,
                             onValueChange = { newValue = it },
                             singleLine = true,
-                            label = { Text(IGLang.mapValue) },
+                            label = { Text(IGLang.ConfigWrapper.mapValue) },
                         )
                     }
                     }
@@ -154,12 +155,12 @@ fun StringMapConfigWrapper(
                         onClick = { onConfirm(newKey, newValue) },
                         enabled = newKey.isNotBlank() && !config.containsKey(newKey),
                     ) {
-                        Text(IGLang.confirm)
+                        Text(IGLang.Misc.confirm)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text(IGLang.cancel)
+                        Text(IGLang.Misc.cancel)
                     }
                 },
             )
@@ -179,10 +180,10 @@ fun StringPairListConfigWrapper(
         dialogModifier = dialogModifier,
         header = {
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(IGLang.pairFirst)
+                Text(IGLang.ConfigWrapper.pairFirst)
             }
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(IGLang.pairSecond)
+                Text(IGLang.ConfigWrapper.pairSecond)
             }
         },
         element = { index ->
@@ -231,34 +232,34 @@ fun StringPairListConfigWrapper(
             var newSecond by remember { mutableStateOf("") }
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text(IGLang.add) },
+                title = { Text(IGLang.Misc.add) },
                 text = {
-                    CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                    CompositionTextContextProvider {
                         Column {
                             OutlinedTextField(
                                 value = newFirst,
                                 onValueChange = { newFirst = it },
                                 singleLine = true,
-                                label = { Text(IGLang.pairFirst) },
+                                label = { Text(IGLang.ConfigWrapper.pairFirst) },
                             )
                             Spacer(Modifier.height(8.dp))
                             OutlinedTextField(
                                 value = newSecond,
                                 onValueChange = { newSecond = it },
                                 singleLine = true,
-                                label = { Text(IGLang.pairSecond) },
+                                label = { Text(IGLang.ConfigWrapper.pairSecond) },
                             )
                         }
                     }
                 },
                 confirmButton = {
                     TextButton(onClick = { onConfirm(newFirst to newSecond) }) {
-                        Text(IGLang.confirm)
+                        Text(IGLang.Misc.confirm)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text(IGLang.cancel)
+                        Text(IGLang.Misc.cancel)
                     }
                 },
             )

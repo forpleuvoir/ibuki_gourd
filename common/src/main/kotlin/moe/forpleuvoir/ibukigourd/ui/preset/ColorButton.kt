@@ -5,12 +5,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.window.DialogProperties
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.Palette
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
 import moe.forpleuvoir.nebula.common.color.Color
 
 
@@ -46,7 +45,7 @@ fun ColorSettingButton(
             title = title,
             properties = DialogProperties(usePlatformDefaultWidth = false),
             text = {
-                CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                CompositionTextContextProvider {
                     ColorPicker(value, {
                         state = it
                     })
@@ -57,12 +56,12 @@ fun ColorSettingButton(
                     onValueChange(state)
                     showDialog = false
                 }) {
-                    Text(IGLang.confirm)
+                    Text(IGLang.Misc.confirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text(IGLang.cancel)
+                    Text(IGLang.Misc.cancel)
                 }
             }
         )

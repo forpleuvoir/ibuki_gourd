@@ -18,7 +18,7 @@ private val awtClipboard = java.awt.datatransfer.Clipboard(IbukiGourd.MOD_ID)
 /**
  * 弹出层可能需要手动提供此对象
  * ```kotlin
- *  CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+ *  CompositionTextContextProvider {
  *      //TODO
  *  }
  *

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.mojang.blaze3d.opengl.GlConst.GL_RGBA8
 import moe.forpleuvoir.ibukigourd.ui.icon.*
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
@@ -72,7 +73,7 @@ object ComposeSceneWarmup {
                     )!!.use { surface ->
                         val scene = CanvasLayersComposeScene(platformContext = MinecraftPlatformContext())
                         scene.setContent {
-                            CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                            CompositionTextContextProvider {
                                 MaterialTheme {
                                     content()
                                 }

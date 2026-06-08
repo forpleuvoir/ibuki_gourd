@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming.*
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -175,7 +175,7 @@ class Keybind(
         get() {
             val texts = asTexts
             return if (texts.isEmpty()) {
-                IGLang.notSpecified
+                IGLang.Misc.notSpecified
             } else {
                 Literal(texts.joinToString(" + ") { it.plainText })
             }

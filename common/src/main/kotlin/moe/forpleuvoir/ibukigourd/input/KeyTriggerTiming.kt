@@ -38,10 +38,10 @@ enum class KeyTriggerTiming(val key: String) {
     PressAndRelease("press_and_release");
 
     val displayName: MutableText
-        get() = Translatable("ibuki_gourd.key_bind.trigger_mode.${key}", key)
+        get() = Translatable("ibuki_gourd.input.key_trigger_mode.${key}", key)
 
-    val description: MutableText
-        get() = Translatable("ibuki_gourd.key_bind.trigger_mode.${key}.description", key)
+    val comment: MutableText
+        get() = Translatable("ibuki_gourd.input.key_trigger_mode.${key}.comment", key)
 
 
     companion object : Codec<KeyTriggerTiming> by Codec.enum<KeyTriggerTiming>()

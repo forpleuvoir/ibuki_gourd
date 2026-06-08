@@ -39,6 +39,5 @@ data class KeybindSetting(
                 target.containsMatchIn(longPressThreshold.toString()) ||
                 target.containsMatchIn(repeatInterval.toString())
 
-
 }
 

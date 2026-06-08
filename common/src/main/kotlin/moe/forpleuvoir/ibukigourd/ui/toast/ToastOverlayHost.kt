@@ -14,6 +14,7 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaSurface
@@ -38,7 +39,7 @@ object ToastOverlayHost {
         scene.setContent {
             CompositionLocalProvider(
                 LocalSkiaSurface provides surface,
-                LocalClipboard provides binding.getClipboard()
+                LocalClipboard provides MinecraftClipboard
             ) {
                 MaterialTheme {
                     ToastContainer()

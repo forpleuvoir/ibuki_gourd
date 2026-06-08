@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Add
@@ -24,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigList
@@ -62,13 +63,13 @@ fun <E : Any> ListConfigWrapper(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(IGLang.listConfigWrapperText(displaySize), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                        Text(IGLang.ConfigWrapper.listConfigWrapperText(displaySize), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                     }
                 },
                 modifier = Modifier.weight(1f).height(40.dp)
             )
             IconButton(onClick = { showEditDialog = true }) {
-                Icon(Icons.EditNote, IGLang.edit.plainText)
+                Icon(Icons.EditNote, IGLang.Misc.edit.plainText)
             }
         }
     }
@@ -129,7 +130,7 @@ private fun <E : Any> EditDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         title = { Text(config.translateText) },
         text = {
-            CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+            CompositionTextContextProvider {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -146,11 +147,11 @@ private fun <E : Any> EditDialog(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
-                                    Text(IGLang.move, style = MaterialTheme.typography.labelSmall)
+                                    Text(IGLang.ConfigWrapper.move, style = MaterialTheme.typography.labelSmall)
                                 }
                                 header()
                                 Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
-                                    Text(IGLang.remove, style = MaterialTheme.typography.labelSmall)
+                                    Text(IGLang.Misc.remove, style = MaterialTheme.typography.labelSmall)
                                 }
                             }
                             HorizontalDivider()
@@ -206,7 +207,7 @@ private fun <E : Any> EditDialog(
                                             config.removeAt(index)
                                             configVersion++
                                         }) {
-                                            Icon(Icons.Delete, IGLang.remove.plainText, Modifier.size(24.dp))
+                                            Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
                                         }
                                     }
                                 }
@@ -232,19 +233,19 @@ private fun <E : Any> EditDialog(
                             .padding(12.dp)
                             .size(40.dp),
                     ) {
-                        Icon(Icons.Add, IGLang.add.plainText)
+                        Icon(Icons.Add, IGLang.Misc.add.plainText)
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(IGLang.confirm)
+                Text(IGLang.Misc.confirm)
             }
         },
         dismissButton = {
             TextButton(onClick = onCancel) {
-                Text(IGLang.cancel)
+                Text(IGLang.Misc.cancel)
             }
         },
     )

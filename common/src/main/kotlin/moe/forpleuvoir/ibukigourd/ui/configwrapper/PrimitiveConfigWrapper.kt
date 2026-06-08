@@ -24,12 +24,13 @@ import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.SyncAlt
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
@@ -98,7 +99,7 @@ fun StringConfigWrapper(
             )
 
             IconButton(onClick = { showDialog = true }) {
-                Icon(Icons.EditNote, IGLang.edit.plainText)
+                Icon(Icons.EditNote, IGLang.Misc.edit.plainText)
             }
         }
         if (showDialog) {
@@ -107,7 +108,7 @@ fun StringConfigWrapper(
                 onDismissRequest = { showDialog = false },
                 title = { Text(config.translateText.plainText) },
                 text = {
-                    CompositionLocalProvider(LocalClipboard provides MinecraftClipboard) {
+                    CompositionTextContextProvider {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -136,12 +137,12 @@ fun StringConfigWrapper(
                         textFieldState.setTextAndPlaceCursorAtEnd(state.text.toString())
                         showDialog = false
                     }) {
-                        Text(IGLang.confirm)
+                        Text(IGLang.Misc.confirm)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDialog = false }) {
-                        Text(IGLang.cancel)
+                        Text(IGLang.Misc.cancel)
                     }
                 }
             )

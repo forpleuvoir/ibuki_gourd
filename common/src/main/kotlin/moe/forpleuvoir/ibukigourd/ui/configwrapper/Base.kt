@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.comment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -176,14 +176,14 @@ fun <T : Resettable> ResetButton(
             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
             tooltip = {
                 PlainTooltip {
-                    Text(IGLang.reset.plainText)
+                    Text(IGLang.Misc.reset.plainText)
                 }
             },
             state = rememberTooltipState(),
         ) {
             Icon(
                 Icons.Replay,
-                contentDescription = IGLang.reset.plainText,
+                contentDescription = IGLang.Misc.reset.plainText,
                 modifier = Modifier.rotate(rotation.value)
             )
         }
