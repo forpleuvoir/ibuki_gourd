@@ -194,19 +194,17 @@ fun configToggleKeybind(
     defaultEnabled: Boolean,
     defaultValue: Keybind,
     onSwitch: ConfigToggleKeybind.() -> Unit = {
-        ToastHandler.show(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
-            ToastContent {
-                val config = remember { this }
-                var enabled by remember { mutableStateOf(config.enabled) }
-                val interval= ConfigRowWrapper.valuePollInterval
-                LaunchedEffect(Unit) {
-                    while (isActive) {
-                        enabled = config.enabled
-                        delay(interval)
-                    }
+        val config = this
+        ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
+            var enabled by remember { mutableStateOf(config.enabled) }
+            val interval = ConfigRowWrapper.valuePollInterval
+            LaunchedEffect(Unit) {
+                while (isActive) {
+                    enabled = config.enabled
+                    delay(interval)
                 }
-                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
             }
+            Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
         }
     }
 ) =
@@ -219,19 +217,17 @@ fun configToggleKeybind(
     vararg defaultKeys: KeyCode,
     setting: KeybindSetting = KeybindSetting(),
     onSwitch: ConfigToggleKeybind.() -> Unit = {
-        ToastHandler.show(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
-            ToastContent {
-                val config = remember { this }
-                var enabled by remember { mutableStateOf(config.enabled) }
-                val interval= ConfigRowWrapper.valuePollInterval
-                LaunchedEffect(Unit) {
-                    while (isActive) {
-                        enabled = config.enabled
-                        delay(interval)
-                    }
+        val config = this
+        ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
+            var enabled by remember { mutableStateOf(config.enabled) }
+            val interval = ConfigRowWrapper.valuePollInterval
+            LaunchedEffect(Unit) {
+                while (isActive) {
+                    enabled = config.enabled
+                    delay(interval)
                 }
-                Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
             }
+            Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
         }
     }
 ) =

@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
-import moe.forpleuvoir.ibukigourd.config.comment
+import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.config.item.configPairList
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
@@ -22,12 +22,12 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
 
     var testInt by configInt("test_int", 256, 0, 1024).apply {
         translateText = Text.literal("测试Int")
-        comment = Text.literal("测试用的Int\n测试一下换行")
+        translateComment = Text.literal("测试用的Int\n测试一下换行")
     }
 
     var testLong by configLong("test_long", 0, 0, 233).apply {
         translateText = Text.literal("测试Long")
-        comment =
+        translateComment =
             Text.literal("我想试一下超长的描述信息啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊")
     }
 
@@ -86,10 +86,18 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
 
         var testInt by configInt("test_int", 0, 0, 233)
 
+        object Nested2 : ConfigGroup("nested2") {
+
+            val testBoolean by configBoolean("test_key_bind", false)
+
+            var testInt by configInt("test_int", 0, 0, 233)
+        }
+
         init {
             repeat(15) {
                 configInt("test_int_$it", it, 0, 233)
             }
+            addConfig(Nested2)
         }
     }
 

@@ -3,23 +3,23 @@
 package moe.forpleuvoir.ibukigourd.ui.toast
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.mod.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
+import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaSurface
 import moe.forpleuvoir.ibukigourd.util.mc
-import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import net.minecraft.client.gui.GuiGraphicsExtractor
@@ -37,11 +37,10 @@ object ToastOverlayHost {
     fun init() {
         scene = CanvasLayersComposeScene(platformContext = binding)
         scene.setContent {
-            CompositionLocalProvider(
-                LocalSkiaSurface provides surface,
-                LocalClipboard provides MinecraftClipboard
+            IGCompositionLocalProvider(
+                LocalSkiaSurface provides surface
             ) {
-                MaterialTheme {
+                IbukiGourdTheme {
                     ToastContainer()
                 }
             }
@@ -59,7 +58,7 @@ object ToastOverlayHost {
         if (::scene.isInitialized) {
             scene.size = IntSize(window.width, window.height)
             scale = window.guiScale.toFloat()
-            val density = Density(scale * 0.375f, 1f)
+            val density = Density(scale * ComposeSceneHost.DENSITY_RATIO, ComposeSceneHost.FONT_SCALE)
             scene.density = density
             binding.windowInfo.containerSize = IntSize(window.width, window.height)
             binding.windowInfo.containerDpSize = density.run { IntSize(window.width, window.height).toSize().toDpSize() }

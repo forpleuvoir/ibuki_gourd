@@ -1,19 +1,20 @@
-package moe.forpleuvoir.ibukigourd.ui.icon
+package moe.forpleuvoir.ibukigourd.ui.icon.default
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 
 @Suppress("CheckReturnValue")
-val Icons.Check: ImageVector
+val Icons.Add: ImageVector
     get() {
-        if (check != null) {
-            return check!!
+        if (add != null) {
+            return add!!
         }
-        check =
+        add =
             ImageVector.Builder(
-                name = "check",
+                name = "add",
                 defaultWidth = 24.dp,
                 defaultHeight = 24.dp,
                 viewportWidth = 24f,
@@ -31,18 +32,24 @@ val Icons.Check: ImageVector
                         strokeLineMiter = 1f,
                         pathFillType = PathFillType.NonZero,
                     ) {
-                        moveTo(9.55f, 18f)
-                        lineTo(3.85f, 12.3f)
-                        lineTo(5.28f, 10.88f)
-                        lineToRelative(4.28f, 4.28f)
-                        lineTo(18.73f, 5.97f)
-                        lineTo(20.15f, 7.4f)
-                        lineTo(9.55f, 18f)
+                        moveTo(11f, 13f)
+                        horizontalLineTo(5f)
+                        verticalLineTo(11f)
+                        horizontalLineToRelative(6f)
+                        verticalLineTo(5f)
+                        horizontalLineToRelative(2f)
+                        verticalLineToRelative(6f)
+                        horizontalLineToRelative(6f)
+                        verticalLineToRelative(2f)
+                        horizontalLineTo(13f)
+                        verticalLineToRelative(6f)
+                        horizontalLineTo(11f)
+                        verticalLineTo(13f)
                         close()
                     }
                 }
                 .build()
-        return check!!
+        return add!!
     }
 
-private var check: ImageVector? = null
+private var add: ImageVector? = null

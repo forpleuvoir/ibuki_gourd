@@ -18,10 +18,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Checkerboard
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorSettingButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.Config
@@ -56,26 +60,33 @@ fun ColorConfigWrapper(
         AssistChip(
             onClick = {
                 MinecraftClipboard.setClipboardText(value.hexStr)
+                ToastHandler.show {
+                    ToastContent { Text(IGLang.Color.copyColorSuccess(value)) }
+                }
             },
             label = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val shape = MaterialTheme.shapes.extraSmall
-                    var titleSize by remember { mutableStateOf(5.dp) }
-                    val density = LocalDensity.current
-                    Box(
-                        modifier = Modifier.padding(vertical = 8.dp).size(28.dp)
-                            .onSizeChanged { size ->
-                                titleSize = with(density) { (size.height / 3).toDp() }
-                            }
-                            .border(0.5.dp, value.reverse(false).toComposeColor, shape)
+                TipBox({
+                    Text(IGLang.Color.clickCopyColor(value))
+                }) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Checkerboard(titleSize, modifier = Modifier.fillMaxSize().clip(shape))
-                        Box(Modifier.fillMaxSize().background(value.toComposeColor, shape))
+                        val shape = MaterialTheme.shapes.extraSmall
+                        var titleSize by remember { mutableStateOf(5.dp) }
+                        val density = LocalDensity.current
+                        Box(
+                            modifier = Modifier.padding(vertical = 8.dp).size(28.dp)
+                                .onSizeChanged { size ->
+                                    titleSize = with(density) { (size.height / 3).toDp() }
+                                }
+                                .border(0.5.dp, value.reverse(false).toComposeColor, shape)
+                        ) {
+                            Checkerboard(titleSize, modifier = Modifier.fillMaxSize().clip(shape))
+                            Box(Modifier.fillMaxSize().background(value.toComposeColor, shape))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(value.hexStr, style = MaterialTheme.typography.labelSmall)
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Text(value.hexStr, style = MaterialTheme.typography.labelSmall)
                 }
             }
         )

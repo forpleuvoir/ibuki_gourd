@@ -22,7 +22,12 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
@@ -142,27 +147,27 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                 ) { currentTab ->
                     Column {
                         if (currentTab == 0) {
-                            ColorChannelSlider("R", nebulaColor.red.toFloat(), 0f..255f, rGradient) {
+                            ColorChannelSlider("R", IGLang.Color.red.plainText, nebulaColor.red.toFloat(), 0f..255f, rGradient) {
                                 nebulaColor = nebulaColor.red(it.roundToInt())
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("G", nebulaColor.green.toFloat(), 0f..255f, gGradient) {
+                            ColorChannelSlider("G", IGLang.Color.green.plainText, nebulaColor.green.toFloat(), 0f..255f, gGradient) {
                                 nebulaColor = nebulaColor.green(it.roundToInt())
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("B", nebulaColor.blue.toFloat(), 0f..255f, bGradient) {
+                            ColorChannelSlider("B", IGLang.Color.blue.plainText, nebulaColor.blue.toFloat(), 0f..255f, bGradient) {
                                 nebulaColor = nebulaColor.blue(it.roundToInt())
                             }
                         } else {
-                            ColorChannelSlider("H", nebulaColor.hue * 360f, 0f..360f, hueGradient, useFloat = true) {
+                            ColorChannelSlider("H", IGLang.Color.hue.plainText, nebulaColor.hue * 360f, 0f..360f, hueGradient, useFloat = true) {
                                 nebulaColor = nebulaColor.hue(it / 360f)
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("S", nebulaColor.saturation * 100f, 0f..100f, satGradient, useFloat = true) {
+                            ColorChannelSlider("S", IGLang.Color.saturation.plainText, nebulaColor.saturation * 100f, 0f..100f, satGradient, useFloat = true) {
                                 nebulaColor = nebulaColor.saturation(it / 100f)
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("V", nebulaColor.value * 100f, 0f..100f, valGradient, useFloat = true) {
+                            ColorChannelSlider("V", IGLang.Color.value.plainText, nebulaColor.value * 100f, 0f..100f, valGradient, useFloat = true) {
                                 nebulaColor = nebulaColor.value(it / 100f)
                             }
                         }
@@ -171,7 +176,7 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
 
                 Spacer(Modifier.height(2.dp))
 
-                ColorChannelSlider("A", nebulaColor.alpha.toFloat(), 0f..255f, aGradient, showCheckerboard = true) {
+                ColorChannelSlider("A", IGLang.Color.alpha.plainText, nebulaColor.alpha.toFloat(), 0f..255f, aGradient, showCheckerboard = true) {
                     nebulaColor = nebulaColor.alpha(it.roundToInt())
                 }
             }
@@ -187,16 +192,23 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                 onClick = {
                     scope.launch {
                         MinecraftClipboard.setClipboardText(nebulaColor.hexStr)
+                        ToastHandler.show {
+                            ToastContent { Text(IGLang.Color.copyColorSuccess(nebulaColor)) }
+                        }
                     }
                 },
                 label = {
-                    if (tabIndex == 0) {
-                        Text(nebulaColor.hexStr, style = MaterialTheme.typography.labelSmall)
-                    } else {
-                        Text(
-                            "(${"%.1f".format(nebulaColor.hue * 360f)}, ${"%.1f".format(nebulaColor.saturation * 100)}, ${"%.1f".format(nebulaColor.value * 100)})",
-                            style = MaterialTheme.typography.labelSmall
-                        )
+                    TipBox({
+                        Text(IGLang.Color.clickCopyColor(nebulaColor))
+                    }) {
+                        if (tabIndex == 0) {
+                            Text(nebulaColor.hexStr, style = MaterialTheme.typography.labelSmall)
+                        } else {
+                            Text(
+                                "(${"%.1f".format(nebulaColor.hue * 360f)}, ${"%.1f".format(nebulaColor.saturation * 100)}, ${"%.1f".format(nebulaColor.value * 100)})",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
                     }
                 }
             )
@@ -210,7 +222,7 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                     .border(1.dp, borderColor, shape)
             ) {
                 Checkerboard(160.dp / 12, modifier = Modifier.fillMaxSize().clip(shape))
-                Box(Modifier.fillMaxSize().background(composeColor,shape))
+                Box(Modifier.fillMaxSize().background(composeColor, shape))
             }
         }
     }
@@ -220,6 +232,7 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
 @Composable
 private fun ColorChannelSlider(
     label: String,
+    labelTip: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     gradientColors: List<Color>,
@@ -231,12 +244,15 @@ private fun ColorChannelSlider(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.width(20.dp)
-        )
-
+        TipBox({
+            Text(labelTip)
+        }) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.width(20.dp)
+            )
+        }
         Box(modifier = Modifier.weight(1f)) {
             val shape = RoundedCornerShape(4.dp)
             Box(

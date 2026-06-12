@@ -18,20 +18,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.SyncAlt
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.default.SyncAlt
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
@@ -40,6 +38,7 @@ import moe.forpleuvoir.nebula.config.pathWithRoot
 @Composable
 fun BooleanConfigWrapper(
     config: Config<Boolean>,
+    thumbContent: (@Composable (Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -64,6 +63,7 @@ fun BooleanConfigWrapper(
             value = it
         },
         modifier = modifier.height(ConfigRowWrapper.entrySize.height),
+        thumbContent = thumbContent?.let { { it(value) } }
     )
 }
 
@@ -108,7 +108,7 @@ fun StringConfigWrapper(
                 onDismissRequest = { showDialog = false },
                 title = { Text(config.translateText.plainText) },
                 text = {
-                    CompositionTextContextProvider {
+                    IGCompositionLocalProvider {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -122,11 +122,7 @@ fun StringConfigWrapper(
                             )
                             VerticalScrollbar(
                                 modifier = Modifier.align(Alignment.CenterEnd),
-                                adapter = rememberScrollbarAdapter(scrollState),
-                                style = defaultScrollbarStyle().copy(
-                                    hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                                    unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
-                                )
+                                adapter = rememberScrollbarAdapter(scrollState)
                             )
                         }
                     }

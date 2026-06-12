@@ -5,9 +5,11 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import moe.forpleuvoir.ibukigourd.command.clientSource
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegistrationEvent
+import moe.forpleuvoir.ibukigourd.lang.TranslationRecorder
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.commands.SharedSuggestionProvider
+import kotlin.io.path.Path
 
 object TestCommand : Initializable {
 
@@ -19,8 +21,10 @@ object TestCommand : Initializable {
 
     context(context: CommandDispatcher<out SharedSuggestionProvider>)
     fun testCommand() = registerCommand("igtest") {
-        requires {
-            clientSource.sender.isCreative
+        "dump_lang" {
+            execute {
+                TranslationRecorder.dump(Path("../../../common/src/devOnly/lang"))
+            }
         }
         execute {
             clientSource.sendFeedback(Texts.literal("直接执行了 test"))

@@ -6,7 +6,7 @@ kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
 
 #other
-nebula = "0.3.9"
+nebula = "0.3.10"
 #compose
 compose = "1.11.0"
 
@@ -34,7 +34,6 @@ neoforgeRange = "[4,)"
 
 forgeKotlin = "6.2.0"
 forgeKotlinRange = "[6.2.0,)"
-
 
 [libraries]
 #Minecraft

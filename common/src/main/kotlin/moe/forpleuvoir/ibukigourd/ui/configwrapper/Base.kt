@@ -23,11 +23,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.config.comment
+import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.Replay
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Replay
 import moe.forpleuvoir.nebula.common.api.Resettable
 import moe.forpleuvoir.nebula.config.ConfigNode
 import kotlin.time.Duration
@@ -111,7 +111,7 @@ fun ConfigName(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
             PlainTooltip {
-                Text(config.comment.plainText)
+                Text(config.translateComment.plainText)
             }
         },
         state = rememberTooltipState(),
@@ -126,7 +126,7 @@ fun ConfigName(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
-                text = config.comment.plainText,
+                text = config.translateComment.plainText,
                 modifier = Modifier.widthIn(max = 512.dp),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,

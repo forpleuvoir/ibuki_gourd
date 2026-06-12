@@ -20,27 +20,27 @@ import kotlin.time.Duration
 //region Metadata
 private const val UI_WRAPPER_KEY = "#ui_wrapper"
 
-fun interface UIWrapper<C : ConfigNode> {
+fun interface ConfigUIWrapper<C : ConfigNode> {
     @Composable
     fun content(config: C)
 }
 
-fun <C : ConfigNode> C.uiWrapper(content: UIWrapper<C>): C {
+fun <C : ConfigNode> C.uiWrapper(content: ConfigUIWrapper<C>): C {
     this.setMetadata(UI_WRAPPER_KEY, content)
     return this
 }
 
 @Composable
 @Suppress("UNCHECKED_CAST")
-fun <C : ConfigNode> UiWrapper(config: C) {
-    (config.getMetadata(UI_WRAPPER_KEY) as? UIWrapper<C>)
+fun <C : ConfigNode> ConfigUiWrapper(config: C) {
+    (config.getMetadata(UI_WRAPPER_KEY) as? ConfigUIWrapper<C>)
         ?.content(config)
         ?: UIWrappers.Wrapper(config)
 }
 //endregion
 
 private typealias Predicate = (ConfigNode) -> Boolean
-private typealias WrapperEntry = Pair<Predicate, UIWrapper<*>>
+private typealias WrapperEntry = Pair<Predicate, ConfigUIWrapper<*>>
 
 private inline val WrapperEntry.predicate get() = first
 private inline val WrapperEntry.wrapper get() = second
@@ -50,27 +50,27 @@ object UIWrappers {
 
     private val wrappers = LinkedList<WrapperEntry>()
 
-    fun register(predicate: Predicate, wrapper: UIWrapper<*>) {
+    fun register(predicate: Predicate, wrapper: ConfigUIWrapper<*>) {
         wrappers.addFirst(predicate to wrapper)
     }
 
-    fun <C : ConfigNode> register(type: KClass<C>, strict: Boolean = true, wrapper: UIWrapper<C>) {
+    fun <C : ConfigNode> register(type: KClass<C>, strict: Boolean = true, wrapper: ConfigUIWrapper<C>) {
         register({
             if (strict) it::class == type
             else it::class.isSubclassOf(type)
         }, wrapper)
     }
 
-    inline fun <reified C : ConfigNode> register(strict: Boolean = true, wrapper: UIWrapper<C>) =
+    inline fun <reified C : ConfigNode> register(strict: Boolean = true, wrapper: ConfigUIWrapper<C>) =
         register(type = C::class, strict, wrapper)
 
-    fun <C : Any> registerCheckValueType(type: KClass<C>, wrapper: UIWrapper<Config<C>>) {
+    fun <C : Any> registerCheckValueType(type: KClass<C>, wrapper: ConfigUIWrapper<Config<C>>) {
         register({
             it is Config<*> && it.valueType == type
         }, wrapper)
     }
 
-    inline fun <reified C : Any> registerCheckValueType(wrapper: UIWrapper<Config<C>>) =
+    inline fun <reified C : Any> registerCheckValueType(wrapper: ConfigUIWrapper<Config<C>>) =
         registerCheckValueType(type = C::class, wrapper)
 
     @Composable
@@ -78,7 +78,7 @@ object UIWrappers {
     fun <C : ConfigNode> Wrapper(config: C) {
         wrappers.find { it.predicate(config) }
             ?.let {
-                (it.wrapper as? UIWrapper<C>)?.content(config)
+                (it.wrapper as? ConfigUIWrapper<C>)?.content(config)
                 return
             }
         UnspecifiedConfigWrapper(config)

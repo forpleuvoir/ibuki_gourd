@@ -12,13 +12,7 @@ enum class KeyEnvironment(val key: String) : Serializable {
     InGui("in_gui"),
     Any("any");
 
-    companion object : Codec<KeyEnvironment> by Codec.enum<KeyEnvironment>() {
-
-        @JvmStatic
-        fun fromKey(key: String): KeyEnvironment {
-            return entries.first { it.key == key }
-        }
-    }
+    companion object : Codec<KeyEnvironment> by Codec.enum<KeyEnvironment>()
 
     infix fun conflictOf(environment: KeyEnvironment): Boolean {
         return if (this == Any || environment == Any) true

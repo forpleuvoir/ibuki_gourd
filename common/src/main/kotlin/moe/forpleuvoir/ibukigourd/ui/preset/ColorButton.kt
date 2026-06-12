@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.DialogProperties
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.Palette
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Palette
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.nebula.common.color.Color
 
 
@@ -45,7 +45,7 @@ fun ColorSettingButton(
             title = title,
             properties = DialogProperties(usePlatformDefaultWidth = false),
             text = {
-                CompositionTextContextProvider {
+                IGCompositionLocalProvider {
                     ColorPicker(value, {
                         state = it
                     })

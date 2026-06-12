@@ -61,7 +61,7 @@ class Keybind(
     var setting: KeybindSetting = defaultSetting
         private set
 
-    private val _keys: MutableList<KeyCode> = ArrayList(defaultKeys)
+    private val _keys: MutableList<KeyCode> = CopyOnWriteArrayList(defaultKeys)
     val keys: List<KeyCode> get() = _keys
 
     var action: Keybind.() -> Unit = action

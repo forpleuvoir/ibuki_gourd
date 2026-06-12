@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.preset
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -19,10 +18,9 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.text.*
-import moe.forpleuvoir.ibukigourd.ui.icon.Check
-import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.KeyboardAlt
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardAlt
 
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -317,8 +315,12 @@ fun KeybindSettingColumn(
     }
 
     Column(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(IGLang.Input.KeybindSetting.passthrough, modifier = Modifier.weight(1f))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+            TipBox({
+                Text(IGLang.Input.KeybindSetting.passthroughComment)
+            }) {
+                Text(IGLang.Input.KeybindSetting.passthrough)
+            }
             Switch(checked = keybindSetting.passthrough, onCheckedChange = {
                 onValueChange(keybindSetting.copy(passthrough = it))
             })
@@ -326,57 +328,47 @@ fun KeybindSettingColumn(
 
         Spacer(Modifier.height(8.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(IGLang.Input.KeybindSetting.strict, modifier = Modifier.weight(1f))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+            TipBox({
+                Text(IGLang.Input.KeybindSetting.strictComment)
+            }) {
+                Text(IGLang.Input.KeybindSetting.strict)
+            }
             Switch(checked = keybindSetting.strict, onCheckedChange = {
                 onValueChange(keybindSetting.copy(strict = it))
             })
         }
 
         Spacer(Modifier.height(12.dp))
-
-        Text(IGLang.Input.KeybindSetting.env)
+        TipBox({
+            Text(IGLang.Input.KeybindSetting.envComment)
+        }) {
+            Text(IGLang.Input.KeybindSetting.env)
+        }
         Spacer(Modifier.height(4.dp))
         EnumSelector(
             selected = keybindSetting.env,
             onSelect = { onValueChange(keybindSetting.copy(env = it)) },
-            selectedLabel = { Text(it.key, modifier = Modifier.weight(1f)) },
-            itemLabel = { selectedItem, item, close ->
-                DropdownMenuItem(
-                    selected = item == selectedItem,
-                    onClick = {
-                        onValueChange(keybindSetting.copy(env = item))
-                        close()
-                    },
-                    text = { Text(item.key) },
-                    shapes = MenuDefaults.itemShapes(),
-                    selectedLeadingIcon = { Icon(Icons.Check, null) },
-                    interactionSource = remember { MutableInteractionSource() }
-                )
-            },
             modifier = Modifier.fillMaxWidth(),
+            selectedLabel = {
+                Text(it.translateText, modifier = Modifier.weight(1f))
+            },
         )
 
         Spacer(Modifier.height(12.dp))
-
-        Text(IGLang.Input.KeybindSetting.trigger)
+        TipBox({
+            Text(IGLang.Input.KeybindSetting.triggerComment)
+        }) {
+            Text(IGLang.Input.KeybindSetting.trigger)
+        }
         Spacer(Modifier.height(4.dp))
         EnumSelector(
             selected = keybindSetting.trigger,
             onSelect = { onValueChange(keybindSetting.copy(trigger = it)) },
-            selectedLabel = { Text(it.displayName.plainText, modifier = Modifier.weight(1f)) },
-            itemLabel = { selectedItem, item, close ->
-                DropdownMenuItem(
-                    selected = item == selectedItem,
-                    onClick = {
-                        onValueChange(keybindSetting.copy(trigger = item))
-                        close()
-                    },
-                    text = { Text(item.displayName.plainText) },
-                    shapes = MenuDefaults.itemShapes(),
-                    selectedLeadingIcon = { Icon(Icons.Check, null) },
-                    interactionSource = remember { MutableInteractionSource() }
-                )
+            display = { it.displayName },
+            commentDisplay = { it.comment },
+            selectedLabel = {
+                Text(it.displayName, modifier = Modifier.weight(1f))
             },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -394,7 +386,19 @@ fun KeybindSettingColumn(
                             onValueChange(keybindSetting.copy(longPressThreshold = value))
                         }
                     },
-                    label = { Text(IGLang.Input.KeybindSetting.longPressThreshold) },
+                    label = {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                            tooltip = {
+                                PlainTooltip {
+                                    Text(IGLang.Input.KeybindSetting.longPressThresholdComment)
+                                }
+                            },
+                            state = rememberTooltipState(),
+                        ) {
+                            Text(IGLang.Input.KeybindSetting.longPressThreshold)
+                        }
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -415,7 +419,17 @@ fun KeybindSettingColumn(
                             onValueChange(keybindSetting.copy(repeatInterval = value))
                         }
                     },
-                    label = { Text(IGLang.Input.KeybindSetting.repeatInterval) },
+                    label = {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                            tooltip = {
+                                PlainTooltip {
+                                    Text(IGLang.Input.KeybindSetting.repeatIntervalComment)
+                                }
+                            },
+                            state = rememberTooltipState(),
+                        ) { Text(IGLang.Input.KeybindSetting.repeatInterval) }
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),

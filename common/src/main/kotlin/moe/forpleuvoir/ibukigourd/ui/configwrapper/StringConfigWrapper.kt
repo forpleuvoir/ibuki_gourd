@@ -10,11 +10,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.ConfigMap
@@ -64,7 +62,7 @@ fun StringListConfigWrapper(
                 onDismissRequest = onDismiss,
                 title = { Text(IGLang.Misc.add) },
                 text = {
-                    CompositionTextContextProvider {
+                    IGCompositionLocalProvider {
                         OutlinedTextField(
                             value = newValue,
                             onValueChange = { newValue = it },
@@ -128,7 +126,7 @@ fun StringMapConfigWrapper(
                 onDismissRequest = onDismiss,
                 title = { Text(IGLang.Misc.add) },
                 text = {
-                    CompositionTextContextProvider {
+                    IGCompositionLocalProvider {
                     Column {
                         OutlinedTextField(
                             value = newKey,
@@ -234,7 +232,7 @@ fun StringPairListConfigWrapper(
                 onDismissRequest = onDismiss,
                 title = { Text(IGLang.Misc.add) },
                 text = {
-                    CompositionTextContextProvider {
+                    IGCompositionLocalProvider {
                         Column {
                             OutlinedTextField(
                                 value = newFirst,

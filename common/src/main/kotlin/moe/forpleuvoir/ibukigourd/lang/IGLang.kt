@@ -10,4 +10,8 @@ object IGLang {
 
     val Input = InputLang
 
+    fun recordAll() {
+
+
+    }
 }

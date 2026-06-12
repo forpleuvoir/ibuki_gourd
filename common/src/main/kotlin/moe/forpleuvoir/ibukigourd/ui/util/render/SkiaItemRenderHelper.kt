@@ -50,7 +50,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
     private val itemImageCache = LinkedHashMap<ItemCacheKey, ImageBitmap>(16, 0.75f, false)
     private var totalCacheArea: Long = 0
-    private const val MAX_CACHE_AREA: Long = 4_194_304
+    private const val MAX_CACHE_AREA: Long = 16_777_216
 
     fun renderItemToBufferedImage(
         itemStack: ItemStack,
@@ -95,7 +95,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
                 val poseStack = PoseStack()
                 poseStack.translate(width / 2.0, height / 2.0, 0.0)
-                poseStack.scale(width.toFloat(), -width.toFloat(), width.toFloat())
+                poseStack.scale(width.toFloat(), -width.toFloat(), 1f)
 
                 mc.gameRenderer.lighting.setupFor(Lighting.Entry.ITEMS_FLAT)
                 RenderSystem.enableScissorForRenderTypeDraws(0, 0, width, height)
@@ -146,7 +146,8 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             }
             pbo.close()
 
-            val result = nativeImage.toComposeImageBitmap()
+            val result =  nativeImage.toComposeImageBitmap()
+
             nativeImage.close()
 
             val entryArea = width * height

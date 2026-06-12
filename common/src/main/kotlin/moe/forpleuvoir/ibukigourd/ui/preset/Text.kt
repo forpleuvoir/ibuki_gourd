@@ -16,13 +16,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.flat
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.truncate
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.screens.ConfirmLinkScreen
+import net.minecraft.client.gui.screens.Screen
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.util.Util
+import java.net.URI
 
 @Suppress("NOTHING_TO_INLINE")
 @Composable
@@ -88,11 +96,13 @@ fun Component.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
             s.clickEvent?.let { event ->
                 val link = LinkAnnotation.Clickable(event.action().serializedName) {
                     when (event) {
-                        //TODO 添加 Dialog 提示
                         is ClickEvent.OpenFile        -> Util.getPlatform().openFile(event.file())
-                        is ClickEvent.OpenUrl         -> Util.getPlatform().openUri(event.uri())
+                        is ClickEvent.OpenUrl         -> clickUrlAction(uri = event.uri())
                         is ClickEvent.RunCommand      -> mc.player?.connection?.sendUnattendedCommand(Commands.trimOptionalPrefix(event.command), mc.screen)
-                        is ClickEvent.CopyToClipboard -> mc.keyboardHandler.clipboard = event.value
+                        is ClickEvent.CopyToClipboard -> {
+                            mc.keyboardHandler.clipboard = event.value
+                            ToastHandler.showContent { Text(IGLang.Misc.copySuccess(event.value.truncate(10))) }
+                        }
                     }
                 }
                 pushLink(link)
@@ -113,5 +123,24 @@ fun Component.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
         } else {
             append(c.string)
         }
+    }
+}
+
+private fun clickUrlAction(minecraft: Minecraft = mc, screen: Screen? = mc.screen, uri: URI): Boolean {
+    if (!minecraft.options.chatLinks().get()) {
+        return false
+    } else {
+        if (minecraft.options.chatLinksPrompt().get()) {
+            minecraft.setScreen(ConfirmLinkScreen({ result: Boolean ->
+                if (result) {
+                    Util.getPlatform().openUri(uri)
+                }
+                minecraft.setScreen(screen)
+            }, uri.toString(), false))
+        } else {
+            Util.getPlatform().openUri(uri)
+        }
+
+        return true
     }
 }

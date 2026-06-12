@@ -36,6 +36,18 @@ fun <T> List<T>.exactMatch(list: List<T>, contrast: (T, T) -> Boolean = { a, b -
     } else false
 }
 
+fun String.truncate(maxLength: Int, suffix: String = "..."): String {
+    if (this.length <= maxLength) return this
+
+    // 确保截断长度大于0，避免 suffix 比 maxLength 还长导致报错
+    val truncateLength = maxLength - suffix.length
+    return if (truncateLength > 0) {
+        this.take(truncateLength) + suffix
+    } else {
+        this.take(maxLength)
+    }
+}
+
 fun <T> MutableList<T>.moveElement(fromIndex: Int, toIndex: Int) {
     if (fromIndex == toIndex) return
     val movingElement = this.removeAt(fromIndex)

@@ -6,6 +6,7 @@ import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import org.jetbrains.skiko.currentNanoTime
 import org.lwjgl.glfw.GLFW
 
@@ -32,7 +33,7 @@ internal class SceneLifecycle(
 
         val newSize = IntSize(window.width, window.height)
         if (ctx.scene.size != newSize) ctx.scene.size = newSize
-        val newDensity = Density(ctx.scale * 0.375f, 1f)
+        val newDensity = Density(ctx.scale * ComposeSceneHost.DENSITY_RATIO, ComposeSceneHost.FONT_SCALE)
         if (ctx.scene.density != newDensity) ctx.scene.density = newDensity
 
         ctx.platformContext.windowInfo.containerSize = newSize

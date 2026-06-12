@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.ui.icon
+package moe.forpleuvoir.ibukigourd.ui.icon.default
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 
 @Suppress("CheckReturnValue")
 val Icons.ContentCut: ImageVector
@@ -33,7 +34,7 @@ val Icons.ContentCut: ImageVector
                         strokeLineCap = StrokeCap.Butt,
                         strokeLineJoin = StrokeJoin.Bevel,
                         strokeLineMiter = 1f,
-                        pathFillType = PathFillType.Companion.NonZero,
+                        pathFillType = PathFillType.NonZero,
                     ) {
                         moveTo(19f, 21f)
                         lineTo(12f, 14f)

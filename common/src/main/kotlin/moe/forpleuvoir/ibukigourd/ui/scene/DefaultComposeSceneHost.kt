@@ -2,16 +2,25 @@
 
 package moe.forpleuvoir.ibukigourd.ui.scene
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalContextMenuRepresentation
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.scene.CanvasLayersComposeScene
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.Material3ContextMenuRepresentation
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import androidx.compose.ui.util.fastRoundToInt
+import moe.forpleuvoir.ibukigourd.mod.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneContext
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneInputBridge
@@ -57,17 +66,25 @@ open class DefaultComposeSceneHost(
 
     init {
         ctx.scene.setContent {
-            CompositionLocalProvider(
+            IGCompositionLocalProvider(
                 LocalSkiaSurface provides ctx.surface,
-                LocalClipboard provides MinecraftClipboard,
-                LocalContextMenuRepresentation provides Material3ContextMenuRepresentation
             ) {
-                content()
+                var visible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) { visible = true }
+                val enterEasing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
+                val duration = IGConfig.Gui.Screen.fadeInDuration.inWholeMilliseconds.toInt()
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = slideInVertically(
+                        initialOffsetY = { fullHeight -> (fullHeight * IGConfig.Gui.Screen.fadeInOffset).fastRoundToInt() },
+                        animationSpec = tween(duration, easing = enterEasing)
+                    ) + fadeIn(animationSpec = tween(duration, easing = enterEasing)),
+                ) {
+                    content()
+                }
             }
         }
     }
-
-    // ── ComposeSceneHost ─────────────────────────────────────────────────────
 
     override fun init() = bootstrapper.init()
 

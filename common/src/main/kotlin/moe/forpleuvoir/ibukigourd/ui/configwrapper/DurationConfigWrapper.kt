@@ -3,13 +3,11 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -19,10 +17,9 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.Material3ContextMenuRepresentation
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
@@ -111,11 +108,7 @@ fun DurationConfigWrapper(
                 onDismissRequest = { showDialog = false },
                 title = { Text(config.translateText.plainText) },
                 text = {
-                    CompositionLocalProvider(
-                        LocalClipboard provides MinecraftClipboard,
-                        LocalNumberFieldStyle provides NumberFieldStyle.Outlined,
-                        LocalContextMenuRepresentation provides Material3ContextMenuRepresentation,
-                    ) {
+                    IGCompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {

@@ -1,10 +1,11 @@
-package moe.forpleuvoir.ibukigourd.ui.icon
+package moe.forpleuvoir.ibukigourd.ui.icon.default
 
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 
 @Suppress("CheckReturnValue")
 val Icons.EditNote: ImageVector

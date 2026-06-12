@@ -7,7 +7,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlinx.coroutines.flow.first
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
+import moe.forpleuvoir.nebula.common.color.Colors
 
 private val ToastPlacement = Alignment { size, space, _ ->
     IntOffset(
@@ -60,7 +64,9 @@ fun ToastContainer() {
 @Composable
 fun ToastContent(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    contentAlignment: Alignment = Alignment.Center,
+    propagateMinConstraints: Boolean = true,
+    content: @Composable BoxScope.() -> Unit
 ) {
     val duration = LocalToastDuration.current
     Surface(
@@ -69,12 +75,13 @@ fun ToastContent(
         color = MaterialTheme.colorScheme.inverseSurface,
         tonalElevation = 3.dp,
     ) {
-        Column(Modifier.width(IntrinsicSize.Max)) {
-            Box(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Column(Modifier.width(IntrinsicSize.Max), horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), contentAlignment, propagateMinConstraints) {
                 CompositionLocalProvider(
                     LocalContentColor provides MaterialTheme.colorScheme.inverseOnSurface,
-                    content = content
-                )
+                ) {
+                    content()
+                }
             }
             if (duration > Duration.ZERO) {
                 ToastProgressBar(duration)

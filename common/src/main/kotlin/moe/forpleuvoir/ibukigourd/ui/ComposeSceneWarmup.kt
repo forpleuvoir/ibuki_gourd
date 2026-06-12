@@ -18,15 +18,30 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeCanvas
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.mojang.blaze3d.opengl.GlConst.GL_RGBA8
 import moe.forpleuvoir.ibukigourd.ui.icon.*
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Check
+import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.default.HighlightKeyboardFocus
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardAlt
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowDown
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowLeft
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowRight
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowUp
+import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
+import moe.forpleuvoir.ibukigourd.ui.icon.default.MoreVert
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Palette
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Replay
+import moe.forpleuvoir.ibukigourd.ui.icon.default.SyncAlt
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -73,7 +88,7 @@ object ComposeSceneWarmup {
                     )!!.use { surface ->
                         val scene = CanvasLayersComposeScene(platformContext = MinecraftPlatformContext())
                         scene.setContent {
-                            CompositionTextContextProvider {
+                            IGCompositionLocalProvider {
                                 MaterialTheme {
                                     content()
                                 }
@@ -233,8 +248,8 @@ object ComposeSceneWarmup {
                     Icon(Icons.Palette, null, Modifier.size(24.dp))
                     Icon(Icons.Replay, null, Modifier.size(24.dp))
                     Icon(Icons.SyncAlt, null, Modifier.size(24.dp))
-                    Icon(Icons.LightMode, null, Modifier.size(24.dp))
-                    Icon(Icons.DarkMode, null, Modifier.size(24.dp))
+                    Icon(Icons.Filled.LightMode, null, Modifier.size(24.dp))
+                    Icon(Icons.Filled.DarkMode, null, Modifier.size(24.dp))
                 }
             }
         }

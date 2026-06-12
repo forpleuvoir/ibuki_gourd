@@ -1,11 +1,14 @@
 package moe.forpleuvoir.ibukigourd.ui.toast
 
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -24,6 +27,29 @@ object ToastHandler {
 
     val active: List<ToastState> get() = _active
 
+    fun showContent(
+        duration: Duration = 2.seconds,
+        strategy: ToastStrategy = ToastStrategy.ReplaceAll,
+        animation: ToastAnimation? = null,
+        modifier: Modifier = Modifier,
+        contentAlignment: Alignment = Alignment.Center,
+        propagateMinConstraints: Boolean = true,
+        content: @Composable BoxScope.() -> Unit
+    ) {
+        show(
+            duration = duration,
+            strategy = strategy,
+            animation = animation,
+        ) {
+            ToastContent(
+                modifier,
+                contentAlignment,
+                propagateMinConstraints,
+                content
+            )
+        }
+    }
+
     fun show(
         duration: Duration = 2.seconds,
         strategy: ToastStrategy = ToastStrategy.ReplaceAll,
@@ -39,15 +65,16 @@ object ToastHandler {
             )
 
             when (strategy) {
-                is ToastStrategy.ReplaceAll -> replaceActive(toast)
-                is ToastStrategy.Refresh -> refreshActive(duration, toast)
-                is ToastStrategy.Enqueue -> {
+                is ToastStrategy.ReplaceAll     -> replaceActive(toast)
+                is ToastStrategy.Refresh        -> refreshActive(duration, toast)
+                is ToastStrategy.Enqueue        -> {
                     queue.addLast(toast)
                     tryDequeue()
                 }
+
                 is ToastStrategy.Tagged.Refresh -> handleTagged(strategy.tag, strategy, duration, toast)
                 is ToastStrategy.Tagged.Replace -> handleTagged(strategy.tag, strategy, duration, toast)
-                is ToastStrategy.Tagged.Drop -> handleTagged(strategy.tag, strategy, duration, toast)
+                is ToastStrategy.Tagged.Drop    -> handleTagged(strategy.tag, strategy, duration, toast)
             }
         }
     }
@@ -141,7 +168,7 @@ object ToastHandler {
                 }
             }
 
-            is ToastStrategy.Tagged.Drop -> {
+            is ToastStrategy.Tagged.Drop    -> {
                 if (_active.none { it.toast.tag == tag } && queue.none { it.tag == tag }) {
                     reShow(duration, strategy.fallback, toast)
                 }
@@ -156,12 +183,13 @@ object ToastHandler {
     ) {
         when (strategy) {
             is ToastStrategy.ReplaceAll -> replaceActive(toast)
-            is ToastStrategy.Refresh -> refreshActive(duration, toast)
-            is ToastStrategy.Enqueue -> {
+            is ToastStrategy.Refresh    -> refreshActive(duration, toast)
+            is ToastStrategy.Enqueue    -> {
                 queue.addLast(toast)
                 tryDequeue()
             }
-            is ToastStrategy.Tagged -> handleTagged(strategy.tag, strategy, duration, toast)
+
+            is ToastStrategy.Tagged     -> handleTagged(strategy.tag, strategy, duration, toast)
         }
     }
 

@@ -24,7 +24,7 @@ object ColorLang {
 
     inline val saturation get() = lang("saturation")
 
-    inline val brightness get() = lang("brightness")
+    inline val value get() = lang("value")
 
     inline fun clickCopyColor(color: Color) = lang("click_copy_color", color.hexStr)
 

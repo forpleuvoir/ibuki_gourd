@@ -9,6 +9,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.text.input.BackspaceCommand
+import moe.forpleuvoir.ibukigourd.mod.IGConfig
 import net.minecraft.client.input.MouseButtonEvent
 import org.lwjgl.glfw.GLFW
 import net.minecraft.client.input.KeyEvent as MCKeyEvent
@@ -64,8 +65,14 @@ internal class SceneInputBridge(
         ctx.scene.sendPointerEvent(
             PointerEventType.Scroll,
             button = PointerButton.Tertiary,
-            position = Offset((mouseX * scale).toFloat(), (mouseY * scale).toFloat()),
-            scrollDelta = Offset(scrollX.toFloat() * 2, -scrollY.toFloat() * 2)
+            position = Offset(
+                (mouseX * scale).toFloat(),
+                (mouseY * scale).toFloat()
+            ),
+            scrollDelta = Offset(
+                IGConfig.Gui.Scroller.applyScrollMultiplier(scrollX.toFloat() * 2),
+                IGConfig.Gui.Scroller.applyScrollMultiplier(-scrollY.toFloat() * 2)
+            )
         )
         return true
     }

@@ -22,12 +22,6 @@ object ConfigWrapperLang {
 
     fun keyExists(key: Any) = lang("key_exists", key)
 
-    val pressToSetting get() = lang("press_to_setting")
-
-    val releaseToSaveSetting get() = lang("release_to_save_setting")
-
-    val keybindConflict get() = lang("keybind_conflict")
-
     val move get() = lang("move")
 
     fun listConfigWrapperText(count: Int) = lang("list.text", count)

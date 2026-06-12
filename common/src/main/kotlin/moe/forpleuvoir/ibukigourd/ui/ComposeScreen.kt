@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.util.mc
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
@@ -14,6 +15,8 @@ import kotlin.time.TimeSource
 
 open class ComposeScreen(
     val pauseGame: Boolean = false,
+    private val renderParent: Boolean = true,
+    private val parentScreen: Screen? = null,
     content: @Composable () -> Unit,
 ) : Screen(Text.literal("Compose Screen")) {
     private val mark = TimeSource.Monotonic.markNow()
@@ -24,13 +27,16 @@ open class ComposeScreen(
     }
 
     override fun onClose() {
-        super.onClose()
+        this.minecraft.setScreen(parentScreen)
         host.onClose()
     }
 
     private var init = false
 
     override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
+        if (renderParent) {
+            parentScreen?.extractRenderState(graphics, -500, -500, partialTick)
+        }
         host.extractRenderState(graphics, mouseX, mouseY, partialTick)
         if (!init && isDevEnv) {
             println("第一帧耗时${mark.elapsedNow()}")
@@ -60,6 +66,18 @@ fun Screen.open() {
     mc.setScreen(this)
 }
 
-fun openComposeScreen(content: @Composable () -> Unit) {
-    ComposeScreen(content = content).open()
+fun closeScreen() {
+    mc.screen?.onClose()
 }
+
+fun openComposeScreen(
+    pauseGame: Boolean = false,
+    renderParent: Boolean = true,
+    parentScreen: Screen? = mc.screen,
+    content: @Composable () -> Unit
+) {
+    ComposeScreen(pauseGame, renderParent, parentScreen, content = content).open()
+}
+
+fun isComposeScreen() =
+    mc.screen is ComposeScreen

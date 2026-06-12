@@ -11,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -20,6 +22,9 @@ import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.ClickEvent
@@ -48,11 +53,14 @@ fun TestScreen1() {
         CenteredBox {
             var size by remember { mutableStateOf(1f) }
             Column {
-                ItemIcon(
-                    ItemStack(Blocks.PISTON, 16),
-                    Modifier.size(128.dp * size).background(Color.LightGray),
-                    IntSize(256, 256)
-                )
+                mc.player?.mainHandItem?.let { item ->
+                    ItemIcon(
+                        item,
+                        Modifier.size(128.dp * size).background(Color.LightGray),
+                        IntSize(256, 256),
+                        showCount = true
+                    )
+                }
                 var text by remember { mutableStateOf("Hello World") }
                 Box(modifier = Modifier.background(Color(255, 255, 255), shape = RoundedCornerShape(2.dp))) {
                     Text(text = text)
@@ -61,6 +69,8 @@ fun TestScreen1() {
                     Button(onClick = {
                         text = "$text!"
                         println("按下了按钮")
+                    }, modifier = Modifier.tooltip {
+                        Text("悬浮测试")
                     }) {
                         Text("这是什么按钮")
                     }
@@ -103,23 +113,29 @@ fun TestScreen2() {
                 )
             }
             LazyColumn(
-                modifier = Modifier.height(300.dp).background(Color(255, 127, 0, 127), RoundedCornerShape(4.dp)),
+                modifier = Modifier.height(300.dp).align(Alignment.CenterHorizontally).background(Color(255, 127, 0, 127), RoundedCornerShape(4.dp)),
             ) {
                 list.forEach { i ->
                     item {
-                        Text("则是第${i}个")
+                        if (i == list.size / 2) {
+                            Row {
+                                ItemIconVanilla(ItemStack(Items.IRON_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.GRAY))
+                                Text("这是第${i}个")
+                            }
+                        } else {
+                            Text("这是第${i}个")
+                        }
                     }
                 }
             }
             Column(
-                Modifier.width(128.dp)
-                    .height(64.dp)
-                    .align(Alignment.End)
+                Modifier
+                    .align(Alignment.CenterHorizontally)
                     .background(Color(0xFF9fFF00), RoundedCornerShape(4.dp)),
                 horizontalAlignment = Alignment.End
             ) {
-                ItemIcon(ItemStack(Items.IRON_SWORD, 16))
-                Text("?")
+//                ItemIconVanilla(ItemStack(Items.IRON_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.GRAY))
+//                ItemIconVanilla(ItemStack(Items.DIAMOND_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.BLUE))
             }
             var selected by remember { mutableStateOf(Direction.UP) }
             EnumSelector(

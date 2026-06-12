@@ -1,11 +1,12 @@
 @file:Suppress("CheckReturnValue", "UnusedReceiverParameter")
 
-package moe.forpleuvoir.ibukigourd.ui.icon
+package moe.forpleuvoir.ibukigourd.ui.icon.default
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 
 /**
  * [sources](https://fonts.gstatic.com/render/v1/Material+Symbols+Rounded/24dp/replay.kt?var=opsz,wght,FILL,GRAD,ROND@24,400,0,0,50)

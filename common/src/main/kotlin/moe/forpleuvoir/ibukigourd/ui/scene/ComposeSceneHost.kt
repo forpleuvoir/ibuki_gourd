@@ -19,6 +19,11 @@ import net.minecraft.client.input.MouseButtonEvent
  */
 interface ComposeSceneHost {
 
+    companion object {
+        const val DENSITY_RATIO = 0.375f
+        const val FONT_SCALE = 1f
+    }
+
     /**
      * Initialize the Compose scene. Called during Screen#init().
      * Sets up the Skia render target, configures the Compose scene

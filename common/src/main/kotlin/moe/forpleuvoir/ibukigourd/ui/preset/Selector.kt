@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -21,10 +20,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.icon.Check
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Check
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.KeyboardArrowDown
+import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowDown
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -142,18 +143,30 @@ fun <E : Enum<E>> EnumSelector(
     selected: E,
     onSelect: (E) -> Unit,
     items: List<E> = selected::class.java.enumConstants.toList(),
+    display: (E) -> Text = { it.translateText },
+    commentDisplay: (E) -> Text = { it.translateComment },
     selectedLabel: @Composable RowScope.(E) -> Unit = {
-        Text(it.translateText, modifier = Modifier)
+        Text(display(it), modifier = Modifier)
     },
     itemLabel: @Composable (E, E, () -> Unit) -> Unit = { selected, item, close ->
-        DropdownMenuItem(
-            selected = item == selected,
-            onClick = { onSelect(item); close() },
-            text = { Text(item.translateText) },
-            shapes = MenuDefaults.itemShapes(),
-            selectedLeadingIcon = { Icon(Icons.Check, null) },
-            interactionSource = remember { MutableInteractionSource() }
-        )
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Left),
+            tooltip = {
+                PlainTooltip {
+                    Text(commentDisplay(item))
+                }
+            },
+            state = rememberTooltipState(),
+        ) {
+            DropdownMenuItem(
+                selected = item == selected,
+                onClick = { onSelect(item); close() },
+                text = { Text(display(item)) },
+                shapes = MenuDefaults.itemShapes(),
+                selectedLeadingIcon = { Icon(Icons.Check, null) },
+                interactionSource = remember { MutableInteractionSource() }
+            )
+        }
     },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

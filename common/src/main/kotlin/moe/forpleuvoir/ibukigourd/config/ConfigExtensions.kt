@@ -5,7 +5,9 @@ import moe.forpleuvoir.nebula.config.ConfigNode
 import moe.forpleuvoir.nebula.config.path
 
 fun ConfigNode.translationKey(
-    prefix: String = this.root.let { if (it is ModConfigManager) it.modId else "" }
+    prefix: String = this.root.let {
+        if (it is ModConfigManager) "${it.modId}.${if (it.name == "config") it.name else "config.${it.name}"}" else it?.name ?: ""
+    }
 ): String = if (path.isNotEmpty()) "$prefix.$path" else prefix
 
 const val TRANSLATE_TEXT_KYE = "#translate_text"
@@ -45,7 +47,7 @@ var ConfigNode.translateText: MutableText
     }
 
 
-var ConfigNode.comment: MutableText
+var ConfigNode.translateComment: MutableText
     get() = runCatching {
         (getMetadata(COMMENT_KYE) as MutableText).copy()
     }.getOrElse {
@@ -56,3 +58,10 @@ var ConfigNode.comment: MutableText
     set(value) {
         setMetadata(COMMENT_KYE, value)
     }
+
+
+fun ConfigNode.matchWithTranslate(regex: Regex): Boolean =
+    this.matched(regex)
+            || regex.containsMatchIn(translationKey())
+            || regex.containsMatchIn(translateText.plainText)
+            || regex.containsMatchIn(translateComment.plainText)

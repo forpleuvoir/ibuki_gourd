@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -19,13 +18,12 @@ import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.DragIndicator
-import moe.forpleuvoir.ibukigourd.ui.icon.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.CompositionTextContextProvider
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigList
 
@@ -130,7 +128,7 @@ private fun <E : Any> EditDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         title = { Text(config.translateText) },
         text = {
-            CompositionTextContextProvider {
+            IGCompositionLocalProvider {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -217,11 +215,7 @@ private fun <E : Any> EditDialog(
                                 modifier = Modifier
                                     .align(Alignment.CenterEnd)
                                     .fillMaxHeight(),
-                                adapter = rememberScrollbarAdapter(scrollState),
-                                style = defaultScrollbarStyle().copy(
-                                    hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                                    unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
-                                ),
+                                adapter = rememberScrollbarAdapter(scrollState)
                             )
                         }
                     }

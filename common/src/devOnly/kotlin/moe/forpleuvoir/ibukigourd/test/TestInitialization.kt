@@ -18,19 +18,19 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.lang.TranslationRecorder
+import moe.forpleuvoir.ibukigourd.mod.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
-import moe.forpleuvoir.ibukigourd.ui.icon.DarkMode
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.LightMode
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigUiWrapper
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.event.Event
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
@@ -42,6 +42,7 @@ class TestInitialization : ModInitialization {
     val registryAccess get() = mc.player?.level()?.registryAccess()!!
 
     override fun init() {
+        TestCommand.init()
         logger.info("测试环境")
         ClientLifecycleEvent.Starting.register {
             println(measureTime {
@@ -52,6 +53,23 @@ class TestInitialization : ModInitialization {
             ComposeSceneWarmup.warmUp { ConfigTest() }
             ComposeSceneWarmup.warmUp { ConfigTest() }
             ComposeSceneWarmup.warmUp()
+        }
+
+        TranslationRecorder.addFilter {
+            it.startsWith("ibukigourd.") && !it.startsWith("ibukigourd.config.test")
+        }
+        TranslationRecorder.addFilter {
+            it.startsWith("enum.")
+        }
+        TranslationRecorder.categorizer = {
+            when {
+                it.startsWith("enum.")                      -> "enum"
+                it.startsWith("ibukigourd.misc.")           -> "misc"
+                it.startsWith("ibukigourd.input.")          -> "input"
+                it.startsWith("ibukigourd.config_wrapper.") -> "config_wrapper"
+                it.startsWith("ibukigourd.color.")          -> "color"
+                else                                        -> "default"
+            }
         }
 
         ClientModConfigHandler.register(TestConfig)
@@ -104,29 +122,12 @@ class TestInitialization : ModInitialization {
 
             register(Keyboard.KP_7) {
                 openComposeScreen {
-                    var color by remember { mutableStateOf(lightColorScheme()) }
-                    MaterialTheme(
-                        colorScheme = color,
-                    ) {
+                    IbukiGourdTheme {
                         Surface(Modifier.fillMaxSize().debug()) {
                             Column {
-                                var state by remember { mutableStateOf(true) }
                                 Row(modifier = Modifier.padding(8.dp)) {
                                     Text("亮色模式")
-                                    Switch(
-                                        state,
-                                        {
-                                            state = it
-                                            color = if (state) {
-                                                lightColorScheme()
-                                            } else {
-                                                darkColorScheme()
-                                            }
-                                        },
-                                        thumbContent = {
-                                            Icon(if (state) Icons.LightMode else Icons.DarkMode, null)
-                                        }
-                                    )
+                                    ConfigUiWrapper(IGConfig.Gui.children.find { it.name == "light_mode" }!!)
                                 }
                                 ConfigTest()
                             }
