@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
@@ -13,8 +14,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -62,6 +63,9 @@ object ConfigRowWrapper {
 
     val LocalConfigRowIconAnimationDuration = compositionLocalOf { 400.milliseconds }
 
+    /** 配置行层级，0 为顶层（圆角矩形），>0 为嵌套（无圆角矩形） */
+    val LocalConfigRowLevel = compositionLocalOf { 0 }
+
 }
 
 
@@ -79,11 +83,21 @@ fun ConfigRowWrapper(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    val hoveredColor = (if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f) else Color.Transparent)
+    val level = ConfigRowWrapper.LocalConfigRowLevel.current
+    // level == 0 顶层：常驻圆角矩形背景 + hover 加深
+    // level > 0 嵌套：微弱常态底色 + hover 加深（无圆角边框，由父容器统一裁剪）
+    // 透明度控制在较低区间，避免与右侧滚动条轨道(同为灰色系)混淆
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        animationSpec = tween(200),
+        label = "configRowBackground"
+    )
     Row(
         modifier = modifier
             .hoverable(interactionSource)
-            .background(hoveredColor)
+            .then(if (level == 0) Modifier.clip(MaterialTheme.shapes.medium) else Modifier)
+            .background(backgroundColor)
             .onClick { onClick?.invoke() }
             .fillMaxWidth()
             .padding(ConfigRowWrapper.padding),
@@ -107,6 +121,23 @@ fun ConfigName(
     config: ConfigNode,
     modifier: Modifier = Modifier
 ) {
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    var isTruncated by remember { mutableStateOf(false) }
+    val isTruncatedState = rememberUpdatedState(isTruncated)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    LaunchedEffect(isHovered) {
+        if (isHovered) {
+            delay(250.milliseconds)
+            if (isTruncatedState.value) {
+                tooltipState.transition.targetState = true
+            }
+        } else {
+            tooltipState.transition.targetState = false
+        }
+    }
+
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
@@ -114,21 +145,26 @@ fun ConfigName(
                 Text(config.translateComment.plainText)
             }
         },
-        state = rememberTooltipState(),
-        modifier = modifier
+        state = tooltipState,
+        modifier = modifier,
+        enableUserInput = false,
     ) {
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.hoverable(interactionSource)
         ) {
             Text(
                 text = config.translateText.plainText,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = config.translateComment.plainText,
                 modifier = Modifier.widthIn(max = 512.dp),
                 overflow = TextOverflow.Ellipsis,
+                onTextLayout = { textLayoutResult ->
+                    isTruncated = textLayoutResult.hasVisualOverflow
+                },
                 maxLines = 1,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium

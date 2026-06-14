@@ -9,7 +9,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.text.input.BackspaceCommand
-import moe.forpleuvoir.ibukigourd.mod.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import net.minecraft.client.input.MouseButtonEvent
 import org.lwjgl.glfw.GLFW
 import net.minecraft.client.input.KeyEvent as MCKeyEvent

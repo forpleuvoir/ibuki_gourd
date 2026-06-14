@@ -13,7 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalLocalization
-import moe.forpleuvoir.ibukigourd.mod.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 
 @Suppress("NOTHING_TO_INLINE")
 @OptIn(ExperimentalFoundationApi::class)

@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 import androidx.compose.runtime.Composable
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
+import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.common.color.Color
@@ -106,6 +107,7 @@ object UIWrappers {
         register<ConfigEnum<*>> { EnumConfigWrapper(it) }
         registerCheckValueType<Color> { ColorConfigWrapper(it) }
         registerCheckValueType<Duration> { DurationConfigWrapper(it) }
+        register({ it is Config<*> && it.valueType?.isSubclassOf(KeyCode::class) == true }) { KeyCodeConfigWrapper(it as Config<KeyCode>) }
         register<ConfigKeybind> { KeybindConfigWrapper(it) }
         register<ConfigToggleKeybind> { ToggleKeybindConfigWrapper(it) }
         register({ it is ConfigList<*> && it.elementType == String::class }) {

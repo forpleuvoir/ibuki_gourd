@@ -9,6 +9,7 @@ kotlinxSerialization = "1.11.0"
 nebula = "0.3.10"
 #compose
 compose = "1.11.0"
+materialKolor = "4.1.1"
 
 #minecraft
 minecraft = "26.1.2"
@@ -57,6 +58,9 @@ kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version
 kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+
+#compose
+materialKolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
 
 [bundles]
 kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinxCoroutines", "kotlinxSerialization"]

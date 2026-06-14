@@ -49,7 +49,6 @@ fun <T> Selector(
     var buttonTopPx by remember { mutableFloatStateOf(0f) }
     var buttonBottomPx by remember { mutableFloatStateOf(0f) }
 
-    var menuWidth by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     val windowHeightPx = LocalWindowInfo.current.containerSize.height.toFloat()
     Box {
@@ -81,10 +80,8 @@ fun <T> Selector(
             onDismissRequest = { expanded = false },
             modifier = Modifier
                 .heightIn(max = with(density) {
-                    ((buttonTopPx.coerceAtLeast(windowHeightPx - buttonBottomPx)).toDp() - 50.dp).coerceAtLeast(0.dp)
+                    ((buttonTopPx.coerceAtLeast(windowHeightPx - buttonBottomPx)).toDp() - 64.dp).coerceAtLeast(0.dp)
                 })
-                .onSizeChanged { menuWidth = it.width }
-
         ) {
             items.forEach { t ->
                 itemLabel(selected, t) { expanded = false }
@@ -153,7 +150,7 @@ fun <E : Enum<E>> EnumSelector(
             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Left),
             tooltip = {
                 PlainTooltip {
-                    Text(commentDisplay(item))
+                    Text(commentDisplay(item), maxLines = 1)
                 }
             },
             state = rememberTooltipState(),
@@ -161,7 +158,7 @@ fun <E : Enum<E>> EnumSelector(
             DropdownMenuItem(
                 selected = item == selected,
                 onClick = { onSelect(item); close() },
-                text = { Text(display(item)) },
+                text = { Text(display(item), maxLines = 1) },
                 shapes = MenuDefaults.itemShapes(),
                 selectedLeadingIcon = { Icon(Icons.Check, null) },
                 interactionSource = remember { MutableInteractionSource() }

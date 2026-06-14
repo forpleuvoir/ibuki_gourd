@@ -91,6 +91,15 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
             val testBoolean by configBoolean("test_key_bind", false)
 
             var testInt by configInt("test_int", 0, 0, 233)
+
+            val n = addConfig(Nested2)
+
+            object Nested2 : ConfigGroup("nested2") {
+
+                val testBoolean by configBoolean("test_key_bind", false)
+
+                var testInt by configInt("test_int", 0, 0, 233)
+            }
         }
 
         init {

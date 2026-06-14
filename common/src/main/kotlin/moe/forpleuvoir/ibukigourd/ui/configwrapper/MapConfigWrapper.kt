@@ -34,6 +34,7 @@ fun <V : Any> MapConfigWrapper(
     config: ConfigMap<V>,
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     keyHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapKey) },
     valueHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapValue) },
     valueEditor: @Composable (key: String) -> Unit,
@@ -91,6 +92,7 @@ fun <V : Any> MapConfigWrapper(
             valueHeader = valueHeader,
             valueEditor = valueEditor,
             dialogModifier = dialogModifier,
+            properties = properties,
             onAddClick = { showAddDialog = true },
             onConfirm = { showEditDialog = false },
             onCancel = {
@@ -109,6 +111,7 @@ private fun <V : Any> MapEditDialog(
     valueHeader: @Composable () -> Unit,
     valueEditor: @Composable (key: String) -> Unit,
     dialogModifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     onAddClick: () -> Unit,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
@@ -130,7 +133,7 @@ private fun <V : Any> MapEditDialog(
     AlertDialog(
         onDismissRequest = onCancel,
         modifier = dialogModifier,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = properties,
         title = { Text(config.translateText) },
         text = {
             IGCompositionLocalProvider {

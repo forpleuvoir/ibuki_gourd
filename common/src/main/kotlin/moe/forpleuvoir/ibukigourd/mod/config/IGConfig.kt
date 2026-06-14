@@ -1,12 +1,11 @@
-package moe.forpleuvoir.ibukigourd.mod
+package moe.forpleuvoir.ibukigourd.mod.config
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.materialkolor.dynamicColorScheme
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
@@ -14,15 +13,24 @@ import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.BooleanConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ColorSchemeConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
+import moe.forpleuvoir.ibukigourd.ui.open
+import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.configBoolean
+import moe.forpleuvoir.nebula.config.item.configColor
 import moe.forpleuvoir.nebula.config.item.configDuration
 import moe.forpleuvoir.nebula.config.item.configFloat
+import moe.forpleuvoir.nebula.config.item.configList
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.color
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -30,7 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
     private val openScreen by configKeybind("open_screen", Keybind(Keyboard.I, Keyboard.G) {
-        //TODO open Screen
+        IbukiGourdScreen().open()
     })
 
     init {
@@ -40,22 +48,56 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
     object Gui : ConfigGroup("gui") {
 
-        var lightMode by configBoolean("light_mode", true)
-            .uiWrapper {
-                BooleanConfigWrapper(it, { mode ->
-                    Icon(if (mode) Icons.Filled.LightMode else Icons.Filled.DarkMode, null)
-                })
-            }.apply {
-                observe {
-                    colorScheme = if (it.getValue()) lightColorScheme() else darkColorScheme()
-                }
-            }
+        var colorScheme: ColorScheme by mutableStateOf(dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !Theme.lightMode))
 
-        var colorScheme: ColorScheme by mutableStateOf(if (lightMode) lightColorScheme() else darkColorScheme())
+        private fun refreshColorScheme() {
+            colorScheme = dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !Theme.lightMode)
+        }
 
         init {
+            addConfig(Theme)
             addConfig(Screen)
             addConfig(Scroller)
+        }
+
+        object Theme : ConfigGroup("theme") {
+
+            /** 预设的 seed 颜色列表 */
+            var colorSchemeSeeds by configList(
+                "color_scheme_seeds",
+                listOf(
+                    Color.fromRGB(0x5B7FFF),
+                    Color.fromRGB(0x6B4EC8),
+                    Color.fromRGB(0x2E7D32),
+                    Color.fromRGB(0xE65100),
+                    Color.fromRGB(0xC2185B),
+                ),
+                Codec.color,
+            ).uiWrapper {
+                ColorSchemeConfigWrapper(
+                    config = it,
+                    selected = colorSchemeSeed,
+                    isDark = !lightMode,
+                    onSelect = { color -> colorSchemeSeed = color },
+                )
+            }
+
+            /** 当前选中的 seed 色（隐藏，不渲染 UI） */
+            var colorSchemeSeed by configColor("color_scheme_seed", Color.fromRGB(0x5B7FFF))
+                .uiWrapper { }
+                .apply {
+                    observe { Gui.refreshColorScheme() }
+                }
+
+            var lightMode by configBoolean("light_mode", true)
+                .uiWrapper {
+                    BooleanConfigWrapper(it, { mode ->
+                        Icon(if (mode) Icons.Filled.LightMode else Icons.Filled.DarkMode, null)
+                    })
+                }.apply {
+                    observe { Gui.refreshColorScheme() }
+                }
+
         }
 
         object Screen : ConfigGroup("screen") {

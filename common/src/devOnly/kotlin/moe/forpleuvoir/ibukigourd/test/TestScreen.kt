@@ -134,8 +134,13 @@ fun TestScreen2() {
                     .background(Color(0xFF9fFF00), RoundedCornerShape(4.dp)),
                 horizontalAlignment = Alignment.End
             ) {
-//                ItemIconVanilla(ItemStack(Items.IRON_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.GRAY))
-//                ItemIconVanilla(ItemStack(Items.DIAMOND_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.BLUE))
+                ItemIconVanilla(ItemStack(Items.IRON_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.GRAY))
+                ItemIconVanilla(
+                    ItemStack(Items.DIAMOND_SWORD, 16),
+                    size = DpSize((114).dp, (114).dp),
+                    showCount = true,
+                    modifier = Modifier.background(Colors.BLUE)
+                )
             }
             var selected by remember { mutableStateOf(Direction.UP) }
             EnumSelector(

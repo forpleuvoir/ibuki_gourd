@@ -20,8 +20,8 @@ import net.minecraft.client.input.MouseButtonEvent
 interface ComposeSceneHost {
 
     companion object {
-        const val DENSITY_RATIO = 0.375f
-        const val FONT_SCALE = 1f
+        const val DENSITY_RATIO = 0.35f
+        const val FONT_SCALE = 1.05f
     }
 
     /**

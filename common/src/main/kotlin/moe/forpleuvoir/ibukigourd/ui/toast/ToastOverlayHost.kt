@@ -2,7 +2,6 @@
 
 package moe.forpleuvoir.ibukigourd.ui.toast
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -12,7 +11,6 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import moe.forpleuvoir.ibukigourd.mod.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
@@ -20,10 +18,9 @@ import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaSurface
 import moe.forpleuvoir.ibukigourd.util.mc
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import org.jetbrains.skiko.currentNanoTime
+import kotlin.time.Duration.Companion.nanoseconds
 
 object ToastOverlayHost {
 
@@ -70,7 +67,7 @@ object ToastOverlayHost {
 
         val now = System.nanoTime()
         if (lastNanoTime != 0L) {
-            val delta = (now - lastNanoTime).toDuration(DurationUnit.NANOSECONDS)
+            val delta = (now - lastNanoTime).nanoseconds
             ToastHandler.tick(delta)
         }
         lastNanoTime = now

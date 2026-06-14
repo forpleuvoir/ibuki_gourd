@@ -39,6 +39,9 @@ dependencies {
     jarJarInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
         composeExclude()
     })
+    jarJarInternal(implementation("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
+        composeExclude()
+    })
     jarJarInternal(implementation(compose.desktop.currentOs){
         exclude(module = "material-desktop")
         composeExclude()

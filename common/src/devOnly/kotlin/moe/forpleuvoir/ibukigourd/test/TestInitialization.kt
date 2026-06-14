@@ -4,11 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
@@ -19,18 +16,18 @@ import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.lang.TranslationRecorder
-import moe.forpleuvoir.ibukigourd.mod.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigUiWrapper
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
+import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
@@ -109,11 +106,8 @@ class TestInitialization : ModInitialization {
                 openComposeScreen {
                     CenteredBox {
                         Column {
-                            var color by remember { mutableStateOf(Color.fromARGB(0xFFFFFF00)) }
-                            Text(color.hexStr)
-                            Card {
-                                ColorPicker(color, { color = it })
-                            }
+                            BlitTexture(identifier(IbukiGourd.MOD_ID, "icon.png"), modifier = Modifier.size(64.dp))
+                            BlitTexture(identifier(IbukiGourd.MOD_ID, "sdada.png"), modifier = Modifier.size(64.dp))
                         }
                     }
                 }
@@ -123,11 +117,11 @@ class TestInitialization : ModInitialization {
             register(Keyboard.KP_7) {
                 openComposeScreen {
                     IbukiGourdTheme {
-                        Surface(Modifier.fillMaxSize().debug()) {
+                        Surface(Modifier.fillMaxSize()) {
                             Column {
                                 Row(modifier = Modifier.padding(8.dp)) {
                                     Text("亮色模式")
-                                    ConfigUiWrapper(IGConfig.Gui.children.find { it.name == "light_mode" }!!)
+                                    ConfigUiWrapper(IGConfig.Gui.Theme.children.find { it.name == "light_mode" }!!)
                                 }
                                 ConfigTest()
                             }

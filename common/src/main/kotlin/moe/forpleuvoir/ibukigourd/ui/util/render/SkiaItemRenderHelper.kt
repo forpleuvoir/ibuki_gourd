@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.util.render
 
 
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asComposeImageBitmap
 import com.mojang.blaze3d.ProjectionType
 import com.mojang.blaze3d.platform.Lighting
 import com.mojang.blaze3d.platform.NativeImage
@@ -13,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState
@@ -24,6 +26,9 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ImageInfo
 import kotlin.time.TimeSource
 
 object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceReloaderListener<Unit>() {
@@ -136,19 +141,25 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             }
             fence.close()
 
-            val nativeImage = NativeImage(width, height, false)
+            val pixels = ByteArray(width * 4 * height * pixelSize)
+
             encoder.mapBuffer(pbo, true, false).use { mapped ->
                 val data = mapped.data()
-                for (y in 0 until height) for (x in 0 until width) {
-                    val abgr = data.getInt((x + y * width) * pixelSize)
-                    nativeImage.setPixelABGR(x, height - y - 1, abgr or 0x00000000)
+                var k = 0
+                for (y in height - 1 downTo 0) for (x in 0 until width) {
+                    val argb = Color.fromARGB(data.getInt((x + y * width) * pixelSize))
+                    pixels[k++] = argb.red.toByte()
+                    pixels[k++] = argb.green.toByte()
+                    pixels[k++] = argb.blue.toByte()
+                    pixels[k++] = argb.alpha.toByte()
                 }
             }
             pbo.close()
 
-            val result =  nativeImage.toComposeImageBitmap()
-
-            nativeImage.close()
+            val result = Bitmap().apply {
+                allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.UNPREMUL))
+                installPixels(pixels)
+            }.asComposeImageBitmap()
 
             val entryArea = width * height
             while (totalCacheArea + entryArea > MAX_CACHE_AREA && itemImageCache.isNotEmpty()) {

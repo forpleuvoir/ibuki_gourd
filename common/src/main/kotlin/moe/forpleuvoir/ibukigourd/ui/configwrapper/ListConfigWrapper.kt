@@ -32,6 +32,7 @@ fun <E : Any> ListConfigWrapper(
     config: ConfigList<E>,
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     header: @Composable RowScope.() -> Unit = {},
     element: @Composable RowScope.(index: Int) -> Unit,
     addDialog: @Composable (onConfirm: (E) -> Unit, onDismiss: () -> Unit) -> Unit,
@@ -87,6 +88,7 @@ fun <E : Any> ListConfigWrapper(
             header = header,
             element = element,
             dialogModifier = dialogModifier,
+            properties = properties,
             onAddClick = { showAddDialog = true },
             onConfirm = { showEditDialog = false },
             onCancel = {
@@ -104,6 +106,7 @@ private fun <E : Any> EditDialog(
     header: @Composable RowScope.() -> Unit,
     element: @Composable RowScope.(index: Int) -> Unit,
     dialogModifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     onAddClick: () -> Unit,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
@@ -125,7 +128,7 @@ private fun <E : Any> EditDialog(
     AlertDialog(
         onDismissRequest = onCancel,
         modifier = dialogModifier,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = properties,
         title = { Text(config.translateText) },
         text = {
             IGCompositionLocalProvider {
