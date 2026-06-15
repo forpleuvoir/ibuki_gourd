@@ -223,7 +223,7 @@ fun IntConfigWrapper(
                 }
             }
             if (range != null) {
-                val rotation = remember { Animatable(0f) }
+                val rotation = remember { Animatable(if (editor) 0f else 180f) }
                 val duration = ConfigRowWrapper.iconAnimationDuration.inWholeMilliseconds.toInt()
                 IconButton(onClick = {
                     editor = !editor
@@ -313,7 +313,7 @@ fun LongConfigWrapper(
                 }
             }
             if (range != null) {
-                val rotation = remember { Animatable(0f) }
+                val rotation = remember { Animatable(if (editor) 0f else 180f) }
                 val duration = ConfigRowWrapper.iconAnimationDuration.inWholeMilliseconds.toInt()
                 IconButton(onClick = {
                     editor = !editor
@@ -403,7 +403,7 @@ fun FloatConfigWrapper(
                 }
             }
             if (range != null) {
-                val rotation = remember { Animatable(0f) }
+                val rotation = remember { Animatable(if (editor) 0f else 180f) }
                 val duration = ConfigRowWrapper.iconAnimationDuration.inWholeMilliseconds.toInt()
                 IconButton(onClick = {
                     editor = !editor
@@ -493,7 +493,7 @@ fun DoubleConfigWrapper(
                 }
             }
             if (range != null) {
-                val rotation = remember { Animatable(0f) }
+                val rotation = remember { Animatable(if (editor) 0f else 180f) }
                 val duration = ConfigRowWrapper.iconAnimationDuration.inWholeMilliseconds.toInt()
                 IconButton(onClick = {
                     editor = !editor

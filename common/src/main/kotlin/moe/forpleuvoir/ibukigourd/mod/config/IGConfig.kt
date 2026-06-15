@@ -1,10 +1,15 @@
 package moe.forpleuvoir.ibukigourd.mod.config
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.materialkolor.dynamicColorScheme
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
@@ -13,11 +18,15 @@ import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig.Gui.Theme.colorScheme
 import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.BooleanConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ColorSchemeConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Palette
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Routine
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
 import moe.forpleuvoir.ibukigourd.ui.open
@@ -47,13 +56,6 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
 
     object Gui : ConfigGroup("gui") {
-
-        var colorScheme: ColorScheme by mutableStateOf(dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !Theme.lightMode))
-
-        private fun refreshColorScheme() {
-            colorScheme = dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !Theme.lightMode)
-        }
-
         init {
             addConfig(Theme)
             addConfig(Screen)
@@ -62,42 +64,56 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
         object Theme : ConfigGroup("theme") {
 
-            /** 预设的 seed 颜色列表 */
-            var colorSchemeSeeds by configList(
-                "color_scheme_seeds",
-                listOf(
-                    Color.fromRGB(0x5B7FFF),
-                    Color.fromRGB(0x6B4EC8),
-                    Color.fromRGB(0x2E7D32),
-                    Color.fromRGB(0xE65100),
-                    Color.fromRGB(0xC2185B),
-                ),
-                Codec.color,
-            ).uiWrapper {
-                ColorSchemeConfigWrapper(
-                    config = it,
-                    selected = colorSchemeSeed,
-                    isDark = !lightMode,
-                    onSelect = { color -> colorSchemeSeed = color },
-                )
+            private fun refreshColorScheme() {
+                colorScheme = dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !Theme.lightMode)
             }
-
-            /** 当前选中的 seed 色（隐藏，不渲染 UI） */
-            var colorSchemeSeed by configColor("color_scheme_seed", Color.fromRGB(0x5B7FFF))
-                .uiWrapper { }
-                .apply {
-                    observe { Gui.refreshColorScheme() }
-                }
 
             var lightMode by configBoolean("light_mode", true)
                 .uiWrapper {
-                    BooleanConfigWrapper(it, { mode ->
-                        Icon(if (mode) Icons.Filled.LightMode else Icons.Filled.DarkMode, null)
-                    })
+                    CompositionLocalProvider(ConfigRowWrapper.LocalIcon provides {
+                        Icon(Icons.Routine, null, modifier = Modifier.size(32.dp))
+                    }) {
+                        BooleanConfigWrapper(it, { mode ->
+                            Icon(if (mode) Icons.Filled.LightMode else Icons.Filled.DarkMode, null)
+                        })
+                    }
                 }.apply {
-                    observe { Gui.refreshColorScheme() }
+                    observe { refreshColorScheme() }
                 }
 
+            /** 预设的 seed 颜色列表 */
+            val colorSchemeSeeds by configList(
+                "color_scheme_seeds",
+                listOf(
+                    Color.fromRGB(0x445E9E),
+                    Color.fromRGB(0x6B4EC8),
+                    Color.fromRGB(0x2E7D32),
+                    Color.fromRGB(0xD2703B),
+                    Color.fromRGB(0xC2185B),
+                    Color.fromRGB(0x8647B3),
+                ),
+                Codec.color,
+            ).uiWrapper {
+                CompositionLocalProvider(ConfigRowWrapper.LocalIcon provides {
+                    Icon(Icons.Palette, null, modifier = Modifier.size(32.dp))
+                }) {
+                    ColorSchemeConfigWrapper(
+                        config = it,
+                        selected = colorSchemeSeed,
+                        isDark = !lightMode,
+                        onSelect = { color -> colorSchemeSeed = color },
+                    )
+                }
+            }
+
+            /** 当前选中的 seed 色（隐藏，不渲染 UI） */
+            var colorSchemeSeed by configColor("color_scheme_seed", Color.fromRGB(0x445E9E))
+                .uiWrapper { }
+                .apply {
+                    observe { refreshColorScheme() }
+                }
+
+            var colorScheme: ColorScheme by mutableStateOf(dynamicColorScheme(colorSchemeSeed.toComposeColor, isDark = !lightMode))
         }
 
         object Screen : ConfigGroup("screen") {

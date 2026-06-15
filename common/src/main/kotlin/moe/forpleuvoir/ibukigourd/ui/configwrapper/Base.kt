@@ -27,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper.LocalIcon
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Replay
 import moe.forpleuvoir.nebula.common.api.Resettable
@@ -37,35 +38,36 @@ import kotlin.time.Duration.Companion.milliseconds
 object ConfigRowWrapper {
 
     val padding: PaddingValues
-        @Composable @ReadOnlyComposable get() = LocalConfigRowWrapperPadding.current
+        @Composable @ReadOnlyComposable get() = LocalPadding.current
 
     val valuePollInterval: Duration
-        @Composable @ReadOnlyComposable get() = LocalConfigPollInterval.current
+        @Composable @ReadOnlyComposable get() = LocalPollInterval.current
 
     val entrySize: DpSize
-        @Composable @ReadOnlyComposable get() = LocalConfigEntrySize.current
+        @Composable @ReadOnlyComposable get() = LocalEntrySize.current
 
     val spacing: Dp
-        @Composable @ReadOnlyComposable get() = LocalConfigRowSpacing.current
+        @Composable @ReadOnlyComposable get() = LocalSpacing.current
 
     val iconAnimationDuration: Duration
-        @Composable @ReadOnlyComposable get() = LocalConfigRowIconAnimationDuration.current
+        @Composable @ReadOnlyComposable get() = LocalIconAnimationDuration.current
 
-    val LocalConfigRowSpacing = staticCompositionLocalOf { 12.dp }
+    val LocalSpacing = staticCompositionLocalOf { 12.dp }
 
-    val LocalConfigPollInterval = compositionLocalOf { 50.milliseconds }
+    val LocalPollInterval = compositionLocalOf { 50.milliseconds }
 
-    val LocalConfigRowWrapperPadding = staticCompositionLocalOf {
-        PaddingValues(12.dp, 8.dp)
+    val LocalPadding = staticCompositionLocalOf {
+        PaddingValues(20.dp, 8.dp, 12.dp, 8.dp)
     }
 
-    val LocalConfigEntrySize = staticCompositionLocalOf { DpSize(320.dp, 64.dp) }
+    val LocalEntrySize = staticCompositionLocalOf { DpSize(320.dp, 64.dp) }
 
-    val LocalConfigRowIconAnimationDuration = compositionLocalOf { 400.milliseconds }
+    val LocalIconAnimationDuration = compositionLocalOf { 400.milliseconds }
 
     /** 配置行层级，0 为顶层（圆角矩形），>0 为嵌套（无圆角矩形） */
-    val LocalConfigRowLevel = compositionLocalOf { 0 }
+    val LocalLevel = compositionLocalOf { 0 }
 
+    val LocalIcon = compositionLocalOf<@Composable (() -> Unit)?> { null }
 }
 
 
@@ -76,6 +78,7 @@ fun ConfigRowWrapper(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    icon: @Composable (() -> Unit)? = LocalIcon.current,
     resettable: Boolean = true,
     onClick: (() -> Unit)? = null,
     onReset: () -> Unit = {},
@@ -83,7 +86,7 @@ fun ConfigRowWrapper(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    val level = ConfigRowWrapper.LocalConfigRowLevel.current
+    val level = ConfigRowWrapper.LocalLevel.current
     // level == 0 顶层：常驻圆角矩形背景 + hover 加深
     // level > 0 嵌套：微弱常态底色 + hover 加深（无圆角边框，由父容器统一裁剪）
     // 透明度控制在较低区间，避免与右侧滚动条轨道(同为灰色系)混淆
@@ -104,7 +107,13 @@ fun ConfigRowWrapper(
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = verticalAlignment,
     ) {
-        ConfigName(config, modifier = Modifier.weight(1f, false))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            icon?.let {
+                it()
+                Spacer(Modifier.width(ConfigRowWrapper.spacing))
+            }
+            ConfigName(config, modifier = Modifier.weight(1f, false))
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
             verticalAlignment = Alignment.CenterVertically,

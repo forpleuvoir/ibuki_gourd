@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.plus
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,15 +39,15 @@ fun ConfigGroupWrapper(
             .clip(MaterialTheme.shapes.medium)
     ) {
         CompositionLocalProvider(
-            ConfigRowWrapper.LocalConfigRowLevel provides ConfigRowWrapper.LocalConfigRowLevel.current + 1
+            ConfigRowWrapper.LocalLevel provides ConfigRowWrapper.LocalLevel.current + 1
         ) {
             ConfigRowWrapper(
                 config,
                 modifier,
                 horizontalArrangement,
                 verticalAlignment,
-                false,
-                { expanded = !expanded }
+                resettable = false,
+                onClick = { expanded = !expanded }
             ) {
                 val rotation by animateFloatAsState(if (expanded) 180f else 0f)
                 Box(Modifier.height(ConfigRowWrapper.entrySize.height), contentAlignment = Alignment.Center) {
@@ -60,7 +59,7 @@ fun ConfigGroupWrapper(
                     config.children.forEach { child ->
                         HorizontalDivider()
                         CompositionLocalProvider(
-                            ConfigRowWrapper.LocalConfigRowWrapperPadding provides ConfigRowWrapper.padding + PaddingValues(
+                            ConfigRowWrapper.LocalPadding provides ConfigRowWrapper.padding + PaddingValues(
                                 start = 24.dp,
                                 end = 8.dp
                             )
@@ -81,16 +80,20 @@ fun ConfigsWrapper(
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
 ) = Column(modifier, verticalArrangement, horizontalAlignment) {
-    val level = ConfigRowWrapper.LocalConfigRowLevel.current
+    val level = ConfigRowWrapper.LocalLevel.current
     configs.forEachIndexed { index, it ->
         // 嵌套层级内（level > 0）用横线分隔，顶层用间距分隔
         if (level > 0 && index > 0) HorizontalDivider()
-        CompositionLocalProvider(
-            ConfigRowWrapper.LocalConfigRowWrapperPadding provides ConfigRowWrapper.padding + PaddingValues(
-                start = 24.dp,
-                end = 8.dp
-            )
-        ) {
+        if (level > 0) {
+            CompositionLocalProvider(
+                ConfigRowWrapper.LocalPadding provides ConfigRowWrapper.padding + PaddingValues(
+                    start = 24.dp,
+                    end = 8.dp
+                )
+            ) {
+                ConfigUiWrapper(it)
+            }
+        } else {
             ConfigUiWrapper(it)
         }
     }

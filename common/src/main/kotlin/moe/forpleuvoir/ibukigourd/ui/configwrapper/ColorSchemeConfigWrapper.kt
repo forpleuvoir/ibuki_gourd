@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.materialkolor.dynamicColorScheme
@@ -27,10 +30,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
@@ -128,6 +131,9 @@ fun ColorSchemeConfigWrapper(
     if (showEditDialog) {
         ColorSchemeEditDialog(
             config = config,
+            isDark = isDark,
+            selected = selected,
+            onSelect = onSelect,
             onDismiss = { showEditDialog = false },
         )
     }
@@ -179,9 +185,13 @@ private fun PalettePreview(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ColorSchemeEditDialog(
     config: ConfigList<NebulaColor>,
+    isDark: Boolean,
+    selected: NebulaColor,
+    onSelect: (NebulaColor) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val snapshot = remember { config.toList() }
@@ -200,6 +210,8 @@ private fun ColorSchemeEditDialog(
     }
 
     var showAddDialog by remember { mutableStateOf(false) }
+    var editIndex by remember { mutableStateOf<Int?>(null) }
+    var contextMenuIndex by remember { mutableStateOf<Int?>(null) }
 
     AlertDialog(
         onDismissRequest = {
@@ -231,29 +243,48 @@ private fun ColorSchemeEditDialog(
                             modifier = Modifier.padding(vertical = 16.dp),
                         )
                     } else {
-                        repeat(itemCount) { index ->
-                            val color = config.getOrNull(index) ?: return@repeat
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(color.toComposeColor)
-                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
-                                )
-                                Text(color.hexStr, style = MaterialTheme.typography.bodyMedium)
-                                Spacer(Modifier.weight(1f))
-                                IconButton(onClick = {
-                                    config.removeAt(index)
-                                    configVersion++
-                                }) {
-                                    Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            repeat(itemCount) { index ->
+                                val color = config.getOrNull(index) ?: return@repeat
+                                Box {
+                                    Box(
+                                        modifier = Modifier
+                                            .onPointerEvent(PointerEventType.Press) { event ->
+                                                if (event.button == PointerButton.Secondary) {
+                                                    contextMenuIndex = index
+                                                }
+                                            },
+                                    ) {
+                                        PalettePreview(
+                                            seed = color,
+                                            isDark = isDark,
+                                            selected = color == selected,
+                                            onClick = { onSelect(color) },
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = contextMenuIndex == index,
+                                        onDismissRequest = { contextMenuIndex = null },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(IGLang.Misc.edit) },
+                                            onClick = {
+                                                contextMenuIndex = null
+                                                editIndex = index
+                                            },
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(IGLang.Misc.remove) },
+                                            onClick = {
+                                                config.removeAt(index)
+                                                configVersion++
+                                                contextMenuIndex = null
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -288,19 +319,40 @@ private fun ColorSchemeEditDialog(
             onDismiss = { showAddDialog = false },
         )
     }
+
+    if (editIndex != null) {
+        val idx = editIndex!!
+        val currentColor = config.getOrNull(idx)
+        if (currentColor != null) {
+            AddColorDialog(
+                initialColor = currentColor,
+                title = IGLang.Misc.edit,
+                onConfirm = { newColor ->
+                    config[idx] = newColor
+                    configVersion++
+                    editIndex = null
+                },
+                onDismiss = { editIndex = null },
+            )
+        } else {
+            editIndex = null
+        }
+    }
 }
 
 @Composable
 private fun AddColorDialog(
+    initialColor: NebulaColor = NebulaColor.fromRGB(0x5B7FFF),
+    title: MutableText = IGLang.Misc.add,
     onConfirm: (NebulaColor) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var pendingColor by remember { mutableStateOf(NebulaColor.fromRGB(0x5B7FFF)) }
+    var pendingColor by remember { mutableStateOf(initialColor) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        title = { Text(IGLang.Misc.add) },
+        title = { Text(title) },
         text = {
             ColorPicker(
                 color = pendingColor,

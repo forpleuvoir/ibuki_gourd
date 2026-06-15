@@ -135,7 +135,7 @@ fun ModScreen(
 
                     if (footer != null) {
                         Spacer(Modifier.weight(1f))
-                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                        HorizontalDivider(Modifier.padding(vertical = 6.dp))
                         footer()
                         Spacer(Modifier.height(8.dp))
                     }

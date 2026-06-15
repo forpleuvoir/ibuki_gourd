@@ -11,8 +11,8 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import androidx.compose.material3.MaterialTheme
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
@@ -34,10 +34,8 @@ object ToastOverlayHost {
     fun init() {
         scene = CanvasLayersComposeScene(platformContext = binding)
         scene.setContent {
-            IGCompositionLocalProvider(
-                LocalSkiaSurface provides surface
-            ) {
-                IbukiGourdTheme {
+            IGCompositionLocalProvider(LocalSkiaSurface provides surface) {
+                MaterialTheme(colorScheme = ToastHandler.activeScheme) {
                     ToastContainer()
                 }
             }

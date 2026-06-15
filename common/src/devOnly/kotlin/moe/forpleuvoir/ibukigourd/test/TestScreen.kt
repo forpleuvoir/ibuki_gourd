@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.text.style.style
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
@@ -47,7 +48,7 @@ fun CenteredBox(content: @Composable BoxScope.() -> Unit) {
 
 @Composable
 fun TestScreen1() {
-    MaterialTheme(
+    IbukiGourdTheme(
         colorScheme = darkColorScheme(),
     ) {
         CenteredBox {

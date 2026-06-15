@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.toast
 
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -9,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
@@ -18,6 +20,20 @@ object ToastHandler {
     var maxVisible: Int = 1
 
     val EXIT_GRACE: Duration = 0.3.seconds
+
+    internal var activeScheme by mutableStateOf(IGConfig.Gui.Theme.colorScheme)
+        private set
+    private val schemeStack = mutableListOf<ColorScheme>()
+
+    fun enter(scheme: ColorScheme) {
+        schemeStack.add(scheme)
+        activeScheme = scheme
+    }
+
+    fun leave(scheme: ColorScheme) {
+        schemeStack.remove(scheme)
+        activeScheme = schemeStack.lastOrNull() ?: IGConfig.Gui.Theme.colorScheme
+    }
 
     private val lock = Any()
 
