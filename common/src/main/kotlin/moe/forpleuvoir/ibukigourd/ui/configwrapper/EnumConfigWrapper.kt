@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -45,14 +46,14 @@ fun <E : Enum<E>> EnumConfigWrapper(
                 value::class.java.enumConstants.maxOf {
                     textMeasurer.measure(it.translateText.toAnnotatedString()).size.width
                 }.toDp() + 20.dp
-            }
+            }.coerceAtLeast(160.dp)
         }
         EnumSelector(
             value,
             { value = it; config.setValue(it) },
-            modifier = modifier,
-            selectedLabel = {
-                Text(it.translateText, Modifier.width(maxWidth), overflow = TextOverflow.Ellipsis)
+            modifier = Modifier.width(maxWidth),
+            content = {
+                Text(it.translateText, overflow = TextOverflow.Ellipsis)
             },
         )
     }

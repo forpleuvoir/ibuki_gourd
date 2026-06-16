@@ -1,90 +1,71 @@
 package moe.forpleuvoir.ibukigourd.ui.preset
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.unit.coerceAtLeast
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Check
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowDown
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> Selector(
     selected: T,
+    onSelect: (T) -> Unit,
     items: List<T>,
-    selectedLabel: @Composable RowScope.(T) -> Unit,
-    itemLabel: @Composable (T, T, () -> Unit) -> Unit,
-    modifier: Modifier = Modifier,
+    itemEquals: (T, T) -> Boolean = { a, b -> a == b },
+    content: @Composable (T) -> Unit,
+    itemContent: @Composable (T, Boolean) -> Unit,
     enabled: Boolean = true,
-    shape: Shape = ButtonDefaults.outlinedShape,
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
-    elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
-    contentPadding: PaddingValues = PaddingValues(18.dp, 4.dp, 12.dp, 4.dp),
-    interactionSource: MutableInteractionSource? = null,
+    modifier: Modifier = Modifier,
+    itemLeadingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var buttonWidth by remember { mutableIntStateOf(0) }
 
-    var buttonTopPx by remember { mutableFloatStateOf(0f) }
-    var buttonBottomPx by remember { mutableFloatStateOf(0f) }
-
-    val density = LocalDensity.current
-    val windowHeightPx = LocalWindowInfo.current.containerSize.height.toFloat()
-    Box {
-        OutlinedButton(
-            onClick = { expanded = !expanded },
-            modifier = Modifier
-                .then(modifier)
-                .onSizeChanged { buttonWidth = it.width }
-                .onGloballyPositioned {
-                    buttonTopPx = it.positionInWindow().y
-                    buttonBottomPx = it.positionInWindow().y + it.size.height
-                },
-            shape = shape,
-            colors = colors,
-            elevation = elevation,
-            border = border,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-        ) {
-            selectedLabel(selected)
-            val rotation = remember { Animatable(0f) }
-            LaunchedEffect(expanded) {
-                rotation.animateTo(if (expanded) 180f else 0f, tween(200))
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier.defaultMinSize(minWidth = 160.dp, minHeight = 46.dp)
+    ) {
+        Box(Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                readOnly = true,
+                enabled = enabled,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                modifier = Modifier.fillMaxWidth().pointerHoverIcon(PointerIcon.Default, true)
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled)
+            )
+            Row(
+                Modifier.matchParentSize().padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                content(selected)
             }
-            Icon(Icons.KeyboardArrowDown, null, modifier = Modifier.rotate(rotation.value))
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .heightIn(max = with(density) {
-                    ((buttonTopPx.coerceAtLeast(windowHeightPx - buttonBottomPx)).toDp() - 64.dp).coerceAtLeast(0.dp)
-                })
-        ) {
-            items.forEach { t ->
-                itemLabel(selected, t) { expanded = false }
+        ExposedDropdownMenu(expanded, onDismissRequest = { expanded = false }) {
+            items.forEach { item ->
+                val isSelected = itemEquals(selected, item)
+                DropdownMenuItem(
+                    modifier = if (isSelected) Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) else Modifier,
+                    leadingIcon = itemLeadingIcon?.let { predicate ->
+                        predicate(isSelected)?.let { { it.invoke(item) } }
+                    },
+                    text = { itemContent(item, isSelected) },
+                    trailingIcon = itemTrailingIcon?.let { predicate ->
+                        predicate(isSelected)?.let { { it.invoke(item) } }
+                    },
+                    onClick = { onSelect(item); expanded = false },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
             }
         }
     }
@@ -96,43 +77,30 @@ fun <T> Selector(
 fun StringSelector(
     selected: String,
     onSelect: (String) -> Unit,
-    options: List<String>,
-    selectedLabel: @Composable RowScope.(String) -> Unit = {
-        Text(it, modifier = Modifier)
-    },
-    itemLabel: @Composable (String, String, () -> Unit) -> Unit = { selected, item, close ->
-        DropdownMenuItem(
-            selected = item == selected,
-            onClick = { onSelect(item); close() },
-            text = { Text(item) },
-            shapes = MenuDefaults.itemShapes(),
-            selectedLeadingIcon = { Icon(Icons.Check, null) },
-            interactionSource = remember { MutableInteractionSource() }
-        )
-    },
-    modifier: Modifier = Modifier,
+    items: List<String>,
+    itemEquals: (String, String) -> Boolean = { a, b -> a == b },
     enabled: Boolean = true,
-    shape: Shape = ButtonDefaults.outlinedShape,
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
-    elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
-    contentPadding: PaddingValues = PaddingValues(18.dp, 4.dp, 12.dp, 4.dp),
-    interactionSource: MutableInteractionSource? = null
-) {
-    Selector(
-        selected = selected,
-        items = options,
-        selectedLabel = selectedLabel,
-        itemLabel = itemLabel,
-        modifier = modifier,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-    )
-}
+    modifier: Modifier = Modifier,
+    content: @Composable (String) -> Unit = {
+        Text(it)
+    },
+    itemContent: @Composable (String, Boolean) -> Unit = { item, _ ->
+        Text(item)
+    },
+    itemLeadingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
+) = Selector(
+    selected = selected,
+    onSelect = onSelect,
+    items = items,
+    itemEquals = itemEquals,
+    enabled = enabled,
+    modifier = modifier,
+    content = content,
+    itemContent = itemContent,
+    itemLeadingIcon = itemLeadingIcon,
+    itemTrailingIcon = itemTrailingIcon
+)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -140,51 +108,30 @@ fun <E : Enum<E>> EnumSelector(
     selected: E,
     onSelect: (E) -> Unit,
     items: List<E> = selected::class.java.enumConstants.toList(),
-    display: (E) -> Text = { it.translateText },
-    commentDisplay: (E) -> Text = { it.translateComment },
-    selectedLabel: @Composable RowScope.(E) -> Unit = {
-        Text(display(it), modifier = Modifier)
+    itemEquals: (E, E) -> Boolean = { a, b -> a == b },
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
+    content: @Composable (E) -> Unit = {
+        Text(it.translateText)
     },
-    itemLabel: @Composable (E, E, () -> Unit) -> Unit = { selected, item, close ->
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Left),
-            tooltip = {
-                PlainTooltip {
-                    Text(commentDisplay(item), maxLines = 1)
-                }
-            },
-            state = rememberTooltipState(),
-        ) {
-            DropdownMenuItem(
-                selected = item == selected,
-                onClick = { onSelect(item); close() },
-                text = { Text(display(item), maxLines = 1) },
-                shapes = MenuDefaults.itemShapes(),
-                selectedLeadingIcon = { Icon(Icons.Check, null) },
-                interactionSource = remember { MutableInteractionSource() }
-            )
+    itemContent: @Composable (E, Boolean) -> Unit = { item, _ ->
+        TipBox({
+            Text(item.translateComment)
+        }) {
+            Text(item.translateText)
         }
     },
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shape: Shape = ButtonDefaults.outlinedShape,
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
-    elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
-    contentPadding: PaddingValues = PaddingValues(18.dp, 4.dp, 12.dp, 4.dp),
-    interactionSource: MutableInteractionSource? = null
-) {
-    Selector(
-        selected = selected,
-        items = items,
-        selectedLabel = selectedLabel,
-        itemLabel = itemLabel,
-        modifier = modifier,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource
-    )
-}
+    itemLeadingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
+) = Selector(
+    selected = selected,
+    onSelect = onSelect,
+    items = items,
+    itemEquals = itemEquals,
+    enabled = enabled,
+    modifier = modifier,
+    content = content,
+    itemContent = itemContent,
+    itemLeadingIcon = itemLeadingIcon,
+    itemTrailingIcon = itemTrailingIcon
+)

@@ -34,7 +34,7 @@ val Icons.ArrowBack: ImageVector
                         strokeLineCap = StrokeCap.Butt,
                         strokeLineJoin = StrokeJoin.Bevel,
                         strokeLineMiter = 1f,
-                        pathFillType = PathFillType.Companion.NonZero,
+                        pathFillType = PathFillType.NonZero,
                     ) {
                         moveTo(7.83f, 13f)
                         lineToRelative(4.9f, 4.9f)

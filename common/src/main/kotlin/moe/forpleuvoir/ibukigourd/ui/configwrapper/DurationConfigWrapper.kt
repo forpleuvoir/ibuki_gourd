@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
 import moe.forpleuvoir.nebula.config.pathWithRoot
@@ -110,7 +111,7 @@ fun DurationConfigWrapper(
                 text = {
                     IGCompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                            verticalAlignment = Alignment.Bottom
                         ) {
                             DoubleField(
                                 state,
@@ -130,7 +131,7 @@ fun DurationConfigWrapper(
                                 unit = it
                                 state = duration.toDouble(unit)
                                 durationRange = if (range != null) range.start.toDouble(unit)..range.endInclusive.toDouble(unit) else null
-                            }, modifier = Modifier.widthIn(min = 100.dp))
+                            }, modifier = Modifier.width(100.dp))
                         }
                     }
                 },

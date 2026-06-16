@@ -350,9 +350,6 @@ fun KeybindSettingColumn(
             selected = keybindSetting.env,
             onSelect = { onValueChange(keybindSetting.copy(env = it)) },
             modifier = Modifier.fillMaxWidth(),
-            selectedLabel = {
-                Text(it.translateText, modifier = Modifier.weight(1f))
-            },
         )
 
         Spacer(Modifier.height(12.dp))
@@ -362,13 +359,19 @@ fun KeybindSettingColumn(
             Text(IGLang.Input.KeybindSetting.trigger)
         }
         Spacer(Modifier.height(4.dp))
+
         EnumSelector(
             selected = keybindSetting.trigger,
             onSelect = { onValueChange(keybindSetting.copy(trigger = it)) },
-            display = { it.displayName },
-            commentDisplay = { it.comment },
-            selectedLabel = {
-                Text(it.displayName, modifier = Modifier.weight(1f))
+            content = {
+                Text(it.displayName)
+            },
+            itemContent = { item, _ ->
+                TipBox({
+                    Text(item.translateComment)
+                }) {
+                    Text(item.displayName)
+                }
             },
             modifier = Modifier.fillMaxWidth(),
         )

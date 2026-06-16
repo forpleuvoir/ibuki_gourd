@@ -29,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.ArrowBack
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowLeft
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Search
@@ -301,7 +302,7 @@ private fun SearchPanel(
                 }
                 if (textFieldState.text.isNotEmpty()) {
                     IconButton(onClick = { textFieldState.edit { replace(0, length, "") } }) {
-                        Icon(Icons.Delete, null)
+                        Icon(Icons.Close, null)
                     }
                 }
             }

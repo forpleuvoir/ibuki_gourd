@@ -113,12 +113,12 @@ object Material3ContextMenuRepresentation : ContextMenuRepresentation {
                                         state.status = ContextMenuState.Status.Closed
                                     },
                                     leadingIcon = {
-                                        val icon = when (index) {
-                                            0    -> Icons.ContentCut
-                                            1    -> Icons.ContentCopy
-                                            2    -> Icons.ContentPaste
-                                            3    -> Icons.SelectAll
-                                            else -> null
+                                        val icon = when (item.label) {
+                                            IGLang.Misc.cut.plainText       -> Icons.ContentCut
+                                            IGLang.Misc.copy.plainText      -> Icons.ContentCopy
+                                            IGLang.Misc.paste.plainText     -> Icons.ContentPaste
+                                            IGLang.Misc.selectAll.plainText -> Icons.SelectAll
+                                            else                            -> null
                                         }
                                         icon?.let { Icon(it, contentDescription = null) }
                                     },

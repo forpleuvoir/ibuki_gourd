@@ -15,12 +15,7 @@ import java.awt.datatransfer.Transferable
 
 /**
  * 弹出层可能需要手动提供此对象
- * ```kotlin
- *  CompositionTextContextProvider {
- *      //TODO
- *  }
- *
- * ```
+ * @see IGCompositionLocalProvider
  */
 object MinecraftClipboard : Clipboard {
 

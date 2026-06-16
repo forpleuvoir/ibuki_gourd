@@ -110,7 +110,8 @@ fun TestScreen2() {
                 StringSelector(
                     selected,
                     { selected = it },
-                    options = list.map { "这是第${it}个" }
+                    items = list.map { "这是第${it}个" },
+                    modifier = Modifier.width(160.dp)
                 )
             }
             LazyColumn(
@@ -147,7 +148,8 @@ fun TestScreen2() {
             EnumSelector(
                 selected,
                 { selected = it },
-                items = enumEntries<Direction>()
+                items = enumEntries<Direction>(),
+                modifier = Modifier.width(320.dp)
             )
 
             var keyCode by remember { mutableStateOf<KeyCode>(MouseButton.BUTTON_4) }
