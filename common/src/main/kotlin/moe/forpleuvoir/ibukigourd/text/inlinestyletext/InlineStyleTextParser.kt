@@ -109,8 +109,12 @@ object InlineStyleTextParser {
                     }
                     idx += 1
                 }
-                //收集最有一个表达式片断
+                // 收集最后一个表达式片段（如果存在）
                 if (idx > start && idx <= chars.size) {
+                    this += Token.Expression(input.substring(start, idx))
+                }
+                //检查并添加 ControlEnd
+                if (idx < chars.size && chars[idx] == '}') {
                     this += Token.ControlEnd
                     idx += 1
                 }
@@ -121,7 +125,7 @@ object InlineStyleTextParser {
                     idx += 1
                 }
                 if (idx > start) {
-                    this += Token.Expression(input.substring(start, idx))
+                    this += Token.Literal(input.substring(start, idx))
                 }
             }
         }

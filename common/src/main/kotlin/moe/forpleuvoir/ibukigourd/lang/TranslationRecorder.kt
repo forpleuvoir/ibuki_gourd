@@ -4,7 +4,7 @@ import net.minecraft.locale.Language
 import java.nio.file.Files
 import java.nio.file.Path
 
-object TranslationRecorder {
+class TranslationRecorder(private val onlyMissing: Boolean = false) {
 
     private val records: MutableSet<String> = LinkedHashSet()
 
@@ -13,9 +13,11 @@ object TranslationRecorder {
     var categorizer: (String) -> String = { "default" }
 
     fun record(key: String) {
-        if (Language.getInstance().has(key)) {
-            records.remove(key)
-            return
+        if (onlyMissing) {
+            if (Language.getInstance().has(key)) {
+                records.remove(key)
+                return
+            }
         }
         if (filters.any { it(key) }) {
             records.add(key)

@@ -7,12 +7,8 @@ run
 runs
 server_run
 /src/test/**
-.fabric
-.kotlin
-.lingma
-.idea
-.qoder
 /net
-.vscode
 modJar
 out
+common/src/devOnly/lang
+.*/

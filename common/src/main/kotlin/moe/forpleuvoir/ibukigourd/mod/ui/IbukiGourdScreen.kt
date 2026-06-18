@@ -9,6 +9,8 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -32,7 +34,7 @@ fun IbukiGourdScreen(
             },
             items = listOf(
                 DrawerItem(
-                    label = { Text(IGConfig.translateText) },
+                    label = { Text(InlineStyleText(IGConfig.translateText.plainText)) },
                     icon = { Icon(Icons.Filled.Settings, null) },
                 ) {
                     ConfigManagerWrapper(IGConfig)

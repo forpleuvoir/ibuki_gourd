@@ -15,14 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigList
@@ -129,7 +130,7 @@ private fun <E : Any> EditDialog(
         onDismissRequest = onCancel,
         modifier = dialogModifier,
         properties = properties,
-        title = { Text(config.translateText) },
+        title = { Text(InlineStyleText(config.translateText.plainText)) },
         text = {
             IGCompositionLocalProvider {
                 Box(

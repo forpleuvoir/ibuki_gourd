@@ -27,6 +27,8 @@ import moe.forpleuvoir.ibukigourd.config.matchWithTranslate
 import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.ArrowBack
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
@@ -76,16 +78,16 @@ fun GroupConfigsWrapper(
                     text = {
                         val selected = selectedTabIndex == index
                         TipBox({
-                            Text(group.translateComment)
+                            Text(InlineStyleText(group.translateComment.plainText))
                         }) {
                             if (selected) {
-                                Text(group.translateText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(InlineStyleText(group.translateText.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             } else {
                                 val style = LocalTextStyle.current.copy(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 ProvideTextStyle(style) {
-                                    Text(group.translateText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Text(InlineStyleText(group.translateText.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 }
                             }
                         }
@@ -159,7 +161,7 @@ fun ConfigManagerWrapper(
                     groups.fastForEachIndexed { index, (group) ->
                         Spacer(Modifier.height(8.dp))
                         TipBox(
-                            { Text(group.translateComment) },
+                            { Text(InlineStyleText(group.translateComment.plainText)) },
                             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.End)
                         ) {
                             NavigationDrawerItem(
@@ -168,7 +170,7 @@ fun ConfigManagerWrapper(
                                     .padding(NavigationDrawerItemDefaults.ItemPadding),
                                 shape = MaterialTheme.shapes.large,
                                 label = {
-                                    Text(group.translateText, overflow = TextOverflow.Ellipsis)
+                                    Text(InlineStyleText(group.translateText.plainText), overflow = TextOverflow.Ellipsis)
                                 },
                                 selected = index == selectedGroup && !showSearch,
                                 onClick = {

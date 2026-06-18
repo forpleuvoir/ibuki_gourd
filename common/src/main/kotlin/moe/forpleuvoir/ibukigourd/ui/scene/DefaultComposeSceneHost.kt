@@ -111,4 +111,3 @@ open class DefaultComposeSceneHost(
     override fun keyReleased(event: KeyEvent) =
         inputBridge.keyReleased(event)
 }
-

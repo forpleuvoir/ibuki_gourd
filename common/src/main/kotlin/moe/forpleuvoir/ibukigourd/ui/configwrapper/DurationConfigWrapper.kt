@@ -15,6 +15,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
@@ -107,7 +108,7 @@ fun DurationConfigWrapper(
             var duration by remember { mutableStateOf(state.toDuration(unit)) }
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text(config.translateText.plainText) },
+                title = { Text(InlineStyleText(config.translateText.plainText)) },
                 text = {
                     IGCompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                         Row(

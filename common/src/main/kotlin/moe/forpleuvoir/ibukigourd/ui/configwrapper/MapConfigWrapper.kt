@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.*
@@ -134,7 +135,7 @@ private fun <V : Any> MapEditDialog(
         onDismissRequest = onCancel,
         modifier = dialogModifier,
         properties = properties,
-        title = { Text(config.translateText) },
+        title = { Text(InlineStyleText(config.translateText.plainText)) },
         text = {
             IGCompositionLocalProvider {
                 Box(

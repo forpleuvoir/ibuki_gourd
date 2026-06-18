@@ -4,8 +4,10 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import moe.forpleuvoir.ibukigourd.command.clientSource
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
+import moe.forpleuvoir.ibukigourd.config.exportTranslateKeys
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegistrationEvent
 import moe.forpleuvoir.ibukigourd.lang.TranslationRecorder
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.commands.SharedSuggestionProvider
@@ -21,9 +23,15 @@ object TestCommand : Initializable {
 
     context(context: CommandDispatcher<out SharedSuggestionProvider>)
     fun testCommand() = registerCommand("igtest") {
-        "dump_lang" {
+        "config_keys" {
             execute {
-                TranslationRecorder.dump(Path("../../../common/src/devOnly/lang"))
+                val recorder = TranslationRecorder(false)
+                recorder.categorizer = { "config" }
+                recorder.addFilter { true }
+                IGConfig.exportTranslateKeys().forEach {
+                    recorder.record(it)
+                }
+                recorder.dump(Path("../../../common/src/devOnly/lang"))
             }
         }
         execute {

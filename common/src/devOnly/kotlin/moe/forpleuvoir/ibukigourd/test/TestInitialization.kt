@@ -20,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigUiWrapper
+import moe.forpleuvoir.ibukigourd.ui.open
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
@@ -50,23 +51,6 @@ class TestInitialization : ModInitialization {
             ComposeSceneWarmup.warmUp { ConfigTest() }
             ComposeSceneWarmup.warmUp { ConfigTest() }
             ComposeSceneWarmup.warmUp()
-        }
-
-        TranslationRecorder.addFilter {
-            it.startsWith("ibukigourd.") && !it.startsWith("ibukigourd.config.test")
-        }
-        TranslationRecorder.addFilter {
-            it.startsWith("enum.")
-        }
-        TranslationRecorder.categorizer = {
-            when {
-                it.startsWith("enum.")                      -> "enum"
-                it.startsWith("ibukigourd.misc.")           -> "misc"
-                it.startsWith("ibukigourd.input.")          -> "input"
-                it.startsWith("ibukigourd.config_wrapper.") -> "config_wrapper"
-                it.startsWith("ibukigourd.color.")          -> "color"
-                else                                        -> "default"
-            }
         }
 
         ClientModConfigHandler.register(TestConfig)
@@ -113,6 +97,9 @@ class TestInitialization : ModInitialization {
                 }
             }
 
+            register(Keyboard.KP_6) {
+                TestVanillaScreen().open()
+            }
 
             register(Keyboard.KP_7) {
                 openComposeScreen {

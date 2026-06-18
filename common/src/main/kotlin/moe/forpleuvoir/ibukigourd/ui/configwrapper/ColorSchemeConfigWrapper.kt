@@ -30,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -220,7 +221,7 @@ private fun ColorSchemeEditDialog(
             onDismiss()
         },
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        title = { Text(config.translateText) },
+        title = { Text(InlineStyleText(config.translateText.plainText)) },
         text = {
             Box(
                 modifier = Modifier

@@ -1,8 +1,11 @@
 package moe.forpleuvoir.ibukigourd.config
 
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.nebula.config.ConfigManager
 import moe.forpleuvoir.nebula.config.ConfigNode
+import moe.forpleuvoir.nebula.config.flat
 import moe.forpleuvoir.nebula.config.path
+import net.minecraft.locale.Language
 
 fun ConfigNode.translationKey(
     prefix: String = this.root.let {
@@ -65,3 +68,22 @@ fun ConfigNode.matchWithTranslate(regex: Regex): Boolean =
             || regex.containsMatchIn(translationKey())
             || regex.containsMatchIn(translateText.plainText)
             || regex.containsMatchIn(translateComment.plainText)
+
+
+fun ConfigManager.exportTranslateKeys(onlyMissing: Boolean = false, withComment: Boolean = true): List<String> {
+    return buildList {
+        flat.forEach {
+            val key = it.translationKey()
+            val comment = it.translationKey() + ".comment"
+            if (onlyMissing) {
+                if (!Language.getInstance().has(key))
+                    add(key)
+                if (withComment && !Language.getInstance().has(comment))
+                    add(comment)
+            } else {
+                add(key)
+                if (withComment) add(comment)
+            }
+        }
+    }
+}
