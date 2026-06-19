@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.util.math.bezier
+package moe.forpleuvoir.ibukigourd.util.math.easing
 
 import kotlin.math.pow
 

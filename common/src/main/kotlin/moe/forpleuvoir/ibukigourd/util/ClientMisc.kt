@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.util
 
+import androidx.compose.ui.unit.IntSize
 import com.mojang.blaze3d.platform.Window
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
@@ -12,9 +13,9 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager
 
 val mc: Minecraft by lazy { Minecraft.getInstance() }
 
-val Window.size get() = Size(this.width, this.height)
+val Window.size get() = IntSize(this.width, this.height)
 
-val Window.scaledSize get() = Size(this.guiScaledWidth, this.guiScaledHeight)
+val Window.scaledSize get() = IntSize(this.guiScaledWidth, this.guiScaledHeight)
 
 val textRenderer: Font by lazy { mc.font }
 

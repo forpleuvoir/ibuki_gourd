@@ -28,12 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import moe.forpleuvoir.ibukigourd.render.extension.pushItem
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.util.render.SkiaItemRenderHelper
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
@@ -108,31 +108,12 @@ fun ItemIconVanilla(
                     val spacerX = coords.positionInWindow().x * density
                     val spacerY = coords.positionInWindow().y * density
 
-                    val x = spacerX / xScale
-                    val y = spacerY / yScale
-
-                    val xi = x.toInt()
-                    val yi = y.toInt()
-
                     //原版在 guiScale != 0 的情况下裁剪并不精准
                     enableScissor(clipLeft.toInt() - 1, clipTop.toInt() - 1, (clipLeft + clipWidth).toInt() + 2, (clipTop + clipHeight).toInt() + 2)
 
-                    // 应用矩阵变换后调用原版渲染方法绘制物品
-                    pose().pushMatrix()
-                    pose().scale(xScale, yScale)
-                    pose().translate(x - xi, y - yi)
-
-
-                    fakeItem(item, xi, yi)
-
-                    // 堆叠数大于 1 时在右下角绘制数量文本
-                    if (showCount && count > 1) {
-                        val count = count.toString()
-                        text(textRenderer, count, xi + 16 - textRenderer.width(count), yi + textRenderer.lineHeight - 1, -1, true)
-                    }
+                    pushItem(item, spacerX, spacerY, ScaleFactor(xScale, yScale), showCount = showCount)
 
                     disableScissor()
-                    pose().popMatrix()
 
                     // 悬停时渲染原版物品提示框
                     if (showTooltip && hovered) {

@@ -29,6 +29,12 @@
         "adapter": "kotlin",
         "value": "moe.forpleuvoir.ibukigourd.FabricIbukiGourdClient"
       }
+    ],
+    "modmenu": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.forpleuvoir.ibukigourd.compat.ModMenuImpl"
+      }
     ]
   },
   "mixins": [

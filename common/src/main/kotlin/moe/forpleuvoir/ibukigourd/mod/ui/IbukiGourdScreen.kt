@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.mod.ui
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,9 +25,15 @@ import net.minecraft.client.gui.screens.Screen
 
 fun IbukiGourdScreen(
     pauseGame: Boolean = false,
-    renderParent: Boolean = true,
+    renderParent: Boolean = false,
     parentScreen: Screen? = mc.screen,
-) = ComposeScreen(pauseGame, renderParent, parentScreen) {
+    shouldRenderLevel: Boolean = true,
+) = ComposeScreen(pauseGame, renderParent, parentScreen, shouldRenderLevel) {
+    IbukiGourdScreenContent()
+}
+
+@Composable
+internal fun IbukiGourdScreenContent() {
     IbukiGourdTheme {
         ModScreen(
             title = {

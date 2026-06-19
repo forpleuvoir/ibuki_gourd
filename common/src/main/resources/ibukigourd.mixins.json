@@ -9,9 +9,12 @@
   ],
   "client": [
     "client.GameRendererMixin",
+    "client.GuiGraphicsExtractorMixin",
+    "client.GuiTextRenderStateMixin",
     "client.KeyboardHandlerMixin",
     "client.MinecraftMixin",
     "client.MouseHandlerMixin",
+    "client.RenderPipelinesAccessor",
     "client.WindowMixin"
   ],
   "injectors": {

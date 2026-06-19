@@ -11,27 +11,45 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.lang.IGLang
+import androidx.compose.ui.unit.roundToIntRect
+import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.render.extension.pushAlignmentText
+import moe.forpleuvoir.ibukigourd.render.extension.pushBlit
+import moe.forpleuvoir.ibukigourd.render.extension.pushHueGradientRect
+import moe.forpleuvoir.ibukigourd.render.extension.pushRectOutline
+import moe.forpleuvoir.ibukigourd.render.extension.pushRoundRect
+import moe.forpleuvoir.ibukigourd.render.extension.pushSaturationGradientRect
+import moe.forpleuvoir.ibukigourd.render.extension.pushStringLines
+import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
+import moe.forpleuvoir.ibukigourd.render.extension.pushValueGradientRect
+import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
+import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
+import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.level.block.Blocks
 import java.net.URI
 import kotlin.enums.enumEntries
 
@@ -172,4 +190,54 @@ fun TestScreen2() {
             }
         }
     }
+}
+
+
+@Composable
+fun TestScreen4() {
+    VanillaCanvas(modifier = Modifier.fillMaxSize()) {
+        TestScreen4Render.render(this, it)
+    }
+}
+
+private object TestScreen4Render {
+
+    private val icon = IGTexture(Corner(), 0, 0, 32, 32, TextureInfo(32, 32, identifier(IbukiGourd.MOD_ID, "icon.png")))
+
+    fun render(extractor: GuiGraphicsExtractor, context: VanillaCanvasDrawContext) {
+        extractor.apply {
+            pushHueGradientRect(
+                Rect(Offset(0f, 0f), Size(120f, 20f)),
+            )
+
+            pushSaturationGradientRect(
+                Rect(Offset(130f, 0f), Size(120f, 20f)),
+            )
+
+            pushValueGradientRect(
+                Rect(Offset(260f, 0f), Size(120f, 20f)),
+            )
+
+            pushRoundRect(
+                Rect(Offset(0f, 30f), Size(120f, 20f)),
+                Colors.AQUA.alpha(0.5f),
+                6
+            )
+            pushBlit(
+                Rect(Offset(0f, 60f), Size(40f, 40f)),
+                icon
+            )
+            context.area?.let {
+                pushStringLines(
+                    listOf(
+                        "alpha : ${context.alpha}",
+                        "pos: ${it.topLeft}, size: ${it.size}"
+                    ), area = it.roundToIntRect()
+                )
+                pushRectOutline(it, Colors.LIME.alpha(0.75f * context.alpha), inner = true)
+            }
+
+        }
+    }
+
 }

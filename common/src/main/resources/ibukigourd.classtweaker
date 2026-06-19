@@ -13,6 +13,8 @@ accessible field net/minecraft/network/chat/Style strikethrough Ljava/lang/Boole
 accessible field net/minecraft/network/chat/Style obfuscated Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style font Lnet/minecraft/network/chat/FontDescription;
 
+accessible class net/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack
+
 #MinecraftServer
 accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
 accessible field net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess levelDirectory Lnet/minecraft/world/level/storage/LevelStorageSource$LevelDirectory;

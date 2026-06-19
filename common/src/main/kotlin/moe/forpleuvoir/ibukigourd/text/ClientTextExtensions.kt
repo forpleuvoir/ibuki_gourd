@@ -1,8 +1,7 @@
 package moe.forpleuvoir.ibukigourd.text
 
+import androidx.compose.ui.geometry.Size
 import moe.forpleuvoir.ibukigourd.text.style.style
-import moe.forpleuvoir.ibukigourd.util.Size
-import moe.forpleuvoir.ibukigourd.util.SizeFloat
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import net.minecraft.network.chat.Component
@@ -11,11 +10,11 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.util.FormattedCharSequence
 
 @JvmName("textSize")
-fun Iterable<FormattedText>.size(spacing: Float): SizeFloat {
+fun Iterable<FormattedText>.size(spacing: Float): Size {
     return Size(this.maxWidth, this.totalHeight(spacing))
 }
 
-fun Iterable<String>.size(spacing: Float): SizeFloat {
+fun Iterable<String>.size(spacing: Float): Size {
     return Size(this.maxWidth, this.totalHeight(spacing))
 }
 

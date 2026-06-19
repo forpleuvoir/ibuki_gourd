@@ -25,7 +25,7 @@ object TestCommand : Initializable {
     fun testCommand() = registerCommand("igtest") {
         "config_keys" {
             execute {
-                val recorder = TranslationRecorder(false)
+                val recorder = TranslationRecorder(false, keepExisting = true)
                 recorder.categorizer = { "config" }
                 recorder.addFilter { true }
                 IGConfig.exportTranslateKeys().forEach {

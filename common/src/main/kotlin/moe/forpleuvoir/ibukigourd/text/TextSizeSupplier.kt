@@ -1,15 +1,14 @@
 package moe.forpleuvoir.ibukigourd.text
 
-import moe.forpleuvoir.ibukigourd.util.Size
-import moe.forpleuvoir.ibukigourd.util.SizeFloat
+import androidx.compose.ui.geometry.Size
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import net.minecraft.network.chat.FormattedText
 import net.minecraft.util.FormattedCharSequence
 
 interface TextSizeSupplier {
-    fun size(text: String?): SizeFloat
-    fun size(text: FormattedText): SizeFloat
-    fun size(text: FormattedCharSequence): SizeFloat
+    fun size(text: String?): Size
+    fun size(text: FormattedText): Size
+    fun size(text: FormattedCharSequence): Size
 
     fun width(text: String?): Float
     fun width(text: FormattedText): Float
@@ -22,17 +21,17 @@ interface TextSizeSupplier {
 
 
     companion object : TextSizeSupplier {
-        override fun size(text: String?): SizeFloat = Size(
+        override fun size(text: String?): Size = Size(
             textRenderer.splitter.stringWidth(text),
             textRenderer.lineHeight.toFloat()
         )
 
-        override fun size(text: FormattedText): SizeFloat = Size(
+        override fun size(text: FormattedText): Size = Size(
             textRenderer.splitter.stringWidth(text),
             textRenderer.lineHeight.toFloat()
         )
 
-        override fun size(text: FormattedCharSequence): SizeFloat = Size(
+        override fun size(text: FormattedCharSequence): Size = Size(
             textRenderer.splitter.stringWidth(text),
             textRenderer.lineHeight.toFloat()
         )
@@ -60,9 +59,9 @@ interface TextSizeSupplier {
 @PublishedApi
 internal var textWidthSupplier: TextSizeSupplier = TextSizeSupplier
 
-inline val String?.size: SizeFloat get() = textWidthSupplier.size(this)
-inline val FormattedText.size: SizeFloat get() = textWidthSupplier.size(this)
-inline val FormattedCharSequence.size: SizeFloat get() = textWidthSupplier.size(this)
+inline val String?.size: Size get() = textWidthSupplier.size(this)
+inline val FormattedText.size: Size get() = textWidthSupplier.size(this)
+inline val FormattedCharSequence.size: Size get() = textWidthSupplier.size(this)
 
 inline val String?.width: Float get() = textWidthSupplier.width(this)
 inline val FormattedText.width: Float get() = textWidthSupplier.width(this)

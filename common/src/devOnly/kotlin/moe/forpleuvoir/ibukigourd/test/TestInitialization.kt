@@ -1,11 +1,8 @@
 package moe.forpleuvoir.ibukigourd.test
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
@@ -15,7 +12,6 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.lang.TranslationRecorder
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
@@ -24,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.ui.open
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -46,10 +41,6 @@ class TestInitialization : ModInitialization {
             println(measureTime {
                 ComposeSceneWarmup.warmUp { ConfigTest() }
             })
-            ComposeSceneWarmup.warmUp { ConfigTest() }
-            ComposeSceneWarmup.warmUp { ConfigTest() }
-            ComposeSceneWarmup.warmUp { ConfigTest() }
-            ComposeSceneWarmup.warmUp { ConfigTest() }
             ComposeSceneWarmup.warmUp()
         }
 
@@ -96,7 +87,11 @@ class TestInitialization : ModInitialization {
                     }
                 }
             }
-
+            register(Keyboard.KP_4) {
+                openComposeScreen {
+                    TestScreen4()
+                }
+            }
             register(Keyboard.KP_6) {
                 TestVanillaScreen().open()
             }

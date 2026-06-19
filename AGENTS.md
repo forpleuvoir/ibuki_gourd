@@ -153,6 +153,9 @@ gradlew.bat :common:test
 - **异步**：`kotlinx.coroutines`（`runBlocking`、`ioLaunch`、`ioAsync`、`awaitAll`）；计时用 `kotlin.time.Duration`。
 - **注释与文档用中文**，与现有代码、commit message、README 主语言保持一致。
 - **i18n**：新增界面文案走 lang key，统一登记到 `IGLang` 子对象，资源文件在 `assets/ibukigourd/lang/`。
+- **翻译用词规范**（zh_CN）：
+  - **keybind**（`Keybind` / `keybind` 相关）→ 译为 **"快捷键"**，如"按键绑定冲突"→"快捷键冲突"。
+  - **keycode**（单纯的按键码设置，如滚轮倍率触发键 `*_key_code`）→ 译为 **"按键"**，如"滚动倍率按键码Ⅰ"→"滚动倍率按键Ⅰ"。
 - **资源模板**：`processResources` 会用 `gradle.properties` / `libs.versions.toml` 的占位符展开 `fabric.mod.json`、`*.mixins.json`、`pack.mcmeta`、`META-INF/{,neoforge.}mods.toml`，**新增这类文件中的版本字段一律用占位符**（如 `${version}`、`${minecraft_version}`）。
 
 ## Git 与提交
