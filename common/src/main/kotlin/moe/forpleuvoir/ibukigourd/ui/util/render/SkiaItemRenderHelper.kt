@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.asComposeImageBitmap
 import com.mojang.blaze3d.ProjectionType
 import com.mojang.blaze3d.platform.Lighting
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.ByteBufferBuilder
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
@@ -14,7 +13,10 @@ import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.OutlineBufferSource
+import net.minecraft.client.renderer.Projection
+import net.minecraft.client.renderer.ProjectionMatrixBuffer
+import net.minecraft.client.renderer.SubmitNodeStorage
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState
 import net.minecraft.client.renderer.texture.OverlayTexture
@@ -28,6 +30,7 @@ import net.minecraft.world.level.Level
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ImageInfo
+import java.util.*
 import kotlin.time.TimeSource
 
 object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceReloaderListener<Unit>() {
@@ -35,6 +38,8 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
     override val identifier: Identifier = identifier("skia_item")
 
     private val logger = logger()
+
+    private val itemRenderer = ItemFeatureRenderer()
 
     private data class ItemCacheKey(
         val itemModel: Identifier?,
@@ -52,7 +57,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         }
     }
 
-    private val itemImageCache = LinkedHashMap<ItemCacheKey, ImageBitmap>(16, 0.75f, false)
+    private val itemImageCache = LinkedHashMap<ItemCacheKey, ImageBitmap>(16, 0.75f, true)
     private var totalCacheArea: Long = 0
     private const val MAX_CACHE_AREA: Long = 16_777_216
 
@@ -65,17 +70,18 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
         itemImageCache[cacheKey]?.let { return it }
 
-        val oldGuiScale = mc.window.guiScale
-        mc.window.guiScale = 2
+//        val oldGuiScale = mc.window.guiScale
+//        mc.window.guiScale = 2
         val target = OffscreenRenderTarget("skia_item", width, height)
         val device = RenderSystem.getDevice()
         val encoder = device.createCommandEncoder()
 
         try {
-            encoder.clearColorAndDepthTextures(
-                target.requireColorTexture(), 0,
-                target.requireDepthTexture(), 1.0
-            )
+            encoder.createRenderPass(
+                { "skia_item_clear" },
+                target.requireColorTextureView(), OptionalInt.of(0),
+                target.requireDepthTextureView(), OptionalDouble.of(1.0)
+            ).use { }
 
             val itemState = TrackingItemStackRenderState()
             mc.itemModelResolver.updateForTopItem(
@@ -99,29 +105,34 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
                 val poseStack = PoseStack()
                 poseStack.translate(width / 2.0, height / 2.0, 0.0)
-                poseStack.scale(width.toFloat(), -width.toFloat(), 1f)
+                poseStack.scale(width.toFloat(), -width.toFloat(), width.toFloat())
 
-                mc.gameRenderer.lighting.setupFor(Lighting.Entry.ITEMS_FLAT)
+                val lighting = if (itemState.usesBlockLight()) Lighting.Entry.ITEMS_3D else Lighting.Entry.ITEMS_FLAT
+                mc.gameRenderer.lighting.setupFor(lighting)
+
                 RenderSystem.enableScissorForRenderTypeDraws(0, 0, width, height)
 
-                val byteBuffer = ByteBufferBuilder(786432)
-                val bufferSource = MultiBufferSource.immediate(byteBuffer)
+//                val byteBuffer = ByteBufferBuilder(786432)
+//                val bufferSource = MultiBufferSource.immediate(byteBuffer)
+
+                val bufferSource = mc.renderBuffers().bufferSource()
+
                 val outlineBufferSource = OutlineBufferSource()
 
                 val submitCollector = SubmitNodeStorage()
                 itemState.submit(poseStack, submitCollector, 0xF000F0, OverlayTexture.NO_OVERLAY, 0)
 
-                val itemRenderer = ItemFeatureRenderer()
                 for (collection in submitCollector.submitsPerOrder.values) {
                     itemRenderer.renderSolid(collection, bufferSource, outlineBufferSource)
                     itemRenderer.renderTranslucent(collection, bufferSource, outlineBufferSource)
                 }
 
                 bufferSource.endBatch()
-                byteBuffer.close()
+                outlineBufferSource.endOutlineBatch()
+//                byteBuffer.close()
 
-                RenderSystem.disableScissorForRenderTypeDraws()
             } finally {
+                RenderSystem.disableScissorForRenderTypeDraws()
                 RenderSystem.outputColorTextureOverride = prevColor
                 RenderSystem.outputDepthTextureOverride = prevDepth
                 if (prevProj != null) RenderSystem.setProjectionMatrix(prevProj, prevProjType)
@@ -134,13 +145,13 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             val pbo = device.createBuffer({ "readback" }, 9, bufSize.toLong())
 
             encoder.copyTextureToBuffer(srcTex, pbo, 0L, {}, 0)
-            val fence = device.createCommandEncoder().createFence()
+            val fence = encoder.createFence()
             while (!fence.awaitCompletion(1)) {
                 /*await*/
             }
             fence.close()
 
-            val pixels = ByteArray(width * 4 * height * pixelSize)
+            val pixels = ByteArray(width * height * pixelSize)
 
             encoder.mapBuffer(pbo, true, false).use { mapped ->
                 val data = mapped.data()
@@ -171,7 +182,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             return result
         } finally {
             target.dispose()
-            mc.window.guiScale = oldGuiScale
+//            mc.window.guiScale = oldGuiScale
             logger.info("Create ItemImage buffer: ${now.elapsedNow()}")
         }
     }

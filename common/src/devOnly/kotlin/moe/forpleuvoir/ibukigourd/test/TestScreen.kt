@@ -75,9 +75,9 @@ fun TestScreen1() {
                 mc.player?.mainHandItem?.let { item ->
                     ItemIcon(
                         item,
-                        Modifier.size(128.dp * size).background(Color.LightGray),
+                        Modifier.size(128.dp * size),
                         IntSize(256, 256),
-                        showCount = true
+                        showCount = true,
                     )
                 }
                 var text by remember { mutableStateOf("Hello World") }
