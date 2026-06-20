@@ -23,8 +23,9 @@ import kotlin.time.TimeSource
  * @param pauseGame        是否暂停游戏（[isPauseScreen] 返回值）。
  * @param renderParent     是否在 extractRenderState 中渲染父屏幕。
  * @param parentScreen     关闭时回退到的父屏幕，默认 null。
- * @param _shouldRenderLevel (实验性功能,暂时不建议修改,可能会导致游戏卡死)初始时是否渲染世界层级背景；若为 true，经过 [IGConfig.Gui.Screen.fadeInDuration]
- *                           后 [shouldRenderLevel] 会被置为 false。
+ * @param _shouldRenderLevel (实验性功能,暂时不建议修改,可能会导致游戏卡死) 是否持续渲染世界层级背景。
+ *                           若为 false，[shouldRenderLevel] 初始为 true，经过 [IGConfig.Gui.Screen.fadeInDuration]
+ *                           后会被置为 false（世界背景仅作为淡入效果，淡入完成后停止渲染）；若为 true 则始终渲染。
  * @param content          Compose 可组合内容。
  */
 class ComposeScreen(
@@ -100,7 +101,8 @@ fun closeScreen() {
  * @param pauseGame        是否暂停游戏。
  * @param renderParent     是否在背景渲染父屏幕。
  * @param parentScreen     关闭时回退到的屏幕，默认为当前屏幕。
- * @param shouldRenderLevel (实验性功能,暂时不建议修改,可能会导致游戏卡死) 是否渲染世界层级背景。
+ * @param shouldRenderLevel (实验性功能,暂时不建议修改,可能会导致游戏卡死) 是否持续渲染世界层级背景；
+ *                          为 false 时仅在淡入期间渲染，经过 [IGConfig.Gui.Screen.fadeInDuration] 后停止。
  * @param content          Compose 可组合内容。
  */
 fun openComposeScreen(

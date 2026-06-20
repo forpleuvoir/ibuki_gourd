@@ -27,7 +27,7 @@ fun IbukiGourdScreen(
     pauseGame: Boolean = false,
     renderParent: Boolean = false,
     parentScreen: Screen? = mc.screen,
-    shouldRenderLevel: Boolean = true,
+    shouldRenderLevel: Boolean = false,
 ) = ComposeScreen(pauseGame, renderParent, parentScreen, shouldRenderLevel) {
     IbukiGourdScreenContent()
 }

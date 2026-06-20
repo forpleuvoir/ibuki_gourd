@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastOverlayHost;
-import moe.forpleuvoir.ibukigourd.ui.util.ShouldBlockLevelRender;
+import moe.forpleuvoir.ibukigourd.ui.util.ComposeScreenHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
@@ -26,7 +26,16 @@ public abstract class GameRendererMixin {
             name = "shouldRenderLevel"
     )
     private boolean modifyRenderLevel(boolean shouldRenderLevel) {
-        return !ShouldBlockLevelRender.shouldBlock() && shouldRenderLevel;
+        return !ComposeScreenHelper.shouldBlockLevelRender() && shouldRenderLevel;
+    }
+
+    @ModifyVariable(
+            method = "extract",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;extractOptions()V"),
+            name = "shouldRenderLevel"
+    )
+    private boolean modifyExtractLevel(boolean shouldRenderLevel) {
+        return !ComposeScreenHelper.shouldBlockLevelRender() && shouldRenderLevel;
     }
 
 }

@@ -8,6 +8,7 @@
     "MinecraftServerMixin"
   ],
   "client": [
+    "client.FramerateLimitTrackerMixin",
     "client.GameRendererMixin",
     "client.GuiGraphicsExtractorMixin",
     "client.GuiTextRenderStateMixin",
