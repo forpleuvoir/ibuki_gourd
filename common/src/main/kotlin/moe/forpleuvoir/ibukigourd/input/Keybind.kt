@@ -1,8 +1,8 @@
 package moe.forpleuvoir.ibukigourd.input
 
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming.*
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Text

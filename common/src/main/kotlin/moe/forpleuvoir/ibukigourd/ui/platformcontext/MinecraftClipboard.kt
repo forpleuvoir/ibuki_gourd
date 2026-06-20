@@ -4,8 +4,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.NativeClipboard
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.ioLaunch

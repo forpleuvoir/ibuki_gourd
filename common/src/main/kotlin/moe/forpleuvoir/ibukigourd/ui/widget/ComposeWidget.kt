@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.narration.NarrationElementOutput

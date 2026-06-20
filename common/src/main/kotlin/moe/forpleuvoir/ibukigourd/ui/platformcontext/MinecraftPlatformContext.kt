@@ -11,7 +11,6 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.WindowInfo

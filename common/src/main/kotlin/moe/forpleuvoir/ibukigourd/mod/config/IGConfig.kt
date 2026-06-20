@@ -5,7 +5,6 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -18,7 +17,6 @@ import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig.Gui.Theme.colorScheme
 import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.BooleanConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ColorSchemeConfigWrapper
@@ -33,11 +31,7 @@ import moe.forpleuvoir.ibukigourd.ui.open
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.ConfigGroup
-import moe.forpleuvoir.nebula.config.item.configBoolean
-import moe.forpleuvoir.nebula.config.item.configColor
-import moe.forpleuvoir.nebula.config.item.configDuration
-import moe.forpleuvoir.nebula.config.item.configFloat
-import moe.forpleuvoir.nebula.config.item.configList
+import moe.forpleuvoir.nebula.config.item.*
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.color
 import kotlin.time.Duration

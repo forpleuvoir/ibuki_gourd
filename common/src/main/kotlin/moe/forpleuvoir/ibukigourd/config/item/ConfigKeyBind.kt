@@ -1,24 +1,19 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendLTRArrow
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastStrategy
 import moe.forpleuvoir.nebula.common.api.Matchable
@@ -28,7 +23,6 @@ import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.config
-import moe.forpleuvoir.nebula.config.item.ConfigRange
 import moe.forpleuvoir.nebula.config.pathWithRoot
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Serde
@@ -37,7 +31,6 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import kotlin.time.Duration.Companion.milliseconds
 
 class ToggleKeybind(
     val keybind: Keybind,

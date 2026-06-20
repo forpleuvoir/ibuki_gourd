@@ -6,8 +6,8 @@ import com.mojang.blaze3d.pipeline.RenderPipeline
 import moe.forpleuvoir.ibukigourd.render.extension.state.IGBlitRenderState
 import moe.forpleuvoir.ibukigourd.render.extension.state.IGTiledBlitRenderState
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
-import moe.forpleuvoir.ibukigourd.render.renderState
 import moe.forpleuvoir.ibukigourd.render.peekScissorRect
+import moe.forpleuvoir.ibukigourd.render.renderState
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.GuiGraphicsExtractor

@@ -2,18 +2,12 @@ package moe.forpleuvoir.ibukigourd.ui.toast
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material3.ColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 
 object ToastHandler {
 

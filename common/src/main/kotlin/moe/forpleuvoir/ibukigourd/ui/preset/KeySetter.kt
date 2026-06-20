@@ -14,14 +14,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.*
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.*
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardAlt
-
 import kotlin.time.Duration.Companion.milliseconds
 
 private val ALL_KEYS by lazy {

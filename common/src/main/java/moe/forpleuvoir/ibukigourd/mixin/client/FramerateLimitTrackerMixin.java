@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.mojang.blaze3d.platform.FramerateLimitTracker.FramerateThrottleReason.OUT_OF_LEVEL_MENU;
 import static com.mojang.blaze3d.platform.FramerateLimitTracker.FramerateThrottleReason.NONE;
+import static com.mojang.blaze3d.platform.FramerateLimitTracker.FramerateThrottleReason.OUT_OF_LEVEL_MENU;
 
 @Mixin(FramerateLimitTracker.class)
 public class FramerateLimitTrackerMixin {

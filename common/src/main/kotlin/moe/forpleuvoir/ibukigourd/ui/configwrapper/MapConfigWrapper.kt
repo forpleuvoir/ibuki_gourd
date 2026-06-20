@@ -16,12 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.*
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator

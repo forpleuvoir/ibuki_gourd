@@ -1,19 +1,11 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
-import androidx.compose.foundation.HorizontalScrollbar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,8 +31,8 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
-import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 import moe.forpleuvoir.nebula.config.item.ConfigList
+import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
 /**
  * 配色方案选择器：将 [ConfigList] 中的每个 [NebulaColor] 渲染为可点击的 4 色调色板预览，

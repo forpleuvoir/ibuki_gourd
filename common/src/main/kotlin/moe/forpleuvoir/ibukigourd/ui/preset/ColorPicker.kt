@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.debug
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor

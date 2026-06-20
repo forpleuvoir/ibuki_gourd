@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
 /**
@@ -36,7 +35,7 @@ class ComposeScreen(
     content: @Composable () -> Unit,
 ) : Screen(Text.literal("Compose Screen")) {
     private val mark by lazy { TimeSource.Monotonic.markNow() }
-    private val host: ComposeSceneHost = ComposeSceneFactory.create(content)
+    private val host: ComposeSceneHost by lazy { ComposeSceneFactory.create(content) }
 
     var shouldRenderLevel: Boolean = true
         private set

@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
@@ -32,8 +31,6 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.ArrowBack
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowLeft
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Search
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox

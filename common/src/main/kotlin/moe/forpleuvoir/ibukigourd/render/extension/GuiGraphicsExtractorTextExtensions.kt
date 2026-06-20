@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.util.fastForEachIndexed
 import moe.forpleuvoir.ibukigourd.render.extension.state.setXF
 import moe.forpleuvoir.ibukigourd.render.extension.state.setYF
-import moe.forpleuvoir.ibukigourd.render.renderState
 import moe.forpleuvoir.ibukigourd.render.peekScissorRect
+import moe.forpleuvoir.ibukigourd.render.renderState
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Color

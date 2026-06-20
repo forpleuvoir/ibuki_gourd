@@ -2,6 +2,7 @@
 
 package moe.forpleuvoir.ibukigourd.ui.toast
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -11,7 +12,6 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import androidx.compose.material3.MaterialTheme
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
