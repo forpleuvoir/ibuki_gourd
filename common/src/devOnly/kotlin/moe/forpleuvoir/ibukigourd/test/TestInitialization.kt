@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.waht.SnakeGame
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigUiWrapper
@@ -93,7 +94,9 @@ class TestInitialization : ModInitialization {
                 }
             }
             register(Keyboard.KP_6) {
-                TestVanillaScreen().open()
+                openComposeScreen {
+                    SnakeGame(modifier = Modifier)
+                }
             }
 
             register(Keyboard.KP_7) {

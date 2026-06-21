@@ -1,20 +1,30 @@
 package moe.forpleuvoir.ibukigourd.mod.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.onClick
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.waht.EasterEggs
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Settings
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.Settings
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
@@ -32,27 +42,37 @@ fun IbukiGourdScreen(
     IbukiGourdScreenContent()
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun IbukiGourdScreenContent() {
+    val items = remember {
+        mutableStateListOf(DrawerItem {
+            label { Text(InlineStyleText(IGConfig.translateText.plainText)) }
+            icon {
+                val selected = LocalDrawerItemSelected.current
+                Icon(if (selected) Icons.Filled.Settings else Icons.Settings, null)
+            }
+            content {
+                ConfigManagerWrapper(IGConfig)
+            }
+        })
+    }
+    var count by remember { mutableIntStateOf(0) }
     IbukiGourdTheme {
         ModScreen(
             title = {
                 Text(IbukiGourd.MOD_NAME, fontWeight = FontWeight.Bold)
             },
-            items = listOf(
-                DrawerItem(
-                    label = { Text(InlineStyleText(IGConfig.translateText.plainText)) },
-                    icon = { Icon(Icons.Filled.Settings, null) },
-                ) {
-                    ConfigManagerWrapper(IGConfig)
-                }
-            ),
+            items = items,
             header = {
                 DrawerHeader(
                     monogram = {
                         BlitTexture(
                             identifier(IbukiGourd.MOD_ID, "icon.png"),
-                            Modifier.size(40.dp)
+                            Modifier.size(40.dp).onClick {
+                                count++
+                                if (count == 10 && !items.contains(EasterEggs)) items.add(EasterEggs)
+                            }
                         )
                     },
                     name = {

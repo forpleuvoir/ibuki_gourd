@@ -26,11 +26,43 @@ import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
 
 /**
+ * [CompositionLocal] 提供当前抽屉导航项是否被选中。
+ * 可在 [DrawerItemScope.label]、[DrawerItemScope.icon]、[DrawerItemScope.content] 的 Composable 中读取。
+ */
+val LocalDrawerItemSelected = staticCompositionLocalOf { false }
+
+/**
+ * 抽屉导航项 DSL 作用域。
+ */
+class DrawerItemScope {
+    var label: @Composable () -> Unit = {}
+    var icon: (@Composable () -> Unit)? = null
+    var content: @Composable () -> Unit = {}
+
+    fun label(block: @Composable () -> Unit) {
+        label = block
+    }
+
+    fun icon(block: @Composable () -> Unit) {
+        icon = block
+    }
+
+    fun content(block: @Composable () -> Unit) {
+        content = block
+    }
+}
+
+fun DrawerItem(scope: DrawerItemScope.() -> Unit): DrawerItem {
+    val s = DrawerItemScope().apply(scope)
+    return DrawerItem(s.label, s.icon, s.content)
+}
+
+/**
  * 抽屉导航项：[label] / [icon] 为可自由组合的 Composable，选中时主区域渲染 [content]。
  */
 class DrawerItem(
     val label: @Composable () -> Unit,
-    val icon: @Composable () -> Unit,
+    val icon: (@Composable () -> Unit)?,
     val content: @Composable () -> Unit,
 )
 
@@ -41,7 +73,7 @@ class DrawerItem(
  * （如模组身份卡片、主题切换等），保持本组件与具体模组解耦。
  *
  * @param title 顶栏标题
- * @param items 抽屉导航项，第一项默认选中
+ * @param items 抽屉导航项 DSL builder 列表，第一项默认选中
  * @param header 抽屉顶部内容
  * @param footer 抽屉底部内容
  */
@@ -74,7 +106,10 @@ fun ModScreen(
             }
         ) { innerPadding ->
             Column(Modifier.padding(innerPadding).padding(horizontal = 16.dp)) {
-                items[selectedIndex].content()
+                val selected = selectedIndex
+                CompositionLocalProvider(LocalDrawerItemSelected provides true) {
+                    items[selected].content()
+                }
             }
         }
 
@@ -114,12 +149,18 @@ fun ModScreen(
 
                     if (header != null) Spacer(Modifier.height(16.dp))
                     items.forEachIndexed { index, item ->
+                        val isSelected = index == selectedIndex
+                        if (index != 0) Spacer(Modifier.height(12.dp))
                         NavigationDrawerItem(
                             label = {
-                                ProvideTextStyle(MaterialTheme.typography.labelLarge, item.label)
+                                CompositionLocalProvider(LocalDrawerItemSelected provides isSelected) {
+                                    ProvideTextStyle(MaterialTheme.typography.labelLarge, item.label)
+                                }
                             },
-                            selected = index == selectedIndex,
-                            icon = item.icon,
+                            selected = isSelected,
+                            icon = if (item.icon != null) {
+                                { CompositionLocalProvider(LocalDrawerItemSelected provides isSelected) { item.icon() } }
+                            } else null,
                             onClick = {
                                 selectedIndex = index
                                 drawerOpen = false
