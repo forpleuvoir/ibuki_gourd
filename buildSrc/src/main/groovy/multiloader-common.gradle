@@ -55,12 +55,14 @@ sourcesJar {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_name}" }
     }
+    from(rootProject.file('NOTICE.md'))
 }
 
 jar {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_name}" }
     }
+    from(rootProject.file('NOTICE.md'))
 
     manifest {
         attributes([
