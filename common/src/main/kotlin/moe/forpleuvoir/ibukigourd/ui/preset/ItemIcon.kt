@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.preset
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,6 +16,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +63,7 @@ val LocalItemIconVanillaPadding = staticCompositionLocalOf {
  * @param padding 物品图标的内边距，默认使用 [LocalItemIconVanillaPadding] 提供的值
  * @param showTooltip 是否在鼠标悬停时显示物品提示信息，默认为 true
  * @param showCount 是否在物品图标右下角显示堆叠数量（仅当数量大于 1 时显示），默认为 false
+ * @param scaleOnHover 鼠标悬停时的放大倍数，默认为 1.1。设为 1 则禁用悬浮放大效果
  */
 @Composable
 fun ItemIconVanilla(
@@ -68,6 +73,7 @@ fun ItemIconVanilla(
     padding: PaddingValues = LocalItemIconVanillaPadding.current,
     showTooltip: Boolean = true,
     showCount: Boolean = false,
+    scaleOnHover: Float = 1.1f,
 ) {
     val surface = LocalSkiaSurface.current
     // 追踪组件布局坐标，供原生渲染定位使用
@@ -75,6 +81,12 @@ fun ItemIconVanilla(
     var count by remember { mutableStateOf(item.count) }
     val interactionSource = remember { MutableInteractionSource() }
     val hovered by interactionSource.collectIsHoveredAsState()
+    // 悬浮放大动画：原生渲染管线不响应 Compose graphicsLayer，需把缩放因子喂进 ScaleFactor
+    val scale by animateFloatAsState(
+        targetValue = if (hovered) scaleOnHover else 1f,
+        animationSpec = tween(150),
+        label = "itemIconVanillaScale"
+    )
     // item 变化时重置数量，并启动逐帧原生渲染循环
     LaunchedEffect(item) {
         count = item.count
@@ -90,21 +102,32 @@ fun ItemIconVanilla(
                     val width = coords.size.width * density
                     val height = coords.size.height * density
 
+                    // 根据参数计算放大后的渲染尺寸，保持以图标中心为锚点
+                    val renderW = width * scale
+                    val renderH = height * scale
+
                     // 计算组件在窗口中的裁剪区域
                     val clipLeft = coords.boundsInWindow().left * density
                     val clipTop = coords.boundsInWindow().top * density
                     val clipWidth = coords.boundsInWindow().width * density
                     val clipHeight = coords.boundsInWindow().height * density
 
-                    // 基于原版物品图标 16×16 基准计算缩放比例
-                    val xScale = width / 16f
-                    val yScale = height / 16f
+                    // scissor 同比放大并保持中心对齐，确保放大后的图标不被裁掉
+                    val cw = clipWidth * scale
+                    val ch = clipHeight * scale
+                    val cl = clipLeft + (clipWidth - cw) / 2f
+                    val ct = clipTop + (clipHeight - ch) / 2f
 
-                    val spacerX = coords.positionInWindow().x * density
-                    val spacerY = coords.positionInWindow().y * density
+                    // 基于原版物品图标 16×16 基准计算缩放比例（叠加悬浮放大）
+                    val xScale = renderW / 16f
+                    val yScale = renderH / 16f
+
+                    // 以图标中心为锚点重算定位，使放大效果从中心向外扩展
+                    val spacerX = coords.positionInWindow().x * density + (width - renderW) / 2f
+                    val spacerY = coords.positionInWindow().y * density + (height - renderH) / 2f
 
                     //原版在 guiScale != 0 的情况下裁剪并不精准
-                    enableScissor(clipLeft.toInt() - 1, clipTop.toInt() - 1, (clipLeft + clipWidth).toInt() + 2, (clipTop + clipHeight).toInt() + 2)
+                    enableScissor(cl.toInt() - 1, ct.toInt() - 1, (cl + cw).toInt() + 2, (ct + ch).toInt() + 2)
 
                     pushItem(item, spacerX, spacerY, ScaleFactor(xScale, yScale), showCount = showCount)
 
@@ -145,6 +168,7 @@ fun ItemIconVanilla(
  * @param countModifier 应用于数量 [Text] 组件的 Compose 修饰符
  * @param countAlignment 数量文本在容器中的对齐方式，默认偏右下角
  * @param countStyle 数量文本的样式，默认为白色粗体带黑色阴影
+ * @param scaleOnHover 鼠标悬停时的放大倍数，默认为 1.1。设为 1 则禁用悬浮放大效果
  */
 @Composable
 fun ItemIcon(
@@ -160,13 +184,20 @@ fun ItemIcon(
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
         shadow = Shadow(Colors.BLACK.alpha(0.5).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
-    )
+    ),
+    scaleOnHover: Float = 1.1f,
 ) {
     val surface = LocalSkiaSurface.current
     var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var count by remember { mutableStateOf(item.count) }
     val interactionSource = remember { MutableInteractionSource() }
     val hovered by interactionSource.collectIsHoveredAsState()
+    // 悬浮放大动画：仅作用于 Image，避免影响外层布局与数量文本定位
+    val scale by animateFloatAsState(
+        targetValue = if (hovered) scaleOnHover else 1f,
+        animationSpec = tween(150),
+        label = "itemIconScale"
+    )
 
     // item 变化时重新烘焙纹理，并启动逐帧提示框渲染循环
     LaunchedEffect(item) {
@@ -198,6 +229,11 @@ fun ItemIcon(
                 bitmap = it,
                 contentDescription = item.itemName.plainText,
                 modifier = Modifier.matchParentSize()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        transformOrigin = TransformOrigin.Center
+                    }
                     .hoverable(interactionSource),
                 filterQuality = if (item.item is BlockItem) FilterQuality.Medium else FilterQuality.None,
                 contentScale = ContentScale.Crop

@@ -9,9 +9,4 @@ object IGLang {
     val ConfigWrapper = ConfigWrapperLang
 
     val Input = InputLang
-
-    fun recordAll() {
-
-
-    }
 }
