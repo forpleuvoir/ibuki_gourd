@@ -35,19 +35,18 @@ dependencies {
     implementation(libs.modMenu)
 
     //nebula
-    implementation(libs.nebula)
-    include(libs.nebula)
+    api(libs.nebula)?.let { include(it) }
 
-    includeInternal(implementation("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
+    includeInternal(api("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
         composeExclude()
     })
-    includeInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
+    includeInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
         composeExclude()
     })
-    includeInternal(implementation("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
+    includeInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
         composeExclude()
     })
-    includeInternal(implementation(compose.desktop.currentOs) {
+    includeInternal(api(compose.desktop.currentOs) {
         exclude(module = "material-desktop")
         composeExclude()
     })

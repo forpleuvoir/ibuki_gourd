@@ -17,6 +17,8 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowDown
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigNode
 
+val LocalSearchFilter = staticCompositionLocalOf<Set<ConfigNode>?> { null }
+
 @Composable
 fun ConfigGroupWrapper(
     config: ConfigGroup,
@@ -25,12 +27,14 @@ fun ConfigGroupWrapper(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) {
     var expanded by remember { mutableStateOf(true) }
+    val level = ConfigRowWrapper.LocalLevel.current
     // 整个 group（header + 子元素）共用一个圆角矩形，内部层级提升，header 和子项都不画独立圆角矩形
     // 容器只负责圆角裁剪，背景透明；hover 背景由内部行自行动画，避免静态底色与 hover 叠加导致颜色跳变
+    // 仅顶层 group 启用圆角裁剪，嵌套层级内不裁剪
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .let { if (level == 0) it.clip(MaterialTheme.shapes.medium) else it }
     ) {
         CompositionLocalProvider(
             ConfigRowWrapper.LocalLevel provides ConfigRowWrapper.LocalLevel.current + 1
@@ -48,9 +52,11 @@ fun ConfigGroupWrapper(
                     Icon(Icons.KeyboardArrowDown, null, Modifier.rotate(rotation))
                 }
             }
+            val searchFilter = LocalSearchFilter.current
+            val childrenToShow = if (searchFilter != null) config.children.filter { it in searchFilter } else config.children
             AnimatedVisibility(expanded) {
                 Column {
-                    config.children.forEach { child ->
+                    childrenToShow.forEach { child ->
                         HorizontalDivider()
                         CompositionLocalProvider(
                             ConfigRowWrapper.LocalPadding provides ConfigRowWrapper.padding + PaddingValues(

@@ -45,7 +45,14 @@ fun configVector2i(
     defaultValue,
     { it.coerceIn(minValue, maxValue) },
     ConfigSerde.of(Codec.vector2ic(minValue, maxValue).default(defaultValue))
-)
+).apply {
+    setMetadata("range", minValue to maxValue)
+}
+
+@Suppress("UNCHECKED_CAST")
+@get:JvmName("vector2ic_range")
+val Config<Vector2ic>.range: Pair<Vector2ic, Vector2ic>? get() = getMetadata("range") as? Pair<Vector2ic, Vector2ic>
+
 //endregion
 
 //region Vector2f
@@ -60,7 +67,14 @@ fun configVector2f(
     defaultValue,
     { it.coerceIn(minValue, maxValue) },
     ConfigSerde.of(Codec.vector2fc(minValue, maxValue).default(defaultValue))
-)
+).apply {
+    setMetadata("range", minValue to maxValue)
+}
+
+@Suppress("UNCHECKED_CAST")
+@get:JvmName("vector2fc_range")
+val Config<Vector2fc>.range: Pair<Vector2fc, Vector2fc>? get() = getMetadata("range") as? Pair<Vector2fc, Vector2fc>
+
 //endregion
 
 //region Vector2d
@@ -75,7 +89,14 @@ fun configVector2d(
     defaultValue,
     { it.coerceIn(minValue, maxValue) },
     ConfigSerde.of(Codec.vector2dc(minValue, maxValue).default(defaultValue))
-)
+).apply {
+    setMetadata("range", minValue to maxValue)
+}
+
+@Suppress("UNCHECKED_CAST")
+@get:JvmName("vector2dc_range")
+val Config<Vector2dc>.range: Pair<Vector2dc, Vector2dc>? get() = getMetadata("range") as? Pair<Vector2dc, Vector2dc>
+
 //endregion
 
 //region Vector3i
@@ -90,7 +111,14 @@ fun configVector3i(
     defaultValue,
     { it.coerceIn(minValue, maxValue) },
     ConfigSerde.of(Codec.vector3ic(minValue, maxValue).default(defaultValue))
-)
+).apply {
+    setMetadata("range", minValue to maxValue)
+}
+
+@Suppress("UNCHECKED_CAST")
+@get:JvmName("vector3ic_range")
+val Config<Vector3ic>.range: Pair<Vector3ic, Vector3ic>? get() = getMetadata("range") as? Pair<Vector3ic, Vector3ic>
+
 //endregion
 
 //region Vector3f
@@ -105,7 +133,14 @@ fun configVector3f(
     defaultValue,
     { it.coerceIn(minValue, maxValue) },
     ConfigSerde.of(Codec.vector3fc(minValue, maxValue).default(defaultValue))
-)
+).apply {
+    setMetadata("range", minValue to maxValue)
+}
+
+@Suppress("UNCHECKED_CAST")
+@get:JvmName("vector3fc_range")
+val Config<Vector3fc>.range: Pair<Vector3fc, Vector3fc>? get() = getMetadata("range") as? Pair<Vector3fc, Vector3fc>
+
 //endregion
 
 //region Vector3d
@@ -120,5 +155,12 @@ fun configVector3d(
     defaultValue,
     { it.coerceIn(minValue, maxValue) },
     ConfigSerde.of(Codec.vector3dc(minValue, maxValue).default(defaultValue))
-)
+).apply {
+    setMetadata("range", minValue to maxValue)
+}
+
+@Suppress("UNCHECKED_CAST")
+@get:JvmName("vector3dc_range")
+val Config<Vector3dc>.range: Pair<Vector3dc, Vector3dc>? get() = getMetadata("range") as? Pair<Vector3dc, Vector3dc>
+
 //endregion

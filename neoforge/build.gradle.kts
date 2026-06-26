@@ -20,7 +20,6 @@ val jarJarInternal by configurations.creating {
     }
 }
 
-
 fun ExternalModuleDependency.composeExclude() {
     exclude(group = "org.jetbrains.kotlin")
     exclude(group = "org.jetbrains.kotlinx")
@@ -29,22 +28,22 @@ fun ExternalModuleDependency.composeExclude() {
 
 dependencies {
     implementation(libs.forgeKotlin)
-    jarJar(libs.nebula)
-    implementation(libs.nebula)
 
-    jarJarInternal(implementation("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
+    api(libs.nebula)?.let { jarJar(it) }
+
+    jarJarInternal(api("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
         composeExclude()
     })
-    jarJarInternal(implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
+    jarJarInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
         composeExclude()
     })
     //material-kolor 依赖但是 kotlinforege没有的
-    implementation("org.jetbrains.kotlinx:atomicfu:0.28.0")
-    jarJar("org.jetbrains.kotlinx:atomicfu:0.28.0")
-    jarJarInternal(implementation("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
+    api("org.jetbrains.kotlinx:atomicfu:0.28.0")?.let { jarJar(it) }
+
+    jarJarInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
         composeExclude()
     })
-    jarJarInternal(implementation(compose.desktop.currentOs) {
+    jarJarInternal(api(compose.desktop.currentOs) {
         exclude(module = "material-desktop")
         composeExclude()
     })

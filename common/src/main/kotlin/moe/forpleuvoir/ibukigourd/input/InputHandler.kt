@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import moe.forpleuvoir.ibukigourd.api.Tickable
 import moe.forpleuvoir.ibukigourd.util.exactMatch
+import moe.forpleuvoir.nebula.common.api.Observable
+import java.util.IdentityHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 object InputHandler : Tickable {
@@ -23,6 +25,14 @@ object InputHandler : Tickable {
 
     private val keybinds: MutableList<Keybind> = CopyOnWriteArrayList()
 
+    /**
+     * 记录每个 keybind 注册时建立的变更监听 disposable，注销时一并取消。
+     *
+     * 用 [IdentityHashMap] 以引用相等索引 keybind：[Keybind.hashCode]/`equals` 会随其内容
+     * （按键、observer 列表等）变化，作为普通 map 的 key 不可靠。
+     */
+    private val observers: MutableMap<Keybind, Observable.Disposable> = IdentityHashMap()
+
     private val beforePressKeyCode: MutableList<KeyCode> = ArrayList()
 
     /**
@@ -33,11 +43,9 @@ object InputHandler : Tickable {
     fun register(keybind: Keybind): Disposable {
         keybinds.add(keybind)
         updateVersion()
-        val obsDisposable = keybind.observe { updateVersion() }
+        observers[keybind] = keybind.observe { updateVersion() }
         return {
-            obsDisposable.dispose()
-            keybinds.remove(keybind)
-            updateVersion()
+            unregister(keybind)
         }
     }
 
@@ -47,6 +55,18 @@ object InputHandler : Tickable {
         action: Keybind.() -> Unit = {}
     ): Disposable {
         return register(Keybind(keyCodes = keyCodes, defaultSetting, action))
+    }
+
+    /**
+     * 注销一个快捷键，并取消其在注册时建立的变更监听。
+     *
+     * @return 该快捷键此前已注册并被移除时返回 `true`，否则返回 `false`
+     */
+    fun unregister(keybind: Keybind): Boolean {
+        val removed = keybinds.remove(keybind)
+        observers.remove(keybind)?.dispose()
+        if (removed) updateVersion()
+        return removed
     }
 
     fun detectKeyConflicts(keyBind: Keybind): Sequence<Keybind> {

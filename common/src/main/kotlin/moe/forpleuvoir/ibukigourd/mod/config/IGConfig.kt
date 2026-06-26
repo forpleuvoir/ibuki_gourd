@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig.Gui.Theme.colorSchemeSeed
 import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.BooleanConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ColorSchemeConfigWrapper
@@ -28,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.Routine
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
 import moe.forpleuvoir.ibukigourd.ui.open
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.ConfigGroup
@@ -53,13 +55,21 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
         init {
             addConfig(Theme)
             addConfig(Screen)
+            addConfig(Toast)
             addConfig(Scroller)
         }
 
         object Theme : ConfigGroup("theme") {
 
+            //用来刷新初始化的Toast的配色方案
+            private var _state = false
+
             private fun refreshColorScheme() {
-                colorScheme = dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !Theme.lightMode)
+                colorScheme = dynamicColorScheme(colorSchemeSeed.toComposeColor, isDark = !lightMode)
+                if (_state) {
+                    ToastHandler.activeScheme = ToastHandler.defaultScheme
+                    _state = true
+                }
             }
 
             var lightMode by configBoolean("light_mode", true)
@@ -115,6 +125,25 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             val fadeInOffset by configFloat("fade_in_offset", 0.1f, 0f, 1f)
 
             val fadeInDuration by configDuration("fade_in_duration", 150.milliseconds, Duration.ZERO, 2.seconds)
+
+        }
+
+        object Toast : ConfigGroup("toast") {
+
+            var adaptiveColorScheme by configBoolean("adaptive_color_scheme", true)
+
+            var lightMode by configBoolean("light_mode", true)
+                .uiWrapper {
+                    CompositionLocalProvider(ConfigRowWrapper.LocalIcon provides {
+                        Icon(Icons.Routine, null, modifier = Modifier.size(32.dp))
+                    }) {
+                        BooleanConfigWrapper(it, { mode ->
+                            Icon(if (mode) Icons.Filled.LightMode else Icons.Filled.DarkMode, null)
+                        })
+                    }
+                }.apply {
+                    observe { ToastHandler.activeScheme = dynamicColorScheme(colorSchemeSeed.toComposeColor, isDark = !this.getValue()) }
+                }
 
         }
 

@@ -18,12 +18,12 @@ dependencies {
     compileOnly(libs.mixinExtras.common)
     annotationProcessor(libs.mixinExtras.common)
 
-    compileOnly(libs.nebula)
+    api(libs.nebula)
 
-    compileOnly("org.jetbrains.compose.material3:material3:1.11.0-alpha07")
-    compileOnly("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07")
-    compileOnly(libs.materialKolor)
-    compileOnly(compose.desktop.currentOs){
+    api("org.jetbrains.compose.material3:material3:1.11.0-alpha07")
+    api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07")
+    api(libs.materialKolor)
+    api(compose.desktop.currentOs){
         exclude(module = "material-desktop")
     }
 

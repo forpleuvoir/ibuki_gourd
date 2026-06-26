@@ -45,7 +45,7 @@ fun DurationConfigWrapper(
 
 
     fun fraction(v: Duration) = if (range != null && range.endInclusive != range.start)
-        ((v - range.start) / (range.endInclusive - range.start)).toFloat() else 0f
+        ((v - range.start) / (range.endInclusive - range.start)) else 0.0
 
     var value by remember { mutableStateOf(config.getValue()) }
     val interval = ConfigRowWrapper.valuePollInterval
@@ -67,17 +67,41 @@ fun DurationConfigWrapper(
     ) {
         if (range != null) {
             val scope = rememberCoroutineScope()
-            val sliderAnim = remember { Animatable(fraction(value)) }
+            val sliderAnim = remember { Animatable(fraction(value).toFloat()) }
+            var initialized by remember { mutableStateOf(false) }
+            var targetValue by remember { mutableStateOf(value) }
+            var isDragging by remember { mutableStateOf(false) }
+
             LaunchedEffect(value) {
-                sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                if (!initialized) {
+                    sliderAnim.snapTo(fraction(value).toFloat())
+                    initialized = true
+                    targetValue = value
+                } else if (!isDragging) {
+                    sliderAnim.animateTo(fraction(value).toFloat(), tween(durationMillis = 200))
+                    targetValue = value
+                }
             }
-            val sliderValue = (range.start + sliderAnim.value.toDouble() * (range.endInclusive - range.start))
+
+            val sliderValue = when {
+                isDragging -> value
+                sliderAnim.isRunning -> range.start + sliderAnim.value.toDouble() * (range.endInclusive - range.start)
+                else -> targetValue
+            }
+
             DurationSlider(
                 value = sliderValue,
                 onValueChange = {
+                    isDragging = true
                     config.setValue(it)
                     value = it
-                    scope.launch { sliderAnim.snapTo(fraction(it)) }
+                },
+                onValueChangeFinished = {
+                    scope.launch {
+                        sliderAnim.snapTo(fraction(value).toFloat())
+                        isDragging = false
+                        targetValue = value
+                    }
                 },
                 valueRange = range,
                 valueDisplay = valueDisplay,

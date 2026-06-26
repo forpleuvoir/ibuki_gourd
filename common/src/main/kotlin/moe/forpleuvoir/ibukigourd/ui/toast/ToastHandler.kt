@@ -5,9 +5,12 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import com.materialkolor.dynamicColorScheme
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig.Gui.Theme
+import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig.Gui.Toast as ToastConfig
 
 object ToastHandler {
 
@@ -15,18 +18,29 @@ object ToastHandler {
 
     val EXIT_GRACE: Duration = 0.3.seconds
 
-    internal var activeScheme by mutableStateOf(IGConfig.Gui.Theme.colorScheme)
-        private set
+    internal val defaultScheme: ColorScheme get() = dynamicColorScheme(Theme.colorSchemeSeed.toComposeColor, isDark = !ToastConfig.lightMode)
+    internal var activeScheme by mutableStateOf(defaultScheme)
+
     private val schemeStack = mutableListOf<ColorScheme>()
 
     fun enter(scheme: ColorScheme) {
-        schemeStack.add(scheme)
-        activeScheme = scheme
+        if (ToastConfig.adaptiveColorScheme) {
+            schemeStack.add(scheme)
+            activeScheme = scheme
+        } else if (schemeStack.isNotEmpty()) {
+            schemeStack.clear()
+            activeScheme = schemeStack.lastOrNull() ?: defaultScheme
+        }
     }
 
     fun leave(scheme: ColorScheme) {
-        schemeStack.remove(scheme)
-        activeScheme = schemeStack.lastOrNull() ?: IGConfig.Gui.Theme.colorScheme
+        if (ToastConfig.adaptiveColorScheme) {
+            schemeStack.remove(scheme)
+            activeScheme = schemeStack.lastOrNull() ?: defaultScheme
+        } else if (schemeStack.isNotEmpty()) {
+            schemeStack.clear()
+            activeScheme = schemeStack.lastOrNull() ?: defaultScheme
+        }
     }
 
     private val lock = Any()

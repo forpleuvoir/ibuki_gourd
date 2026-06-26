@@ -183,7 +183,7 @@ fun ItemIcon(
         color = Colors.WHITE.toComposeColor,
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
-        shadow = Shadow(Colors.BLACK.alpha(0.5).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
+        shadow = Shadow(Colors.BLACK.alpha(0.5f).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
     ),
     scaleOnHover: Float = 1.1f,
 ) {

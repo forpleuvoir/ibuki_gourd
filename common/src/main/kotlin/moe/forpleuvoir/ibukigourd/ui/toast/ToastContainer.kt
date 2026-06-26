@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
@@ -58,6 +59,7 @@ fun ToastContent(
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.inverseSurface,
         tonalElevation = 3.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {
         Column(Modifier.width(IntrinsicSize.Max), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), contentAlignment, propagateMinConstraints) {
@@ -92,7 +94,7 @@ private fun ToastProgressBar(duration: Duration) {
 
     LinearProgressIndicator(
         progress = { animatable.value },
-        modifier = Modifier.fillMaxWidth().height(2.dp),
+        modifier = Modifier.fillMaxWidth().height(3.dp),
         color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.6f),
         trackColor = Color.Transparent,
     )

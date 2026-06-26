@@ -2,10 +2,8 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -32,8 +30,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.ArrowBack
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Search
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,8 +111,8 @@ fun GroupConfigsWrapper(
             Column(Modifier.verticalScroll(scrollState).fillMaxHeight()) {
                 ConfigsWrapper(configs)
             }
-            VerticalScrollbar(
-                rememberScrollbarAdapter(scrollState),
+            AutoHideVerticalScrollbar(
+                scrollState,
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
             )
         }
@@ -244,22 +241,39 @@ private fun SearchPanel(
 ) {
     val textFieldState = rememberTextFieldState()
     var searchResults by remember { mutableStateOf(emptyList<ConfigNode>()) }
+    var searchFilter by remember { mutableStateOf<Set<ConfigNode>?>(null) }
 
     LaunchedEffect(textFieldState.text.toString()) {
         val query = textFieldState.text.toString()
-        searchResults = if (query.isBlank()) {
-            emptyList()
+        if (query.isBlank()) {
+            searchResults = emptyList()
+            searchFilter = null
         } else {
             runCatching { Regex(query) }
                 .getOrNull()
                 ?.let { regex ->
                     val matched = nodes.filter { it.matchWithTranslate(regex) }
-                    // 若某节点及其后代都匹配，只保留后代（更精确的匹配）
-                    matched.filter { node ->
-                        matched.none { other -> other !== node && other.path.startsWith("${node.path}.") }
+                    // 收集匹配节点及其祖先配置组（不含根节点 ConfigManager）
+                    val resultSet = mutableSetOf<ConfigNode>()
+                    matched.forEach { node ->
+                        resultSet.add(node)
+                        var parent = node.parent
+                        while (parent != null && parent !is ConfigManager) {
+                            resultSet.add(parent)
+                            parent = parent.parent
+                        }
+                    }
+                    searchFilter = resultSet
+                    // 仅展示顶层节点（父节点不在结果集中或为 ConfigManager）
+                    searchResults = resultSet.filter { node ->
+                        val parent = node.parent
+                        parent == null || !resultSet.contains(parent)
                     }
                 }
-                ?: emptyList()
+                ?: run {
+                    searchResults = emptyList()
+                    searchFilter = null
+                }
         }
     }
 
@@ -309,11 +323,13 @@ private fun SearchPanel(
             Spacer(Modifier.height(8.dp))
             Box(Modifier.weight(1f)) {
                 val scrollState = rememberScrollState()
-                Column(Modifier.verticalScroll(scrollState).fillMaxHeight()) {
-                    ConfigsWrapper(searchResults)
+                CompositionLocalProvider(LocalSearchFilter provides searchFilter) {
+                    Column(Modifier.verticalScroll(scrollState).fillMaxHeight()) {
+                        ConfigsWrapper(searchResults)
+                    }
                 }
-                VerticalScrollbar(
-                    rememberScrollbarAdapter(scrollState),
+                AutoHideVerticalScrollbar(
+                    scrollState,
                     modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
                 )
             }

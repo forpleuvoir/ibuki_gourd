@@ -20,6 +20,11 @@ import moe.forpleuvoir.nebula.config.item.ConfigMap
 @Composable
 fun StringListConfigWrapper(
     config: ConfigList<String>,
+    header: @Composable RowScope.() -> Unit = {
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            Text(IGLang.Misc.content)
+        }
+    },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
 ) {
@@ -27,11 +32,7 @@ fun StringListConfigWrapper(
         config = config,
         modifier = modifier,
         dialogModifier = dialogModifier,
-        header = {
-            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(IGLang.Misc.content)
-            }
-        },
+        header = header,
         element = { index ->
             val state = rememberTextFieldState(config.getOrNull(index) ?: "")
 
@@ -88,6 +89,8 @@ fun StringListConfigWrapper(
 @Composable
 fun StringMapConfigWrapper(
     config: ConfigMap<String>,
+    keyHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapKey) },
+    valueHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapValue) },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
 ) {
@@ -95,6 +98,8 @@ fun StringMapConfigWrapper(
         config = config,
         modifier = modifier,
         dialogModifier = dialogModifier,
+        keyHeader = keyHeader,
+        valueHeader = valueHeader,
         valueEditor = { key ->
             val state = rememberTextFieldState(config[key] ?: "")
 
@@ -127,25 +132,25 @@ fun StringMapConfigWrapper(
                 title = { Text(IGLang.Misc.add) },
                 text = {
                     IGCompositionLocalProvider {
-                    Column {
-                        OutlinedTextField(
-                            value = newKey,
-                            onValueChange = { newKey = it },
-                            singleLine = true,
-                            isError = isDuplicate,
-                            label = {
-                                if (isDuplicate) Text(IGLang.ConfigWrapper.keyExists(newKey))
-                                else Text(IGLang.ConfigWrapper.mapKey)
-                            },
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = newValue,
-                            onValueChange = { newValue = it },
-                            singleLine = true,
-                            label = { Text(IGLang.ConfigWrapper.mapValue) },
-                        )
-                    }
+                        Column {
+                            OutlinedTextField(
+                                value = newKey,
+                                onValueChange = { newKey = it },
+                                singleLine = true,
+                                isError = isDuplicate,
+                                label = {
+                                    if (isDuplicate) Text(IGLang.ConfigWrapper.keyExists(newKey))
+                                    else Text(IGLang.ConfigWrapper.mapKey)
+                                },
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = newValue,
+                                onValueChange = { newValue = it },
+                                singleLine = true,
+                                label = { Text(IGLang.ConfigWrapper.mapValue) },
+                            )
+                        }
                     }
                 },
                 confirmButton = {
@@ -169,6 +174,8 @@ fun StringMapConfigWrapper(
 @Composable
 fun StringPairListConfigWrapper(
     config: ConfigList<Pair<String, String>>,
+    firstHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairFirst) },
+    secondHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairFirst) },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
 ) {
@@ -178,10 +185,10 @@ fun StringPairListConfigWrapper(
         dialogModifier = dialogModifier,
         header = {
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(IGLang.ConfigWrapper.pairFirst)
+                firstHead()
             }
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(IGLang.ConfigWrapper.pairSecond)
+                secondHead()
             }
         },
         element = { index ->

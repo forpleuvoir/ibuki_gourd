@@ -2,14 +2,13 @@ package moe.forpleuvoir.ibukigourd.test
 
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
+import moe.forpleuvoir.ibukigourd.config.item.*
 import moe.forpleuvoir.ibukigourd.config.translateComment
-import moe.forpleuvoir.ibukigourd.config.item.configKeybind
-import moe.forpleuvoir.ibukigourd.config.item.configPairList
-import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.util.math.*
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
@@ -118,5 +117,17 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
         val testBoolean by configBoolean("test_key_bind", false)
 
         var testInt by configInt("test_int", 0, 0, 233)
+    }
+
+    val vector = addConfig(Vector)
+
+    object Vector : ConfigGroup("vector") {
+        val vector2i by configVector2i("vector2i", Vector2i(0f, 0f), Vector2i(-6666f, -6666f), Vector2i(6666f, 6666f))
+        val vector2f by configVector2f("vector2f", Vector2f(0f, 0f), Vector2f(-6666f, -6666f), Vector2f(6666f, 6666f))
+        val vector2d by configVector2d("vector2d", Vector2d(0f, 0f), Vector2d(-6666f, -6666f), Vector2d(6666f, 6666f))
+
+        val vector3i by configVector3i("vector3i", Vector3i(0f, 0f), Vector3i(-6666f, -6666f, -6666f), Vector3i(6666f, 6666f, 6666f))
+        val vector3f by configVector3f("vector3f", Vector3f(0f, 0f), Vector3f(-6666f, -6666f, -6666f), Vector3f(6666f, 6666f, 6666f))
+        val vector3d by configVector3d("vector3d", Vector3d(0f, 0f), Vector3d(-6666f, -6666f, -6666f), Vector3d(6666f, 6666f, 6666f))
     }
 }

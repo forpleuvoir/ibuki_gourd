@@ -17,6 +17,13 @@ import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import kotlin.time.Duration
+import org.joml.Vector2fc
+import org.joml.Vector2ic
+import org.joml.Vector2dc
+import org.joml.Vector3fc
+import org.joml.Vector3ic
+import org.joml.Vector3dc
+import java.lang.classfile.Superclass
 
 //region Metadata
 private const val UI_WRAPPER_KEY = "#ui_wrapper"
@@ -65,14 +72,14 @@ object UIWrappers {
     inline fun <reified C : ConfigNode> register(strict: Boolean = true, wrapper: ConfigUIWrapper<C>) =
         register(type = C::class, strict, wrapper)
 
-    fun <C : Any> registerCheckValueType(type: KClass<C>, wrapper: ConfigUIWrapper<Config<C>>) {
+    fun <C : Any> registerCheckValueType(type: KClass<C>, strict: Boolean, wrapper: ConfigUIWrapper<Config<C>>) {
         register({
-            it is Config<*> && it.valueType == type
+            it is Config<*> && if (strict) it.valueType == type else it.valueType?.isSubclassOf(type) == true
         }, wrapper)
     }
 
-    inline fun <reified C : Any> registerCheckValueType(wrapper: ConfigUIWrapper<Config<C>>) =
-        registerCheckValueType(type = C::class, wrapper)
+    inline fun <reified C : Any> registerCheckValueType(strict: Boolean = true, wrapper: ConfigUIWrapper<Config<C>>) =
+        registerCheckValueType(type = C::class, strict, wrapper)
 
     @Composable
     @Suppress("UNCHECKED_CAST")
@@ -104,12 +111,24 @@ object UIWrappers {
         registerCheckValueType<Boolean> { BooleanConfigWrapper(it) }
         registerCheckValueType<String> { StringConfigWrapper(it) }
         //endregion
+        //region Other
         register<ConfigEnum<*>> { EnumConfigWrapper(it) }
         registerCheckValueType<Color> { ColorConfigWrapper(it) }
         registerCheckValueType<Duration> { DurationConfigWrapper(it) }
-        register({ it is Config<*> && it.valueType?.isSubclassOf(KeyCode::class) == true }) { KeyCodeConfigWrapper(it as Config<KeyCode>) }
+        //endregion
+        //region Vector
+        registerCheckValueType<Vector2fc>(false) { Vector2fConfigWrapper(it) }
+        registerCheckValueType<Vector2ic>(false) { Vector2iConfigWrapper(it) }
+        registerCheckValueType<Vector2dc>(false) { Vector2dConfigWrapper(it) }
+        registerCheckValueType<Vector3fc>(false) { Vector3fConfigWrapper(it) }
+        registerCheckValueType<Vector3ic>(false) { Vector3iConfigWrapper(it) }
+        registerCheckValueType<Vector3dc>(false) { Vector3dConfigWrapper(it) }
+        //endregion
+        //region Input
+        registerCheckValueType<KeyCode>(false) { KeyCodeConfigWrapper(it) }
         register<ConfigKeybind> { KeybindConfigWrapper(it) }
         register<ConfigToggleKeybind> { ToggleKeybindConfigWrapper(it) }
+        //endregion
         register({ it is ConfigList<*> && it.elementType == String::class }) {
             @Suppress("UNCHECKED_CAST")
             StringListConfigWrapper(it as ConfigList<String>)

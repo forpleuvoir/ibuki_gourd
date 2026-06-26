@@ -203,18 +203,39 @@ fun IntConfigWrapper(
                     )
                 } else if (range != null) {
                     val sliderAnim = remember { Animatable(fraction(value)) }
+                    var initialized by remember { mutableStateOf(false) }
+                    var targetValue by remember { mutableStateOf(value) }
+                    var isDragging by remember { mutableStateOf(false) }
 
                     LaunchedEffect(value) {
-                        sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                        if (!initialized) {
+                            sliderAnim.snapTo(fraction(value))
+                            initialized = true
+                            targetValue = value
+                        } else if (!isDragging) {
+                            sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                            targetValue = value
+                        }
                     }
 
-                    val sliderValue = (range.first + sliderAnim.value * (range.last - range.first)).fastRoundToInt()
+                    val sliderValue = when {
+                        isDragging -> value
+                        sliderAnim.isRunning -> (range.first + sliderAnim.value * (range.last - range.first)).fastRoundToInt()
+                        else -> targetValue
+                    }
                     IntSlider(
                         value = sliderValue,
                         onValueChange = {
+                            isDragging = true
                             config.setValue(it)
                             value = it
-                            scope.launch { sliderAnim.snapTo(fraction(it)) }
+                        },
+                        onValueChangeFinished = {
+                            scope.launch {
+                                sliderAnim.snapTo(fraction(value))
+                                isDragging = false
+                                targetValue = value
+                            }
                         },
                         valueRange = range,
                         valueDisplay = valueDisplay,
@@ -293,18 +314,39 @@ fun LongConfigWrapper(
                     )
                 } else if (range != null) {
                     val sliderAnim = remember { Animatable(fraction(value)) }
+                    var initialized by remember { mutableStateOf(false) }
+                    var targetValue by remember { mutableStateOf(value) }
+                    var isDragging by remember { mutableStateOf(false) }
 
                     LaunchedEffect(value) {
-                        sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                        if (!initialized) {
+                            sliderAnim.snapTo(fraction(value))
+                            initialized = true
+                            targetValue = value
+                        } else if (!isDragging) {
+                            sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                            targetValue = value
+                        }
                     }
 
-                    val sliderValue = (range.first + sliderAnim.value * (range.last - range.first)).toLong()
+                    val sliderValue: Long = when {
+                        isDragging -> value
+                        sliderAnim.isRunning -> (range.first + sliderAnim.value * (range.last - range.first)).toLong()
+                        else -> targetValue
+                    }
                     LongSlider(
                         value = sliderValue,
                         onValueChange = {
+                            isDragging = true
                             config.setValue(it)
                             value = it
-                            scope.launch { sliderAnim.snapTo(fraction(it)) }
+                        },
+                        onValueChangeFinished = {
+                            scope.launch {
+                                sliderAnim.snapTo(fraction(value))
+                                isDragging = false
+                                targetValue = value
+                            }
                         },
                         valueRange = range,
                         valueDisplay = valueDisplay,
@@ -383,18 +425,39 @@ fun FloatConfigWrapper(
                     )
                 } else if (range != null) {
                     val sliderAnim = remember { Animatable(fraction(value)) }
+                    var initialized by remember { mutableStateOf(false) }
+                    var targetValue by remember { mutableStateOf(value) }
+                    var isDragging by remember { mutableStateOf(false) }
 
                     LaunchedEffect(value) {
-                        sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                        if (!initialized) {
+                            sliderAnim.snapTo(fraction(value))
+                            initialized = true
+                            targetValue = value
+                        } else if (!isDragging) {
+                            sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                            targetValue = value
+                        }
                     }
 
-                    val sliderValue = range.start + sliderAnim.value * (range.endInclusive - range.start)
+                    val sliderValue = when {
+                        isDragging -> value
+                        sliderAnim.isRunning -> range.start + sliderAnim.value * (range.endInclusive - range.start)
+                        else -> targetValue
+                    }
                     FloatSlider(
                         value = sliderValue,
                         onValueChange = {
+                            isDragging = true
                             config.setValue(it)
                             value = it
-                            scope.launch { sliderAnim.snapTo(fraction(it)) }
+                        },
+                        onValueChangeFinished = {
+                            scope.launch {
+                                sliderAnim.snapTo(fraction(value))
+                                isDragging = false
+                                targetValue = value
+                            }
                         },
                         valueRange = range,
                         valueDisplay = { valueDisplay("%.2f".format(it).toFloat()) },
@@ -473,18 +536,39 @@ fun DoubleConfigWrapper(
                     )
                 } else if (range != null) {
                     val sliderAnim = remember { Animatable(fraction(value)) }
+                    var initialized by remember { mutableStateOf(false) }
+                    var targetValue by remember { mutableStateOf(value) }
+                    var isDragging by remember { mutableStateOf(false) }
 
                     LaunchedEffect(value) {
-                        sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                        if (!initialized) {
+                            sliderAnim.snapTo(fraction(value))
+                            initialized = true
+                            targetValue = value
+                        } else if (!isDragging) {
+                            sliderAnim.animateTo(fraction(value), tween(durationMillis = 200))
+                            targetValue = value
+                        }
                     }
 
-                    val sliderValue = range.start + sliderAnim.value * (range.endInclusive - range.start)
+                    val sliderValue = when {
+                        isDragging -> value
+                        sliderAnim.isRunning -> range.start + sliderAnim.value * (range.endInclusive - range.start)
+                        else -> targetValue
+                    }
                     DoubleSlider(
                         value = sliderValue,
                         onValueChange = {
+                            isDragging = true
                             config.setValue(it)
                             value = it
-                            scope.launch { sliderAnim.snapTo(fraction(it)) }
+                        },
+                        onValueChangeFinished = {
+                            scope.launch {
+                                sliderAnim.snapTo(fraction(value))
+                                isDragging = false
+                                targetValue = value
+                            }
                         },
                         valueRange = range,
                         valueDisplay = { valueDisplay("%.2f".format(it).toDouble()) },
