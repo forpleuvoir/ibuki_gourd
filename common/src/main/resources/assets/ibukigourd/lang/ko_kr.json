@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "활성화 시 토스트가 현재 화면의 색 구성표를 따릅니다",
   "ibukigourd.config.gui.toast.light_mode": "라이트 모드",
   "ibukigourd.config.gui.toast.light_mode.comment": "기본 라이트/다크 모드입니다. 적응형이 활성화되면 현재 화면의 색 구성표에 따라 자동으로 조정됩니다",
+  "ibukigourd.config.gui.toast.offset": "오프셋",
+  "ibukigourd.config.gui.toast.offset.comment": "토스트의 창 내 위치 오프셋, 범위 0~1 (창 크기 대비 백분율)",
   "ibukigourd.config.gui.scroller": "스크롤",
   "ibukigourd.config.gui.scroller.comment": "마우스 휠 관련 설정",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "스크롤 배율 Ⅰ",

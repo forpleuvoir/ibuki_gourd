@@ -23,13 +23,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.first
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.util.math.x
+import moe.forpleuvoir.ibukigourd.util.math.y
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 private val ToastPlacement = Alignment { size, space, _ ->
+    val offset = IGConfig.Gui.Toast.offset
     IntOffset(
-        x = (space.width - size.width) / 2,
-        y = ((space.height * 0.85f - size.height / 2f)).toInt()
+        x = ((space.width - size.width) * offset.x).toInt(),
+        y = ((space.height * offset.y - size.height / 2f)).toInt()
     )
 }
 

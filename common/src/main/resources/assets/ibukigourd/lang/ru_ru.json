@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "При включении уведомление будет следовать цветовой схеме текущего экрана",
   "ibukigourd.config.gui.toast.light_mode": "Светлая тема",
   "ibukigourd.config.gui.toast.light_mode.comment": "Светлая/тёмная тема по умолчанию. При включённой адаптации будет автоматически подстраиваться под цветовую схему текущего экрана",
+  "ibukigourd.config.gui.toast.offset": "Смещение",
+  "ibukigourd.config.gui.toast.offset.comment": "Смещение позиции уведомления в окне, диапазон 0~1 (в процентах от размера окна)",
   "ibukigourd.config.gui.scroller": "Колёсико",
   "ibukigourd.config.gui.scroller.comment": "Настройки колёсика мыши",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "Множитель прокрутки Ⅰ",

@@ -64,20 +64,20 @@ fun Vector3fc.copy(x: Number = this.x(), y: Number = this.y(), z: Number = this.
 /**
  * 获取[Vector3f.x]值
  */
-val Vector3fc.x: Float
+inline val Vector3fc.x: Float
     get() = this.x()
 
 /**
  * 获取[Vector3f.y]值
 
  */
-val Vector3fc.y: Float
+inline val Vector3fc.y: Float
     get() = this.y()
 
 /**
  * 获取[Vector3f.z]值
  */
-val Vector3fc.z: Float
+inline val Vector3fc.z: Float
     get() = this.z()
 
 val Codec.Companion.vector3fc: Codec<Vector3fc> by lazy {

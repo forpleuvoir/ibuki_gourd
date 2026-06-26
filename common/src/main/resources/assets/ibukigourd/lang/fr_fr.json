@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "Lorsque activé, le toast suivra la palette de couleurs de l'écran actuel",
   "ibukigourd.config.gui.toast.light_mode": "Mode clair",
   "ibukigourd.config.gui.toast.light_mode.comment": "Mode clair/sombre par défaut. Lorsque l'adaptatif est activé, il s'ajustera automatiquement selon la palette de couleurs de l'écran actuel",
+  "ibukigourd.config.gui.toast.offset": "Décalage",
+  "ibukigourd.config.gui.toast.offset.comment": "Décalage de la position du toast dans la fenêtre, plage 0~1 (pourcentage par rapport à la taille de la fenêtre)",
   "ibukigourd.config.gui.scroller": "Molette",
   "ibukigourd.config.gui.scroller.comment": "Paramètres liés à la molette de la souris",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "Multiplicateur de défilement Ⅰ",

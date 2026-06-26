@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "開咗之後提示彈窗會跟住當前介面嘅配色方案",
   "ibukigourd.config.gui.toast.light_mode": "淺色模式",
   "ibukigourd.config.gui.toast.light_mode.comment": "預設嘅淺色/深色模式，開咗自適應之後會根據當前介面配色方案自動調整",
+  "ibukigourd.config.gui.toast.offset": "偏移",
+  "ibukigourd.config.gui.toast.offset.comment": "提示喺視窗入面嘅位置偏移量，取值範圍 0~1（相對於視窗尺寸嘅百分比）",
   "ibukigourd.config.gui.scroller": "滾輪",
   "ibukigourd.config.gui.scroller.comment": "滑鼠滾輪相關設定",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "滾動倍率Ⅰ",

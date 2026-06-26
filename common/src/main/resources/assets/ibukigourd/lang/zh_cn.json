@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "启用后提示弹窗将跟随当前界面的配色方案",
   "ibukigourd.config.gui.toast.light_mode": "浅色模式",
   "ibukigourd.config.gui.toast.light_mode.comment": "默认的浅色/深色模式,开启自适应后将根据当前界面配色方案自动调整",
+  "ibukigourd.config.gui.toast.offset": "偏移",
+  "ibukigourd.config.gui.toast.offset.comment": "提示在窗口中的位置偏移量，取值范围 0~1（相对于窗口尺寸的百分比）",
   "ibukigourd.config.gui.scroller": "滚轮",
   "ibukigourd.config.gui.scroller.comment": "鼠标滚轮相关设置",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "滚动倍率Ⅰ",

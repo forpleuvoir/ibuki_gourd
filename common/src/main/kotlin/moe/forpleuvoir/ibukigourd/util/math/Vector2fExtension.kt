@@ -58,14 +58,14 @@ fun Vector2fc.copy(x: Number = this.x(), y: Number = this.y()): Vector2fc = Vect
 /**
  * 获取[Vector2f.x]值
  */
-val Vector2fc.x: Float
+inline val Vector2fc.x: Float
     get() = this.x()
 
 /**
  * 获取[Vector2f.y]值
 
  */
-val Vector2fc.y: Float
+inline val Vector2fc.y: Float
     get() = this.y()
 
 val Codec.Companion.vector2fc: Codec<Vector2fc> by lazy {

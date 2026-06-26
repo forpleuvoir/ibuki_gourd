@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "When enabled, the toast will follow the current screen's color scheme",
   "ibukigourd.config.gui.toast.light_mode": "Light Mode",
   "ibukigourd.config.gui.toast.light_mode.comment": "Default light/dark mode. When adaptive is enabled, it will automatically adjust based on the current screen's color scheme",
+  "ibukigourd.config.gui.toast.offset": "Offset",
+  "ibukigourd.config.gui.toast.offset.comment": "Toast position offset in the window, range 0~1 (percentage relative to window size)",
   "ibukigourd.config.gui.scroller": "Scroller",
   "ibukigourd.config.gui.scroller.comment": "Mouse wheel related settings",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "Scroll Multiplier Ⅰ",

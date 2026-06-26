@@ -14,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
 import moe.forpleuvoir.ibukigourd.config.item.configKeybind
+import moe.forpleuvoir.ibukigourd.config.item.configVector2f
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
@@ -36,6 +37,7 @@ import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.*
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.color
+import org.joml.Vector2f
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -146,6 +148,8 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 }.apply {
                     observe { ToastHandler.activeScheme = dynamicColorScheme(colorSchemeSeed.toComposeColor, isDark = !this.getValue()) }
                 }
+
+            var offset by configVector2f("offset", Vector2f(0.5f, 0.85f), Vector2f(0f, 0f), Vector2f(1f, 1f))
 
         }
 

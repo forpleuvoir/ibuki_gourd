@@ -71,19 +71,19 @@ fun Vector3dc.copy(x: Number = this.x(), y: Number = this.y(), z: Number = this.
 /**
  * 获取[Vector3d.x]值
  */
-val Vector3dc.x: Double
+inline val Vector3dc.x: Double
     get() = this.x()
 
 /**
  * 获取[Vector3d.y]值
  */
-val Vector3dc.y: Double
+inline val Vector3dc.y: Double
     get() = this.y()
 
 /**
  * 获取[Vector3d.z]值
  */
-val Vector3dc.z: Double
+inline val Vector3dc.z: Double
     get() = this.z()
 
 val Codec.Companion.vector3dc: Codec<Vector3dc> by lazy {

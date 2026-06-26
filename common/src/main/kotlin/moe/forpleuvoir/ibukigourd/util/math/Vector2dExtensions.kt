@@ -66,13 +66,13 @@ fun Vector2dc.copy(x: Number = this.x(), y: Number = this.y()): Vector2dc =
 /**
  * 获取[Vector2d.x]值
  */
-val Vector2dc.x: Double
+inline val Vector2dc.x: Double
     get() = this.x()
 
 /**
  * 获取[Vector2d.y]值
  */
-val Vector2dc.y: Double
+inline val Vector2dc.y: Double
     get() = this.y()
 
 val Codec.Companion.vector2dc: Codec<Vector2dc> by lazy {

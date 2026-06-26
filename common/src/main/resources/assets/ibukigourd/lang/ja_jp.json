@@ -122,6 +122,8 @@
   "ibukigourd.config.gui.toast.adaptive_color_scheme.comment": "有効にすると現在の画面の配色に従う",
   "ibukigourd.config.gui.toast.light_mode": "ライトモード",
   "ibukigourd.config.gui.toast.light_mode.comment": "デフォルトのライト/ダークモード。適応配色有効時は現在の画面配色に応じて自動調整",
+  "ibukigourd.config.gui.toast.offset": "オフセット",
+  "ibukigourd.config.gui.toast.offset.comment": "トーストのウィンドウ内位置オフセット、範囲 0~1（ウィンドウサイズに対する百分比）",
   "ibukigourd.config.gui.scroller": "スクロール",
   "ibukigourd.config.gui.scroller.comment": "マウスホイール関連の設定",
   "ibukigourd.config.gui.scroller.scroll_multiplier_1": "スクロール倍率 Ⅰ",

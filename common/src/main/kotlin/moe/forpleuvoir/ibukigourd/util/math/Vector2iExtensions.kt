@@ -56,14 +56,14 @@ fun Vector2ic.copy(x: Number = this.x(), y: Number = this.y()): Vector2ic = Vect
 /**
  * 获取[Vector2i.x]值
  */
-val Vector2ic.x: Int
+inline val Vector2ic.x: Int
     get() = this.x()
 
 /**
  * 获取[Vector2i.y]值
 
  */
-val Vector2ic.y: Int
+inline val Vector2ic.y: Int
     get() = this.y()
 
 val Codec.Companion.vector2ic: Codec<Vector2ic> by lazy {
