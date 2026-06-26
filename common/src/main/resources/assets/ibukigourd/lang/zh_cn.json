@@ -114,6 +114,8 @@
   "ibukigourd.config.gui.screen.fade_in_offset.comment": "打开屏幕时的淡入动画偏移量(百分比), 0f ~ 1f",
   "ibukigourd.config.gui.screen.fade_in_duration": "淡入持续时间",
   "ibukigourd.config.gui.screen.fade_in_duration.comment": "打开屏幕时的淡入动画持续时间",
+  "ibukigourd.config.gui.screen.pause_game": "暂停游戏",
+  "ibukigourd.config.gui.screen.pause_game.comment": "全局暂停开关。当启用时，屏幕打开会触发暂停。此设置会被屏幕自身的 pauseGame 属性覆盖",
   "ibukigourd.config.gui.toast": "提示",
   "ibukigourd.config.gui.toast.comment": "提示弹窗的相关设置",
   "ibukigourd.config.gui.toast.adaptive_color_scheme": "自适应配色",

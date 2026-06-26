@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.test
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
@@ -17,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.mod.waht.SnakeGame
 import moe.forpleuvoir.ibukigourd.platform.services.ModInitialization
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigUiWrapper
-import moe.forpleuvoir.ibukigourd.ui.open
+import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
@@ -105,6 +107,15 @@ class TestInitialization : ModInitialization {
                         Surface(Modifier.fillMaxSize()) {
                             Column {
                                 Row(modifier = Modifier.padding(8.dp)) {
+                                    Button({
+                                        openComposePopupScreen {
+                                            Card(Modifier.padding(24.dp)) {
+                                                Text("Dialog Test")
+                                            }
+                                        }
+                                    }){
+                                        Text("Dialog Test")
+                                    }
                                     Text("亮色模式")
                                     ConfigUiWrapper(IGConfig.Gui.Theme.children.find { it.name == "light_mode" }!!)
                                 }

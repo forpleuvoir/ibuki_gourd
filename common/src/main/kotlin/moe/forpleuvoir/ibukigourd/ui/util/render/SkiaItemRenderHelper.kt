@@ -70,8 +70,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
         itemImageCache[cacheKey]?.let { return it }
 
-//        val oldGuiScale = mc.window.guiScale
-//        mc.window.guiScale = 2
         val target = OffscreenRenderTarget("skia_item", width, height)
         val device = RenderSystem.getDevice()
         val encoder = device.createCommandEncoder()
@@ -112,9 +110,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
                 RenderSystem.enableScissorForRenderTypeDraws(0, 0, width, height)
 
-//                val byteBuffer = ByteBufferBuilder(786432)
-//                val bufferSource = MultiBufferSource.immediate(byteBuffer)
-
                 val bufferSource = mc.renderBuffers().bufferSource()
 
                 val outlineBufferSource = OutlineBufferSource()
@@ -129,7 +124,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
                 bufferSource.endBatch()
                 outlineBufferSource.endOutlineBatch()
-//                byteBuffer.close()
 
             } finally {
                 RenderSystem.disableScissorForRenderTypeDraws()
@@ -146,7 +140,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
             encoder.copyTextureToBuffer(srcTex, pbo, 0L, {}, 0)
             val fence = encoder.createFence()
-            while (!fence.awaitCompletion(1)) {
+            while (!fence.awaitCompletion(0)) {
                 /*await*/
             }
             fence.close()
@@ -182,7 +176,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             return result
         } finally {
             target.dispose()
-//            mc.window.guiScale = oldGuiScale
             logger.info("Create ItemImage buffer: ${now.elapsedNow()}")
         }
     }

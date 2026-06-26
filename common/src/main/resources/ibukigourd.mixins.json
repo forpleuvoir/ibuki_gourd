@@ -16,6 +16,7 @@
     "client.MinecraftMixin",
     "client.MouseHandlerMixin",
     "client.RenderPipelinesAccessor",
+    "client.ScreenAccessor",
     "client.WindowMixin"
   ],
   "injectors": {

@@ -2,18 +2,10 @@
 
 package moe.forpleuvoir.ibukigourd.ui.scene
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.scene.CanvasLayersComposeScene
-import androidx.compose.ui.util.fastRoundToInt
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.scene.internal.SceneContext
@@ -35,7 +27,6 @@ import net.minecraft.client.input.MouseButtonEvent
  *
  * 共享状态通过 [SceneContext] 统一管理，组件之间不直接耦合。
  */
-@OptIn(ExperimentalFoundationApi::class)
 open class DefaultComposeSceneHost(
     private val content: @Composable () -> Unit,
 ) : ComposeSceneHost {
@@ -63,19 +54,7 @@ open class DefaultComposeSceneHost(
             IGCompositionLocalProvider(
                 LocalSkiaSurface provides ctx.surface,
             ) {
-                var visible by remember { mutableStateOf(false) }
-                LaunchedEffect(Unit) { visible = true }
-                val enterEasing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
-                val duration = IGConfig.Gui.Screen.fadeInDuration.inWholeMilliseconds.toInt()
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = slideInVertically(
-                        initialOffsetY = { fullHeight -> (fullHeight * IGConfig.Gui.Screen.fadeInOffset).fastRoundToInt() },
-                        animationSpec = tween(duration, easing = enterEasing)
-                    ) + fadeIn(animationSpec = tween(duration, easing = enterEasing)),
-                ) {
-                    content()
-                }
+                content()
             }
         }
     }

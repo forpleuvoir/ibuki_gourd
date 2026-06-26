@@ -114,6 +114,8 @@
   "ibukigourd.config.gui.screen.fade_in_offset.comment": "Fade in animation offset when opening screen (percentage), 0f ~ 1f",
   "ibukigourd.config.gui.screen.fade_in_duration": "Fade In Duration",
   "ibukigourd.config.gui.screen.fade_in_duration.comment": "Fade in animation duration when opening screen",
+  "ibukigourd.config.gui.screen.pause_game": "Pause Game",
+  "ibukigourd.config.gui.screen.pause_game.comment": "Global pause toggle. When enabled, opening a screen will trigger a pause. This setting can be overridden by the screen's own pauseGame attribute",
   "ibukigourd.config.gui.toast": "Toast",
   "ibukigourd.config.gui.toast.comment": "Toast notification related settings",
   "ibukigourd.config.gui.toast.adaptive_color_scheme": "Adaptive Color Scheme",

@@ -22,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.mod.waht.EasterEggs
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
+import moe.forpleuvoir.ibukigourd.ui.DefaultAnimatedScreenEntry
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Settings
@@ -38,9 +39,15 @@ fun IbukiGourdScreen(
     renderParent: Boolean = false,
     parentScreen: Screen? = mc.screen,
     shouldRenderLevel: Boolean = false,
-) = ComposeScreen(pauseGame, renderParent, parentScreen, shouldRenderLevel) {
-    IbukiGourdScreenContent()
-}
+    entryAnimation: Boolean = true,
+) = ComposeScreen(
+    pauseGame,
+    renderParent,
+    parentScreen,
+    { shouldRenderLevel },
+    entryAnimation,
+    ::IbukiGourdScreenContent
+)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -59,11 +66,14 @@ internal fun IbukiGourdScreenContent() {
     }
     var count by remember { mutableIntStateOf(0) }
     IbukiGourdTheme {
+        var selectedIndex by remember { mutableIntStateOf(0) }
         ModScreen(
             title = {
                 Text(IbukiGourd.MOD_NAME, fontWeight = FontWeight.Bold)
             },
             items = items,
+            selectedIndex = selectedIndex,
+            onSelectIndex = { selectedIndex = it },
             header = {
                 DrawerHeader(
                     monogram = {

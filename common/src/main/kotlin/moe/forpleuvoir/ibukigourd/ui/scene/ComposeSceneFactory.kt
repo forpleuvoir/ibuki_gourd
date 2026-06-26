@@ -20,11 +20,10 @@ import androidx.compose.runtime.Composable
 object ComposeSceneFactory {
 
     /**
-     * Create a new [ComposeSceneHost] that renders the given Compose content
-     * within a Minecraft screen.
+     * 创建一个新的 [ComposeSceneHost] 实例，用于在 Minecraft 屏幕中渲染 Compose UI 内容。
      *
-     * @param content The Compose UI content to render
-     * @return A new [ComposeSceneHost] instance
+     * @param content 需要渲染的 Compose UI 内容
+     * @return 新的 [ComposeSceneHost] 实例
      */
     fun create(content: @Composable () -> Unit): ComposeSceneHost {
         return DefaultComposeSceneHost(content)

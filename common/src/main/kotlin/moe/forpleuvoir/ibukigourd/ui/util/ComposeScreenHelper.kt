@@ -8,7 +8,7 @@ object ComposeScreenHelper {
     @JvmStatic
     fun shouldBlockLevelRender(): Boolean {
         return (mc.screen as? ComposeScreen)?.let {
-            !it.shouldRenderLevel
+            !it.renderingLevel
         } ?: false
     }
 

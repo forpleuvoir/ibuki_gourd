@@ -24,19 +24,18 @@ import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.render.extension.pushAlignmentText
 import moe.forpleuvoir.ibukigourd.render.extension.pushBlit
 import moe.forpleuvoir.ibukigourd.render.extension.pushHueGradientRect
 import moe.forpleuvoir.ibukigourd.render.extension.pushRectOutline
 import moe.forpleuvoir.ibukigourd.render.extension.pushRoundRect
 import moe.forpleuvoir.ibukigourd.render.extension.pushSaturationGradientRect
 import moe.forpleuvoir.ibukigourd.render.extension.pushStringLines
-import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
 import moe.forpleuvoir.ibukigourd.render.extension.pushValueGradientRect
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.text.style.style
+import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
@@ -45,7 +44,6 @@ import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.GuiGraphicsExtractor
-import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.world.item.ItemStack
@@ -88,6 +86,9 @@ fun TestScreen1() {
                     Button(onClick = {
                         text = "$text!"
                         println("按下了按钮")
+                        openComposePopupScreen {
+                            TestScreen2()
+                        }
                     }, modifier = Modifier.tooltip {
                         Text("悬浮测试")
                     }) {

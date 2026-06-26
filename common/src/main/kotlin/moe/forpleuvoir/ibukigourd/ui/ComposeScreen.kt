@@ -1,6 +1,13 @@
 package moe.forpleuvoir.ibukigourd.ui
 
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.runtime.*
+import androidx.compose.ui.util.fastRoundToInt
+import moe.forpleuvoir.ibukigourd.mixin.client.ScreenAccessor
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.isDevEnv
 import moe.forpleuvoir.ibukigourd.text.Text
@@ -19,34 +26,65 @@ import kotlin.time.TimeSource
  * 接收一个 [content] 可组合函数，通过 [ComposeSceneHost] 渲染 Compose 内容，并将鼠标/键盘输入事件
  * 委托至 Compose 场景。支持控制游戏暂停、父屏幕渲染以及世界层级背景渲染。
  *
- * @param pauseGame        是否暂停游戏（[isPauseScreen] 返回值）。
- * @param renderParent     是否在 extractRenderState 中渲染父屏幕。
- * @param parentScreen     关闭时回退到的父屏幕，默认 null。
- * @param _shouldRenderLevel (实验性功能,暂时不建议修改,可能会导致游戏卡死) 是否持续渲染世界层级背景。
- *                           若为 false，[shouldRenderLevel] 初始为 true，经过 [IGConfig.Gui.Screen.fadeInDuration]
- *                           后会被置为 false（世界背景仅作为淡入效果，淡入完成后停止渲染）；若为 true 则始终渲染。
- * @param content          Compose 可组合内容。
+ * [content] 直接作为 Compose 场景的根内容，不附加任何动画或装饰。
+ * 如需要入场动画等效果，请在传递 [content] 前自行包裹，
+ * 可使用 [DefaultAnimatedScreenEntry] 作为默认入场动画。
+ *
+ * @param pauseGame          是否暂停游戏（[isPauseScreen] 返回值）。
+ * @param renderParent       是否在 extractRenderState 中渲染父屏幕。
+ * @param parentScreen       关闭时回退到的父屏幕，默认 null。
+ * @param shouldRenderLevel  (实验性功能,暂时不建议修改,可能会导致游戏卡死) 是否持续渲染世界层级背景。
+ *                            若为 false，[renderingLevel] 初始为 true，经过 [IGConfig.Gui.Screen.fadeInDuration]
+ *                            后会被置为 false（世界背景仅作为淡入效果，淡入完成后停止渲染）；若为 true 则始终渲染。
+ * @param content            Compose 可组合内容。
  */
 class ComposeScreen(
-    val pauseGame: Boolean = false,
-    private val renderParent: Boolean = false,
-    private val parentScreen: Screen? = null,
-    private val _shouldRenderLevel: Boolean = true,
+    val pauseGame: Boolean,
+    val renderParent: Boolean,
+    val parentScreen: Screen?,
+    val shouldRenderLevel: (ComposeScreen) -> Boolean,
     content: @Composable () -> Unit,
 ) : Screen(Text.literal("Compose Screen")) {
+
+    constructor(
+        pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
+        renderParent: Boolean = false,
+        parentScreen: Screen? = mc.screen,
+        shouldRenderLevel: (ComposeScreen) -> Boolean = { true },
+        entryAnimation: Boolean = true,
+        content: @Composable () -> Unit,
+    ) : this(pauseGame, renderParent, parentScreen, shouldRenderLevel, {
+        if (entryAnimation) DefaultAnimatedScreenEntry(content)
+        else content()
+    })
+
     private val mark by lazy { TimeSource.Monotonic.markNow() }
     private val host: ComposeSceneHost by lazy { ComposeSceneFactory.create(content) }
 
-    var shouldRenderLevel: Boolean = true
+    var renderingLevel: Boolean = true
         private set
+
+    private var onClose: (() -> Unit)? = null
+
+    fun onClose(block: () -> Unit) {
+        onClose = block
+    }
+
+    private var onInit: (() -> Unit)? = null
+
+    fun onInit(block: () -> Unit) {
+        onInit = block
+    }
 
     override fun init() {
         mark
         host.init()
+        onInit?.invoke()
     }
 
     override fun onClose() {
         this.minecraft.setScreen(parentScreen)
+        onClose?.invoke()
         host.onClose()
     }
 
@@ -56,8 +94,8 @@ class ComposeScreen(
         if (renderParent) {
             parentScreen?.extractRenderState(graphics, -500, -500, partialTick)
         }
-        if (!_shouldRenderLevel && shouldRenderLevel && mark.elapsedNow() > IGConfig.Gui.Screen.fadeInDuration) {
-            shouldRenderLevel = false
+        if (!shouldRenderLevel(this) && renderingLevel && mark.elapsedNow() > IGConfig.Gui.Screen.fadeInDuration) {
+            renderingLevel = false
         }
         host.extractRenderState(graphics, mouseX, mouseY, partialTick)
         if (!init && isDevEnv) {
@@ -84,35 +122,51 @@ class ComposeScreen(
     override fun isPauseScreen(): Boolean = pauseGame
 }
 
-fun Screen.open() {
-    mc.setScreen(this)
+fun Screen.initScreen() {
+    (this as ScreenAccessor).`ibukigourd$Init`()
+}
+
+fun <S : Screen> S.open(): S {
+    mc.execute { mc.setScreen(this) }
+    return this
 }
 
 fun closeScreen() {
-    mc.screen?.onClose()
+    mc.execute { mc.screen?.onClose() }
 }
 
-/**
- * 快速创建并打开一个 [ComposeScreen]。
- *
- * 封装了 [ComposeScreen] 的构造与 [Screen.open] 调用，提供更便捷的入口。
- *
- * @param pauseGame        是否暂停游戏。
- * @param renderParent     是否在背景渲染父屏幕。
- * @param parentScreen     关闭时回退到的屏幕，默认为当前屏幕。
- * @param shouldRenderLevel (实验性功能,暂时不建议修改,可能会导致游戏卡死) 是否持续渲染世界层级背景；
- *                          为 false 时仅在淡入期间渲染，经过 [IGConfig.Gui.Screen.fadeInDuration] 后停止。
- * @param content          Compose 可组合内容。
- */
+fun Screen?.isComposeScreen() =
+    this is ComposeScreen
+
 fun openComposeScreen(
-    pauseGame: Boolean = false,
+    pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
     renderParent: Boolean = false,
     parentScreen: Screen? = mc.screen,
-    shouldRenderLevel: Boolean = true,
+    shouldRenderLevel: (ComposeScreen) -> Boolean = { true },
+    entryAnimation: Boolean = true,
     content: @Composable () -> Unit
-) {
-    ComposeScreen(pauseGame, renderParent, parentScreen, shouldRenderLevel, content = content).open()
-}
+) = ComposeScreen(
+    pauseGame,
+    renderParent,
+    parentScreen,
+    shouldRenderLevel,
+    entryAnimation,
+    content
+).open()
 
-fun isComposeScreen() =
-    mc.screen is ComposeScreen
+@Composable
+fun DefaultAnimatedScreenEntry(content: @Composable () -> Unit) {
+    val enterEasing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
+    val duration = IGConfig.Gui.Screen.fadeInDuration.inWholeMilliseconds.toInt()
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically(
+            initialOffsetY = { fullHeight -> (fullHeight * IGConfig.Gui.Screen.fadeInOffset).fastRoundToInt() },
+            animationSpec = tween(duration, easing = enterEasing)
+        ) + fadeIn(animationSpec = tween(duration, easing = enterEasing)),
+    ) {
+        content()
+    }
+}

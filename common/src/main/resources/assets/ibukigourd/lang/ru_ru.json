@@ -114,6 +114,8 @@
   "ibukigourd.config.gui.screen.fade_in_offset.comment": "Смещение анимации появления при открытии экрана (в процентах), 0f ~ 1f",
   "ibukigourd.config.gui.screen.fade_in_duration": "Длительность появления",
   "ibukigourd.config.gui.screen.fade_in_duration.comment": "Длительность анимации появления при открытии экрана",
+  "ibukigourd.config.gui.screen.pause_game": "Пауза игры",
+  "ibukigourd.config.gui.screen.pause_game.comment": "Глобальный переключатель паузы. При включении открытие экрана вызывает паузу. Эта настройка может быть переопределена атрибутом pauseGame самого экрана",
   "ibukigourd.config.gui.toast": "Уведомления",
   "ibukigourd.config.gui.toast.comment": "Настройки всплывающих уведомлений",
   "ibukigourd.config.gui.toast.adaptive_color_scheme": "Адаптивная цветовая схема",

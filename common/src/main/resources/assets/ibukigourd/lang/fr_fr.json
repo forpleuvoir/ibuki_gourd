@@ -114,6 +114,8 @@
   "ibukigourd.config.gui.screen.fade_in_offset.comment": "Offset de l'animation d'apparition à l'ouverture (pourcentage), 0f ~ 1f",
   "ibukigourd.config.gui.screen.fade_in_duration": "Durée d'apparition",
   "ibukigourd.config.gui.screen.fade_in_duration.comment": "Durée de l'animation d'apparition à l'ouverture",
+  "ibukigourd.config.gui.screen.pause_game": "Mettre le jeu en pause",
+  "ibukigourd.config.gui.screen.pause_game.comment": "Bascule de pause globale. Lorsque activé, l'ouverture d'un écran déclenche une pause. Ce paramètre peut être remplacé par l'attribut pauseGame de l'écran lui-même",
   "ibukigourd.config.gui.toast": "Toast",
   "ibukigourd.config.gui.toast.comment": "Paramètres des notifications toast",
   "ibukigourd.config.gui.toast.adaptive_color_scheme": "Palette adaptative",

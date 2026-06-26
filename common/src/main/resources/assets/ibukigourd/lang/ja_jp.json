@@ -114,6 +114,8 @@
   "ibukigourd.config.gui.screen.fade_in_offset.comment": "画面を開く際のフェードインアニメーションオフセット（百分比）、0f ~ 1f",
   "ibukigourd.config.gui.screen.fade_in_duration": "フェードイン時間",
   "ibukigourd.config.gui.screen.fade_in_duration.comment": "画面を開く際のフェードインアニメーション時間",
+  "ibukigourd.config.gui.screen.pause_game": "ゲームを一時停止",
+  "ibukigourd.config.gui.screen.pause_game.comment": "グローバル一時停止トグル。有効時、画面を開くと一時停止が発動する。この設定は画面自身の pauseGame 属性で上書きされる",
   "ibukigourd.config.gui.toast": "トースト",
   "ibukigourd.config.gui.toast.comment": "トースト通知の関連設定",
   "ibukigourd.config.gui.toast.adaptive_color_scheme": "適応配色",

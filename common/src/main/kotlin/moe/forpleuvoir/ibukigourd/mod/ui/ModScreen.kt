@@ -82,13 +82,14 @@ class DrawerItem(
 fun ModScreen(
     title: @Composable () -> Unit,
     items: List<DrawerItem>,
+    selectedIndex: Int = 0,
+    onSelectIndex: (Int) -> Unit,
     header: @Composable (() -> Unit)? = null,
     footer: @Composable (() -> Unit)? = null,
 ) {
     require(items.isNotEmpty()) { "items must not be empty" }
 
     var drawerOpen by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(0) }
 
     Box(Modifier.fillMaxSize()) {
         Scaffold(
@@ -162,7 +163,7 @@ fun ModScreen(
                                 { CompositionLocalProvider(LocalDrawerItemSelected provides isSelected) { item.icon() } }
                             } else null,
                             onClick = {
-                                selectedIndex = index
+                                onSelectIndex(index)
                                 drawerOpen = false
                             }
                         )

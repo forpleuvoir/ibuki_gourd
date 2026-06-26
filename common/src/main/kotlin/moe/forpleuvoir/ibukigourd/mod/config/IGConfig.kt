@@ -126,6 +126,8 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
             val fadeInDuration by configDuration("fade_in_duration", 150.milliseconds, Duration.ZERO, 2.seconds)
 
+            val pauseGame by configBoolean("pause_game", false)
+
         }
 
         object Toast : ConfigGroup("toast") {
