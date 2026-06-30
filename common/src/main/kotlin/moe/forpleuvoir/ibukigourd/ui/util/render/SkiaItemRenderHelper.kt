@@ -12,12 +12,8 @@ import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.Color
-import net.minecraft.client.renderer.OutlineBufferSource
 import net.minecraft.client.renderer.Projection
 import net.minecraft.client.renderer.ProjectionMatrixBuffer
-import net.minecraft.client.renderer.SubmitNodeStorage
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.component.DataComponents
@@ -39,8 +35,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
     private val logger = logger()
 
-    private val itemRenderer = ItemFeatureRenderer()
-
     private data class ItemCacheKey(
         val itemModel: Identifier?,
         val player: Player?,
@@ -59,7 +53,8 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
     private val itemImageCache = LinkedHashMap<ItemCacheKey, ImageBitmap>(16, 0.75f, true)
     private var totalCacheArea: Long = 0
-    private const val MAX_CACHE_AREA: Long = 16_777_216
+    private const val MAX_CACHE_AREA: Long = 134_217_728 //128 MB
+
 
     fun renderItemToBufferedImage(
         itemStack: ItemStack,
@@ -112,18 +107,15 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
                 val bufferSource = mc.renderBuffers().bufferSource()
 
-                val outlineBufferSource = OutlineBufferSource()
-
-                val submitCollector = SubmitNodeStorage()
-                itemState.submit(poseStack, submitCollector, 0xF000F0, OverlayTexture.NO_OVERLAY, 0)
-
-                for (collection in submitCollector.submitsPerOrder.values) {
-                    itemRenderer.renderSolid(collection, bufferSource, outlineBufferSource)
-                    itemRenderer.renderTranslucent(collection, bufferSource, outlineBufferSource)
-                }
+                // 箱子/盾牌/旗帜/装饰罐等通过 special renderer 提交 ModelSubmit/BlockModelSubmit，
+                // ItemFeatureRenderer 只处理 ItemSubmit，因此必须走 FeatureRenderDispatcher.renderAllFeatures
+                // 才能让 ModelFeatureRenderer / BlockFeatureRenderer 等各自处理对应提交类型。
+                val featureRenderDispatcher = mc.gameRenderer.featureRenderDispatcher
+                val submitNodeStorage = featureRenderDispatcher.submitNodeStorage
+                itemState.submit(poseStack, submitNodeStorage, 0xF000F0, OverlayTexture.NO_OVERLAY, 0)
+                featureRenderDispatcher.renderAllFeatures()
 
                 bufferSource.endBatch()
-                outlineBufferSource.endOutlineBatch()
 
             } finally {
                 RenderSystem.disableScissorForRenderTypeDraws()
@@ -147,15 +139,19 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
             val pixels = ByteArray(width * height * pixelSize)
 
+            val tPixelCopy = TimeSource.Monotonic.markNow()
+
+            // GPU RGBA8 小端读回 int = 0xAABBGGRR；Skia N32 在本平台为 BGRA 字节序，
+            // 故输出 [B,G,R,A]。内联位运算以避免每像素分配 Color 对象。
             encoder.mapBuffer(pbo, true, false).use { mapped ->
                 val data = mapped.data()
                 var k = 0
                 for (y in height - 1 downTo 0) for (x in 0 until width) {
-                    val argb = Color.fromARGB(data.getInt((x + y * width) * pixelSize))
-                    pixels[k++] = argb.red.toByte()
-                    pixels[k++] = argb.green.toByte()
-                    pixels[k++] = argb.blue.toByte()
-                    pixels[k++] = argb.alpha.toByte()
+                    val v = data.getInt((x + y * width) * pixelSize)
+                    pixels[k++] = (v ushr 16).toByte() // B
+                    pixels[k++] = (v ushr 8).toByte()  // G
+                    pixels[k++] = v.toByte()           // R
+                    pixels[k++] = (v ushr 24).toByte() // A
                 }
             }
             pbo.close()
@@ -164,6 +160,8 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                 allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.UNPREMUL))
                 installPixels(pixels)
             }.asComposeImageBitmap()
+
+            logger.info("ItemImage buffer conversion: ${tPixelCopy.elapsedNow()}")
 
             val entryArea = width * height
             while (totalCacheArea + entryArea > MAX_CACHE_AREA && itemImageCache.isNotEmpty()) {

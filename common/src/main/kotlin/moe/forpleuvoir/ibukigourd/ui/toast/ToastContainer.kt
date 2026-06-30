@@ -3,9 +3,13 @@
 package moe.forpleuvoir.ibukigourd.ui.toast
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -24,6 +28,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.first
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.util.math.x
 import moe.forpleuvoir.ibukigourd.util.math.y
 import kotlin.time.Duration
@@ -124,10 +129,19 @@ private fun ToastItem(state: ToastHandler.ToastState) {
         enter = toastAnim.enter,
         exit = toastAnim.exit
     ) {
+        val animProgress by this.transition.animateFloat(label = "toastProgress") {
+            when (it) {
+                EnterExitState.PreEnter -> 0f
+                EnterExitState.Visible  -> 1f
+                EnterExitState.PostExit -> 0f
+            }
+        }
+
         CompositionLocalProvider(
             LocalToastAnimation provides toastAnim,
             LocalToastDuration provides state.toast.duration,
-            LocalToastRefreshCounter provides state.refreshCounter
+            LocalToastRefreshCounter provides state.refreshCounter,
+            LocalInheritedAlpha provides animProgress
         ) {
             state.toast.content()
         }

@@ -1,16 +1,21 @@
 package moe.forpleuvoir.ibukigourd.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.util.fastRoundToInt
+import moe.forpleuvoir.ibukigourd.lang.ColorLang.alpha
 import moe.forpleuvoir.ibukigourd.mixin.client.ScreenAccessor
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.isDevEnv
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -167,6 +172,15 @@ fun DefaultAnimatedScreenEntry(content: @Composable () -> Unit) {
             animationSpec = tween(duration, easing = enterEasing)
         ) + fadeIn(animationSpec = tween(duration, easing = enterEasing)),
     ) {
-        content()
+        val animProgress by this.transition.animateFloat(label = "toastProgress") {
+            when (it) {
+                EnterExitState.PreEnter -> 0f
+                EnterExitState.Visible  -> 1f
+                EnterExitState.PostExit -> 0f
+            }
+        }
+        CompositionLocalProvider(LocalInheritedAlpha provides animProgress) {
+            content()
+        }
     }
 }

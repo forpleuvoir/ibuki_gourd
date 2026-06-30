@@ -1,8 +1,12 @@
 package moe.forpleuvoir.ibukigourd.test
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -11,10 +15,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -40,6 +46,7 @@ import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -111,7 +118,7 @@ fun TestScreen1() {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TestScreen2() {
     CenteredBox {
@@ -151,17 +158,37 @@ fun TestScreen2() {
             }
             Column(
                 Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .background(Color(0xFF9fFF00), RoundedCornerShape(4.dp)),
+                    .align(Alignment.CenterHorizontally),
+//                    .background(Color(0xFF9fFF00), RoundedCornerShape(4.dp)),
                 horizontalAlignment = Alignment.End
             ) {
-                ItemIconVanilla(ItemStack(Items.IRON_SWORD, 16), showCount = true, modifier = Modifier.background(Colors.GRAY))
-                ItemIconVanilla(
-                    ItemStack(Items.DIAMOND_SWORD, 16),
-                    size = DpSize((114).dp, (114).dp),
-                    showCount = true,
-                    modifier = Modifier.background(Colors.BLUE)
-                )
+                var target by remember { mutableStateOf(1f) }
+                val alpha by animateFloatAsState(targetValue = target, animationSpec = tween(durationMillis = 5000))
+
+                mc.player?.mainHandItem?.let {
+                    CompositionLocalProvider(LocalInheritedAlpha provides alpha) {
+                        ItemIconVanilla(it, showCount = true, modifier = Modifier.onClick {
+                            ToastHandler.showContent {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(it.displayName)
+                                    ItemIconVanilla(it)
+                                }
+                            }
+                        })
+                    }
+                }
+//                ItemIconVanilla(
+//                    ItemStack(Items.DIAMOND_SWORD, 16),
+//                    size = DpSize((114).dp, (114).dp),
+//                    showCount = true,
+//                    modifier = Modifier.background(Colors.BLUE)
+//                )
+
+                Button(onClick = {
+                    target = if (target == 1f) 0f else 1f
+                }) {
+                    Text("点我 %.2f".format(alpha))
+                }
             }
             var selected by remember { mutableStateOf(Direction.UP) }
             EnumSelector(

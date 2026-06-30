@@ -12,12 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +43,8 @@ val LocalItemIconVanillaPadding = staticCompositionLocalOf {
     PaddingValues(4.dp)
 }
 
+val LocalInheritedAlpha = compositionLocalOf { 1f }
+
 /**
  * 使用原版方法渲染物品图标
  *
@@ -73,14 +72,16 @@ fun ItemIconVanilla(
     padding: PaddingValues = LocalItemIconVanillaPadding.current,
     showTooltip: Boolean = true,
     showCount: Boolean = false,
+    countColor: moe.forpleuvoir.nebula.common.color.Color = Colors.WHITE,
     scaleOnHover: Float = 1.1f,
 ) {
     val surface = LocalSkiaSurface.current
     // 追踪组件布局坐标，供原生渲染定位使用
     var offset by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    var count by remember { mutableStateOf(item.count) }
+    var count by remember { mutableIntStateOf(item.count) }
     val interactionSource = remember { MutableInteractionSource() }
     val hovered by interactionSource.collectIsHoveredAsState()
+    val alpha = LocalInheritedAlpha.current
     // 悬浮放大动画：原生渲染管线不响应 Compose graphicsLayer，需把缩放因子喂进 ScaleFactor
     val scale by animateFloatAsState(
         targetValue = if (hovered) scaleOnHover else 1f,
@@ -88,7 +89,7 @@ fun ItemIconVanilla(
         label = "itemIconVanillaScale"
     )
     // item 变化时重置数量，并启动逐帧原生渲染循环
-    LaunchedEffect(item) {
+    LaunchedEffect(item, alpha) {
         count = item.count
         while (isActive) {
             withFrameNanos {
@@ -129,7 +130,15 @@ fun ItemIconVanilla(
                     //原版在 guiScale != 0 的情况下裁剪并不精准
                     enableScissor(cl.toInt() - 1, ct.toInt() - 1, (cl + cw).toInt() + 2, (ct + ch).toInt() + 2)
 
-                    pushItem(item, spacerX, spacerY, ScaleFactor(xScale, yScale), showCount = showCount)
+                    pushItem(
+                        item,
+                        spacerX,
+                        spacerY,
+                        ScaleFactor(xScale, yScale),
+                        color = Colors.WHITE.alpha(alpha),
+                        textColor = countColor.opacity(alpha),
+                        showCount = showCount
+                    )
 
                     disableScissor()
 
@@ -251,3 +260,4 @@ fun ItemIcon(
         }
     }
 }
+

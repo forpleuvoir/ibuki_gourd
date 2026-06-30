@@ -3,7 +3,9 @@
 package moe.forpleuvoir.ibukigourd.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -15,6 +17,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,6 +27,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.screens.Screen
 
@@ -115,7 +119,16 @@ fun DefaultAnimatedDialogEntry(content: @Composable () -> Unit) {
             exit = fadeOut(animationSpec = tween(durationMs, easing = enterEasing)) +
                     scaleOut(targetScale = 0.8f, animationSpec = tween(durationMs, easing = enterEasing)),
         ) {
-            content()
+            val animProgress by this.transition.animateFloat(label = "toastProgress") {
+                when (it) {
+                    EnterExitState.PreEnter -> 0f
+                    EnterExitState.Visible  -> 1f
+                    EnterExitState.PostExit -> 0f
+                }
+            }
+            CompositionLocalProvider(LocalInheritedAlpha provides animProgress) {
+                content()
+            }
         }
     }
 }
