@@ -1,14 +1,23 @@
 package moe.forpleuvoir.ibukigourd.test
 
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
 import com.mojang.serialization.JavaOps
+import com.skydoves.cloudy.liquidGlass
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
@@ -102,9 +111,11 @@ class TestInitialization : ModInitialization {
             }
 
             register(Keyboard.KP_7) {
-                openComposeScreen {
+                openComposeScreen(shouldRenderLevel = { false }) {
                     IbukiGourdTheme {
-                        Surface(Modifier.fillMaxSize()) {
+                        Surface(
+                            Modifier.fillMaxSize()
+                        ) {
                             Column {
                                 Row(modifier = Modifier.padding(8.dp)) {
                                     Button({
@@ -113,7 +124,7 @@ class TestInitialization : ModInitialization {
                                                 Text("Dialog Test")
                                             }
                                         }
-                                    }){
+                                    }) {
                                         Text("Dialog Test")
                                     }
                                     Text("亮色模式")

@@ -22,7 +22,7 @@ public class GuiRendererMixin {
     )
     private void ibukigourd$modifyItemAtlasColor(Args args, @Local(name = "itemState") GuiItemRenderState itemState) {
         var color = ItemRenderStateExtensionKt.getColor(itemState);
-        if (color != -1) {
+        if (((color >> 24) & 0xff) != 255) {
             args.set(0, RenderPipelines.GUI_TEXTURED);
             args.set(11, color);
         }

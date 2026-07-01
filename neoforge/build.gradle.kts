@@ -31,16 +31,19 @@ dependencies {
 
     api(libs.nebula)?.let { jarJar(it) }
 
-    jarJarInternal(api("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
+    jarJarInternal(api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}") {
         composeExclude()
     })
-    jarJarInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
+    jarJarInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:${libs.versions.material3.get()}") {
         composeExclude()
     })
     //material-kolor 依赖但是 kotlinforege没有的
     api("org.jetbrains.kotlinx:atomicfu:0.28.0")?.let { jarJar(it) }
 
     jarJarInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
+        composeExclude()
+    })
+    jarJarInternal(api("com.github.skydoves:cloudy:${libs.versions.cloudy.get()}") {
         composeExclude()
     })
     jarJarInternal(api(compose.desktop.currentOs) {

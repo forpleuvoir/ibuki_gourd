@@ -2,41 +2,31 @@ package moe.forpleuvoir.ibukigourd.test
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.onClick
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
+import com.skydoves.cloudy.liquidGlass
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.render.extension.pushBlit
-import moe.forpleuvoir.ibukigourd.render.extension.pushHueGradientRect
-import moe.forpleuvoir.ibukigourd.render.extension.pushRectOutline
-import moe.forpleuvoir.ibukigourd.render.extension.pushRoundRect
-import moe.forpleuvoir.ibukigourd.render.extension.pushSaturationGradientRect
-import moe.forpleuvoir.ibukigourd.render.extension.pushStringLines
-import moe.forpleuvoir.ibukigourd.render.extension.pushValueGradientRect
+import moe.forpleuvoir.ibukigourd.render.extension.*
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
@@ -60,9 +50,9 @@ import kotlin.enums.enumEntries
 
 
 @Composable
-fun CenteredBox(content: @Composable BoxScope.() -> Unit) {
+fun CenteredBox(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         content()
@@ -74,7 +64,24 @@ fun TestScreen1() {
     IbukiGourdTheme(
         colorScheme = darkColorScheme(),
     ) {
-        CenteredBox {
+        var lensCenter by remember { mutableStateOf(Offset.Zero) }
+        CenteredBox(
+            Modifier.pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    lensCenter += dragAmount
+                    change.consume()
+                }
+            }.liquidGlass(
+                lensCenter = lensCenter,
+                lensSize = Size(200f, 200f),
+                cornerRadius = 33f,
+                refraction = 0.47f,
+                curve = 0.42f,
+                dispersion = 0.09f,
+                edge = 0.4f,
+                saturation = 1.39f,
+            )
+        ) {
             var size by remember { mutableStateOf(1f) }
             Column {
                 mc.player?.mainHandItem?.let { item ->
@@ -90,15 +97,16 @@ fun TestScreen1() {
                     Text(text = text)
                 }
                 Row {
-                    Button(onClick = {
-                        text = "$text!"
-                        println("按下了按钮")
-                        openComposePopupScreen {
-                            TestScreen2()
-                        }
-                    }, modifier = Modifier.tooltip {
-                        Text("悬浮测试")
-                    }) {
+                    Button(
+                        onClick = {
+                            text = "$text!"
+                            println("按下了按钮")
+                            openComposePopupScreen {
+                                TestScreen2()
+                            }
+                        }, modifier = Modifier.tooltip {
+                            Text("悬浮测试")
+                        }) {
                         Text("这是什么按钮")
                     }
                     Slider(size, {

@@ -22,9 +22,9 @@ public class PictureInPictureRendererMixin {
             )
     )
     private void ibukigourd$modifyPiPBlitColor(Args args, @Local(name = "renderState") PictureInPictureRenderState renderState) {
-        if (renderState instanceof OversizedItemRenderState){
+        if (renderState instanceof OversizedItemRenderState) {
             var color = ItemRenderStateExtensionKt.getColor((OversizedItemRenderState) renderState);
-            if (color != -1) {
+            if (((color >> 24) & 0xff) != 255) {
                 args.set(0, RenderPipelines.GUI_TEXTURED);
                 args.set(11, color);
             }

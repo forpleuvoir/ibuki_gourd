@@ -152,7 +152,7 @@ fun ConfigName(
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
-            PlainTooltip {
+            PlainTooltip(maxWidth = 600.dp) {
                 Text(InlineStyleText(config.translateComment.plainText))
             }
         },

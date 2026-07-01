@@ -19,10 +19,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.component.DataComponents
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.PreparableReloadListener
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.Level
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ImageInfo
@@ -37,8 +35,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
     private data class ItemCacheKey(
         val itemModel: Identifier?,
-        val player: Player?,
-        val world: Level?,
+        val componentsHash: Long,
         val width: Int,
         val height: Int,
         val hasFoil: Boolean
@@ -46,7 +43,11 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         companion object {
             fun fromItemStack(itemStack: ItemStack, width: Int, height: Int): ItemCacheKey {
                 val model = itemStack.components.get(DataComponents.ITEM_MODEL)
-                return ItemCacheKey(model, mc.player, mc.level, width, height, itemStack.hasFoil())
+                var hash = 0L
+                for (component in itemStack.components) {
+                    hash = 31 * hash + component.hashCode()
+                }
+                return ItemCacheKey(model, hash, width, height, itemStack.hasFoil())
             }
         }
     }
@@ -55,6 +56,55 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
     private var totalCacheArea: Long = 0
     private const val MAX_CACHE_AREA: Long = 134_217_728 //128 MB
 
+    //region 队列渲染
+
+    private data class PendingRenderRequest(
+        val cacheKey: ItemCacheKey,
+        val itemStack: ItemStack,
+        val width: Int,
+        val height: Int,
+    )
+
+    private val pendingQueue: MutableList<PendingRenderRequest> = mutableListOf()
+
+    private const val MAX_PER_FRAME = 4
+
+    fun requestRender(
+        itemStack: ItemStack,
+        width: Int = 64,
+        height: Int = 64,
+    ) {
+        val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
+        if (itemImageCache.containsKey(cacheKey)) return
+        pendingQueue.removeAll {
+            it.itemStack == itemStack && it.width == width && it.height == height
+        }
+        pendingQueue.add(PendingRenderRequest(cacheKey, itemStack, width, height))
+    }
+
+    fun getCached(
+        itemStack: ItemStack,
+        width: Int = 64,
+        height: Int = 64,
+    ): ImageBitmap? {
+        val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
+        return itemImageCache[cacheKey]
+    }
+
+    fun processOnRenderThread() {
+        var processed = 0
+        while (pendingQueue.isNotEmpty() && processed < MAX_PER_FRAME) {
+            val request = pendingQueue.removeAt(0)
+            try {
+                renderItemToBufferedImage(request.itemStack, request.width, request.height)
+            } catch (e: Exception) {
+                logger.error("处理队列物品渲染时发生异常: ${e.message}")
+            }
+            processed++
+        }
+    }
+
+    //endregion
 
     fun renderItemToBufferedImage(
         itemStack: ItemStack,
@@ -157,7 +207,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             pbo.close()
 
             val result = Bitmap().apply {
-                allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.UNPREMUL))
+                allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
                 installPixels(pixels)
             }.asComposeImageBitmap()
 

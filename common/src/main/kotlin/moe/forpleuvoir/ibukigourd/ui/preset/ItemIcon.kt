@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.render.extension.pushItem
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -33,7 +32,6 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
-import kotlin.time.Duration.Companion.milliseconds
 
 val LocalItemIconVanillaSize = staticCompositionLocalOf {
     DpSize(45.5.dp, 45.5.dp)
@@ -208,15 +206,18 @@ fun ItemIcon(
         label = "itemIconScale"
     )
 
-    // item 变化时重新烘焙纹理，并启动逐帧提示框渲染循环
-    LaunchedEffect(item) {
-        delay(1.milliseconds)
-        mc.execute {
-            bitmap = SkiaItemRenderHelper.renderItemToBufferedImage(item, imageSize.width, imageSize.height)
-        }
+    // item 变化时提交渲染请求至队列，并在 withFrameNanos 中轮询缓存结果
+    LaunchedEffect(item, imageSize) {
         count = item.count
+        bitmap = null
+        SkiaItemRenderHelper.requestRender(item, imageSize.width, imageSize.height)
         while (isActive) {
             withFrameNanos {
+                if (bitmap == null) {
+                    SkiaItemRenderHelper.getCached(item, imageSize.width, imageSize.height)?.let {
+                        bitmap = it
+                    }
+                }
                 // 悬停时通过原生渲染管线绘制物品提示框
                 if (showTooltip && hovered) {
                     surface.postRender {

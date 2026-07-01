@@ -23,8 +23,8 @@ run {
     outputDir.mkdirs()
     val tomlContent = """
     [mod_info]
-    name = "${project.properties["mod_name"]}"
-    id = "${project.properties["mod_id"]}"
+    name = "${project.findProperty("mod_name")}"
+    id = "${project.findProperty("mod_id")}"
     version = "$version"
     minecraft_version = "${libs.versions.minecraft.get()}"
 """.trimIndent()

@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.fabricLoom)
 }
 
-val modId: String = project.properties["mod_id"].toString()
+val modId: String = project.findProperty("mod_id").toString()
 
 repositories {
     maven {
@@ -37,13 +37,16 @@ dependencies {
     //nebula
     api(libs.nebula)?.let { include(it) }
 
-    includeInternal(api("org.jetbrains.compose.material3:material3:1.11.0-alpha07") {
+    includeInternal(api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}") {
         composeExclude()
     })
-    includeInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.11.0-alpha07") {
+    includeInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:${libs.versions.material3.get()}") {
         composeExclude()
     })
     includeInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
+        composeExclude()
+    })
+    includeInternal(api("com.github.skydoves:cloudy:${libs.versions.cloudy.get()}") {
         composeExclude()
     })
     includeInternal(api(compose.desktop.currentOs) {

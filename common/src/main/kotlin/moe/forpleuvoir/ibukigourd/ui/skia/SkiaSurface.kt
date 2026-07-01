@@ -9,13 +9,22 @@ import com.mojang.blaze3d.opengl.GlTexture
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.textures.GpuTexture
 import com.mojang.blaze3d.textures.TextureFormat
+import moe.forpleuvoir.ibukigourd.render.asTexture
+import moe.forpleuvoir.ibukigourd.render.extension.pushBlit
+import moe.forpleuvoir.ibukigourd.render.peekScissorRect
+import moe.forpleuvoir.ibukigourd.render.renderState
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.FrameRetirement
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.GpuFrame
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.SkiaTexture
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.gui.render.TextureSetup
+import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.client.renderer.state.gui.BlitRenderState
 import org.jetbrains.skia.*
+import org.joml.Matrix3x2f
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -166,7 +175,15 @@ class SkiaSurface {
             frame.skiaSurface.flushAndSubmit()
         }
 
-        guiGraphics.blit(textureId, 0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0f, 1f, 0f, 1f)
+        guiGraphics.renderState.addGuiElement(
+            BlitRenderState(
+                RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA,
+                TextureSetup.singleTexture(boundTexture.textureView, boundTexture.sampler),
+                Matrix3x2f(guiGraphics.pose()),
+                0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(),
+                0f, 1f, 0f, 1f, -1, guiGraphics.peekScissorRect()
+            )
+        )
 
         while (true) {
             postRenderDeque.poll()?.invoke(guiGraphics) ?: break
