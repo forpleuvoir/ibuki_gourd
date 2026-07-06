@@ -1,21 +1,111 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.ConfigMap
+
+@Composable
+fun StringConfigWrapper(
+    config: Config<String>,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+) {
+    val textFieldState = rememberTextFieldState(config.getValue())
+
+    ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment, onReset = {
+        textFieldState.setTextAndPlaceCursorAtEnd(config.getValue())
+    }) {
+        var showDialog by remember { mutableStateOf(false) }
+
+        Row(
+            modifier = Modifier.size(ConfigRowWrapper.entrySize),
+            horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            LaunchedEffect(textFieldState.text) {
+                config.setValue(textFieldState.text.toString())
+            }
+
+            OutlinedTextField(
+                state = textFieldState,
+                label = { androidx.compose.material3.Text("String") },
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier.weight(1f),
+            )
+
+            IconButton(onClick = { showDialog = true }) {
+                Icon(Icons.EditNote, IGLang.Misc.edit.plainText)
+            }
+        }
+        if (showDialog) {
+            val state = rememberTextFieldState(config.getValue())
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text(InlineStyleText(config.translateText.plainText)) },
+                text = {
+                    IGCompositionLocalProvider {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                        ) {
+                            val scrollState = rememberScrollState()
+                            OutlinedTextField(
+                                state = state,
+                                scrollState = scrollState,
+                                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                            )
+                            VerticalScrollbar(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                adapter = rememberScrollbarAdapter(scrollState)
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        config.setValue(state.text.toString())
+                        textFieldState.setTextAndPlaceCursorAtEnd(state.text.toString())
+                        showDialog = false
+                    }) {
+                        Text(IGLang.Misc.confirm)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text(IGLang.Misc.cancel)
+                    }
+                }
+            )
+        }
+    }
+}
 
 @Composable
 fun StringListConfigWrapper(
@@ -26,7 +116,7 @@ fun StringListConfigWrapper(
         }
     },
     modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier.padding(40.dp).size(800.dp, 600.dp),
+    dialogModifier: Modifier = Modifier.padding(40.dp).size(1000.dp, 800.dp),
 ) {
     ListConfigWrapper(
         config = config,
@@ -92,7 +182,7 @@ fun StringMapConfigWrapper(
     keyHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapKey) },
     valueHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapValue) },
     modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier.padding(40.dp).fillMaxWidth(),
+    dialogModifier: Modifier = Modifier.padding(40.dp).size(1000.dp, 800.dp),
 ) {
     MapConfigWrapper(
         config = config,
@@ -175,9 +265,9 @@ fun StringMapConfigWrapper(
 fun StringPairListConfigWrapper(
     config: ConfigList<Pair<String, String>>,
     firstHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairFirst) },
-    secondHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairFirst) },
+    secondHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairSecond) },
     modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier.padding(40.dp).fillMaxWidth(),
+    dialogModifier: Modifier = Modifier.padding(40.dp).size(1000.dp, 800.dp),
 ) {
     ListConfigWrapper(
         config = config,

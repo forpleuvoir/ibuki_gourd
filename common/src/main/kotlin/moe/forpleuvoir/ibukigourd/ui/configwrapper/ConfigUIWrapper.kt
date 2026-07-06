@@ -1,6 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
 import moe.forpleuvoir.ibukigourd.input.KeyCode
@@ -95,7 +98,9 @@ object UIWrappers {
     @Composable
     fun UnspecifiedConfigWrapper(config: ConfigNode) {
         ConfigRowWrapper(config) {
-            Text(IGLang.Misc.unsupported)
+            Box(Modifier.height(ConfigRowWrapper.entrySize.height)) {
+                Text(IGLang.Misc.unsupported)
+            }
         }
     }
 

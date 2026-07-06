@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
 
@@ -63,7 +65,9 @@ fun <T> Selector(
             shape = shape,
             colors = colors,
             contentPadding = contentPadding,
-            modifier = Modifier.fillMaxWidth().pointerHoverIcon(PointerIcon.Default, !enabledSearch)
+            modifier = Modifier
+                .fillMaxWidth()
+                .pointerHoverIcon(PointerIcon.Default, !enabledSearch)
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled)
         )
         ExposedDropdownMenu(expanded, onDismissRequest = { expanded = false }) {

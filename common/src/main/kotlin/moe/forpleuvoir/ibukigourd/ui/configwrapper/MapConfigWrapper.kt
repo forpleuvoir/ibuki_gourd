@@ -23,12 +23,14 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 
 @Composable
@@ -149,6 +151,7 @@ private fun <V : Any> MapEditDialog(
                         Column(
                             modifier = Modifier
                                 .verticalScroll(scrollState)
+                                .fillMaxHeight()
                                 .padding(top = 4.dp, bottom = 56.dp),
                         ) {
                             ReorderableItemList(
@@ -177,7 +180,7 @@ private fun <V : Any> MapEditDialog(
                                     Box(
                                         dragModifier
                                             .hoverable(handleInteraction)
-                                            .pointerHoverIcon(PointerIcon.Default, handleHovered)
+                                            .pointerHoverIcon(PointerIcon.Hand)
                                             .background(
                                                 if (handleHovered || isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                                                 CircleShape,
@@ -197,11 +200,7 @@ private fun <V : Any> MapEditDialog(
                                     Box(modifier = Modifier.weight(1f)) {
                                         valueEditor(currentKey)
                                     }
-                                    IconButton(onClick = {
-                                        config.remove(currentKey)
-                                    }) {
-                                        Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
-                                    }
+                                    RemoveConfirmButton("${config.translateText.plainText}[$currentKey]", { config.remove(currentKey) })
 
                                     if (showKeyEditDialog) {
                                         var newKey by remember { mutableStateOf(currentKey) }
@@ -259,13 +258,13 @@ private fun <V : Any> MapEditDialog(
                         )
                     }
                 }
-
                 FloatingActionButton(
                     onClick = onAddClick,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
-                        .size(40.dp),
+                        .size(40.dp)
+                        .fabVisibilityAnimation(rememberScrollFabVisibilityProgress(scrollState))
                 ) {
                     Icon(Icons.Add, IGLang.Misc.add.plainText)
                 }

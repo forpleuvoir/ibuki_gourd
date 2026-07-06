@@ -61,6 +61,10 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             addConfig(Scroller)
         }
 
+        val quickActionKeyCode by configKeyCode("quick_action_key_code", Keyboard.LEFT_SHIFT)
+
+        val hideActionKeyCode by configKeyCode("hide_action_key_code", Keyboard.LEFT_ALT)
+
         object Theme : ConfigGroup("theme") {
 
             //用来刷新初始化的Toast的配色方案
