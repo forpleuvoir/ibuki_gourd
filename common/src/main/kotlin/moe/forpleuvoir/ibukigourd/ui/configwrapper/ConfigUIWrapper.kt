@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
@@ -98,7 +99,7 @@ object UIWrappers {
     @Composable
     fun UnspecifiedConfigWrapper(config: ConfigNode) {
         ConfigRowWrapper(config) {
-            Box(Modifier.height(ConfigRowWrapper.entrySize.height)) {
+            Box(Modifier.height(ConfigRowWrapper.entrySize.height), contentAlignment = Alignment.Center) {
                 Text(IGLang.Misc.unsupported)
             }
         }

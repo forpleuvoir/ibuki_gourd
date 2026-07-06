@@ -39,21 +39,21 @@ fun ColorSettingButton(
     )
 
     if (showDialog) {
-        var state by remember { mutableStateOf(value) }
+        var editingColor by remember { mutableStateOf(value) }
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = title,
             properties = DialogProperties(usePlatformDefaultWidth = false),
             text = {
                 IGCompositionLocalProvider {
-                    ColorPicker(value, {
-                        state = it
+                    ColorPicker(editingColor, {
+                        editingColor = it
                     })
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    onValueChange(state)
+                    onValueChange(editingColor)
                     showDialog = false
                 }) {
                     Text(IGLang.Misc.confirm)

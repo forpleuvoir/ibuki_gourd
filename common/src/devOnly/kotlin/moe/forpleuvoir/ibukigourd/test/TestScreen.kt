@@ -32,7 +32,12 @@ import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.material3.Surface
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -76,19 +81,18 @@ fun TestScreen1() {
                 }
                 var text by remember { mutableStateOf("Hello World") }
                 Box(modifier = Modifier.background(Color(255, 255, 255), shape = RoundedCornerShape(2.dp))) {
-                    Text(text = text)
+                    TipBox({
+                        Text("悬浮测试")
+                    }) {
+                        Text(text = text)
+                    }
                 }
                 Row {
                     Button(
                         onClick = {
                             text = "$text!"
                             println("按下了按钮")
-                            openComposePopupScreen {
-                                TestScreen2()
-                            }
-                        }, modifier = Modifier.tooltip {
-                            Text("悬浮测试")
-                        }) {
+                        }, modifier = Modifier.plainTooltip("悬浮测试")) {
                         Text("这是什么按钮")
                     }
                     Slider(size, {

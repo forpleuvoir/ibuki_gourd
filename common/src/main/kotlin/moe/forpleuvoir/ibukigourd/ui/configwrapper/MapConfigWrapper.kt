@@ -124,24 +124,22 @@ private fun <V : Any> MapEditDialog(
                 val scrollState = rememberScrollState()
 
                 Column(modifier = Modifier.fillMaxSize()) {
-                    if (itemCount > 0) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp, bottom = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
-                                Text(IGLang.ConfigWrapper.move, style = MaterialTheme.typography.labelSmall)
-                            }
-                            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { keyHeader() }
-                            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { valueHeader() }
-                            Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
-                                Text(IGLang.Misc.remove, style = MaterialTheme.typography.labelSmall)
-                            }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
+                            Text(IGLang.ConfigWrapper.move, style = MaterialTheme.typography.labelSmall)
                         }
-                        HorizontalDivider()
+                        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { keyHeader() }
+                        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) { valueHeader() }
+                        Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
+                            Text(IGLang.Misc.remove, style = MaterialTheme.typography.labelSmall)
+                        }
                     }
+                    HorizontalDivider()
 
                     Box(
                         modifier = Modifier

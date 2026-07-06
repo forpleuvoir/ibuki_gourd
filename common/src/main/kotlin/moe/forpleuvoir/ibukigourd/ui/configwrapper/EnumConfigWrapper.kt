@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,24 +28,15 @@ fun <E : Enum<E>> EnumConfigWrapper(
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
 
     val value by config.asState()
-    
+
     Box(Modifier.height(ConfigRowWrapper.entrySize.height).widthIn(max = ConfigRowWrapper.entrySize.width), contentAlignment = Alignment.Center) {
-        val textMeasurer = rememberTextMeasurer()
-        val density = LocalDensity.current
-        val maxWidth = remember {
-            with(density) {
-                value::class.java.enumConstants.maxOf {
-                    textMeasurer.measure(it.translateText.toAnnotatedString()).size.width
-                }.toDp() + 20.dp
-            }.coerceAtLeast(160.dp)
-        }
         EnumSelector(
             value,
             { config.setValue(it) },
-            modifier = Modifier.width(maxWidth),
+            modifier = Modifier.fillMaxWidth(),
             content = {
-                Text(it.translateText, overflow = TextOverflow.Ellipsis)
-            },
+                Text(it.translateText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         )
     }
 }

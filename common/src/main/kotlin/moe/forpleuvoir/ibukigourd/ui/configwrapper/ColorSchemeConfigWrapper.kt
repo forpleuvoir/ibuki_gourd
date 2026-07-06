@@ -328,7 +328,7 @@ private fun AddColorDialog(
             )
         },
         confirmButton = {
-            Button(onClick = { onConfirm(pendingColor) }) {
+            TextButton(onClick = { onConfirm(pendingColor) }) {
                 Text(IGLang.Misc.confirm)
             }
         },

@@ -14,6 +14,7 @@ import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.config.item.*
 import moe.forpleuvoir.nebula.serialization.codec.Codec
+import net.minecraft.client.gui.Font
 import net.minecraft.core.Direction
 import kotlin.time.Duration.Companion.seconds
 
@@ -39,6 +40,8 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
     var testBoolean by configBoolean("test_boolean", true)
 
     var testDirection by configEnum("test_direction", Direction.UP)
+
+    var testDisplayeMode by configEnum("test_display_mode", Font.DisplayMode.NORMAL)
 
     var testColor by configColor("test_color", Colors.BLUE_LOTUS)
 

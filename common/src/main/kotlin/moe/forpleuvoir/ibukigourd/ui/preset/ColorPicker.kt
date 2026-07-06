@@ -18,99 +18,39 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.background
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastContent
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import kotlin.math.roundToInt
-import kotlin.time.Duration.Companion.milliseconds
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
-
 
 private val hueGradient by lazy {
     listOf(
-        NebulaColor.fromHSV(0f / 360f, 1f, 1f),
-        NebulaColor.fromHSV(60f / 360f, 1f, 1f),
-        NebulaColor.fromHSV(120f / 360f, 1f, 1f),
-        NebulaColor.fromHSV(180f / 360f, 1f, 1f),
-        NebulaColor.fromHSV(240f / 360f, 1f, 1f),
-        NebulaColor.fromHSV(300f / 360f, 1f, 1f),
-        NebulaColor.fromHSV(360f / 360f, 1f, 1f),
-    ).map { it.toComposeColor }
+        Color.hsv(0f, 1f, 1f),
+        Color.hsv(60f, 1f, 1f),
+        Color.hsv(120f, 1f, 1f),
+        Color.hsv(180f, 1f, 1f),
+        Color.hsv(240f, 1f, 1f),
+        Color.hsv(300f, 1f, 1f),
+        Color.hsv(360f, 1f, 1f),
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifier: Modifier = Modifier) {
 
-    var nebulaColor by remember { mutableStateOf(color) }
+    var tabIndex by remember { mutableStateOf(0) }
 
-    LaunchedEffect(color) { nebulaColor = color }
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { nebulaColor }
-            .drop(1)
-            .debounce(16.milliseconds)
-            .collect { onValueChange(it) }
-    }
-
-    var tabIndex by remember { mutableStateOf(1) }
-    val composeColor = remember(nebulaColor) { nebulaColor.toComposeColor }
-    val borderColor = remember(composeColor) {
-        Color(
-            1f - composeColor.red,
-            1f - composeColor.green,
-            1f - composeColor.blue,
-            0.5f
-        )
-    }
-
-    val satGradient = remember(nebulaColor.hue, nebulaColor.value) {
-        listOf(
-            NebulaColor.fromHSV(nebulaColor.hue, 0f, nebulaColor.value),
-            NebulaColor.fromHSV(nebulaColor.hue, 1f, nebulaColor.value),
-        ).map { it.toComposeColor }
-    }
-
-    val valGradient = remember(nebulaColor.hue, nebulaColor.saturation) {
-        listOf(
-            NebulaColor.fromHSV(nebulaColor.hue, nebulaColor.saturation, 0f),
-            NebulaColor.fromHSV(nebulaColor.hue, nebulaColor.saturation, 1f),
-        ).map { it.toComposeColor }
-    }
-
-    val rGradient = remember(nebulaColor.green, nebulaColor.blue) {
-        listOf(
-            NebulaColor.fromARGB(0, nebulaColor.green, nebulaColor.blue),
-            NebulaColor.fromARGB(255, nebulaColor.green, nebulaColor.blue),
-        ).map { it.toComposeColor }
-    }
-
-    val gGradient = remember(nebulaColor.red, nebulaColor.blue) {
-        listOf(
-            NebulaColor.fromARGB(nebulaColor.red, 0, nebulaColor.blue),
-            NebulaColor.fromARGB(nebulaColor.red, 255, nebulaColor.blue),
-        ).map { it.toComposeColor }
-    }
-
-    val bGradient = remember(nebulaColor.red, nebulaColor.green) {
-        listOf(
-            NebulaColor.fromARGB(nebulaColor.red, nebulaColor.green, 0),
-            NebulaColor.fromARGB(nebulaColor.red, nebulaColor.green, 255),
-        ).map { it.toComposeColor }
-    }
-
-    val aGradient = remember(nebulaColor.red, nebulaColor.green, nebulaColor.blue) {
-        listOf(
-            NebulaColor.fromARGB(nebulaColor.red, nebulaColor.green, nebulaColor.blue, 0),
-            NebulaColor.fromARGB(nebulaColor.red, nebulaColor.green, nebulaColor.blue, 255),
-        ).map { it.toComposeColor }
+    val borderColor = remember(color) {
+        color.reverse(false).toComposeColor
     }
 
     Row(modifier) {
@@ -121,14 +61,14 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                     onClick = { tabIndex = 0 },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
                 ) {
-                    Text("RGB")
+                    Text("HSV")
                 }
                 SegmentedButton(
                     selected = tabIndex == 1,
                     onClick = { tabIndex = 1 },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
                 ) {
-                    Text("HSV")
+                    Text("RGB")
                 }
             }
 
@@ -146,37 +86,65 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                 ) { currentTab ->
                     Column {
                         if (currentTab == 0) {
-                            ColorChannelSlider("R", IGLang.Color.red.plainText, nebulaColor.red.toFloat(), 0f..255f, rGradient) {
-                                nebulaColor = nebulaColor.red(it.roundToInt())
+                            var hue by remember { mutableStateOf(color.hue * 360f) }
+                            LaunchedEffect(hue) { onValueChange(color.hue(hue / 360f)) }
+                            var saturation by remember { mutableStateOf(color.saturation * 100f) }
+                            LaunchedEffect(saturation) { onValueChange(color.saturation(saturation / 100f)) }
+                            var value by remember { mutableStateOf(color.value * 100f) }
+                            LaunchedEffect(value) { onValueChange(color.value(value / 100f)) }
+
+                            val satGradient =
+                                remember(hue, value) { listOf(Color.hsv(hue, 0f, value / 100f), Color.hsv(hue, 1f, value / 100f)) }
+                            val valGradient =
+                                remember(hue, saturation) { listOf(Color.hsv(hue, saturation / 100f, 0f), Color.hsv(hue, saturation / 100f, 1f)) }
+
+                            ColorChannelSlider("H", IGLang.Color.hue.plainText, hue, 0f..360f, hueGradient, useFloat = true) {
+                                hue = it
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("G", IGLang.Color.green.plainText, nebulaColor.green.toFloat(), 0f..255f, gGradient) {
-                                nebulaColor = nebulaColor.green(it.roundToInt())
+                            ColorChannelSlider("S", IGLang.Color.saturation.plainText, saturation, 0f..100f, satGradient, useFloat = true) {
+                                saturation = it
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("B", IGLang.Color.blue.plainText, nebulaColor.blue.toFloat(), 0f..255f, bGradient) {
-                                nebulaColor = nebulaColor.blue(it.roundToInt())
+                            ColorChannelSlider("V", IGLang.Color.value.plainText, value, 0f..100f, valGradient, useFloat = true) {
+                                value = it
                             }
+
                         } else {
-                            ColorChannelSlider("H", IGLang.Color.hue.plainText, nebulaColor.hue * 360f, 0f..360f, hueGradient, useFloat = true) {
-                                nebulaColor = nebulaColor.hue(it / 360f)
+                            var red by remember { mutableStateOf(color.red) }
+                            LaunchedEffect(red) { onValueChange(color.red(red)) }
+                            var green by remember { mutableStateOf(color.green) }
+                            LaunchedEffect(green) { onValueChange(color.green(green)) }
+                            var blue by remember { mutableStateOf(color.blue) }
+                            LaunchedEffect(blue) { onValueChange(color.blue(blue)) }
+
+                            val rGradient = remember(green, blue) { listOf(Color(0, green, blue), Color(255, green, blue)) }
+                            val gGradient = remember(red, blue) { listOf(Color(red, 0, blue), Color(red, 255, blue)) }
+                            val bGradient = remember(color.red, color.green) { listOf(Color(red, green, 0), Color(red, green, 255)) }
+
+                            ColorChannelSlider("R", IGLang.Color.red.plainText, red.toFloat(), 0f..255f, rGradient) {
+                                red = it.fastRoundToInt()
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("S", IGLang.Color.saturation.plainText, nebulaColor.saturation * 100f, 0f..100f, satGradient, useFloat = true) {
-                                nebulaColor = nebulaColor.saturation(it / 100f)
+                            ColorChannelSlider("G", IGLang.Color.green.plainText, green.toFloat(), 0f..255f, gGradient) {
+                                green = it.fastRoundToInt()
                             }
                             Spacer(Modifier.height(2.dp))
-                            ColorChannelSlider("V", IGLang.Color.value.plainText, nebulaColor.value * 100f, 0f..100f, valGradient, useFloat = true) {
-                                nebulaColor = nebulaColor.value(it / 100f)
+                            ColorChannelSlider("B", IGLang.Color.blue.plainText, blue.toFloat(), 0f..255f, bGradient) {
+                                blue = it.fastRoundToInt()
                             }
                         }
                     }
                 }
 
                 Spacer(Modifier.height(2.dp))
-
-                ColorChannelSlider("A", IGLang.Color.alpha.plainText, nebulaColor.alpha.toFloat(), 0f..255f, aGradient, showCheckerboard = true) {
-                    nebulaColor = nebulaColor.alpha(it.roundToInt())
+                val aGradient = remember(color.red, color.green, color.blue) {
+                    listOf(Color(color.red, color.green, color.blue, 0), Color(color.red, color.green, color.blue, 255))
+                }
+                var alpha by remember { mutableStateOf(color.alpha) }
+                LaunchedEffect(alpha) { onValueChange(color.alpha(alpha)) }
+                ColorChannelSlider("A", IGLang.Color.alpha.plainText, alpha.toFloat(), 0f..255f, aGradient, showCheckerboard = true) {
+                    alpha = it.fastRoundToInt()
                 }
             }
         }
@@ -185,32 +153,27 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
             modifier = Modifier.width(160.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
+            val colorText = if (tabIndex == 1) color.hexStr
+            else "(${"%.1f".format(color.hue * 360f)}, ${"%.1f".format(color.saturation * 100)}, ${"%.1f".format(color.value * 100)})"
             val scope = rememberCoroutineScope()
-            AssistChip(
-                onClick = {
-                    scope.launch {
-                        MinecraftClipboard.setClipboardText(nebulaColor.hexStr)
-                        ToastHandler.show {
-                            ToastContent { Text(IGLang.Color.copyColorSuccess(nebulaColor)) }
+
+            TipBox({
+                Text(IGLang.Color.clickCopyColor(color))
+            }) {
+                AssistChip(
+                    onClick = {
+                        scope.launch {
+                            MinecraftClipboard.setClipboardText(colorText)
+                            ToastHandler.show {
+                                ToastContent { Text(IGLang.Color.copyColorSuccess(color)) }
+                            }
                         }
+                    },
+                    label = {
+                        Text(colorText, style = MaterialTheme.typography.labelSmall)
                     }
-                },
-                label = {
-                    TipBox({
-                        Text(IGLang.Color.clickCopyColor(nebulaColor))
-                    }) {
-                        if (tabIndex == 0) {
-                            Text(nebulaColor.hexStr, style = MaterialTheme.typography.labelSmall)
-                        } else {
-                            Text(
-                                "(${"%.1f".format(nebulaColor.hue * 360f)}, ${"%.1f".format(nebulaColor.saturation * 100)}, ${"%.1f".format(nebulaColor.value * 100)})",
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        }
-                    }
-                }
-            )
+                )
+            }
 
             Spacer(Modifier.height(32.dp))
 
@@ -221,7 +184,7 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                     .border(1.dp, borderColor, shape)
             ) {
                 Checkerboard(160.dp / 12, modifier = Modifier.fillMaxSize().clip(shape))
-                Box(Modifier.fillMaxSize().background(composeColor, shape))
+                Box(Modifier.fillMaxSize().background(color, shape))
             }
         }
     }
