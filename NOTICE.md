@@ -18,7 +18,7 @@ The following components are licensed under the Apache License, Version 2.0:
 - JetBrains Compose Multiplatform — Desktop (`org.jetbrains.compose.desktop:desktop`)
 - Material Kolor (`com.materialkolor:material-kolor`)
 - Kotlinx AtomicFU (`org.jetbrains.kotlinx:atomicfu`)
-- Cloudy (`com.github.skydoves:cloudy`)
+- Backdrop (`io.github.kyant0:backdrop`)
 
 ```
                                  Apache License

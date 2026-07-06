@@ -10,6 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -25,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
+import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.config.item.ConfigList
 
@@ -33,7 +36,6 @@ fun <E : Any> ListConfigWrapper(
     config: ConfigList<E>,
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     header: @Composable RowScope.() -> Unit = {},
     element: @Composable RowScope.(index: Int) -> Unit,
     addDialog: @Composable (onConfirm: (E) -> Unit, onDismiss: () -> Unit) -> Unit,
@@ -41,14 +43,7 @@ fun <E : Any> ListConfigWrapper(
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
 
-    var displaySize by remember { mutableStateOf(config.size) }
-    val pollInterval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config) {
-        while (isActive) {
-            delay(pollInterval)
-            displaySize = config.size
-        }
-    }
+    val displaySize by config.asDerivedState { it.size }
 
     ConfigRowWrapper(config = config, modifier = modifier) {
         Row(
@@ -83,13 +78,11 @@ fun <E : Any> ListConfigWrapper(
 
     if (showEditDialog) {
         val snapshot = remember { config.toList() }
-
         EditDialog(
             config = config,
             header = header,
             element = element,
             dialogModifier = dialogModifier,
-            properties = properties,
             onAddClick = { showAddDialog = true },
             onConfirm = { showEditDialog = false },
             onCancel = {
@@ -107,144 +100,115 @@ private fun <E : Any> EditDialog(
     header: @Composable RowScope.() -> Unit,
     element: @Composable RowScope.(index: Int) -> Unit,
     dialogModifier: Modifier = Modifier,
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     onAddClick: () -> Unit,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
 ) {
-    var itemCount by remember { mutableStateOf(config.size) }
-    var configVersion by remember { mutableStateOf(0) }
-
-    val pollInterval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config) {
-        while (isActive) {
-            delay(pollInterval)
-            if (itemCount != config.size) {
-                itemCount = config.size
-                configVersion++
-            }
-        }
-    }
-
-    AlertDialog(
+    val itemCount by config.asDerivedState { it.size }
+    FlexibleDialog(
         onDismissRequest = onCancel,
+        onConfirmRequest = { onConfirm(); false },
         modifier = dialogModifier,
-        properties = properties,
         title = { Text(InlineStyleText(config.translateText.plainText)) },
-        text = {
-            IGCompositionLocalProvider {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 500.dp),
-                ) {
-                    val scrollState = rememberScrollState()
+        content = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 500.dp),
+            ) {
+                val scrollState = rememberScrollState()
 
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        if (itemCount > 0) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp, bottom = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
-                                    Text(IGLang.ConfigWrapper.move, style = MaterialTheme.typography.labelSmall)
-                                }
-                                header()
-                                Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
-                                    Text(IGLang.Misc.remove, style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                            HorizontalDivider()
-                        }
-
-                        Box(
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (itemCount > 0) {
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .verticalScroll(scrollState)
-                                    .padding(top = 4.dp, bottom = 56.dp),
-                            ) {
-                                ReorderableItemList(
-                                    itemCount = itemCount,
-                                    version = configVersion,
-                                    onMove = { from, to ->
-                                        val item = config.removeAt(from)
-                                        config.add(to, item)
-                                        configVersion++
-                                    },
-                                ) { index, dragModifier ->
-                                    val handleInteraction = remember { MutableInteractionSource() }
-                                    val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 2.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
+                            Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
+                                Text(IGLang.ConfigWrapper.move, style = MaterialTheme.typography.labelSmall)
+                            }
+                            header()
+                            Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
+                                Text(IGLang.Misc.remove, style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        HorizontalDivider()
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(scrollState)
+                                .padding(top = 4.dp, bottom = 56.dp),
+                        ) {
+                            ReorderableItemList(
+                                itemCount = itemCount,
+                                onMove = { from, to ->
+                                    val item = config.removeAt(from)
+                                    config.add(to, item)
+                                },
+                            ) { index, isDragging, dragModifier ->
+                                val handleInteraction = remember { MutableInteractionSource() }
+                                val handleHovered by handleInteraction.collectIsHoveredAsState()
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Box(
+                                        dragModifier
+                                            .hoverable(handleInteraction)
+                                            .pointerHoverIcon(PointerIcon.Default, handleHovered)
+                                            .background(
+                                                if (handleHovered || isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                                                CircleShape,
+                                            ).padding(4.dp)
                                     ) {
-                                        Icon(
-                                            Icons.DragIndicator,
-                                            contentDescription = null,
-                                            modifier = dragModifier
-                                                .hoverable(handleInteraction)
-                                                .background(
-                                                    if (handleHovered) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                                                    CircleShape,
-                                                )
-                                                .size(24.dp),
-                                        )
-                                        Spacer(Modifier.width(8.dp))
-                                        Row(
-                                            modifier = Modifier.weight(1f),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-                                        ) {
-                                            element(index)
-                                        }
-                                        IconButton(onClick = {
-                                            config.removeAt(index)
-                                            configVersion++
-                                        }) {
-                                            Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
-                                        }
+                                        Icon(Icons.DragIndicator, contentDescription = null)
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                    Row(
+                                        modifier = Modifier.weight(1f),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+                                    ) {
+                                        element(index)
+                                    }
+                                    IconButton(onClick = {
+                                        config.removeAt(index)
+                                    }) {
+                                        Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
                                     }
                                 }
                             }
-
-                            VerticalScrollbar(
-                                modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .fillMaxHeight(),
-                                adapter = rememberScrollbarAdapter(scrollState)
-                            )
                         }
-                    }
 
-                    FloatingActionButton(
-                        onClick = onAddClick,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(12.dp)
-                            .size(40.dp),
-                    ) {
-                        Icon(Icons.Add, IGLang.Misc.add.plainText)
+                        VerticalScrollbar(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxHeight(),
+                            adapter = rememberScrollbarAdapter(scrollState)
+                        )
                     }
                 }
+
+                FloatingActionButton(
+                    onClick = onAddClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(12.dp)
+                        .size(40.dp),
+                ) {
+                    Icon(Icons.Add, IGLang.Misc.add.plainText)
+                }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(IGLang.Misc.confirm)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onCancel) {
-                Text(IGLang.Misc.cancel)
-            }
-        },
+        }
     )
 }

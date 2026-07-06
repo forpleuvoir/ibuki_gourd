@@ -32,7 +32,9 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper.LocalIcon
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Replay
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.nebula.common.api.Observable
 import moe.forpleuvoir.nebula.common.api.Resettable
+import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigNode
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -190,21 +192,11 @@ fun <T : Resettable> ResetButton(
     resettable: T,
     onReset: ((T) -> Unit)? = null,
 ) {
-    var state by remember { mutableStateOf(resettable.isDefault()) }
-    val interval = ConfigRowWrapper.valuePollInterval
-
-    LaunchedEffect(resettable) {
-        while (isActive) {
-            state = resettable.isDefault()
-            delay(interval)
-        }
-    }
+    val state by resettable.asState()
 
     val rotation = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
-
     val duration = ConfigRowWrapper.iconAnimationDuration.inWholeMilliseconds.toInt()
-
     IconButton(
         onClick = {
             resettable.resetDefault()
@@ -233,6 +225,62 @@ fun <T : Resettable> ResetButton(
                 contentDescription = IGLang.Misc.reset.plainText,
                 modifier = Modifier.rotate(rotation.value)
             )
+        }
+    }
+}
+
+
+@Composable
+fun <T, C : Config<T>> C.asState(): State<T> = produceState(
+    initialValue = this.getValue(),
+    key1 = this
+) {
+    val disposable = this@asState.observe {
+        value = it.getValue()
+    }
+    awaitDispose { disposable.dispose() }
+}
+
+@Composable
+fun <T, C : Config<T>, R> C.asDerivedState(
+    forceRefresh: Boolean = false,
+    derive: (C) -> R
+): State<R> {
+    var version by remember { mutableIntStateOf(0) }
+    return produceState(
+        initialValue = derive(this@asDerivedState),
+        key1 = version
+    ) {
+        val disposable = this@asDerivedState.observe {
+            value = derive(this@asDerivedState)
+
+            if (forceRefresh) {
+                version++
+            }
+        }
+        awaitDispose {
+            disposable.dispose()
+        }
+    }
+}
+
+@Composable
+fun Resettable.asState(): State<Boolean> {
+    return if (this is Observable<*>) {
+        produceState(initialValue = this.isDefault(), key1 = this) {
+            val disposable = this@asState.observe {
+                value = this@asState.isDefault()
+            }
+            awaitDispose { disposable.dispose() }
+        }
+
+    } else {
+        val interval = ConfigRowWrapper.valuePollInterval
+        produceState(initialValue = this.isDefault(), key1 = this) {
+            while (isActive) {
+                value = this@asState.isDefault()
+                delay(interval)
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ nebula = "0.3.12"
 compose = "1.11.0"
 material3 = "1.11.0-alpha07"
 materialKolor = "4.1.1"
-cloudy = "0.6.1"
+backdrop = "2.0.0"
 
 #minecraft
 minecraft = "26.1.2"
@@ -63,7 +63,7 @@ kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serial
 
 #compose
 materialKolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
-cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
+backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop" }
 
 [bundles]
 kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinxCoroutines", "kotlinxSerialization"]

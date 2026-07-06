@@ -7,22 +7,24 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.util.fastRoundToInt
-import moe.forpleuvoir.ibukigourd.lang.ColorLang.alpha
 import moe.forpleuvoir.ibukigourd.mixin.client.ScreenAccessor
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.isDevEnv
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.network.chat.Component
 import kotlin.time.TimeSource
 
 /**
@@ -49,7 +51,10 @@ class ComposeScreen(
     val parentScreen: Screen?,
     val shouldRenderLevel: (ComposeScreen) -> Boolean,
     content: @Composable () -> Unit,
-) : Screen(Text.literal("Compose Screen")) {
+) : Screen(Component.literal("Compose Screen")) {
+    companion object {
+        private val logger = logger()
+    }
 
     constructor(
         pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
@@ -81,10 +86,28 @@ class ComposeScreen(
         onInit = block
     }
 
+    private var onResize: ((width: Int, height: Int) -> Unit)? = null
+
+    fun onResize(block: (width: Int, height: Int) -> Unit) {
+        onResize = block
+    }
+
+    override fun resize(width: Int, height: Int) {
+        super.resize(width, height)
+        onResize?.invoke(width, height)
+    }
+
     override fun init() {
-        mark
-        host.init()
-        onInit?.invoke()
+        runCatching {
+            mark
+            host.init()
+            onInit?.invoke()
+        }.onFailure {
+            logger.error(it)
+            ToastHandler.showContent {
+                Text("ComposeScreen Error: ${it.message}", color = MaterialTheme.colorScheme.error)
+            }
+        }
     }
 
     override fun onClose() {
@@ -93,18 +116,20 @@ class ComposeScreen(
         host.onClose()
     }
 
+    var fadeInDuration = IGConfig.Gui.Screen.fadeInDuration
+
     private var init = false
 
     override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (renderParent) {
             parentScreen?.extractRenderState(graphics, -500, -500, partialTick)
         }
-        if (!shouldRenderLevel(this) && renderingLevel && mark.elapsedNow() > IGConfig.Gui.Screen.fadeInDuration) {
+        if (!shouldRenderLevel(this) && renderingLevel && mark.elapsedNow() > fadeInDuration) {
             renderingLevel = false
         }
         host.extractRenderState(graphics, mouseX, mouseY, partialTick)
-        if (!init && isDevEnv) {
-            println("第一帧耗时${mark.elapsedNow()}")
+        if (isDevEnv && !init) {
+            logger.devInfo("first frame time: ${mark.elapsedNow()}")
             init = true
         }
     }
@@ -131,11 +156,16 @@ fun Screen.initScreen() {
     (this as ScreenAccessor).`ibukigourd$Init`()
 }
 
+fun Screen.rebuildWidgets() {
+    (this as ScreenAccessor).`ibukigourd$rebuildWidgets`()
+}
+
 fun <S : Screen> S.open(): S {
     mc.execute { mc.setScreen(this) }
     return this
 }
 
+//TODO 关闭ComposeScreen时 需要播放动画, 实现思路 向屏幕发送关闭信号,接收到开始执行关闭流程
 fun closeScreen() {
     mc.execute { mc.screen?.onClose() }
 }

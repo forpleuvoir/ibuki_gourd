@@ -1,8 +1,6 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
-import androidx.compose.runtime.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
+import androidx.compose.runtime.getValue
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -12,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendLTRArrow
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.asDerivedState
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastStrategy
@@ -189,14 +187,7 @@ fun configToggleKeybind(
     onSwitch: ConfigToggleKeybind.() -> Unit = {
         val config = this
         ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
-            var enabled by remember { mutableStateOf(config.enabled) }
-            val interval = ConfigRowWrapper.valuePollInterval
-            LaunchedEffect(Unit) {
-                while (isActive) {
-                    enabled = config.enabled
-                    delay(interval)
-                }
-            }
+            val enabled by config.asDerivedState { it.enabled }
             Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
         }
     }
@@ -212,14 +203,7 @@ fun configToggleKeybind(
     onSwitch: ConfigToggleKeybind.() -> Unit = {
         val config = this
         ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
-            var enabled by remember { mutableStateOf(config.enabled) }
-            val interval = ConfigRowWrapper.valuePollInterval
-            LaunchedEffect(Unit) {
-                while (isActive) {
-                    enabled = config.enabled
-                    delay(interval)
-                }
-            }
+            val enabled by config.asDerivedState { it.enabled }
             Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
         }
     }

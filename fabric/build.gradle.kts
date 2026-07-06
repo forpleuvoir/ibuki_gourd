@@ -46,7 +46,7 @@ dependencies {
     includeInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
         composeExclude()
     })
-    includeInternal(api("com.github.skydoves:cloudy:${libs.versions.cloudy.get()}") {
+    includeInternal(api("io.github.kyant0:backdrop:${libs.versions.backdrop.get()}") {
         composeExclude()
     })
     includeInternal(api(compose.desktop.currentOs) {

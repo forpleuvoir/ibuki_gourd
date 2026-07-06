@@ -7,9 +7,9 @@ plugins {
     alias(libs.plugins.neoforgedModDev)
 }
 
-val modId: String = project.properties["mod_id"].toString()
+val modId: String = project.findProperty("mod_id").toString()
 
-val jarJarInternal by configurations.creating {
+val jarJarInternal = configurations.create("jarJarInternal") {
     isCanBeResolved = true
     isCanBeConsumed = false
     attributes {
@@ -43,7 +43,7 @@ dependencies {
     jarJarInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
         composeExclude()
     })
-    jarJarInternal(api("com.github.skydoves:cloudy:${libs.versions.cloudy.get()}") {
+    jarJarInternal(api("io.github.kyant0:backdrop:${libs.versions.backdrop.get()}") {
         composeExclude()
     })
     jarJarInternal(api(compose.desktop.currentOs) {

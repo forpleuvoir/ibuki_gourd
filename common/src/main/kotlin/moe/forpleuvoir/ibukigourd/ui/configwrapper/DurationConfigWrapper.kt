@@ -10,8 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -24,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
-import moe.forpleuvoir.nebula.config.pathWithRoot
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.times
@@ -39,26 +36,15 @@ fun DurationConfigWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
+
     val range = if (config is ConfigRange<Duration>) {
         config.minValue..config.maxValue
     } else null
 
-
     fun fraction(v: Duration) = if (range != null && range.endInclusive != range.start)
         ((v - range.start) / (range.endInclusive - range.start)) else 0.0
 
-    var value by remember { mutableStateOf(config.getValue()) }
-    val interval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config.pathWithRoot) {
-        while (isActive) {
-            val savedValue = value
-            delay(interval)
-            val newValue = config.getValue()
-            if (newValue != value && savedValue == value) {
-                value = newValue
-            }
-        }
-    }
+    val value by config.asState()
 
     Row(
         modifier = Modifier.size(ConfigRowWrapper.entrySize),
@@ -94,7 +80,6 @@ fun DurationConfigWrapper(
                 onValueChange = {
                     isDragging = true
                     config.setValue(it)
-                    value = it
                 },
                 onValueChangeFinished = {
                     scope.launch {

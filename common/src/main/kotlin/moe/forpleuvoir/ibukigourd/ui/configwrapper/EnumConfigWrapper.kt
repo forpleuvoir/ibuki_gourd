@@ -25,19 +25,9 @@ fun <E : Enum<E>> EnumConfigWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
-    var value by remember { mutableStateOf(config.getValue()) }
 
-    val interval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config.pathWithRoot) {
-        while (isActive) {
-            val savedValue = value
-            delay(interval)
-            val newValue = config.getValue()
-            if (newValue != value && savedValue == value) {
-                value = newValue
-            }
-        }
-    }
+    val value by config.asState()
+    
     Box(Modifier.height(ConfigRowWrapper.entrySize.height).widthIn(max = ConfigRowWrapper.entrySize.width), contentAlignment = Alignment.Center) {
         val textMeasurer = rememberTextMeasurer()
         val density = LocalDensity.current
@@ -50,7 +40,7 @@ fun <E : Enum<E>> EnumConfigWrapper(
         }
         EnumSelector(
             value,
-            { value = it; config.setValue(it) },
+            { config.setValue(it) },
             modifier = Modifier.width(maxWidth),
             content = {
                 Text(it.translateText, overflow = TextOverflow.Ellipsis)

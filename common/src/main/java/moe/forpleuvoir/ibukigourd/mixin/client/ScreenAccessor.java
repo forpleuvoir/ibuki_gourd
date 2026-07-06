@@ -10,4 +10,7 @@ public interface ScreenAccessor {
     @Invoker("init")
     void ibukigourd$Init();
 
+    @Invoker("rebuildWidgets")
+    void ibukigourd$rebuildWidgets();
+
 }

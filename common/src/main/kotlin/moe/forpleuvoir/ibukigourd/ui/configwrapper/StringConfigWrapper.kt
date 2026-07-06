@@ -26,7 +26,7 @@ fun StringListConfigWrapper(
         }
     },
     modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier,
+    dialogModifier: Modifier = Modifier.padding(40.dp).size(800.dp, 600.dp),
 ) {
     ListConfigWrapper(
         config = config,
@@ -92,7 +92,7 @@ fun StringMapConfigWrapper(
     keyHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapKey) },
     valueHeader: @Composable () -> Unit = { Text(IGLang.ConfigWrapper.mapValue) },
     modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier,
+    dialogModifier: Modifier = Modifier.padding(40.dp).fillMaxWidth(),
 ) {
     MapConfigWrapper(
         config = config,
@@ -177,7 +177,7 @@ fun StringPairListConfigWrapper(
     firstHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairFirst) },
     secondHead: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.pairFirst) },
     modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier,
+    dialogModifier: Modifier = Modifier.padding(40.dp).fillMaxWidth(),
 ) {
     ListConfigWrapper(
         config = config,

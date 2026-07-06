@@ -40,19 +40,8 @@ fun ColorConfigWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
-    var value by remember { mutableStateOf(config.getValue()) }
 
-    val interval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config.pathWithRoot) {
-        while (isActive) {
-            val savedValue = value
-            delay(interval)
-            val newValue = config.getValue()
-            if (newValue != value && savedValue == value) {
-                value = newValue
-            }
-        }
-    }
+    val value by config.asState()
 
     Row(
         modifier = Modifier.size(ConfigRowWrapper.entrySize),
@@ -92,7 +81,7 @@ fun ColorConfigWrapper(
                 }
             }
         )
-        ColorSettingButton(value, { value = it; config.setValue(value) }, title = {
+        ColorSettingButton(value, { config.setValue(it) }, title = {
             Text(InlineStyleText(config.translateText.plainText))
         })
     }

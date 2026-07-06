@@ -5,8 +5,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
 import moe.forpleuvoir.ibukigourd.input.KeyCode
@@ -14,7 +12,6 @@ import moe.forpleuvoir.ibukigourd.ui.preset.KeyCodeSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
 import moe.forpleuvoir.nebula.config.Config
-import moe.forpleuvoir.nebula.config.pathWithRoot
 
 @Composable
 fun KeyCodeConfigWrapper(
@@ -23,19 +20,7 @@ fun KeyCodeConfigWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
 ) {
-    var value by remember { mutableStateOf(config.getValue()) }
-
-    val interval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config.pathWithRoot) {
-        while (isActive) {
-            val savedValue = value
-            delay(interval)
-            val newValue = config.getValue()
-            if (newValue != value && savedValue == value) {
-                value = newValue
-            }
-        }
-    }
+    val value by config.asState()
 
     ConfigRowWrapper(
         config,
@@ -47,7 +32,7 @@ fun KeyCodeConfigWrapper(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(ConfigRowWrapper.entrySize)
         ) {
-            KeyCodeSetButton(value, { value = it; config.setValue(it) }, Modifier.fillMaxWidth())
+            KeyCodeSetButton(value, { config.setValue(it) }, Modifier.fillMaxWidth())
         }
     }
 }
@@ -98,8 +83,7 @@ fun ToggleKeybindConfigWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
 ) {
-
-    var enabled by remember { mutableStateOf(config.enabled) }
+    val enabled by config.asDerivedState { it.enabled }
 
     var version by remember { mutableStateOf(0L) }
     fun update() {
@@ -109,19 +93,6 @@ fun ToggleKeybindConfigWrapper(
             version++
         }
     }
-
-    val interval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config.pathWithRoot) {
-        while (isActive) {
-            val savedValue = enabled
-            delay(interval)
-            val newValue = config.enabled
-            if (newValue != enabled && savedValue == enabled) {
-                enabled = newValue
-            }
-        }
-    }
-
     ConfigRowWrapper(
         config,
         modifier,
@@ -135,7 +106,7 @@ fun ToggleKeybindConfigWrapper(
             modifier = Modifier.size(ConfigRowWrapper.entrySize)
         ) {
 
-            Switch(enabled, { config.enabled = it; enabled = it; update() })
+            Switch(enabled, { config.enabled = it; update() })
             key(version) {
                 KeybindSetButton(config.keybind, { update() }, Modifier.weight(1f))
                 KeybindSettingSetButton(config.keybind.setting, {

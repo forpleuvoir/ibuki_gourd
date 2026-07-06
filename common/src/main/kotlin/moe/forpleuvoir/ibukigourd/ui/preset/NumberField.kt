@@ -49,6 +49,13 @@ enum class NumberFieldStyle {
 
         @Composable
         override fun defaultTextFieldColors(): TextFieldColors = TextFieldDefaults.colors()
+
+        @Composable
+        override fun contentPadding(label: Boolean): PaddingValues = if (label) {
+            TextFieldDefaults.contentPaddingWithoutLabel()
+        } else {
+            TextFieldDefaults.contentPaddingWithLabel()
+        }
     },
     Outlined {
         @Composable
@@ -57,6 +64,9 @@ enum class NumberFieldStyle {
         @Composable
         override fun defaultTextFieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors()
 
+        @Composable
+        override fun contentPadding(label: Boolean): PaddingValues = OutlinedTextFieldDefaults.contentPadding()
+
     };
 
     @Composable
@@ -64,6 +74,9 @@ enum class NumberFieldStyle {
 
     @Composable
     abstract fun defaultTextFieldColors(): TextFieldColors
+
+    @Composable
+    abstract fun contentPadding(label: Boolean): PaddingValues
 }
 
 val LocalNumberFieldStyle = compositionLocalOf {
@@ -116,43 +129,50 @@ fun <T : Comparable<T>> ComparableField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = LocalNumberFieldStyle.current.defaultShape(),
     colors: TextFieldColors = LocalNumberFieldStyle.current.defaultTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(label == null || labelPosition is TextFieldLabelPosition.Above),
     interactionSource: MutableInteractionSource? = null
 ) {
     val textFieldState = rememberTextFieldState(valueDisplay(value))
-    var lastValidValue by remember { mutableStateOf(value) }
 
     var isError by remember { mutableStateOf(false) }
-
     var focused by remember { mutableStateOf(false) }
 
-    var internalModify by remember { mutableStateOf(false) }
+    // 上一次已同步的值：既是从外部 value 同步进来的值，也是最后一次通知给父级的值。
+    // 用它区分“外部 value 变更”与“自身 onValueChange 回显”，替代脆弱的 internalModify 标志位。
+    var lastSyncedValue by remember { mutableStateOf(valueFix(value)) }
 
-    // 外部 value 变更 → 同步到输入框（不触发 onValueChange）
+    // 外部 value 变更 → 同步到输入框。
+    // 仅当 value 与上次同步值不一致时才认为是外部变更，避免自身回调回显时重复刷新文本、抢断用户输入。
     LaunchedEffect(value) {
-        if (internalModify) {
-            internalModify = false
-            return@LaunchedEffect
-        }
-        val fixed = valueFix(value)
-        if (fixed != lastValidValue) {
-            lastValidValue = fixed
-            textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
+        if (value != lastSyncedValue) {
+            val fixed = valueFix(value)
+            lastSyncedValue = fixed
+            isError = false
+            textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(fixed))
         }
     }
 
-    //用户手动修改输入框内容
-    LaunchedEffect(textFieldState.text) {
+    // 监听内部文本变化 → 解析并通知父级。长寿协程，仅在解析后的值确实变化时回调，避免回环。
+    LaunchedEffect(Unit) {
         snapshotFlow { textFieldState.text.toString() }
             .collect { text ->
                 val parsed = valueParser(text)
-                if (parsed != lastValidValue) {
-                    lastValidValue = valueFix(parsed)
-                    internalModify = true
-                    onValueChange(lastValidValue)
+                val fixed = valueFix(parsed)
+                isError = parsed == null || fixed != parsed
+                if (fixed != lastSyncedValue) {
+                    lastSyncedValue = fixed
+                    onValueChange(fixed)
                 }
-                isError = parsed != lastValidValue
             }
+    }
+
+    // 统一的提交语义：修正值、更新同步标记、通知父级、刷新输入框、清除错误态。
+    val commitValue: (T?) -> Unit = { newValue ->
+        val fixed = valueFix(newValue)
+        lastSyncedValue = fixed
+        isError = false
+        onValueChange(fixed)
+        textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(fixed))
     }
 
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -161,36 +181,24 @@ fun <T : Comparable<T>> ComparableField(
     val modifierApplied = modifier
         .hoverable(interactionSource)
         .onPointerEvent(PointerEventType.Scroll) { event ->
-            //是否限制为单行                                       是否悬浮    是否聚焦
+            // 单行 + 悬浮 + 聚焦 时通过滚轮步进
             if (lineLimits == TextFieldLineLimits.SingleLine && hovered && focused) {
                 val change = event.changes.first()
-                //更新数值
                 val scrollDelta = if (event.keyboardModifiers.isShiftPressed) change.scrollDelta.x else change.scrollDelta.y
                 val newValue = if (scrollDelta < 0)
-                    valuePlus(lastValidValue, valueStep.process(valueTimes))
+                    valuePlus(lastSyncedValue, valueStep.process(valueTimes))
                 else
-                    valueMinus(lastValidValue, valueStep.process(valueTimes))
+                    valueMinus(lastSyncedValue, valueStep.process(valueTimes))
 
-                //修正数值
-                lastValidValue = valueFix(newValue)
-                internalModify = true
-                onValueChange(lastValidValue)
-                //应用更新,消费事件
-                textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
-                isError = false
+                commitValue(newValue)
                 change.consume()
             }
         }
         .onFocusChanged { focusState ->
-            if (!focusState.isFocused) {//失焦时
+            if (!focusState.isFocused) { // 失焦时
                 val currentText = textFieldState.text.toString()
                 if (currentText.isNotEmpty()) {
-                    val parsed = valueParser(currentText)
-                    lastValidValue = valueFix(parsed)
-                    internalModify = true
-                    onValueChange(lastValidValue)
-                    textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(lastValidValue))
-                    isError = false
+                    commitValue(valueParser(currentText))
                 }
             }
             focused = focusState.isFocused
@@ -293,7 +301,7 @@ fun IntField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = LocalNumberFieldStyle.current.defaultShape(),
     colors: TextFieldColors = LocalNumberFieldStyle.current.defaultTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(label == null || labelPosition is TextFieldLabelPosition.Above),
     interactionSource: MutableInteractionSource? = null
 ) {
     ComparableField(
@@ -374,7 +382,7 @@ fun LongField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = LocalNumberFieldStyle.current.defaultShape(),
     colors: TextFieldColors = LocalNumberFieldStyle.current.defaultTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(label == null || labelPosition is TextFieldLabelPosition.Above),
     interactionSource: MutableInteractionSource? = null
 ) {
     ComparableField(
@@ -455,7 +463,7 @@ fun FloatField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = LocalNumberFieldStyle.current.defaultShape(),
     colors: TextFieldColors = LocalNumberFieldStyle.current.defaultTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(label == null || labelPosition is TextFieldLabelPosition.Above),
     interactionSource: MutableInteractionSource? = null
 ) {
     ComparableField(
@@ -537,7 +545,7 @@ fun DoubleField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = LocalNumberFieldStyle.current.defaultShape(),
     colors: TextFieldColors = LocalNumberFieldStyle.current.defaultTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(label == null || labelPosition is TextFieldLabelPosition.Above),
     interactionSource: MutableInteractionSource? = null
 ) {
     ComparableField(

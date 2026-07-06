@@ -98,7 +98,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             try {
                 renderItemToBufferedImage(request.itemStack, request.width, request.height)
             } catch (e: Exception) {
-                logger.error("处理队列物品渲染时发生异常: ${e.message}")
+                logger.error("An exception occurred while rendering queue items: ${e.message}")
             }
             processed++
         }
@@ -211,7 +211,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                 installPixels(pixels)
             }.asComposeImageBitmap()
 
-            logger.info("ItemImage buffer conversion: ${tPixelCopy.elapsedNow()}")
+            logger.devInfo("ItemImage buffer conversion: ${tPixelCopy.elapsedNow()}")
 
             val entryArea = width * height
             while (totalCacheArea + entryArea > MAX_CACHE_AREA && itemImageCache.isNotEmpty()) {
@@ -224,7 +224,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             return result
         } finally {
             target.dispose()
-            logger.info("Create ItemImage buffer: ${now.elapsedNow()}")
+            logger.devInfo("Create ItemImage buffer: ${now.elapsedNow()}")
         }
     }
 

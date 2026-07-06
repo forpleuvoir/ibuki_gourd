@@ -3,7 +3,6 @@ package moe.forpleuvoir.ibukigourd.test
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,11 +15,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
-import com.skydoves.cloudy.liquidGlass
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
@@ -64,23 +61,8 @@ fun TestScreen1() {
     IbukiGourdTheme(
         colorScheme = darkColorScheme(),
     ) {
-        var lensCenter by remember { mutableStateOf(Offset.Zero) }
         CenteredBox(
-            Modifier.pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    lensCenter += dragAmount
-                    change.consume()
-                }
-            }.liquidGlass(
-                lensCenter = lensCenter,
-                lensSize = Size(200f, 200f),
-                cornerRadius = 33f,
-                refraction = 0.47f,
-                curve = 0.42f,
-                dispersion = 0.09f,
-                edge = 0.4f,
-                saturation = 1.39f,
-            )
+            Modifier
         ) {
             var size by remember { mutableStateOf(1f) }
             Column {
@@ -145,7 +127,11 @@ fun TestScreen2() {
                     selected,
                     { selected = it },
                     items = list.map { "这是第${it}个" },
-                    modifier = Modifier.width(160.dp)
+                    modifier = Modifier.width(160.dp),
+                    enabledSearch = true,
+                    searchFilter = { text, item ->
+                        text in item
+                    }
                 )
             }
             LazyColumn(

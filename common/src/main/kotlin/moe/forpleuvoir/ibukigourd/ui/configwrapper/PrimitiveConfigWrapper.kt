@@ -19,8 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -33,7 +31,6 @@ import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
-import moe.forpleuvoir.nebula.config.pathWithRoot
 
 @Composable
 fun BooleanConfigWrapper(
@@ -43,24 +40,11 @@ fun BooleanConfigWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
-    var value by remember { mutableStateOf(config.getValue()) }
-
-    val interval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config.pathWithRoot) {
-        while (isActive) {
-            val savedValue = value
-            delay(interval)
-            val newValue = config.getValue()
-            if (newValue != value && savedValue == value) {
-                value = newValue
-            }
-        }
-    }
+    val value by config.asState()
     Switch(
         value,
         {
             config.setValue(it)
-            value = it
         },
         modifier = modifier.height(ConfigRowWrapper.entrySize.height),
         thumbContent = thumbContent?.let { { it(value) } }
@@ -156,24 +140,13 @@ fun IntConfigWrapper(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        var value by remember { mutableStateOf(config.getValue()) }
+        val value by config.asState()
         val range = remember { (config as? ConfigRange<Int>)?.let { it.minValue..it.maxValue } }
-        val interval = ConfigRowWrapper.valuePollInterval
 
         fun fraction(v: Int) = if (range != null && range.last != range.first)
             (v - range.first).toFloat() / (range.last - range.first) else 0f
 
         val scope = rememberCoroutineScope()
-
-        LaunchedEffect(config.pathWithRoot) {
-            while (isActive) {
-                delay(interval)
-                val newValue = config.getValue()
-                if (newValue != value) {
-                    value = newValue
-                }
-            }
-        }
 
         Row(
             modifier = Modifier.size(ConfigRowWrapper.entrySize),
@@ -194,7 +167,6 @@ fun IntConfigWrapper(
                         value = value,
                         onValueChange = {
                             config.setValue(it)
-                            value = it
                         },
                         range = range,
                         valueDisplay = valueDisplay,
@@ -219,16 +191,15 @@ fun IntConfigWrapper(
                     }
 
                     val sliderValue = when {
-                        isDragging -> value
+                        isDragging           -> value
                         sliderAnim.isRunning -> (range.first + sliderAnim.value * (range.last - range.first)).fastRoundToInt()
-                        else -> targetValue
+                        else                 -> targetValue
                     }
                     IntSlider(
                         value = sliderValue,
                         onValueChange = {
                             isDragging = true
                             config.setValue(it)
-                            value = it
                         },
                         onValueChangeFinished = {
                             scope.launch {
@@ -267,25 +238,13 @@ fun LongConfigWrapper(
     valueDisplay: (Long) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        var value by remember { mutableStateOf(config.getValue()) }
+        val value by config.asState()
         val range = remember { (config as? ConfigRange<Long>)?.let { it.minValue..it.maxValue } }
-        val interval = ConfigRowWrapper.valuePollInterval
 
         fun fraction(v: Long) = if (range != null && range.last != range.first)
             (v - range.first).toFloat() / (range.last - range.first) else 0f
 
         val scope = rememberCoroutineScope()
-
-        LaunchedEffect(config.pathWithRoot) {
-            while (isActive) {
-                delay(interval)
-                val newValue = config.getValue()
-                if (newValue != value) {
-                    value = newValue
-                }
-            }
-        }
-
         Row(
             modifier = Modifier.size(ConfigRowWrapper.entrySize),
             horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
@@ -305,7 +264,6 @@ fun LongConfigWrapper(
                         value = value,
                         onValueChange = {
                             config.setValue(it)
-                            value = it
                         },
                         range = range,
                         valueDisplay = valueDisplay,
@@ -330,16 +288,15 @@ fun LongConfigWrapper(
                     }
 
                     val sliderValue: Long = when {
-                        isDragging -> value
+                        isDragging           -> value
                         sliderAnim.isRunning -> (range.first + sliderAnim.value * (range.last - range.first)).toLong()
-                        else -> targetValue
+                        else                 -> targetValue
                     }
                     LongSlider(
                         value = sliderValue,
                         onValueChange = {
                             isDragging = true
                             config.setValue(it)
-                            value = it
                         },
                         onValueChangeFinished = {
                             scope.launch {
@@ -378,24 +335,13 @@ fun FloatConfigWrapper(
     valueDisplay: (Float) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        var value by remember { mutableStateOf(config.getValue()) }
+        val value by config.asState()
         val range = remember { (config as? ConfigRange<Float>)?.let { it.minValue..it.maxValue } }
-        val interval = ConfigRowWrapper.valuePollInterval
 
         fun fraction(v: Float) = if (range != null && range.endInclusive != range.start)
             (v - range.start) / (range.endInclusive - range.start) else 0f
 
         val scope = rememberCoroutineScope()
-
-        LaunchedEffect(config.pathWithRoot) {
-            while (isActive) {
-                delay(interval)
-                val newValue = config.getValue()
-                if (newValue != value) {
-                    value = newValue
-                }
-            }
-        }
 
         Row(
             modifier = Modifier.size(ConfigRowWrapper.entrySize),
@@ -416,7 +362,6 @@ fun FloatConfigWrapper(
                         value = value,
                         onValueChange = {
                             config.setValue(it)
-                            value = it
                         },
                         range = range,
                         valueDisplay = valueDisplay,
@@ -441,16 +386,15 @@ fun FloatConfigWrapper(
                     }
 
                     val sliderValue = when {
-                        isDragging -> value
+                        isDragging           -> value
                         sliderAnim.isRunning -> range.start + sliderAnim.value * (range.endInclusive - range.start)
-                        else -> targetValue
+                        else                 -> targetValue
                     }
                     FloatSlider(
                         value = sliderValue,
                         onValueChange = {
                             isDragging = true
                             config.setValue(it)
-                            value = it
                         },
                         onValueChangeFinished = {
                             scope.launch {
@@ -489,24 +433,13 @@ fun DoubleConfigWrapper(
     valueDisplay: (Double) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        var value by remember { mutableStateOf(config.getValue()) }
+        val value by config.asState()
         val range = remember { (config as? ConfigRange<Double>)?.let { it.minValue..it.maxValue } }
-        val interval = ConfigRowWrapper.valuePollInterval
 
         fun fraction(v: Double) = if (range != null && range.endInclusive != range.start)
             ((v - range.start) / (range.endInclusive - range.start)).toFloat() else 0f
 
         val scope = rememberCoroutineScope()
-
-        LaunchedEffect(config.pathWithRoot) {
-            while (isActive) {
-                delay(interval)
-                val newValue = config.getValue()
-                if (newValue != value) {
-                    value = newValue
-                }
-            }
-        }
 
         Row(
             modifier = Modifier.size(ConfigRowWrapper.entrySize),
@@ -527,7 +460,6 @@ fun DoubleConfigWrapper(
                         value = value,
                         onValueChange = {
                             config.setValue(it)
-                            value = it
                         },
                         range = range,
                         valueDisplay = valueDisplay,
@@ -552,16 +484,15 @@ fun DoubleConfigWrapper(
                     }
 
                     val sliderValue = when {
-                        isDragging -> value
+                        isDragging           -> value
                         sliderAnim.isRunning -> range.start + sliderAnim.value * (range.endInclusive - range.start)
-                        else -> targetValue
+                        else                 -> targetValue
                     }
                     DoubleSlider(
                         value = sliderValue,
                         onValueChange = {
                             isDragging = true
                             config.setValue(it)
-                            value = it
                         },
                         onValueChangeFinished = {
                             scope.launch {

@@ -30,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.screens.Screen
+import kotlin.time.Duration.Companion.milliseconds
 
 fun ComposePopupScreen(
     onDismissRequest: (() -> Unit)? = null,
@@ -50,8 +51,12 @@ fun ComposePopupScreen(
     shouldRenderLevel,
     { contentWrapper(content) }
 ).apply {
+    fadeInDuration = (-1).milliseconds
     onDismissRequest?.let { this@apply.onClose(it) }
-    parentScreen?.let { this@apply.onInit(it::initScreen) }
+    parentScreen?.let {
+//        this@apply.onInit(it::rebuildWidgets)
+        this@apply.onResize { width, height -> it.resize(width, height) }
+    }
 }
 
 fun openComposePopupScreen(

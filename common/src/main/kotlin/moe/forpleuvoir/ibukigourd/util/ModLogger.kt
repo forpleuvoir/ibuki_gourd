@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.util
 
+import moe.forpleuvoir.ibukigourd.platform.PLATFORM
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
@@ -18,6 +19,10 @@ value class ModLogger internal constructor(
     constructor(clazz: KClass<*>, modName: String) : this(LoggerFactory.getLogger("${modName}/${clazz.simpleName ?: clazz.java.simpleName}"))
 
     constructor(logName: String, modName: String) : this(LoggerFactory.getLogger("${modName}/$logName"))
+
+    fun devInfo(msg: String) {
+        if (PLATFORM.isDevEnvironment()) log.info(msg)
+    }
 
     inline fun warn(throwable: Throwable) {
         this.warn(throwable.message, throwable)

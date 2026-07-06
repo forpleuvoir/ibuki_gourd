@@ -23,7 +23,7 @@ dependencies {
     api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}")
     api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:${libs.versions.material3.get()}")
     api(libs.materialKolor)
-    api(libs.cloudy)
+    api(libs.backdrop)
     api(compose.desktop.currentOs){
         exclude(module = "material-desktop")
     }

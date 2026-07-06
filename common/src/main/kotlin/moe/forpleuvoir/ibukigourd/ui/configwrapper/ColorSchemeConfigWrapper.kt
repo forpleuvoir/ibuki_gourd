@@ -18,8 +18,6 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.materialkolor.dynamicColorScheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -51,14 +49,7 @@ fun ColorSchemeConfigWrapper(
     onSelect: (NebulaColor) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var size by remember { mutableStateOf(config.size) }
-    val pollInterval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config) {
-        while (isActive) {
-            delay(pollInterval)
-            size = config.size
-        }
-    }
+    val colors by config.asState()
 
     var showEditDialog by remember { mutableStateOf(false) }
 
@@ -89,8 +80,7 @@ fun ColorSchemeConfigWrapper(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    repeat(size) { index ->
-                        val color = config.getOrNull(index) ?: return@repeat
+                    colors.forEach { color ->
                         PalettePreview(
                             seed = color,
                             isDark = isDark,
@@ -188,19 +178,9 @@ private fun ColorSchemeEditDialog(
     onDismiss: () -> Unit,
 ) {
     val snapshot = remember { config.toList() }
-    var itemCount by remember { mutableStateOf(config.size) }
-    var configVersion by remember { mutableStateOf(0) }
-
-    val pollInterval = ConfigRowWrapper.valuePollInterval
-    LaunchedEffect(config) {
-        while (isActive) {
-            delay(pollInterval)
-            if (itemCount != config.size) {
-                itemCount = config.size
-                configVersion++
-            }
-        }
-    }
+    // 反应式订阅整个列表：增删改通过 observe 自动驱动，替代原轮询方式。
+    val colors by config.asState()
+    val itemCount = colors.size
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editIndex by remember { mutableStateOf<Int?>(null) }
@@ -227,7 +207,6 @@ private fun ColorSchemeEditDialog(
                         .fillMaxWidth()
                         .padding(bottom = 56.dp),
                 ) {
-                    @Suppress("UNUSED_EXPRESSION") configVersion
                     if (itemCount == 0) {
                         Text(
                             "No colors",
@@ -240,8 +219,7 @@ private fun ColorSchemeEditDialog(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            repeat(itemCount) { index ->
-                                val color = config.getOrNull(index) ?: return@repeat
+                            colors.forEachIndexed { index, color ->
                                 Box {
                                     Box(
                                         modifier = Modifier
@@ -273,7 +251,6 @@ private fun ColorSchemeEditDialog(
                                             text = { Text(IGLang.Misc.remove) },
                                             onClick = {
                                                 config.removeAt(index)
-                                                configVersion++
                                                 contextMenuIndex = null
                                             },
                                         )
@@ -306,7 +283,6 @@ private fun ColorSchemeEditDialog(
         AddColorDialog(
             onConfirm = { color ->
                 config.add(color)
-                configVersion++
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false },
@@ -322,7 +298,6 @@ private fun ColorSchemeEditDialog(
                 title = IGLang.Misc.edit,
                 onConfirm = { newColor ->
                     config[idx] = newColor
-                    configVersion++
                     editIndex = null
                 },
                 onDismiss = { editIndex = null },

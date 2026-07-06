@@ -67,6 +67,6 @@ object MiscLang {
 
     fun <T : Comparable<*>> notInRange(value: T, minValue: T, maxValue: T) = lang("not_in_range", value, minValue, maxValue)
 
-    inline fun copySuccess(obj: Any) = ColorLang.lang("copy_success", obj)
+    inline fun copySuccess(obj: Any) = lang("copy_success", obj)
 
 }
