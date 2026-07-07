@@ -71,9 +71,12 @@ fun GroupConfigsWrapper(
                     },
                     text = {
                         val selected = selectedTabIndex == index
-                        TipBox({
-                            Text(InlineStyleText(group.translateComment.plainText))
-                        }) {
+                        TipBox(
+                            {
+                                Text(InlineStyleText(group.translateComment.plainText))
+                            },
+                            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above,16.dp)
+                        ) {
                             if (selected) {
                                 Text(InlineStyleText(group.translateText.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             } else {

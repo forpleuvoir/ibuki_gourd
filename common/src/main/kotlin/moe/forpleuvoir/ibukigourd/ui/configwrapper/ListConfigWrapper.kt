@@ -1,17 +1,26 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -20,7 +29,7 @@ import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
@@ -28,28 +37,25 @@ import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
+import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.config.item.ConfigList
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
-@Composable
-fun <E : Any> ListConfigWrapper(
-    config: ConfigList<E>,
-    modifier: Modifier = Modifier,
-    dialogModifier: Modifier = Modifier,
-    header: @Composable RowScope.() -> Unit = {},
-    element: @Composable RowScope.(index: Int) -> Unit,
-    addDialog: @Composable (onConfirm: (E) -> Unit, onDismiss: () -> Unit) -> Unit,
-) {
-    var showAddDialog by remember { mutableStateOf(false) }
-    var showEditDialog by remember { mutableStateOf(false) }
+object ListConfigWrapperDefaults {
 
-    val displaySize by config.asDerivedState { it.size }
-
-    ConfigRowWrapper(config = config, modifier = modifier) {
+    @Composable
+    fun <E : Any> RowWrapper(
+        config: ConfigList<E>,
+        modifier: Modifier = Modifier,
+        editAction: () -> Unit,
+    ) = ConfigRowWrapper(config, modifier = modifier) {
         Row(
             modifier = Modifier.size(ConfigRowWrapper.entrySize),
             horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val displaySize by config.asDerivedState { it.size }
             AssistChip(
                 {},
                 {
@@ -62,105 +68,200 @@ fun <E : Any> ListConfigWrapper(
                 },
                 modifier = Modifier.weight(1f).height(40.dp)
             )
-            IconButton(onClick = { showEditDialog = true }) {
+            IconButton(onClick = editAction) {
                 Icon(Icons.EditNote, IGLang.Misc.edit.plainText)
             }
         }
     }
 
-    if (showAddDialog) {
-        addDialog(
-            { value -> config.add(value); showAddDialog = false },
-            { showAddDialog = false },
-        )
-    }
-
-    if (showEditDialog) {
-        val snapshot = remember { config.toList() }
-        EditDialog(
-            config = config,
-            header = header,
-            element = element,
-            dialogModifier = dialogModifier,
-            onAddClick = { showAddDialog = true },
-            onConfirm = { showEditDialog = false },
-            onCancel = {
+    @Composable
+    fun <E : Any> EditDialog(
+        config: ConfigList<E>,
+        modifier: Modifier = Modifier,
+        onDismissRequest: () -> Unit,
+        title: @Composable (() -> Unit)? = { Text(InlineStyleText(config.translateText.plainText)) },
+        content: @Composable (data: SnapshotStateList<E>) -> Unit
+    ) {
+        val editingValue = remember { config.toList().toMutableStateList() }
+        FlexibleDialog(
+            onDismissRequest = onDismissRequest,
+            title = title,
+            modifier = modifier,
+            onConfirmRequest = {
                 config.clear()
-                snapshot.forEach { config.add(it) }
-                showEditDialog = false
+                editingValue.forEach { config.add(it) }
+                true
             },
+            content = { content(editingValue) }
         )
     }
-}
 
-@Composable
-private fun <E : Any> EditDialog(
-    config: ConfigList<E>,
-    header: @Composable RowScope.() -> Unit,
-    element: @Composable RowScope.(index: Int) -> Unit,
-    dialogModifier: Modifier = Modifier,
-    onAddClick: () -> Unit,
-    onConfirm: () -> Unit,
-    onCancel: () -> Unit,
-) {
-    val itemCount by config.asDerivedState { it.size }
-    FlexibleDialog(
-        onDismissRequest = onCancel,
-        onConfirmRequest = { onConfirm(); false },
-        modifier = dialogModifier,
-        title = { Text(InlineStyleText(config.translateText.plainText)) },
-        content = {
-            Box(
+    @Composable
+    fun <C : Any, E : Any> EditDialog(
+        config: ConfigList<C>,
+        editingValue: SnapshotStateList<E>,
+        modifier: Modifier = Modifier,
+        onDismissRequest: () -> Unit,
+        title: @Composable (() -> Unit)? = { Text(InlineStyleText(config.translateText.plainText)) },
+        onConfirmRequest: (data: SnapshotStateList<E>) -> Boolean,
+        content: @Composable (data: SnapshotStateList<E>) -> Unit
+    ) {
+        FlexibleDialog(
+            onDismissRequest = onDismissRequest,
+            title = title,
+            modifier = modifier,
+            onConfirmRequest = { onConfirmRequest(editingValue) },
+            content = { content(editingValue) }
+        )
+    }
+
+    @Composable
+    fun EditDialogContent(
+        modifier: Modifier = Modifier,
+        addDialog: @Composable (onDismissRequest: () -> Unit) -> Unit,
+        header: @Composable (ColumnScope.() -> Unit) = { EditDialogContentHeader() },
+        content: @Composable (ColumnScope.(LazyListState) -> Unit)
+    ) = Box(modifier) {
+        val lazyListState = rememberLazyListState()
+        Column(modifier = Modifier.fillMaxSize()) {
+            header()
+            content(lazyListState)
+        }
+        var showDialog by remember { mutableStateOf(false) }
+        if (showDialog) addDialog { showDialog = false }
+        FloatingActionButton(
+            onClick = { showDialog = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(12.dp)
+                .size(40.dp)
+                .fabVisibilityAnimation(rememberScrollFabVisibilityProgress(lazyListState))
+        ) {
+            Icon(Icons.Add, IGLang.Misc.add.plainText)
+        }
+    }
+
+    val LocalHeaderHeight = staticCompositionLocalOf { 40.dp }
+
+    val LocalColumnSpacing = staticCompositionLocalOf { 8.dp }
+
+    val LocalMoveColumnWidth = staticCompositionLocalOf { 60.dp }
+
+    val LocalRemoveColumnWidth = staticCompositionLocalOf { 60.dp }
+
+    @Composable
+    fun RowScope.MoveColumn(
+        content: @Composable BoxScope.() -> Unit
+    ) = Box(
+        Modifier.width(LocalMoveColumnWidth.current),
+        contentAlignment = Alignment.Center,
+        content = content
+    )
+
+    @Composable
+    fun RowScope.RemoveColumn(
+        content: @Composable BoxScope.() -> Unit
+    ) = Box(
+        Modifier.width(LocalRemoveColumnWidth.current),
+        contentAlignment = Alignment.Center,
+        content = content
+    )
+
+    @Composable
+    fun EditDialogContentHeader(
+        modifier: Modifier = Modifier
+            .fillMaxWidth()
+            .height(LocalHeaderHeight.current)
+            .padding(top = 8.dp, bottom = 4.dp),
+        horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+        verticalAlignment: Alignment.Vertical = Alignment.Bottom,
+        moveHeader: @Composable (RowScope.() -> Unit)? = {
+            MoveColumn {
+                Text(IGLang.ConfigWrapper.move)
+            }
+        },
+        contentHeader: @Composable BoxScope.() -> Unit = {
+            Text(IGLang.Misc.content)
+        },
+        removeHeader: @Composable RowScope.() -> Unit = {
+            RemoveColumn {
+                Text(IGLang.Misc.remove)
+            }
+        },
+        divider: @Composable (() -> Unit)? = { HorizontalDivider() }
+    ) {
+        Row(
+            modifier,
+            horizontalArrangement,
+            verticalAlignment,
+        ) {
+            ProvideTextStyle(MaterialTheme.typography.labelSmall) {
+                moveHeader?.let {
+                    it()
+                    Spacer(Modifier.width(LocalColumnSpacing.current))
+                }
+                Box(
+                    Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    contentHeader()
+                }
+                Spacer(Modifier.width(LocalColumnSpacing.current))
+                removeHeader()
+            }
+        }
+        divider?.invoke()
+    }
+
+    @Composable
+    fun <E : Any> EditDialogContentList(
+        data: SnapshotStateList<E>,
+        key: (E) -> Any,
+        modifier: Modifier = Modifier,
+        lazyListState: LazyListState = rememberLazyListState(),
+        enableElementMove: Boolean = true,
+        verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
+        horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+        entryRowModifier: Modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        element: @Composable RowScope.(value: E, (newValue: E) -> Unit) -> Unit,
+    ) {
+        Box(modifier = modifier) {
+            val hapticFeedback = LocalHapticFeedback.current
+            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                data.moveElement(from.index, to.index)
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            }
+
+            LazyColumn(
+                state = lazyListState,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxHeight()
+                    .padding(top = 8.dp, bottom = 56.dp),
+                verticalArrangement = verticalArrangement,
+                horizontalAlignment = horizontalAlignment,
             ) {
-                val scrollState = rememberScrollState()
+                itemsIndexed(data, key = { _, e -> key(e) }) { index, entry ->
+                    ReorderableItem(reorderableLazyListState, key = key(entry)) { isDragging ->
+                        val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                        val handleInteraction = remember { MutableInteractionSource() }
+                        val handleHovered by handleInteraction.collectIsHoveredAsState()
 
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp, bottom = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(Modifier.width(32.dp), contentAlignment = Alignment.Center) {
-                            Text(IGLang.ConfigWrapper.move, style = MaterialTheme.typography.labelSmall)
-                        }
-                        header()
-                        Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
-                            Text(IGLang.Misc.remove, style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
-                    HorizontalDivider()
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .verticalScroll(scrollState)
-                                .fillMaxHeight()
-                                .padding(top = 4.dp, bottom = 56.dp),
+                        Row(
+                            modifier = entryRowModifier.scale(scale),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            ReorderableItemList(
-                                itemCount = itemCount,
-                                onMove = { from, to ->
-                                    val item = config.removeAt(from)
-                                    config.add(to, item)
-                                },
-                            ) { index, isDragging, dragModifier ->
-                                val handleInteraction = remember { MutableInteractionSource() }
-                                val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 2.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
+                            if (enableElementMove) {
+                                MoveColumn {
                                     Box(
-                                        dragModifier
+                                        Modifier
+                                            .draggableHandle(
+                                                onDragStarted = {
+                                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                                },
+                                                onDragStopped = {
+                                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                                },
+                                            )
                                             .hoverable(handleInteraction)
                                             .pointerHoverIcon(PointerIcon.Hand)
                                             .background(
@@ -168,42 +269,35 @@ private fun <E : Any> EditDialog(
                                                 CircleShape,
                                             ).padding(4.dp)
                                     ) {
-                                        Icon(Icons.DragIndicator, contentDescription = null)
+                                        Icon(Icons.DragHandle, contentDescription = null)
                                     }
-                                    Spacer(Modifier.width(8.dp))
-                                    Row(
-                                        modifier = Modifier.weight(1f),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-                                    ) {
-                                        element(index)
-                                    }
-
-                                    RemoveConfirmButton("${config.translateText.plainText}[$index]", { config.removeAt(index) })
                                 }
+                                Spacer(Modifier.width(LocalColumnSpacing.current))
+                            }
+
+                            element(entry) {
+                                data[index] = it
+                            }
+
+                            Spacer(Modifier.width(LocalColumnSpacing.current))
+
+                            RemoveColumn {
+                                RemoveConfirmButton(
+                                    "$index",
+                                    { data.removeAt(index) }
+                                )
                             }
                         }
-
-                        VerticalScrollbar(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .fillMaxHeight(),
-                            adapter = rememberScrollbarAdapter(scrollState)
-                        )
                     }
                 }
-
-                FloatingActionButton(
-                    onClick = onAddClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(12.dp)
-                        .size(40.dp)
-                        .fabVisibilityAnimation(rememberScrollFabVisibilityProgress(scrollState))
-                ) {
-                    Icon(Icons.Add, IGLang.Misc.add.plainText)
-                }
             }
+
+            VerticalScrollbar(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(lazyListState),
+            )
         }
-    )
+    }
 }

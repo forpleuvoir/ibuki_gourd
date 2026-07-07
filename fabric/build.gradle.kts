@@ -49,6 +49,9 @@ dependencies {
     includeInternal(api("io.github.kyant0:backdrop:${libs.versions.backdrop.get()}") {
         composeExclude()
     })
+    includeInternal(api("sh.calvin.reorderable:reorderable:${libs.versions.reorderable.get()}") {
+        composeExclude()
+    })
     includeInternal(api(compose.desktop.currentOs) {
         exclude(module = "material-desktop")
         composeExclude()

@@ -26,7 +26,7 @@ fun ConfigGroupWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) {
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(config.children.size < 10) }
     val level = ConfigRowWrapper.LocalLevel.current
     // 整个 group（header + 子元素）共用一个圆角矩形，内部层级提升，header 和子项都不画独立圆角矩形
     // 容器只负责圆角裁剪，背景透明；hover 背景由内部行自行动画，避免静态底色与 hover 叠加导致颜色跳变

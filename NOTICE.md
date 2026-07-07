@@ -19,6 +19,7 @@ The following components are licensed under the Apache License, Version 2.0:
 - Material Kolor (`com.materialkolor:material-kolor`)
 - Kotlinx AtomicFU (`org.jetbrains.kotlinx:atomicfu`)
 - Backdrop (`io.github.kyant0:backdrop`)
+- Reorderable (`sh.calvin.reorderable:reorderable`)
 
 ```
                                  Apache License
@@ -224,5 +225,4 @@ The following components are licensed under the MIT License:
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-
 

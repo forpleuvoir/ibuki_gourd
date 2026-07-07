@@ -24,6 +24,7 @@ dependencies {
     api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:${libs.versions.material3.get()}")
     api(libs.materialKolor)
     api(libs.backdrop)
+    api(libs.reorderable)
     api(compose.desktop.currentOs){
         exclude(module = "material-desktop")
     }
