@@ -87,7 +87,7 @@ class Keybind(
     }
 
     private fun List<KeyCode>.matchKeys(elements: List<KeyCode>): Boolean {
-        return this.all { elements.contains(it) }
+        return elements.all { this.contains(it) }
     }
 
     fun onKeyPress(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): Boolean {
@@ -125,9 +125,9 @@ class Keybind(
             keys == beforeKeyCode || beforeKeyCode.matchKeys(keys)
         }
         wasPress = if (setting.strict) {
-            if (beforeKeyCode.exactMatch(keys)) false else wasPress
+            keys == currentKeyCode
         } else {
-            if (beforeKeyCode.matchKeys(keys)) false else wasPress
+            keys == currentKeyCode || currentKeyCode.matchKeys(keys)
         }
         val currentMath = if (setting.strict) {
             keys == currentKeyCode

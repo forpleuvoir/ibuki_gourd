@@ -99,27 +99,27 @@ private class AnchorBoundsPositionProvider(
 
         fun pickVertical(pref: TooltipAnchorPosition, opp: TooltipAnchorPosition): TooltipAnchorPosition = when {
             (if (pref == TooltipAnchorPosition.Above) spaceAbove else spaceBelow) >= tooltipH -> pref
-            (if (opp == TooltipAnchorPosition.Above) spaceAbove else spaceBelow) >= tooltipH -> opp
+            (if (opp == TooltipAnchorPosition.Above) spaceAbove else spaceBelow) >= tooltipH  -> opp
             // 上下都放不下，转向左右
-            spaceStart >= tooltipW -> TooltipAnchorPosition.Start
-            spaceEnd >= tooltipW -> TooltipAnchorPosition.End
-            else -> if (spaceStart >= spaceEnd) TooltipAnchorPosition.Start else TooltipAnchorPosition.End
+            spaceStart >= tooltipW                                                            -> TooltipAnchorPosition.Start
+            spaceEnd >= tooltipW                                                              -> TooltipAnchorPosition.End
+            else                                                                              -> if (spaceStart >= spaceEnd) TooltipAnchorPosition.Start else TooltipAnchorPosition.End
         }
 
         fun pickHorizontal(pref: TooltipAnchorPosition, opp: TooltipAnchorPosition): TooltipAnchorPosition = when {
             (if (pref == TooltipAnchorPosition.Start) spaceStart else spaceEnd) >= tooltipW -> pref
-            (if (opp == TooltipAnchorPosition.Start) spaceStart else spaceEnd) >= tooltipW -> opp
+            (if (opp == TooltipAnchorPosition.Start) spaceStart else spaceEnd) >= tooltipW  -> opp
             // 左右都放不下，转向上下
-            spaceAbove >= tooltipH -> TooltipAnchorPosition.Above
-            spaceBelow >= tooltipH -> TooltipAnchorPosition.Below
-            else -> if (spaceAbove >= spaceBelow) TooltipAnchorPosition.Above else TooltipAnchorPosition.Below
+            spaceAbove >= tooltipH                                                          -> TooltipAnchorPosition.Above
+            spaceBelow >= tooltipH                                                          -> TooltipAnchorPosition.Below
+            else                                                                            -> if (spaceAbove >= spaceBelow) TooltipAnchorPosition.Above else TooltipAnchorPosition.Below
         }
 
         val effective = when (position) {
             TooltipAnchorPosition.Above -> pickVertical(TooltipAnchorPosition.Above, TooltipAnchorPosition.Below)
             TooltipAnchorPosition.Below -> pickVertical(TooltipAnchorPosition.Below, TooltipAnchorPosition.Above)
             TooltipAnchorPosition.Start -> pickHorizontal(TooltipAnchorPosition.Start, TooltipAnchorPosition.End)
-            TooltipAnchorPosition.End -> pickHorizontal(TooltipAnchorPosition.End, TooltipAnchorPosition.Start)
+            TooltipAnchorPosition.End   -> pickHorizontal(TooltipAnchorPosition.End, TooltipAnchorPosition.Start)
         }
 
         val xRange = spacing..(rootW - tooltipW - spacing).coerceAtLeast(spacing)
@@ -148,7 +148,7 @@ private class AnchorBoundsPositionProvider(
                 IntOffset(x, y)
             }
 
-            TooltipAnchorPosition.End -> {
+            TooltipAnchorPosition.End   -> {
                 val x = if (rtl) {
                     (bounds.left - tooltipW - spacing).coerceIn(xRange)
                 } else {
@@ -463,6 +463,69 @@ fun Modifier.plainTooltip(
             shadowElevation = shadowElevation,
         ) {
             Text(component)
+        }
+    }
+}
+
+
+/**
+ * 一键 Plain Tooltip：默认容器 + 默认 fade/scale 动画 + 单行文本。
+ *
+ * 等价于：
+ * ```
+ * Modifier.tooltip {
+ *     fadeScaleTooltip {
+ *         PlainTooltip(modifier, maxWidth, shape, contentColor, containerColor, tonalElevation, shadowElevation) {
+ *             content()
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * @param modifier 应用到容器 `Surface` 的 [Modifier]。
+ * @param maxWidth 最大宽度。
+ * @param shape 容器形状。
+ * @param contentColor 文字颜色。
+ * @param containerColor 容器背景色。
+ * @param tonalElevation 容器色调高度。
+ * @param shadowElevation 容器阴影高度。
+ * @param delay 鼠标悬停到展示之间的延迟。
+ * @param position 锚点偏好方向。
+ * @param spacing 与锚组件的间距。
+ * @param exitDuration 退出动画预留时长。
+ * @param content 展示的内容。
+ */
+@Composable
+fun Modifier.plainTooltip(
+    modifier: Modifier = Modifier,
+    maxWidth: Dp = 600.dp,
+    shape: Shape = MaterialTheme.shapes.extraSmall,
+    contentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+    containerColor: Color = MaterialTheme.colorScheme.inverseSurface,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
+    delay: Duration = 100.milliseconds,
+    position: TooltipAnchorPosition = TooltipAnchorPosition.Above,
+    spacing: Int = 4,
+    exitDuration: Duration = 150.milliseconds,
+    content: @Composable () -> Unit,
+): Modifier = tooltip(
+    delay = delay,
+    position = position,
+    spacing = spacing,
+    exitDuration = exitDuration,
+) {
+    fadeScaleTooltip {
+        PlainTooltip(
+            modifier = modifier,
+            maxWidth = maxWidth,
+            shape = shape,
+            contentColor = contentColor,
+            containerColor = containerColor,
+            tonalElevation = tonalElevation,
+            shadowElevation = shadowElevation,
+        ) {
+            content()
         }
     }
 }

@@ -239,9 +239,8 @@ fun StringListConfigWrapper(
                     data = editingValue,
                     key = { it.first },
                     modifier = Modifier,
-                    lazyListState = lazyListState,
-
-                    ) { (key, value), onValueChange ->
+                    lazyListState = lazyListState
+                ) { (key, value), onValueChange ->
                     ExpandableStringContentEditor(value, { onValueChange(key to it) })
                 }
             }

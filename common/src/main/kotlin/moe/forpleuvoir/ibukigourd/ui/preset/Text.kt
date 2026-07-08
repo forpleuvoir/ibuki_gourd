@@ -1,8 +1,10 @@
 package moe.forpleuvoir.ibukigourd.ui.preset
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -16,8 +18,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.util.fastForEach
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.flat
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.truncate
@@ -27,6 +34,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.util.Util
 import java.net.URI
@@ -54,9 +62,38 @@ inline fun Text(
     noinline onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
 ) {
-    androidx.compose.material3.Text(
+    Text(
         text = component.toAnnotatedString(),
-        modifier = modifier,
+        modifier = component.style.hoverEvent?.let {
+            when (it) {
+                is HoverEvent.ShowText          -> modifier.plainTooltip(InlineStyleText(it.value.plainText))
+                is HoverEvent.ShowItem          -> modifier.plainTooltip {
+                    Column {
+                        Screen.getTooltipFromItem(mc, it.item.create()).fastForEach { text ->
+                            Text(text.toAnnotatedString())
+                        }
+                    }
+                }
+
+                is HoverEvent.ShowEntity        -> modifier.plainTooltip {
+                    Column {
+                        it.entity.tooltipLines.fastForEach { text ->
+                            Text(text.toAnnotatedString())
+                        }
+                    }
+                }
+
+                is HoverEvent.EntityTooltipInfo -> modifier.plainTooltip {
+                    Column {
+                        it.tooltipLines.fastForEach { text ->
+                            Text(text.toAnnotatedString())
+                        }
+                    }
+                }
+
+                else                            -> modifier
+            }
+        } ?: modifier,
         color = color,
         autoSize = autoSize,
         fontSize = fontSize,
@@ -122,6 +159,13 @@ fun Component.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
         } else {
             append(c.string)
         }
+    }
+}
+
+fun List<Component>.toAnnotatedString() = buildAnnotatedString {
+    forEach {
+        append(it.toAnnotatedString())
+        appendLine()
     }
 }
 

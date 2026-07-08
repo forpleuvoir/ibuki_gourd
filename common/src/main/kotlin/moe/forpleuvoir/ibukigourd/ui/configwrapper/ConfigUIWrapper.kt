@@ -47,7 +47,9 @@ fun <C : ConfigNode> C.uiWrapper(content: ConfigUIWrapper<C>): C {
 fun <C : ConfigNode> ConfigUiWrapper(config: C) {
     (config.getMetadata(UI_WRAPPER_KEY) as? ConfigUIWrapper<C>)
         ?.content(config)
-        ?: UIWrappers.Wrapper(config)
+        ?: UIWrappers.Wrapper(config)?.let {
+            config.setMetadata(UI_WRAPPER_KEY, it)
+        }
 }
 //endregion
 
@@ -87,13 +89,16 @@ object UIWrappers {
 
     @Composable
     @Suppress("UNCHECKED_CAST")
-    fun <C : ConfigNode> Wrapper(config: C) {
+    fun <C : ConfigNode> Wrapper(config: C): ConfigUIWrapper<C>? {
         wrappers.find { it.predicate(config) }
             ?.let {
-                (it.wrapper as? ConfigUIWrapper<C>)?.content(config)
-                return
+                (it.wrapper as? ConfigUIWrapper<C>)?.let { wrapper ->
+                    wrapper.content(config)
+                    return wrapper
+                }
             }
         UnspecifiedConfigWrapper(config)
+        return null
     }
 
     @Composable
