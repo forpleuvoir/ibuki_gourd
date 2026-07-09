@@ -36,7 +36,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import sh.calvin.reorderable.ReorderableItem
@@ -135,7 +135,7 @@ object ListConfigWrapperDefaults {
                 .align(Alignment.BottomEnd)
                 .padding(12.dp)
                 .size(40.dp)
-                .fabVisibilityAnimation(rememberScrollFabVisibilityProgress(lazyListState))
+                .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyListState))
         ) {
             Icon(Icons.Add, IGLang.Misc.add.plainText)
         }
@@ -236,7 +236,7 @@ object ListConfigWrapperDefaults {
                 state = lazyListState,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(top = 8.dp, bottom = 56.dp),
+                    .padding(top = 8.dp),
                 verticalArrangement = verticalArrangement,
                 horizontalAlignment = horizontalAlignment,
             ) {

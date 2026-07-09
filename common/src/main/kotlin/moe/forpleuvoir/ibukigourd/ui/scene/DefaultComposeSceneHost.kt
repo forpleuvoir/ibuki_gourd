@@ -3,6 +3,8 @@
 package moe.forpleuvoir.ibukigourd.ui.scene
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.scene.CanvasLayersComposeScene
@@ -51,10 +53,13 @@ open class DefaultComposeSceneHost(
 
     init {
         ctx.scene.setContent {
+            val popupHostState = remember { PopupHostState() }
             IGCompositionLocalProvider(
                 LocalSkiaSurface provides ctx.surface,
+                LocalPopupHost provides popupHostState
             ) {
                 content()
+                PopupHostOverlay()
             }
         }
     }

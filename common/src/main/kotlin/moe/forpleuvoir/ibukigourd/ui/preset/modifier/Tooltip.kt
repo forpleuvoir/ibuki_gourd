@@ -5,6 +5,7 @@ package moe.forpleuvoir.ibukigourd.ui.preset.modifier
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -21,9 +22,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import moe.forpleuvoir.ibukigourd.ui.scene.LocalPopupHost
+import moe.forpleuvoir.ibukigourd.ui.scene.PopupEntry
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import net.minecraft.network.chat.Component
@@ -231,25 +234,53 @@ fun Modifier.tooltip(
         )
     }
 
-    if (mounted) {
-        Popup(
-            popupPositionProvider = positionProvider,
-            onDismissRequest = { active = false },
-            properties = PopupProperties(
-                focusable = false,
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-            ),
-        ) {
-            // Popup 首帧强制将 visible 拉到 false（enter 起点），下一帧再恢复由 active 决定的目标值。
-            // 这样 AnimatedVisibility 看到的是真正的 false → true 切换，enter 才会播。
-            var firstFrame by remember { mutableStateOf(true) }
-            LaunchedEffect(Unit) {
-                firstFrame = false
-            }
-            val scopeVisible = active && !firstFrame
+    val popupHost = LocalPopupHost.current
+    val popupKey = remember { Any() }
 
-            TooltipScopeImpl(scopeVisible).content()
+    val colorScheme = MaterialTheme.colorScheme
+    val shapes = MaterialTheme.shapes
+    val typography = MaterialTheme.typography
+    val scrollbarStyle = LocalScrollbarStyle.current
+
+    if (popupHost != null) {
+        LaunchedEffect(mounted) {
+            if (mounted) {
+                popupHost.show(
+                    PopupEntry(
+                        key = popupKey,
+                        positionProvider = positionProvider,
+                        onDismissRequest = { active = false },
+                        properties = PopupProperties(
+                            focusable = false,
+                            dismissOnBackPress = true,
+                            dismissOnClickOutside = true,
+                        ),
+                        content = {
+                            MaterialTheme(
+                                colorScheme = colorScheme,
+                                shapes = shapes,
+                                typography = typography,
+                            ) {
+                                CompositionLocalProvider(
+                                    LocalScrollbarStyle provides scrollbarStyle,
+                                ) {
+                                    var firstFrame by remember { mutableStateOf(true) }
+                                    LaunchedEffect(Unit) {
+                                        firstFrame = false
+                                    }
+                                    val scopeVisible = active && !firstFrame
+                                    TooltipScopeImpl(scopeVisible).content()
+                                }
+                            }
+                        },
+                    )
+                )
+                try {
+                    awaitCancellation()
+                } finally {
+                    popupHost.hide(popupKey)
+                }
+            }
         }
     }
 
