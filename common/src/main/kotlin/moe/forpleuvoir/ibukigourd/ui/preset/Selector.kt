@@ -3,6 +3,8 @@ package moe.forpleuvoir.ibukigourd.ui.preset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
@@ -14,10 +16,16 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.ibm.icu.util.Output
+import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
+import kotlin.math.exp
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -27,12 +35,11 @@ fun <T> Selector(
     items: List<T>,
     itemEquals: (T, T) -> Boolean = { a, b -> a == b },
     content: @Composable (T) -> Unit,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (T, Boolean) -> Unit,
     enabled: Boolean = true,
-    enabledSearch: Boolean = false,
-    searchFilter: ((String, T) -> Boolean) = { _, _ -> true },
+    searchFilter: ((String, T) -> Boolean)? = null,
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
@@ -43,6 +50,7 @@ fun <T> Selector(
     contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val searchEnabled = searchFilter != null
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -50,16 +58,27 @@ fun <T> Selector(
         modifier = modifier.defaultMinSize(minWidth = 160.dp, minHeight = 46.dp)
     ) {
         val searchState = rememberTextFieldState()
+        LaunchedEffect(expanded) {
+            if (!expanded) {
+                delay(100.milliseconds)
+                searchState.clearText()
+            }
+        }
         OutlinedTextField(
             state = searchState,
-            readOnly = !enabledSearch,
+            readOnly = if (searchEnabled) !expanded else true,
             enabled = enabled,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             labelPosition = labelPosition,
             label = label?.let { { it() } },
             prefix = {
-                if (searchState.text.isBlank()) content(selected)
+                if (!(searchEnabled && expanded)) {
+                    content(selected)
+                }
             },
+            outputTransformation = if (!expanded) OutputTransformation {
+                this.replace(0, length, "")
+            } else null,
             textStyle = textStyle,
             interactionSource = interactionSource,
             shape = shape,
@@ -67,11 +86,23 @@ fun <T> Selector(
             contentPadding = contentPadding,
             modifier = Modifier
                 .fillMaxWidth()
-                .pointerHoverIcon(PointerIcon.Default, !enabledSearch)
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled)
+                .pointerHoverIcon(PointerIcon.Default, !searchEnabled)
+                .menuAnchor(
+                    if (searchEnabled) ExposedDropdownMenuAnchorType.PrimaryEditable
+                    else ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                    enabled
+                )
         )
         ExposedDropdownMenu(expanded, onDismissRequest = { expanded = false }) {
-            items.filter { searchFilter(searchState.text.toString(), it) }.forEach { item ->
+            val filteredItems by remember(searchState.text) {
+                derivedStateOf {
+                    if (searchEnabled) {
+                        val query = searchState.text.toString()
+                        items.filter { searchFilter(query, it) }
+                    } else items
+                }
+            }
+            filteredItems.forEach { item ->
                 val isSelected = itemEquals(selected, item)
                 DropdownMenuItem(
                     modifier = if (isSelected) Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) else Modifier,
@@ -82,7 +113,7 @@ fun <T> Selector(
                     trailingIcon = itemTrailingIcon?.let { predicate ->
                         predicate(isSelected)?.let { { it.invoke(item) } }
                     },
-                    onClick = { onSelect(item); expanded = false; searchState.clearText() },
+                    onClick = { onSelect(item); expanded = false },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
@@ -107,8 +138,7 @@ fun StringSelector(
         Text(item)
     },
     enabled: Boolean = true,
-    enabledSearch: Boolean = false,
-    searchFilter: ((String, String) -> Boolean) = { _, _ -> true },
+    searchFilter: ((String, String) -> Boolean)? = null,
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
@@ -127,7 +157,6 @@ fun StringSelector(
     label = label,
     itemContent = itemContent,
     enabled = enabled,
-    enabledSearch = enabledSearch,
     searchFilter = searchFilter,
     modifier = modifier,
     itemLeadingIcon = itemLeadingIcon,
@@ -159,8 +188,7 @@ fun <E : Enum<E>> EnumSelector(
         }
     },
     enabled: Boolean = true,
-    enabledSearch: Boolean = false,
-    searchFilter: ((String, E) -> Boolean) = { _, _ -> true },
+    searchFilter: ((String, E) -> Boolean)? = null,
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
@@ -179,7 +207,6 @@ fun <E : Enum<E>> EnumSelector(
     label = label,
     itemContent = itemContent,
     enabled = enabled,
-    enabledSearch = enabledSearch,
     searchFilter = searchFilter,
     modifier = modifier,
     itemLeadingIcon = itemLeadingIcon,

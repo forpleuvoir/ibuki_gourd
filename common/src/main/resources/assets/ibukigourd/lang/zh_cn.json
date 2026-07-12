@@ -22,6 +22,7 @@
   "ibukigourd.input.press_to_setting": "按下以设置",
   "ibukigourd.input.release_to_save_setting": "释放以保存设置",
   "ibukigourd.input.keybind_conflict": "按键冲突",
+  "ibukigourd.input.keybind_setting.title": "按键设置",
   "ibukigourd.input.keybind_setting.env": "环境",
   "ibukigourd.input.keybind_setting.env.comment": "按键触发时的环境设置",
   "ibukigourd.input.keybind_setting.trigger": "触发",

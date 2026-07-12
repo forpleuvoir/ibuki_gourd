@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.task
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 
 
@@ -24,9 +25,9 @@ class TickTask<T>(
     data class Setting(val delay: Int = 0, val period: Int = 1, val times: Int = 1) {
 
         companion object : Codec<Setting> by Codec.create<Setting>()
-            .field<Int>("delay").getter(Setting::delay).default(0).codec(Codec.int)
-            .field<Int>("period").getter(Setting::period).default(1).codec(Codec.int)
-            .field<Int>("times").getter(Setting::times).default(1).codec(Codec.int)
+            .field<Int>("delay").getter(Setting::delay).default(0).codec(Codec.int(0..Int.MAX_VALUE))
+            .field<Int>("period").getter(Setting::period).default(1).codec(Codec.int(1..Int.MAX_VALUE))
+            .field<Int>("times").getter(Setting::times).default(1).codec(Codec.int(1..Int.MAX_VALUE))
             .build(::Setting)
     }
 
@@ -67,11 +68,11 @@ class TickTask<T>(
     }
 
 
-    override fun serialization(): SerializeElement {
-        val obj = SerializeObject()
-        obj["setting"] = Setting.serialization(setting)
-        obj["executor"] = executor.serialization()
-        return obj
+    override fun serialization(): SerializeElement = SerializeObject.build {
+        context(Setting) {
+            "setting"(setting)
+            "executor"(executor)
+        }
     }
 
     override fun toString(): String {

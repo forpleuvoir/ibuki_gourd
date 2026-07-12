@@ -200,6 +200,11 @@ fun Modifier.tooltip(
     position: TooltipAnchorPosition = TooltipAnchorPosition.Above,
     spacing: Int = 4,
     exitDuration: Duration = 150.milliseconds,
+    properties: PopupProperties = PopupProperties(
+        focusable = false,
+        dismissOnBackPress = true,
+        dismissOnClickOutside = true
+    ),
     content: @Composable TooltipScope.() -> Unit,
 ): Modifier {
     val interactionSource = remember { MutableInteractionSource() }
@@ -250,11 +255,7 @@ fun Modifier.tooltip(
                         key = popupKey,
                         positionProvider = positionProvider,
                         onDismissRequest = { active = false },
-                        properties = PopupProperties(
-                            focusable = false,
-                            dismissOnBackPress = true,
-                            dismissOnClickOutside = true,
-                        ),
+                        properties = properties,
                         content = {
                             MaterialTheme(
                                 colorScheme = colorScheme,

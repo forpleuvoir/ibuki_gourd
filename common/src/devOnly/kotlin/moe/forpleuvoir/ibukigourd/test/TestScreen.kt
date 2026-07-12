@@ -132,7 +132,6 @@ fun TestScreen2() {
                     { selected = it },
                     items = list.map { "这是第${it}个" },
                     modifier = Modifier.width(160.dp),
-                    enabledSearch = true,
                     searchFilter = { text, item ->
                         text in item
                     }

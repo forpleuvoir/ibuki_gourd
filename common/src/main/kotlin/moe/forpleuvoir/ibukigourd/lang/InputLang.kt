@@ -22,6 +22,8 @@ object InputLang {
 
     object KeybindSettingLang {
 
+        inline val title get() = lang("keybind_setting.title")
+
         inline val env get() = lang("keybind_setting.env")
         inline val envComment get() = lang("keybind_setting.env.comment")
 

@@ -132,7 +132,7 @@ fun IntSlider(
         }
     }
     Slider(
-        value = (value.toFloat() / span).coerceIn(0f, 1f),
+        value = ((value - valueRange.first).toFloat() / span).coerceIn(0f, 1f),
         onValueChange = {
             onValueChange((valueRange.first + (span * it).fastRoundToInt()).coerceIn(valueRange))
         },
@@ -223,7 +223,7 @@ fun LongSlider(
         }
     }
     Slider(
-        value = (value.toFloat() / span).coerceIn(0f, 1f),
+        value = ((value - valueRange.first).toFloat() / span).coerceIn(0f, 1f),
         onValueChange = {
             onValueChange((valueRange.first + (span * it).toLong()).coerceIn(valueRange))
         },
@@ -402,7 +402,7 @@ fun DoubleSlider(
         }
     }
     Slider(
-        value = (value / span).toFloat().coerceIn(0f, 1f),
+        value = ((value - valueRange.start) / span).toFloat().coerceIn(0f, 1f),
         onValueChange = {
             onValueChange((valueRange.start + span * it).coerceIn(valueRange))
         },
@@ -493,7 +493,7 @@ fun DurationSlider(
         }
     }
     Slider(
-        value = (value / span).toFloat().coerceIn(0f, 1f),
+        value = ((value - valueRange.start) / span).toFloat().coerceIn(0f, 1f),
         onValueChange = {
             onValueChange((valueRange.start + span * it.toDouble()).coerceIn(valueRange))
         },

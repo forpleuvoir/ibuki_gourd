@@ -39,18 +39,25 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.ArrowRightAlt
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
+import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
-private typealias MapEditingItem<V> = Pair<Long, Pair<String, V>>
+data class MapEntry<K, V>(
+    val key: K,
+    val value: V,
+)
 
+private typealias KeyedMapEntry<V> = Keyed<MapEntry<String, V>>
 
 object MapConfigWrapperDefaults {
 
@@ -90,10 +97,10 @@ object MapConfigWrapperDefaults {
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
         title: @Composable (() -> Unit)? = { Text(InlineStyleText(config.translateText.plainText)) },
-        content: @Composable (data: SnapshotStateList<MapEditingItem<V>>) -> Unit
+        content: @Composable (data: SnapshotStateList<KeyedMapEntry<V>>) -> Unit
     ) {
         //编辑中的映射 确认之后写入config
-        val editingValue = remember { config.entries.mapIndexed { index, entry -> index.toLong() to (entry.key to entry.value) }.toMutableStateList() }
+        val editingValue = rememberKeyedList(config.entries.map { MapEntry(it.key, it.value) })
         FlexibleDialog(
             onDismissRequest = onDismissRequest,
             title = title,
@@ -228,8 +235,8 @@ object MapConfigWrapperDefaults {
 
     @Composable
     fun <V : Any> EditDialogContentList(
-        data: SnapshotStateList<MapEditingItem<V>>,
-        key: (MapEditingItem<V>) -> Any = { it.first },
+        data: SnapshotStateList<KeyedMapEntry<V>>,
+        key: (KeyedMapEntry<V>) -> Any = { it.key },
         modifier: Modifier = Modifier,
         lazyListState: LazyListState = rememberLazyListState(),
         enableElementMove: Boolean = true,
@@ -240,7 +247,7 @@ object MapConfigWrapperDefaults {
             KeyWrapper(
                 key,
                 onKeyChange,
-                { newKey -> key == newKey || data.any { it.second.first == newKey } },
+                { newKey -> key == newKey || data.any { it.value.key == newKey } },
                 modifier = Modifier.weight(LocalKeyColumnWeight.current)
             )
         },
@@ -267,7 +274,7 @@ object MapConfigWrapperDefaults {
                 itemsIndexed(data, key = { _, entry -> key(entry) }) { index, entry ->
                     ReorderableItem(reorderableLazyListState, key = key(entry)) { isDragging ->
                         val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                        val (mapKey, value) = data[index].second
+                        val (mapKey, value) = data[index].value
                         val handleInteraction = remember { MutableInteractionSource() }
                         val handleHovered by handleInteraction.collectIsHoveredAsState()
 
@@ -278,38 +285,20 @@ object MapConfigWrapperDefaults {
                             //移动手柄
                             if (enableElementMove) {
                                 MoveColumn {
-                                    Box(
-                                        Modifier
-                                            .draggableHandle(
-                                                onDragStarted = {
-                                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                                },
-                                                onDragStopped = {
-                                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
-                                                },
-                                            )
-                                            .hoverable(handleInteraction)
-                                            .pointerHoverIcon(PointerIcon.Hand)
-                                            .background(
-                                                if (handleHovered || isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                                                CircleShape,
-                                            ).padding(4.dp)
-                                    ) {
-                                        Icon(Icons.DragHandle, contentDescription = null)
-                                    }
+                                    DragHandle(hapticFeedback, handleInteraction, handleHovered, isDragging)
                                 }
                                 Spacer(Modifier.width(LocalColumnSpacing.current))
                             }
 
                             //Key包装
                             keyWrapper(mapKey) { newKey ->
-                                data[index] = data[index].first to (newKey to data[index].second.second)
+                                data[index] = Keyed(data[index].key, data[index].value.copy(key = newKey))
                             }
                             Spacer(Modifier.width(LocalColumnSpacing.current))
 
                             //Value包装
                             valueWrapper(value) { newValue ->
-                                data[index] = data[index].first to (data[index].second.first to newValue)
+                                data[index] = Keyed(data[index].key, data[index].value.copy(value = newValue))
                             }
                             Spacer(Modifier.width(LocalColumnSpacing.current))
                             //移除按钮

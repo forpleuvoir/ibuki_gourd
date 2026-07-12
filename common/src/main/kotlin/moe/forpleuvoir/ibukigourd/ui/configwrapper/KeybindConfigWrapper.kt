@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.ui.preset.KeyCodeSetButton
+import moe.forpleuvoir.ibukigourd.ui.preset.KeybindAssistChip
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSetButton
 import moe.forpleuvoir.ibukigourd.ui.preset.KeybindSettingSetButton
 import moe.forpleuvoir.nebula.config.Config
@@ -59,17 +60,12 @@ fun KeybindConfigWrapper(
         verticalAlignment,
         onReset = ::update
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.size(ConfigRowWrapper.entrySize)
-        ) {
+        Box(modifier = Modifier.size(ConfigRowWrapper.entrySize), contentAlignment = Alignment.Center) {
             key(version) {
-                KeybindSetButton(config.getValue(), { update() }, Modifier.weight(1f))
-                KeybindSettingSetButton(config.getValue().setting, {
-                    config.getValue().setFrom(it)
-                    update()
-                })
+                KeybindAssistChip(
+                    config.getValue(),
+                    modifier = Modifier.width(ConfigRowWrapper.entrySize.width)
+                )
             }
         }
     }
@@ -107,12 +103,12 @@ fun ToggleKeybindConfigWrapper(
         ) {
 
             Switch(enabled, { config.enabled = it; update() })
+
             key(version) {
-                KeybindSetButton(config.keybind, { update() }, Modifier.weight(1f))
-                KeybindSettingSetButton(config.keybind.setting, {
-                    config.keybind.setFrom(it)
-                    update()
-                })
+                KeybindAssistChip(
+                    config.keybind,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }

@@ -11,8 +11,8 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.*
+import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,25 +27,14 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.Expand
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberTextFieldState
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 
-private typealias StringListEditingItem = Pair<Long, String>
-
-private typealias StringPairListEditingItem = Pair<Long, Pair<String, String>>
-
 private const val StringContentEditorAnimationDuration = 300
-
-@Composable
-private fun rememberStringListEditingValue(config: ConfigList<String>): SnapshotStateList<StringListEditingItem> = remember {
-    config.mapIndexed { index, value -> index.toLong() to value }.toMutableStateList()
-}
-
-@Composable
-private fun rememberStringPairListEditingValue(config: ConfigList<Pair<String, String>>): SnapshotStateList<StringPairListEditingItem> = remember {
-    config.mapIndexed { index, value -> index.toLong() to value }.toMutableStateList()
-}
 
 @Composable
 private fun RowScope.ExpandableStringContentEditor(
@@ -108,6 +97,7 @@ fun StringConfigWrapper(
 
             OutlinedTextField(
                 state = textFieldState,
+                labelPosition = TextFieldLabelPosition.Attached(true),
                 label = { Text("String") },
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.weight(1f),
@@ -182,7 +172,7 @@ fun StringListConfigWrapper(
         modifier = modifier
     ) { showEditDialog = true }
     if (showEditDialog) {
-        val editingValue = rememberStringListEditingValue(config)
+        val editingValue = rememberKeyedList(config)
         var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
         EditDialog(
             config = config,
@@ -220,7 +210,7 @@ fun StringListConfigWrapper(
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    editingValue.add(nextKey++ to newValue.text.toString())
+                                    editingValue.add(Keyed(nextKey++, newValue.text.toString()))
                                     onDismissRequest()
                                 }
                             ) {
@@ -237,11 +227,11 @@ fun StringListConfigWrapper(
             ) { lazyListState ->
                 EditDialogContentList(
                     data = editingValue,
-                    key = { it.first },
+                    key = { it.key },
                     modifier = Modifier,
                     lazyListState = lazyListState
-                ) { (key, value), onValueChange ->
-                    ExpandableStringContentEditor(value, { onValueChange(key to it) })
+                ) { keyed, onValueChange ->
+                    ExpandableStringContentEditor(keyed.value, { onValueChange(keyed.copyValue(it)) })
                 }
             }
         }
@@ -290,7 +280,7 @@ fun StringMapConfigWrapper(
                 },
                 addDialog = { onDismissRequest ->
                     val newKey = rememberTextFieldState("")
-                    val isDuplicate = remember(newKey.text.toString()) { data.any { it.second.first == newKey.text.toString() } }
+                    val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
                     val newValue = rememberTextFieldState("")
                     AlertDialog(
                         onDismissRequest = onDismissRequest,
@@ -320,7 +310,12 @@ fun StringMapConfigWrapper(
                             TextButton(
                                 onClick = {
                                     if (!isDuplicate) {
-                                        data.add(nextKey++ to (newKey.text.toString() to newValue.text.toString()))
+                                        data.add(
+                                            Keyed(
+                                                nextKey++,
+                                                MapEntry(newKey.text.toString(), newValue.text.toString())
+                                            )
+                                        )
                                         onDismissRequest()
                                     }
                                 },
@@ -374,7 +369,7 @@ fun StringPairListConfigWrapper(
         modifier = modifier
     ) { showEditDialog = true }
     if (showEditDialog) {
-        val editingValue = rememberStringPairListEditingValue(config)
+        val editingValue = rememberKeyedList(config)
         var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
         EditDialog(
             config = config,
@@ -430,7 +425,7 @@ fun StringPairListConfigWrapper(
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    editingValue.add(nextKey++ to (newFirst.text.toString() to newSecond.text.toString()))
+                                    editingValue.add(Keyed(nextKey++, (newFirst.text.toString() to newSecond.text.toString())))
                                     onDismissRequest()
                                 }
                             ) {
@@ -447,13 +442,13 @@ fun StringPairListConfigWrapper(
             ) { lazyListState ->
                 EditDialogContentList(
                     data = editingValue,
-                    key = { it.first },
+                    key = { it.key },
                     modifier = Modifier,
                     lazyListState = lazyListState,
                 ) { (key, value), onValueChange ->
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current)) {
-                        ExpandableStringContentEditor(value.first, { onValueChange(key to (it to value.second)) })
-                        ExpandableStringContentEditor(value.second, { onValueChange(key to (value.first to it)) })
+                        ExpandableStringContentEditor(value.first, { onValueChange(Keyed(key, (it to value.second))) })
+                        ExpandableStringContentEditor(value.second, { onValueChange(Keyed(key, (value.first to it))) })
                     }
                 }
             }

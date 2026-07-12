@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -32,6 +33,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragIndicator
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
@@ -39,6 +41,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.config.item.ConfigList
+import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -252,25 +255,7 @@ object ListConfigWrapperDefaults {
                         ) {
                             if (enableElementMove) {
                                 MoveColumn {
-                                    Box(
-                                        Modifier
-                                            .draggableHandle(
-                                                onDragStarted = {
-                                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                                },
-                                                onDragStopped = {
-                                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
-                                                },
-                                            )
-                                            .hoverable(handleInteraction)
-                                            .pointerHoverIcon(PointerIcon.Hand)
-                                            .background(
-                                                if (handleHovered || isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                                                CircleShape,
-                                            ).padding(4.dp)
-                                    ) {
-                                        Icon(Icons.DragHandle, contentDescription = null)
-                                    }
+                                    DragHandle(hapticFeedback, handleInteraction, handleHovered, isDragging)
                                 }
                                 Spacer(Modifier.width(LocalColumnSpacing.current))
                             }
@@ -301,3 +286,4 @@ object ListConfigWrapperDefaults {
         }
     }
 }
+

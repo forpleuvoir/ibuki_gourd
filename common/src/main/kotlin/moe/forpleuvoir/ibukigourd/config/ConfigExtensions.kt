@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.config
 
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigManager
 import moe.forpleuvoir.nebula.config.ConfigNode
 import moe.forpleuvoir.nebula.config.flat
@@ -25,7 +26,7 @@ var ConfigNode.translationKey: String
         val prefix = this.root.let {
             if (it is ModConfigManager) "${it.modId}.${if (it.name == "config") it.name else "config.${it.name}"}" else it?.name ?: ""
         }
-        val result = if (path.isNotEmpty()) "$prefix.$path" else prefix
+        val result = if (path.isNotEmpty()) "${if (prefix.isNotEmpty()) "$prefix." else ""}$path" else prefix
         setMetadata(ConfigTranslationDefaults.TRANSLATE_KEY_KEY, result)
         result
     }
@@ -98,7 +99,7 @@ fun ConfigNode.matchWithTranslate(regex: Regex): Boolean =
             || regex.containsMatchIn(translateComment.plainText)
 
 
-fun ConfigManager.exportTranslateKeys(onlyMissing: Boolean = false, withComment: Boolean = true): List<String> {
+fun ConfigGroup.exportTranslateKeys(onlyMissing: Boolean = false, withComment: Boolean = true): List<String> {
     return buildList {
         flat.forEach {
             val key = it.translationKey

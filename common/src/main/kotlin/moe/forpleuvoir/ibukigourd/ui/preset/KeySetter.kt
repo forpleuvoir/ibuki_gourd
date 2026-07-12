@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -21,6 +22,10 @@ import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardAlt
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fadeScaleTooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
 import kotlin.time.Duration.Companion.milliseconds
 
 private val ALL_KEYS by lazy {
@@ -135,6 +140,120 @@ fun KeyCodeSetButton(
     }
 }
 
+
+@Composable
+fun KeybindAssistChip(
+    keybind: Keybind,
+    modifier: Modifier = Modifier,
+) {
+    var inputting by remember { mutableStateOf(false) }
+    var displayKeys by remember { mutableStateOf<List<KeyCode>>(emptyList()) }
+
+    val conflictColors = AssistChipDefaults.assistChipColors().copy(
+        containerColor = MaterialTheme.colorScheme.errorContainer,
+        labelColor = MaterialTheme.colorScheme.error,
+    )
+    val conflicted by remember(keybind) {
+        derivedStateOf {
+            InputHandler.keybindVersion
+            InputHandler.detectKeyConflicts(keybind).count() > 0
+        }
+    }
+
+    LaunchedEffect(inputting) {
+        if (!inputting) return@LaunchedEffect
+
+        val disposable = InputHandler.register(captureKeybind)
+        try {
+            val trackedKeys = mutableListOf<KeyCode>()
+            while (isActive) {
+                withFrameNanos {
+                    val current = InputHandler.pressedKeys.toList()
+                    if (current.isNotEmpty()) {
+                        if (current == listOf(Keyboard.LEFT_CONTROL, Keyboard.BACKSPACE)) {
+                            keybind.setKey()
+                            inputting = false
+                        } else {
+                            current.forEach { if (it !in trackedKeys) trackedKeys.add(it) }
+                            displayKeys = trackedKeys.toList()
+                        }
+                    } else if (trackedKeys.isNotEmpty()) {
+                        keybind.setKey(*trackedKeys.toTypedArray())
+                        inputting = false
+                    }
+                }
+            }
+        } finally {
+            disposable.dispose()
+        }
+    }
+
+    AssistChip(
+        {
+            if (!inputting) {
+                displayKeys = emptyList()
+                inputting = true
+            }
+        },
+        colors = if (conflicted) conflictColors else AssistChipDefaults.assistChipColors(),
+        modifier = modifier.tooltip(
+            properties = PopupProperties(
+                focusable = false,
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            fadeScaleTooltip {
+                PlainTooltip {
+                    var keyTooltip by remember {
+                        mutableStateOf(
+                            if (inputting) IGLang.Input.releaseToSaveSetting
+                            else keybind.hoverText
+                        )
+                    }
+                    LaunchedEffect(Unit) {
+                        while (isActive) {
+                            keyTooltip = if (inputting) {
+                                val keys = displayKeys
+                                if (keys.isEmpty()) IGLang.Input.releaseToSaveSetting
+                                else Literal(keys.joinToString(" + ") { it.keyName }).also {
+                                    it.appendNewLine().append(IGLang.Input.releaseToSaveSetting)
+                                }
+                            } else keybind.hoverText
+                            delay(16.milliseconds)
+                        }
+                    }
+                    Text(
+                        keyTooltip,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        textAlign = TextAlign.Start,
+                    )
+                }
+            }
+        },
+        leadingIcon = {
+            Box(Modifier.padding(start = 8.dp)) {
+                Icon(Icons.KeyboardAlt, null)
+            }
+        },
+        label = {
+            Text(
+                if (inputting) {
+                    val text = displayKeys.joinToString(" + ") { it.keyName }
+                    if (text.isEmpty()) IGLang.Input.pressToSetting
+                    else Literal(text)
+                } else keybind.asText,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+        trailingIcon = {
+            KeybindSettingSetButton(keybind.setting, {
+                keybind.setFrom(it)
+            })
+        }
+    )
+}
 
 @Composable
 fun KeybindSetButton(
@@ -276,7 +395,7 @@ fun KeybindSettingSetButton(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Keybind Settings") },
+            title = { Text(IGLang.Input.KeybindSetting.title) },
             text = {
                 KeybindSettingColumn(
                     keybindSetting = tempSetting,

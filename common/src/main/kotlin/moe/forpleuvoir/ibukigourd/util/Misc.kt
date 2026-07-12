@@ -48,6 +48,14 @@ fun String.truncate(maxLength: Int, suffix: String = "..."): String {
     }
 }
 
+fun <T> List<T>.moveElement(fromIndex: Int, toIndex: Int): List<T> {
+    if (fromIndex == toIndex) return this
+    val mutable = toMutableList()
+    val element = mutable.removeAt(fromIndex)
+    mutable.add(toIndex, element)
+    return mutable
+}
+
 fun <T> MutableList<T>.moveElement(fromIndex: Int, toIndex: Int) {
     if (fromIndex == toIndex) return
     val movingElement = this.removeAt(fromIndex)
