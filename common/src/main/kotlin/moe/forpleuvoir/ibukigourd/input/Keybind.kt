@@ -64,8 +64,8 @@ class Keybind(
     var setting: KeybindSetting = defaultSetting
         private set
 
-    private val _keys: MutableList<KeyCode> = CopyOnWriteArrayList(defaultKeys)
-    val keys: List<KeyCode> get() = _keys
+    val keys: List<KeyCode>
+        field: MutableList<KeyCode> = CopyOnWriteArrayList(defaultKeys)
 
     var action: Keybind.() -> Unit = action
 
@@ -83,8 +83,8 @@ class Keybind(
     fun setKey(vararg keyCodes: KeyCode): Boolean {
         val normalized = normalizeKeys(keyCodes.asIterable())
         return if (keys != normalized) {
-            _keys.clear()
-            _keys.addAll(normalized)
+            keys.clear()
+            keys.addAll(normalized)
             resetState()
             notifyChange(this)
             true
@@ -205,8 +205,8 @@ class Keybind(
         if (isDefault()) return
 
         setting = defaultSetting
-        _keys.clear()
-        _keys.addAll(defaultKeys)
+        keys.clear()
+        keys.addAll(defaultKeys)
         resetState()
         notifyChange(this)
     }
@@ -224,8 +224,8 @@ class Keybind(
         }
         val normalized = normalizeKeys(keys.asIterable())
         if (this.keys != normalized) {
-            _keys.clear()
-            _keys.addAll(normalized)
+            this.keys.clear()
+            this.keys.addAll(normalized)
             valueChange = true
         }
         if (valueChange) resetState()
@@ -310,7 +310,7 @@ class Keybind(
         result = 31 * result + (_name?.hashCode() ?: 0)
         result = 31 * result + defaultKeys.hashCode()
         result = 31 * result + setting.hashCode()
-        result = 31 * result + _keys.hashCode()
+        result = 31 * result + keys.hashCode()
         result = 31 * result + action.hashCode()
         result = 31 * result + observers.hashCode()
         result = 31 * result + name.hashCode()
