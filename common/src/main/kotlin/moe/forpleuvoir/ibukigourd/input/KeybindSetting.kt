@@ -22,6 +22,12 @@ data class KeybindSetting(
     val repeatInterval: Int = 5
 ) : Matchable<Regex> {
 
+    init {
+        require(longPressThreshold > 0) { "longPressThreshold must be greater than 0" }
+        require(repeatInterval > 0) { "repeatInterval must be greater than 0" }
+    }
+
+
     companion object : Codec<KeybindSetting> by Codec.create<KeybindSetting>()
         .field<KeyEnvironment>("env").getter(KeybindSetting::env).default(KeyEnvironment.InGame).codec(KeyEnvironment)
         .field<KeyTriggerTiming>("trigger").getter(KeybindSetting::trigger).default(KeyTriggerTiming.Press).codec(KeyTriggerTiming)

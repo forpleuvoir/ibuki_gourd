@@ -41,6 +41,7 @@ object InputHandler : Tickable {
     private val currentPressKeyCode: MutableList<KeyCode> = ArrayList()
 
     fun register(keybind: Keybind): Disposable {
+        require(keybinds.none { it === keybind }) { "Keybind already registered: $keybind" }
         keybinds.add(keybind)
         updateVersion()
         observers[keybind] = keybind.observe { updateVersion() }
@@ -63,10 +64,12 @@ object InputHandler : Tickable {
      * @return 该快捷键此前已注册并被移除时返回 `true`，否则返回 `false`
      */
     fun unregister(keybind: Keybind): Boolean {
-        val removed = keybinds.remove(keybind)
+        val index = keybinds.indexOfFirst { it === keybind }
+        if (index == -1) return false
+        keybinds.removeAt(index)
         observers.remove(keybind)?.dispose()
-        if (removed) updateVersion()
-        return removed
+        updateVersion()
+        return true
     }
 
     fun detectKeyConflicts(keyBind: Keybind): Sequence<Keybind> {
@@ -88,20 +91,29 @@ object InputHandler : Tickable {
         beforePressKeyCode.clear()
     }
 
+    private fun syncBeforeKeys() {
+        beforePressKeyCode.clear()
+        beforePressKeyCode.addAll(currentPressKeyCode)
+    }
+
+    private inline fun dispatchKeybinds(event: (Keybind) -> Boolean): Boolean {
+        var passthrough = true
+        keybinds.forEach { keybind ->
+            if (!event(keybind)) passthrough = false
+        }
+        return passthrough
+    }
+
     @JvmStatic
     @JvmName("onKeyPress")
     fun onKeyPress(keyCode: KeyCode): Boolean {
         if (!currentPressKeyCode.contains(keyCode)) {
-            //changed
             currentPressKeyCode.add(keyCode)
-            var action = true
-            keybinds.forEach loop@{
-                action = it.onKeyPress(beforePressKeyCode, currentPressKeyCode)
-                if (!action) return@loop
+            return try {
+                dispatchKeybinds { it.onKeyPress(beforePressKeyCode, currentPressKeyCode) }
+            } finally {
+                syncBeforeKeys()
             }
-            beforePressKeyCode.clear()
-            beforePressKeyCode.addAll(currentPressKeyCode)
-            return action
         }
         return true
     }
@@ -110,16 +122,12 @@ object InputHandler : Tickable {
     @JvmName("onKeyRelease")
     fun onKeyRelease(keyCode: KeyCode): Boolean {
         if (currentPressKeyCode.contains(keyCode)) {
-            //changed
             currentPressKeyCode.remove(keyCode)
-            var action = true
-            keybinds.forEach loop@{
-                action = it.onKeyRelease(beforePressKeyCode, currentPressKeyCode)
-                if (!action) return@loop
+            return try {
+                dispatchKeybinds { it.onKeyRelease(beforePressKeyCode, currentPressKeyCode) }
+            } finally {
+                syncBeforeKeys()
             }
-            beforePressKeyCode.clear()
-            beforePressKeyCode.addAll(currentPressKeyCode)
-            return action
         }
         return true
     }

@@ -27,6 +27,9 @@ import moe.forpleuvoir.nebula.serialization.codec.list
 import java.util.concurrent.CopyOnWriteArrayList
 
 
+private fun normalizeKeys(keys: Iterable<KeyCode>): List<KeyCode> = keys.distinct()
+
+
 @Suppress("MemberVisibilityCanBePrivate")
 class Keybind(
     vararg keyCodes: KeyCode,
@@ -56,7 +59,7 @@ class Keybind(
         }
         get() = _name ?: Text.literal(keys.joinToString(" + ") { it.keyName })
 
-    private val defaultKeys: List<KeyCode> = keyCodes.toSet().toList()
+    private val defaultKeys: List<KeyCode> = normalizeKeys(keyCodes.asIterable())
 
     var setting: KeybindSetting = defaultSetting
         private set
@@ -78,9 +81,11 @@ class Keybind(
     private var tickCount: Long = 0
 
     fun setKey(vararg keyCodes: KeyCode): Boolean {
-        return if (keys != keyCodes.toList()) {
+        val normalized = normalizeKeys(keyCodes.asIterable())
+        return if (keys != normalized) {
             _keys.clear()
-            _keys.addAll(keyCodes)
+            _keys.addAll(normalized)
+            resetState()
             notifyChange(this)
             true
         } else false
@@ -124,17 +129,13 @@ class Keybind(
         } else {
             keys == beforeKeyCode || beforeKeyCode.matchKeys(keys)
         }
-        wasPress = if (setting.strict) {
+        val currentMatched = if (setting.strict) {
             keys == currentKeyCode
         } else {
             keys == currentKeyCode || currentKeyCode.matchKeys(keys)
         }
-        val currentMath = if (setting.strict) {
-            keys == currentKeyCode
-        } else {
-            keys == currentKeyCode || currentKeyCode.matchKeys(keys)
-        }
-        if (beforeMatched && !currentMath) {
+        wasPress = currentMatched
+        if (beforeMatched && !currentMatched) {
             return if (setting.trigger == Release || setting.trigger == PressAndRelease) {
                 action()
                 setting.passthrough
@@ -156,8 +157,8 @@ class Keybind(
                 }
 
                 WhileLongPressed -> {
-                    val temp = tickCount - setting.longPressThreshold
-                    if (temp >= 0 && tickCount % setting.repeatInterval == 0L) action()
+                    val elapsed = tickCount - setting.longPressThreshold
+                    if (elapsed >= 0 && elapsed % setting.repeatInterval == 0L) action()
                 }
 
                 else             -> Unit
@@ -206,6 +207,7 @@ class Keybind(
         setting = defaultSetting
         _keys.clear()
         _keys.addAll(defaultKeys)
+        resetState()
         notifyChange(this)
     }
 
@@ -220,11 +222,13 @@ class Keybind(
             this.setting = setting
             valueChange = true
         }
-        if (this.keys != keys) {
+        val normalized = normalizeKeys(keys.asIterable())
+        if (this.keys != normalized) {
             _keys.clear()
-            _keys.addAll(keys)
+            _keys.addAll(normalized)
             valueChange = true
         }
+        if (valueChange) resetState()
         return valueChange
     }
 
@@ -244,7 +248,10 @@ class Keybind(
             this.setting = setting
             valueChange = true
         }
-        if (valueChange) notifyChange(this)
+        if (valueChange) {
+            resetState()
+            notifyChange(this)
+        }
         return valueChange
     }
 
@@ -259,19 +266,19 @@ class Keybind(
                 val keys = keysCodec.deserialization(
                     obj.requireKey("keys").requireType<SerializeArray>()
                 ).onFailure {
-                    log.warn("Failed to deserialize Keybind keys,Will use default value", it)
-                }.getOrDefault(this.keys).toSet()
+                    log.warn("Failed to deserialize Keybind keys, will keep current value", it)
+                }.getOrDefault(this.keys).toList()
 
 
                 val setting = obj.requireKeysOrNull("setting")?.let { obj ->
                     KeybindSetting.deserialization(
                         obj.requireKey("setting").requireType<SerializeObject>("Keybind setting decode,")
                     ).onFailure {
-                        log.warn("Failed to deserialize Keybind setting,Will use default value", it)
+                        log.warn("Failed to deserialize Keybind setting, will keep current value", it)
                     }.getOrDefault(this.setting)
                 } ?: setting
 
-                if (setFrom(keys.toList(), setting)) {
+                if (setFrom(keys, setting)) {
                     notifyChange(this)
                 }
             }
