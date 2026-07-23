@@ -1,16 +1,8 @@
-@file:OptIn(InternalComposeUiApi::class, ExperimentalComposeUiApi::class)
-
 package moe.forpleuvoir.ibukigourd.ui.toast
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

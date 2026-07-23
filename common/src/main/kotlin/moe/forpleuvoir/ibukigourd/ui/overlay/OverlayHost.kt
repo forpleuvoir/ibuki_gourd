@@ -1,9 +1,8 @@
-@file:OptIn(InternalComposeUiApi::class, ExperimentalComposeUiApi::class)
+@file:OptIn(InternalComposeUiApi::class)
 
-package moe.forpleuvoir.ibukigourd.ui.toast
+package moe.forpleuvoir.ibukigourd.ui.overlay
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -17,12 +16,13 @@ import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaSurface
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import org.jetbrains.skiko.currentNanoTime
 import kotlin.time.Duration.Companion.nanoseconds
 
-object ToastOverlayHost {
+object OverlayHost {
 
     private val surface = SkiaSurface()
     private val binding = MinecraftPlatformContext()
@@ -36,7 +36,7 @@ object ToastOverlayHost {
         scene.setContent {
             IGCompositionLocalProvider(LocalSkiaSurface provides surface) {
                 MaterialTheme(colorScheme = ToastHandler.activeScheme) {
-                    ToastContainer()
+                    OverlayContainer()
                 }
             }
         }

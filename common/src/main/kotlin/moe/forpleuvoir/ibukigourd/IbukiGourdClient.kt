@@ -8,7 +8,7 @@ import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreenContent
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.preset.SkiaTextureHelper
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastOverlayHost
+import moe.forpleuvoir.ibukigourd.ui.overlay.OverlayHost
 import moe.forpleuvoir.ibukigourd.ui.util.render.SkiaItemRenderHelper
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.event.Event
@@ -41,7 +41,7 @@ object IbukiGourdClient {
             SkiaContext.init()
             ComposeSceneWarmup.warmUp()
             ComposeSceneWarmup.warmUp { IbukiGourdScreenContent() }
-            ToastOverlayHost.init()
+            OverlayHost.init()
         }
         ClientLifecycleEvent.Starting.addPhaseOrdering(initPhase, Event.DEFAULT_PHASE)
     }

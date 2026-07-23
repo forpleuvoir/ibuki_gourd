@@ -33,12 +33,14 @@ object InputHandler : Tickable {
      */
     private val observers: MutableMap<Keybind, Observable.Disposable> = IdentityHashMap()
 
-    private val beforePressKeyCode: MutableList<KeyCode> = ArrayList()
+    val beforePressKeyCode: List<KeyCode>
+        field = mutableListOf()
 
     /**
      * 当前按下的所有键
      */
-    private val currentPressKeyCode: MutableList<KeyCode> = ArrayList()
+    val currentPressKeyCode: List<KeyCode>
+        field = mutableListOf()
 
     fun register(keybind: Keybind): Disposable {
         require(keybinds.none { it === keybind }) { "Keybind already registered: $keybind" }

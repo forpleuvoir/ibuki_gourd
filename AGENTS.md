@@ -21,17 +21,17 @@
 
 | 项 | 值 |
 |---|---|
-| 语言 | Kotlin `2.3.21`（主），少量 Java（mixin） |
+| 语言 | Kotlin `2.4.0`（主），少量 Java（mixin） |
 | JVM | Java `25` |
 | Minecraft | `26.1.2` |
-| Fabric | Loader `0.19.2` / API `0.146.1+26.1.2` / Fabric Kotlin `1.13.11` / Loom `1.16-SNAPSHOT` |
-| NeoForge | `26.1.2.22-beta` / moddev `2.0.141` / Kotlin for Forge `6.2.0` |
+| Fabric | Loader `0.19.2` / API `0.146.1+26.1.2` / Fabric Kotlin `1.13.12+kotlin.2.4.0` / Loom `1.16-SNAPSHOT` |
+| NeoForge | `26.1.2.22-beta` / moddev `2.0.141` / Kotlin for Forge `6.3.0` |
 | Mixin | `0.8.5` + MixinExtras `0.5.3` |
 | UI | Compose `1.11.0` + Material3 `1.11.0-alpha07` + MaterialKolor `4.1.1`（Desktop，渲染桥接到 MC，排除 `material-desktop`） |
-| 依赖库 | `nebula` `0.3.10` |
+| 依赖库 | `nebula` `0.3.14` |
 | 构建工具 | Gradle（Kotlin DSL），版本目录 `gradle/libs.versions.toml` |
 
-版本号集中在 `gradle.properties`（`group` / `mod_id` / `mod_name` / `version` 等）与 `gradle/libs.versions.toml`。`version` 当前为 `0.11.0+alpha`。
+版本号集中在 `gradle.properties`（`group` / `mod_id` / `mod_name` / `version` 等）与 `gradle/libs.versions.toml`。`version` 当前为 `0.11.1+alpha`。
 
 ## 仓库结构
 
@@ -103,7 +103,8 @@ ibuki_gourd/
 
 - `ui/configwrapper/` —— 配置项包装器：`ConfigManagerWrapper`、`GroupConfigsWrapper`、`ConfigsWrapper`，及按类型：`StringConfigWrapper`、`ColorConfigWrapper`、`EnumConfigWrapper`、`ListConfigWrapper`、`MapConfigWrapper`、`KeybindConfigWrapper`、`DurationConfigWrapper`、`ColorSchemeConfigWrapper`、`PrimitiveConfigWrapper`、`ConfigGroupWrapper`、`ReorderableItemList`
 - `ui/preset/`（含 `preset/modifier`）—— 预置组件：`Text`、`Tip`/`TipBox`、`SearchBar`、`ColorButton`、`ColorPicker`、`NumberField`、`NumberSlider`、`Selector`、`KeySetter`、`ItemIcon`、`Texture`、`BlitTexture`；modifier：`Tooltip`、`Backgourd`
-- `ui/toast/` —— `Toast`、`ToastHandler`、`ToastOverlayHost`、`ToastContainer`、`ToastStrategy`、`ToastAnimation`
+- `ui/toast/` —— `Toast`、`ToastHandler`、`ToastContainer`、`ToastStrategy`、`ToastAnimation`
+- `ui/overlay/` —— `OverlayHost`、`OverlayService`、`OverlayContainer`
 - `ui/icon/`（`default/`、`filled/`）—— `Icons` 对象 + 大量 Material 风格图标
 - `ui/scene/`（含 `internal/`）—— Compose 嵌入 MC：`ComposeSceneHost`、`DefaultComposeSceneHost`、`ComposeSceneFactory`，及内部 bridge/lifecycle/renderer
 - `ui/skia/`（含 `internal/`）—— `SkiaContext`、`SkiaSurface`、内部 GPU frame/texture 管理
@@ -113,7 +114,7 @@ ibuki_gourd/
 ## 关键入口点
 
 - **common 入口**：`IbukiGourd.init()` —— 遍历 `INITS`（平台 `ModInitialization`，经 ServiceLoader 收集）+ 本地 `inits`（如 `ServerModConfigHandler`）调用 `init()`。
-- **client 入口**：`IbukiGourdClient.init()` —— 注册 `ClientModConfigHandler`、`IGConfig`，并在 `ClientLifecycleEvent.Starting` 时初始化 `SkiaContext` / `ComposeSceneWarmup` / `ToastOverlayHost`。
+- **client 入口**：`IbukiGourdClient.init()` —— 注册 `ClientModConfigHandler`、`IGConfig`，并在 `ClientLifecycleEvent.Starting` 时初始化 `SkiaContext` / `ComposeSceneWarmup` / `OverlayHost`。
 - **fabric**：`FabricIbukiGourd : ModInitializer`（委托 `IbukiGourd.init()`），`FabricIbukiGourdClient`，`compat/ModMenuImpl`。入口在 `fabric.mod.json`。
 - **neoforge**：`@Mod(IbukiGourd.MOD_ID) class NeoforgeIbukiGourd`，在 `FMLCommonSetupEvent` 调 `IbukiGourd.init()`。
 - **平台抽象**：`Services` 通过 `ServiceLoader` 解析 `PlatformHelper`（fabric/neoforge 各自实现）与所有 `ModInitialization`。`PlatformHelper.getIGModClasses()` 反射扫描各 MOD 元数据中的 `package` 键（fabric 为 `custom.ibukigourd.package`，neoforge 为 `modproperties.$modId.package`），加载其 KClass（跳过 `.mixin` 包）——**这是 IbukiGourd 发现消费方 MOD 中被注解的配置/屏幕类的机制**。
@@ -160,7 +161,7 @@ gradlew.bat :common:test
 
 ## Git 与提交
 
-- 主分支 `dev`；当前默认 PR 目标分支为 `dev`。
+- 主分支 `dev`；当前开发分支 `compose-test`；当前默认 PR 目标分支为 `compose-test`。
 - commit message 用中文，遵循 Conventional Commits（参考历史：`feat:` / `fix:` / `refactor(ui):` / `docs:` 等）。
 - 仅在被明确要求时才执行 `git commit` / `git push`；在默认分支上应先开分支。
 - 提交前勿带入 `build/`、`runs/`、`modJar/`、`out/`、`net/` 等忽略目录。
@@ -174,3 +175,14 @@ gradlew.bat :common:test
 5. **先读后写**：修改文件前先读取确认现状；遵循周边代码的命名、注释密度与惯用法。
 6. **构建验证**：完成 Kotlin 改动后，优先用 `gradlew.bat :<module>:build` 或对应编译任务验证；不要声称“已通过测试”除非真的运行过。
 7. **`nebula` 基类**：若改动触及 `ConfigManager` / `Event` 等定义，注意其声明在 `nebula` 依赖中，本仓库无法直接修改，只能通过包装/扩展。
+
+## IntelliJ IDEA MCP 与验证
+
+执行编译、构建、代码检查或运行配置前，先检查当前环境是否提供 IntelliJ IDEA / JetBrains MCP，并枚举其实际能力，例如项目模型、Gradle 任务、编译、问题检查和运行配置。
+
+- 不假定 MCP 的固定工具名。
+- IDEA MCP 能覆盖目标时优先使用，以复用 IDE 已导入的项目模型与环境。
+- 不使用 `ps`、系统进程列表或类似方式探测 IDEA 或 Gradle 导入状态。
+- 只有在 IDEA MCP 未提供、明确不可用或不能覆盖目标任务时，才回退到仓库根目录的 Gradle Wrapper。
+- 先执行覆盖改动范围的最小检查，再按风险扩大验证。
+- 交付时说明实际采用的验证方式；回退到 Wrapper 时简述原因。
