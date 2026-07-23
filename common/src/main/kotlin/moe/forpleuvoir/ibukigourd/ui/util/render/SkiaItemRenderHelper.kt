@@ -99,6 +99,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                 renderItemToBufferedImage(request.itemStack, request.width, request.height)
             } catch (e: Exception) {
                 logger.error("An exception occurred while rendering queue items: ${e.message}")
+                logger.error(e.stackTraceToString())
             }
             processed++
         }

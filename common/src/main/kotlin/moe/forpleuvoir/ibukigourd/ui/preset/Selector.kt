@@ -27,7 +27,7 @@ import moe.forpleuvoir.ibukigourd.text.translateText
 import kotlin.math.exp
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> Selector(
     selected: T,
@@ -122,7 +122,7 @@ fun <T> Selector(
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StringSelector(
     selected: String,
@@ -132,7 +132,7 @@ fun StringSelector(
     content: @Composable (String) -> Unit = {
         Text(it)
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (String, Boolean) -> Unit = { item, _ ->
         Text(item)
@@ -168,7 +168,7 @@ fun StringSelector(
     contentPadding = contentPadding
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <E : Enum<E>> EnumSelector(
     selected: E,
@@ -178,7 +178,7 @@ fun <E : Enum<E>> EnumSelector(
     content: @Composable (E) -> Unit = {
         Text(it.translateText)
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (E, Boolean) -> Unit = { item, _ ->
         TipBox({

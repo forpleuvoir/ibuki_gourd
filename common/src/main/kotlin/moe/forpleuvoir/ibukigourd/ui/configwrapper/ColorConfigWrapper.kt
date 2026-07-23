@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.Checkerboard
+import moe.forpleuvoir.ibukigourd.ui.preset.ColorAssistChipOuterSetting
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorSettingButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
@@ -40,48 +41,12 @@ fun ColorConfigWrapper(
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
 
     val value by config.asState()
-
-    Row(
+    ColorAssistChipOuterSetting(
+        value = value,
+        onValueChange = { config.setValue(it) },
+        editorTitle = { Text(InlineStyleText(config.translateText.plainText)) },
         modifier = Modifier.size(ConfigRowWrapper.entrySize),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-    ) {
-        AssistChip(
-            onClick = {
-                MinecraftClipboard.setClipboardText(value.hexStr)
-                ToastHandler.show {
-                    ToastContent { Text(IGLang.Color.copyColorSuccess(value)) }
-                }
-            },
-            label = {
-                TipBox({
-                    Text(IGLang.Color.clickCopyColor(value))
-                }) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val shape = MaterialTheme.shapes.extraSmall
-                        var titleSize by remember { mutableStateOf(5.dp) }
-                        val density = LocalDensity.current
-                        Box(
-                            modifier = Modifier.padding(vertical = 8.dp).size(28.dp)
-                                .onSizeChanged { size ->
-                                    titleSize = with(density) { (size.height / 3).toDp() }
-                                }
-                                .border(0.5.dp, value.reverse(false).toComposeColor, shape)
-                        ) {
-                            Checkerboard(titleSize, modifier = Modifier.fillMaxSize().clip(shape))
-                            Box(Modifier.fillMaxSize().background(value, shape))
-                        }
-                        Spacer(Modifier.width(8.dp))
-                        Text("#%08X".format(value.argb), fontFamily = FontFamily.Monospace)
-                    }
-                }
-            }
-        )
-        ColorSettingButton(value, { config.setValue(it) }, title = {
-            Text(InlineStyleText(config.translateText.plainText))
-        })
-    }
-
+    )
 }

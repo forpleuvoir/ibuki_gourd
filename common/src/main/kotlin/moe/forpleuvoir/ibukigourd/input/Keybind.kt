@@ -96,6 +96,7 @@ class Keybind(
     }
 
     fun onKeyPress(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): Boolean {
+        if (keys.isEmpty()) return true
         if (currentKeyCode.isEmpty() || !setting.env.envMatch()) {
             wasPress = false
             return true
@@ -110,16 +111,14 @@ class Keybind(
         } else {
             keys == currentKeyCode || currentKeyCode.matchKeys(keys)
         }
-        if (wasPress && !beforeMatched) {
-            return if (setting.trigger == Press || setting.trigger == PressAndRelease) {
-                action()
-                setting.passthrough
-            } else true
-        }
-        return true
+        return !(wasPress && !beforeMatched) || if (setting.trigger == Press || setting.trigger == PressAndRelease) {
+            action()
+            setting.passthrough
+        } else true
     }
 
     fun onKeyRelease(beforeKeyCode: List<KeyCode>, currentKeyCode: List<KeyCode>): Boolean {
+        if (keys.isEmpty()) return true
         if (beforeKeyCode.isEmpty() || !setting.env.envMatch()) {
             wasPress = false
             return true
@@ -135,13 +134,10 @@ class Keybind(
             keys == currentKeyCode || currentKeyCode.matchKeys(keys)
         }
         wasPress = currentMatched
-        if (beforeMatched && !currentMatched) {
-            return if (setting.trigger == Release || setting.trigger == PressAndRelease) {
-                action()
-                setting.passthrough
-            } else true
-        }
-        return true
+        return !(beforeMatched && !currentMatched) || if (setting.trigger == Release || setting.trigger == PressAndRelease) {
+            action()
+            setting.passthrough
+        } else true
     }
 
     override fun onTick() {
