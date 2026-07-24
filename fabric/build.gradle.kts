@@ -56,6 +56,9 @@ dependencies {
         exclude(module = "material-desktop")
         composeExclude()
     })
+
+    //IMBlocker 兼容
+    compileOnly("maven.modrinth:WMDesFsZ:hMMYc3vE")
 }
 
 sourceSets {

@@ -54,6 +54,8 @@ dependencies {
         composeExclude()
     })
 
+    //IMBlocker 兼容
+    compileOnly("maven.modrinth:WMDesFsZ:MQ96z3kk")
 }
 
 // 解析 compose 传递树，以 Maven 依赖注入到 jarJar（jarJar task 会处理 module name 校验以外的内容）

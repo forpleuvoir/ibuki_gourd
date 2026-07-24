@@ -14,6 +14,18 @@ pluginManagement {
                 includeGroupByRegex("net\\.fabricmc.*")
             }
         }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Modrinth"
+                    url = uri("https://api.modrinth.com/maven")
+                }
+            }
+            // forRepositories(fg.repository) // Uncomment when using ForgeGradle
+            filter {
+                includeGroupByRegex("maven\\.modrinth")
+            }
+        }
         maven { url = uri("https://www.jitpack.io") }
     }
 }

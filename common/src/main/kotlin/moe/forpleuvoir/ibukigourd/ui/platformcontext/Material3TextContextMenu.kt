@@ -7,7 +7,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ContextMenuRepresentation
 import androidx.compose.foundation.ContextMenuState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.padding
@@ -39,7 +38,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.ContentCut
 import moe.forpleuvoir.ibukigourd.ui.icon.default.ContentPaste
 import moe.forpleuvoir.ibukigourd.ui.icon.default.SelectAll
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalComposeUiApi::class)
 object Material3ContextMenuRepresentation : ContextMenuRepresentation {
 
     @Composable
@@ -56,24 +55,20 @@ object Material3ContextMenuRepresentation : ContextMenuRepresentation {
                 onDismissRequest = { state.status = ContextMenuState.Status.Closed },
                 popupPositionProvider = rememberPopupPositionProviderAtPosition(status.rect.center),
                 onKeyEvent = {
-                    if (it.type == KeyEventType.KeyDown) {
-                        when (it.key) {
-                            Key.DirectionDown, Key.NumPadDirectionUp -> {
-                                inputModeManager?.requestInputMode(InputMode.Keyboard)
-                                focusManager?.moveFocus(FocusDirection.Next)
-                                true
-                            }
-
-                            Key.DirectionUp, Key.NumPadDirectionDown -> {
-                                inputModeManager?.requestInputMode(InputMode.Keyboard)
-                                focusManager?.moveFocus(FocusDirection.Previous)
-                                true
-                            }
-
-                            else                                     -> false
+                    it.type == KeyEventType.KeyDown && when (it.key) {
+                        Key.DirectionDown, Key.NumPadDirectionUp -> {
+                            inputModeManager?.requestInputMode(InputMode.Keyboard)
+                            focusManager?.moveFocus(FocusDirection.Next)
+                            true
                         }
-                    } else {
-                        false
+
+                        Key.DirectionUp, Key.NumPadDirectionDown -> {
+                            inputModeManager?.requestInputMode(InputMode.Keyboard)
+                            focusManager?.moveFocus(FocusDirection.Previous)
+                            true
+                        }
+
+                        else                                     -> false
                     }
                 },
             ) {

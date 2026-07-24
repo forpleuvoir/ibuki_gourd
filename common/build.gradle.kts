@@ -25,9 +25,12 @@ dependencies {
     api(libs.materialKolor)
     api(libs.backdrop)
     api(libs.reorderable)
-    api(compose.desktop.currentOs){
+    api(compose.desktop.currentOs) {
         exclude(module = "material-desktop")
     }
+
+    //IMBlocker 兼容
+    compileOnly("maven.modrinth:WMDesFsZ:MQ96z3kk")
 
     testImplementation(kotlin("test-junit5"))
 }

@@ -19,6 +19,10 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.input.MouseCursor
+import moe.forpleuvoir.ibukigourd.platform.PLATFORM
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.compat.imblocker.IMBlockerCompat
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.compat.imblocker.IMBlockerCompatImpl
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.compat.imblocker.IMBlockerFocusSession
 import moe.forpleuvoir.ibukigourd.util.mc
 import org.lwjgl.glfw.GLFW
 
@@ -46,27 +50,33 @@ class MinecraftPlatformContext : PlatformContext {
         private set
 
     override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
+        var imBlockerFocus: IMBlockerFocusSession? = null
         try {
             inputCommandSink = request.onEditCommand
-            coroutineScope {
-                launch {
-                    snapshotFlow { request.textFieldRectInRoot() to request.textLayoutResult() }
-                        .collect { rect ->
-                            val (rect, result) = rect
-                            if (rect != null && result != null) {
-                                GLFW.glfwSetPreeditCursorRectangle(
-                                    mc.window.handle(),
-                                    rect.left.toInt(),
-                                    rect.top.toInt() - 60,//TODO 配置化
-                                    0,
-                                    0
-                                )
+
+            imBlockerFocus = IMBlockerCompat.requestTextInputFocus(request)
+            if (imBlockerFocus == null) {
+                coroutineScope {
+                    launch {
+                        snapshotFlow { request.textFieldRectInRoot() to request.textLayoutResult() }
+                            .collect { rect ->
+                                val (rect, result) = rect
+                                if (rect != null && result != null) {
+                                    GLFW.glfwSetPreeditCursorRectangle(
+                                        mc.window.handle(),
+                                        rect.left.toInt(),
+                                        rect.top.toInt() - 60,
+                                        0,
+                                        0
+                                    )
+                                }
                             }
-                        }
+                    }
                 }
             }
             awaitCancellation()
         } finally {
+            imBlockerFocus?.close()
             inputCommandSink = null
         }
     }
