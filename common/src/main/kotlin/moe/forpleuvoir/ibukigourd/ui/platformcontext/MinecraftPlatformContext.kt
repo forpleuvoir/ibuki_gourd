@@ -49,37 +49,57 @@ class MinecraftPlatformContext : PlatformContext {
     var inputCommandSink: ((List<EditCommand>) -> Unit)? = null
         private set
 
-    override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
-        var imBlockerFocus: IMBlockerFocusSession? = null
-        try {
-            inputCommandSink = request.onEditCommand
+    override suspend fun startInputMethod(
+        request: PlatformTextInputMethodRequest,
+    ): Nothing = coroutineScope {
+        inputCommandSink = request.onEditCommand
 
-            imBlockerFocus = IMBlockerCompat.requestTextInputFocus(request)
-            if (imBlockerFocus == null) {
-                coroutineScope {
-                    launch {
-                        snapshotFlow { request.textFieldRectInRoot() to request.textLayoutResult() }
-                            .collect { rect ->
-                                val (rect, result) = rect
-                                if (rect != null && result != null) {
-                                    GLFW.glfwSetPreeditCursorRectangle(
-                                        mc.window.handle(),
-                                        rect.left.toInt(),
-                                        rect.top.toInt() - 60,
-                                        0,
-                                        0
-                                    )
-                                }
-                            }
+        /*
+         * IMBlocker 未安装或初始化失败时返回 null。
+         * 返回非 null 说明焦点已经成功注册给 IMBlocker。
+         */
+        val imBlockerFocus =
+            IMBlockerCompat.requestTextInputFocus(request)
+
+        try {
+            launch {
+                snapshotFlow {
+                    request.textFieldRectInRoot() to
+                            request.textLayoutResult()
+                }.collect { (rect, result) ->
+                    if (rect == null || result == null) {
+                        return@collect
+                    }
+
+                    if (imBlockerFocus != null) {
+                        IMBlockerCompat.updateCaretPosition()
+                    } else {
+                        /*
+                         * 没有 IMBlocker 时，保留原来的 GLFW 实现。
+                         */
+                        GLFW.glfwSetPreeditCursorRectangle(
+                            mc.window.handle(),
+                            rect.left.toInt(),
+                            rect.top.toInt() - imeVerticalOffset(),
+                            0,
+                            0,
+                        )
                     }
                 }
             }
+
             awaitCancellation()
         } finally {
+            /*
+             * Compose 文本输入框失焦时，注销 IMBlocker 焦点。
+             */
             imBlockerFocus?.close()
             inputCommandSink = null
         }
     }
+
+    private fun imeVerticalOffset(): Int =
+        60 + mc.window.guiScale * 15
 
     override fun setPointerIcon(pointerIcon: PointerIcon) {
         when (pointerIcon) {

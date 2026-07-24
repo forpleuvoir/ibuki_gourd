@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.ui.platformcontext
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.defaultScrollbarStyle
@@ -18,7 +17,6 @@ import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 
 @Suppress("NOTHING_TO_INLINE")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 inline fun IGCompositionLocalProvider(
     vararg values: ProvidedValue<*>,
