@@ -253,7 +253,7 @@ class Keybind(
 
     override fun serialization(): SerializeElement = SerializeObject.build {
         set("keys", keys, keysCodec)
-        if (setting != defaultSetting) "setting" to setting
+        if (setting != defaultSetting) "setting"(KeybindSetting.serialization(setting))
     }
 
     override fun deserialization(data: SerializeElement) {
@@ -272,7 +272,7 @@ class Keybind(
                     ).onFailure {
                         log.warn("Failed to deserialize Keybind setting, will keep current value", it)
                     }.getOrDefault(this.setting)
-                } ?: setting
+                } ?: this.setting
 
                 if (setFrom(keys, setting)) {
                     notifyChange(this)

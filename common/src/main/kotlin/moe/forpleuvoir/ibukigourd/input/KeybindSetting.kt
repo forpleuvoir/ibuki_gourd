@@ -29,12 +29,12 @@ data class KeybindSetting(
 
 
     companion object : Codec<KeybindSetting> by Codec.create<KeybindSetting>()
-        .field<KeyEnvironment>("env").getter(KeybindSetting::env).default(KeyEnvironment.InGame).codec(KeyEnvironment)
-        .field<KeyTriggerTiming>("trigger").getter(KeybindSetting::trigger).default(KeyTriggerTiming.Press).codec(KeyTriggerTiming)
-        .field<Boolean>("passthrough").getter(KeybindSetting::passthrough).default(false).codec(Codec.boolean)
-        .field<Boolean>("strict").getter(KeybindSetting::strict).default(true).codec(Codec.boolean)
-        .field<Int>("longPressThreshold").getter(KeybindSetting::longPressThreshold).default(20).codec(Codec.int)
-        .field<Int>("repeatInterval").getter(KeybindSetting::repeatInterval).default(5).codec(Codec.int)
+        .field(KeybindSetting::env).skipDefault().default(KeyEnvironment.InGame).codec(KeyEnvironment)
+        .field(KeybindSetting::trigger).skipDefault().default(KeyTriggerTiming.Press).codec(KeyTriggerTiming)
+        .field(KeybindSetting::passthrough).skipDefault().default(false).codec(Codec.boolean)
+        .field(KeybindSetting::strict).skipDefault().default(true).codec(Codec.boolean)
+        .field(KeybindSetting::longPressThreshold).skipDefault().default(20).codec(Codec.int)
+        .field(KeybindSetting::repeatInterval).skipDefault().default(5).codec(Codec.int)
         .build(::KeybindSetting)
 
     override fun matched(target: Regex): Boolean =

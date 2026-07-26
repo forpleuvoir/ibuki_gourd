@@ -4,6 +4,7 @@ package moe.forpleuvoir.ibukigourd.ui.preset.modifier
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -12,10 +13,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -50,9 +51,4 @@ fun Modifier.hoverBackground(
 }
 
 
-fun Modifier.debug(color: Color = Colors.RED, thickness: Float = 2f) = this.drawBehind {
-    drawLine(color.toComposeColor, Offset.Zero, Offset(size.width, 0f), thickness)
-    drawLine(color.toComposeColor, Offset(size.width, 0f), Offset(size.width, size.height), thickness)
-    drawLine(color.toComposeColor, Offset(0f, size.height), Offset(size.width, size.height), thickness)
-    drawLine(color.toComposeColor, Offset.Zero, Offset(0f, size.height), thickness)
-}
+fun Modifier.debug(color: Color = Colors.RED, width: Dp = 2.dp, shape: Shape = RectangleShape) = this.border(width, color.toComposeColor, shape)

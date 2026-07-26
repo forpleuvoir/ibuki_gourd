@@ -25,9 +25,9 @@ class TickTask<T>(
     data class Setting(val delay: Int = 0, val period: Int = 1, val times: Int = 1) {
 
         companion object : Codec<Setting> by Codec.create<Setting>()
-            .field<Int>("delay").getter(Setting::delay).default(0).codec(Codec.int(0..Int.MAX_VALUE))
-            .field<Int>("period").getter(Setting::period).default(1).codec(Codec.int(1..Int.MAX_VALUE))
-            .field<Int>("times").getter(Setting::times).default(1).codec(Codec.int(1..Int.MAX_VALUE))
+            .field(Setting::delay).default(0).codec(Codec.int(0..Int.MAX_VALUE))
+            .field(Setting::period).default(1).codec(Codec.int(1..Int.MAX_VALUE))
+            .field(Setting::times).default(1).codec(Codec.int(1..Int.MAX_VALUE))
             .build(::Setting)
     }
 

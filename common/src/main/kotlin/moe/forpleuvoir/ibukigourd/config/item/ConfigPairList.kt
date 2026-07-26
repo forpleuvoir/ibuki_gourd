@@ -11,8 +11,8 @@ fun <A : Any, B : Any> Codec.Companion.pair(
     codecA: Codec<A>,
     codecB: Codec<B>
 ): Codec<Pair<A, B>> = Codec.create<Pair<A, B>>()
-    .field<A>("first").getter(Pair<A, B>::first).codec(codecA)
-    .field<B>("second").getter(Pair<A, B>::second).codec(codecB)
+    .field(Pair<A, B>::first).codec(codecA)
+    .field(Pair<A, B>::second).codec(codecB)
     .build { a, b -> a to b }
 
 context(group: ConfigGroup)
