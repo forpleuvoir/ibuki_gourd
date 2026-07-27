@@ -1,12 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -14,6 +11,7 @@ import androidx.compose.ui.util.fastRoundToInt
 import moe.forpleuvoir.ibukigourd.mixin.client.ScreenAccessor
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.isDevEnv
+import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
@@ -69,15 +67,27 @@ class ComposeScreen(
     })
 
     private val mark by lazy { TimeSource.Monotonic.markNow() }
-    private val host: ComposeSceneHost by lazy { ComposeSceneFactory.create(content) }
+    private val closeController = ComposeScreenCloseController()
+    private val host: ComposeSceneHost by lazy {
+        ComposeSceneFactory.create {
+            CompositionLocalProvider(LocalComposeScreenCloseController provides closeController) {
+                content()
+            }
+        }
+    }
 
     var renderingLevel: Boolean = true
         private set
 
-    private var onClose: (() -> Unit)? = null
+    private var closeCallback: (() -> Unit)? = null
 
+    @Deprecated("Use onClosed instead", ReplaceWith("onClosed(block)"))
     fun onClose(block: () -> Unit) {
-        onClose = block
+        closeCallback = block
+    }
+
+    fun onClosed(block: () -> Unit) {
+        closeCallback = block
     }
 
     private var onInit: (() -> Unit)? = null
@@ -111,9 +121,35 @@ class ComposeScreen(
     }
 
     override fun onClose() {
-        this.minecraft.setScreen(parentScreen)
-        onClose?.invoke()
-        host.onClose()
+        requestClose()
+    }
+
+    fun requestClose() {
+        closeController.requestClose()
+    }
+
+    private var cleanedUp = false
+
+    private fun cleanup() {
+        if (cleanedUp) return
+        cleanedUp = true
+        try {
+            if (minecraft.screen === this) minecraft.setScreen(parentScreen)
+        } catch (e: Exception) {
+            logger.error("Error returning to parent screen", e)
+        }
+        try {
+            closeCallback?.invoke()
+        } catch (e: Exception) {
+            logger.error("Error in close callback", e)
+        }
+        mc.scheduleStartTick(1) { _, _ ->
+            try {
+                host.onClose()
+            } catch (e: Exception) {
+                logger.error("Error closing Compose scene host", e)
+            }
+        }
     }
 
     var fadeInDuration = IGConfig.Gui.Screen.fadeInDuration
@@ -121,33 +157,53 @@ class ComposeScreen(
     private var init = false
 
     override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
+        if (closeController.completed) {
+            cleanup()
+            return
+        }
         if (renderParent) {
-            parentScreen?.extractRenderState(graphics, -500, -500, partialTick)
+            val closing = closeController.isClosing
+            parentScreen?.extractRenderState(
+                graphics,
+                if (closing) mouseX else -500,
+                if (closing) mouseY else -500,
+                partialTick
+            )
         }
         if (!shouldRenderLevel(this) && renderingLevel && mark.elapsedNow() > fadeInDuration) {
-            renderingLevel = false
+            renderingLevel = closeController.isClosing
         }
         host.extractRenderState(graphics, mouseX, mouseY, partialTick)
+        if (closeController.completed) {
+            cleanup()
+        }
         if (isDevEnv && !init) {
-            logger.devInfo("first frame time: ${mark.elapsedNow()}")
+            logger.devInfo("first time: ${mark.elapsedNow()}")
             init = true
         }
     }
 
+    private val isOpen: Boolean get() = closeController.state == ComposeScreenCloseState.Open
+
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean =
-        host.mouseClicked(event) || super.mouseClicked(event, doubleClick)
+        !isOpen || host.mouseClicked(event) || super.mouseClicked(event, doubleClick)
+
 
     override fun mouseReleased(event: MouseButtonEvent): Boolean =
-        host.mouseReleased(event) || super.mouseReleased(event)
+        closeController.isClosed || host.mouseReleased(event) || (isOpen && super.mouseReleased(event))
+
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean =
-        host.mouseScrolled(mouseX, mouseY, scrollX, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)
+        !isOpen || host.mouseScrolled(mouseX, mouseY, scrollX, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)
+
 
     override fun keyPressed(event: KeyEvent): Boolean =
-        host.keyPressed(event) || super.keyPressed(event)
+        !isOpen || host.keyPressed(event) || super.keyPressed(event)
+
 
     override fun keyReleased(event: KeyEvent): Boolean =
-        host.keyReleased(event) || super.keyReleased(event)
+        closeController.isClosed || host.keyReleased(event) || (isOpen && super.keyReleased(event))
+
 
     override fun isPauseScreen(): Boolean = pauseGame
 }
@@ -165,9 +221,13 @@ fun <S : Screen> S.open(): S {
     return this
 }
 
-//TODO 关闭ComposeScreen时 需要播放动画, 实现思路 向屏幕发送关闭信号,接收到开始执行关闭流程
 fun closeScreen() {
-    mc.execute { mc.screen?.onClose() }
+    mc.execute {
+        when (val screen = mc.screen) {
+            is ComposeScreen -> screen.requestClose()
+            else             -> screen?.onClose()
+        }
+    }
 }
 
 fun Screen?.isComposeScreen() =
@@ -202,7 +262,7 @@ fun DefaultAnimatedScreenEntry(content: @Composable () -> Unit) {
             animationSpec = tween(duration, easing = enterEasing)
         ) + fadeIn(animationSpec = tween(duration, easing = enterEasing)),
     ) {
-        val animProgress by this.transition.animateFloat(label = "toastProgress") {
+        val animProgress by this.transition.animateFloat(label = "screenAnimProgress") {
             when (it) {
                 EnterExitState.PreEnter -> 0f
                 EnterExitState.Visible  -> 1f

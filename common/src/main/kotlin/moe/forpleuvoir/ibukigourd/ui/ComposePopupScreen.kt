@@ -11,13 +11,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -30,9 +25,7 @@ fun ComposePopupScreen(
     renderParent: Boolean = true,
     parentScreen: Screen? = mc.screen,
     shouldRenderLevel: (ComposeScreen) -> Boolean = {
-        renderParent && if (parentScreen.isComposeScreen()) {
-            (parentScreen as ComposeScreen).shouldRenderLevel(parentScreen)
-        } else true
+        renderParent && (!parentScreen.isComposeScreen() || (parentScreen as ComposeScreen).shouldRenderLevel(parentScreen))
     },
     contentWrapper: @Composable (@Composable () -> Unit) -> Unit = { content -> DefaultAnimatedDialogEntry(content) },
     content: @Composable () -> Unit
@@ -44,7 +37,7 @@ fun ComposePopupScreen(
     { contentWrapper(content) }
 ).apply {
     fadeInDuration = (-1).milliseconds
-    onDismissRequest?.let { this@apply.onClose(it) }
+    onDismissRequest?.let { this@apply.onClosed(it) }
     parentScreen?.let {
         this@apply.onResize { width, height -> it.resize(width, height) }
     }
@@ -56,9 +49,7 @@ fun openComposePopupScreen(
     renderParent: Boolean = true,
     parentScreen: Screen? = mc.screen,
     shouldRenderLevel: (ComposeScreen) -> Boolean = {
-        renderParent && if (parentScreen.isComposeScreen()) {
-            (parentScreen as ComposeScreen).shouldRenderLevel(parentScreen)
-        } else true
+        renderParent && (!parentScreen.isComposeScreen() || (parentScreen as ComposeScreen).shouldRenderLevel(parentScreen))
     },
     contentWrapper: @Composable (@Composable () -> Unit) -> Unit = { content -> DefaultAnimatedDialogEntry(content) },
     content: @Composable () -> Unit
@@ -72,22 +63,19 @@ fun openComposePopupScreen(
     content
 ).open()
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun DefaultAnimatedDialogEntry(content: @Composable () -> Unit) {
     val enterEasing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
     val durationMs = IGConfig.Gui.Screen.fadeInDuration.inWholeMilliseconds.toInt()
-    val duration = IGConfig.Gui.Screen.fadeInDuration
-    var visible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) { visible = true }
+    val overlayState = rememberComposeScreenVisibilityState()
+    val contentState = rememberComposeScreenVisibilityState()
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         AnimatedVisibility(
-            visible = visible,
+            visibleState = overlayState,
             enter = fadeIn(animationSpec = tween(durationMs, easing = enterEasing)),
             exit = fadeOut(animationSpec = tween(durationMs, easing = enterEasing)),
         ) {
@@ -99,23 +87,19 @@ fun DefaultAnimatedDialogEntry(content: @Composable () -> Unit) {
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                     ) {
-                        visible = false
-                        GlobalScope.launch {
-                            delay(duration)
-                            closeScreen()
-                        }
+                        closeScreen()
                     },
             )
         }
 
         AnimatedVisibility(
-            visible = visible,
+            visibleState = contentState,
             enter = fadeIn(animationSpec = tween(durationMs, easing = enterEasing)) +
                     scaleIn(initialScale = 0.8f, animationSpec = tween(durationMs, easing = enterEasing)),
             exit = fadeOut(animationSpec = tween(durationMs, easing = enterEasing)) +
                     scaleOut(targetScale = 0.8f, animationSpec = tween(durationMs, easing = enterEasing)),
         ) {
-            val animProgress by this.transition.animateFloat(label = "toastProgress") {
+            val animProgress by this.transition.animateFloat(label = "dialogAnimProgress") {
                 when (it) {
                     EnterExitState.PreEnter -> 0f
                     EnterExitState.Visible  -> 1f
