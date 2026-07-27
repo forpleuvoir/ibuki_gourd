@@ -115,7 +115,7 @@ inline fun Text(
 }
 
 fun Component.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
-    flat().forEach { c ->
+    toFlatList().forEach { c ->
         val s = c.style
         if (s != Style.EMPTY) {
             // 收集样式
