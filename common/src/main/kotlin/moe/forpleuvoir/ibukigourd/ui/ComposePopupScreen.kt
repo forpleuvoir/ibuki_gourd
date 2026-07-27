@@ -1,23 +1,15 @@
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package moe.forpleuvoir.ibukigourd.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -54,7 +46,6 @@ fun ComposePopupScreen(
     fadeInDuration = (-1).milliseconds
     onDismissRequest?.let { this@apply.onClose(it) }
     parentScreen?.let {
-//        this@apply.onInit(it::rebuildWidgets)
         this@apply.onResize { width, height -> it.resize(width, height) }
     }
 }

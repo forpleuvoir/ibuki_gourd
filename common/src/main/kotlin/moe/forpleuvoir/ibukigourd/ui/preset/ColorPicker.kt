@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
-import kotlinx.coroutines.FlowPreview
+
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -43,7 +43,8 @@ private val hueGradient by lazy {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
+val LocalColorPickerEnableAlpha = staticCompositionLocalOf { true }
+
 @Composable
 fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifier: Modifier = Modifier) {
 
@@ -143,7 +144,15 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
                 }
                 var alpha by remember { mutableStateOf(color.alpha) }
                 LaunchedEffect(alpha) { onValueChange(color.alpha(alpha)) }
-                ColorChannelSlider("A", IGLang.Color.alpha.plainText, alpha.toFloat(), 0f..255f, aGradient, showCheckerboard = true) {
+                ColorChannelSlider(
+                    "A",
+                    IGLang.Color.alpha.plainText,
+                    alpha.toFloat(),
+                    0f..255f,
+                    aGradient,
+                    enabled = LocalColorPickerEnableAlpha.current,
+                    showCheckerboard = true
+                ) {
                     alpha = it.fastRoundToInt()
                 }
             }
@@ -190,7 +199,6 @@ fun ColorPicker(color: NebulaColor, onValueChange: (NebulaColor) -> Unit, modifi
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColorChannelSlider(
     label: String,
@@ -200,6 +208,7 @@ private fun ColorChannelSlider(
     gradientColors: List<Color>,
     showCheckerboard: Boolean = false,
     useFloat: Boolean = false,
+    enabled: Boolean = true,
     onValueChange: (Float) -> Unit
 ) {
     Row(
@@ -233,6 +242,7 @@ private fun ColorChannelSlider(
                 value = value.coerceIn(valueRange),
                 onValueChange = onValueChange,
                 valueRange = valueRange,
+                enabled = enabled,
                 colors = SliderDefaults.colors(
                     activeTrackColor = Color.Transparent,
                     inactiveTrackColor = Color.Transparent,
@@ -262,6 +272,7 @@ private fun ColorChannelSlider(
                 value = value,
                 onValueChange = { onValueChange(it) },
                 range = valueRange,
+                enabled = enabled,
                 valueDisplay = { "%.1f".format(it) },
                 contentPadding = PaddingValues(horizontal = 4.dp, vertical = 1.dp),
                 textStyle = MaterialTheme.typography.bodySmall,
@@ -272,6 +283,7 @@ private fun ColorChannelSlider(
                 value = value.roundToInt(),
                 onValueChange = { onValueChange(it.toFloat()) },
                 range = 0..valueRange.endInclusive.toInt(),
+                enabled = enabled,
                 contentPadding = PaddingValues(horizontal = 4.dp, vertical = 1.dp),
                 textStyle = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.width(40.dp).height(22.dp)

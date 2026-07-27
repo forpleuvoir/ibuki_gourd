@@ -7,6 +7,7 @@ import moe.forpleuvoir.nebula.common.util.primitive.sumOf
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FormattedText
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
 import net.minecraft.util.FormattedCharSequence
 
 @JvmName("textSize")
@@ -173,57 +174,63 @@ fun MutableComponent.wrapToTextLines(
     maxWidth: Float = 0f,
     needNewLine: (Char) -> Boolean = { it == '\n' }
 ): List<Text> {
-    // 对当前可变文本进行扁平化处理，得到 McText 列表
-    val flatList = this.flat()
-    // 声明用于盛放处理后的Text对象的 list
-    val texts = mutableListOf<MutableText>()
-    // 声明用于构建每一行字符串的 StringBuilder
+    val flatList = flat()
+    val rootStyle = style
+    val lines = mutableListOf<MutableText>()
     val currentLineString = StringBuilder()
-    // 迭代处理每一段文本
-    flatList.forEach { text ->
-        // 声明一个临时的StringBuilder用于存储临时字符
+
+    fun createLine(): MutableText =
+        Literal().setStyle(rootStyle)
+
+    fun currentLine(): MutableText =
+        lines.lastOrNull() ?: createLine().also(lines::add)
+
+    fun addToCurrentLine(
+        content: StringBuilder,
+        segmentStyle: Style,
+    ) {
+        if (content.isEmpty()) return
+
+        currentLine().append(
+            Literal(content.toString()).setStyle(segmentStyle)
+        )
+        content.clear()
+    }
+
+    fun startNextLine() {
+        // 保证换行符之前的空行也被保留
+        currentLine()
+        lines.add(createLine())
+    }
+
+    for (text in flatList) {
         val temp = StringBuilder()
-        // 迭代处理每一段文本的每一个字符
+
         for (chr in text.string) {
-            run {//检测是否换行的代码块
-                //检查是否为换行符号
-                if (!needNewLine(chr)) {  //不是换行符号
-                    //检查最大宽度是否无限制
-                    if (maxWidth <= 0f)
-                        return@run //无限制宽度并且不是换行符号,所以跳出换行代码块,当次字符添加不换行
-                    //不是换行符号,但是又宽度限制,检查添加到当前行的字符的长度
-                    if ((currentLineString.toString() + chr).width <= maxWidth)
-                        return@run  //小于等于最大宽度限制,跳出换行代码块,当次字符添加不换行
-                }
-                //没有跳出换行代码块,说明需要换行,所以需要将当前行的字符串添加到结果中,并创建新的一行
-                if (texts.isNotEmpty()) {
-                    //如果当前行不为空,并且temp不为空,说明当前行有内容,需要将temp的内容添加到结果中
-                    if (temp.isNotEmpty()) texts.last().append(Literal(temp).setStyle(text.style))
-                } else { //如果第一行为空说明当前是第一行,直接将temp添加到结果中
-                    if (temp.isNotEmpty()) texts.add(Literal(temp).setStyle(text.style))
-                }
-                //添加完之后换行
-                texts.add(Literal())
-                //换行之后清空临时文本
+            val isNewLine = needNewLine(chr)
+
+            val exceedsMaxWidth =
+                !isNewLine &&
+                        maxWidth > 0f &&
+                        currentLineString.isNotEmpty() &&
+                        (currentLineString.toString() + chr).width > maxWidth
+
+            if (isNewLine || exceedsMaxWidth) {
+                addToCurrentLine(temp, text.style)
+                startNextLine()
                 currentLineString.clear()
-                temp.clear()
             }
-            //执行到这说明没有换行,添加字符到当前行的字符串中
-            if (!needNewLine(chr)) {
+
+            if (!isNewLine) {
                 temp.append(chr)
                 currentLineString.append(chr)
             }
-        }//当前的[text]处理完毕,并不代表当前行结束,需要将temp的内容添加到结果中
-
-        if (texts.isNotEmpty()) {
-            //如果当前行不为空,并且temp不为空,说明当前行有内容,需要将temp的内容添加到结果中
-            if (temp.isNotEmpty()) texts.last().append(Literal(temp).setStyle(text.style))
-        } else { //如果第一行为空说明当前是第一行,直接将temp添加到结果中
-            if (temp.isNotEmpty()) texts.add(Literal(temp).setStyle(text.style))
         }
+
+        addToCurrentLine(temp, text.style)
     }
-    // 最后返回处理后的文本列表
-    return texts
+
+    return lines
 }
 
 /**

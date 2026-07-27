@@ -26,6 +26,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
@@ -322,10 +323,12 @@ private fun AddColorDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         title = { Text(title) },
         text = {
-            ColorPicker(
-                color = pendingColor,
-                onValueChange = { pendingColor = it },
-            )
+            IGCompositionLocalProvider {
+                ColorPicker(
+                    color = pendingColor,
+                    onValueChange = { pendingColor = it },
+                )
+            }
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(pendingColor) }) {
