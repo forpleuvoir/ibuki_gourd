@@ -14,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.resourceManager
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.resources.model.sprite.Material
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import org.jetbrains.skia.Bitmap
@@ -29,7 +30,7 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
 
     private val textureCache = LinkedHashMap<Identifier, ImageBitmap>(32, 0.75f, false)
     private var totalCacheArea: Long = 0
-    private const val MAX_CACHE_AREA: Long = 1024 * 1024 * 32
+    private const val MAX_CACHE_AREA: Long = 1024 * 1024 * 128
 
     override val identifier: Identifier = identifier("skia_texture")
 
@@ -84,6 +85,28 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
         totalCacheArea += entryArea
         textureCache[texture] = result
         return result
+    }
+
+    suspend fun getTextureCache(
+        material: Material,
+    ): ImageBitmap {
+        val texture = material.sprite()
+
+        val resource = Identifier.fromNamespaceAndPath(
+            texture.namespace,
+            buildString {
+                if (!texture.path.startsWith("textures/")) {
+                    append("textures/")
+                }
+
+                append(texture.path)
+
+                if (!texture.path.endsWith(".png")) {
+                    append(".png")
+                }
+            },
+        )
+        return getTextureCache(resource)
     }
 
     private fun invalidateTextureCache() {

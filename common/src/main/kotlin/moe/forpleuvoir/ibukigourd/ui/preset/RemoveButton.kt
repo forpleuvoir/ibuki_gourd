@@ -13,9 +13,10 @@ import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
 
 @Composable
 fun RemoveButton(
+    modifier: Modifier = Modifier,
     action: () -> Unit,
 ) {
-    IconButton(onClick = action) {
+    IconButton(onClick = action, modifier = modifier) {
         Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
     }
 }
@@ -24,6 +25,7 @@ fun RemoveButton(
 fun RemoveConfirmButton(
     message: String,
     action: () -> Unit,
+    modifier: Modifier = Modifier,
     content: (@Composable () -> Unit)? = null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -31,7 +33,7 @@ fun RemoveConfirmButton(
         if (isQuickAction) {
             action()
         } else showDialog = true
-    }) {
+    }, modifier = modifier) {
         Icon(Icons.Delete, IGLang.Misc.remove.plainText, Modifier.size(24.dp))
     }
 

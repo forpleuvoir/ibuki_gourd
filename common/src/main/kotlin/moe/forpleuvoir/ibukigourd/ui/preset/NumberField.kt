@@ -80,11 +80,11 @@ enum class NumberFieldStyle {
 }
 
 val LocalNumberFieldStyle = compositionLocalOf {
-    NumberFieldStyle.Default
+    NumberFieldStyle.Outlined
 }
 
 /**
- * 通用数值编辑器，支持键盘滚轮步进、输入校验、范围限制
+ * 通用数值编辑器，支持键盘滚轮步进、输入校验、范围限制。
  *
  * @param value 当前值
  * @param onValueChange 值变更回调
@@ -112,7 +112,7 @@ fun <T : Comparable<T>> ComparableField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (TextFieldLabelScope.(Boolean) -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -129,139 +129,233 @@ fun <T : Comparable<T>> ComparableField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = LocalNumberFieldStyle.current.defaultShape(),
     colors: TextFieldColors = LocalNumberFieldStyle.current.defaultTextFieldColors(),
-    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(label == null || labelPosition is TextFieldLabelPosition.Above),
-    interactionSource: MutableInteractionSource? = null
+    contentPadding: PaddingValues = LocalNumberFieldStyle.current.contentPadding(
+        label == null || labelPosition is TextFieldLabelPosition.Above
+    ),
+    interactionSource: MutableInteractionSource? = null,
 ) {
-    val textFieldState = rememberTextFieldState(valueDisplay(value))
+    /*
+     * snapshotFlow 所在的 LaunchedEffect 是长寿命协程。
+     * 使用 rememberUpdatedState，保证协程始终访问最新的参数，
+     * 避免 onValueChange 闭包继续持有旧的外部 value。
+     */
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
+    val currentValueParser by rememberUpdatedState(valueParser)
+    val currentValueFix by rememberUpdatedState(valueFix)
+    val currentValueDisplay by rememberUpdatedState(valueDisplay)
+    val currentValueStep by rememberUpdatedState(valueStep)
+    val currentValuePlus by rememberUpdatedState(valuePlus)
+    val currentValueMinus by rememberUpdatedState(valueMinus)
+    val currentValueTimes by rememberUpdatedState(valueTimes)
 
-    var isError by remember { mutableStateOf(false) }
-    var focused by remember { mutableStateOf(false) }
+    val initialValue = remember {
+        valueFix(value)
+    }
 
-    // 上一次已同步的值：既是从外部 value 同步进来的值，也是最后一次通知给父级的值。
-    // 用它区分“外部 value 变更”与“自身 onValueChange 回显”，替代脆弱的 internalModify 标志位。
-    var lastSyncedValue by remember { mutableStateOf(valueFix(value)) }
+    val textFieldState = rememberTextFieldState(
+        valueDisplay(initialValue)
+    )
 
-    // 外部 value 变更 → 同步到输入框。
-    // 仅当 value 与上次同步值不一致时才认为是外部变更，避免自身回调回显时重复刷新文本、抢断用户输入。
+    var isError by remember {
+        mutableStateOf(false)
+    }
+
+    var focused by remember {
+        mutableStateOf(false)
+    }
+
+    /*
+     * 上一次已经同步的值。
+     *
+     * 它既可能来自外部 value，也可能来自当前输入框触发的
+     * onValueChange，用于区分外部更新和自身回显。
+     */
+    var lastSyncedValue by remember {
+        mutableStateOf(initialValue)
+    }
+
+    /*
+     * 外部 value 发生变化时，同步输入框。
+     *
+     * 如果 value 等于 lastSyncedValue，说明它只是当前输入框
+     * onValueChange 后的状态回显，不重新设置文本，避免打断输入。
+     */
     LaunchedEffect(value) {
         if (value != lastSyncedValue) {
-            val fixed = valueFix(value)
+            val fixed = currentValueFix(value)
+
             lastSyncedValue = fixed
             isError = false
-            textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(fixed))
+
+            textFieldState.setTextAndPlaceCursorAtEnd(
+                currentValueDisplay(fixed)
+            )
         }
     }
 
-    // 监听内部文本变化 → 解析并通知父级。长寿协程，仅在解析后的值确实变化时回调，避免回环。
-    LaunchedEffect(Unit) {
-        snapshotFlow { textFieldState.text.toString() }
-            .collect { text ->
-                val parsed = valueParser(text)
-                val fixed = valueFix(parsed)
-                isError = parsed == null || fixed != parsed
-                if (fixed != lastSyncedValue) {
-                    lastSyncedValue = fixed
-                    onValueChange(fixed)
-                }
+    /*
+     * 监听手动输入。
+     *
+     * 这里必须通过 rememberUpdatedState 后的函数调用参数，
+     * 否则 LaunchedEffect 会一直持有首次组合时的回调。
+     */
+    LaunchedEffect(textFieldState) {
+        snapshotFlow {
+            textFieldState.text.toString()
+        }.collect { text ->
+            val parsed = currentValueParser(text)
+            val fixed = currentValueFix(parsed)
+
+            isError = parsed == null || fixed != parsed
+
+            if (fixed != lastSyncedValue) {
+                lastSyncedValue = fixed
+                currentOnValueChange(fixed)
             }
+        }
     }
 
-    // 统一的提交语义：修正值、更新同步标记、通知父级、刷新输入框、清除错误态。
+    /*
+     * 统一提交数值：
+     *
+     * 1. 修正数值；
+     * 2. 更新同步标记；
+     * 3. 通知外部；
+     * 4. 格式化输入框文本；
+     * 5. 清除错误状态。
+     */
     val commitValue: (T?) -> Unit = { newValue ->
-        val fixed = valueFix(newValue)
+        val fixed = currentValueFix(newValue)
+
         lastSyncedValue = fixed
         isError = false
-        onValueChange(fixed)
-        textFieldState.setTextAndPlaceCursorAtEnd(valueDisplay(fixed))
+
+        currentOnValueChange(fixed)
+
+        textFieldState.setTextAndPlaceCursorAtEnd(
+            currentValueDisplay(fixed)
+        )
     }
 
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val hovered by interactionSource.collectIsHoveredAsState()
+    val actualInteractionSource =
+        interactionSource ?: remember { MutableInteractionSource() }
+
+    val hovered by actualInteractionSource.collectIsHoveredAsState()
 
     val modifierApplied = modifier
-        .hoverable(interactionSource)
+        .hoverable(actualInteractionSource)
         .onPointerEvent(PointerEventType.Scroll) { event ->
-            // 单行 + 悬浮 + 聚焦 时通过滚轮步进
-            if (lineLimits == TextFieldLineLimits.SingleLine && hovered && focused) {
-                val change = event.changes.first()
-                val scrollDelta = if (event.keyboardModifiers.isShiftPressed) change.scrollDelta.x else change.scrollDelta.y
-                val newValue = if (scrollDelta < 0)
-                    valuePlus(lastSyncedValue, valueStep.process(valueTimes))
-                else
-                    valueMinus(lastSyncedValue, valueStep.process(valueTimes))
+            if (
+                enabled &&
+                !readOnly &&
+                lineLimits == TextFieldLineLimits.SingleLine &&
+                hovered &&
+                focused
+            ) {
+                val change = event.changes.firstOrNull()
+                    ?: return@onPointerEvent
+
+                val scrollDelta =
+                    if (event.keyboardModifiers.isShiftPressed) {
+                        change.scrollDelta.x
+                    } else {
+                        change.scrollDelta.y
+                    }
+
+                if (scrollDelta == 0f) {
+                    return@onPointerEvent
+                }
+
+                val step = currentValueStep.process(currentValueTimes)
+
+                val newValue =
+                    if (scrollDelta < 0f) {
+                        currentValuePlus(lastSyncedValue, step)
+                    } else {
+                        currentValueMinus(lastSyncedValue, step)
+                    }
 
                 commitValue(newValue)
                 change.consume()
             }
         }
         .onFocusChanged { focusState ->
-            if (!focusState.isFocused) { // 失焦时
+            if (focused && !focusState.isFocused) {
                 val currentText = textFieldState.text.toString()
-                if (currentText.isNotEmpty()) {
-                    commitValue(valueParser(currentText))
-                }
+                commitValue(currentValueParser(currentText))
             }
+
             focused = focusState.isFocused
         }
 
-    val fieldLabel: @Composable (TextFieldLabelScope.() -> Unit)? = label?.let { { it(!isError) } }
+    val fieldLabel:
+            (@Composable TextFieldLabelScope.() -> Unit)? =
+        label?.let { labelContent ->
+            {
+                labelContent(!isError)
+            }
+        }
 
     when (LocalNumberFieldStyle.current) {
-        NumberFieldStyle.Outlined -> OutlinedTextField(
-            state = textFieldState,
-            modifier = modifierApplied,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = textStyle,
-            labelPosition = labelPosition,
-            label = fieldLabel,
-            placeholder = placeholder,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-            prefix = prefix,
-            suffix = suffix,
-            supportingText = supportingText,
-            isError = isError,
-            inputTransformation = inputTransformation,
-            outputTransformation = outputTransformation,
-            keyboardOptions = keyboardOptions,
-            onKeyboardAction = onKeyboardAction,
-            lineLimits = lineLimits,
-            onTextLayout = onTextLayout,
-            scrollState = scrollState,
-            shape = shape,
-            colors = colors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-        )
+        NumberFieldStyle.Outlined -> {
+            OutlinedTextField(
+                state = textFieldState,
+                modifier = modifierApplied,
+                enabled = enabled,
+                readOnly = readOnly,
+                textStyle = textStyle,
+                labelPosition = labelPosition,
+                label = fieldLabel,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                prefix = prefix,
+                suffix = suffix,
+                supportingText = supportingText,
+                isError = isError,
+                inputTransformation = inputTransformation,
+                outputTransformation = outputTransformation,
+                keyboardOptions = keyboardOptions,
+                onKeyboardAction = onKeyboardAction,
+                lineLimits = lineLimits,
+                onTextLayout = onTextLayout,
+                scrollState = scrollState,
+                shape = shape,
+                colors = colors,
+                contentPadding = contentPadding,
+                interactionSource = actualInteractionSource,
+            )
+        }
 
-        NumberFieldStyle.Default  -> TextField(
-            state = textFieldState,
-            modifier = modifierApplied,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = textStyle,
-            labelPosition = labelPosition,
-            label = fieldLabel,
-            placeholder = placeholder,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-            prefix = prefix,
-            suffix = suffix,
-            supportingText = supportingText,
-            isError = isError,
-            inputTransformation = inputTransformation,
-            outputTransformation = outputTransformation,
-            keyboardOptions = keyboardOptions,
-            onKeyboardAction = onKeyboardAction,
-            lineLimits = lineLimits,
-            onTextLayout = onTextLayout,
-            scrollState = scrollState,
-            shape = shape,
-            colors = colors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource
-        )
+        NumberFieldStyle.Default -> {
+            TextField(
+                state = textFieldState,
+                modifier = modifierApplied,
+                enabled = enabled,
+                readOnly = readOnly,
+                textStyle = textStyle,
+                labelPosition = labelPosition,
+                label = fieldLabel,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                prefix = prefix,
+                suffix = suffix,
+                supportingText = supportingText,
+                isError = isError,
+                inputTransformation = inputTransformation,
+                outputTransformation = outputTransformation,
+                keyboardOptions = keyboardOptions,
+                onKeyboardAction = onKeyboardAction,
+                lineLimits = lineLimits,
+                onTextLayout = onTextLayout,
+                scrollState = scrollState,
+                shape = shape,
+                colors = colors,
+                contentPadding = contentPadding,
+                interactionSource = actualInteractionSource,
+            )
+        }
     }
 }
 
@@ -284,7 +378,7 @@ fun IntField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (TextFieldLabelScope.(Boolean) -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -365,7 +459,7 @@ fun LongField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (TextFieldLabelScope.(Boolean) -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -446,7 +540,7 @@ fun FloatField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (TextFieldLabelScope.(Boolean) -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -528,7 +622,7 @@ fun DoubleField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (TextFieldLabelScope.(Boolean) -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,

@@ -196,6 +196,7 @@ private class AnchorBoundsPositionProvider(
  */
 @Composable
 fun Modifier.tooltip(
+    interactionSource: MutableInteractionSource? = null,
     delay: Duration = 100.milliseconds,
     position: TooltipAnchorPosition = TooltipAnchorPosition.Above,
     spacing: Int = 4,
@@ -207,8 +208,8 @@ fun Modifier.tooltip(
     ),
     content: @Composable TooltipScope.() -> Unit,
 ): Modifier {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isHovered by interactionSource.collectIsHoveredAsState()
+    val effectiveSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isHovered by effectiveSource.collectIsHoveredAsState()
 
     var anchorBounds by remember { mutableStateOf(Rect.Zero) }
     // 控制是否在 Popup 内 active：false 时外部应播 exit。
@@ -286,7 +287,7 @@ fun Modifier.tooltip(
     }
 
     return this
-        .hoverable(interactionSource)
+        .let { if (interactionSource == null) it.hoverable(effectiveSource) else it }
         .onGloballyPositioned { anchorBounds = it.boundsInRoot() }
 }
 
@@ -405,6 +406,7 @@ fun TooltipScope.fadeScaleTooltip(content: @Composable () -> Unit) {
 @Composable
 fun Modifier.plainTooltip(
     text: String,
+    interactionSource: MutableInteractionSource? = null,
     modifier: Modifier = Modifier,
     maxWidth: Dp = 600.dp,
     shape: Shape = MaterialTheme.shapes.extraSmall,
@@ -417,6 +419,7 @@ fun Modifier.plainTooltip(
     spacing: Int = 4,
     exitDuration: Duration = 150.milliseconds,
 ): Modifier = tooltip(
+    interactionSource = interactionSource,
     delay = delay,
     position = position,
     spacing = spacing,
@@ -467,6 +470,7 @@ fun Modifier.plainTooltip(
 @Composable
 fun Modifier.plainTooltip(
     component: Component,
+    interactionSource: MutableInteractionSource? = null,
     modifier: Modifier = Modifier,
     maxWidth: Dp = 600.dp,
     shape: Shape = MaterialTheme.shapes.extraSmall,
@@ -479,6 +483,7 @@ fun Modifier.plainTooltip(
     spacing: Int = 4,
     exitDuration: Duration = 150.milliseconds,
 ): Modifier = tooltip(
+    interactionSource = interactionSource,
     delay = delay,
     position = position,
     spacing = spacing,
@@ -529,6 +534,7 @@ fun Modifier.plainTooltip(
  */
 @Composable
 fun Modifier.plainTooltip(
+    interactionSource: MutableInteractionSource? = null,
     modifier: Modifier = Modifier,
     maxWidth: Dp = 600.dp,
     shape: Shape = MaterialTheme.shapes.extraSmall,
@@ -542,6 +548,7 @@ fun Modifier.plainTooltip(
     exitDuration: Duration = 150.milliseconds,
     content: @Composable () -> Unit,
 ): Modifier = tooltip(
+    interactionSource = interactionSource,
     delay = delay,
     position = position,
     spacing = spacing,

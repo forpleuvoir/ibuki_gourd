@@ -46,20 +46,13 @@ fun BlitTexture(
                 filterQuality = filterQuality,
             )
         } else {
-            BitmapPainter(
+            createBitmapPainter(
                 image = imageBitmap,
-                srcOffset = IntOffset(
-                    x = texture.uStart,
-                    y = texture.vStart,
-                ),
-                srcSize = IntSize(
-                    width = texture.uSize,
-                    height = texture.vSize,
-                ),
+                texture = texture,
                 filterQuality = filterQuality,
             )
         }
-    }
+    } ?: return
 
     Image(
         painter = painter,
@@ -220,5 +213,47 @@ private fun calculateNinePatchAxis(
             },
             destinationSize = endSize,
         ),
+    )
+}
+
+private fun createBitmapPainter(
+    image: ImageBitmap,
+    texture: IGTexture,
+    filterQuality: FilterQuality,
+): BitmapPainter? {
+    val sourceLeft = (texture.u0 * image.width)
+        .roundToInt()
+        .coerceIn(0, image.width)
+
+    val sourceTop = (texture.v0 * image.height)
+        .roundToInt()
+        .coerceIn(0, image.height)
+
+    val sourceRight = (texture.u1 * image.width)
+        .roundToInt()
+        .coerceIn(0, image.width)
+
+    val sourceBottom = (texture.v1 * image.height)
+        .roundToInt()
+        .coerceIn(0, image.height)
+
+    val sourceWidth = sourceRight - sourceLeft
+    val sourceHeight = sourceBottom - sourceTop
+
+    if (sourceWidth <= 0 || sourceHeight <= 0) {
+        return null
+    }
+
+    return BitmapPainter(
+        image = image,
+        srcOffset = IntOffset(
+            x = sourceLeft,
+            y = sourceTop,
+        ),
+        srcSize = IntSize(
+            width = sourceWidth,
+            height = sourceHeight,
+        ),
+        filterQuality = filterQuality,
     )
 }
