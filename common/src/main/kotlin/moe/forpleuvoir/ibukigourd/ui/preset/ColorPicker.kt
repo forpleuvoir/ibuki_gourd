@@ -273,7 +273,7 @@ private fun ColorChannelSlider(
                 onValueChange = { onValueChange(it) },
                 range = valueRange,
                 enabled = enabled,
-                valueDisplay = { "%.1f".format(it) },
+                valueToText = { "%.1f".format(it) },
                 contentPadding = PaddingValues(horizontal = 4.dp, vertical = 1.dp),
                 textStyle = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.width(40.dp).height(22.dp)

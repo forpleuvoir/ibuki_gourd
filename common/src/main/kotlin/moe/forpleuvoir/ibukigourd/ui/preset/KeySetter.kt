@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -458,26 +459,18 @@ fun KeybindSettingColumn(
         }
 
         Spacer(Modifier.height(12.dp))
-        TipBox({
-            Text(IGLang.Input.KeybindSetting.envComment)
-        }) {
-            Text(IGLang.Input.KeybindSetting.env)
-        }
-        Spacer(Modifier.height(4.dp))
         EnumSelector(
             selected = keybindSetting.env,
             onSelect = { onValueChange(keybindSetting.copy(env = it)) },
             modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(IGLang.Input.KeybindSetting.env, Modifier.plainTooltip{
+                    Text(IGLang.Input.KeybindSetting.envComment)
+                })
+            }
         )
 
         Spacer(Modifier.height(12.dp))
-        TipBox({
-            Text(IGLang.Input.KeybindSetting.triggerComment)
-        }) {
-            Text(IGLang.Input.KeybindSetting.trigger)
-        }
-        Spacer(Modifier.height(4.dp))
-
         EnumSelector(
             selected = keybindSetting.trigger,
             onSelect = { onValueChange(keybindSetting.copy(trigger = it)) },
@@ -492,6 +485,11 @@ fun KeybindSettingColumn(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(IGLang.Input.KeybindSetting.trigger, Modifier.plainTooltip{
+                    Text(IGLang.Input.KeybindSetting.triggerComment)
+                })
+            }
         )
 
         AnimatedVisibility(

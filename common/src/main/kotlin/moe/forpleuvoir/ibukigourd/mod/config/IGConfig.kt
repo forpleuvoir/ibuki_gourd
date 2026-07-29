@@ -59,6 +59,7 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             addConfig(Screen)
             addConfig(Toast)
             addConfig(Scroller)
+//            addConfig(Cache)
         }
 
         val quickActionKeyCode by configKeyCode("quick_action_key_code", Keyboard.LEFT_SHIFT)
@@ -184,6 +185,12 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             }
 
         }
+
+//        object Cache : ConfigGroup("cache") {
+//
+//            val itemTextureCacheSize by configLong("cache_item_texture_cache_size", 1024 * 1024 * 256)
+//
+//        }
 
     }
 

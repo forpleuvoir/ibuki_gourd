@@ -31,7 +31,7 @@ import kotlin.time.toDuration
 @Composable
 fun DurationConfigWrapper(
     config: Config<Duration>,
-    valueDisplay: (Duration) -> String = { it.toString() },
+    valueToText: (Duration) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -89,7 +89,7 @@ fun DurationConfigWrapper(
                     }
                 },
                 valueRange = range,
-                valueDisplay = valueDisplay,
+                valueToText = valueToText,
                 modifier = Modifier.weight(1f).height(24.dp).weight(1f),
             )
         } else {
@@ -98,7 +98,7 @@ fun DurationConfigWrapper(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(valueDisplay(value), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    Text(valueToText(value), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                 }
             }, modifier = Modifier.weight(1f).height(40.dp))
         }

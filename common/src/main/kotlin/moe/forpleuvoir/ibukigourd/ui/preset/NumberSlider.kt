@@ -87,7 +87,7 @@ fun IntSlider(
     value: Int,
     onValueChange: (Int) -> Unit,
     valueRange: IntRange,
-    valueDisplay: (Int) -> String = { it.toString() },
+    valueToText: (Int) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onValueChangeFinished: (() -> Unit)? = null,
@@ -146,7 +146,7 @@ fun IntSlider(
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
                     val measuredText = textMeasurer.measure(
-                        AnnotatedString(valueDisplay(value)),
+                        AnnotatedString(valueToText(value)),
                         style = labelStyle.copy(
                             color = labelStyle.color.copy(alpha = animatedAlpha)
                         ),
@@ -178,7 +178,7 @@ fun LongSlider(
     value: Long,
     onValueChange: (Long) -> Unit,
     valueRange: LongRange,
-    valueDisplay: (Long) -> String = { it.toString() },
+    valueToText: (Long) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onValueChangeFinished: (() -> Unit)? = null,
@@ -237,7 +237,7 @@ fun LongSlider(
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
                     val measuredText = textMeasurer.measure(
-                        AnnotatedString(valueDisplay(value)),
+                        AnnotatedString(valueToText(value)),
                         style = labelStyle.copy(
                             color = labelStyle.color.copy(alpha = animatedAlpha)
                         ),
@@ -269,7 +269,7 @@ fun FloatSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
-    valueDisplay: (Float) -> String = { it.toString() },
+    valueToText: (Float) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onValueChangeFinished: (() -> Unit)? = null,
@@ -325,7 +325,7 @@ fun FloatSlider(
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
                     val measuredText = textMeasurer.measure(
-                        AnnotatedString(valueDisplay(value)),
+                        AnnotatedString(valueToText(value)),
                         style = labelStyle.copy(
                             color = labelStyle.color.copy(alpha = animatedAlpha)
                         ),
@@ -357,7 +357,7 @@ fun DoubleSlider(
     value: Double,
     onValueChange: (Double) -> Unit,
     valueRange: ClosedFloatingPointRange<Double>,
-    valueDisplay: (Double) -> String = { it.toString() },
+    valueToText: (Double) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onValueChangeFinished: (() -> Unit)? = null,
@@ -416,7 +416,7 @@ fun DoubleSlider(
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
                     val measuredText = textMeasurer.measure(
-                        AnnotatedString(valueDisplay(value)),
+                        AnnotatedString(valueToText(value)),
                         style = labelStyle.copy(
                             color = labelStyle.color.copy(alpha = animatedAlpha)
                         ),
@@ -448,7 +448,7 @@ fun DurationSlider(
     value: Duration,
     onValueChange: (Duration) -> Unit,
     valueRange: ClosedRange<Duration>,
-    valueDisplay: (Duration) -> String = { it.toString() },
+    valueToText: (Duration) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onValueChangeFinished: (() -> Unit)? = null,
@@ -507,7 +507,7 @@ fun DurationSlider(
             SliderDefaults.Thumb(interactionSource, Modifier.drawBehind {
                 if (animatedAlpha > 0.01f) {
                     val measuredText = textMeasurer.measure(
-                        AnnotatedString(valueDisplay(value)),
+                        AnnotatedString(valueToText(value)),
                         style = labelStyle.copy(
                             color = labelStyle.color.copy(alpha = animatedAlpha)
                         ),

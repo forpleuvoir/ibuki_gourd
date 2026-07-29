@@ -1,6 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui.util.render
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import com.mojang.blaze3d.ProjectionType
@@ -8,6 +11,7 @@ import com.mojang.blaze3d.platform.Lighting
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -16,7 +20,6 @@ import net.minecraft.client.renderer.Projection
 import net.minecraft.client.renderer.ProjectionMatrixBuffer
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.core.component.DataComponents
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import net.minecraft.world.item.ItemDisplayContext
@@ -34,27 +37,28 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
     private val logger = logger()
 
     private data class ItemCacheKey(
-        val itemModel: Identifier?,
         val componentsHash: Long,
         val width: Int,
-        val height: Int,
-        val hasFoil: Boolean
+        val height: Int
     ) {
         companion object {
             fun fromItemStack(itemStack: ItemStack, width: Int, height: Int): ItemCacheKey {
-                val model = itemStack.components.get(DataComponents.ITEM_MODEL)
                 var hash = 0L
                 for (component in itemStack.components) {
                     hash = 31 * hash + component.hashCode()
                 }
-                return ItemCacheKey(model, hash, width, height, itemStack.hasFoil())
+                return ItemCacheKey(hash, width, height)
             }
         }
     }
 
     private val itemImageCache = LinkedHashMap<ItemCacheKey, ImageBitmap>(16, 0.75f, true)
-    private var totalCacheArea: Long = 0
-    private const val MAX_CACHE_AREA: Long = 134_217_728 //128 MB
+
+    var totalCacheArea: Long by mutableLongStateOf(0)
+        private set
+
+    //    private val MAX_CACHE_AREA: Long by IGConfig.Gui.Cache::itemTextureCacheSize
+    private const val MAX_CACHE_AREA: Long = 1024 * 1024 * 256 //1GB
 
     //region 队列渲染
 

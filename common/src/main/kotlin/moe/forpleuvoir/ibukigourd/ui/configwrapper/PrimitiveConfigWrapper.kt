@@ -55,7 +55,7 @@ fun BooleanConfigWrapper(
 @Composable
 fun IntConfigWrapper(
     config: Config<Int>,
-    valueDisplay: (Int) -> String = { it.toString() },
+    valueToText: (Int) -> String = { it.toString() },
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -90,7 +90,7 @@ fun IntConfigWrapper(
                             config.setValue(it)
                         },
                         range = range,
-                        valueDisplay = valueDisplay,
+                        valueToText = valueToText,
                         modifier = Modifier.weight(1f),
                         label = { Text(if (range != null) "Int [$range]" else "Int") }
                     )
@@ -130,7 +130,7 @@ fun IntConfigWrapper(
                             }
                         },
                         valueRange = range,
-                        valueDisplay = valueDisplay,
+                        valueToText = valueToText,
                         modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
                     )
                 }
@@ -156,7 +156,7 @@ fun LongConfigWrapper(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    valueDisplay: (Long) -> String = { it.toString() },
+    valueToText: (Long) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
         val value by config.asState()
@@ -187,7 +187,7 @@ fun LongConfigWrapper(
                             config.setValue(it)
                         },
                         range = range,
-                        valueDisplay = valueDisplay,
+                        valueToText = valueToText,
                         modifier = Modifier.weight(1f),
                         label = { Text(if (range != null) "Long [$range]" else "Long") }
                     )
@@ -227,7 +227,7 @@ fun LongConfigWrapper(
                             }
                         },
                         valueRange = range,
-                        valueDisplay = valueDisplay,
+                        valueToText = valueToText,
                         modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
                     )
                 }
@@ -253,7 +253,7 @@ fun FloatConfigWrapper(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    valueDisplay: (Float) -> String = { it.toString() },
+    valueToText: (Float) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
         val value by config.asState()
@@ -285,7 +285,7 @@ fun FloatConfigWrapper(
                             config.setValue(it)
                         },
                         range = range,
-                        valueDisplay = valueDisplay,
+                        valueToText = valueToText,
                         modifier = Modifier.weight(1f),
                         label = { Text(if (range != null) "Float [$range]" else "Float") }
                     )
@@ -325,7 +325,7 @@ fun FloatConfigWrapper(
                             }
                         },
                         valueRange = range,
-                        valueDisplay = { valueDisplay("%.2f".format(it).toFloat()) },
+                        valueToText = { valueToText("%.2f".format(it).toFloat()) },
                         modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
                     )
                 }
@@ -351,7 +351,7 @@ fun DoubleConfigWrapper(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    valueDisplay: (Double) -> String = { it.toString() },
+    valueToText: (Double) -> String = { it.toString() },
 ) = ConfigRowWrapper(config, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
         val value by config.asState()
@@ -383,7 +383,7 @@ fun DoubleConfigWrapper(
                             config.setValue(it)
                         },
                         range = range,
-                        valueDisplay = valueDisplay,
+                        valueToText = valueToText,
                         modifier = Modifier.weight(1f),
                         label = { Text(if (range != null) "Double [$range]" else "Double") }
                     )
@@ -423,7 +423,7 @@ fun DoubleConfigWrapper(
                             }
                         },
                         valueRange = range,
-                        valueDisplay = { valueDisplay("%.2f".format(it).toDouble()) },
+                        valueToText = { valueToText("%.2f".format(it).toDouble()) },
                         modifier = Modifier.fillMaxWidth().height(24.dp).weight(1f),
                     )
                 }
