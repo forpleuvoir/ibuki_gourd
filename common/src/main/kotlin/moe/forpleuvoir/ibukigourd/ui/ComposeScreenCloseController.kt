@@ -40,6 +40,31 @@ class ComposeScreenCloseController {
         return handle
     }
 
+    /**
+     * 立即完成关闭流程（跳过剩余动画参与者）。
+     *
+     * 用于屏幕被替换后无人再渲染本屏、退出动画无法推进的场景，
+     * 强制收尾以触发清理，避免 Compose 场景与 GPU 资源泄漏。
+     */
+    internal fun finishNow() {
+        handles.clear()
+        performFinish()
+    }
+
+    /**
+     * 重置为打开状态。
+     *
+     * 屏幕被重新展示（如弹窗关闭后回到父屏幕，场景重建）时调用，
+     * 使关闭动画系统可复用。
+     */
+    internal fun reset() {
+        if (_state == ComposeScreenCloseState.Open && !finished) return
+        handles.clear()
+        finished = false
+        completed = false
+        _state = ComposeScreenCloseState.Open
+    }
+
     private fun checkFinish() {
         if (_state != ComposeScreenCloseState.Closing) return
         if (handles.isNotEmpty()) return

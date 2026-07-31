@@ -28,6 +28,10 @@ import net.minecraft.client.input.MouseButtonEvent
  * - [SceneInputBridge]  — 输入事件路由（mouse / key）
  *
  * 共享状态通过 [SceneContext] 统一管理，组件之间不直接耦合。
+ *
+ * 场景上下文按需创建：首次 [init] 时构建，[onClose] 后置空。
+ * 若屏幕被重新展示（如弹窗关闭后回到父屏幕）再次调用 [init]，
+ * 会重建场景与组合，恢复可用状态。
  */
 open class DefaultComposeSceneHost(
     private val content: @Composable () -> Unit,
@@ -36,57 +40,79 @@ open class DefaultComposeSceneHost(
     /** 平台服务绑定 */
     private val binding = MinecraftPlatformContext()
 
-    /** 内部共享上下文 */
-    private val ctx = SceneContext(
-        scene = CanvasLayersComposeScene(platformContext = binding),
-        platformContext = binding,
-    )
+    private var ctx: SceneContext? = null
+    private var bootstrapper: SceneLifecycle? = null
+    private var renderer: SceneRenderer? = null
+    private var inputBridge: SceneInputBridge? = null
 
-    /** 生命周期控制器 */
-    private val bootstrapper = SceneLifecycle(ctx)
-
-    /** 渲染器 */
-    private val renderer = SceneRenderer(ctx)
-
-    /** 输入桥接器 */
-    private val inputBridge = SceneInputBridge(ctx)
-
-    init {
-        ctx.scene.setContent {
+    /** 创建（或按需重建）内部场景上下文 */
+    private fun ensureScene() {
+        if (bootstrapper != null) return
+        val sceneContext = SceneContext(
+            scene = CanvasLayersComposeScene(platformContext = binding),
+            platformContext = binding,
+        )
+        sceneContext.scene.setContent {
             val popupHostState = remember { PopupHostState() }
             IGCompositionLocalProvider(
-                LocalSkiaSurface provides ctx.surface,
+                LocalSkiaSurface provides sceneContext.surface,
                 LocalPopupHost provides popupHostState
             ) {
                 content()
                 PopupHostOverlay()
             }
         }
+        ctx = sceneContext
+        bootstrapper = SceneLifecycle(sceneContext)
+        renderer = SceneRenderer(sceneContext)
+        inputBridge = SceneInputBridge(sceneContext)
     }
 
-    override fun init() = bootstrapper.init()
+    override fun init() {
+        ensureScene()
+        bootstrapper?.init()
+    }
 
-    override fun onClose() = bootstrapper.onClose()
+    override fun onClose() {
+        bootstrapper?.onClose()
+        ctx = null
+        bootstrapper = null
+        renderer = null
+        inputBridge = null
+    }
 
     override fun extractRenderState(
         guiGraphics: GuiGraphicsExtractor,
         mouseX: Int,
         mouseY: Int,
         partialTick: Float,
-    ) = renderer.render(guiGraphics, mouseX, mouseY, partialTick)
+    ) {
+        ensureScene()
+        renderer?.render(guiGraphics, mouseX, mouseY, partialTick)
+    }
 
-    override fun mouseClicked(event: MouseButtonEvent) =
-        inputBridge.mouseClicked(event)
+    override fun mouseClicked(event: MouseButtonEvent): Boolean {
+        ensureScene()
+        return inputBridge?.mouseClicked(event) ?: false
+    }
 
-    override fun mouseReleased(event: MouseButtonEvent) =
-        inputBridge.mouseReleased(event)
+    override fun mouseReleased(event: MouseButtonEvent): Boolean {
+        ensureScene()
+        return inputBridge?.mouseReleased(event) ?: false
+    }
 
-    override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double) =
-        inputBridge.mouseScrolled(mouseX, mouseY, scrollX, scrollY)
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
+        ensureScene()
+        return inputBridge?.mouseScrolled(mouseX, mouseY, scrollX, scrollY) ?: false
+    }
 
-    override fun keyPressed(event: KeyEvent) =
-        inputBridge.keyPressed(event)
+    override fun keyPressed(event: KeyEvent): Boolean {
+        ensureScene()
+        return inputBridge?.keyPressed(event) ?: false
+    }
 
-    override fun keyReleased(event: KeyEvent) =
-        inputBridge.keyReleased(event)
+    override fun keyReleased(event: KeyEvent): Boolean {
+        ensureScene()
+        return inputBridge?.keyReleased(event) ?: false
+    }
 }

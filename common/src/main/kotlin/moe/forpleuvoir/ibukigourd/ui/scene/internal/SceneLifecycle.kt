@@ -6,6 +6,7 @@ import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import org.jetbrains.skiko.currentNanoTime
 import org.lwjgl.glfw.GLFW
@@ -55,10 +56,16 @@ internal class SceneLifecycle(
     /**
      * 销毁场景并释放资源。
      * 对应 [moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost.onClose]。
+     *
+     * Compose 场景（组合与重组合器）立即销毁，避免其与新屏幕创建
+     * （setScreen → init → setContent）重叠触发 Compose 运行时无效化竞态；
+     * GPU 表面资源延迟到下一 tick 释放，防止同帧已入队的 blit 引用已回收的纹理。
      */
     fun onClose() {
         ctx.scene.close()
-        ctx.surface.dispose()
+        ctx.minecraft.scheduleStartTick(1) { _, _ ->
+            ctx.surface.dispose()
+        }
         GLFW.glfwSetCharCallback(ctx.minecraft.window.handle(), ctx.charCallback)
         ctx.platformContext.resetCursors()
     }

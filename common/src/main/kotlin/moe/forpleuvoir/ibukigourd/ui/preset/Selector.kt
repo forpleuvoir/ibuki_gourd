@@ -23,7 +23,10 @@ import com.ibm.icu.util.Output
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.translateComment
+import moe.forpleuvoir.ibukigourd.text.translateCommentKey
 import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import net.minecraft.locale.Language
 import kotlin.math.exp
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -181,11 +184,12 @@ fun <E : Enum<E>> EnumSelector(
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (E, Boolean) -> Unit = { item, _ ->
-        TipBox({
-            Text(item.translateComment)
-        }) {
-            Text(item.translateText)
-        }
+        val tip = if (Language.getInstance().has(item.translateCommentKey)) {
+            Modifier.plainTooltip {
+                Text(item.translateComment)
+            }
+        } else Modifier
+        Text(item.translateText, tip)
     },
     enabled: Boolean = true,
     searchFilter: ((String, E) -> Boolean)? = null,

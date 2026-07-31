@@ -110,6 +110,8 @@ class ComposeScreen(
     override fun init() {
         runCatching {
             mark
+            // 屏幕被重新展示（如弹窗关闭后回到父屏幕）时重置关闭状态，使场景重建后恢复可用
+            closeController.reset()
             host.init()
             onInit?.invoke()
         }.onFailure {
@@ -121,7 +123,15 @@ class ComposeScreen(
     }
 
     override fun onClose() {
+        renderedSinceClose = false
         requestClose()
+        // 屏幕被替换后若无任何一帧渲染本屏（退出动画无法推进），
+        // 在若干 tick 后强制完成关闭流程，避免 Compose 场景与 GPU 资源泄漏。
+        mc.scheduleStartTick(3) { _, _ ->
+            if (!renderedSinceClose && !closeController.completed && minecraft.screen !== this) {
+                closeController.finishNow()
+            }
+        }
     }
 
     fun requestClose() {
@@ -133,6 +143,14 @@ class ComposeScreen(
     private fun cleanup() {
         if (cleanedUp) return
         cleanedUp = true
+        // 先销毁 Compose 场景（组合与重组合器），避免其与新屏幕创建
+        // （setScreen → init → setContent）在同一帧内重叠，触发 Compose 运行时无效化竞态；
+        // GPU 表面资源由 SceneLifecycle 延迟到下一帧释放，防止同帧已入队的 blit 引用已回收纹理。
+        try {
+            host.onClose()
+        } catch (e: Exception) {
+            logger.error("Error closing Compose scene host", e)
+        }
         try {
             if (minecraft.screen === this) minecraft.setScreen(parentScreen)
         } catch (e: Exception) {
@@ -143,20 +161,16 @@ class ComposeScreen(
         } catch (e: Exception) {
             logger.error("Error in close callback", e)
         }
-        mc.scheduleStartTick(1) { _, _ ->
-            try {
-                host.onClose()
-            } catch (e: Exception) {
-                logger.error("Error closing Compose scene host", e)
-            }
-        }
     }
 
     var fadeInDuration = IGConfig.Gui.Screen.fadeInDuration
 
     private var init = false
 
+    private var renderedSinceClose = false
+
     override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
+        renderedSinceClose = true
         if (closeController.completed) {
             cleanup()
             return

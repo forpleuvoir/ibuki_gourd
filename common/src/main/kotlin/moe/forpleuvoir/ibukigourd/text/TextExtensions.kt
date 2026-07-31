@@ -2,6 +2,9 @@
 
 package moe.forpleuvoir.ibukigourd.text
 
+import moe.forpleuvoir.nebula.common.util.primitive.toPascalCase
+import moe.forpleuvoir.nebula.common.util.primitive.toSnakeCase
+import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
@@ -49,6 +52,10 @@ fun MutableComponent.flat(): List<Text> {
     }
 }
 
-val <T : Enum<T>> T.translateText: MutableText get() = Translatable("enum.${javaClass.name}.$name", name)
+val <T : Enum<T>> T.translateText: MutableText get() = Translatable(translateKey, name.toTitleCase())
 
-val <T : Enum<T>> T.translateComment: MutableText get() = Translatable("enum.${javaClass.name}.$name.comment", name)
+val <T : Enum<T>> T.translateKey get() = "enum.${javaClass.name}.$name"
+
+val <T : Enum<T>> T.translateComment: MutableText get() = Translatable(translateCommentKey, name.toTitleCase())
+
+val <T : Enum<T>> T.translateCommentKey get() = "enum.${javaClass.name}.$name.comment"
