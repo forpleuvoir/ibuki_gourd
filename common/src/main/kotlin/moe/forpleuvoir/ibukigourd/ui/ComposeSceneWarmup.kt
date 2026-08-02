@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.mojang.blaze3d.opengl.GlConst.GL_RGBA8
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.*
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.*
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider

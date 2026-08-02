@@ -26,8 +26,8 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.ColorSchemeConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Palette
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Routine
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Palette
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Routine
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
 import moe.forpleuvoir.ibukigourd.ui.preset.SkiaTextureHelper

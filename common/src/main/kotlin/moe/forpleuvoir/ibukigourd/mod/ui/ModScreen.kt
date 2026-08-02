@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.DarkMode
-import moe.forpleuvoir.ibukigourd.ui.icon.default.LightMode
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Menu
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.DarkMode
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.LightMode
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Menu
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
 

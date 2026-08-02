@@ -1,6 +1,6 @@
 @file:Suppress("CheckReturnValue", "UnusedReceiverParameter")
 
-package moe.forpleuvoir.ibukigourd.ui.icon.default
+package moe.forpleuvoir.ibukigourd.ui.icon.defaults
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector

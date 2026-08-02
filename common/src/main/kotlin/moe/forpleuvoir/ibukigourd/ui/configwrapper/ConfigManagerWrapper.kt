@@ -27,9 +27,9 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.ArrowBack
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Search
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.ArrowBack
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Close
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Search
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.*
 

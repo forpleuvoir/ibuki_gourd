@@ -17,7 +17,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.DragHandle
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 
 @Composable

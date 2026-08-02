@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -21,8 +20,8 @@ import moe.forpleuvoir.ibukigourd.input.*
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
-import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardAlt
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.KeyboardAlt
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fadeScaleTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip

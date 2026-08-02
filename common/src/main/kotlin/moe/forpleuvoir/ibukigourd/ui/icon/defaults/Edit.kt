@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.ui.icon.default
+package moe.forpleuvoir.ibukigourd.ui.icon.defaults
 
 
 import androidx.compose.ui.graphics.*

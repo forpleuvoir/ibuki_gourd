@@ -33,10 +33,10 @@ import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.ContentCopy
-import moe.forpleuvoir.ibukigourd.ui.icon.default.ContentCut
-import moe.forpleuvoir.ibukigourd.ui.icon.default.ContentPaste
-import moe.forpleuvoir.ibukigourd.ui.icon.default.SelectAll
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.ContentCopy
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.ContentCut
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.ContentPaste
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.SelectAll
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalComposeUiApi::class)
 object Material3ContextMenuRepresentation : ContextMenuRepresentation {

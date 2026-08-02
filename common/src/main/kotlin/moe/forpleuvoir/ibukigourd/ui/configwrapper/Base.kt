@@ -30,7 +30,7 @@ import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper.LocalIcon
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Replay
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Replay
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.common.api.Observable
 import moe.forpleuvoir.nebula.common.api.Resettable
