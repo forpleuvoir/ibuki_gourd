@@ -73,6 +73,9 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
     //region 队列渲染
 
     private enum class RenderResult {
+        /** 已存在缓存，无需上传 */
+        ALREADY_CACHED,
+
         /** 成功上传到图集 */
         UPLOADED,
 
@@ -183,6 +186,9 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                 RenderResult.RETRY
             }
             when (result) {
+                RenderResult.ALREADY_CACHED,
+                RenderResult.REJECTED -> Unit
+
                 RenderResult.UPLOADED -> {
                     uploaded = true
                 }
@@ -190,7 +196,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                     // 保留到队列末尾，下一帧按 MAX_PER_FRAME 上限继续尝试
                     pendingQueue.add(request)
                 }
-                RenderResult.REJECTED -> Unit
             }
             processed++
         }
@@ -223,7 +228,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         height: Int,
     ): RenderResult {
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
-        if (atlas.contains(cacheKey)) return RenderResult.UPLOADED
+        if (atlas.contains(cacheKey)) return RenderResult.ALREADY_CACHED
 
         val pixels = renderItemPixels(itemStack, width, height) ?: return RenderResult.RETRY
 
