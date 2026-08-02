@@ -4,6 +4,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
+import moe.forpleuvoir.ibukigourd.ui.preset.SkiaTextureHelper
 import moe.forpleuvoir.ibukigourd.ui.util.render.SkiaItemRenderHelper
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import org.jetbrains.skiko.currentNanoTime
@@ -35,6 +36,7 @@ internal class SceneRenderer(
         partialTick: Float,
     ) {
         SkiaItemRenderHelper.processOnRenderThread()
+        SkiaTextureHelper.processOnRenderThread()
 
         ctx.scene.sendPointerEvent(
             PointerEventType.Move,

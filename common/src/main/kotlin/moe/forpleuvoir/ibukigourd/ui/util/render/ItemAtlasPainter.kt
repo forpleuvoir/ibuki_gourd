@@ -19,9 +19,9 @@ import org.jetbrains.skia.SamplingMode
  * 不持有 CPU 位图，绘制时通过 [ItemRenderAtlas] 查询当前有效 entry 与 generation，
  * 使用 `drawIntoCanvas` 取得 Skia native canvas 后以 `drawImageRect` 绘制图集内容区域。
  */
-internal class ItemAtlasPainter(
-    private val atlas: ItemRenderAtlas,
-    private val cacheKey: ItemCacheKey,
+internal class ItemAtlasPainter<K>(
+    private val atlas: ItemRenderAtlas<K>,
+    private val cacheKey: K,
     private val expectedSize: IntSize,
     private val filterQuality: FilterQuality = FilterQuality.None,
 ) : Painter() {

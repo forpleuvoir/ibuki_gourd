@@ -18,6 +18,9 @@
   "ibukigourd.config_wrapper.move": "Переместить",
   "ibukigourd.config_wrapper.list.text": "Список (%s элементов)",
   "ibukigourd.config_wrapper.map.text": "Карта (%s элементов)",
+  "ibukigourd.config_wrapper.cache.used": "Используется",
+  "ibukigourd.config_wrapper.cache.limit": "Лимит кэша",
+  "ibukigourd.config_wrapper.cache.mb": "МБ",
   "#input": "Ввод",
   "ibukigourd.input.press_to_setting": "Нажмите, чтобы назначить",
   "ibukigourd.input.release_to_save_setting": "Отпустите, чтобы сохранить",
@@ -145,6 +148,8 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Горячая клавиша для множителя прокрутки Ⅲ",
   "ibukigourd.config.gui.cache": "Кэш",
   "ibukigourd.config.gui.cache.comment": "Настройки кэша рендеринга предметов",
-  "ibukigourd.config.gui.cache.item_texture_cache_size": "Площадь кэша атласа предметов",
-  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "Максимальная площадь пикселей GPU-атласа рендеринга предметов (RGBA8, ~4 байта на пиксель). Атлас будет безопасно пересоздан в следующем кадре после изменения"
+  "ibukigourd.config.gui.cache.item_texture_atlas_size": "Размер атласа предметов",
+  "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "Максимальная площадь пикселей GPU-атласа рендеринга предметов (RGBA8, ~4 байта на пиксель). Атлас будет безопасно пересоздан в следующем кадре после изменения",
+  "ibukigourd.config.gui.cache.texture_atlas_size": "Размер атласа текстур",
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "Максимальная площадь пикселей GPU-атласа рендеринга текстур (RGBA8, ~4 байта на пиксель). Атлас будет безопасно пересоздан в следующем кадре после изменения"
 }

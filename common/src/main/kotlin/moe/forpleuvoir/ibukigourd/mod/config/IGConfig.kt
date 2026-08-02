@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig.Gui.Theme.colorSchemeSeed
 import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.BooleanConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.CacheConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ColorSchemeConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
@@ -29,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.Palette
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Routine
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
+import moe.forpleuvoir.ibukigourd.ui.preset.SkiaTextureHelper
 import moe.forpleuvoir.ibukigourd.ui.util.render.SkiaItemRenderHelper
 import moe.forpleuvoir.ibukigourd.ui.open
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
@@ -188,21 +190,46 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
         }
 
         /**
-         * 物品渲染 GPU 图集缓存配置。
+         * 渲染 GPU 图集配置。
          *
-         * 面积使用像素个数定义（RGBA8 每像素 4 字节），
+         * 图集大小使用像素个数定义（RGBA8 每像素 4 字节），
          * 超出 GPU 单纹理能力时由运行时限制为有效值并记录日志。
          */
         object Cache : ConfigGroup("cache") {
 
-            val itemTextureCacheSize by configLong(
-                "cache_item_texture_cache_size",
-                1024L * 1024 * 256,
+            /** 物品渲染图集大小 */
+            val itemTextureAtlasSize by configLong(
+                "item_texture_atlas_size",
+                1024L * 1024 * 128,
                 1024L,
                 1024L * 1024 * 1024,
-            ).apply {
+            ).uiWrapper {
+                CacheConfigWrapper(
+                    it,
+                    cacheRevision = { SkiaItemRenderHelper.cacheRevision },
+                    usedAllocationPixels = { SkiaItemRenderHelper.usedAllocationPixels },
+                )
+            }.apply {
                 observe {
                     SkiaItemRenderHelper.requestMaxCacheAreaChange(this.getValue())
+                }
+            }
+
+            /** 纹理渲染图集大小 */
+            val textureAtlasSize by configLong(
+                "texture_atlas_size",
+                1024L * 1024 * 128,
+                1024L,
+                1024L * 1024 * 1024,
+            ).uiWrapper {
+                CacheConfigWrapper(
+                    it,
+                    cacheRevision = { SkiaTextureHelper.cacheRevision },
+                    usedAllocationPixels = { SkiaTextureHelper.usedAllocationPixels },
+                )
+            }.apply {
+                observe {
+                    SkiaTextureHelper.requestMaxCacheAreaChange(this.getValue())
                 }
             }
 

@@ -18,6 +18,9 @@
   "ibukigourd.config_wrapper.move": "Move",
   "ibukigourd.config_wrapper.list.text": "List (%s items)",
   "ibukigourd.config_wrapper.map.text": "Map (%s items)",
+  "ibukigourd.config_wrapper.cache.used": "Used",
+  "ibukigourd.config_wrapper.cache.limit": "Cache Limit",
+  "ibukigourd.config_wrapper.cache.mb": "MB",
   "#input": "Input",
   "ibukigourd.input.press_to_setting": "Press to set",
   "ibukigourd.input.release_to_save_setting": "Release to save",
@@ -145,6 +148,8 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Trigger hotkey for Scroll Multiplier Ⅲ",
   "ibukigourd.config.gui.cache": "Cache",
   "ibukigourd.config.gui.cache.comment": "Item rendering cache settings",
-  "ibukigourd.config.gui.cache.item_texture_cache_size": "Item Atlas Cache Area",
-  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "Maximum pixel area of the item rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing"
+  "ibukigourd.config.gui.cache.item_texture_atlas_size": "Item Atlas Size",
+  "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "Maximum pixel area of the item rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing",
+  "ibukigourd.config.gui.cache.texture_atlas_size": "Texture Atlas Size",
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "Maximum pixel area of the texture rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing"
 }

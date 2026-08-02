@@ -2,7 +2,6 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,7 +26,6 @@ import kotlin.time.DurationUnit
 import kotlin.time.times
 import kotlin.time.toDuration
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DurationConfigWrapper(
     config: Config<Duration>,

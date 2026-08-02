@@ -18,6 +18,9 @@
   "ibukigourd.config_wrapper.move": "Déplacer",
   "ibukigourd.config_wrapper.list.text": "Liste (%s éléments)",
   "ibukigourd.config_wrapper.map.text": "Map (%s éléments)",
+  "ibukigourd.config_wrapper.cache.used": "Utilisé",
+  "ibukigourd.config_wrapper.cache.limit": "Limite du cache",
+  "ibukigourd.config_wrapper.cache.mb": "Mo",
   "#input": "Saisie",
   "ibukigourd.input.press_to_setting": "Appuyez pour définir",
   "ibukigourd.input.release_to_save_setting": "Relâchez pour sauvegarder",
@@ -145,6 +148,8 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Touche de raccourci pour le multiplicateur de défilement Ⅲ",
   "ibukigourd.config.gui.cache": "Cache",
   "ibukigourd.config.gui.cache.comment": "Paramètres du cache de rendu des objets",
-  "ibukigourd.config.gui.cache.item_texture_cache_size": "Aire du cache d'atlas d'objets",
-  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "Aire maximale en pixels de l'atlas GPU de rendu des objets (RGBA8, ~4 octets par pixel). L'atlas sera reconstruit en toute sécurité à la prochaine frame après modification"
+  "ibukigourd.config.gui.cache.item_texture_atlas_size": "Taille de l'atlas d'objets",
+  "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "Aire maximale en pixels de l'atlas GPU de rendu des objets (RGBA8, ~4 octets par pixel). L'atlas sera reconstruit en toute sécurité à la prochaine frame après modification",
+  "ibukigourd.config.gui.cache.texture_atlas_size": "Taille de l'atlas de textures",
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "Aire maximale en pixels de l'atlas GPU de rendu des textures (RGBA8, ~4 octets par pixel). L'atlas sera reconstruit en toute sécurité à la prochaine frame après modification"
 }

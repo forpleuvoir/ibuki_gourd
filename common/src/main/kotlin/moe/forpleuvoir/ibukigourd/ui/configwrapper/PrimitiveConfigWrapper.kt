@@ -5,13 +5,7 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,14 +14,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.launch
-import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.default.SyncAlt
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.item.ConfigRange
@@ -51,7 +39,6 @@ fun BooleanConfigWrapper(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntConfigWrapper(
     config: Config<Int>,
@@ -149,7 +136,6 @@ fun IntConfigWrapper(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LongConfigWrapper(
     config: Config<Long>,
@@ -246,7 +232,6 @@ fun LongConfigWrapper(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FloatConfigWrapper(
     config: Config<Float>,
@@ -344,7 +329,6 @@ fun FloatConfigWrapper(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoubleConfigWrapper(
     config: Config<Double>,

@@ -18,6 +18,9 @@
   "ibukigourd.config_wrapper.move": "移動",
   "ibukigourd.config_wrapper.list.text": "列表 (%s 項)",
   "ibukigourd.config_wrapper.map.text": "映射 (%s 項)",
+  "ibukigourd.config_wrapper.cache.used": "已使用",
+  "ibukigourd.config_wrapper.cache.limit": "快取上限",
+  "ibukigourd.config_wrapper.cache.mb": "MB",
   "#input": "輸入",
   "ibukigourd.input.press_to_setting": "按下以設定",
   "ibukigourd.input.release_to_save_setting": "放開以儲存設定",
@@ -145,6 +148,8 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "滾動倍率Ⅲ的觸發熱鍵",
   "ibukigourd.config.gui.cache": "快取",
   "ibukigourd.config.gui.cache.comment": "物品渲染快取相關設定",
-  "ibukigourd.config.gui.cache.item_texture_cache_size": "物品圖集快取面積",
-  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "物品渲染 GPU 圖集的最大像素面積(RGBA8 每像素約 4 位元組),修改後將在下一幀安全重建圖集"
+  "ibukigourd.config.gui.cache.item_texture_atlas_size": "物品圖集大小",
+  "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "物品渲染 GPU 圖集的最大像素面積(RGBA8 每像素約 4 位元組),修改後將在下一幀安全重建圖集",
+  "ibukigourd.config.gui.cache.texture_atlas_size": "紋理圖集大小",
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "紋理渲染 GPU 圖集的最大像素面積(RGBA8 每像素約 4 位元組),修改後將在下一幀安全重建圖集"
 }

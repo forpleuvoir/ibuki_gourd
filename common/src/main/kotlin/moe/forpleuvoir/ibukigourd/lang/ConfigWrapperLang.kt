@@ -28,4 +28,13 @@ object ConfigWrapperLang {
 
     fun mapConfigWrapperText(count: Int) = lang("map.text", count)
 
+    /** 图集缓存：已使用 */
+    val cacheUsed get() = lang("cache.used")
+
+    /** 图集缓存：上限 */
+    val cacheLimit get() = lang("cache.limit")
+
+    /** 图集缓存：MB 单位 */
+    val cacheMb get() = lang("cache.mb")
+
 }

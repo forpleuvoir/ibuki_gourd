@@ -18,6 +18,9 @@
   "ibukigourd.config_wrapper.move": "移動",
   "ibukigourd.config_wrapper.list.text": "リスト (%s 項目)",
   "ibukigourd.config_wrapper.map.text": "マップ (%s 項目)",
+  "ibukigourd.config_wrapper.cache.used": "使用中",
+  "ibukigourd.config_wrapper.cache.limit": "キャッシュ上限",
+  "ibukigourd.config_wrapper.cache.mb": "MB",
   "#input": "入力",
   "ibukigourd.input.press_to_setting": "押して設定",
   "ibukigourd.input.release_to_save_setting": "離して保存",
@@ -145,6 +148,8 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "スクロール倍率 Ⅲ のトリガーホットキー",
   "ibukigourd.config.gui.cache": "キャッシュ",
   "ibukigourd.config.gui.cache.comment": "アイテム描画キャッシュの設定",
-  "ibukigourd.config.gui.cache.item_texture_cache_size": "アイテムアトラスキャッシュ面積",
-  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "アイテム描画 GPU アトラスの最大ピクセル面積（RGBA8、1ピクセル約4バイト）。変更後、次のフレームで安全に再構築されます"
+  "ibukigourd.config.gui.cache.item_texture_atlas_size": "アイテムアトラスサイズ",
+  "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "アイテム描画 GPU アトラスの最大ピクセル面積（RGBA8、1ピクセル約4バイト）。変更後、次のフレームで安全に再構築されます",
+  "ibukigourd.config.gui.cache.texture_atlas_size": "テクスチャアトラスサイズ",
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "テクスチャ描画 GPU アトラスの最大ピクセル面積（RGBA8、1ピクセル約4バイト）。変更後、次のフレームで安全に再構築されます"
 }

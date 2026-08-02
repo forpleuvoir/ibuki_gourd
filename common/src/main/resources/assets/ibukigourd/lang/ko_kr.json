@@ -18,6 +18,9 @@
   "ibukigourd.config_wrapper.move": "이동",
   "ibukigourd.config_wrapper.list.text": "목록 (%s개 항목)",
   "ibukigourd.config_wrapper.map.text": "맵 (%s개 항목)",
+  "ibukigourd.config_wrapper.cache.used": "사용 중",
+  "ibukigourd.config_wrapper.cache.limit": "캐시 상한",
+  "ibukigourd.config_wrapper.cache.mb": "MB",
   "#input": "입력",
   "ibukigourd.input.press_to_setting": "눌러서 설정",
   "ibukigourd.input.release_to_save_setting": "떼면 저장",
@@ -145,6 +148,8 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "스크롤 배율 Ⅲ 의 트리거 핫키",
   "ibukigourd.config.gui.cache": "캐시",
   "ibukigourd.config.gui.cache.comment": "아이템 렌더링 캐시 설정",
-  "ibukigourd.config.gui.cache.item_texture_cache_size": "아이템 아틀라스 캐시 영역",
-  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "아이템 렌더링 GPU 아틀라스의 최대 픽셀 영역(RGBA8, 픽셀당 약 4바이트). 변경 후 다음 프레임에서 안전하게 재구축됩니다"
+  "ibukigourd.config.gui.cache.item_texture_atlas_size": "아이템 아틀라스 크기",
+  "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "아이템 렌더링 GPU 아틀라스의 최대 픽셀 영역(RGBA8, 픽셀당 약 4바이트). 변경 후 다음 프레임에서 안전하게 재구축됩니다",
+  "ibukigourd.config.gui.cache.texture_atlas_size": "텍스처 아틀라스 크기",
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "텍스처 렌더링 GPU 아틀라스의 최대 픽셀 영역(RGBA8, 픽셀당 약 4바이트). 변경 후 다음 프레임에서 안전하게 재구축됩니다"
 }

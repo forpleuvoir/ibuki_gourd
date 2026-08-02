@@ -50,7 +50,7 @@ internal data class AtlasConfig(
  * @property content    真正保存物品像素的区域，用于绘制
  * @property generation 图集整体清空或重建后递增，用于让旧 Painter/旧引用安全失效
  */
-internal data class ItemAtlasEntry(
+internal data class AtlasEntry(
     val allocation: AtlasRect,
     val content: AtlasRect,
     val generation: Long,
@@ -60,13 +60,13 @@ internal data class ItemAtlasEntry(
  * 物品渲染 GPU 图集。
  *
  * 维护单张由 GL 纹理 + FBO + Skia Surface 承载的 GPU 图集，并管理
- * `ItemCacheKey → ItemAtlasEntry` 的 access-order LRU。
+ * `K → AtlasEntry` 的 access-order LRU。
  *
  * 所有 GPU 操作（创建、上传、快照替换、释放）必须位于对应 [DirectContext] 的渲染线程。
  * 本类自身不切换上下文，由调用方（如 [moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext.submit]）
  * 保证线程与上下文正确。
  */
-internal class ItemRenderAtlas(
+internal class ItemRenderAtlas<K>(
     private val config: AtlasConfig,
 ) {
 
@@ -95,7 +95,7 @@ internal class ItemRenderAtlas(
 
     // ── 图集状态 ───────────────────────────────────────────────────────
     private var allocator: AtlasRectAllocator? = null
-    private val entries = LinkedHashMap<ItemCacheKey, ItemAtlasEntry>(16, 0.75f, true)
+    private val entries = LinkedHashMap<K, AtlasEntry>(16, 0.75f, true)
 
     private var generation: Long = 0L
     var atlasWidth: Int = 0
@@ -202,12 +202,12 @@ internal class ItemRenderAtlas(
         )
     }
 
-    fun contains(key: ItemCacheKey): Boolean = entries.containsKey(key)
+    fun contains(key: K): Boolean = entries.containsKey(key)
 
     /**
      * 查询条目，命中时更新 access-order 顺序。
      */
-    fun get(key: ItemCacheKey): ItemAtlasEntry? = entries[key]
+    fun get(key: K): AtlasEntry? = entries[key]
 
     /**
      * 上传一个临时 GPU/CPU Image 到图集。
@@ -218,11 +218,11 @@ internal class ItemRenderAtlas(
      */
     fun upload(
         context: DirectContext,
-        key: ItemCacheKey,
+        key: K,
         source: Image,
         width: Int,
         height: Int,
-    ): ItemAtlasEntry? {
+    ): AtlasEntry? {
         ensureInitialized(context)
         val s = surface ?: return null
         val alloc = allocator ?: return null
@@ -294,7 +294,7 @@ internal class ItemRenderAtlas(
             return null
         }
 
-        val entry = ItemAtlasEntry(
+        val entry = AtlasEntry(
             allocation = rect,
             content = content,
             generation = generation,
@@ -312,22 +312,37 @@ internal class ItemRenderAtlas(
      */
     fun draw(
         canvas: org.jetbrains.skia.Canvas,
-        key: ItemCacheKey,
+        key: K,
         destination: Rect,
         samplingMode: SamplingMode,
         paint: Paint?,
+        /**
+         * 相对 content 区域的源子区域；为 null 时绘制整个 content。
+         * 供纹理 UV 子区域与九宫格等需要局部绘制的调用方使用。
+         */
+        source: AtlasRect? = null,
     ): Boolean {
         val image = atlasImage ?: return false
         val entry = entries[key] ?: return false
         if (entry.generation != generation) return false
 
         val content = entry.content
-        canvas.drawImageRect(
-            image,
+        val srcRect = if (source != null) {
+            Rect(
+                (content.x + source.x).toFloat(),
+                (content.y + source.y).toFloat(),
+                (content.x + source.right).toFloat(),
+                (content.y + source.bottom).toFloat(),
+            )
+        } else {
             Rect(
                 content.x.toFloat(), content.y.toFloat(),
                 content.right.toFloat(), content.bottom.toFloat()
-            ),
+            )
+        }
+        canvas.drawImageRect(
+            image,
+            srcRect,
             destination,
             samplingMode,
             paint,

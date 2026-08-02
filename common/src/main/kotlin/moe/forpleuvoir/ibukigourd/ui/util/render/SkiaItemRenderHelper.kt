@@ -51,10 +51,10 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
     private val logger = logger()
 
-    // 用户配置的最大缓存像素面积（RGBA8 每像素 4 字节，268_435_456 像素 ≈ 1 GiB）
-    private const val DEFAULT_MAX_CACHE_AREA: Long = 1024 * 1024 * 256
+    // 用户配置的最大缓存像素面积（RGBA8 每像素 4 字节，134_217_728 像素 ≈ 512 MiB）
+    private const val DEFAULT_MAX_CACHE_AREA: Long = 1024 * 1024 * 128
 
-    private val atlas = ItemRenderAtlas(AtlasConfig(DEFAULT_MAX_CACHE_AREA))
+    private val atlas = ItemRenderAtlas<ItemCacheKey>(AtlasConfig(DEFAULT_MAX_CACHE_AREA))
 
     /**
      * 兼容统计：当前缓存内容像素面积（不含 padding）。
@@ -91,11 +91,16 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         val itemStack: ItemStack,
         val width: Int,
         val height: Int,
+        /** 已重试次数，达到上限后丢弃，避免永久失败的请求每帧刷屏 */
+        val retryCount: Int = 0,
     )
 
     private val pendingQueue: MutableList<PendingRenderRequest> = mutableListOf()
 
     private const val MAX_PER_FRAME = 4
+
+    /** 单个请求的最大重试帧数，超过后丢弃并记录日志 */
+    private const val MAX_RETRY_COUNT = 10
 
     /**
      * 提交一个物品渲染请求。
@@ -122,7 +127,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         itemStack: ItemStack,
         width: Int = 64,
         height: Int = 64,
-    ): ItemAtlasEntry? {
+    ): AtlasEntry? {
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
         return atlas.get(cacheKey)
     }
@@ -181,7 +186,10 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             val result = try {
                 renderItemToAtlas(request.itemStack, request.width, request.height)
             } catch (e: Exception) {
-                logger.error("An exception occurred while rendering queue items: ${e.message}")
+                logger.error(
+                    "An exception occurred while rendering queue item " +
+                        "${request.width}x${request.height}: ${e.message}"
+                )
                 logger.error(e.stackTraceToString())
                 RenderResult.RETRY
             }
@@ -193,8 +201,15 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                     uploaded = true
                 }
                 RenderResult.RETRY -> {
-                    // 保留到队列末尾，下一帧按 MAX_PER_FRAME 上限继续尝试
-                    pendingQueue.add(request)
+                    // 瞬时失败允许重试，但达到上限后丢弃，避免异常请求每帧反复重试
+                    if (request.retryCount < MAX_RETRY_COUNT) {
+                        pendingQueue.add(request.copy(retryCount = request.retryCount + 1))
+                    } else {
+                        logger.error(
+                            "Dropping item render request ${request.width}x${request.height} " +
+                                "after $MAX_RETRY_COUNT retries"
+                        )
+                    }
                 }
             }
             processed++
@@ -271,7 +286,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
     ): ByteArray? {
         val now = TimeSource.Monotonic.markNow()
         val target = OffscreenRenderTarget("skia_item", width, height)
-        val device = RenderSystem.getDevice()
+        val device = RenderSystem.tryGetDevice() ?: return null
         val encoder = device.createCommandEncoder()
 
         try {
@@ -348,7 +363,8 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
             // GPU RGBA8 小端读回 int = 0xAABBGGRR；Skia N32 在本平台为 BGRA 字节序，
             // 故输出 [B,G,R,A]。内联位运算以避免每像素分配 Color 对象。
-            encoder.mapBuffer(pbo, true, false).use { mapped ->
+            val mapped = encoder.mapBuffer(pbo, true, false)
+            mapped.use { mapped ->
                 val data = mapped.data()
                 var k = 0
                 for (y in height - 1 downTo 0) for (x in 0 until width) {
