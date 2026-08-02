@@ -142,5 +142,9 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3": "滚动倍率Ⅲ",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3.comment": "按下设置的按键时将会使用的滚动速度倍率",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code": "滚动倍率按键Ⅲ",
-  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "滚动倍率Ⅲ的触发按键"
+  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "滚动倍率Ⅲ的触发按键",
+  "ibukigourd.config.gui.cache": "缓存",
+  "ibukigourd.config.gui.cache.comment": "物品渲染缓存相关设置",
+  "ibukigourd.config.gui.cache.item_texture_cache_size": "物品图集缓存面积",
+  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "物品渲染 GPU 图集的最大像素面积(RGBA8 每像素约 4 字节),修改后将在下一帧安全重建图集"
 }

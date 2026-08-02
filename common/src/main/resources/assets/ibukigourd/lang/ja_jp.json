@@ -142,5 +142,9 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3": "スクロール倍率 Ⅲ",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3.comment": "ホットキー押下時に使用するスクロール速度倍率",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code": "スクロール倍率ホットキー Ⅲ",
-  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "スクロール倍率 Ⅲ のトリガーホットキー"
+  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "スクロール倍率 Ⅲ のトリガーホットキー",
+  "ibukigourd.config.gui.cache": "キャッシュ",
+  "ibukigourd.config.gui.cache.comment": "アイテム描画キャッシュの設定",
+  "ibukigourd.config.gui.cache.item_texture_cache_size": "アイテムアトラスキャッシュ面積",
+  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "アイテム描画 GPU アトラスの最大ピクセル面積（RGBA8、1ピクセル約4バイト）。変更後、次のフレームで安全に再構築されます"
 }

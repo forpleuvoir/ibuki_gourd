@@ -142,5 +142,9 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3": "Scroll Multiplier Ⅲ",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3.comment": "Scroll speed multiplier used when the hotkey is pressed",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code": "Scroll Multiplier Hotkey Ⅲ",
-  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Trigger hotkey for Scroll Multiplier Ⅲ"
+  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Trigger hotkey for Scroll Multiplier Ⅲ",
+  "ibukigourd.config.gui.cache": "Cache",
+  "ibukigourd.config.gui.cache.comment": "Item rendering cache settings",
+  "ibukigourd.config.gui.cache.item_texture_cache_size": "Item Atlas Cache Area",
+  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "Maximum pixel area of the item rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing"
 }

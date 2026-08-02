@@ -142,5 +142,9 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3": "스크롤 배율 Ⅲ",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3.comment": "핫키를 눌렀을 때 사용할 스크롤 속도 배율",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code": "스크롤 배율 핫키 Ⅲ",
-  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "스크롤 배율 Ⅲ 의 트리거 핫키"
+  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "스크롤 배율 Ⅲ 의 트리거 핫키",
+  "ibukigourd.config.gui.cache": "캐시",
+  "ibukigourd.config.gui.cache.comment": "아이템 렌더링 캐시 설정",
+  "ibukigourd.config.gui.cache.item_texture_cache_size": "아이템 아틀라스 캐시 영역",
+  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "아이템 렌더링 GPU 아틀라스의 최대 픽셀 영역(RGBA8, 픽셀당 약 4바이트). 변경 후 다음 프레임에서 안전하게 재구축됩니다"
 }

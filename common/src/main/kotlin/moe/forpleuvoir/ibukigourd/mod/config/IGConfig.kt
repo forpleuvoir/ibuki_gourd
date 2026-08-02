@@ -29,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.Palette
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Routine
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.LightMode
+import moe.forpleuvoir.ibukigourd.ui.util.render.SkiaItemRenderHelper
 import moe.forpleuvoir.ibukigourd.ui.open
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
@@ -59,7 +60,7 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             addConfig(Screen)
             addConfig(Toast)
             addConfig(Scroller)
-//            addConfig(Cache)
+            addConfig(Cache)
         }
 
         val quickActionKeyCode by configKeyCode("quick_action_key_code", Keyboard.LEFT_SHIFT)
@@ -186,11 +187,26 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
         }
 
-//        object Cache : ConfigGroup("cache") {
-//
-//            val itemTextureCacheSize by configLong("cache_item_texture_cache_size", 1024 * 1024 * 256)
-//
-//        }
+        /**
+         * 物品渲染 GPU 图集缓存配置。
+         *
+         * 面积使用像素个数定义（RGBA8 每像素 4 字节），
+         * 超出 GPU 单纹理能力时由运行时限制为有效值并记录日志。
+         */
+        object Cache : ConfigGroup("cache") {
+
+            val itemTextureCacheSize by configLong(
+                "cache_item_texture_cache_size",
+                1024L * 1024 * 256,
+                1024L,
+                1024L * 1024 * 1024,
+            ).apply {
+                observe {
+                    SkiaItemRenderHelper.requestMaxCacheAreaChange(this.getValue())
+                }
+            }
+
+        }
 
     }
 

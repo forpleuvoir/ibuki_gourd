@@ -142,5 +142,9 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3": "Multiplicateur de défilement Ⅲ",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3.comment": "Multiplicateur de vitesse de défilement utilisé lorsque la touche de raccourci est enfoncée",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code": "Raccourci multiplicateur Ⅲ",
-  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Touche de raccourci pour le multiplicateur de défilement Ⅲ"
+  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Touche de raccourci pour le multiplicateur de défilement Ⅲ",
+  "ibukigourd.config.gui.cache": "Cache",
+  "ibukigourd.config.gui.cache.comment": "Paramètres du cache de rendu des objets",
+  "ibukigourd.config.gui.cache.item_texture_cache_size": "Aire du cache d'atlas d'objets",
+  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "Aire maximale en pixels de l'atlas GPU de rendu des objets (RGBA8, ~4 octets par pixel). L'atlas sera reconstruit en toute sécurité à la prochaine frame après modification"
 }

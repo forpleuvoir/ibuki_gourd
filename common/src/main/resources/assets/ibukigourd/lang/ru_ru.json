@@ -142,5 +142,9 @@
   "ibukigourd.config.gui.scroller.scroll_multiplier_3": "Множитель прокрутки Ⅲ",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3.comment": "Множитель скорости прокрутки при нажатии горячей клавиши",
   "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code": "Горячая клавиша множителя Ⅲ",
-  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Горячая клавиша для множителя прокрутки Ⅲ"
+  "ibukigourd.config.gui.scroller.scroll_multiplier_3_key_code.comment": "Горячая клавиша для множителя прокрутки Ⅲ",
+  "ibukigourd.config.gui.cache": "Кэш",
+  "ibukigourd.config.gui.cache.comment": "Настройки кэша рендеринга предметов",
+  "ibukigourd.config.gui.cache.item_texture_cache_size": "Площадь кэша атласа предметов",
+  "ibukigourd.config.gui.cache.item_texture_cache_size.comment": "Максимальная площадь пикселей GPU-атласа рендеринга предметов (RGBA8, ~4 байта на пиксель). Атлас будет безопасно пересоздан в следующем кадре после изменения"
 }
