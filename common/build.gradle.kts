@@ -35,6 +35,10 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 sourceSets {
     create("devOnly") {
         compileClasspath += main.get().compileClasspath + main.get().output
