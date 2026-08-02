@@ -29,7 +29,8 @@ fun ExternalModuleDependency.composeExclude() {
 dependencies {
     implementation(libs.forgeKotlin)
 
-    api(libs.nebula)?.let { jarJar(it) }
+    api(libs.nebula)
+    jarJar(libs.nebula)
 
     jarJarInternal(api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}") {
         composeExclude()

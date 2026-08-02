@@ -7,7 +7,7 @@
 [IbukiGourd](https://modrinth.com/mod/ibukigourd) 是一个主要由`kotlin`编写的`Minecraft Fabric&Neoforge MOD`
 ,主要为其他MOD提供前置功能
 
-如:`配置管理` `配置GUI` `指令DSL` `GUI DSL`
+如:`配置管理` `配置GUI` `指令DSL` `GUI`
 
 ![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
@@ -66,40 +66,39 @@ dependencies {
 
 ### 配置
 
-客户端配置,需要继承`ClientModConfigManager`
+配置由 nebula 提供，客户端配置需要继承 `ClientModConfigManager(modId, name)`。
+配置项通过 nebula 的扩展函数（`configString` / `configBoolean` / `configInt` / `configLong` /
+`configFloat` / `configDouble` / `configEnum` / `configColor` / `configDuration` / `configList` /
+`configMap` 等）以属性委托方式声明，并可以嵌套 `ConfigGroup`。
 
 例:
 
 ```kotlin
-object YourModConfigs : ClientModConfigManager(modMeta = yourModMeta, key = "key", autoScan = AutoScan.close) {
-
-    //自动扫描默认是关闭的,关闭时需要手动将配置对象添加到容器中
-    //addConfig(configEntry)
-    //或者使用配置项对应的扩展方法
-
-    //使用属性委托
-    var stringConfig by ConfigString("config_key_1", "defaultValue")
-
-    //关闭自动扫描时,string 方法会自动将配置项添加到容器中,一般扩展方法都写在对应配置类的文件内
-    var stringConfig by string("config_key_1", "defaultValue")
-
-    //不使用委托
-    val mapConfig = ConfigStringMap("config_key_2", mapOf("k1" to "v1", "k2" to "v2"))
+object YourModConfigs : ClientModConfigManager("your_mod_id", "config") {
 
     init {
-        //如果开启了自动扫描(autoScan),则不需要手动添加配置项
-        addConfig(Other)
+        addConfig(Gui)
     }
 
-    //添加子容器
-    object Other : ModConfigContainer("other") {
-        //......
+    // 配置组
+    object Gui : ConfigGroup("gui") {
+        var stringConfig by configString("config_key_1", "defaultValue")
+
+        var intConfig by configInt("config_key_2", 100, 0, 1000)
+
+        var booleanConfig by configBoolean("config_key_3", true)
     }
 
 }
 ```
 
-手动管理配置管理器
+注册到配置处理器后，生命周期（加载/保存）由处理器自动管理：
+
+```kotlin
+ClientModConfigHandler.register(YourModConfigs)
+```
+
+手动管理配置管理器：
 
 ```kotlin
 //初始化
@@ -110,50 +109,31 @@ YourModConfigs.load()
 YourModConfigs.save()
 //强制保存
 YourModConfigs.forceSave()
+//一键初始化并加载，加载失败时强制保存
+YourModConfigs.startup()
 ```
 
-服务端配置,需要继承`ServerModConfigManager`
+服务端配置,需要继承`ServerModConfigManager(modId, name)`,并注册到服务端处理器：
 
 ```kotlin
-//初始化时需要传入MinecraftServer实例,其余同客户端配置
-ServerModConfigManager.init(MinecraftServer)
+object YourServerConfigs : ServerModConfigManager("your_mod_id", "config") {
+    //配置项与客户端配置相同
+}
+
+ServerModConfigHandler.register(YourServerConfigs)
 ```
 
-自动管理配置
+若要使用配置屏幕,使用配置屏管理器包装器
+`ConfigManagerWrapper(configManager: ConfigManager,modifier: Modifier = Modifier)`
 
-1. 添加包信息
-    - Fabric在`fabric.mod.json`中添加
-
-        ```json
-        {
-          "custom": {
-            "ibukigourd": {
-              "package": "your.code.pack"
-            }
-          }
-        }
-        ```
-    - Neoforge在`neoforge.mods.toml`中添加
-
-        ```toml
-            [modproperties."$yourModId"]
-            package = "your.code.pack"
-        ```
-
-2. 在配置管理器上添加注解`@ModConfig("config_Key")`
-
-    ```kotlin
-    @ModConfig("config_Key")
-    object YourModConfigs : ClientModConfigManager(yourModMeta,"key")
-    ```
-3. 若要使用配置屏幕,使用配置屏管理器包装器
-   `ConfigManagerWrapper(configManager: ConfigManager,modifier: Modifier = Modifier)`
-    ```kotlin
-   //示例
-    BoxScreen {
+```kotlin
+//示例
+openComposeScreen {
+    IbukiGourdTheme {
         ConfigManagerWrapper(YourModConfigs)
-   }
-    ```
+    }
+}
+```
 
 ### 指令DSL
 
@@ -185,24 +165,51 @@ dispatcher.registerCommand("yourCommand") {
 
 ```
 
-### GUI DSL
+### GUI
 
-```kotlin   
-BoxScreen {
-    Row(
-        modifier = Modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Button {
-            click {
-                Toast.showToast(text = "hello minecraft")
+GUI 基于 JetBrains Compose Multiplatform + Material3 构建，通过 Skia 渲染到 Minecraft 屏幕，
+不再依赖原生 `GuiGraphics`。屏幕内容即普通 `@Composable` 组合，可以使用 Compose 的全部能力
+（布局、动画、Material3 主题、状态管理等）。
+
+打开一个 Compose 屏幕：
+
+```kotlin
+openComposeScreen {
+    IbukiGourdTheme {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Button(
+                onClick = {
+                    ToastHandler.showContent { Text("hello minecraft") }
+                }
+            ) {
+                Text("hello minecraft")
             }
-            Text("hello minecraft")
-            Icon(IconTextures.LOCK)
         }
     }
-}.open()//打开屏幕
+}
 ```
 
-<img alt="img.png" src="doc/img.png" width="854"/>
+打开弹窗屏幕：
+
+```kotlin
+openComposePopupScreen {
+    Card(Modifier.padding(24.dp)) {
+        Text("Dialog")
+    }
+}
+```
+
+常用入口：
+
+- `openComposeScreen(content)`：打开全屏 Compose 屏幕，可配置 `pauseGame` / `renderParent` / `parentScreen` /
+  `shouldRenderLevel` / `entryAnimation`。
+- `openComposePopupScreen(content)`：打开 Compose 弹窗屏幕。
+- `ComposeScreen(...)` / `Screen.open()`：直接构建并打开屏幕实例。
+- `IbukiGourdTheme`：提供主题（亮/暗、Material3 ColorScheme）。
+- `ConfigManagerWrapper(configManager)`：将配置管理器渲染为配置界面。
+- 预置组件：`ItemIcon` / `ItemIconVanilla`（物品图标）、`BlitTexture`（纹理）、`Text`、`TipBox`、`SearchBar`、
+  `ColorButton` / `ColorPicker`、`NumberField` / `NumberSlider`、`Selector`、`KeySetter` 等。

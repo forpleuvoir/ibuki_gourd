@@ -35,7 +35,8 @@ dependencies {
     implementation(libs.modMenu)
 
     //nebula
-    api(libs.nebula)?.let { include(it) }
+    api(libs.nebula)
+    include(libs.nebula)
 
     includeInternal(api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}") {
         composeExclude()

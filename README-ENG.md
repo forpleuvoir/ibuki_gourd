@@ -12,7 +12,7 @@ other mods, including:
 - **Config Management**
 - **Config GUI**
 - **Command DSL**
-- **GUI DSL**
+- **GUI**
 
 ![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
@@ -71,44 +71,38 @@ dependencies {
 
 ### Configuration
 
-#### Client-side Configuration
-
-For client-side configurations, the class should extend `ClientModConfigManager`.
+Configuration is powered by nebula. For client-side configurations, the class should
+extend `ClientModConfigManager(modId, name)`. Config items are declared via nebula's
+extension functions (`configString` / `configBoolean` / `configInt` / `configLong` /
+`configFloat` / `configDouble` / `configEnum` / `configColor` / `configDuration` /
+`configList` / `configMap`, etc.) with property delegation, and can be nested in `ConfigGroup`s.
 
 **Example:**
 
 ```kotlin
-object YourModConfigs : ClientModConfigManager(
-   modMeta = yourModMeta,
-   key = "key",
-   autoScan = AutoScan.close
-) {
-
-    // When autoScan is disabled, manually add configuration objects to the container:
-    // addConfig(configEntry)
-    // Or use extension methods for configuration items
-
-    // Using property delegation
-    var stringConfig by ConfigString("config_key_1", "defaultValue")
-
-    // When autoScan is disabled, the `string` method automatically adds the config item
-    // to the container. Generally, extension methods should be defined in the respective
-    // configuration class file.
-    var stringByExtension by string("config_key_1", "defaultValue")
-
-    // Without delegation
-    val mapConfig = ConfigStringMap("config_key_2", mapOf("k1" to "v1", "k2" to "v2"))
+object YourModConfigs : ClientModConfigManager("your_mod_id", "config") {
 
     init {
-        //If autoScan is enabled, you do not need to manually add configuration items
-        addConfig(Other)
+        addConfig(Gui)
     }
 
-    // Add a child container
-    object Other : ModConfigContainer("other") {
-        //......
+    // Config group
+    object Gui : ConfigGroup("gui") {
+        var stringConfig by configString("config_key_1", "defaultValue")
+
+        var intConfig by configInt("config_key_2", 100, 0, 1000)
+
+        var booleanConfig by configBoolean("config_key_3", true)
     }
+
 }
+```
+
+Register the manager with the config handler and its lifecycle (load/save) is managed
+automatically:
+
+```kotlin
+ClientModConfigHandler.register(YourModConfigs)
 ```
 
 **How to manage the configuration manually:**
@@ -122,56 +116,36 @@ YourModConfigs.load()
 YourModConfigs.save()
 // Force save configuration
 YourModConfigs.forceSave()
+// Initialize and load in one step, falling back to a forced save if loading fails
+YourModConfigs.startup()
 ```
 
 #### Server-side Configuration
 
-For server-side configurations, the class should extend `ServerModConfigManager`:
+For server-side configurations, the class should extend `ServerModConfigManager(modId, name)`
+and be registered with the server handler:
 
 ```kotlin
-// For initialization, pass in the Minecraft server instance.
-// The rest of the operations are the same as for the client configuration.
-ServerModConfigManager.init(MinecraftServer)
+object YourServerConfigs : ServerModConfigManager("your_mod_id", "config") {
+    // Config items are the same as for client configurations
+}
+
+ServerModConfigHandler.register(YourServerConfigs)
 ```
 
-### Automatic Configuration Management
+#### Configuration Screen
 
-To set up automatic configuration management:
+To render the configuration screen, use the config screen manager wrapper
+`ConfigManagerWrapper(configManager: ConfigManager, modifier: Modifier = Modifier)`:
 
-1. Add package information
-    - For Fabric, add in `fabric.mod.json`:
-
-        ```json
-        {
-          "custom": {
-            "ibukigourd": {
-              "package": "your.code.pack"
-            }
-          }
-        }
-        ```
-    - For Neoforge, add in `neoforge.mods.toml`:
-
-        ```toml
-        [modproperties."$yourModId"]
-        package = "your.code.pack"
-        ```
-2. Add annotation `@ModConfig("config_Key")` to the configuration manager:
-
-    ```kotlin
-    @ModConfig("config_Key")
-    object YourModConfigs : ClientModConfigManager(yourModMeta,"key")
-    ```
-
-3. To use the configuration screen, wrap it with the configuration screen manager wrapper
-   `ConfigManagerWrapper(configManager: ConfigManager,modifier: Modifier = Modifier)`:
-
-    ```kotlin
-    //Example
-    BoxScreen {
+```kotlin
+// Example
+openComposeScreen {
+    IbukiGourdTheme {
         ConfigManagerWrapper(YourModConfigs)
     }
-    ```
+}
+```
 
 ### Command DSL
 
@@ -206,26 +180,55 @@ dispatcher.registerCommand("yourCommand") {
 
 This example demonstrates how root commands can contain nested subcommands and arguments.
 
-### GUI DSL
+### GUI
+
+The GUI is built with JetBrains Compose Multiplatform + Material3 and rendered into the
+Minecraft screen through Skia, instead of the native `GuiGraphics`. Screen content is an
+ordinary `@Composable` composition, giving you access to the full Compose toolset
+(layout, animation, Material3 themes, state management, and more).
+
+Open a Compose screen:
 
 ```kotlin
-BoxScreen {
-   Row(
-      modifier = Modifier,
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally,
-   ) {
-      Button {
-          click {
-              Toast.showToast(text = "hello minecraft")
-          }
-          Text("hello minecraft")
-          Icon(IconTextures.LOCK)
-      }
-   }
-}.open()  // Opens the screen
+openComposeScreen {
+    IbukiGourdTheme {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Button(
+                onClick = {
+                    ToastHandler.showContent { Text("hello minecraft") }
+                }
+            ) {
+                Text("hello minecraft")
+            }
+        }
+    }
+}
 ```
 
-<img alt="img.png" src="doc/img.png" width="854"/>
+Open a popup screen:
 
-The GUI DSL facilitates intuitive layout and interaction design within Minecraft.
+```kotlin
+openComposePopupScreen {
+    Card(Modifier.padding(24.dp)) {
+        Text("Dialog")
+    }
+}
+```
+
+Common entry points:
+
+- `openComposeScreen(content)`: opens a full-screen Compose screen, configurable via
+  `pauseGame` / `renderParent` / `parentScreen` / `shouldRenderLevel` / `entryAnimation`.
+- `openComposePopupScreen(content)`: opens a Compose popup screen.
+- `ComposeScreen(...)` / `Screen.open()`: construct and open a screen instance directly.
+- `IbukiGourdTheme`: provides theming (light/dark, Material3 ColorScheme).
+- `ConfigManagerWrapper(configManager)`: renders a config manager as a configuration UI.
+- Built-in components: `ItemIcon` / `ItemIconVanilla` (item icons), `BlitTexture` (textures),
+  `Text`, `TipBox`, `SearchBar`, `ColorButton` / `ColorPicker`, `NumberField` / `NumberSlider`,
+  `Selector`, `KeySetter`, and more.
+
+The Compose-based GUI enables intuitive layout and interaction design within Minecraft.
