@@ -141,9 +141,9 @@ internal class ItemRenderAtlas(
         effectiveMaxAreaPixels = minOf(requestedMaxAreaPixels, maxTextureSize.toLong() * maxTextureSize)
         if (effectiveMaxAreaPixels != requestedMaxAreaPixels) {
             logger.warn(
-                "ItemRenderAtlas: 请求的缓存面积 $requestedMaxAreaPixels 像素超过单张纹理能力" +
-                    " (maxTextureSize=$maxTextureSize, 最大面积=${maxTextureSize.toLong() * maxTextureSize})，" +
-                    " 已限制为 $effectiveMaxAreaPixels 像素"
+                "ItemRenderAtlas: requested cache area $requestedMaxAreaPixels pixels exceeds single texture capability" +
+                    " (maxTextureSize=$maxTextureSize, max area=${maxTextureSize.toLong() * maxTextureSize})," +
+                    " clamped to $effectiveMaxAreaPixels pixels"
             )
         }
 
@@ -196,9 +196,9 @@ internal class ItemRenderAtlas(
         surface?.flushAndSubmit()
 
         logger.info(
-            "ItemRenderAtlas: 创建图集 ${atlasWidth}x${atlasHeight}," +
-                " 请求 ${requestedMaxAreaPixels} 像素 / 生效 ${effectiveMaxAreaPixels} 像素," +
-                " 推算显存约 ${atlasAllocatedBytes / (1024 * 1024)} MiB"
+            "ItemRenderAtlas: created atlas ${atlasWidth}x${atlasHeight}," +
+                " requested ${requestedMaxAreaPixels} pixels / effective ${effectiveMaxAreaPixels} pixels," +
+                " estimated video memory ~${atlasAllocatedBytes / (1024 * 1024)} MiB"
         )
     }
 
@@ -234,8 +234,8 @@ internal class ItemRenderAtlas(
         val allocHeight = height + padding * 2
         if (allocWidth > atlasWidth || allocHeight > atlasHeight) {
             logger.warn(
-                "ItemRenderAtlas: 拒绝超大请求 ${width}x$height (含 padding ${allocWidth}x$allocHeight)," +
-                    " 超过图集 ${atlasWidth}x$atlasHeight"
+                "ItemRenderAtlas: rejected oversized request ${width}x$height (with padding ${allocWidth}x$allocHeight)," +
+                    " exceeds atlas ${atlasWidth}x$atlasHeight"
             )
             return null
         }
@@ -290,7 +290,7 @@ internal class ItemRenderAtlas(
         } catch (e: Exception) {
             // 上传失败：归还区域、不写入 LRU、不递增统计
             alloc.release(rect)
-            logger.error("ItemRenderAtlas: 上传失败 ${width}x$height: ${e.message}")
+            logger.error("ItemRenderAtlas: upload failed ${width}x$height: ${e.message}")
             return null
         }
 
@@ -355,7 +355,7 @@ internal class ItemRenderAtlas(
         requestedMaxAreaPixels = newMaxAreaPixels
         closeResources()
         clearAllState()
-        logger.info("ItemRenderAtlas: 缓存面积修改为 $newMaxAreaPixels 像素，图集将重建")
+        logger.info("ItemRenderAtlas: cache area changed to $newMaxAreaPixels pixels, atlas will be rebuilt")
         ensureInitialized(context)
     }
 
@@ -366,7 +366,7 @@ internal class ItemRenderAtlas(
     fun invalidate() {
         closeResources()
         clearAllState()
-        logger.info("ItemRenderAtlas: 图集已整体失效")
+        logger.info("ItemRenderAtlas: atlas has been fully invalidated")
     }
 
     /**
@@ -386,7 +386,7 @@ internal class ItemRenderAtlas(
         generation++
         allocator = AtlasRectAllocator(atlasWidth, atlasHeight)
         surface.canvas.clear(0)
-        logger.info("ItemRenderAtlas: 碎片严重触发整体清空并递增 generation=$generation")
+        logger.info("ItemRenderAtlas: heavy fragmentation triggered full clear, generation incremented to $generation")
     }
 
     private fun clearAllState() {
