@@ -23,7 +23,7 @@ class UtilTest {
 
         // 预热
         repeat(50) {
-            data.page(Random.nextInt(20), 500000).forEach{
+            data.page(Random.nextInt(20) + 1, 500000).forEach{
                 it
             }
         }
@@ -32,7 +32,7 @@ class UtilTest {
         val times = mutableListOf<Duration>()
         repeat(10000) {
             val duration = measureTime {
-                data.page(Random.nextInt(20), 500000).forEach{
+                data.page(Random.nextInt(20) + 1, 500000).forEach{
                     it
                 }
             }

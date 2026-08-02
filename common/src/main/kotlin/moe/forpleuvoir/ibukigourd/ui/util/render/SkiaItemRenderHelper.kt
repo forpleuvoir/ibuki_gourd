@@ -4,14 +4,17 @@ package moe.forpleuvoir.ibukigourd.ui.util.render
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asComposeImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.IntSize
 import com.mojang.blaze3d.ProjectionType
 import com.mojang.blaze3d.platform.Lighting
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
@@ -26,41 +29,59 @@ import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 import java.util.*
 import kotlin.time.TimeSource
 
+/**
+ * 物品渲染 GPU 图集缓存。
+ *
+ * 保留 ItemStack 完整模型渲染、special renderer 与 PBO 回读流程；长期缓存由
+ * 单张 GPU [ItemRenderAtlas] 承载，不再按条目持有 CPU [ImageBitmap]。
+ *
+ * 线程模型：
+ * - [requestRender] / [getPainter] 供 Compose 侧调用；
+ * - [processOnRenderThread] 必须在渲染线程调用（由场景渲染器驱动），
+ *   其中 GPU 相关操作通过 [SkiaContext.submit] 在共享 GL 上下文中执行。
+ */
 object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceReloaderListener<Unit>() {
 
     override val identifier: Identifier = identifier("skia_item")
 
     private val logger = logger()
 
-    private data class ItemCacheKey(
-        val componentsHash: Long,
-        val width: Int,
-        val height: Int
-    ) {
-        companion object {
-            fun fromItemStack(itemStack: ItemStack, width: Int, height: Int): ItemCacheKey {
-                var hash = 0L
-                for (component in itemStack.components) {
-                    hash = 31 * hash + component.hashCode()
-                }
-                return ItemCacheKey(hash, width, height)
-            }
-        }
-    }
+    // 用户配置的最大缓存像素面积（RGBA8 每像素 4 字节，268_435_456 像素 ≈ 1 GiB）
+    private const val DEFAULT_MAX_CACHE_AREA: Long = 1024 * 1024 * 256
 
-    private val itemImageCache = LinkedHashMap<ItemCacheKey, ImageBitmap>(16, 0.75f, true)
+    private val atlas = ItemRenderAtlas(AtlasConfig(DEFAULT_MAX_CACHE_AREA))
 
+    /**
+     * 兼容统计：当前缓存内容像素面积（不含 padding）。
+     * 与历史语义一致，仍表示像素个数而非字节数。
+     */
     var totalCacheArea: Long by mutableLongStateOf(0)
         private set
 
-    //    private val MAX_CACHE_AREA: Long by IGConfig.Gui.Cache::itemTextureCacheSize
-    private const val MAX_CACHE_AREA: Long = 1024 * 1024 * 256 //1GB
+    /**
+     * 图集可观察版本。每批次成功上传并产生新内容后递增一次，
+     * 等待缓存的 Composable 通过读取此值触发重组。
+     */
+    var cacheRevision by mutableLongStateOf(0L)
+        private set
 
     //region 队列渲染
+
+    private enum class RenderResult {
+        /** 成功上传到图集 */
+        UPLOADED,
+
+        /** 瞬时失败，允许后续帧重试 */
+        RETRY,
+
+        /** 永久拒绝（如超大请求），不再重试 */
+        REJECTED,
+    }
 
     private data class PendingRenderRequest(
         val cacheKey: ItemCacheKey,
@@ -73,53 +94,177 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
     private const val MAX_PER_FRAME = 4
 
+    /**
+     * 提交一个物品渲染请求。
+     *
+     * 使用与缓存一致的 [ItemCacheKey] 去重，避免队列判等语义与缓存判等语义不一致。
+     */
     fun requestRender(
         itemStack: ItemStack,
         width: Int = 64,
         height: Int = 64,
     ) {
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
-        if (itemImageCache.containsKey(cacheKey)) return
-        pendingQueue.removeAll {
-            it.itemStack == itemStack && it.width == width && it.height == height
-        }
+        if (atlas.contains(cacheKey)) return
+        pendingQueue.removeAll { it.cacheKey == cacheKey }
         pendingQueue.add(PendingRenderRequest(cacheKey, itemStack, width, height))
     }
 
-    fun getCached(
+    /**
+     * 查询已缓存的图集条目。
+     *
+     * entry 为内部类型，UI 层应优先使用 [getPainter]。
+     */
+    internal fun getCached(
         itemStack: ItemStack,
         width: Int = 64,
         height: Int = 64,
-    ): ImageBitmap? {
+    ): ItemAtlasEntry? {
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
-        return itemImageCache[cacheKey]
+        return atlas.get(cacheKey)
     }
 
+    /**
+     * 获取绘制图集子区域的 Compose [Painter]；未命中缓存时返回 null。
+     */
+    fun getPainter(
+        itemStack: ItemStack,
+        width: Int = 64,
+        height: Int = 64,
+        filterQuality: FilterQuality = FilterQuality.None,
+    ): Painter? {
+        val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
+        if (!atlas.contains(cacheKey)) return null
+        return ItemAtlasPainter(atlas, cacheKey, IntSize(width, height), filterQuality)
+    }
+
+    /**
+     * 渲染线程逐帧驱动。
+     *
+     * 顺序：
+     * 1. 应用待处理的缓存面积修改（若存在）；
+     * 2. 处理资源重载失效；
+     * 3. 最多处理 [MAX_PER_FRAME] 个渲染请求；
+     * 4. 批次结束统一提交 GPU 并递增 revision。
+     */
     fun processOnRenderThread() {
+        // 1. 应用容量修改：先重建图集，再处理当帧上传
+        val pendingArea = pendingMaxAreaPixels
+        if (pendingArea != null) {
+            pendingMaxAreaPixels = null
+            if (pendingArea != atlas.requestedMaxAreaPixels) {
+                SkiaContext.submit {
+                    atlas.reconfigure(SkiaContext.sharedContext, pendingArea)
+                }
+            }
+        }
+
+        // 2. 资源重载失效
+        if (pendingInvalidation) {
+            pendingInvalidation = false
+            pendingQueue.clear()
+            SkiaContext.submit {
+                atlas.invalidate()
+            }
+            totalCacheArea = 0
+            cacheRevision++
+        }
+
+        // 3. 队列渲染（单帧上限）
+        var uploaded = false
         var processed = 0
         while (pendingQueue.isNotEmpty() && processed < MAX_PER_FRAME) {
             val request = pendingQueue.removeAt(0)
-            try {
-                renderItemToBufferedImage(request.itemStack, request.width, request.height)
+            val result = try {
+                renderItemToAtlas(request.itemStack, request.width, request.height)
             } catch (e: Exception) {
                 logger.error("An exception occurred while rendering queue items: ${e.message}")
                 logger.error(e.stackTraceToString())
+                RenderResult.RETRY
+            }
+            when (result) {
+                RenderResult.UPLOADED -> {
+                    uploaded = true
+                }
+                RenderResult.RETRY -> {
+                    // 保留到队列末尾，下一帧按 MAX_PER_FRAME 上限继续尝试
+                    pendingQueue.add(request)
+                }
+                RenderResult.REJECTED -> Unit
             }
             processed++
+        }
+
+        // 4. 批次结束统一提交，只有真实上传过才更新可观察状态
+        if (uploaded) {
+            SkiaContext.submit {
+                atlas.endBatch()
+            }
+            totalCacheArea = atlas.usedContentPixels
+            cacheRevision++
         }
     }
 
     //endregion
 
-    fun renderItemToBufferedImage(
-        itemStack: ItemStack,
-        width: Int = 64,
-        height: Int = 64
-    ): ImageBitmap {
-        val now = TimeSource.Monotonic.markNow()
-        val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
-        itemImageCache[cacheKey]?.let { return it }
+    //region 渲染与上传
 
+    /**
+     * 渲染物品并写入 GPU 图集。
+     *
+     * 模型渲染、投影、光照与 PBO 回读保持原逻辑；末尾将临时 CPU 像素上传到图集，
+     * 不再生成或长期持有 [ImageBitmap]。
+     *
+     * @return 是否成功写入图集；已命中缓存时返回 false（无需上传）
+     */
+    private fun renderItemToAtlas(
+        itemStack: ItemStack,
+        width: Int,
+        height: Int,
+    ): RenderResult {
+        val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
+        if (atlas.contains(cacheKey)) return RenderResult.UPLOADED
+
+        val pixels = renderItemPixels(itemStack, width, height) ?: return RenderResult.RETRY
+
+        val now = TimeSource.Monotonic.markNow()
+        // 短生命周期 CPU 中转，上传后立即释放
+        val bitmap = Bitmap().apply {
+            allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
+            installPixels(pixels)
+        }
+        val image = Image.makeFromBitmap(bitmap)
+        try {
+            var uploaded = false
+            SkiaContext.submit {
+                uploaded = atlas.upload(
+                    SkiaContext.sharedContext,
+                    cacheKey,
+                    image,
+                    width,
+                    height,
+                ) != null
+            }
+            logger.devInfo("Atlas upload: ${now.elapsedNow()}")
+            return if (uploaded) RenderResult.UPLOADED else RenderResult.REJECTED
+        } finally {
+            image.close()
+            bitmap.close()
+        }
+    }
+
+    /**
+     * 渲染物品模型到离屏目标并通过 PBO/fence 回读 BGRA 像素。
+     * 调用方负责在渲染线程执行。
+     *
+     * @return BGRA 字节数组；渲染失败时返回 null
+     */
+    private fun renderItemPixels(
+        itemStack: ItemStack,
+        width: Int,
+        height: Int,
+    ): ByteArray? {
+        val now = TimeSource.Monotonic.markNow()
         val target = OffscreenRenderTarget("skia_item", width, height)
         val device = RenderSystem.getDevice()
         val encoder = device.createCommandEncoder()
@@ -211,32 +356,68 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             }
             pbo.close()
 
-            val result = Bitmap().apply {
-                allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
-                installPixels(pixels)
-            }.asComposeImageBitmap()
-
             logger.devInfo("ItemImage buffer conversion: ${tPixelCopy.elapsedNow()}")
-
-            val entryArea = width * height
-            while (totalCacheArea + entryArea > MAX_CACHE_AREA && itemImageCache.isNotEmpty()) {
-                val eldest = itemImageCache.entries.first()
-                totalCacheArea -= eldest.key.width * eldest.key.height
-                itemImageCache.remove(eldest.key)
-            }
-            totalCacheArea += entryArea
-            itemImageCache[cacheKey] = result
-            return result
+            return pixels
         } finally {
             target.dispose()
-            logger.devInfo("Create ItemImage buffer: ${now.elapsedNow()}")
+            logger.devInfo("Render ItemImage buffer: ${now.elapsedNow()}")
         }
     }
 
+    /**
+     * 显式 CPU 回读 API（不进入图集缓存）。
+     *
+     * 仅在调用方明确需要独立 [ImageBitmap] 时使用；正常路径请使用 [getPainter]。
+     */
+    @Deprecated(
+        "请使用 GPU 图集缓存路径（requestRender + getPainter）。" +
+            "本方法会创建 CPU 图像且不进入缓存。",
+        ReplaceWith("getPainter(itemStack, width, height)")
+    )
+    fun renderItemToBufferedImage(
+        itemStack: ItemStack,
+        width: Int = 64,
+        height: Int = 64,
+    ): ImageBitmap {
+        val pixels = renderItemPixels(itemStack, width, height)
+            ?: error("Failed to render item to buffered image")
+        return Bitmap().apply {
+            allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
+            installPixels(pixels)
+        }.asComposeImageBitmap()
+    }
+
+    //endregion
+
+    //region 容量修改
+
+    @Volatile
+    private var pendingMaxAreaPixels: Long? = null
+
+    /**
+     * 请求修改最大缓存像素面积。
+     *
+     * 只校验并记录待应用值，不直接操作 Surface；连续修改只保留最新值，
+     * 由 [processOnRenderThread] 在下一次安全帧边界应用并重建图集。
+     */
+    fun requestMaxCacheAreaChange(maxAreaPixels: Long) {
+        if (maxAreaPixels <= 0) return
+        pendingMaxAreaPixels = maxAreaPixels
+    }
+
+    //endregion
+
+    //region 资源重载
+
+    @Volatile
+    private var pendingInvalidation = false
+
+    /**
+     * 使缓存失效。资源重载时调用，仅标记待处理状态；
+     * 实际 GPU 资源释放由 [processOnRenderThread] 在渲染线程执行。
+     */
     internal fun invalidateItemImageCache() {
-        itemImageCache.clear()
-        totalCacheArea = 0
-        logger.info("Invalidate ItemImage cache")
+        pendingInvalidation = true
     }
 
     override fun prepare(sharedState: PreparableReloadListener.SharedState) = Unit
@@ -245,5 +426,23 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         invalidateItemImageCache()
     }
 
+    //endregion
 
+    //region 统计
+
+    val atlasWidth: Int get() = atlas.atlasWidth
+    val atlasHeight: Int get() = atlas.atlasHeight
+    val atlasAllocatedBytes: Long get() = atlas.atlasAllocatedBytes
+    val requestedMaxAreaPixels: Long get() = atlas.requestedMaxAreaPixels
+    val effectiveMaxAreaPixels: Long get() = atlas.effectiveMaxAreaPixels
+    val estimatedConfiguredBytes: Long get() = atlas.estimatedConfiguredBytes
+    val usedContentPixels: Long get() = atlas.usedContentPixels
+    val usedAllocationPixels: Long get() = atlas.usedAllocationPixels
+    val activeEntryCount: Int get() = atlas.activeEntryCount
+    val freePixels: Long get() = atlas.freePixels
+    val largestFreeRectPixels: Long get() = atlas.largestFreeRectPixels
+    val pendingRequestCount: Int get() = pendingQueue.size
+    val generation: Long get() = atlas.generationId
+
+    //endregion
 }

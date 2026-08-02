@@ -195,7 +195,6 @@ fun ItemIcon(
     scaleOnHover: Float = 1.1f,
 ) {
     val surface = LocalSkiaSurface.current
-    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var count by remember { mutableStateOf(item.count) }
     val interactionSource = remember { MutableInteractionSource() }
     val hovered by interactionSource.collectIsHoveredAsState()
@@ -206,20 +205,17 @@ fun ItemIcon(
         label = "itemIconScale"
     )
 
-    // item 变化时提交渲染请求至队列，并在 withFrameNanos 中轮询缓存结果
+    // item 变化时提交渲染请求至队列
     LaunchedEffect(item, imageSize) {
         count = item.count
-        bitmap = null
         SkiaItemRenderHelper.requestRender(item, imageSize.width, imageSize.height)
-        while (isActive) {
-            withFrameNanos {
-                if (bitmap == null) {
-                    SkiaItemRenderHelper.getCached(item, imageSize.width, imageSize.height)?.let {
-                        bitmap = it
-                    }
-                }
-                // 悬停时通过原生渲染管线绘制物品提示框
-                if (showTooltip && hovered) {
+    }
+
+    // 悬停时通过原生渲染管线逐帧绘制物品提示框
+    LaunchedEffect(item, hovered) {
+        if (showTooltip && hovered) {
+            while (isActive) {
+                withFrameNanos {
                     surface.postRender {
                         val guiScale = mc.window.guiScale.toFloat()
                         val density = 1f / guiScale
@@ -232,11 +228,22 @@ fun ItemIcon(
         }
     }
 
+    // 读取图集版本号以订阅缓存就绪事件，上传完成后自动重组
+    val revision = SkiaItemRenderHelper.cacheRevision
+
     // 纹理烘焙完成后以 Compose Image 渲染物品图标
-    bitmap?.let {
+    val painter = remember(item, imageSize, revision) {
+        SkiaItemRenderHelper.getPainter(
+            item,
+            imageSize.width,
+            imageSize.height,
+            if (item.item is BlockItem) FilterQuality.Medium else FilterQuality.None,
+        )
+    }
+    painter?.let {
         Box(modifier = modifier.defaultMinSize(32.dp, 32.dp)) {
             Image(
-                bitmap = it,
+                painter = it,
                 contentDescription = item.itemName.plainText,
                 modifier = Modifier.matchParentSize()
                     .graphicsLayer {
@@ -245,7 +252,6 @@ fun ItemIcon(
                         transformOrigin = TransformOrigin.Center
                     }
                     .hoverable(interactionSource),
-                filterQuality = if (item.item is BlockItem) FilterQuality.Medium else FilterQuality.None,
                 contentScale = ContentScale.Crop
             )
             // 需要时在指定对齐位置叠加显示堆叠数量
