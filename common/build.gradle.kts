@@ -30,7 +30,7 @@ dependencies {
     }
 
     //IMBlocker 兼容
-    compileOnly("maven.modrinth:WMDesFsZ:MQ96z3kk")
+    compileOnly("maven.modrinth:WMDesFsZ:JHAcp8qU")
 
     testImplementation(kotlin("test-junit5"))
 }
@@ -67,7 +67,7 @@ artifacts {
 }
 
 val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
-listOf<String>(
+listOf(
     "apiElements", "runtimeElements", "sourcesElements"
 ).forEach {
     configurations.named(it) {

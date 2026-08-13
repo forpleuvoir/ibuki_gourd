@@ -57,7 +57,7 @@ class ComposeScreen(
     constructor(
         pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
         renderParent: Boolean = false,
-        parentScreen: Screen? = mc.screen,
+        parentScreen: Screen? = mc.gui.screen(),
         shouldRenderLevel: (ComposeScreen) -> Boolean = { true },
         entryAnimation: Boolean = true,
         content: @Composable () -> Unit,
@@ -128,7 +128,7 @@ class ComposeScreen(
         // 屏幕被替换后若无任何一帧渲染本屏（退出动画无法推进），
         // 在若干 tick 后强制完成关闭流程，避免 Compose 场景与 GPU 资源泄漏。
         mc.scheduleStartTick(3) { _, _ ->
-            if (!renderedSinceClose && !closeController.completed && minecraft.screen !== this) {
+            if (!renderedSinceClose && !closeController.completed && minecraft.gui.screen() !== this) {
                 closeController.finishNow()
             }
         }
@@ -152,7 +152,7 @@ class ComposeScreen(
             logger.error("Error closing Compose scene host", e)
         }
         try {
-            if (minecraft.screen === this) minecraft.setScreen(parentScreen)
+            if (minecraft.gui.screen() === this) minecraft.gui.setScreen(parentScreen)
         } catch (e: Exception) {
             logger.error("Error returning to parent screen", e)
         }
@@ -231,13 +231,13 @@ fun Screen.rebuildWidgets() {
 }
 
 fun <S : Screen> S.open(): S {
-    mc.execute { mc.setScreen(this) }
+    mc.execute { mc.gui.setScreen(this) }
     return this
 }
 
 fun closeScreen() {
     mc.execute {
-        when (val screen = mc.screen) {
+        when (val screen = mc.gui.screen()) {
             is ComposeScreen -> screen.requestClose()
             else             -> screen?.onClose()
         }
@@ -250,7 +250,7 @@ fun Screen?.isComposeScreen() =
 fun openComposeScreen(
     pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
     renderParent: Boolean = false,
-    parentScreen: Screen? = mc.screen,
+    parentScreen: Screen? = mc.gui.screen(),
     shouldRenderLevel: (ComposeScreen) -> Boolean = { true },
     entryAnimation: Boolean = true,
     content: @Composable () -> Unit

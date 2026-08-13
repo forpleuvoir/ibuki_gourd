@@ -1,23 +1,23 @@
 package moe.forpleuvoir.ibukigourd.render
 
+import com.mojang.blaze3d.PrimitiveTopology
 import com.mojang.blaze3d.pipeline.BlendFunction
 import com.mojang.blaze3d.pipeline.ColorTargetState
 import com.mojang.blaze3d.pipeline.RenderPipeline
-import com.mojang.blaze3d.shaders.UniformType
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.blaze3d.vertex.VertexFormat
 import moe.forpleuvoir.ibukigourd.mixin.client.RenderPipelinesAccessor
 import moe.forpleuvoir.ibukigourd.util.identifier
+import net.minecraft.client.renderer.BindGroupLayouts
 
 object IGRenderPipelines {
 
     private val GUI_HSV_COLOR_SNIPPET: RenderPipeline.Snippet = RenderPipeline.builder()
-        .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
-        .withUniform("Projection", UniformType.UNIFORM_BUFFER)
+        .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
         .withVertexShader("core/gui")
         .withFragmentShader(identifier("core/position_hsv_color"))
         .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+        .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+        .withPrimitiveTopology(PrimitiveTopology.QUADS)
         .buildSnippet()
 
 

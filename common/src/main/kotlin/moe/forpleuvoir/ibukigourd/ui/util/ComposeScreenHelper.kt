@@ -7,14 +7,14 @@ object ComposeScreenHelper {
 
     @JvmStatic
     fun shouldBlockLevelRender(): Boolean {
-        return (mc.screen as? ComposeScreen)?.let {
+        return (mc.gui.screen() as? ComposeScreen)?.let {
             !it.renderingLevel
         } ?: false
     }
 
     @JvmStatic
     fun isComposeScreen(): Boolean {
-        return mc.screen is ComposeScreen
+        return mc.gui.screen() is ComposeScreen
     }
 
 }

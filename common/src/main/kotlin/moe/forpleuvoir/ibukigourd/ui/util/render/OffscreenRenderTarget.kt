@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.util.render
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asComposeImageBitmap
+import com.mojang.blaze3d.GpuFormat
 import com.mojang.blaze3d.buffers.GpuBuffer
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.NativeImage
@@ -15,6 +16,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ImageInfo
+import org.joml.Vector4f
 import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
 import java.util.*
@@ -25,7 +27,7 @@ class OffscreenRenderTarget(
     label: String,
     val texWidth: Int,
     val texHeight: Int
-) : RenderTarget(label, true) {
+) : RenderTarget(label, true, GpuFormat.RGBA8_UNORM) {
     init {
         createBuffers(texWidth, texHeight)
     }
@@ -60,7 +62,7 @@ fun OffscreenRenderTarget.renderNow(block: (RenderPass) -> Unit) {
     encoder.createRenderPass(
         { "Offscreen render: $_label" },
         requireColorTextureView(),
-        OptionalInt.of(0),
+        Optional.of(Vector4f(0.0f, 0.0f, 0.0f, 1.0f)),
         getDepthTextureView(),
         OptionalDouble.of(1.0)
     ).use { pass ->
@@ -83,7 +85,7 @@ private suspend fun copyTextureToBufferAwait(
         texture, pbo, 0L,
         {
             try {
-                encoder.mapBuffer(pbo, true, false).use { mapped ->
+                pbo.map(true, false).use { mapped ->
                     cont.resume(mapped.data())
                 }
             } catch (e: Exception) {
@@ -152,7 +154,7 @@ suspend fun OffscreenRenderTarget.renderToBufferedImage(
 
     // Step 2: 准备 PBO
     val srcTex = requireColorTexture()
-    val pixelSize = srcTex.format.pixelSize()
+    val pixelSize = srcTex.format.blockSize()
     val bufSize = texWidth * texHeight * pixelSize
 
     val pbo = device.createBuffer(

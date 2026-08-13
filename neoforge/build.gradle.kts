@@ -184,7 +184,7 @@ dependencies {
     }
 
     // IMBlocker 兼容
-    compileOnly("maven.modrinth:WMDesFsZ:MQ96z3kk")
+    compileOnly("maven.modrinth:WMDesFsZ:JHAcp8qU")
 }
 
 /*

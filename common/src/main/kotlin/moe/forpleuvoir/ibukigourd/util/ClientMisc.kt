@@ -27,7 +27,7 @@ val resourceManager: ReloadableResourceManager by lazy { mc.resourceManager as R
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun <S : Screen?> openScreen(screen: S): S {
-    mc.setScreen(screen)
+    mc.gui.setScreen(screen)
     return screen
 }
 
@@ -41,7 +41,7 @@ fun Minecraft.sendMessage(message: String) {
 }
 
 fun Minecraft.chatMessage(message: Text) {
-    gui.chat.addClientSystemMessage(message)
+    gui.hud.getChat().addClientSystemMessage(message)
     narrator.saySystemChatQueued(message)
 }
 
@@ -50,9 +50,9 @@ fun Minecraft.chatMessage(message: String) {
 }
 
 fun Minecraft.overlayMessage(message: Text, tinted: Boolean = false) {
-    this.gui.setOverlayMessage(message, tinted)
+    this.gui.hud.setOverlayMessage(message, tinted)
 }
 
 fun Minecraft.overlayMessage(message: String, tinted: Boolean = false) {
-    this.gui.setOverlayMessage(Literal(message), tinted)
+    this.gui.hud.setOverlayMessage(Literal(message), tinted)
 }

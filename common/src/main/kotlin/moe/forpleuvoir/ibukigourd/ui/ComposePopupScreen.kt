@@ -21,9 +21,9 @@ import kotlin.time.Duration.Companion.milliseconds
 
 fun ComposePopupScreen(
     onDismissRequest: (() -> Unit)? = null,
-    pauseGame: Boolean = mc.screen?.isPauseScreen ?: IGConfig.Gui.Screen.pauseGame,
+    pauseGame: Boolean = mc.gui.screen()?.isPauseScreen ?: IGConfig.Gui.Screen.pauseGame,
     renderParent: Boolean = true,
-    parentScreen: Screen? = mc.screen,
+    parentScreen: Screen? = mc.gui.screen(),
     shouldRenderLevel: (ComposeScreen) -> Boolean = {
         renderParent && (!parentScreen.isComposeScreen() || (parentScreen as ComposeScreen).shouldRenderLevel(parentScreen))
     },
@@ -45,9 +45,9 @@ fun ComposePopupScreen(
 
 fun openComposePopupScreen(
     onDismissRequest: (() -> Unit)? = null,
-    pauseGame: Boolean = mc.screen?.isPauseScreen ?: IGConfig.Gui.Screen.pauseGame,
+    pauseGame: Boolean = mc.gui.screen()?.isPauseScreen ?: IGConfig.Gui.Screen.pauseGame,
     renderParent: Boolean = true,
-    parentScreen: Screen? = mc.screen,
+    parentScreen: Screen? = mc.gui.screen(),
     shouldRenderLevel: (ComposeScreen) -> Boolean = {
         renderParent && (!parentScreen.isComposeScreen() || (parentScreen as ComposeScreen).shouldRenderLevel(parentScreen))
     },

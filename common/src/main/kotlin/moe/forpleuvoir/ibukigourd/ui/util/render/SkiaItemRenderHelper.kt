@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.renderer.Projection
 import net.minecraft.client.renderer.ProjectionMatrixBuffer
+import net.minecraft.client.renderer.SubmitNodeStorage
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
@@ -31,6 +32,7 @@ import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
+import org.joml.Vector4f
 import java.util.*
 import kotlin.time.TimeSource
 
@@ -292,7 +294,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         try {
             encoder.createRenderPass(
                 { "skia_item_clear" },
-                target.requireColorTextureView(), OptionalInt.of(0),
+                target.requireColorTextureView(), Optional.of(Vector4f(0.0f, 0.0f, 0.0f, 1.0f)),
                 target.requireDepthTextureView(), OptionalDouble.of(1.0)
             ).use { }
 
@@ -321,21 +323,17 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
                 poseStack.scale(width.toFloat(), -width.toFloat(), width.toFloat())
 
                 val lighting = if (itemState.usesBlockLight()) Lighting.Entry.ITEMS_3D else Lighting.Entry.ITEMS_FLAT
-                mc.gameRenderer.lighting.setupFor(lighting)
+                mc.gameRenderer.lighting().setupFor(lighting)
 
                 RenderSystem.enableScissorForRenderTypeDraws(0, 0, width, height)
-
-                val bufferSource = mc.renderBuffers().bufferSource()
 
                 // 箱子/盾牌/旗帜/装饰罐等通过 special renderer 提交 ModelSubmit/BlockModelSubmit，
                 // ItemFeatureRenderer 只处理 ItemSubmit，因此必须走 FeatureRenderDispatcher.renderAllFeatures
                 // 才能让 ModelFeatureRenderer / BlockFeatureRenderer 等各自处理对应提交类型。
-                val featureRenderDispatcher = mc.gameRenderer.featureRenderDispatcher
-                val submitNodeStorage = featureRenderDispatcher.submitNodeStorage
+                val featureRenderDispatcher = mc.gameRenderer.featureRenderDispatcher()
+                val submitNodeStorage = SubmitNodeStorage()
                 itemState.submit(poseStack, submitNodeStorage, 0xF000F0, OverlayTexture.NO_OVERLAY, 0)
-                featureRenderDispatcher.renderAllFeatures()
-
-                bufferSource.endBatch()
+                featureRenderDispatcher.renderAllFeatures(submitNodeStorage)
 
             } finally {
                 RenderSystem.disableScissorForRenderTypeDraws()
@@ -346,7 +344,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             }
 
             val srcTex = target.requireColorTexture()
-            val pixelSize = srcTex.format.pixelSize()
+            val pixelSize = srcTex.format.blockSize()
             val bufSize = width * height * pixelSize
             val pbo = device.createBuffer({ "readback" }, 9, bufSize.toLong())
 
@@ -363,7 +361,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
 
             // GPU RGBA8 小端读回 int = 0xAABBGGRR；Skia N32 在本平台为 BGRA 字节序，
             // 故输出 [B,G,R,A]。内联位运算以避免每像素分配 Color 对象。
-            val mapped = encoder.mapBuffer(pbo, true, false)
+            val mapped = pbo.map(true, false)
             mapped.use { mapped ->
                 val data = mapped.data()
                 var k = 0

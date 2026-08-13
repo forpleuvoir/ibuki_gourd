@@ -35,5 +35,5 @@ enum class KeyEnvironment(val key: String) : Serializable {
 }
 
 fun currentEnv(): KeyEnvironment {
-    return if (mc.screen != null) KeyEnvironment.InGui else KeyEnvironment.InGame
+    return if (mc.gui.screen() != null) KeyEnvironment.InGui else KeyEnvironment.InGame
 }

@@ -3,12 +3,12 @@ package moe.forpleuvoir.ibukigourd.ui.skia
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.asComposeCanvas
+import com.mojang.blaze3d.GpuFormat
 import com.mojang.blaze3d.opengl.GlConst.*
 import com.mojang.blaze3d.opengl.GlStateManager
 import com.mojang.blaze3d.opengl.GlTexture
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.textures.GpuTexture
-import com.mojang.blaze3d.textures.TextureFormat
 import moe.forpleuvoir.ibukigourd.render.asTexture
 import moe.forpleuvoir.ibukigourd.render.extension.pushBlit
 import moe.forpleuvoir.ibukigourd.render.peekScissorRect
@@ -90,7 +90,7 @@ class SkiaSurface {
 
         val gpuTexture = device.createTexture(
             "Skia Surface", USAGE,
-            TextureFormat.RGBA8, width, height, 1, 1
+            GpuFormat.RGBA8_UNORM, width, height, 1, 1
         )
         val textureView = device.createTextureView(gpuTexture)
         val glId = (gpuTexture as GlTexture).glId()

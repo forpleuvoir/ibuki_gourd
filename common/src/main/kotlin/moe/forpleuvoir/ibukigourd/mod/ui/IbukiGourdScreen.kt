@@ -35,7 +35,7 @@ import net.minecraft.client.gui.screens.Screen
 fun IbukiGourdScreen(
     pauseGame: Boolean = false,
     renderParent: Boolean = false,
-    parentScreen: Screen? = mc.screen,
+    parentScreen: Screen? = mc.gui.screen(),
     shouldRenderLevel: Boolean = false,
     entryAnimation: Boolean = true,
 ) = ComposeScreen(

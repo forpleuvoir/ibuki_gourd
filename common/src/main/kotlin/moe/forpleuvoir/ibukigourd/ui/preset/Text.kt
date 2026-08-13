@@ -134,7 +134,7 @@ fun Component.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
                     when (event) {
                         is ClickEvent.OpenFile        -> Util.getPlatform().openFile(event.file())
                         is ClickEvent.OpenUrl         -> clickUrlAction(uri = event.uri())
-                        is ClickEvent.RunCommand      -> mc.player?.connection?.sendUnattendedCommand(Commands.trimOptionalPrefix(event.command), mc.screen)
+                        is ClickEvent.RunCommand      -> mc.player?.connection?.sendUnattendedCommand(Commands.trimOptionalPrefix(event.command), mc.gui.screen())
                         is ClickEvent.CopyToClipboard -> {
                             mc.keyboardHandler.clipboard = event.value
                             ToastHandler.showContent { Text(IGLang.Misc.copySuccess(event.value.truncate(10))) }
@@ -169,16 +169,16 @@ fun List<Component>.toAnnotatedString() = buildAnnotatedString {
     }
 }
 
-private fun clickUrlAction(minecraft: Minecraft = mc, screen: Screen? = mc.screen, uri: URI): Boolean {
+private fun clickUrlAction(minecraft: Minecraft = mc, screen: Screen? = mc.gui.screen(), uri: URI): Boolean {
     if (!minecraft.options.chatLinks().get()) {
         return false
     } else {
         if (minecraft.options.chatLinksPrompt().get()) {
-            minecraft.setScreen(ConfirmLinkScreen({ result: Boolean ->
+            minecraft.gui.setScreen(ConfirmLinkScreen({ result: Boolean ->
                 if (result) {
                     Util.getPlatform().openUri(uri)
                 }
-                minecraft.setScreen(screen)
+                minecraft.gui.setScreen(screen)
             }, uri.toString(), false))
         } else {
             Util.getPlatform().openUri(uri)

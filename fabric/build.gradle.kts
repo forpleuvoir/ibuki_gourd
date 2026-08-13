@@ -59,7 +59,7 @@ dependencies {
     })
 
     //IMBlocker 兼容
-    compileOnly("maven.modrinth:WMDesFsZ:hMMYc3vE")
+    compileOnly("maven.modrinth:WMDesFsZ:BO7fgnmM")
 }
 
 sourceSets {
@@ -79,25 +79,25 @@ loom {
     runs {
         named("client") {
             client()
-            configName = "Fabric Client"
-            ideConfigGenerated(true)
-            runDir("runs/client")
+            displayName = "Fabric Client"
+            generateRunConfig = true
+            runDirectory.set(File("runs/client"))
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
-            programArgs("--username", name, "--uuid", uuid)
-            source(sourceSets["devOnly"])
+            programArguments.addAll("--username", name, "--uuid", uuid)
+            sourceSet = "devOnly"
         }
         named("server") {
             server()
-            configName = "Fabric Server"
-            ideConfigGenerated(true)
-            runDir("runs/server")
+            displayName = "Fabric Server"
+            generateRunConfig = true
+            runDirectory.set(File("runs/server"))
         }
     }
 }
 
 val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
-listOf<String>(
+listOf(
     "apiElements", "runtimeElements", "sourcesElements", "includeInternal", "modCompileClasspath"
 ).forEach {
     configurations.named(it) {

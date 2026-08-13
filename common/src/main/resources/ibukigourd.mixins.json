@@ -12,6 +12,7 @@
     "client.GameRendererMixin",
     "client.GuiGraphicsExtractorMixin",
     "client.GuiItemRenderStateMixin",
+    "client.GuiMixin",
     "client.GuiRendererMixin",
     "client.GuiTextRenderStateMixin",
     "client.KeyboardHandlerMixin",
