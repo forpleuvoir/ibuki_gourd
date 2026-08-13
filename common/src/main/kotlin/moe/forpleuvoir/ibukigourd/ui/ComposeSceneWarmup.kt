@@ -22,7 +22,6 @@ import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.mojang.blaze3d.opengl.GlConst.GL_RGBA8
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.defaults.*
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.DarkMode
@@ -31,10 +30,7 @@ import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftPlatformContext
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
 import moe.forpleuvoir.ibukigourd.util.logger
-import org.jetbrains.skia.*
 import org.jetbrains.skiko.currentNanoTime
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL30
 
 /**
  * 游戏启动时的一次性 Compose 预热。
@@ -51,47 +47,24 @@ object ComposeSceneWarmup {
 
     fun warmUp(content: @Composable () -> Unit = { WarmupBody() }) {
         SkiaContext.submit {
-            val ctx = SkiaContext.sharedContext
-
             try {
-                val texId = GL11.glGenTextures()
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, texId)
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, 2, 2, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0L)
-                GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR)
-                GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR)
-
-                val fboId = GL30.glGenFramebuffers()
-                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fboId)
-                GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, texId, 0)
-                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0)
-
-                BackendRenderTarget.makeGL(1280, 720, 0, 8, fboId, GL_RGBA8).use { bt ->
-                    Surface.makeFromBackendRenderTarget(
-                        ctx, bt,
-                        SurfaceOrigin.TOP_LEFT,
-                        SurfaceColorFormat.RGBA_8888,
-                        ColorSpace.sRGB
-                    )!!.use { surface ->
-                        val scene = CanvasLayersComposeScene(platformContext = MinecraftPlatformContext())
-                        scene.setContent {
-                            IGCompositionLocalProvider {
-                                MaterialTheme {
-                                    content()
-                                }
+                SkiaContext.current.createSurfaceTarget(1280, 720).use { target ->
+                    val scene = CanvasLayersComposeScene(platformContext = MinecraftPlatformContext())
+                    scene.setContent {
+                        IGCompositionLocalProvider {
+                            MaterialTheme {
+                                content()
                             }
                         }
-                        scene.size = IntSize(2, 2)
-                        scene.density = Density(1f)
-
-                        scene.render(surface.canvas.asComposeCanvas(), currentNanoTime())
-                        surface.flushAndSubmit()
-
-                        scene.close()
                     }
-                }
+                    scene.size = IntSize(2, 2)
+                    scene.density = Density(1f)
 
-                GL30.glDeleteFramebuffers(fboId)
-                GL11.glDeleteTextures(texId)
+                    scene.render(target.skiaSurface.canvas.asComposeCanvas(), currentNanoTime())
+                    target.flushAndSubmit()
+
+                    scene.close()
+                }
 
                 logger.info("Compose warm-up completed")
             } catch (e: Exception) {

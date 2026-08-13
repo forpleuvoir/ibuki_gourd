@@ -125,7 +125,7 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
             pendingMaxAreaPixels = null
             if (pendingArea != textureAtlas.requestedMaxAreaPixels) {
                 SkiaContext.submit {
-                    textureAtlas.reconfigure(SkiaContext.sharedContext, pendingArea)
+                    textureAtlas.reconfigure(pendingArea)
                 }
             }
         }
@@ -157,7 +157,6 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
                 var ok = false
                 SkiaContext.submit {
                     ok = textureAtlas.upload(
-                        SkiaContext.sharedContext,
                         upload.key,
                         upload.image,
                         upload.width,

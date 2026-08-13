@@ -170,7 +170,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             pendingMaxAreaPixels = null
             if (pendingArea != atlas.requestedMaxAreaPixels) {
                 SkiaContext.submit {
-                    atlas.reconfigure(SkiaContext.sharedContext, pendingArea)
+                    atlas.reconfigure(pendingArea)
                 }
             }
         }
@@ -266,7 +266,6 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
             var uploaded = false
             SkiaContext.submit {
                 uploaded = atlas.upload(
-                    SkiaContext.sharedContext,
                     cacheKey,
                     image,
                     width,

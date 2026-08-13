@@ -3,27 +3,17 @@ package moe.forpleuvoir.ibukigourd.ui.skia
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.asComposeCanvas
-import com.mojang.blaze3d.GpuFormat
-import com.mojang.blaze3d.opengl.GlConst.*
-import com.mojang.blaze3d.opengl.GlStateManager
-import com.mojang.blaze3d.opengl.GlTexture
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.textures.GpuTexture
-import moe.forpleuvoir.ibukigourd.render.asTexture
-import moe.forpleuvoir.ibukigourd.render.extension.pushBlit
 import moe.forpleuvoir.ibukigourd.render.peekScissorRect
 import moe.forpleuvoir.ibukigourd.render.renderState
+import moe.forpleuvoir.ibukigourd.ui.skia.backend.SkiaRenderTarget
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.FrameRetirement
-import moe.forpleuvoir.ibukigourd.ui.skia.internal.GpuFrame
 import moe.forpleuvoir.ibukigourd.ui.skia.internal.SkiaTexture
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.render.TextureSetup
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.client.renderer.state.gui.BlitRenderState
-import org.jetbrains.skia.*
 import org.joml.Matrix3x2f
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -44,10 +34,6 @@ class SkiaSurface {
 
     companion object {
         private val idCounter = AtomicInteger()
-        private const val USAGE = GpuTexture.USAGE_COPY_DST or
-                GpuTexture.USAGE_COPY_SRC or
-                GpuTexture.USAGE_TEXTURE_BINDING or
-                GpuTexture.USAGE_RENDER_ATTACHMENT
     }
 
     /** Minecraft 纹理管理器中的资源标识符 */
@@ -57,7 +43,7 @@ class SkiaSurface {
     private var lastHeight: Int = 0
 
     /** 当前活动的 GPU 帧资源 */
-    private var activeFrame: GpuFrame? = null
+    private var activeFrame: SkiaRenderTarget? = null
 
     /** Minecraft AbstractTexture 包装 */
     private var boundTexture = SkiaTexture()
@@ -72,7 +58,7 @@ class SkiaSurface {
 
     /**
      * 调整渲染表面尺寸。
-     * 创建新的 FBO + 纹理 + Skia Surface，旧资源进入延迟回收。
+     * 创建新的后端渲染目标 + Skia Surface，旧资源进入延迟回收。
      */
     fun resize(width: Int, height: Int) {
         if (width <= 0 || height <= 0) return
@@ -86,35 +72,9 @@ class SkiaSurface {
         lastWidth = width
         lastHeight = height
 
-        val device = RenderSystem.getDevice()
-
-        val gpuTexture = device.createTexture(
-            "Skia Surface", USAGE,
-            GpuFormat.RGBA8_UNORM, width, height, 1, 1
-        )
-        val textureView = device.createTextureView(gpuTexture)
-        val glId = (gpuTexture as GlTexture).glId()
-
-        val fbo = GlStateManager.glGenFramebuffers()
-        GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, fbo)
-        GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glId, 0)
-        GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, 0)
-
-        var skiaSurface: Surface? = null
-        var renderTarget: BackendRenderTarget? = null
-        SkiaContext.submit {
-            val bt = BackendRenderTarget.makeGL(width, height, 0, 8, fbo, GL_RGBA8)
-            renderTarget = bt
-            skiaSurface = Surface.makeFromBackendRenderTarget(
-                SkiaContext.sharedContext, bt,
-                SurfaceOrigin.TOP_LEFT,
-                SurfaceColorFormat.RGBA_8888,
-                ColorSpace.sRGB
-            ) ?: throw RuntimeException("Failed to create Skia surface")
-        }
-
-        activeFrame = GpuFrame(fbo, gpuTexture, textureView, skiaSurface!!, renderTarget!!)
-        boundTexture.bindTexture(gpuTexture, textureView)
+        val frame = SkiaContext.current.createSurfaceTarget(width, height)
+        activeFrame = frame
+        boundTexture.bindTexture(frame.gpuTexture, frame.textureView)
         isRegistered = false
     }
 

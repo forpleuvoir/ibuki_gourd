@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.skia.internal
 
+import moe.forpleuvoir.ibukigourd.ui.skia.backend.SkiaRenderTarget
+
 /**
  * GPU 帧资源延迟回收器。
  *
@@ -11,17 +13,17 @@ internal class FrameRetirement {
     private val pending = mutableListOf<Entry>()
 
     private class Entry(
-        val frame: GpuFrame,
+        val target: SkiaRenderTarget,
         /** 剩余存活帧数，归零后释放 */
         var remainingFrames: Int = 4,
     )
 
     /**
      * 将已退役的帧加入回收队列。
-     * 通常会紧随 [GpuFrame] 替换操作后调用。
+     * 通常会紧随 [SkiaRenderTarget] 替换操作后调用。
      */
-    fun retire(frame: GpuFrame) {
-        pending.add(Entry(frame))
+    fun retire(target: SkiaRenderTarget) {
+        pending.add(Entry(target))
     }
 
     /**
@@ -34,7 +36,7 @@ internal class FrameRetirement {
             val entry = iter.next()
             entry.remainingFrames--
             if (entry.remainingFrames <= 0) {
-                entry.frame.close()
+                entry.target.close()
                 iter.remove()
             }
         }
@@ -42,10 +44,10 @@ internal class FrameRetirement {
 
     /**
      * 立即释放所有待回收的帧资源。
-     * 在 [RenderSurface] 销毁时调用。
+     * 在 [moe.forpleuvoir.ibukigourd.ui.skia.SkiaSurface] 销毁时调用。
      */
     fun dispose() {
-        pending.forEach { it.frame.close() }
+        pending.forEach { it.target.close() }
         pending.clear()
     }
 }

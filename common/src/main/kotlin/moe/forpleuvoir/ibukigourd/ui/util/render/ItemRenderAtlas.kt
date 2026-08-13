@@ -1,12 +1,11 @@
 package moe.forpleuvoir.ibukigourd.ui.util.render
 
-import com.mojang.blaze3d.opengl.GlConst.GL_RGBA8
+import com.mojang.blaze3d.systems.RenderSystem
+import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
+import moe.forpleuvoir.ibukigourd.ui.skia.backend.SkiaRenderTarget
 import moe.forpleuvoir.ibukigourd.util.logger
 import net.minecraft.world.item.ItemStack
 import org.jetbrains.skia.*
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL12
-import org.lwjgl.opengl.GL30
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
@@ -59,12 +58,11 @@ internal data class AtlasEntry(
 /**
  * 物品渲染 GPU 图集。
  *
- * 维护单张由 GL 纹理 + FBO + Skia Surface 承载的 GPU 图集，并管理
- * `K → AtlasEntry` 的 access-order LRU。
+ * 维护单张由后端渲染目标（GL FBO / 未来 Vulkan Image）承载的 GPU 图集，
+ * 并管理 `K → AtlasEntry` 的 access-order LRU。
  *
- * 所有 GPU 操作（创建、上传、快照替换、释放）必须位于对应 [DirectContext] 的渲染线程。
- * 本类自身不切换上下文，由调用方（如 [moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext.submit]）
- * 保证线程与上下文正确。
+ * 所有 GPU 操作（创建、上传、快照替换、释放）必须位于 [SkiaContext.submit]
+ * 的渲染线程与对应后端上下文中。
  */
 internal class ItemRenderAtlas<K>(
     private val config: AtlasConfig,
@@ -75,23 +73,8 @@ internal class ItemRenderAtlas<K>(
     /** 图集纹理尺寸对齐单位 */
     private val alignment = 64
 
-    /** 当前 GPU/Skia Context 的最大纹理尺寸，初始化时查询 */
-    private var maxTextureSize: Int = 16384
-
     // ── GPU 资源 ───────────────────────────────────────────────────────
-    private var surface: Surface? = null
-    private var renderTarget: BackendRenderTarget? = null
-    private var fboId: Int = 0
-    private var texId: Int = 0
-
-    /**
-     * 持久引用图集 backing texture 的 GPU Image。
-     *
-     * 不采用每批次 `makeImageSnapshot()`：对 GPU Surface 而言，snapshot 后再次
-     * 写入会触发整张图集纹理的 copy-on-write，对大图集是阻断性性能问题。
-     * 该 Image 直接引用与 FBO 相同的 GL 纹理，批次写入并 flush 后即可看到新内容。
-     */
-    private var atlasImage: Image? = null
+    private var target: SkiaRenderTarget? = null
 
     // ── 图集状态 ───────────────────────────────────────────────────────
     private var allocator: AtlasRectAllocator? = null
@@ -131,14 +114,18 @@ internal class ItemRenderAtlas<K>(
     val generationId: Long get() = generation
 
     /**
-     * 确保图集已初始化。若 Surface 不存在，则在当前 [DirectContext] 上创建。
+     * 确保图集已初始化。若目标不存在，则通过当前后端创建。
      */
-    fun ensureInitialized(context: DirectContext) {
-        if (surface != null) return
+    fun ensureInitialized() {
+        if (target != null) return
         if (config.maxAreaPixels <= 0) return
 
-        maxTextureSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE).coerceAtLeast(1024)
-        effectiveMaxAreaPixels = minOf(requestedMaxAreaPixels, maxTextureSize.toLong() * maxTextureSize)
+        val maxTextureSize = RenderSystem.getDevice()
+            .deviceInfo
+            .limits()
+            .maxTextureSize()
+            .coerceAtLeast(1024)
+        val effectiveMaxAreaPixels = minOf(requestedMaxAreaPixels, maxTextureSize.toLong() * maxTextureSize)
         if (effectiveMaxAreaPixels != requestedMaxAreaPixels) {
             logger.warn(
                 "ItemRenderAtlas: requested cache area $requestedMaxAreaPixels pixels exceeds single texture capability" +
@@ -146,54 +133,17 @@ internal class ItemRenderAtlas<K>(
                     " clamped to $effectiveMaxAreaPixels pixels"
             )
         }
+        this.effectiveMaxAreaPixels = effectiveMaxAreaPixels
 
         val size = calculateAtlasSize(effectiveMaxAreaPixels, maxTextureSize, alignment)
         atlasWidth = size.width
         atlasHeight = size.height
 
-        texId = GL11.glGenTextures()
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texId)
-        GL11.glTexImage2D(
-            GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8,
-            atlasWidth, atlasHeight, 0,
-            GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0L
-        )
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR)
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR)
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE)
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE)
-
-        fboId = GL30.glGenFramebuffers()
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fboId)
-        GL30.glFramebufferTexture2D(
-            GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0,
-            GL11.GL_TEXTURE_2D, texId, 0
-        )
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0)
-
-        val bt = BackendRenderTarget.makeGL(atlasWidth, atlasHeight, 0, 8, fboId, GL_RGBA8)
-        renderTarget = bt
-        surface = Surface.makeFromBackendRenderTarget(
-            context, bt,
-            SurfaceOrigin.TOP_LEFT,
-            SurfaceColorFormat.RGBA_8888,
-            ColorSpace.sRGB
-        ) ?: throw IllegalStateException("Failed to create item atlas Skia surface")
-
-        // 与 FBO 共用同一 GL 纹理，Skia 接管该纹理所有权（关闭 Image 时删除纹理）
-        atlasImage = Image.adoptTextureFrom(
-            context,
-            BackendTexture.makeGL(
-                atlasWidth, atlasHeight, false,
-                texId, GL11.GL_TEXTURE_2D, GL_RGBA8
-            ),
-            SurfaceOrigin.TOP_LEFT,
-            ColorType.RGBA_8888
-        )
-
+        val created = SkiaContext.current.createAtlasTarget(atlasWidth, atlasHeight)
+        target = created
         allocator = AtlasRectAllocator(atlasWidth, atlasHeight)
-        surface?.canvas?.clear(0)
-        surface?.flushAndSubmit()
+        created.skiaSurface.canvas.clear(0)
+        created.flushAndSubmit()
 
         logger.info(
             "ItemRenderAtlas: created atlas ${atlasWidth}x${atlasHeight}," +
@@ -217,14 +167,13 @@ internal class ItemRenderAtlas<K>(
      * @return 上传成功后返回条目；key 已存在时直接返回已有条目；失败返回 null
      */
     fun upload(
-        context: DirectContext,
         key: K,
         source: Image,
         width: Int,
         height: Int,
     ): AtlasEntry? {
-        ensureInitialized(context)
-        val s = surface ?: return null
+        ensureInitialized()
+        val s = target?.skiaSurface ?: return null
         val alloc = allocator ?: return null
 
         entries[key]?.let { return it }
@@ -322,7 +271,7 @@ internal class ItemRenderAtlas<K>(
          */
         source: AtlasRect? = null,
     ): Boolean {
-        val image = atlasImage ?: return false
+        val image = target?.textureImage ?: return false
         val entry = entries[key] ?: return false
         if (entry.generation != generation) return false
 
@@ -352,31 +301,31 @@ internal class ItemRenderAtlas<K>(
     }
 
     /**
-     * 批次写入完成后调用：将图集 Surface 内容提交到 GPU，使 [atlasImage] 可见新内容。
+     * 批次写入完成后调用：将图集表面内容提交到 GPU，使纹理可见新内容。
      */
     fun endBatch() {
-        surface?.flushAndSubmit()
+        target?.flushAndSubmit()
     }
 
     /**
      * 修改最大缓存像素面积。
      *
      * 立即销毁旧图集资源并重置条目；下一次 [ensureInitialized] 时按新值重建。
-     * 必须在渲染线程与对应 [DirectContext] 上下文中调用。
+     * 必须在渲染线程与对应后端上下文中调用。
      */
-    fun reconfigure(context: DirectContext, newMaxAreaPixels: Long) {
+    fun reconfigure(newMaxAreaPixels: Long) {
         if (newMaxAreaPixels <= 0) return
-        if (newMaxAreaPixels == requestedMaxAreaPixels && surface != null) return
+        if (newMaxAreaPixels == requestedMaxAreaPixels && target != null) return
         requestedMaxAreaPixels = newMaxAreaPixels
         closeResources()
         clearAllState()
         logger.info("ItemRenderAtlas: cache area changed to $newMaxAreaPixels pixels, atlas will be rebuilt")
-        ensureInitialized(context)
+        ensureInitialized()
     }
 
     /**
      * 使图集整体失效：清空条目、释放 GPU 资源并递增 generation。
-     * 下一次上传时基于当前 [DirectContext] 延迟重建。
+     * 下一次上传时延迟重建。
      */
     fun invalidate() {
         closeResources()
@@ -415,33 +364,13 @@ internal class ItemRenderAtlas<K>(
     }
 
     private fun closeResources() {
-        surface?.let {
+        target?.let {
             try {
                 it.close()
             } catch (_: Exception) {
             }
         }
-        surface = null
-        renderTarget?.let {
-            try {
-                it.close()
-            } catch (_: Exception) {
-            }
-        }
-        renderTarget = null
-        // atlasImage 持有 GL 纹理所有权，关闭时由 Skia 删除纹理，不能重复 glDeleteTextures
-        atlasImage?.let {
-            try {
-                it.close()
-            } catch (_: Exception) {
-            }
-        }
-        atlasImage = null
-        if (fboId != 0) {
-            GL30.glDeleteFramebuffers(fboId)
-            fboId = 0
-        }
-        texId = 0
+        target = null
     }
 
     private val clearPaint = Paint().apply {
