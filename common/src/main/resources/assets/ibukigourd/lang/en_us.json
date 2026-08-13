@@ -76,6 +76,7 @@
   "ibukigourd.misc.content": "Content",
   "ibukigourd.misc.not_in_range": "%s is not in range %s ~ %s",
   "ibukigourd.misc.copy_success": "Successfully copied %s to clipboard",
+  "ibukigourd.misc.ui_disabled": "The current graphics backend does not support the IbukiGourd UI. The UI has been disabled",
   "#enum": "Enum",
   "enum.kotlin.time.DurationUnit.NANOSECONDS": "Nanoseconds",
   "enum.kotlin.time.DurationUnit.NANOSECONDS.comment": "Nanoseconds",

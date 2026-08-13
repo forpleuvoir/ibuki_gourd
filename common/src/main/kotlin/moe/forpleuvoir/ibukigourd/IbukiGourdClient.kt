@@ -5,6 +5,7 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreenContent
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.ibukigourd.ui.preset.SkiaTextureHelper
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
@@ -38,6 +39,10 @@ object IbukiGourdClient {
         ClientModConfigHandler.register(IGConfig)
 
         ClientLifecycleEvent.Starting.register(initPhase) {
+            if (RenderBackend.isVulkan) {
+                logger.warn("检测到 Vulkan 图形后端，IbukiGourd 的 UI 功能不受支持，已禁用。")
+                return@register
+            }
             SkiaContext.init()
             ComposeSceneWarmup.warmUp()
             ComposeSceneWarmup.warmUp { IbukiGourdScreenContent() }

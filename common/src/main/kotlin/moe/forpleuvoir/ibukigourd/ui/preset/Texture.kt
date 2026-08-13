@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
 import moe.forpleuvoir.ibukigourd.ui.util.render.AtlasConfig
@@ -76,6 +77,7 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
      * 资源缺失时上传一个紫色占位纹理，保证调用方始终能拿到 painter。
      */
     suspend fun requestTexture(texture: Identifier) {
+        if (RenderBackend.isVulkan) return
         if (textureAtlas.contains(texture)) return
 
         val (image, duration) = measureTimedValue {
@@ -115,6 +117,8 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
      * 渲染线程逐帧驱动：上传待处理纹理并递增 revision。
      */
     fun processOnRenderThread() {
+        if (RenderBackend.isVulkan) return
+
         // 0. 应用容量修改：先重建图集，再处理当帧上传
         val pendingArea = pendingMaxAreaPixels
         if (pendingArea != null) {
@@ -189,6 +193,7 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
         filterQuality: FilterQuality = FilterQuality.None,
         expectedSize: IntSize? = null,
     ): Painter? {
+        if (RenderBackend.isVulkan) return null
         if (!textureAtlas.contains(texture)) return null
         return TextureAtlasPainter(
             atlas = textureAtlas,
@@ -205,6 +210,7 @@ object SkiaTextureHelper : ClientResourceReloaderListener, SimpleResourceReloade
         texture: IGTexture,
         filterQuality: FilterQuality = FilterQuality.None,
     ): Painter? {
+        if (RenderBackend.isVulkan) return null
         val id = texture.textureInfo.textureId
         if (!textureAtlas.contains(id)) return null
         return TextureAtlasPainter(

@@ -11,6 +11,8 @@ import androidx.compose.ui.util.fastRoundToInt
 import moe.forpleuvoir.ibukigourd.mixin.client.ScreenAccessor
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.platform.isDevEnv
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneFactory
@@ -18,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.ui.scene.ComposeSceneHost
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
@@ -254,14 +257,20 @@ fun openComposeScreen(
     shouldRenderLevel: (ComposeScreen) -> Boolean = { true },
     entryAnimation: Boolean = true,
     content: @Composable () -> Unit
-) = ComposeScreen(
-    pauseGame,
-    renderParent,
-    parentScreen,
-    shouldRenderLevel,
-    entryAnimation,
-    content
-).open()
+) {
+    if (RenderBackend.isVulkan) {
+        mc.overlayMessage(IGLang.Misc.uiDisabled)
+        return
+    }
+    ComposeScreen(
+        pauseGame,
+        renderParent,
+        parentScreen,
+        shouldRenderLevel,
+        entryAnimation,
+        content
+    ).open()
+}
 
 @Composable
 fun DefaultAnimatedScreenEntry(content: @Composable () -> Unit) {

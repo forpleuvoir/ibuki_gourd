@@ -76,6 +76,7 @@
   "ibukigourd.misc.content": "Содержимое",
   "ibukigourd.misc.not_in_range": "%s не входит в диапазон %s ~ %s",
   "ibukigourd.misc.copy_success": "%s успешно скопирован в буфер обмена",
+  "ibukigourd.misc.ui_disabled": "Текущий графический бэкенд не поддерживает интерфейс IbukiGourd, поэтому интерфейс отключён",
   "#enum": "Перечисление",
   "enum.kotlin.time.DurationUnit.NANOSECONDS": "Наносекунды",
   "enum.kotlin.time.DurationUnit.NANOSECONDS.comment": "Наносекунды",

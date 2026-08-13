@@ -76,6 +76,7 @@
   "ibukigourd.misc.content": "内容",
   "ibukigourd.misc.not_in_range": "%s 不在 %s ~ %s 范围内",
   "ibukigourd.misc.copy_success": "成功复制 %s 到剪贴板",
+  "ibukigourd.misc.ui_disabled": "当前图形后端不支持 IbukiGourd 界面，已禁用 UI",
   "#enum": "枚举",
   "enum.kotlin.time.DurationUnit.NANOSECONDS": "纳秒",
   "enum.kotlin.time.DurationUnit.NANOSECONDS.comment": "纳秒",

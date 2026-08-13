@@ -13,9 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalInheritedAlpha
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import net.minecraft.client.gui.screens.Screen
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -53,15 +56,21 @@ fun openComposePopupScreen(
     },
     contentWrapper: @Composable (@Composable () -> Unit) -> Unit = { content -> DefaultAnimatedDialogEntry(content) },
     content: @Composable () -> Unit
-) = ComposePopupScreen(
-    onDismissRequest,
-    pauseGame,
-    renderParent,
-    parentScreen,
-    shouldRenderLevel,
-    contentWrapper,
-    content
-).open()
+) {
+    if (RenderBackend.isVulkan) {
+        mc.overlayMessage(IGLang.Misc.uiDisabled)
+        return
+    }
+    ComposePopupScreen(
+        onDismissRequest,
+        pauseGame,
+        renderParent,
+        parentScreen,
+        shouldRenderLevel,
+        contentWrapper,
+        content
+    ).open()
+}
 
 @Composable
 fun DefaultAnimatedDialogEntry(content: @Composable () -> Unit) {

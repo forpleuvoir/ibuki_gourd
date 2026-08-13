@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd
 
 import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreen
+import moe.forpleuvoir.ibukigourd.mod.ui.UnsupportedBackendScreen
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.ModContainer
@@ -16,7 +18,8 @@ class NeoforgeIbukigourdClient(eventBus: IEventBus, modContainer: ModContainer) 
         modContainer.registerExtensionPoint(
             IConfigScreenFactory::class.java,
             IConfigScreenFactory { _, modListScreen ->
-                IbukiGourdScreen(parentScreen = modListScreen)
+                if (RenderBackend.isVulkan) UnsupportedBackendScreen(modListScreen)
+                else IbukiGourdScreen(parentScreen = modListScreen) ?: UnsupportedBackendScreen(modListScreen)
             }
         )
     }

@@ -76,6 +76,7 @@
   "ibukigourd.misc.content": "내용",
   "ibukigourd.misc.not_in_range": "%s 이(가) %s ~ %s 범위에 없습니다",
   "ibukigourd.misc.copy_success": "%s 을(를) 클립보드에 복사했습니다",
+  "ibukigourd.misc.ui_disabled": "현재 그래픽 백엔드는 IbukiGourd UI를 지원하지 않아 UI가 비활성화되었습니다",
   "#enum": "열거형",
   "enum.kotlin.time.DurationUnit.NANOSECONDS": "나노초",
   "enum.kotlin.time.DurationUnit.NANOSECONDS.comment": "나노초",

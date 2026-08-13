@@ -14,6 +14,7 @@ import com.mojang.blaze3d.platform.Lighting
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.util.identifier
@@ -114,6 +115,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         width: Int = 64,
         height: Int = 64,
     ) {
+        if (RenderBackend.isVulkan) return
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
         if (atlas.contains(cacheKey)) return
         pendingQueue.removeAll { it.cacheKey == cacheKey }
@@ -130,6 +132,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         width: Int = 64,
         height: Int = 64,
     ): AtlasEntry? {
+        if (RenderBackend.isVulkan) return null
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
         return atlas.get(cacheKey)
     }
@@ -143,6 +146,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         height: Int = 64,
         filterQuality: FilterQuality = FilterQuality.None,
     ): Painter? {
+        if (RenderBackend.isVulkan) return null
         val cacheKey = ItemCacheKey.fromItemStack(itemStack, width, height)
         if (!atlas.contains(cacheKey)) return null
         return ItemAtlasPainter(atlas, cacheKey, IntSize(width, height), filterQuality)
@@ -158,6 +162,8 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
      * 4. 批次结束统一提交 GPU 并递增 revision。
      */
     fun processOnRenderThread() {
+        if (RenderBackend.isVulkan) return
+
         // 1. 应用容量修改：先重建图集，再处理当帧上传
         val pendingArea = pendingMaxAreaPixels
         if (pendingArea != null) {
@@ -398,6 +404,7 @@ object SkiaItemRenderHelper : ClientResourceReloaderListener, SimpleResourceRelo
         width: Int = 64,
         height: Int = 64,
     ): ImageBitmap {
+        check(!RenderBackend.isVulkan) { "Vulkan 图形后端不支持 Skia OpenGL 物品渲染，IbukiGourd UI 已禁用" }
         val pixels = renderItemPixels(itemStack, width, height)
             ?: error("Failed to render item to buffered image")
         return Bitmap().apply {

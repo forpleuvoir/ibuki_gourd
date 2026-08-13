@@ -69,4 +69,6 @@ object MiscLang {
 
     inline fun copySuccess(obj: Any) = lang("copy_success", obj)
 
+    inline val uiDisabled get() = lang("ui_disabled")
+
 }

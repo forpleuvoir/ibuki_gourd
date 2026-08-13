@@ -48,7 +48,7 @@ import kotlin.time.Duration.Companion.seconds
 object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
     private val openScreen by configKeybind("open_screen", Keybind(Keyboard.I, Keyboard.G) {
-        IbukiGourdScreen().open()
+        IbukiGourdScreen()?.open()
     })
 
     init {

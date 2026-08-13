@@ -16,8 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.mod.waht.EasterEggs
+import moe.forpleuvoir.ibukigourd.platform.RenderBackend
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
@@ -30,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.overlayMessage
 import net.minecraft.client.gui.screens.Screen
 
 fun IbukiGourdScreen(
@@ -38,14 +41,20 @@ fun IbukiGourdScreen(
     parentScreen: Screen? = mc.gui.screen(),
     shouldRenderLevel: Boolean = false,
     entryAnimation: Boolean = true,
-) = ComposeScreen(
-    pauseGame,
-    renderParent,
-    parentScreen,
-    { shouldRenderLevel },
-    entryAnimation,
-    ::IbukiGourdScreenContent
-)
+): ComposeScreen? {
+    if (RenderBackend.isVulkan) {
+        mc.overlayMessage(IGLang.Misc.uiDisabled)
+        return null
+    }
+    return ComposeScreen(
+        pauseGame,
+        renderParent,
+        parentScreen,
+        { shouldRenderLevel },
+        entryAnimation,
+        ::IbukiGourdScreenContent
+    )
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
