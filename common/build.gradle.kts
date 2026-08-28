@@ -20,7 +20,7 @@ dependencies {
 
     compileOnlyApi(libs.nebula)
 
-    compileOnlyApi(libs.composeMinecraft.common)
+    compileOnly(libs.composeMinecraft.common)
 
     testImplementation(kotlin("test-junit5"))
 }
