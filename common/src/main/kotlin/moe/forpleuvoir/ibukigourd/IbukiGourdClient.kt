@@ -4,13 +4,6 @@ import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
-import moe.forpleuvoir.ibukigourd.mod.ui.IbukiGourdScreenContent
-import moe.forpleuvoir.ibukigourd.platform.RenderBackend
-import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
-import moe.forpleuvoir.ibukigourd.ui.preset.SkiaTextureHelper
-import moe.forpleuvoir.ibukigourd.ui.skia.SkiaContext
-import moe.forpleuvoir.ibukigourd.ui.overlay.OverlayHost
-import moe.forpleuvoir.ibukigourd.ui.util.render.SkiaItemRenderHelper
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.event.Event
 
@@ -22,10 +15,7 @@ object IbukiGourdClient {
         ClientModConfigHandler
     )
 
-    private val clientResourceReloaderListener = listOf<ClientResourceReloaderListener>(
-        SkiaItemRenderHelper,
-        SkiaTextureHelper
-    )
+    private val clientResourceReloaderListener = listOf<ClientResourceReloaderListener>()
 
     fun addClientResourceReloaderListener(listener: (ClientResourceReloaderListener) -> Unit) {
         clientResourceReloaderListener.forEach(listener)
@@ -37,18 +27,6 @@ object IbukiGourdClient {
         inits.forEach { it.init() }
 
         ClientModConfigHandler.register(IGConfig)
-
-        ClientLifecycleEvent.Starting.register(initPhase) {
-            if (RenderBackend.isVulkan) {
-                logger.warn("检测到 Vulkan 图形后端，IbukiGourd 的 UI 功能不受支持，已禁用。")
-                return@register
-            }
-            SkiaContext.init()
-            ComposeSceneWarmup.warmUp()
-            ComposeSceneWarmup.warmUp { IbukiGourdScreenContent() }
-            OverlayHost.init()
-        }
-        ClientLifecycleEvent.Starting.addPhaseOrdering(initPhase, Event.DEFAULT_PHASE)
     }
 
 

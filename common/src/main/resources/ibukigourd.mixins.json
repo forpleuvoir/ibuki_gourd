@@ -8,21 +8,11 @@
     "MinecraftServerMixin"
   ],
   "client": [
-    "client.FramerateLimitTrackerMixin",
-    "client.GameRendererMixin",
     "client.GuiGraphicsExtractorMixin",
     "client.GuiItemRenderStateMixin",
-    "client.GuiMixin",
-    "client.GuiRendererMixin",
     "client.GuiTextRenderStateMixin",
-    "client.KeyboardHandlerMixin",
-    "client.MinecraftMixin",
-    "client.MouseHandlerMixin",
     "client.OversizedItemRenderStateMixin",
-    "client.PictureInPictureRendererMixin",
-    "client.RenderPipelinesAccessor",
-    "client.ScreenAccessor",
-    "client.WindowMixin"
+    "client.RenderPipelinesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

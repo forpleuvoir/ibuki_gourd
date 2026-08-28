@@ -1,19 +1,12 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
-import androidx.compose.runtime.getValue
 import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendLTRArrow
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.asDerivedState
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastStrategy
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
@@ -184,13 +177,7 @@ fun configToggleKeybind(
     name: String,
     defaultEnabled: Boolean,
     defaultValue: Keybind,
-    onSwitch: ConfigToggleKeybind.() -> Unit = {
-        val config = this
-        ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
-            val enabled by config.asDerivedState { it.enabled }
-            Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
-        }
-    }
+    onSwitch: ConfigToggleKeybind.() -> Unit = {},
 ) =
     group.addConfig(ConfigToggleKeybind(name, defaultEnabled, defaultValue, onSwitch))
 
@@ -200,13 +187,7 @@ fun configToggleKeybind(
     defaultEnabled: Boolean,
     vararg defaultKeys: KeyCode,
     setting: KeybindSetting = KeybindSetting(),
-    onSwitch: ConfigToggleKeybind.() -> Unit = {
-        val config = this
-        ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
-            val enabled by config.asDerivedState { it.enabled }
-            Text(translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
-        }
-    }
+    onSwitch: ConfigToggleKeybind.() -> Unit = {},
 ) =
     group.addConfig(ConfigToggleKeybind(name, defaultEnabled, Keybind(*defaultKeys, defaultSetting = setting), onSwitch))
 

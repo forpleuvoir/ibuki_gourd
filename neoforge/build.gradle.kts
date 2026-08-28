@@ -121,70 +121,8 @@ dependencies {
     api(libs.nebula)
     jarJar(libs.nebula)
 
-    /*
-     * 所有需要：
-     *
-     * 1. 暴露给主源码；
-     * 2. 展开全部传递依赖；
-     * 3. 嵌入最终 NeoForge JAR；
-     *
-     * 的依赖都声明到 bundledApi。
-     */
-    bundledApi(
-        "org.jetbrains.compose.material3:" +
-                "material3:${libs.versions.material3.get()}"
-    ) {
-        composeExclude()
-    }
-
-    bundledApi(
-        "org.jetbrains.compose.material3:" +
-                "material3-adaptive-navigation-suite:" +
-                libs.versions.material3.get()
-    ) {
-        composeExclude()
-    }
-
-    /*
-     * Material Kolor 需要 atomicfu，但 Kotlin for Forge 没有提供。
-     *
-     * 单独作为正常 Maven 模块声明，不能再把 api(...) 返回的
-     * Dependency 对象直接传给 jarJar(...)。
-     */
-    bundledApi("org.jetbrains.kotlinx:atomicfu:0.28.0")
-
-    bundledApi(
-        "com.materialkolor:" +
-                "material-kolor:${libs.versions.materialKolor.get()}"
-    ) {
-        composeExclude()
-    }
-
-    bundledApi(
-        "io.github.kyant0:" +
-                "backdrop:${libs.versions.backdrop.get()}"
-    ) {
-        composeExclude()
-    }
-
-    bundledApi(
-        "sh.calvin.reorderable:" +
-                "reorderable:${libs.versions.reorderable.get()}"
-    ) {
-        composeExclude()
-    }
-
-    bundledApi(compose.desktop.currentOs) {
-        /*
-         * currentOs 依赖树中可能存在 material-desktop，
-         * 但项目使用的是 material3。
-         */
-        exclude(module = "material-desktop")
-        composeExclude()
-    }
-
-    // IMBlocker 兼容
-    compileOnly("maven.modrinth:WMDesFsZ:JHAcp8qU")
+    api(libs.composeMinecraft.neoforge)
+    jarJar(libs.composeMinecraft.neoforge)
 }
 
 /*

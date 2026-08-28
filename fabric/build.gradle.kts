@@ -38,28 +38,8 @@ dependencies {
     api(libs.nebula)
     include(libs.nebula)
 
-    includeInternal(api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}") {
-        composeExclude()
-    })
-    includeInternal(api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:${libs.versions.material3.get()}") {
-        composeExclude()
-    })
-    includeInternal(api("com.materialkolor:material-kolor:${libs.versions.materialKolor.get()}") {
-        composeExclude()
-    })
-    includeInternal(api("io.github.kyant0:backdrop:${libs.versions.backdrop.get()}") {
-        composeExclude()
-    })
-    includeInternal(api("sh.calvin.reorderable:reorderable:${libs.versions.reorderable.get()}") {
-        composeExclude()
-    })
-    includeInternal(api(compose.desktop.currentOs) {
-        exclude(module = "material-desktop")
-        composeExclude()
-    })
-
-    //IMBlocker 兼容
-    compileOnly("maven.modrinth:WMDesFsZ:BO7fgnmM")
+    api(libs.composeMinecraft.fabric)
+    include(libs.composeMinecraft.fabric)
 }
 
 sourceSets {

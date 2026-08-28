@@ -18,19 +18,9 @@ dependencies {
     compileOnly(libs.mixinExtras.common)
     annotationProcessor(libs.mixinExtras.common)
 
-    api(libs.nebula)
+    compileOnlyApi(libs.nebula)
 
-    api("org.jetbrains.compose.material3:material3:${libs.versions.material3.get()}")
-    api("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:${libs.versions.material3.get()}")
-    api(libs.materialKolor)
-    api(libs.backdrop)
-    api(libs.reorderable)
-    api(compose.desktop.currentOs) {
-        exclude(module = "material-desktop")
-    }
-
-    //IMBlocker 兼容
-    compileOnly("maven.modrinth:WMDesFsZ:JHAcp8qU")
+    compileOnlyApi(libs.composeMinecraft.common)
 
     testImplementation(kotlin("test-junit5"))
 }

@@ -8,7 +8,7 @@
 **IbukiGourd**（`ibukigourd`）是一个用 **Kotlin** 编写的 Minecraft **多加载器（Fabric + NeoForge）模组库**，本身不提供玩法内容，而是为其它 MOD 提供**前置功能**：
 
 - **配置管理**（客户端 / 服务端，含序列化、自动扫描、保存/加载）
-- **配置 GUI**（基于 **JetBrains Compose Multiplatform + Material3 + Skia**，非原生 `GuiGraphics`）
+- **配置 GUI**（基于自研 **compose-minecraft**，渲染直连原版 `GuiGraphics`，迁移进行中）
 - **指令 DSL**（Brigadier 包装）
 - **事件总线**
 - **输入系统**（键位 / 鼠标）
@@ -27,7 +27,7 @@
 | Fabric | Loader `0.19.3` / API `0.157.0+26.2` / Fabric Kotlin `1.13.12+kotlin.2.4.0` / Loom `1.17.19` |
 | NeoForge | `26.2.0.59` / moddev `2.0.143` / Kotlin for Forge `6.3.0` |
 | Mixin | `0.8.5` + MixinExtras `0.5.3` |
-| UI | Compose `1.11.0` + Material3 `1.11.0-alpha07` + MaterialKolor `4.1.1` + Backdrop `2.0.0` + Reorderable `3.0.0`（Desktop，渲染桥接到 MC，排除 `material-desktop`） |
+| UI | compose-minecraft `0.1.0`（`moe.forpleuvoir:compose_minecraft-{common,fabric,neoforge}-26.2`，自研 Compose，内嵌 androidx compose runtime/ui/foundation/animation，渲染直连 MC `GuiGraphics`，无 material3/skia；旧 Compose Desktop 离屏渲染已移除，`ui/` 包清理中） |
 | 依赖库 | `nebula` `0.4.0` |
 | 构建工具 | Gradle（Kotlin DSL），版本目录 `gradle/libs.versions.toml` |
 
@@ -91,32 +91,21 @@ ibuki_gourd/
 | `event` / `event.events.{client,server}` | 事件（基于 nebula `EventFactory`）：`ClientLifecycleEvent`、`ClientTickEvent`、`ServerLifecycleEvent`、`ServerCommandRegistrationEvent`、`MouseEvent`、`KeyboardEvent` 等；`CancellableContext` |
 | `input` | `Keybind` / `KeybindSetting` / `KeyCode` / `KeyTriggerTiming` / `KeyEnvironment` / `Keyboard` / `MouseButton` / `MouseCursor` / `InputHandler` |
 | `lang` | `IGLang`（i18n 键命名空间中心）、`MiscLang` / `ColorLang` / `ConfigWrapperLang` / `InputLang`、`TranslationRecorder` |
-| `mod` / `mod.config` / `mod.ui` | IbukiGourd 自身的配置与屏幕：`IGConfig`、`ModScreen`、`IbukiGourdScreen` |
+| `mod` / `mod.config` | IbukiGourd 自身配置与入口：`IGConfig`（UI 迁移中，配置组暂时清空） |
 | `platform` / `platform.services` | 多加载器抽象：`Services`（`java.util.ServiceLoader` 加载 `PlatformHelper` + 全部 `ModInitialization`）、`PlatformHelper`、`INITS` / `PLATFORM` |
 | `render` / `render.extension{,.state,.texture}` | 渲染辅助：`BaseExtension`、`GuiGraphicsExtractorAccessor`、`IGRenderPipelines`；GuiGraphicsExtractor 扩展（`CircleDrawer`、矩形/文本/blit 扩展等）；渲染状态（`IGBlitRenderState` / `IGTiledBlitRenderState` / `ColoredBoxRenderState` 等）；纹理与 UV（`IGTexture`、`TextureUVMapping`、九宫格 `Corner`） |
 | `task` | 调度：`TickTask` / `TickTaskScheduler` / `ClientTickTaskScheduler` / `TaskExecutor` / `SimpleTaskExecutor` |
 | `text` / `text.style` / `text.inlinestyletext{,.modifier}` | 文本 DSL：`TextDSL` / `StyleDSL` / `HoverEventDsl` / `InlineStyleTextParser` + `ColorModifier` / `ClickEventModifier` / `HoverEventModifier` / `DecorationModifier` 等 |
-| `ui` | **Compose 配置 GUI**（见下） |
 | `util` / `util.math{,.bezier}` | `ModLogger` + `logger()` 扩展；向量扩展（`Vector2f/2d/2i/3f/3d/3i`）；`Easing` / `Bezier` / 缓动；`PackScanner`、`PageHelper`、`FixedSizeQueue`、`LateInitValue`、`NebulaOps`、`SimpleResourceReloaderListener` |
 
-### `ui` 子结构（Compose GUI）
+### `ui` 包现状（迁移中）
 
-- `ui/`（根）—— `ComposeScreen` / `ComposePopupScreen`（Compose 屏幕与弹出屏幕）、`ComposeSceneWarmup`（屏幕预加载）、`ComposeScreenCloseController`（关闭动画）
-- `ui/configwrapper/` —— 配置项包装器：`ConfigManagerWrapper`、`GroupConfigsWrapper`、`ConfigsWrapper`、`ConfigUIWrapper`、`ConfigGroupWrapper`，及按类型：`StringConfigWrapper`、`ColorConfigWrapper`、`EnumConfigWrapper`、`ListConfigWrapper`、`MapConfigWrapper`、`KeybindConfigWrapper`、`DurationConfigWrapper`、`ColorSchemeConfigWrapper`、`PrimitiveConfigWrapper`、`VectorConfigWrapper`、`CacheConfigWrapper`
-- `ui/preset/`（含 `preset/modifier`、`preset/state`）—— 预置组件：`Text`、`Tip`/`TipBox`、`SearchBar`、`ColorButton`、`ColorPicker`、`NumberField`、`NumberSlider`、`Selector`、`KeySetter`、`ItemIcon`、`Texture`（含九宫格 `BlitTexture` / `IGTexture`）、`AutoHideScrollbar`、`DragHandle`、`RemoveButton`、`SimpleAlertDialog`、`VanillaCanvas`；modifier：`Tooltip`、`Backgourd`、`FabVisibilityAnimation`；state：`FabVisibilityByScroll`、`RememberInputState`、`RememberTextFieldState`
-- `ui/toast/` —— `Toast`、`ToastHandler`、`ToastContainer`、`ToastStrategy`、`ToastAnimation`
-- `ui/overlay/` —— `OverlayHost`、`OverlayService`、`OverlayContainer`
-- `ui/icon/`（`defaults/`、`filled/`）—— `Icons` 对象 + 大量 Material 风格图标（图标包 `default/` 已重命名为 `defaults/`）
-- `ui/scene/`（含 `internal/`）—— Compose 嵌入 MC：`ComposeSceneHost`、`DefaultComposeSceneHost`、`ComposeSceneFactory`、`PopupHost`，及内部 bridge/lifecycle/renderer
-- `ui/skia/`（含 `internal/`、`backend/`）—— `SkiaContext`、`SkiaSurface`、内部 GPU frame/texture 管理；`backend/` 为渲染后端抽象：`SkiaRenderBackend`（当前实现 `OpenGLSkiaRenderBackend`、入口 `SkiaRenderBackends`，Vulkan 待 skiko Graphite 支持后接入）
-- `ui/platformcontext/`（含 `compat/imblocker/`）—— `MinecraftPlatformContext`、`IbukiGourdTheme`、剪贴板、文本右键菜单、窗口信息、composition-local providers；`IMBlockerCompat` / `IMBlockerFocusSession` 输入法（IMBlocker）兼容
-- `ui/widget/` —— `ComposeWidget`：将 Compose 内容包装为原版 `AbstractWidget`（目前问题较多，仅建议用于渲染）
-- `ui/util/render/` —— `SkiaItemRenderHelper`、`OffscreenRenderTarget`；GPU 图集缓存：`ItemRenderAtlas`、`AtlasRectAllocator`、`ItemAtlasPainter`、`TextureAtlasPainter`
+旧的 Compose Desktop 离屏渲染 UI（`ui/` 全部子包：`configwrapper` / `preset` / `toast` / `overlay` / `icon` / `scene` / `skia` / `platformcontext` / `widget` / `util/render`，以及 `mod/ui/` 屏幕、`mod/waht/` 彩蛋游戏）已随迁移分支 `refactor/ui-compose-minecraft` 从仓库中移除，对应的 `ComposeScreen` / `ModScreen` / `SkiaContext` / `ToastHandler` 等对外 API 一并删除，等待基于 compose-minecraft 重新实现。
 
 ## 关键入口点
 
 - **common 入口**：`IbukiGourd.init()` —— 遍历 `INITS`（平台 `ModInitialization`，经 ServiceLoader 收集）+ 本地 `inits`（如 `ServerModConfigHandler`）调用 `init()`。
-- **client 入口**：`IbukiGourdClient.init()` —— 注册 `ClientModConfigHandler`、`IGConfig`；在 `ClientLifecycleEvent.Starting` 时检测 `RenderBackend.isVulkan`：**Vulkan 图形后端下 UI 被禁用**（记录警告，`mod/ui/UnsupportedBackendScreen` 提供纯 Minecraft 提示屏幕），否则初始化 `SkiaContext` / `ComposeSceneWarmup` / `OverlayHost`。`SkiaItemRenderHelper` / `SkiaTextureHelper` 注册为 `ClientResourceReloaderListener`。
+- **client 入口**：`IbukiGourdClient.init()` —— 注册 `ClientModConfigHandler`、`IGConfig`。旧的 UI 初始化（`SkiaContext` / `ComposeSceneWarmup` / `OverlayHost` / Vulkan 检测）已随迁移移除，待 compose-minecraft UI 落地后恢复。
 - **fabric**：`FabricIbukiGourd : ModInitializer`（委托 `IbukiGourd.init()`），`FabricIbukiGourdClient`，`compat/ModMenuImpl`。入口在 `fabric.mod.json`。
 - **neoforge**：`@Mod(IbukiGourd.MOD_ID) class NeoforgeIbukiGourd`，在 `FMLCommonSetupEvent` 调 `IbukiGourd.init()`。
 - **平台抽象**：`Services` 通过 `ServiceLoader` 解析 `PlatformHelper`（fabric/neoforge 各自实现）与所有 `ModInitialization`。`PlatformHelper.getIGModClasses()` 反射扫描各 MOD 元数据中的 `package` 键（fabric 为 `custom.ibukigourd.package`，neoforge 为 `modproperties.$modId.package`），加载其 KClass（跳过 `.mixin` 包）——**这是 IbukiGourd 发现消费方 MOD 中被注解的配置/屏幕类的机制**。
@@ -149,10 +138,10 @@ gradlew.bat :common:test
 - **包名根**：`moe.forpleuvoir.ibukigourd.*`；同级库 `moe.forpleuvoir.nebula.*`。新增代码务必放进正确的子包，不要创建新顶层包除非确有必要。
 - **Kotlin 风格**：
   - 用 `object` 单例做门面/Handler（如 `IbukiGourd`、`ClientModConfigHandler`、`Services`、`IGLang`、`Icons`）。
-  - 广泛使用 **DSL**：`@DslMarker`（`CommandDslMark` / `TextDslMark`）、scope 类（`ArgumentScope` / `RequiredArgumentScope`）、顶层入口函数（`registerCommand`、`IbukiGourdScreen()`）。
+  - 广泛使用 **DSL**：`@DslMarker`（`CommandDslMark` / `TextDslMark`）、scope 类（`ArgumentScope` / `RequiredArgumentScope`）、顶层入口函数（`registerCommand`、`configKeybind`）。
   - 大量使用 **context receivers / parameters**：`context(CommandDispatcher<S>)`、`context(ModConfigManager)` 等（编译开关 `-Xcontext-parameters` 已在 `multiloader-common.gradle` 启用）。
   - 用扩展函数补充能力（`logger()`、向量运算、`translateText`）。
-- **GUI 用 JetBrains Compose（Desktop / Material3）**：`@Composable` 函数、`Modifier` 链、`MaterialTheme`、`AnimatedContent`、`PermanentNavigationDrawer` 等。**渲染经自定义 Skia 表面**（`ui/skia/`、`ui/scene/`）而非原生 `GuiGraphics`。
+- **GUI 基于 compose-minecraft**：`@Composable` 函数、`Modifier` 链等 compose API 由 `moe.forpleuvoir.compose_minecraft` 提供（内嵌 androidx compose 类，渲染直连原版 `GuiGraphics`）。旧 Compose Desktop（Material3 / Skia 离屏渲染）代码已清理，新 UI 依赖其 `MinecraftClientSetup` / `ComposeScreen` 等 API 实现。
 - **异步**：`kotlinx.coroutines`（`runBlocking`、`ioLaunch`、`ioAsync`、`awaitAll`）；计时用 `kotlin.time.Duration`。
 - **注释与文档用中文**，与现有代码、commit message、README 主语言保持一致。
 - **i18n**：新增界面文案走 lang key，统一登记到 `IGLang` 子对象，资源文件在 `assets/ibukigourd/lang/`。
@@ -163,17 +152,17 @@ gradlew.bat :common:test
 
 ## Git 与提交
 
-- 主分支 `dev`（`compose-test` 已合入）；当前默认 PR 目标分支为 `dev`；Compose 部分的重构在分支 `refactor/ui-compose`（基于 `dev`）上进行。
+- 主分支 `dev`（`compose-test` 已合入）；当前默认 PR 目标分支为 `dev`；Compose 部分的重构在分支 `refactor/ui-compose`（基于 `dev`）上进行；**迁移到 compose-minecraft 的清理/重构在分支 `refactor/ui-compose-minecraft`（基于 `dev`）上进行**。
 - commit message 用中文，遵循 Conventional Commits（参考历史：`feat:` / `fix:` / `refactor(ui):` / `docs:` 等）。
 - 仅在被明确要求时才执行 `git commit` / `git push`；在默认分支上应先开分支。
 - 提交前勿带入 `build/`、`runs/`、`modJar/`、`out/`、`net/` 等忽略目录。
 
 ## 工作约定（给 AI 助手）
 
-1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `ui`（尤其 `configwrapper`、`preset`）属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例。
+1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例。旧 UI 相关 API（`ui` 包、`ComposeScreen`、`ModScreen` 等）已随迁移删除，重建时注意兼容性。
 2. **跨加载器改动**：能放 `common` 就放 `common`；平台相关能力通过 `platform/services` 抽象，由 fabric/neoforge 各自实现并通过 `META-INF/services` 注册，勿在 common 里硬编码平台判断。
 3. **Mixin**：放 `common/.../mixin`（client 相关放 `mixin/client`），并在对应加载器的 `*.mixins.json` 注册；Fabric access widener 用 `ibukigourd.classtweaker`，NeoForge AT 用 `META-INF/accesstransformer.cfg`。
-4. **Compose 依赖**：`common` 用 `api` 引入 compose/material3/material3-adaptive-navigation-suite/materialKolor/backdrop/reorderable；`fabric` 用 `includeInternal`、`neoforge` 用 `bundledApi`（`api` 配置已 `extendsFrom(bundledApi)`，等价于 `jarJarInternal(api(...))`）打包进 jar（均排除 `material-desktop` 及 kotlin/kotlinx/annotations 传递依赖；neoforge 还需处理 compose 旧坐标重定向、单独补充 atomicfu）。IMBlocker 兼容依赖（`maven.modrinth:WMDesFsZ`）在 common/neoforge 以 `compileOnly` 引入。新增 UI 依赖请沿用此模式。
+4. **compose-minecraft 依赖**：`common` 用 `api` 引入 `compose_minecraft-common-26.2`；`fabric` 用 `includeInternal(api(...))`、`neoforge` 用 `bundledApi`（`api` 配置已 `extendsFrom(bundledApi)`，等价于 `jarJarInternal(api(...))`）打包进 jar（compose_minecraft 构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖；neoforge 保留 compose 旧坐标重定向处理）。构件从 `mavenLocal()` 解析，调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。
 5. **先读后写**：修改文件前先读取确认现状；遵循周边代码的命名、注释密度与惯用法。
 6. **构建验证**：完成 Kotlin 改动后，优先用 `gradlew.bat :<module>:build` 或对应编译任务验证；不要声称“已通过测试”除非真的运行过。
 7. **`nebula` 基类**：若改动触及 `ConfigManager` / `Event` 等定义，注意其声明在 `nebula` 依赖中，本仓库无法直接修改，只能通过包装/扩展。

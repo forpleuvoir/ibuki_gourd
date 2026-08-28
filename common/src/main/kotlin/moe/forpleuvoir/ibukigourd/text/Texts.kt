@@ -2,10 +2,8 @@
 
 package moe.forpleuvoir.ibukigourd.text
 
-import androidx.compose.ui.graphics.toArgb
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.text.style.StyleBuilder
-import moe.forpleuvoir.ibukigourd.ui.util.toNebulaColor
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
@@ -71,8 +69,4 @@ fun MutableText.style(builder: StyleBuilder.() -> Unit) = withStyle { StyleBuild
 
 fun MutableText.withColor(rgbColor: Color) = withColor(rgbColor.rgb)
 
-fun MutableText.withColor(rgbColor: androidx.compose.ui.graphics.Color) = withColor(rgbColor.toArgb())
-
 fun MutableText.withShadowColor(rgbColor: Color) = style { shadowColor(rgbColor) }
-
-fun MutableText.withShadowColor(rgbColor: androidx.compose.ui.graphics.Color) = style { shadowColor(rgbColor.toNebulaColor) }

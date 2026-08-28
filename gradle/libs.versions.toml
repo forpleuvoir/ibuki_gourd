@@ -8,11 +8,7 @@ kotlinxSerialization = "1.11.0"
 #other
 nebula = "0.4.0"
 #compose
-compose = "1.11.0"
-material3 = "1.11.0-alpha07"
-materialKolor = "4.1.1"
-backdrop = "2.0.0"
-reorderable = "3.0.0"
+composeMinecraft = "0.1.0"
 
 #minecraft
 minecraft = "26.2"
@@ -57,15 +53,15 @@ forgeKotlin = { group = "thedarkcolour", name = "kotlinforforge-neoforge", versi
 #ohter
 nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebula" }
 
+#compose-minecraft
+composeMinecraft-common = { group = "moe.forpleuvoir", name = "compose_minecraft-common-26.2", version.ref = "composeMinecraft" }
+composeMinecraft-fabric = { group = "moe.forpleuvoir", name = "compose_minecraft-fabric-26.2", version.ref = "composeMinecraft" }
+composeMinecraft-neoforge = { group = "moe.forpleuvoir", name = "compose_minecraft-neoforge-26.2", version.ref = "composeMinecraft" }
+
 kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlinxCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
-
-#compose
-materialKolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
-backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop" }
-reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 [bundles]
 kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinxCoroutines", "kotlinxSerialization"]
@@ -73,3 +69,4 @@ kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinxCoroutines", "kotlinxSerializ
 [plugins]
 fabricLoom = { id = "net.fabricmc.fabric-loom", version.ref = "fabricLoom" }
 neoforgedModDev = { id = "net.neoforged.moddev", version.ref = "neoforgedModDev" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
