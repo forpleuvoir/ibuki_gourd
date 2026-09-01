@@ -4,6 +4,7 @@ import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.nebula.event.Event
 
@@ -15,7 +16,9 @@ object IbukiGourdClient {
         ClientModConfigHandler
     )
 
-    private val clientResourceReloaderListener = listOf<ClientResourceReloaderListener>()
+    private val clientResourceReloaderListener = listOf<ClientResourceReloaderListener>(
+        SokitsuAtlasManager
+    )
 
     fun addClientResourceReloaderListener(listener: (ClientResourceReloaderListener) -> Unit) {
         clientResourceReloaderListener.forEach(listener)
