@@ -13,3 +13,4 @@ out
 common/src/devOnly/lang
 .*/
 nul
+reasonix.toml

@@ -1,0 +1,22 @@
+{
+  "name": "sokitsu",
+  "displayName": "Sokitsu 纹理",
+  "description": "为 Aseprite 图层附加 Sokitsu 纹理元数据（填充模式 / 九宫格 / 着色）",
+  "version": "0.1.0",
+  "author": {
+    "name": "forpleuvoir",
+    "url": "https://forpleuvoir.moe"
+  },
+  "publisher": "forpleuvoir",
+  "license": "MIT",
+  "categories": [
+    "Scripts"
+  ],
+  "contributes": {
+    "scripts": [
+      {
+        "path": "./sokitsu.lua"
+      }
+    ]
+  }
+}

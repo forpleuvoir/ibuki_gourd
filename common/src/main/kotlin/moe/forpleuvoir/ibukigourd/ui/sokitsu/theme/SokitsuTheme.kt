@@ -6,12 +6,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ProvideTextStyle
 
 object SokitsuTheme {
 
     val colors: Colors
         @Composable @ReadOnlyComposable get() = LocalColors.current
+
+    /**
+     * 当前生效的选中/焦点外框指示色：
+     * 取 [LocalSelectedOutlineColor] 提供的值；未提供（null）时自动回退为 `secondary.highlight`。
+     */
+    val selectedOutlineColor: Color
+        @Composable
+        get() = LocalSelectedOutlineColor.current ?: colors.secondary.highlight
 
     val typography: Typography
         @Composable @ReadOnlyComposable get() = LocalTypography.current

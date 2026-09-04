@@ -4,14 +4,17 @@ import com.mojang.blaze3d.GpuFormat
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.textures.FilterMode
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import net.minecraft.client.renderer.texture.AbstractTexture
 import net.minecraft.resources.Identifier
 
 /**
  * 一次 atlas 上传的全部准备数据（由 SokitsuAtlasManager 构建，多线程阶段产出）。
  *
- * [regions] 的顺序即图层声明顺序的扁平展开（Manager 保证），用于 [SokitsuAtlasTexture.sprites]
- * 保持渲染所需的有序列表。
+ * [regions] 的顺序即图层声明顺序的扁平展开（Manager 保证），上传时按 textureId 分组
+ * 重建为每纹理一个 [SokitsuSprite] 容器。
  */
 data class SokitsuAtlasPreparations(
     val width: Int,
@@ -22,13 +25,17 @@ data class SokitsuAtlasPreparations(
 
 /**
  * atlas 内一个图层区域：image 为待上传的图层图，x/y 为缝合后的内容区坐标（含 padding 偏移）。
+ * [colorLevel]/[tintMode]/[fill] 携带该图层（TextureLayer）的渲染所需信息，随 sprite 构建传递。
  */
 data class SokitsuAtlasRegion(
     val textureId: Identifier,
     val layerId: String,
     val x: Int,
     val y: Int,
-    val image: NativeImage
+    val image: NativeImage,
+    val colorLevel: ColorLevel? = null,
+    val tintMode: TextureTintMode = TextureTintMode.Tint,
+    val fill: TextureFill = TextureFill.Stretch
 )
 
 /**
@@ -36,17 +43,22 @@ data class SokitsuAtlasRegion(
  *
  * - [upload] 在渲染线程调用：创建 GpuTexture（RGBA8_UNORM，clamp-to-edge + NEAREST 采样），逐区域 blit 上传
  * - NativeImage 的生命周期由调用方（Manager）负责，上传完成后即可 close
- * - [getSprite]/[sprites] 查询；未命中的 sprite 返回 [missingSprite]（全 0 UV 占位）
+ * - [getSprite] 按 textureId 返回整个纹理容器（[SokitsuSprite]）；[getLayer] 按 textureId+layerId 返回单个图层
+ * - 未命中的查询返回 missing 兜底（不会抛异常）
  */
 class SokitsuAtlasTexture(
     val location: Identifier
 ) : AbstractTexture() {
 
-    private var spritesList: List<SokitsuSprite> = emptyList()
-    private var spritesByName: Map<Pair<Identifier, String>, SokitsuSprite> = emptyMap()
+    private var spritesByName: Map<Identifier, SokitsuSprite> = emptyMap()
+    private var layersByName: Map<Pair<Identifier, String>, SokitsuLayerSprite> = emptyMap()
 
     val missingSprite: SokitsuSprite by lazy {
-        SokitsuSprite(location, location, "<missing>", 0, 0, 0, 0, 1, 1, 0)
+        SokitsuSprite(location, location, emptyList())
+    }
+
+    val missingLayer: SokitsuLayerSprite by lazy {
+        SokitsuLayerSprite(location, location, "<missing>", 0, 0, 0, 0, 1, 1, 0)
     }
 
     fun upload(preparations: SokitsuAtlasPreparations) {
@@ -72,8 +84,10 @@ class SokitsuAtlasTexture(
         val atlasWidth = preparations.width
         val atlasHeight = preparations.height
         val padding = preparations.padding
-        this.spritesList = preparations.regions.map { region ->
-            SokitsuSprite(
+        val location = this.location
+
+        val layers = preparations.regions.map { region ->
+            SokitsuLayerSprite(
                 atlasLocation = location,
                 textureId = region.textureId,
                 layerId = region.layerId,
@@ -83,27 +97,39 @@ class SokitsuAtlasTexture(
                 height = region.image.height,
                 atlasWidth = atlasWidth,
                 atlasHeight = atlasHeight,
-                padding = padding
+                padding = padding,
+                colorLevel = region.colorLevel,
+                tintMode = region.tintMode,
+                fill = region.fill
             )
         }
-        this.spritesByName = spritesList.associateBy { it.textureId to it.layerId }
+
+        // 按 textureId 分组重建为每纹理一个容器，保持图层声明顺序
+        this.spritesByName = layers.groupBy({ it.textureId }, { it }).mapValues { (textureId, layerList) ->
+            SokitsuSprite(location, textureId, layerList)
+        }
+        this.layersByName = layers.associateBy { it.textureId to it.layerId }
     }
 
     /**
-     * 未初始化/未命中时返回 missing sprite（查询不抛异常，与原版 missingSprite 兜底形态一致）。
+     * 按 textureId 返回整个纹理精灵（容器，含全部图层）；未命中返回空容器 missingSprite。
      */
-    fun getSprite(textureId: Identifier, layerId: String): SokitsuSprite =
-        spritesByName[textureId to layerId] ?: missingSprite
+    fun getSprite(textureId: Identifier): SokitsuSprite = spritesByName[textureId] ?: missingSprite
 
     /**
-     * 某 SokitsuTexture 的全部图层 sprite，保持定义声明顺序（regions 顺序即声明顺序）。
+     * 按 textureId + layerId 返回单个图层精灵；未命中返回 missingLayer。
      */
-    fun sprites(textureId: Identifier): List<SokitsuSprite> =
-        spritesList.filter { it.textureId == textureId }
+    fun getLayer(textureId: Identifier, layerId: String): SokitsuLayerSprite =
+        layersByName[textureId to layerId] ?: missingLayer
+
+    /**
+     * 某 SokitsuTexture 的全部图层精灵，保持定义声明顺序（= 容器.layers）。
+     */
+    fun layers(textureId: Identifier): List<SokitsuLayerSprite> = getSprite(textureId).layers
 
     override fun close() {
-        spritesList = emptyList()
         spritesByName = emptyMap()
+        layersByName = emptyMap()
         super.close()
     }
 }

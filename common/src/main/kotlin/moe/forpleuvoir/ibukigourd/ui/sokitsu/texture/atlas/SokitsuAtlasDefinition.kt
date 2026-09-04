@@ -30,7 +30,7 @@ data class SokitsuAtlasDefinition(
         .field(SokitsuAtlasDefinition::padding, "padding").default(1).codec(Codec.int(0..Int.MAX_VALUE))
         .field(SokitsuAtlasDefinition::mipLevel, "mip_level").default(0).codec(Codec.int(0..Int.MAX_VALUE))
         .field(SokitsuAtlasDefinition::density, "density").default(1).codec(Codec.int(1..Int.MAX_VALUE))
-        .field(SokitsuAtlasDefinition::textures).default(emptyList<Identifier>()).codec(Codec.list(Codec.identifier))
+        .field(SokitsuAtlasDefinition::textures).default(emptyList()).codec(Codec.list(Codec.identifier))
         .build({ maxSize, padding, mipLevel, density, textures ->
             SokitsuAtlasDefinition(maxSize, padding, mipLevel, density, textures)
         })

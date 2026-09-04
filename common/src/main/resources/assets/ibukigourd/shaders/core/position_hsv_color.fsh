@@ -21,5 +21,5 @@ void main() {
     if (vertexColor.a == 0.0) {
         discard;
     }
-    fragColor =  vec4(hsv_to_rgb(vertexColor.xyz), vertexColor.w) * ColorModulator;
+    fragColor = vec4(hsv_to_rgb(vertexColor.xyz), vertexColor.w) * ColorModulator;
 }

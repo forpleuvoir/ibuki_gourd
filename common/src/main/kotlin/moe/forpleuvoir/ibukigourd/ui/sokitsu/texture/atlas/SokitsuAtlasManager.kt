@@ -5,6 +5,9 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.textureManager
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
@@ -54,27 +57,32 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
     // —— 查询 API（默认目标为 DEFAULT_ATLAS_ID）——
 
     /**
-     * 查询单个图层 sprite；未加载/未命中返回 missing sprite（不会抛异常）。
+     * 查询整个 SokitsuTexture 的精灵（容器，含全部图层）；未加载/未命中返回空容器（不会抛异常）。
      */
-    fun sprite(atlasId: Identifier = DEFAULT_ATLAS_ID, textureId: Identifier, layerId: String): SokitsuSprite =
-        atlasByDefinitionId[atlasId]?.getSprite(textureId, layerId)
-            ?: missingSprite(atlasId, textureId, layerId)
+    fun sprite(atlasId: Identifier = DEFAULT_ATLAS_ID, textureId: Identifier): SokitsuSprite =
+        atlasByDefinitionId[atlasId]?.getSprite(textureId) ?: missingSprite(atlasId, textureId)
 
     /**
-     * 某 SokitsuTexture 的全部图层 sprite，保持 layers 声明顺序（渲染叠加顺序）。
+     * 查询单个图层精灵；未加载/未命中返回 missing layer（全 0 UV，不会抛异常）。
      */
-    fun sprites(atlasId: Identifier = DEFAULT_ATLAS_ID, textureId: Identifier): List<SokitsuSprite> =
-        atlasByDefinitionId[atlasId]?.sprites(textureId) ?: emptyList()
+    fun layer(atlasId: Identifier = DEFAULT_ATLAS_ID, textureId: Identifier, layerId: String): SokitsuLayerSprite =
+        atlasByDefinitionId[atlasId]?.getLayer(textureId, layerId) ?: missingLayer(atlasId, textureId, layerId)
 
     /**
-     * 查询 UV 映射（corner 缺省为不指定，供后续 fill 绘制使用）。
+     * 某 SokitsuTexture 的全部图层精灵，保持 layers 声明顺序（渲染叠加顺序）。
+     */
+    fun layers(atlasId: Identifier = DEFAULT_ATLAS_ID, textureId: Identifier): List<SokitsuLayerSprite> =
+        atlasByDefinitionId[atlasId]?.layers(textureId) ?: emptyList()
+
+    /**
+     * 查询单个图层的 UV 映射（corner 缺省为不指定，供后续 fill 绘制使用）。
      */
     fun uvMapping(
         atlasId: Identifier = DEFAULT_ATLAS_ID,
         textureId: Identifier,
         layerId: String,
         corner: Corner = Corner.Unspecified
-    ): TextureUVMapping = sprite(atlasId, textureId, layerId).textureUVMapping(corner)
+    ): TextureUVMapping = layer(atlasId, textureId, layerId).textureUVMapping(corner)
 
     /**
      * atlas 级渲染缩放倍率（定义缺省 1；未加载时返回 1）。
@@ -195,7 +203,14 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             }
         )
 
-        data class Entry(val textureId: Identifier, val layerId: String, val image: NativeImage)
+        data class Entry(
+            val textureId: Identifier,
+            val layerId: String,
+            val image: NativeImage,
+            val colorLevel: ColorLevel?,
+            val tintMode: TextureTintMode,
+            val fill: TextureFill
+        )
         val entries = mutableListOf<Entry>()
 
         for (textureId in textureIds) {
@@ -206,10 +221,10 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
                 .onFailure { logger.warn("Skipping texture $textureId: ${it.message}") }
                 .getOrNull() ?: continue
 
-            for ((layerId, keys) in texture.layers) {
-                val layerImage = LayerExtractor.extract(baseImage, keys)
+            for (layer in texture.layers) {
+                val layerImage = LayerExtractor.extract(baseImage, layer.keys, layer.region)
                 stitcher.add(layerImage.width, layerImage.height)
-                entries += Entry(textureId, layerId, layerImage)
+                entries += Entry(textureId, layer.id, layerImage, layer.colorLevel, layer.tintMode, layer.fill)
             }
             baseImage.close()
         }
@@ -222,7 +237,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
         val layout = stitcher.stitch().getOrThrow()
         val regions = entries.mapIndexed { index, entry ->
             val placed = layout.placed[index]
-            SokitsuAtlasRegion(entry.textureId, entry.layerId, placed.x, placed.y, entry.image)
+            SokitsuAtlasRegion(entry.textureId, entry.layerId, placed.x, placed.y, entry.image, entry.colorLevel, entry.tintMode, entry.fill)
         }
         return SokitsuAtlasPreparations(layout.width, layout.height, definition.padding, regions)
     }
@@ -256,6 +271,9 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
         }
     }
 
-    private fun missingSprite(atlasId: Identifier, textureId: Identifier, layerId: String): SokitsuSprite =
-        SokitsuSprite(atlasId, textureId, layerId, 0, 0, 0, 0, 1, 1, 0)
+    private fun missingSprite(atlasId: Identifier, textureId: Identifier): SokitsuSprite =
+        SokitsuSprite(atlasId, textureId, emptyList())
+
+    private fun missingLayer(atlasId: Identifier, textureId: Identifier, layerId: String): SokitsuLayerSprite =
+        SokitsuLayerSprite(atlasId, textureId, layerId, 0, 0, 0, 0, 1, 1, 0)
 }

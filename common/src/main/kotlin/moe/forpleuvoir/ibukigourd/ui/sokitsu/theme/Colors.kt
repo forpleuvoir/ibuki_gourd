@@ -2,17 +2,20 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorRole.*
-import moe.forpleuvoir.nebula.common.util.expectedType
-import moe.forpleuvoir.nebula.common.util.requireType
-import moe.forpleuvoir.nebula.serialization.DeserializationException
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.nebula.serialization.codec.enum
+import androidx.compose.ui.graphics.toArgb
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme.selectedOutlineColor
+import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
+/**
+ * 一个"色阶家族"：像素风控件本质是同色相的多个亮度档，从勾边到高光。
+ * 档位顺序由暗到亮：[outline] → [shadow] → [dark] → [base] → [highlight]。
+ *
+ * - [outline]：勾边，同色相最深，不透明（负责图形边界）
+ * - [shadow]：投影/凹影，允许半透明（画在对象外缘）
+ */
 @Stable
 data class ColorTone(
+    val outline: Color,
     val shadow: Color,
     val dark: Color,
     val base: Color,
@@ -20,12 +23,18 @@ data class ColorTone(
 ) {
 
     companion object {
-        fun solid(color: Color) = ColorTone(color, color, color, color)
+        fun solid(color: Color) = ColorTone(color, color, color, color, color)
 
         /**
-         * 从基准色自动生成完整的四色组
+         * 从基准色自动生成完整的五色组。
+         *
+         * outline 是"该色板的描边/强调框"，**不必然是全组最暗的色**——常态内描边
+         * 用 [dark]，而 [outline] 承担外层框/选中/焦点等需要可辨度的角色，
+         * 因此可用 [outline] 显式覆盖（如提亮到醒目色）；不传则按 [outlineDarken] 推导为深色。
          *
          * @param base 基准色
+         * @param outline 显式描边色（默认 null = 按 outlineDarken 推导）
+         * @param outlineDarken 未显式传 outline 时，描边相对 base 的暗化比例（0~1，越大越暗），默认 0.75
          * @param shadowBrightnessOffset 阴影亮度偏移（负值变暗），默认 -0.7f
          * @param shadowAlpha 阴影透明度（0~1），默认 0.5f
          * @param darkOffset 暗部变暗比例，默认 -0.35f
@@ -33,12 +42,15 @@ data class ColorTone(
          */
         fun fromBase(
             base: Color,
+            outline: Color? = null,
+            outlineDarken: Float = 0.75f,
             shadowBrightnessOffset: Float = -0.7f,
             shadowAlpha: Float = 0.5f,
             darkOffset: Float = -0.35f,
             highlightOffset: Float = 0.35f
         ): ColorTone {
             return ColorTone(
+                outline = outline ?: base.adjustBrightness(-outlineDarken),
                 shadow = base.adjustBrightness(shadowBrightnessOffset).copy(alpha = shadowAlpha),
                 dark = base.adjustBrightness(darkOffset),
                 base = base,
@@ -46,11 +58,19 @@ data class ColorTone(
             )
         }
 
+        /**
+         * 调整明度但**保持色相与饱和度**。
+         *
+         * 若在 RGB 上对各通道乘同一系数再 clamp，一旦某通道接近 1（高亮提亮时几乎必然），
+         * 该通道被截断而低值通道仍按全比例上升 → 通道比例破坏 → 色相漂移。
+         * 因此桥接 nebula [NebulaColor.value]（内部纯自实现 HSV 转换，无 java.awt 依赖）
+         * 只调整明度 V：H/S 原样保留，不存在 RGB clamp 导致的偏色。
+         *
+         * @param offset 明度偏移（-1..1）：正=提亮，负=压暗
+         */
         private fun Color.adjustBrightness(offset: Float): Color {
-            val r = (red * (1f + offset)).coerceIn(0f, 1f)
-            val g = (green * (1f + offset)).coerceIn(0f, 1f)
-            val b = (blue * (1f + offset)).coerceIn(0f, 1f)
-            return Color(r, g, b, alpha)
+            val nebula = NebulaColor.fromARGB(this.toArgb())
+            return Color(nebula.value((nebula.value + offset).coerceIn(0f, 1f)).argb)
         }
     }
 
@@ -70,8 +90,6 @@ class Colors(
     onPrimary: ColorTone,
     onSecondary: ColorTone,
     onError: ColorTone,
-    //描边
-    outline: Color,
     //是否为浅色主题
     isLight: Boolean,
 ) {
@@ -106,45 +124,8 @@ class Colors(
     var onError: ColorTone by mutableStateOf(onError, structuralEqualityPolicy())
         internal set
 
-    var outline: Color by mutableStateOf(outline, structuralEqualityPolicy())
-        internal set
-
     var isLight by mutableStateOf(isLight, structuralEqualityPolicy())
         internal set
-
-
-    operator fun get(ref: ColorRef): Color {
-        return when (ref.role) {
-            Background   -> background.get(ref.level)
-            Surface      -> surface.get(ref.level)
-            Primary      -> primary.get(ref.level)
-            Secondary    -> secondary.get(ref.level)
-            OnBackground -> onBackground.get(ref.level)
-            OnSurface    -> onSurface.get(ref.level)
-            OnPrimary    -> onPrimary.get(ref.level)
-            OnSecondary  -> onSecondary.get(ref.level)
-            Error        -> error.get(ref.level)
-            OnError      -> onError.get(ref.level)
-            Outline      -> outline
-        }
-    }
-
-    fun tone(role: ColorRole): ColorTone {
-        return when (role) {
-            Background   -> background
-            Surface      -> surface
-            Primary      -> primary
-            Secondary    -> secondary
-            OnBackground -> onBackground
-            OnSurface    -> onSurface
-            OnPrimary    -> onPrimary
-            OnSecondary  -> onSecondary
-            Error        -> error
-            OnError      -> onError
-            Outline      -> ColorTone.solid(outline)
-        }
-    }
-
 
     fun copy(
         background: ColorTone = this.background,
@@ -157,7 +138,6 @@ class Colors(
         onPrimary: ColorTone = this.onPrimary,
         onSecondary: ColorTone = this.onSecondary,
         onError: ColorTone = this.onError,
-        outline: Color = this.outline,
         isLight: Boolean = this.isLight,
     ) = Colors(
         background = background,
@@ -170,7 +150,6 @@ class Colors(
         onPrimary = onPrimary,
         onSecondary = onSecondary,
         onError = onError,
-        outline = outline,
         isLight = isLight
     )
 
@@ -184,84 +163,26 @@ class Colors(
         onPrimary = other.onPrimary
         onSecondary = other.onSecondary
         onError = other.onError
-        outline = other.outline
         isLight = other.isLight
     }
 
     override fun toString(): String {
-        return "Colors(background=$background, surface=$surface, primary=$primary, secondary=$secondary, error=$error, onBackground=$onBackground, onSurface=$onSurface, onPrimary=$onPrimary, onSecondary=$onSecondary, onError=$onError, outline=$outline, isLight=$isLight)"
+        return "Colors(background=$background, surface=$surface, primary=$primary, secondary=$secondary, error=$error, onBackground=$onBackground, onSurface=$onSurface, onPrimary=$onPrimary, onSecondary=$onSecondary, onError=$onError, isLight=$isLight)"
     }
 
-
-}
-
-enum class ColorRole {
-    Background,
-    Surface,
-    Primary,
-    Secondary,
-    Error,
-    OnBackground,
-    OnSurface,
-    OnPrimary,
-    OnSecondary,
-    OnError,
-    Outline,
 }
 
 enum class ColorLevel {
+    Outline,
     Shadow,
     Dark,
     Base,
     Highlight
 }
 
-@Stable
-data class ColorRef(
-    val role: ColorRole,
-    val level: ColorLevel = ColorLevel.Base
-) {
-    companion object : Codec<ColorRef> {
-
-        override fun serialization(target: ColorRef): SerializeElement = SerializePrimitive(
-            if (target.level == ColorLevel.Base) target.role.name else "${target.role.name}:${target.level.name}"
-        )
-
-        override fun deserialization(data: SerializeElement): Result<ColorRef> = DeserializationException.runCatching {
-            val str = data.requireType<SerializePrimitive>().let {
-                it.asString ?: throw expectedType(it.valueType, String::class)
-            }
-            val (role, level) = str.split(':', limit = 2).let {
-                it[0] to (it.getOrNull(1) ?: ColorLevel.Base.name)
-            }
-            ColorRef(
-                role = Codec.enum<ColorRole>().deserialization(SerializePrimitive(role)).getOrThrow(),
-                level = Codec.enum<ColorLevel>().deserialization(SerializePrimitive(level)).getOrThrow()
-            )
-        }
-
-        fun shadow(role: ColorRole) = ColorRef(role, ColorLevel.Shadow)
-        fun dark(role: ColorRole) = ColorRef(role, ColorLevel.Dark)
-        fun base(role: ColorRole) = ColorRef(role, ColorLevel.Base)
-        fun highlight(role: ColorRole) = ColorRef(role, ColorLevel.Highlight)
-
-        // 预定义常用引用
-        val Background = base(ColorRole.Background)
-        val Surface = base(ColorRole.Surface)
-        val Primary = base(ColorRole.Primary)
-        val Secondary = base(ColorRole.Secondary)
-        val OnBackground = base(ColorRole.OnBackground)
-        val OnSurface = base(ColorRole.OnSurface)
-        val OnPrimary = base(ColorRole.OnPrimary)
-        val OnSecondary = base(ColorRole.OnSecondary)
-        val Error = base(ColorRole.Error)
-        val OnError = base(ColorRole.OnError)
-        val Outline = base(ColorRole.Outline)
-    }
-}
-
 fun ColorTone.get(level: ColorLevel): Color {
     return when (level) {
+        ColorLevel.Outline   -> outline
         ColorLevel.Shadow    -> shadow
         ColorLevel.Dark      -> dark
         ColorLevel.Base      -> base
@@ -283,7 +204,22 @@ fun Colors.contentColorFor(backgroundColor: Color): Color {
 val LocalColors = staticCompositionLocalOf { lightColors() }
 
 /**
+ * 选中/焦点外框指示色（outline）。
+ *
+ * 默认 `null` ：为 null 时由 [selectedOutlineColor] 自动回退——取 [LocalColors] 当前辅助色板的高亮
+ * （`secondary.highlight`）作为指示色，醒目且与主色区分，无需显式配置。
+ * 仅当某子树需要不同的强调外框色时才 [androidx.compose.runtime.CompositionLocalProvider] 提供覆盖。
+ */
+val LocalSelectedOutlineColor: ProvidableCompositionLocal<Color?> = staticCompositionLocalOf { null }
+
+/**
  * 亮色主题 —— 主色 #8647B3
+ *
+ * outline 语义说明：描边/强调**不单独占用一档强调色**。
+ * - 常态结构描边、阴影：直接用各色板 [ColorTone.dark] / [ColorTone.highlight] 等档位
+ * - 选中/焦点等"需要醒目"的场景：Sokitsu 由组件换色板/绑高亮档表达，不走 outline
+ * - [ColorTone.outline] 由 [ColorTone.fromBase] 推导为同色相深色，作兜底描边；
+ *   个别需要覆写时经 fromBase 的 outline 参数显式给出
  */
 fun lightColors(
     // 背景：暖白到浅灰
@@ -294,7 +230,7 @@ fun lightColors(
         darkOffset = -0.1f,
         highlightOffset = 0.08f
     ),
-    // 背景色上的内容：深灰色（保证可读性）
+    // 背景色上的内容：深灰（保证可读性）
     onBackground: ColorTone = ColorTone.fromBase(
         base = Color(0xFF2D2D2D),
         shadowBrightnessOffset = -0.3f,
@@ -310,7 +246,7 @@ fun lightColors(
         darkOffset = -0.1f,
         highlightOffset = 0.0f
     ),
-    // 内容色：深灰色（保证可读性）
+    // 内容色：深灰（保证可读性）
     onSurface: ColorTone = ColorTone.fromBase(
         base = Color(0xFF2D2D2D),
         shadowBrightnessOffset = -0.3f,
@@ -326,7 +262,7 @@ fun lightColors(
         darkOffset = -0.25f,
         highlightOffset = 0.3f
     ),
-    // 主色上的内容：白色（紫色背景上白色文字最清晰）
+    // 主色上的内容：白（紫色背景上白色文字最清晰）
     onPrimary: ColorTone = ColorTone.fromBase(
         base = Color(0xFFFFFFFF),
         shadowBrightnessOffset = -0.3f,
@@ -350,7 +286,7 @@ fun lightColors(
         darkOffset = -0.15f,
         highlightOffset = 0.2f
     ),
-    // 错误色：红色
+    // 错误色：红
     error: ColorTone = ColorTone.fromBase(
         base = Color(0xFFD32F2F),
         shadowBrightnessOffset = -0.5f,
@@ -358,16 +294,14 @@ fun lightColors(
         darkOffset = -0.3f,
         highlightOffset = 0.3f
     ),
-    // 错误色上的内容：白色
+    // 错误色上的内容：白
     onError: ColorTone = ColorTone.fromBase(
         base = Color(0xFFFFFFFF),
         shadowBrightnessOffset = -0.3f,
         shadowAlpha = 0.15f,
         darkOffset = -0.15f,
         highlightOffset = 0.0f
-    ),
-    // 描边：深色（亮色主题用深灰描边）
-    outline: Color = Color(0xFF3D3D3D)
+    )
 ) = Colors(
     background = background,
     surface = surface,
@@ -379,6 +313,5 @@ fun lightColors(
     onPrimary = onPrimary,
     onSecondary = onSecondary,
     onError = onError,
-    outline = outline,
     isLight = true
 )
