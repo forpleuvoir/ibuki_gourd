@@ -1,7 +1,5 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -17,18 +15,27 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import moe.forpleuvoir.ibukigourd.util.identifier
-import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 
+/**
+ * 按钮：交互状态 → 视觉样式的映射 + 尺寸/内边距/语义角色。
+ *
+ * **容器渲染整块委托给 [Surface]**（与 Material3 中 Button 委托 `Surface` 的分工一致）：
+ * 背景精灵、内容色与文本样式的下发、点击交互与音效，全部由 [Surface] 承担；
+ * 按钮自身只负责：
+ * - 由 [ButtonState.resolve] 推导交互状态并取对应 [ButtonStateStyle]（精灵 + 内容色）；
+ * - 悬停/聚焦时把描边层覆盖为 [ButtonColors.selectedOutlineColor]；
+ * - 最小尺寸 [ButtonDefaults.minWidth] / [ButtonDefaults.minHeight]、内容内边距、
+ *   `Role.Button` 语义。
+ */
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -53,30 +60,24 @@ fun Button(
         else                -> colors.tone
     }
 
-    val clickSound = ButtonDefaults.LocalPressSound.current
-
-    // 内容色经 LocalContentColor 下发，按钮内的 Text/Icon 自动取到当前状态的内容色
-    ProvideContentColorTextStyle(
+    Surface(
+        onClick = onClick,
+        modifier = modifier
+            .semantics { role = Role.Button }
+            .defaultMinSize(ButtonDefaults.minWidth, ButtonDefaults.minHeight),
+        enabled = enabled,
+        tone = tone,
         contentColor = style.contentColor,
-        textStyle = SokitsuTheme.typography.button
+        sprite = style.sprite,
+        textStyle = SokitsuTheme.typography.button,
+        contentAlignment = Alignment.Center,
+        pressSound = ButtonDefaults.LocalPressSound.current,
+        interactionSource = interactionSource,
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .semantics { role = Role.Button }
-                .defaultMinSize(ButtonDefaults.minWidth, ButtonDefaults.minHeight)
-                .sokitsuSprite(sprite = style.sprite, tone = tone)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current,
-                    enabled = enabled,
-                    onClick = {
-                        clickSound?.let { sound -> mc.soundManager.play(sound) }
-                        onClick()
-                    }
-                )
-                .padding(contentPadding),
+            modifier = Modifier.padding(contentPadding),
             content = content
         )
     }

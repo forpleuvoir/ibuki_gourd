@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -118,7 +119,7 @@ fun Switch(
                     onCheckedChange?.invoke(!checked)
                 },
             )
-            .size(trackWidth, trackHeight)
+            .defaultMinSize(trackWidth, trackHeight)
             .sokitsuSprite(sprite(SwitchDefaults.track), trackTone)
     ) {
         Box(

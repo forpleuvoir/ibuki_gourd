@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.test.sokitsu
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.CenterBox
 import moe.forpleuvoir.ibukigourd.test.TestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone
@@ -22,11 +23,13 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 
 
 fun ButtonTestScreen() = TestScreen {
-    CenterBox(Modifier.background(SokitsuTheme.colorScheme.background.base)) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
+    // 背景交给 Surface：铺 surface 色板并下发 onSurface 内容色（暂走纯色填充）
+    Surface(Modifier.fillMaxSize()) {
+        CenterBox {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Button(
                     {
@@ -74,3 +77,5 @@ fun ButtonTestScreen() = TestScreen {
         }
     }
 }
+}
+
