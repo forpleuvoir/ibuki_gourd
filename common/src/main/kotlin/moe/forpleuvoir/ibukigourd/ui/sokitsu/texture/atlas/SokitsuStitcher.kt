@@ -26,96 +26,83 @@ data class PlacedSprite(
 )
 
 /**
- * Sokitsu atlas 缝合器（自建实现，参考原版 Stitcher 的 Region 递归二分 + 面积降序思路，不依赖原版类）。
- *
- * 放置时以"内容尺寸 + 2×padding"为占位尺寸；最终 atlas 尺寸 = 各占位区域右下角的实际占用（不强制 2 的幂）。
- * 任一 sprite 放不下 [maxSize] 则整体缝合失败。
+ * Sokitsu atlas 缝合器：通用 shelf + 自动宽度搜索，目标尽量接近正方形贴图
+ * （多纹理共用时更紧凑）。放置占位 = 内容尺寸 + 2×padding；最终 atlas 尺寸取实际占用
+ * （不强制 2 的幂），宽度受 [maxSize] 硬上限约束。任一 sprite 放不下则整体缝合失败。
  */
 class SokitsuStitcher(
     private val maxSize: Int,
-    private val padding: Int
+    private val padding: Int,
 ) {
     private data class Item(val index: Int, val width: Int, val height: Int)
 
     private val items = mutableListOf<Item>()
-    private var nextIndex = 0
 
     /**
-     * 登记一个待缝合的图层（尺寸为内容尺寸，padding 由缝合器统一加）。
+     * 登记一个待缝合的图层（内容尺寸，padding 由缝合器统一加）。
      * 登记顺序会被保留：stitch() 返回的 placed 列表按登记顺序排列。
      */
     fun add(width: Int, height: Int) {
-        items += Item(nextIndex++, width, height)
+        items += Item(items.size, width, height)
     }
 
     fun stitch(): Result<StitchLayout> = runCatching {
-        val root = Region(0, 0, maxSize, maxSize)
-        // 面积降序，大图优先（与原版一致）
-        val sorted = items.sortedByDescending { it.width.toLong() * it.height }
-        val placedByIndex = HashMap<Int, PlacedSprite>(sorted.size)
-        var atlasWidth = 0
-        var atlasHeight = 0
-
-        for ((index, width, height) in sorted) {
-            val paddedW = width + padding * 2
-            val paddedH = height + padding * 2
-            val region = root.place(paddedW, paddedH)
-                ?: throw IllegalStateException(
-                    "Sokitsu atlas stitching failed: ${width}x$height does not fit maxSize=$maxSize"
-                )
-            placedByIndex[index] = PlacedSprite(region.x + padding, region.y + padding, width, height)
-            atlasWidth = max(atlasWidth, region.x + paddedW)
-            atlasHeight = max(atlasHeight, region.y + paddedH)
+        val padded = items.map { it to (it.width + padding * 2 to it.height + padding * 2) }
+        for (pair in padded) {
+            val pw = pair.second.first
+            val ph = pair.second.second
+            if (pw > maxSize || ph > maxSize) {
+                throw IllegalStateException("Sokitsu atlas stitching failed: ${pair.first.width}x${pair.first.height} exceeds maxSize=$maxSize")
+            }
         }
 
-        // 按登记顺序（= 图层声明顺序的扁平展开）输出
-        StitchLayout(atlasWidth, atlasHeight, items.map { placedByIndex.getValue(it.index) })
-    }
-
-    /**
-     * 递归二分区域：尝试放置 paddedW×paddedH 的占位，成功返回占位区域（原点为其左上角）。
-     * 分裂策略参考原版 Region.add：holder 专座 + 两种方向的剩余切分选择。
-     */
-    private class Region(val x: Int, val y: Int, val width: Int, val height: Int) {
-        private var occupied: Boolean = false
-        private var children: List<Region>? = null
-
-        fun place(paddedW: Int, paddedH: Int): Region? {
-            if (occupied) return null
-            if (paddedW > width || paddedH > height) return null
-
-            if (paddedW == width && paddedH == height) {
-                occupied = true
-                return this
-            }
-
-            if (children == null) {
-                children = buildList {
-                    add(Region(x, y, paddedW, paddedH)) // holder 专座
-                    val spareWidth = width - paddedW
-                    val spareHeight = height - paddedH
-                    when {
-                        spareWidth > 0 && spareHeight > 0 -> {
-                            val right = max(height, spareWidth)
-                            val bottom = max(width, spareHeight)
-                            if (right >= bottom) {
-                                add(Region(x, y + paddedH, paddedW, spareHeight))
-                                add(Region(x + paddedW, y, spareWidth, height))
-                            } else {
-                                add(Region(x + paddedW, y, spareWidth, paddedH))
-                                add(Region(x, y + paddedH, width, spareHeight))
-                            }
-                        }
-                        spareWidth == 0 -> add(Region(x, y + paddedH, paddedW, spareHeight))
-                        else            -> add(Region(x + paddedW, y, spareWidth, paddedH))
-                    }
+        // 面积降序放置（紧凑），placed 仍按登记顺序输出
+        val sorted = padded.sortedByDescending { it.second.first.toLong() * it.second.second }
+        fun placeIn(w: Int): Pair<Int, List<Pair<Int, PlacedSprite>>> {
+            var rowY = 0
+            var cursorX = 0
+            var rowH = 0
+            var maxY = 0
+            val out = ArrayList<Pair<Int, PlacedSprite>>(items.size)
+            for (pair in sorted) {
+                val item = pair.first
+                val pw = pair.second.first
+                val ph = pair.second.second
+                if (cursorX > 0 && cursorX + pw > w) {
+                    cursorX = 0
+                    rowY += rowH
+                    rowH = 0
                 }
+                out += item.index to PlacedSprite(cursorX + padding, rowY + padding, item.width, item.height)
+                cursorX += pw
+                rowH = maxOf(rowH, ph)
+                maxY = maxOf(maxY, rowY + rowH)
             }
-
-            for (child in children!!) {
-                child.place(paddedW, paddedH)?.let { return it }
-            }
-            return null
+            return maxY to out
         }
+
+        val totalArea = padded.sumOf { it.second.first.toLong() * it.second.second }
+        val maxSliceWidth = padded.maxOf { it.second.first }
+        val minW = minOf(maxOf(maxSliceWidth, kotlin.math.ceil(kotlin.math.sqrt(totalArea.toDouble())).toInt()), maxSize)
+        var lo = minW
+        var hi = minW
+        while (hi < maxSize && placeIn(hi).first > hi) hi = minOf(hi * 2, maxSize)
+
+        // 采样找面积最小的近方形可行解（结果不超过 maxSize）
+        var bestW = hi
+        var (bestH, bestPlace) = placeIn(hi)
+        val samples = 12
+        for (i in 0..samples) {
+            val w = lo + ((hi - lo) * i) / samples
+            val (h, place) = placeIn(w)
+            if (h <= w && (w.toLong() * h < bestW.toLong() * bestH)) {
+                bestW = w
+                bestH = h
+                bestPlace = place
+            }
+        }
+        val placedByIndex = HashMap<Int, PlacedSprite>(bestPlace.size)
+        for ((index, sprite) in bestPlace) placedByIndex[index] = sprite
+        StitchLayout(bestW, bestH, items.map { placedByIndex.getValue(it.index) })
     }
 }

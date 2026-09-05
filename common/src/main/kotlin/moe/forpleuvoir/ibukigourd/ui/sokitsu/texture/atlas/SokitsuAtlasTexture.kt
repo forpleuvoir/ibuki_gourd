@@ -20,12 +20,14 @@ data class SokitsuAtlasPreparations(
     val width: Int,
     val height: Int,
     val padding: Int,
-    val regions: List<SokitsuAtlasRegion>
+    val regions: List<SokitsuAtlasRegion>,
+    /** 素材像素密度（@1x/@2x）；不参与 atlas 生成，仅随 sprite 下发渲染层。 */
+    val density: Int = 1,
 )
 
 /**
  * atlas 内一个图层区域：image 为待上传的图层图，x/y 为缝合后的内容区坐标（含 padding 偏移）。
- * [colorLevel]/[tintMode]/[fill] 携带该图层（TextureLayer）的渲染所需信息，随 sprite 构建传递。
+ * [colorLevel]/[tintMode]/[tintAlpha]/[fill] 携带该图层（TextureLayer）的渲染所需信息，随 sprite 构建传递。
  */
 data class SokitsuAtlasRegion(
     val textureId: Identifier,
@@ -35,7 +37,8 @@ data class SokitsuAtlasRegion(
     val image: NativeImage,
     val colorLevel: ColorLevel? = null,
     val tintMode: TextureTintMode = TextureTintMode.Tint,
-    val fill: TextureFill = TextureFill.Stretch
+    val fill: TextureFill = TextureFill.Stretch,
+    val tintAlpha: Boolean = false,
 )
 
 /**
@@ -58,7 +61,7 @@ class SokitsuAtlasTexture(
     }
 
     val missingLayer: SokitsuLayerSprite by lazy {
-        SokitsuLayerSprite(location, location, "<missing>", 0, 0, 0, 0, 1, 1, 0)
+        SokitsuLayerSprite(location, location, "<missing>", 0, 0, 0, 0, 1, 1, 1)
     }
 
     fun upload(preparations: SokitsuAtlasPreparations) {
@@ -83,7 +86,7 @@ class SokitsuAtlasTexture(
 
         val atlasWidth = preparations.width
         val atlasHeight = preparations.height
-        val padding = preparations.padding
+        val density = preparations.density
         val location = this.location
 
         val layers = preparations.regions.map { region ->
@@ -97,10 +100,11 @@ class SokitsuAtlasTexture(
                 height = region.image.height,
                 atlasWidth = atlasWidth,
                 atlasHeight = atlasHeight,
-                padding = padding,
+                density = density,
                 colorLevel = region.colorLevel,
                 tintMode = region.tintMode,
-                fill = region.fill
+                fill = region.fill,
+                tintAlpha = region.tintAlpha,
             )
         }
 

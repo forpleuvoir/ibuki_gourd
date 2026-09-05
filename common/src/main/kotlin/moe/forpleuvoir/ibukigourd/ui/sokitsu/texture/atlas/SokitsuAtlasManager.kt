@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.textureManager
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
@@ -39,6 +40,15 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
      * 默认 atlas id（定义文件 assets/<ns>/sokitsu_atlas/sokitsu.json，纹理注册 key 同为该 id）。
      */
     val DEFAULT_ATLAS_ID: Identifier = Identifier.fromNamespaceAndPath(IbukiGourd.MOD_ID, "sokitsu")
+
+    /**
+     * UI 组件通用图集 id（定义文件 assets/<ns>/sokitsu_atlas/ui.json，
+     * 纹理位于 texture/sokitsu/ui/，如 ui/button、ui/button.press）。
+     *
+     * 按钮、下拉框、面板等 UI 组件的背景精灵统一放在该图集，组件经
+     * [sprite][SokitusAtlasManager.sprite](UI_ATLAS_ID, textureId) 取用。
+     */
+    val UI_ATLAS_ID: Identifier = identifier("ui")
 
     /** atlas 定义所在资源目录（相对 assets/<ns>/）。 */
     private const val ATLAS_DIRECTORY = "sokitsu_atlas"
@@ -176,6 +186,11 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
         val ids = LinkedHashSet<Identifier>()
         ids += definition.textures
         val scanDirectory = "texture/sokitsu/${atlasId.path}"
+        // .ase 时代：目录下放 <textureId>.aseprite（源文件）；旧 json 定义兼容保留
+        resourceManager.listResources(scanDirectory) { id -> id.path.endsWith(".aseprite") }
+            .keys
+            .map { id -> id.withPath { it.removePrefix("texture/sokitsu/").removeSuffix(".aseprite") } }
+            .forEach { ids += it }
         resourceManager.listResources(scanDirectory) { id -> id.path.endsWith(".json") }
             .keys
             .map { id -> id.withPath { it.removePrefix("texture/sokitsu/").removeSuffix(".json") } }
@@ -202,6 +217,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
                 require(it >= 0) { "padding must not be negative: $it" }
             }
         )
+        val aseLoader = SokitsuAseLoader(resourceManager)
 
         data class Entry(
             val textureId: Identifier,
@@ -209,11 +225,33 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             val image: NativeImage,
             val colorLevel: ColorLevel?,
             val tintMode: TextureTintMode,
-            val fill: TextureFill
+            val fill: TextureFill,
+            val tintAlpha: Boolean = false,
         )
         val entries = mutableListOf<Entry>()
 
         for (textureId in textureIds) {
+            if (resourceManager.getResource(textureId.toSokitsuAseFile()).isPresent) {
+                // .ase 直读路径：源文件即纹理，导出层直接缝合
+                val aseTexture = aseLoader.load(textureId)
+                    .onFailure { logger.warn("Skipping .ase texture $textureId: ${it.message}") }
+                    .getOrNull() ?: continue
+                for (aseLayer in aseTexture.layers) {
+                    stitcher.add(aseTexture.width, aseTexture.height)
+                    entries += Entry(
+                        textureId,
+                        aseLayer.layerId,
+                        aseLayer.image,
+                        aseLayer.layer.colorLevel,
+                        aseLayer.layer.tintMode,
+                        aseLayer.layer.fill,
+                        aseLayer.layer.tintAlpha,
+                    )
+                }
+                continue
+            }
+
+            // 旧 png+json 路径（兼容；逐步迁移到 .ase）
             val texture = textureLoader.load(textureId)
                 .onFailure { logger.warn("Skipping texture $textureId: ${it.message}") }
                 .getOrNull() ?: continue
@@ -224,7 +262,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             for (layer in texture.layers) {
                 val layerImage = LayerExtractor.extract(baseImage, layer.keys, layer.region)
                 stitcher.add(layerImage.width, layerImage.height)
-                entries += Entry(textureId, layer.id, layerImage, layer.colorLevel, layer.tintMode, layer.fill)
+                entries += Entry(textureId, layer.id, layerImage, layer.colorLevel, layer.tintMode, layer.fill, layer.tintAlpha)
             }
             baseImage.close()
         }
@@ -239,7 +277,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             val placed = layout.placed[index]
             SokitsuAtlasRegion(entry.textureId, entry.layerId, placed.x, placed.y, entry.image, entry.colorLevel, entry.tintMode, entry.fill)
         }
-        return SokitsuAtlasPreparations(layout.width, layout.height, definition.padding, regions)
+        return SokitsuAtlasPreparations(layout.width, layout.height, definition.padding, regions, definition.density)
     }
 
     private fun loadDefinition(resourceManager: ResourceManager, atlasId: Identifier): SokitsuAtlasDefinition? = runCatching {
@@ -275,5 +313,5 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
         SokitsuSprite(atlasId, textureId, emptyList())
 
     private fun missingLayer(atlasId: Identifier, textureId: Identifier, layerId: String): SokitsuLayerSprite =
-        SokitsuLayerSprite(atlasId, textureId, layerId, 0, 0, 0, 0, 1, 1, 0)
+        SokitsuLayerSprite(atlasId, textureId, layerId, 0, 0, 0, 0, 1, 1)
 }

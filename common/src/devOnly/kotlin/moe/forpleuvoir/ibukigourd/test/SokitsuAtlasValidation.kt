@@ -1,11 +1,18 @@
 package moe.forpleuvoir.ibukigourd.test
 
+import androidx.compose.ui.graphics.Color as ComposeColor
 import com.mojang.blaze3d.platform.NativeImage
 import moe.forpleuvoir.ibukigourd.IbukiGourd
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.ninePatchSlices
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.snapToDensity
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.tileSizePx
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.tintColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureRegion
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureLayer
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.LayerExtractor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasDefinition
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuLayerSprite
@@ -35,6 +42,9 @@ object SokitsuAtlasValidation {
         validateNinePatchDisableSlice()
         validateStitcher()
         validateSprite()
+        validateDensity()
+        validateGeometry()
+        validateButtonState()
         logger.info("SokitsuAtlasValidation done: passed $passed / failed $failed / total ${passed + failed}")
     }
 
@@ -165,7 +175,7 @@ object SokitsuAtlasValidation {
             Identifier.fromNamespaceAndPath("ibukigourd", "sokitsu"),
             Identifier.fromNamespaceAndPath("ibukigourd", "ui/panel"),
             "base",
-            0, 0, 64, 64, 512, 512, 1,
+            0, 0, 64, 64, 512, 512,
             fill = TextureFill.NinePatch(
                 border = TextureFill.NinePatch.Border(4, 4, 4, 4),
                 disableSlice = listOf(0, 4, 5)
@@ -210,12 +220,12 @@ object SokitsuAtlasValidation {
     private fun validateSprite() {
         val atlasId = Identifier.fromNamespaceAndPath("ibukigourd", "sokitsu")
         val textureId = Identifier.fromNamespaceAndPath("ibukigourd", "panel")
-        val layer = SokitsuLayerSprite(atlasId, textureId, "base", 10, 20, 100, 50, 512, 512, 1)
+        val layer = SokitsuLayerSprite(atlasId, textureId, "base", 10, 20, 100, 50, 512, 512)
 
-        check("layer sprite: u0 = (x+padding)/w") { eq(layer.u0, 11f / 512f) }
-        check("layer sprite: u1 = (x+padding+width)/w") { eq(layer.u1, (10 + 1 + 100).toFloat() / 512f) }
-        check("layer sprite: v0 = (y+padding)/h") { eq(layer.v0, 21f / 512f) }
-        check("layer sprite: v1 = (y+padding+height)/h") { eq(layer.v1, (20 + 1 + 50).toFloat() / 512f) }
+        check("layer sprite: u0 = x/w") { eq(layer.u0, 10f / 512f) }
+        check("layer sprite: u1 = (x+width)/w") { eq(layer.u1, 110f / 512f) }
+        check("layer sprite: v0 = y/h") { eq(layer.v0, 20f / 512f) }
+        check("layer sprite: v1 = (y+height)/h") { eq(layer.v1, 70f / 512f) }
         check("layer sprite: getU(0.5) midpoint interpolation") { eq(layer.getU(0.5f), (layer.u0 + layer.u1) / 2f) }
         check("layer sprite: getV(0.5) midpoint interpolation") { eq(layer.getV(0.5f), (layer.v0 + layer.v1) / 2f) }
         check("layer sprite: uvMapping content region") {
@@ -223,12 +233,12 @@ object SokitsuAtlasValidation {
             uv.uStart == 10 && uv.vStart == 20 && uv.uEnd == 110 && uv.vEnd == 70
         }
         check("layer sprite: missing fallback (all-zero UV)") {
-            val missing = SokitsuLayerSprite(atlasId, atlasId, "<missing>", 0, 0, 0, 0, 1, 1, 0)
+            val missing = SokitsuLayerSprite(atlasId, atlasId, "<missing>", 0, 0, 0, 0, 1, 1)
             missing.u0 == 0f && missing.u1 == 0f && missing.v0 == 0f && missing.v1 == 0f
         }
 
         // SokitsuSprite 容器：对应整个 SokitsuTexture，含全部图层，可按 layerId 查单层
-        val layer2 = SokitsuLayerSprite(atlasId, textureId, "accent", 120, 20, 30, 30, 512, 512, 1)
+        val layer2 = SokitsuLayerSprite(atlasId, textureId, "accent", 120, 20, 30, 30, 512, 512)
         val sprite = SokitsuSprite(atlasId, textureId, listOf(layer, layer2))
         check("sprite container: holds all layers in order") {
             sprite.layers.map { it.layerId } == listOf("base", "accent")
@@ -238,6 +248,114 @@ object SokitsuAtlasValidation {
         }
         check("sprite container: isEmpty on empty container") {
             SokitsuSprite(atlasId, textureId, emptyList()).isEmpty
+        }
+    }
+
+    // —— 5. 素材密度传递与逻辑尺寸 ——
+
+    private fun validateDensity() {
+        val atlasId = Identifier.fromNamespaceAndPath("ibukigourd", "sokitsu")
+        val textureId = Identifier.fromNamespaceAndPath("ibukigourd", "panel")
+        val d2 = SokitsuLayerSprite(atlasId, textureId, "hi", 0, 0, 100, 50, 512, 512, density = 2)
+
+        check("layer sprite: density stored") { d2.density == 2 }
+        check("layer sprite: logicalWidth = width / density") { eq(d2.logicalWidth, 50f) }
+        check("layer sprite: logicalHeight = height / density") { eq(d2.logicalHeight, 25f) }
+
+        val sprite = SokitsuSprite(atlasId, textureId, listOf(d2))
+        check("sprite container: density from first layer") { sprite.density == 2 }
+        check("sprite container: logicalWidth = max of layers") { eq(sprite.logicalWidth, 50f) }
+        check("sprite container: empty sprite density defaults 1") {
+            SokitsuSprite(atlasId, textureId, emptyList()).density == 1
+        }
+    }
+
+    // —— 6. 绘制几何 / 着色纯函数 ——
+
+    private fun validateGeometry() {
+        check("snapToDensity: rounds to nearest logical pixel") {
+            eq(snapToDensity(13f, 2), 14f) && eq(snapToDensity(12f, 2), 12f) && eq(snapToDensity(14f, 2), 14f)
+        }
+        check("snapToDensity: pixelScale<=0 returns as-is") { eq(snapToDensity(7.3f, 0), 7.3f) }
+        check("snapToDensity: pixelScale=1 snaps to integer") { eq(snapToDensity(3.4f, 1), 3f) }
+
+        val slices = ninePatchSlices(100f, 50f, 10f, 5f, 10f, 5f)
+        check("ninepatch: 9 cells when no disable") { slices.size == 9 }
+        check("ninepatch: cell indices ascending 0..8") { slices.map { it.index } == (0..8).toList() }
+        check("ninepatch: top-left cell rect") {
+            val tl = slices.first()
+            eq(tl.x, 0f) && eq(tl.y, 0f) && eq(tl.width, 10f) && eq(tl.height, 5f)
+        }
+        check("ninepatch: center cell rect") {
+            val c = slices[4]
+            eq(c.x, 10f) && eq(c.y, 5f) && eq(c.width, 80f) && eq(c.height, 40f)
+        }
+
+        val disabled = ninePatchSlices(100f, 50f, 10f, 5f, 10f, 5f, disabledSlices = setOf(4))
+        check("ninepatch: disableSlice skips center") { disabled.size == 8 && disabled.none { it.index == 4 } }
+
+        // border×density：素材边框按密度放大后，中心格相应缩小
+        val at2x = ninePatchSlices(100f, 50f, 20f, 10f, 20f, 10f)
+        check("ninepatch: border×density shrinks center") {
+            eq(at2x[4].width, 60f) && eq(at2x[4].height, 30f)
+        }
+
+        // 退化形态：宽度小于左右正边框之和时，中心列坍缩为负尺寸（跳过 idx 1/4/7）
+        val clamped = ninePatchSlices(10f, 20f, 8f, 4f, 8f, 4f)
+        check("ninepatch: border sum > size collapses center column") {
+            clamped.size == 6 && clamped.none { it.index == 1 || it.index == 4 || it.index == 7 }
+        }
+
+        // 负值边框外扩：负 border 使角向外扩、中心不减（覆盖整个区域）
+        val neg = ninePatchSlices(100f, 50f, -10f, -5f, 10f, 5f)
+        check("ninepatch: negative left/top border expands corner outward") {
+            val tl = neg.first { it.index == 0 }
+            eq(tl.x, -10f) && eq(tl.y, -5f) && eq(tl.width, 10f) && eq(tl.height, 5f)
+        }
+        check("ninepatch: negative border keeps center from shrinking") {
+            val c = neg.first { it.index == 4 }
+            eq(c.x, 0f) && eq(c.y, 0f) && eq(c.width, 90f) && eq(c.height, 45f)
+        }
+
+        // 两侧都负：中心覆盖整个区域，角/边全部外扩
+        val negBoth = ninePatchSlices(100f, 50f, -10f, -5f, -10f, -5f)
+        check("ninepatch: both negative borders -> center covers full region") {
+            negBoth.size == 9 && run {
+                val c = negBoth.first { it.index == 4 }
+                eq(c.x, 0f) && eq(c.y, 0f) && eq(c.width, 100f) && eq(c.height, 50f)
+            }
+        }
+
+        check("tile: size = logical * scale * pixelScale") { eq(tileSizePx(16f, 2f, 2), 64f) }
+
+        val tone = ColorTone.solid(ComposeColor(0xFFFF0000))
+        check("tintColor: null level -> white") { tintColor(tone, null, false) == ComposeColor.White }
+        check("tintColor: tintAlpha=false forces alpha 1") {
+            val c = tintColor(tone, ColorLevel.Base, false)
+            c.red == 1f && c.green == 0f && c.blue == 0f && c.alpha == 1f
+        }
+        val translucent = ColorTone.solid(ComposeColor(0x80FF0000))
+        check("tintColor: tintAlpha=true preserves theme alpha") {
+            val c = tintColor(translucent, ColorLevel.Base, true)
+            c.red == 1f && eq(c.alpha, 128f / 255f)
+        }
+    }
+
+    // —— 7. 按钮状态推导 ——
+
+    private fun validateButtonState() {
+        check("buttonState: disabled 优先级最高") {
+            ButtonState.resolve(enabled = false, pressed = true, hovered = true, focused = true) == ButtonState.Disabled
+        }
+        check("buttonState: pressed 次之") {
+            ButtonState.resolve(enabled = true, pressed = true, hovered = true, focused = true) == ButtonState.Pressed
+        }
+        check("buttonState: hover 并入 focused") {
+            ButtonState.resolve(enabled = true, pressed = false, hovered = true, focused = false) == ButtonState.Focused &&
+                ButtonState.resolve(enabled = true, pressed = false, hovered = false, focused = true) == ButtonState.Focused
+        }
+        check("buttonState: 全 false → normal") {
+            ButtonState.resolve(enabled = true, pressed = false, hovered = false, focused = false) == ButtonState.Normal
         }
     }
 

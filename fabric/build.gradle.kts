@@ -38,6 +38,10 @@ dependencies {
     api(libs.nebula)
     include(libs.nebula)
 
+    //ASE 解析（.ase 直读，随 mod jar include）
+    api(project(":aseprite"))
+    include(project(":aseprite"))
+
     api(libs.composeMinecraft.fabric)
     include(libs.composeMinecraft.fabric)
 }

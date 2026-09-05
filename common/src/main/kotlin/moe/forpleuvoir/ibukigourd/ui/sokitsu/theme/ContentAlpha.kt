@@ -64,7 +64,7 @@ object ContentAlpha {
         @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float,
     ): Float {
         val contentColor = LocalContentColor.current
-        val lightTheme = SokitsuTheme.colors.isLight
+        val lightTheme = SokitsuTheme.colorScheme.isLight
         return if (lightTheme) {
             if (contentColor.luminance() > 0.5) highContrastAlpha else lowContrastAlpha
         } else {

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.text.style
 
+import androidx.compose.ui.graphics.toArgb
 import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.network.chat.*
 
@@ -29,7 +30,7 @@ fun style(
     font
 )
 
-val Style.color: Color?
+val Style.nebulaColor: Color?
     get() = this.color?.let { Color.fromARGB(it.value) }
 
 fun Style.withColor(color: Int?): Style {
@@ -39,6 +40,11 @@ fun Style.withColor(color: Int?): Style {
 fun Style.color(rgbColor: Color?): Style {
     return this.withColor(rgbColor?.rgb)
 }
+
+fun Style.color(composeColor: androidx.compose.ui.graphics.Color?): Style {
+    return withColor(composeColor?.toArgb()?.and(0x00FFFFFF.toInt()))
+}
+
 
 fun Style.withShadowColor(shadowColor: Int?): Style {
     return Style(

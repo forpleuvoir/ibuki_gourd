@@ -8,133 +8,215 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
- * 布局探针：按 Sokitsu 导出规则处理一个 .ase：
- * - 跳过被插件禁用导出的图层（userData 中 sokitsu 元数据 enabled=false）
- * - 每个导出图层输出**整画布尺寸**（不裁剪），保证画布内位置/切片语义不破坏
- * - 图层横向排列（按图层顺序，画布宽度为单位从左到右拼接）
- * 输出：aseprite/build/test-output/{button-layout.json, button-hstrip.png}
+ * Sokitsu 导出探针：
+ * - 遍历 fixtures 下**所有** .aseprite，按 Sokitsu 规则导出图层（跳过禁用/组/空隐藏层），
+ *   每层输出整画布尺寸（不裁剪），先做单文件横向排列 JSON/PNG；
+ * - 另模拟一次**图集合成**：把全部文件的导出层切片按 shelf 算法打包成一张 atlas 图 +
+ *   布局 JSON（每切片记录 file/layer/坐标/尺寸），用于后续对接运行时图集加载前的正确性验证。
+ * 输出目录：aseprite/build/test-output/
  */
 class LayoutProbeTest {
 
+    private val fixturesDir = "/fixtures"
 
-    /** 多 fixture 冒烟：button（验证基准）+ tab + drop_menu（多图层/结构更复杂） */
-    private val fixtures = listOf("button", "tab", "drop_menu")
-
-    private data class Tile(
-        val index: Int,
-        val name: String,
-        val x: Int,
+    /** 单个导出图层：整画布 RGBA + 归属信息 */
+    private data class Slice(
+        val rgba: ByteArray,
         val w: Int,
         val h: Int,
+        val source: String,      // 源文件（不含扩展名）
+        val layerIndex: Int,
+        val layerName: String,
     )
 
+    /** 解析结果：源文件尺寸 + 导出层切片 + 跳过层 */
+    private data class ExportResult(
+        val source: String,
+        val width: Int,
+        val height: Int,
+        val slices: List<Slice>,
+        val skipped: List<String>,
+    )
+
+    private val outDir: Path = Paths.get("build", "test-output").toAbsolutePath()
+
+    /** 1) 遍历 fixtures 全部 .aseprite，逐个做横向导出 */
     @Test
-    fun `导出横向布局 JSON 与 PNG`() {
-        for (name in fixtures) exportLayout(name)
+    fun `导出全部 fixtures 的横向布局`() {
+        Files.createDirectories(outDir)
+        val fixtureFiles = fixtureFiles()
+        check(fixtureFiles.isNotEmpty()) { "fixtures 目录为空: $fixturesDir" }
+        for (path in fixtureFiles) {
+            val name = path.fileName.toString().removeSuffix(".aseprite")
+            val result = exportLayers(name)
+            exportHorizontalStrip(result)
+        }
+        println("已导出 ${fixtureFiles.size} 个 fixture 的横向布局")
     }
 
-    private fun exportLayout(fixtureName: String) {
-        val resourcePath = "/fixtures/$fixtureName.aseprite"
-        val bytes = checkNotNull(javaClass.getResourceAsStream(resourcePath)) { "fixture not found: $resourcePath" }
-            .readBytes()
-        val sprite = AseParser.parse(bytes)
-        val cw = sprite.header.width
-        val ch = sprite.header.height
-        val frameIndex = 0
-
-        val layerCanvases = AseRenderer.renderFrame(sprite, frameIndex).second
-
-        // 决定导出哪些层（Sokitsu 语义）
-        val exportLayers = sprite.layers.filter { layer ->
-            !isSokitsuExplicitlyDisabled(layer) &&
-                layer.layerType != 1 && // 跳过组
-                // 完全没有像素的隐藏层也跳过（如编辑辅助层）
-                !(!layer.isVisible && celsInAnyFrame(sprite, layer.index) == 0)
-        }
-
-        val tiles = mutableListOf<Tile>()
-        var cursorX = 0
-        for (layer in exportLayers) {
-            val rgba = layerCanvases[layer.index] ?: continue
-            if (rgba.isEmpty()) continue
-            tiles += Tile(
-                index = layer.index,
-                name = layer.name,
-                x = cursorX,
-                w = cw,
-                h = ch,
-            )
-            cursorX += cw
-        }
-        val canvasW = cursorX
-        val canvasH = ch
-
-        val outDir: Path = Paths.get("build", "test-output").toAbsolutePath()
+    /** 2) 模拟图集合成：全部导出层切片通用 shelf 打包，目标近正方形贴图 */
+    @Test
+    fun `模拟合成 atlas 图集`() {
         Files.createDirectories(outDir)
+        val slices = fixtureFiles()
+            .flatMap { exportLayers(it.fileName.toString().removeSuffix(".aseprite")).slices }
+        val (atlasW, atlasH, placed) = packNearSquare(slices)
 
-        // 1) JSON 描述（整画布段：x = n * canvasWidth）
+        val image = BufferedImage(atlasW, atlasH, BufferedImage.TYPE_INT_ARGB)
         val json = buildString {
             appendLine("{")
-            appendLine("  \"file\": \"$resourcePath\",")
-            appendLine("  \"sprite\": {")
-            appendLine("    \"width\": $cw,")
-            appendLine("    \"height\": $ch,")
-            appendLine("    \"frame\": $frameIndex,")
-            appendLine("    \"colorDepth\": ${sprite.header.colorDepth}")
-            appendLine("  },")
-            appendLine("  \"externalFiles\": [" + sprite.externalFiles.map { (k, v) -> "{\"id\":$k,\"name\":\"$v\"}" }.joinToString(", ") + "],")
-            appendLine("  \"rule\": \"图层横向排列：仅导出层，每段为整画布尺寸（不裁剪），按图层顺序拼接\",")
-            appendLine("  \"canvas\": { \"width\": $canvasW, \"height\": $canvasH },")
-            appendLine("  \"tiles\": [")
-            tiles.forEachIndexed { i, t ->
-                val comma = if (i == tiles.lastIndex) "" else ","
+            appendLine("  \"atlas\": { \"width\": $atlasW, \"height\": $atlasH },")
+            appendLine("  \"packer\": \"通用 shelf（按高度降序）；宽度自动搜索使贴图尽量接近正方形\",")
+            appendLine("  \"slices\": [")
+            placed.forEachIndexed { i, (slice, pos) ->
+                val comma = if (i == placed.lastIndex) "" else ","
+                drawRgba(image, slice.rgba, slice.w, slice.h, pos.first, pos.second)
                 appendLine(
-                    "    { \"index\": ${t.index}, \"name\": \"${t.name}\", \"x\": ${t.x}, \"y\": 0, \"w\": ${t.w}, \"h\": ${t.h} }$comma"
-                )
-            }
-            appendLine("  ]")
-            appendLine("  ,\"skipped\": [")
-            val skipped = sprite.layers.filter { layer -> exportLayers.none { it.index == layer.index } }
-            skipped.forEachIndexed { i, s ->
-                val comma = if (i == skipped.lastIndex) "" else ","
-                appendLine("    { \"index\": ${s.index}, \"name\": \"${s.name}\" }$comma")
-            }
-            appendLine("  ]")
-            appendLine("  ,\"meta\": [")
-            sprite.layers.forEachIndexed { i, l ->
-                val comma = if (i == sprite.layers.lastIndex) "" else ","
-                val sokitsu = l.userData?.properties?.entries?.firstOrNull { (k, _) -> k.contains("sokitsu", true) }
-                val keysJson = (l.userData?.properties?.keys ?: emptySet()).joinToString { "\"$it\"" }
-                appendLine(
-                    "    { \"name\": \"${l.name}\", \"keys\": [$keysJson], " +
-                        "\"sokitsuEnabled\": ${(sokitsu?.value?.get("enabled") as? PropValue.Bool)?.value} }$comma"
+                    "    { \"file\": \"${slice.source}\", \"layerIndex\": ${slice.layerIndex}, " +
+                        "\"layer\": \"${slice.layerName}\", \"x\": ${pos.first}, \"y\": ${pos.second}, " +
+                        "\"w\": ${slice.w}, \"h\": ${slice.h} }$comma"
                 )
             }
             appendLine("  ]")
             append("}")
         }
-        Files.writeString(outDir.resolve("$fixtureName-layout.json"), json)
+        val jsonPath = outDir.resolve("fixtures-atlas.json")
+        val pngPath = outDir.resolve("fixtures-atlas.png")
+        Files.writeString(jsonPath, json)
+        ImageIO.write(image, "png", pngPath.toFile())
+        println("atlas json -> $jsonPath (${placed.size} slices, ${atlasW}x$atlasH)")
+        println("atlas png  -> $pngPath")
+    }
 
-        // 2) 合成 PNG：每段 = 该层独立画布的整画布拷贝
-        val image = BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB)
-        for (tile in tiles) {
-            val rgba = layerCanvases[tile.index] ?: continue
-            for (y in 0 until ch) {
-                for (x in 0 until cw) {
-                    val off = (y * cw + x) * 4
-                    val r = rgba[off].toInt() and 0xFF
-                    val g = rgba[off + 1].toInt() and 0xFF
-                    val b = rgba[off + 2].toInt() and 0xFF
-                    val a = rgba[off + 3].toInt() and 0xFF
-                    image.setRGB(tile.x + x, y, (a shl 24) or (r shl 16) or (g shl 8) or b)
+    /**
+     * 通用 shelf 打包：切片按高度降序逐行放置（行放不下即换行，无"源文件边界"概念），
+     * 宽度从下界（最宽切片 / sqrt(总面积)）向上倍增找到可行解，再在小范围内搜索
+     * 面积最小的近方形排布。将来真实图集打包可直接复用此算法。
+     */
+    private fun packNearSquare(slices: List<Slice>): Triple<Int, Int, List<Pair<Slice, Pair<Int, Int>>>> {
+        if (slices.isEmpty()) return Triple(0, 0, emptyList())
+        val totalArea = slices.sumOf { it.w.toLong() * it.h.toLong() }
+        val sorted = slices.sortedByDescending { it.h }
+
+        fun placeIn(w: Int): Pair<Int, List<Pair<Slice, Pair<Int, Int>>>> {
+            var rowY = 0
+            var cursorX = 0
+            var rowH = 0
+            var maxY = 0
+            val out = mutableListOf<Pair<Slice, Pair<Int, Int>>>()
+            for (slice in sorted) {
+                if (cursorX > 0 && cursorX + slice.w > w) {
+                    cursorX = 0
+                    rowY += rowH
+                    rowH = 0
                 }
+                out += slice to (cursorX to rowY)
+                cursorX += slice.w
+                rowH = maxOf(rowH, slice.h)
+                maxY = maxOf(maxY, rowY + rowH)
+            }
+            return maxY to out
+        }
+
+        val minW = maxOf(sorted.maxOf { it.w }, kotlin.math.ceil(kotlin.math.sqrt(totalArea.toDouble())).toInt())
+        var lo = minW
+        var hi = minW
+        while (placeIn(hi).first > hi) hi *= 2 // 倍增到第一组可行解
+
+        // 在 [hi/2, hi] 内线性采样，取面积最小且近方的可行解
+        var bestW = hi
+        var bestH = placeIn(hi).first
+        var bestPlace = placeIn(hi).second
+        val samples = 12
+        for (i in 0..samples) {
+            val w = lo + ((hi - lo) * i) / samples
+            val (h, place) = placeIn(w)
+            if (h <= w && (w.toLong() * h < bestW.toLong() * bestH)) {
+                bestW = w
+                bestH = h
+                bestPlace = place
             }
         }
-        val pngPath = outDir.resolve("$fixtureName-hstrip.png")
-        ImageIO.write(image, "png", pngPath.toFile())
+        return Triple(bestW, bestH, bestPlace)
+    }
 
-        println("json -> $outDir/$fixtureName-layout.json")
-        println("png  -> $pngPath")
+    // ------------------------------------------------------------------
+    // 内部：解析 / 导出 / 绘制
+    // ------------------------------------------------------------------
+
+    private fun fixtureFiles(): List<Path> {
+        val uri = checkNotNull(javaClass.getResource(fixturesDir)) { "fixtures dir not found: $fixturesDir" }.toURI()
+        return Files.list(Paths.get(uri)).use { stream ->
+            stream.filter { it.fileName.toString().endsWith(".aseprite") }.sorted().toList()
+        }
+    }
+
+    /** 解析单个 .ase，按 Sokitsu 规则取出导出层切片（整画布）。 */
+    private fun exportLayers(source: String): ExportResult {
+        val bytes = checkNotNull(javaClass.getResourceAsStream("$fixturesDir/$source.aseprite")) {
+            "fixture not found: $source"
+        }.readBytes()
+        val sprite = AseParser.parse(bytes)
+        val cw = sprite.header.width
+        val ch = sprite.header.height
+        val layerCanvases = AseRenderer.renderFrame(sprite, 0).second
+
+        val exportLayers = sprite.layers.filter { layer ->
+            !isSokitsuExplicitlyDisabled(layer) &&
+                layer.layerType != 1 && // 组
+                !(!layer.isVisible && celsInAnyFrame(sprite, layer.index) == 0) // 空隐藏辅助层
+        }
+
+        val slices = mutableListOf<Slice>()
+        for (layer in exportLayers) {
+            val rgba = layerCanvases[layer.index] ?: continue
+            if (rgba.isEmpty()) continue
+            slices += Slice(rgba, cw, ch, source, layer.index, layer.name)
+        }
+        val skipped = sprite.layers.filter { l -> exportLayers.none { it.index == l.index } }.map { it.name }
+        return ExportResult(source, cw, ch, slices, skipped)
+    }
+
+    /** 单文件横向排列导出（JSON + PNG），便于目检每层内容。 */
+    private fun exportHorizontalStrip(result: ExportResult) {
+        val canvasW = result.width * result.slices.size
+        val canvasH = result.height
+        val json = buildString {
+            appendLine("{")
+            appendLine("  \"file\": \"$fixturesDir/${result.source}.aseprite\",")
+            appendLine("  \"canvas\": { \"width\": $canvasW, \"height\": $canvasH },")
+            appendLine("  \"tiles\": [")
+            result.slices.forEachIndexed { i, s ->
+                val comma = if (i == result.slices.lastIndex) "" else ","
+                appendLine(
+                    "    { \"layerIndex\": ${s.layerIndex}, \"layer\": \"${s.layerName}\", " +
+                        "\"x\": ${i * result.width}, \"y\": 0, \"w\": ${s.w}, \"h\": ${s.h} }$comma"
+                )
+            }
+            appendLine("  ],")
+            appendLine("  \"skipped\": [" + result.skipped.joinToString { "\"$it\"" } + "]")
+            append("}")
+        }
+        val image = BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB)
+        result.slices.forEachIndexed { i, s ->
+            drawRgba(image, s.rgba, s.w, s.h, i * result.width, 0)
+        }
+        Files.writeString(outDir.resolve("${result.source}-layout.json"), json)
+        ImageIO.write(image, "png", outDir.resolve("${result.source}-hstrip.png").toFile())
+    }
+
+    /** 把整画布 RGBA 拷贝到目标图 (dx, dy) 处。 */
+    private fun drawRgba(target: BufferedImage, rgba: ByteArray, w: Int, h: Int, dx: Int, dy: Int) {
+        for (y in 0 until h) {
+            for (x in 0 until w) {
+                val off = (y * w + x) * 4
+                val r = rgba[off].toInt() and 0xFF
+                val g = rgba[off + 1].toInt() and 0xFF
+                val b = rgba[off + 2].toInt() and 0xFF
+                val a = rgba[off + 3].toInt() and 0xFF
+                target.setRGB(dx + x, dy + y, (a shl 24) or (r shl 16) or (g shl 8) or b)
+            }
+        }
     }
 
     /** 该层是否被 Sokitsu 插件显式禁用导出（userData 元数据 enabled=false）。 */

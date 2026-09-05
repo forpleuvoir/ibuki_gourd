@@ -27,6 +27,10 @@ class TestInitialization : ModInitialization {
         ClientModConfigHandler.register(TestConfig)
 
         InputHandler.apply {
+            register(Keyboard.KP_1) {
+                SokitsuTestScreen()
+            }
+
             register(Keyboard.P) {
                 mc.player?.mainHandItem?.let { item ->
                     ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NebulaOps), item).resultOrPartial {

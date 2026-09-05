@@ -121,6 +121,10 @@ dependencies {
     api(libs.nebula)
     jarJar(libs.nebula)
 
+    //ASE 解析（.ase 直读，jarJar 打进 mod）
+    api(project(":aseprite"))
+    jarJar(project(":aseprite"))
+
     api(libs.composeMinecraft.neoforge)
     jarJar(libs.composeMinecraft.neoforge)
 }

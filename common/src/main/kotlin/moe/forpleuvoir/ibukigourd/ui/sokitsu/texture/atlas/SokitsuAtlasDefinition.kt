@@ -12,7 +12,13 @@ import net.minecraft.resources.Identifier
  * - [maxSize] atlas 最大边长限制，0 表示取平台纹理上限
  * - [padding] sprite 之间的像素间距（防止采样溢色）
  * - [mipLevel] 图集 mipmap 层级（UI 素材一般用 0）
- * - [density] atlas 级渲染缩放倍率，仅描述给渲染层使用，不参与 atlas 生成（density=2 → 逻辑 1×1px 按 2×2px 算）
+ * - [density] **本 atlas 素材的像素密度**（@1x / @2x / @3x 语义）：density=2 表示素材按
+ *   2×2 源图像素表达 1 个逻辑像素（高清素材）。**不参与 atlas 生成**（图集内按源图 1:1 存储），
+ *   只作为素材侧的换算基准随 sprite 下发渲染层。
+ *
+ * 注意与渲染倍率区分：渲染倍率是用户在 `SokitsuTheme.pixelScale` 里的设置（1 逻辑像素渲染成多大）。
+ * 源图 → 屏幕的最终倍率 = `SokitsuTheme.pixelScale / atlas.density`：@2x 素材在 2x 渲染倍率下
+ * 正好 1:1，@1x 素材在 2x 渲染密度下放大 2 倍。
  * - [textures] 可选：额外显式声明本 atlas 合批的 SokitsuTexture id 列表
  *
  * 纹理不在此逐个声明：atlas 会自动扫描其自身对应目录 assets/<ns>/texture/sokitsu/<atlasId.path>/ 下的所有

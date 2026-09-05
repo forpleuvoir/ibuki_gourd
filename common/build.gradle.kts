@@ -20,6 +20,9 @@ dependencies {
 
     compileOnlyApi(libs.nebula)
 
+    // ASE 解析库（.ase 直读；运行打包在各 loader 侧 include/jarJar）
+    compileOnly(project(":aseprite"))
+
     compileOnly(libs.composeMinecraft.common)
 
     testImplementation(kotlin("test-junit5"))

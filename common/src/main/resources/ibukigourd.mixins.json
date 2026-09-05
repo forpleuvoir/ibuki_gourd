@@ -2,7 +2,6 @@
   "required": true,
   "minVersion": "0.8",
   "package": "moe.forpleuvoir.ibukigourd.mixin",
-  "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_18",
   "mixins": [
     "MinecraftServerMixin"
@@ -10,9 +9,15 @@
   "client": [
     "client.GuiGraphicsExtractorMixin",
     "client.GuiItemRenderStateMixin",
+    "client.GuiRendererMixin",
     "client.GuiTextRenderStateMixin",
+    "client.KeyboardHandlerMixin",
+    "client.MinecraftMixin",
+    "client.MouseHandlerMixin",
     "client.OversizedItemRenderStateMixin",
-    "client.RenderPipelinesAccessor"
+    "client.PictureInPictureRendererMixin",
+    "client.RenderPipelinesAccessor",
+    "client.ScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
