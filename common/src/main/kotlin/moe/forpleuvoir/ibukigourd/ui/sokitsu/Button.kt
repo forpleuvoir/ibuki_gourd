@@ -15,7 +15,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -39,6 +38,7 @@ fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.colors(),
+    sprite: UiStateSprite = ButtonDefaults.sprite(),
     contentPadding: PaddingValues = ButtonDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
@@ -49,7 +49,6 @@ fun Button(
     val focused by interactionSource.collectIsFocusedAsState()
 
     val state = UiState.resolve(enabled, pressed, hovered, focused)
-    val style = colors[state]
 
     // 悬停/聚焦：仅 outline 层覆盖为 selectedOutlineColor（描边高亮），其余层保持色板明暗结构
     val tone = when {
@@ -64,8 +63,8 @@ fun Button(
             .defaultMinSize(ButtonDefaults.minSize.width, ButtonDefaults.minSize.height),
         enabled = enabled,
         tone = tone,
-        contentColor = style.contentColor,
-        sprite = style.sprite,
+        contentColor = colors.contentColor[state],
+        sprite = sprite[state],
         textStyle = SokitsuTheme.typography.button,
         contentAlignment = Alignment.Center,
         pressSound = ButtonDefaults.LocalPressSound.current,
@@ -79,18 +78,6 @@ fun Button(
         )
     }
 }
-
-/**
- * 单个交互状态的按钮视觉：容器精灵 + 内容色。
- *
- * [sprite] 由 [sokitsuSprite] 按 Sokitsu 管线渲染（多图层 + 主题 tone 染色）；
- * [contentColor] 经 Button 内 [LocalContentColor] 下发给内容（文字/图标）。
- */
-@Immutable
-data class ButtonStateStyle(
-    val sprite: SokitsuSprite,
-    val contentColor: Color,
-)
 
 /**
  * 按钮四态视觉样式集：[ButtonState] → [ButtonStateStyle] 的不可变查找表。
@@ -107,23 +94,10 @@ data class ButtonStateStyle(
  */
 @Immutable
 data class ButtonColors(
-    val normal: ButtonStateStyle,
-    val pressed: ButtonStateStyle,
-    val focused: ButtonStateStyle,
-    val disabled: ButtonStateStyle,
+    val contentColor: UiStateColor,
     val tone: ColorTone,
     val selectedOutlineColor: Color,
-) {
-
-    /** 取某状态的视觉样式。 */
-    operator fun get(state: UiState): ButtonStateStyle = when (state) {
-        UiState.Normal   -> normal
-        UiState.Pressed  -> pressed
-        UiState.Focused  -> focused
-        UiState.Disabled -> disabled
-    }
-}
-
+)
 
 object ButtonDefaults {
 
@@ -162,22 +136,25 @@ object ButtonDefaults {
             ButtonTokens.DisabledContentOpacity,
         )
         return ButtonColors(
-            normal = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.normal), resolvedContent),
-            pressed = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.pressed), resolvedContent),
-            focused = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.focused), resolvedContent),
-            disabled = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.disabled), resolvedDisabledContent),
+            contentColor = UiStateColor(
+                normal = resolvedContent,
+                pressed = resolvedContent,
+                focused = resolvedContent,
+                disabled = resolvedDisabledContent
+            ),
             tone = resolvedTone,
             selectedOutlineColor = selectedOutlineColor.takeOrElse {
                 resolvedTone.base.contrasting()
-            },
+            }
         )
     }
+
+    fun sprite(): UiStateSprite = meta.sprite.toSprite()
 
     /**
      * 按钮最小尺寸：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
      */
-    val minSize: DpSize
-        @Composable get() = meta.minSize
+    val minSize: DpSize get() = meta.minSize
 
     /**
      * 内容内边距（水平 = [ButtonMeta.paddingHorizontal]，垂直 = [ButtonMeta.paddingVertical]）。

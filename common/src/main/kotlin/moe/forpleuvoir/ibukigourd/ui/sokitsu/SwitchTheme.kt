@@ -64,7 +64,7 @@ data class SwitchMeta(
     /** 把手尺寸 */
     val thumbMinSize: DpSize,
     /** 把手常态纹理。 */
-    val thumbSprite: UiStateSprite,
+    val thumbSprite: UiStateIdentifier,
     /** 轨道纹理。 */
     val trackSprite: Identifier,
 ) {
@@ -74,7 +74,7 @@ data class SwitchMeta(
         val default = SwitchMeta(
             trackMinSize = DpSize(90.dp, 48.dp),
             thumbMinSize = DpSize(48.dp, 48.dp),
-            thumbSprite = UiStateSprite(
+            thumbSprite = UiStateIdentifier(
                 normal = identifier("ui/switch/thumb/normal"),
                 pressed = identifier("ui/switch/thumb/pressed"),
                 focused = identifier("ui/switch/thumb/focused"),
@@ -86,7 +86,7 @@ data class SwitchMeta(
         private val codec = Codec.create<SwitchMeta>()
             .field(SwitchMeta::trackMinSize).default(default.trackMinSize).codec(Codec.dpSize(8.dp..512.dp, 8.dp..512.dp))
             .field(SwitchMeta::thumbMinSize).default(default.thumbMinSize).codec(Codec.dpSize(8.dp..256.dp))
-            .field(SwitchMeta::thumbSprite).default(default.thumbSprite).codec(UiStateSprite)
+            .field(SwitchMeta::thumbSprite).default(default.thumbSprite).codec(UiStateIdentifier)
             .field(SwitchMeta::trackSprite).default(default.trackSprite).codec(Codec.ibukigourdIdentifier)
             .build(::SwitchMeta)
 

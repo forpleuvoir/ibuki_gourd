@@ -154,6 +154,7 @@ gradlew.bat :common:test
 - **GUI 基于 compose-minecraft**：`@Composable` 函数、`Modifier` 链等 compose API 由 `moe.forpleuvoir.compose_minecraft` 提供（内嵌 androidx compose 类，渲染直连原版 `GuiGraphics`）。旧 Compose Desktop（Material3 / Skia 离屏渲染）代码已清理，新 UI 依赖其 `MinecraftClientSetup` / `ComposeScreen` 等 API 实现。
 - **异步**：`kotlinx.coroutines`（`runBlocking`、`ioLaunch`、`ioAsync`、`awaitAll`）；计时用 `kotlin.time.Duration`。
 - **注释与文档用中文**，与现有代码、commit message、README 主语言保持一致。
+- **注释只解释当前代码，不写入对话/元信息**：注释只描述技术事实（方法行为、参数含义、取值/单位、边界与回落策略），且只针对**当下这段代码**做说明。禁止写入对话性/过程性内容——不写"为什么这么改""之前实现有 bug""与其他实现的对比""本实现不做什么/与 X 同款/一致"这类来龙去脉与对比八卦；这类信息属于会话与文档，不属于代码注释。
 - **i18n**：新增界面文案走 lang key，统一登记到 `IGLang` 子对象，资源文件在 `assets/ibukigourd/lang/`。
 - **翻译用词规范**（zh_CN）：
   - **keybind**（`Keybind` / `keybind` 相关）→ 译为 **"快捷键"**，如"按键绑定冲突"→"快捷键冲突"。

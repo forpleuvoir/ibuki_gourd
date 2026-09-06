@@ -4,7 +4,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
-import moe.forpleuvoir.ibukigourd.util.codec.dp
 import moe.forpleuvoir.ibukigourd.util.codec.dpSize
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -57,7 +56,7 @@ data class ButtonMeta(
     /**
      * 按钮的纹理
      */
-    val sprite: UiStateSprite,
+    val sprite: UiStateIdentifier,
 ) {
 
     companion object : Codec<ButtonMeta> {
@@ -66,7 +65,7 @@ data class ButtonMeta(
             minSize = DpSize(56.dp, 56.dp),
             paddingHorizontal = 18,
             paddingVertical = 12,
-            sprite = UiStateSprite(
+            sprite = UiStateIdentifier(
                 normal = identifier("ui/button/normal"),
                 pressed = identifier("ui/button/pressed"),
                 focused = identifier("ui/button/focused"),
@@ -78,7 +77,7 @@ data class ButtonMeta(
             .field(ButtonMeta::minSize).default(default.minSize).codec(Codec.dpSize(1.dp..512.dp, 1.dp..512.dp))
             .field(ButtonMeta::paddingHorizontal).default(default.paddingHorizontal).codec(Codec.int(0..128))
             .field(ButtonMeta::paddingVertical).default(default.paddingVertical).codec(Codec.int(0..128))
-            .field(ButtonMeta::sprite).default(default.sprite).codec(UiStateSprite)
+            .field(ButtonMeta::sprite).default(default.sprite).codec(UiStateIdentifier)
             .build(::ButtonMeta)
 
         override fun serialization(target: ButtonMeta): SerializeElement = codec.serialization(target)

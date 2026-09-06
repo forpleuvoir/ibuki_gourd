@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas
 
+import androidx.compose.runtime.Stable
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.render.extension.texture.UVMapping
@@ -14,6 +15,7 @@ import net.minecraft.resources.Identifier
  * 一个 SokitsuTexture 由多个图层（layer）组成，[SokitsuSprite] 持有该纹理的全部图层精灵
  * [layers]，顺序与 TextureLayer 声明顺序一致（渲染叠加顺序）。
  */
+@Stable
 class SokitsuSprite(
     val atlasLocation: Identifier,
     val textureId: Identifier,
