@@ -14,7 +14,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -29,8 +28,8 @@ import net.minecraft.sounds.SoundEvents
  * 按钮自身只负责：
  * - 由 [ButtonState.resolve] 推导交互状态并取对应 [ButtonStateStyle]（精灵 + 内容色）；
  * - 悬停/聚焦时把描边层覆盖为 [ButtonColors.selectedOutlineColor]；
- * - 最小尺寸 [ButtonDefaults.minSize] / [ButtonDefaults.minHeight]、内容内边距、
- *   `Role.Button` 语义。
+ * - 最小尺寸（[ButtonDefaults.minSize]，可用 [minSize] 覆盖，如 [RadioButton] 传自己的 meta）、
+ *   内容内边距、语义角色（默认 `Role.Button`，可用 [role] 覆盖）。
  */
 @Composable
 fun Button(
@@ -40,6 +39,8 @@ fun Button(
     colors: ButtonColors = ButtonDefaults.colors(),
     sprite: UiStateSprite = ButtonDefaults.sprite(),
     contentPadding: PaddingValues = ButtonDefaults.contentPadding,
+    minSize: DpSize = ButtonDefaults.minSize,
+    role: Role = Role.Button,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -59,8 +60,8 @@ fun Button(
     Surface(
         onClick = onClick,
         modifier = modifier
-            .semantics { role = Role.Button }
-            .defaultMinSize(ButtonDefaults.minSize.width, ButtonDefaults.minSize.height),
+            .semantics { this.role = role }
+            .defaultMinSize(minSize.width, minSize.height),
         enabled = enabled,
         tone = tone,
         contentColor = colors.contentColor[state],
@@ -157,12 +158,9 @@ object ButtonDefaults {
     val minSize: DpSize get() = meta.minSize
 
     /**
-     * 内容内边距（水平 = [ButtonMeta.paddingHorizontal]，垂直 = [ButtonMeta.paddingVertical]）。
+     * 内容内边距（水平 = [ButtonMeta.padding]，垂直 = [ButtonMeta.paddingVertical]）。
      * 与最小尺寸同源于主题 meta 的 button 段。
      */
-    val contentPadding: PaddingValues
-        @Composable get() = meta.run {
-            PaddingValues(paddingHorizontal.dp, paddingVertical.dp)
-        }
+    val contentPadding: PaddingValues get() = meta.padding
 
 }

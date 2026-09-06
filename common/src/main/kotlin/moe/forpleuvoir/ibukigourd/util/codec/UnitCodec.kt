@@ -1,12 +1,22 @@
 package moe.forpleuvoir.ibukigourd.util.codec
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.nebula.common.util.expectedType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 
 //region IntSize
@@ -28,7 +38,7 @@ fun Codec.Companion.size(widthRange: ClosedRange<Float>? = null, heightRange: Cl
     .build({ w, h -> Size(w, h) })
 
 @PublishedApi
-internal val sizeCodec get() = Codec.intSize(null, null)
+internal val sizeCodec get() = Codec.size(null, null)
 
 inline val Codec.Companion.size get() = sizeCodec
 //endregion
@@ -57,6 +67,66 @@ fun Codec.Companion.dp(range: ClosedRange<Dp>? = null) = object : Codec<Dp> {
 internal val dpCodec get() = Codec.dp(null)
 
 inline val Codec.Companion.dp get() = dpCodec
+//endregion
+
+
+//region PaddingValues
+fun Codec.Companion.padding(range: ClosedRange<Dp>? = null) = object : Codec<PaddingValues> {
+
+    private val delegate = range?.let { Codec.dp(it) } ?: Codec.dp
+
+    override fun serialization(target: PaddingValues): SerializeElement {
+        val start = target.calculateStartPadding(LayoutDirection.Ltr)
+        val top = target.calculateTopPadding()
+        val end = target.calculateEndPadding(LayoutDirection.Ltr)
+        val bottom = target.calculateBottomPadding()
+        return when (start) {
+            //四边全等：编码为单个数值
+            end if end == top && top == bottom ->
+                delegate.serialization(start)
+            //上下相等且左右相等（四边不全等）：编码为 {horizontal, vertical}
+            end if top == bottom               ->
+                SerializeObject.build {
+                    "horizontal"(start.value)
+                    "vertical"(top.value)
+                }
+            //四边不全等：编码为 {start, top, end, bottom}
+            else                               -> SerializeObject.build {
+                "start"(start.value)
+                "top"(top.value)
+                "end"(end.value)
+                "bottom"(bottom.value)
+            }
+        }
+    }
+
+    override fun deserialization(data: SerializeElement): Result<PaddingValues> = DeserializationException.runCatching {
+        when (data) {
+            //单个数值：四边统一
+            is SerializePrimitive -> PaddingValues(delegate.deserialization(data).getOrThrow())
+            is SerializeObject    -> when {
+                //{horizontal, vertical}
+                data.containsKey("horizontal", "vertical") -> PaddingValues(
+                    horizontal = delegate.deserialization(data.requireKey("horizontal")).getOrThrow(),
+                    vertical = delegate.deserialization(data.requireKey("vertical")).getOrThrow(),
+                )
+                //{start, top, end, bottom}
+                else -> PaddingValues(
+                    start = delegate.deserialization(data.requireKey("start")).getOrThrow(),
+                    top = delegate.deserialization(data.requireKey("top")).getOrThrow(),
+                    end = delegate.deserialization(data.requireKey("end")).getOrThrow(),
+                    bottom = delegate.deserialization(data.requireKey("bottom")).getOrThrow(),
+                )
+            }
+            else -> throw expectedType(data::class, SerializePrimitive::class, SerializeObject::class)
+        }
+    }
+}
+
+@PublishedApi
+internal val paddingCodec get() = Codec.padding(null)
+
+inline val Codec.Companion.padding get() = paddingCodec
 //endregion
 
 

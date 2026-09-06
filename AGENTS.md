@@ -110,7 +110,7 @@ ibuki_gourd/
 - **像素风渲染**：`LocalSokitsuPixelScale` 整数放大（1 逻辑像素 → N×N 屏幕像素块，缺省 3），素材密度（@1x/@2x）与之正交。
 - **主题**：`SokitsuTheme` 入口；`ColorScheme`/`ColorTone` 色板 + 组件 token 回退链（`调用点传参` > `LocalSokitsuTone` > `组件 token 表` > `主题槽位`）；亮/暗由 `ThemeType`（Light/Dark/Unknown）表达，`systemTheme()` 子进程探测系统主题（Windows 注册表 / macOS `defaults` / Linux `gsettings`），探测失败返回 `Unknown`、按浅色收敛。
 - **资源包驱动**：`SokitsuThemeMeta`（`sokitsu` meta 文件，亮/暗 section + pixelScale + 组件 uiMeta，缺槽回落内置工厂）与运行时程序化图集（ASE 素材 → `SokitsuStitcher` 拼合），均随资源重载整体刷新。
-- **组件**：`Button` / `Surface` / `Switch` / `Text`；devOnly 下有测试屏（`SokitsuTestScreen` / `ButtonTestScreen` 等）与图集校验（`SokitsuAtlasValidation`）。
+- **组件**：`Button` / `Surface` / `Switch` / `Text` / `RadioButton`（Button 薄包装：按 index/count/RTL 解析 left/center/right/single 分段纹理，`RadioButtonGroup` 经 `item { }` DSL 自动编号）/ `RadioButtonGroup`；devOnly 下有测试屏（`SokitsuTestScreen` / `ButtonTestScreen` / `RadioButtonTestScreen` 等）与图集校验（`SokitsuAtlasValidation`）。
 
 ## 关键入口点
 
