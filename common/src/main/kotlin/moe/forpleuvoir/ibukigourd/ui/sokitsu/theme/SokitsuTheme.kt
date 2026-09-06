@@ -71,18 +71,18 @@ object SokitsuTheme {
  *
  * 颜色来源（优先级高 → 低）：
  * 1. 显式传入的 [colorScheme]（完全接管，逃生舱）；
- * 2. 全局 [SokitsuThemeMeta] 中 [darkTheme] 对应的亮/暗 section（资源包定义，缺槽回落内置工厂默认）。
+ * 2. 全局 [SokitsuThemeMeta] 中当前亮/暗 section（资源包定义，缺槽回落内置工厂默认）。
  *
  * [pixelScale] 与组件默认尺寸/内边距同样来自全局 [SokitsuThemeMeta]，
  * 资源重载时整体刷新，无需重新进入界面。
  *
- * @param darkTheme 是否使用深色方案；默认探测**操作系统**的主题偏好
- *   （[systemDarkTheme]，取不到按浅色），也可显式传入（如测试屏的亮暗切换）
+ * 默认 [colorScheme] 探测**操作系统**的主题偏好（[systemTheme]，[ThemeType.Unknown] 按浅色），
+ * 也可显式传入（如测试屏的亮暗切换）。
  * @param colorScheme 显式指定的配色方案；null = 由 meta 构建
  */
 @Composable
 fun SokitsuTheme(
-    colorScheme: ColorScheme = SokitsuThemeMeta.colorScheme(systemDarkTheme()),
+    colorScheme: ColorScheme = SokitsuThemeMeta.colorScheme(systemTheme()),
     typography: Typography = SokitsuTheme.typography,
     pixelScale: Int = SokitsuThemeMeta.pixelScale,
     content: @Composable () -> Unit,

@@ -20,17 +20,18 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.darkColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.lightColorScheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.systemDarkTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ThemeType
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.systemTheme
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
-var TestScreenLight by mutableStateOf(!systemDarkTheme())
+var TestScreenLight by mutableStateOf(systemTheme().isLight)
 
 var PixelScale by mutableStateOf(SokitsuThemeMeta.pixelScale)
 
 @Composable
 fun TestScreenTheme(content: @Composable () -> Unit) = SokitsuTheme(
-    colorScheme = SokitsuThemeMeta.colorScheme(!TestScreenLight),
+    colorScheme = SokitsuThemeMeta.colorScheme(if (TestScreenLight) ThemeType.Light else ThemeType.Dark),
 ) {
     CompositionLocalProvider(LocalSokitsuPixelScale provides PixelScale) {
         content()

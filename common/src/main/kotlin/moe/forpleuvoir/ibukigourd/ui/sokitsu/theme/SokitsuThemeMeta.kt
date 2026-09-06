@@ -138,10 +138,13 @@ object SokitsuThemeMeta {
     /**
      * 构建运行时 [ColorScheme]：以内置工厂（[lightColorScheme] / [darkColorScheme]）为底，
      * meta 中给出的槽位逐个覆盖（[ColorScheme.copy] 逐槽回落，任何槽位都不会缺）。
+     *
+     * [ThemeType.Unknown] 按浅色处理（[ThemeType.isLight]）。
      */
-    fun colorScheme(isDark: Boolean): ColorScheme {
-        val defaults = if (isDark) darkColorScheme() else lightColorScheme()
-        val section = if (isDark) dark else light
+    fun colorScheme(theme: ThemeType): ColorScheme {
+        val isLight = theme.isLight
+        val defaults = if (isLight) lightColorScheme() else darkColorScheme()
+        val section = if (isLight) light else dark
         fun tone(name: String): ColorTone? = section[name]?.toColorTone()
         return defaults.copy(
             background = tone("background") ?: defaults.background,
@@ -158,7 +161,7 @@ object SokitsuThemeMeta {
             onError = tone("on_error") ?: defaults.onError,
             surfaceVariant = tone("surface_variant") ?: defaults.surfaceVariant,
             onSurfaceVariant = tone("on_surface_variant") ?: defaults.onSurfaceVariant,
-            isLight = !isDark,
+            isLight = isLight,
         )
     }
 
