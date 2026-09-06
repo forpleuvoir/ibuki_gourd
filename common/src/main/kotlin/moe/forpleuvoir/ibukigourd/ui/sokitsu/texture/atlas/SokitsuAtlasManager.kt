@@ -43,7 +43,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
 
     /**
      * UI 组件通用图集 id（定义文件 assets/<ns>/sokitsu_atlas/ui.json，
-     * 纹理位于 texture/sokitsu/ui/，如 ui/button.normal、ui/button.pressed）。
+     * 纹理位于 texture/sokitsu/ui/ 下任意深度，如 ui/button/normal、ui/button/pressed）。
      *
      * 按钮、下拉框、面板等 UI 组件的背景精灵统一放在该图集，组件默认经
      * [sprite][SokitusAtlasManager.sprite](UI_ATLAS_ID, textureId) 取用；
@@ -176,8 +176,10 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
 
     /**
      * 收集该 atlas 的全部纹理 id：显式 [SokitsuAtlasDefinition.textures] + 自动扫描 atlas 自身目录
-     * `texture/sokitsu/<atlasId.path>/` 下所有 <textureId>.json 定义（去重、保持声明/扫描顺序）。
-     * 纹理 id 取文件 id 相对 texture/sokitsu/ 的路径去 .json 后缀，如 texture/sokitsu/ui/panel.json → ibukigourd:ui/panel。
+     * `texture/sokitsu/<atlasId.path>/` 下所有 <textureId> 定义（去重、保持声明/扫描顺序）。
+     *
+     * 扫描递归到任意子目录：子路径会原样保留进纹理 id，如
+     * texture/sokitsu/ui/button/normal.aseprite → ibukigourd:ui/button/normal。
      */
     private fun collectTextureIds(
         resourceManager: ResourceManager,

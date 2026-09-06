@@ -13,15 +13,13 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
-import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 
 /**
@@ -32,7 +30,7 @@ import net.minecraft.sounds.SoundEvents
  * 按钮自身只负责：
  * - 由 [ButtonState.resolve] 推导交互状态并取对应 [ButtonStateStyle]（精灵 + 内容色）；
  * - 悬停/聚焦时把描边层覆盖为 [ButtonColors.selectedOutlineColor]；
- * - 最小尺寸 [ButtonDefaults.minWidth] / [ButtonDefaults.minHeight]、内容内边距、
+ * - 最小尺寸 [ButtonDefaults.minSize] / [ButtonDefaults.minHeight]、内容内边距、
  *   `Role.Button` 语义。
  */
 @Composable
@@ -50,7 +48,7 @@ fun Button(
     val hovered by interactionSource.collectIsHoveredAsState()
     val focused by interactionSource.collectIsFocusedAsState()
 
-    val state = ButtonState.resolve(enabled, pressed, hovered, focused)
+    val state = UiState.resolve(enabled, pressed, hovered, focused)
     val style = colors[state]
 
     // 悬停/聚焦：仅 outline 层覆盖为 selectedOutlineColor（描边高亮），其余层保持色板明暗结构
@@ -63,7 +61,7 @@ fun Button(
         onClick = onClick,
         modifier = modifier
             .semantics { role = Role.Button }
-            .defaultMinSize(ButtonDefaults.minWidth, ButtonDefaults.minHeight),
+            .defaultMinSize(ButtonDefaults.minSize.width, ButtonDefaults.minSize.height),
         enabled = enabled,
         tone = tone,
         contentColor = style.contentColor,
@@ -79,35 +77,6 @@ fun Button(
             modifier = Modifier.padding(contentPadding),
             content = content
         )
-    }
-}
-
-/**
- * 按钮交互状态（由 [resolve] 按优先级推导：disabled > pressed > (hover ∪ focused) > normal）。
- */
-enum class ButtonState {
-
-    Normal, Pressed, Focused, Disabled;
-
-    companion object {
-
-        /**
-         * 由交互布尔推导当前状态。
-         *
-         * hover 无独立视觉资源，与 focused 共用 [Focused]（合并只发生在这里，
-         * 样式数据与状态机解耦）。
-         */
-        fun resolve(
-            enabled: Boolean,
-            pressed: Boolean,
-            hovered: Boolean,
-            focused: Boolean,
-        ): ButtonState = when {
-            !enabled           -> Disabled
-            pressed            -> Pressed
-            hovered || focused -> Focused
-            else               -> Normal
-        }
     }
 }
 
@@ -147,11 +116,11 @@ data class ButtonColors(
 ) {
 
     /** 取某状态的视觉样式。 */
-    operator fun get(state: ButtonState): ButtonStateStyle = when (state) {
-        ButtonState.Normal   -> normal
-        ButtonState.Pressed  -> pressed
-        ButtonState.Focused  -> focused
-        ButtonState.Disabled -> disabled
+    operator fun get(state: UiState): ButtonStateStyle = when (state) {
+        UiState.Normal   -> normal
+        UiState.Pressed  -> pressed
+        UiState.Focused  -> focused
+        UiState.Disabled -> disabled
     }
 }
 
@@ -193,10 +162,10 @@ object ButtonDefaults {
             ButtonTokens.DisabledContentOpacity,
         )
         return ButtonColors(
-            normal = ButtonStateStyle(sprite(meta.normalSprite), resolvedContent),
-            pressed = ButtonStateStyle(sprite(meta.pressedSprite), resolvedContent),
-            focused = ButtonStateStyle(sprite(meta.focusedSprite), resolvedContent),
-            disabled = ButtonStateStyle(sprite(meta.disabledSprite), resolvedDisabledContent),
+            normal = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.normal), resolvedContent),
+            pressed = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.pressed), resolvedContent),
+            focused = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.focused), resolvedContent),
+            disabled = ButtonStateStyle(SokitsuThemeMeta.uiSprite(meta.sprite.disabled), resolvedDisabledContent),
             tone = resolvedTone,
             selectedOutlineColor = selectedOutlineColor.takeOrElse {
                 resolvedTone.base.contrasting()
@@ -204,20 +173,11 @@ object ButtonDefaults {
         )
     }
 
-    private fun sprite(textureId: Identifier): SokitsuSprite =
-        SokitsuAtlasManager.sprite(SokitsuThemeMeta.uiAtlas, textureId)
-
     /**
-     * 按钮最小宽度：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
+     * 按钮最小尺寸：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
      */
-    val minWidth: Dp
-        @Composable get() = meta.minWidth.dp
-
-    /**
-     * 按钮最小高度：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
-     */
-    val minHeight: Dp
-        @Composable get() = meta.minHeight.dp
+    val minSize: DpSize
+        @Composable get() = meta.minSize
 
     /**
      * 内容内边距（水平 = [ButtonMeta.paddingHorizontal]，垂直 = [ButtonMeta.paddingVertical]）。

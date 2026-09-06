@@ -97,7 +97,7 @@ fun SokitsuTheme(
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
         LocalSokitsuPixelScale provides pixelScale,
-        LocalShadowLight provides Offset(-1f, -1f),
+        LocalShadowLight provides SokitsuThemeMeta.shadowLight,
     ) {
         ProvideTextStyle(value = typography.body, content = content)
     }

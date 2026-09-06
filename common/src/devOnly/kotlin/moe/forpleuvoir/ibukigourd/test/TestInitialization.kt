@@ -21,7 +21,6 @@ class TestInitialization : ModInitialization {
 
     override fun init() {
         TestCommand.init()
-        SokitsuAtlasValidation.run()
         logger.info("测试环境")
 
         ClientModConfigHandler.register(TestConfig)

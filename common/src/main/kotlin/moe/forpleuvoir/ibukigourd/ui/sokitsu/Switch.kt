@@ -12,34 +12,31 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.takeOrElse
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.uiSprite
 import moe.forpleuvoir.ibukigourd.util.contrasting
-import net.minecraft.resources.Identifier
+import kotlin.math.roundToInt
+import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.sounds.SoundEvents
-import moe.forpleuvoir.ibukigourd.util.mc
 
 /**
  * 开关（Toggle）。轨道为静态精灵背景，把手为可滑动精灵，按 [checked] 在轨道上水平滑动。
@@ -51,9 +48,13 @@ import moe.forpleuvoir.ibukigourd.util.mc
  * 把手滑动使用 [animateFloatAsState] 默认 spring 缓动（compose-minecraft 当前未提供
  * [androidx.compose.animation.core.tween]），关闭贴在左、开启贴右。
  *
+ * 尺寸：轨道最小尺寸与把手尺寸来自 [SwitchDefaults]（资源包可覆盖）并作为 [defaultMinSize]；
+ * 轨道的**实际**尺寸以布局结果为准（[onSizeChanged]），把手的内边距与滑动行程由两个 Box 的
+ * 实测像素尺寸推导，因此调用方经 [modifier] 覆盖尺寸后把手位置会自动跟随。
+ *
  * @param checked 是否开启
  * @param onCheckedChange 状态变化回调（null 表示只读展示，仍受 [enabled] 控制不可交互）
- * @param modifier 外部修饰（本组件已按轨道尺寸定好，调用方一般不要再设尺寸）
+ * @param modifier 外部修饰（可覆盖尺寸：轨道按传入约束收敛，把手位置随之重算）
  * @param enabled 是否可交互
  * @param colors 配色集，默认 [SwitchDefaults.colors]
  * @param interactionSource 交互源，不传则内部新建
@@ -73,22 +74,23 @@ fun Switch(
     val focused by interactionSource.collectIsFocusedAsState()
 
     // 把手四态精灵经 [SwitchState] 统一推导后从 [SwitchDefaults] 取图，组合方法不写死状态分支
-    val thumbSprite = SwitchDefaults.thumbSprite(SwitchState.resolve(enabled, pressed, hovered, focused))
+    val thumbSprite = SwitchDefaults.thumbSprite(UiState.resolve(enabled, pressed, hovered, focused))
 
     // 点击音效（参考 [Button] 实现）：默认播放 UI 按钮音，作用域内可用 [SwitchDefaults.LocalPressSound] 覆盖
     val clickSound = SwitchDefaults.LocalPressSound.current
 
-    // 把手按 checked 在 [uncheckedX, checkedX] 间滑动：0 = 关闭(左)，1 = 开启(右)
+    // 把手按 checked 在最左/最右之间滑动：0 = 关闭(左)，1 = 开启(右)
     val fraction by animateFloatAsState(if (checked) 1f else 0f)
 
-    // 尺寸取自 [SwitchDefaults]（默认与当前纹理比例匹配），不在此写死
-    val trackWidth = SwitchDefaults.trackWidth
-    val trackHeight = SwitchDefaults.trackHeight
-    val thumbSize = SwitchDefaults.thumbSize
-    // 垂直内边距 = (轨道高 - 把手高) / 2，水平/垂直统一取同一 inset 保证居中
-    val inset = (trackHeight - thumbSize) / 2
-    val uncheckedX = inset
-    val checkedX = trackWidth - thumbSize - inset
+    // 尺寸基准取自 [SwitchDefaults]（默认与当前纹理比例匹配，资源包可覆盖）：
+    // 轨道用它作最小尺寸，把手按该尺寸固定；派生量（内边距、滑动行程）一律由实测尺寸推导。
+    val trackMinSize = SwitchDefaults.trackMinSize
+    val thumbSize = SwitchDefaults.thumbMinSize
+
+    // 轨道的实测尺寸：调用方可经 [modifier] 覆盖，故以布局结果为准而非 meta 值。
+    // 首次布局前回调尚未到达，回落 [trackMinSize]（与未覆盖时的最终值一致，不会产生跳变）。
+    var trackSize by remember { mutableStateOf(IntSize.Zero) }
+    val measuredTrackSize: IntSize? = trackSize.takeIf { it != IntSize.Zero }
 
     // 轨道目标色板（开启/关闭/禁用态）：先算出目标，再整体平滑过渡到目标
     val targetTrackTone = colors.trackColor(enabled, checked)
@@ -119,46 +121,30 @@ fun Switch(
                     onCheckedChange?.invoke(!checked)
                 },
             )
-            .defaultMinSize(trackWidth, trackHeight)
-            .sokitsuSprite(sprite(SwitchDefaults.meta.trackSprite), trackTone)
+            .defaultMinSize(trackMinSize.width, trackMinSize.height)
+            .onSizeChanged { trackSize = it }
+            .sokitsuSprite(SwitchDefaults.trackSprite(), trackTone)
     ) {
         Box(
             modifier = Modifier
-                .offset(x = uncheckedX + (checkedX - uncheckedX) * fraction, y = inset)
-                .size(thumbSize)
+                .offset {
+                    // 在 px 域按"轨道实测尺寸 vs 把手尺寸"推导内边距与行程，任一尺寸变化都自动跟随
+                    val width = measuredTrackSize?.width ?: trackMinSize.width.roundToPx()
+                    val height = measuredTrackSize?.height ?: trackMinSize.height.roundToPx()
+                    val thumbWidth = thumbSize.width.roundToPx()
+                    val thumbHeight = thumbSize.height.roundToPx()
+                    // 垂直内边距 = (轨道高 - 把手高) / 2；水平取同值使四周留白一致，空间不足时退化为 0
+                    val insetY = ((height - thumbHeight) / 2).coerceAtLeast(0)
+                    val insetX = minOf((width - thumbWidth) / 2, insetY).coerceAtLeast(0)
+                    val travel = (width - thumbWidth - 2 * insetX).coerceAtLeast(0)
+                    IntOffset(insetX + (travel * fraction).roundToInt(), insetY)
+                }
+                .defaultMinSize(thumbSize.width, thumbSize.height)
                 .sokitsuSprite(thumbSprite, thumbTone)
         )
     }
 }
 
-/**
- * 开关交互状态（由 [SwitchState.resolve] 按优先级推导：disabled > pressed > (hover ∪ focused) > normal）。
- */
-enum class SwitchState {
-
-    Normal, Pressed, Focused, Disabled;
-
-    companion object {
-
-        /**
-         * 由交互布尔推导当前状态。
-         *
-         * hover 无独立视觉资源，与 focused 共用 [Focused]（合并只发生在这里，
-         * 精灵映射与状态机解耦）。
-         */
-        fun resolve(
-            enabled: Boolean,
-            pressed: Boolean,
-            hovered: Boolean,
-            focused: Boolean,
-        ): SwitchState = when {
-            !enabled           -> Disabled
-            pressed            -> Pressed
-            hovered || focused -> Focused
-            else               -> Normal
-        }
-    }
-}
 
 object SwitchDefaults {
 
@@ -173,12 +159,11 @@ object SwitchDefaults {
      * 与当前 switch 纹理比例匹配；调用方若要整体覆盖尺寸，
      * 可经 [Switch] 的 [modifier] 自行 [androidx.compose.ui.Modifier.size] 控制。
      */
-    val trackWidth: Dp
-        @Composable get() = SokitsuThemeMeta.switch.trackWidth.dp
-    val trackHeight: Dp
-        @Composable get() = SokitsuThemeMeta.switch.trackHeight.dp
-    val thumbSize: Dp
-        @Composable get() = SokitsuThemeMeta.switch.thumbSize.dp
+    val trackMinSize: DpSize
+        @Composable get() = SokitsuThemeMeta.switch.trackMinSize
+
+    val thumbMinSize: DpSize
+        @Composable get() = SokitsuThemeMeta.switch.thumbMinSize
 
     /**
      * 按 [SwitchState] 取对应把手精灵（已解析为 [SokitsuSprite]）。
@@ -187,14 +172,9 @@ object SwitchDefaults {
      * 与 [Button] 的 [moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonState] +
      * [moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults.colors] 思路一致。
      */
-    fun thumbSprite(state: SwitchState): SokitsuSprite = sprite(thumbSpriteId(state))
+    fun thumbSprite(state: UiState): SokitsuSprite = SokitsuThemeMeta.uiSprite(meta.thumbSprite[state])
 
-    private fun thumbSpriteId(state: SwitchState): Identifier = when (state) {
-        SwitchState.Normal   -> meta.thumbNormalSprite
-        SwitchState.Pressed  -> meta.thumbPressedSprite
-        SwitchState.Focused  -> meta.thumbFocusedSprite
-        SwitchState.Disabled -> meta.thumbDisabledSprite
-    }
+    fun trackSprite(): SokitsuSprite = SokitsuThemeMeta.uiSprite(meta.trackSprite)
 
     /**
      * 默认开关配色集：八个状态色板槽位与选中描边色**全部有默认值**，`SwitchDefaults.colors()` 可无参调用。
@@ -251,11 +231,6 @@ object SwitchDefaults {
     }
 
 }
-
-
-private fun sprite(textureId: Identifier): SokitsuSprite =
-    SokitsuAtlasManager.sprite(SokitsuThemeMeta.uiAtlas, textureId)
-
 
 /**
  * 把 [ColorTone] 的五档色（outline/shadow/dark/base/highlight）逐字段用 [animateColorAsState]

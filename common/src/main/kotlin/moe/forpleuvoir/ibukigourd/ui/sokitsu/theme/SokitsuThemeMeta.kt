@@ -3,20 +3,18 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
+import moe.forpleuvoir.ibukigourd.util.codec.offset
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
-import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.nebula.serialization.codec.color
-import moe.forpleuvoir.nebula.serialization.codec.default
-import moe.forpleuvoir.nebula.serialization.codec.deserialization
-import moe.forpleuvoir.nebula.serialization.codec.map
-import moe.forpleuvoir.nebula.serialization.codec.nullable
+import moe.forpleuvoir.nebula.serialization.codec.*
 import net.minecraft.resources.Identifier
 import java.util.concurrent.ConcurrentHashMap
+import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
 /**
  * 单个 [ColorTone]（五档色阶家族）的 meta 定义。
@@ -78,7 +76,8 @@ data class ColorToneMeta(
  * 与屏幕像素的换算由 [pixelScale] 决定。
  */
 class SokitsuThemeMetaFile(
-    val pixelScale: Int?,
+    val pixelScale: Int,
+    val shadowLight: Offset,
     val uiAtlas: Identifier,
     val light: Map<String, ColorToneMeta?>,
     val dark: Map<String, ColorToneMeta?>,
@@ -88,7 +87,8 @@ class SokitsuThemeMetaFile(
     companion object : Codec<SokitsuThemeMetaFile> {
 
         val default = SokitsuThemeMetaFile(
-            pixelScale = null,
+            pixelScale = 3,
+            shadowLight = Offset(-1f, -1f),
             uiAtlas = identifier("ui"),
             light = emptyMap(),
             dark = emptyMap(),
@@ -96,13 +96,14 @@ class SokitsuThemeMetaFile(
         )
 
         private val codec = Codec.create<SokitsuThemeMetaFile>()
-            .field(SokitsuThemeMetaFile::pixelScale).default(default.pixelScale).codec(Codec.int(1..10).nullable())
+            .field(SokitsuThemeMetaFile::pixelScale).default(default.pixelScale).codec(Codec.int(1..10))
+            .field(SokitsuThemeMetaFile::shadowLight).default(default.shadowLight).codec(Codec.offset)
             .field(SokitsuThemeMetaFile::uiAtlas).default(default.uiAtlas).codec(Codec.ibukigourdIdentifier)
             .field(SokitsuThemeMetaFile::light).default(default.light).codec(Codec.map(ColorToneMeta.nullable()))
             .field(SokitsuThemeMetaFile::dark).default(default.dark).codec(Codec.map(ColorToneMeta.nullable()))
             .field(SokitsuThemeMetaFile::uiMeta).default(default.uiMeta).codec(Codec.map(SerializeElementCodec))
-            .build({ pixelScale, uiAtlas, light, dark, uiMeta ->
-                SokitsuThemeMetaFile(pixelScale, uiAtlas, light, dark, uiMeta)
+            .build({ pixelScale, shadowLight, uiAtlas, light, dark, uiMeta ->
+                SokitsuThemeMetaFile(pixelScale, shadowLight, uiAtlas, light, dark, uiMeta)
             })
 
         override fun serialization(target: SokitsuThemeMetaFile): SerializeElement = codec.serialization(target)
@@ -136,23 +137,26 @@ object SokitsuThemeMeta {
     private val logger = logger()
 
     /** 像素放大倍率：1 逻辑像素 → N×N 屏幕像素块（见 [LocalSokitsuPixelScale]）。 */
-    var pixelScale: Int by mutableStateOf(3)
+    var pixelScale: Int by mutableStateOf(SokitsuThemeMetaFile.default.pixelScale)
+        internal set
+
+    var shadowLight: Offset by mutableStateOf(SokitsuThemeMetaFile.default.shadowLight)
         internal set
 
     /** 组件纹理所在的通用 UI 图集 id（默认 `ibukigourd:ui`，见 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager]），资源包可覆盖。 */
-    var uiAtlas: Identifier by mutableStateOf(identifier("ui"))
+    var uiAtlas: Identifier by mutableStateOf(SokitsuThemeMetaFile.default.uiAtlas)
         internal set
 
     /** 亮色方案的槽位定义；null 槽位回落 [lightColorScheme] 内置默认。 */
-    var light: Map<String, ColorToneMeta?> by mutableStateOf(emptyMap())
+    var light: Map<String, ColorToneMeta?> by mutableStateOf(SokitsuThemeMetaFile.default.light)
         internal set
 
     /** 暗色方案的槽位定义；null 槽位回落 [darkColorScheme] 内置默认。 */
-    var dark: Map<String, ColorToneMeta?> by mutableStateOf(emptyMap())
+    var dark: Map<String, ColorToneMeta?> by mutableStateOf(SokitsuThemeMetaFile.default.dark)
         internal set
 
     /** 组件级原始 meta 表（键 = 组件名，值 = 该组件自定义结构的 JSON 子树）。 */
-    var uiMeta: Map<String, SerializeElement> by mutableStateOf(emptyMap())
+    var uiMeta: Map<String, SerializeElement> by mutableStateOf(SokitsuThemeMetaFile.default.uiMeta)
         internal set
 
     private val decoded = ConcurrentHashMap<String, Any>()
@@ -166,11 +170,9 @@ object SokitsuThemeMeta {
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> decodeComponent(key: String, codec: Codec<T>, default: T): T =
         decoded.getOrPut(key) {
-            uiMeta[key]?.let { element ->
-                element.deserialization(codec)
-                    .onFailure { logger.warn("SokitsuThemeMeta[$key] Failed to decode, falling back to defaults: ${it.message}") }
-                    .getOrDefault(default)
-            } ?: default
+            uiMeta[key]?.deserialization(codec)?.onFailure { logger.warn("SokitsuThemeMeta[$key] Failed to decode, falling back to defaults: ${it.message}") }
+                ?.getOrDefault(default)
+                ?: default
         } as T
 
     /**
@@ -205,7 +207,7 @@ object SokitsuThemeMeta {
 
     /** 资源重载入口（[SokitsuThemeMetaLoader] 专调用）：整体刷新并清空解码缓存。 */
     internal fun reload(file: SokitsuThemeMetaFile) {
-        pixelScale = file.pixelScale ?: pixelScale
+        pixelScale = file.pixelScale
         uiAtlas = file.uiAtlas
         light = file.light
         dark = file.dark
@@ -213,3 +215,5 @@ object SokitsuThemeMeta {
         decoded.clear()
     }
 }
+
+fun SokitsuThemeMeta.uiSprite(textureId: Identifier) = SokitsuAtlasManager.sprite(uiAtlas, textureId)

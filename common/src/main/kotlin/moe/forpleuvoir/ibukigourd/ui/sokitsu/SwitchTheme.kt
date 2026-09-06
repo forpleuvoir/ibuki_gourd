@@ -1,7 +1,10 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
+import moe.forpleuvoir.ibukigourd.util.codec.dpSize
 import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -56,27 +59,12 @@ object SwitchTokens {
  * ```
  */
 data class SwitchMeta(
-    /** 轨道宽度（dp），与 switch.track 纹理比例匹配。 */
-    val trackWidth: Int,
-
-    /** 轨道高度（dp），把手贴轨道上下边缘。 */
-    val trackHeight: Int,
-
-    /** 把手尺寸（dp）。 */
-    val thumbSize: Int,
-
+    /** 轨道最小尺寸，与 switch.track 纹理比例匹配。 */
+    val trackMinSize: DpSize,
+    /** 把手尺寸 */
+    val thumbMinSize: DpSize,
     /** 把手常态纹理。 */
-    val thumbNormalSprite: Identifier,
-
-    /** 把手按下态纹理。 */
-    val thumbPressedSprite: Identifier,
-
-    /** 把手聚焦态纹理。 */
-    val thumbFocusedSprite: Identifier,
-
-    /** 把手禁用态纹理。 */
-    val thumbDisabledSprite: Identifier,
-
+    val thumbSprite: UiStateSprite,
     /** 轨道纹理。 */
     val trackSprite: Identifier,
 ) {
@@ -84,24 +72,21 @@ data class SwitchMeta(
     companion object : Codec<SwitchMeta> {
 
         val default = SwitchMeta(
-            trackWidth = 90,
-            trackHeight = 48,
-            thumbSize = 48,
-            thumbNormalSprite = identifier("ui/switch.thumb.normal"),
-            thumbPressedSprite = identifier("ui/switch.thumb.pressed"),
-            thumbFocusedSprite = identifier("ui/switch.thumb.focused"),
-            thumbDisabledSprite = identifier("ui/switch.thumb.disabled"),
-            trackSprite = identifier("ui/switch.track"),
+            trackMinSize = DpSize(90.dp, 48.dp),
+            thumbMinSize = DpSize(48.dp, 48.dp),
+            thumbSprite = UiStateSprite(
+                normal = identifier("ui/switch/thumb/normal"),
+                pressed = identifier("ui/switch/thumb/pressed"),
+                focused = identifier("ui/switch/thumb/focused"),
+                disabled = identifier("ui/switch/thumb/disabled")
+            ),
+            trackSprite = identifier("ui/switch/track"),
         )
 
         private val codec = Codec.create<SwitchMeta>()
-            .field(SwitchMeta::trackWidth).default(default.trackWidth).codec(Codec.int(8..256))
-            .field(SwitchMeta::trackHeight).default(default.trackHeight).codec(Codec.int(8..256))
-            .field(SwitchMeta::thumbSize).default(default.thumbSize).codec(Codec.int(8..256))
-            .field(SwitchMeta::thumbNormalSprite).default(default.thumbNormalSprite).codec(Codec.ibukigourdIdentifier)
-            .field(SwitchMeta::thumbPressedSprite).default(default.thumbPressedSprite).codec(Codec.ibukigourdIdentifier)
-            .field(SwitchMeta::thumbFocusedSprite).default(default.thumbFocusedSprite).codec(Codec.ibukigourdIdentifier)
-            .field(SwitchMeta::thumbDisabledSprite).default(default.thumbDisabledSprite).codec(Codec.ibukigourdIdentifier)
+            .field(SwitchMeta::trackMinSize).default(default.trackMinSize).codec(Codec.dpSize(8.dp..512.dp, 8.dp..512.dp))
+            .field(SwitchMeta::thumbMinSize).default(default.thumbMinSize).codec(Codec.dpSize(8.dp..256.dp))
+            .field(SwitchMeta::thumbSprite).default(default.thumbSprite).codec(UiStateSprite)
             .field(SwitchMeta::trackSprite).default(default.trackSprite).codec(Codec.ibukigourdIdentifier)
             .build(::SwitchMeta)
 

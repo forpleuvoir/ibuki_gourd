@@ -1,12 +1,14 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
-import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
+import moe.forpleuvoir.ibukigourd.util.codec.dp
+import moe.forpleuvoir.ibukigourd.util.codec.dpSize
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import net.minecraft.resources.Identifier
 
 /**
  * 按钮的主题接入声明：token 映射（"什么颜色"）+ 尺寸 meta（"多大/多密"）合一。
@@ -46,57 +48,37 @@ object ButtonTokens {
  * ```
  */
 data class ButtonMeta(
-    /** 按钮最小宽度（dp）。 */
-    val minWidth: Int,
-
-    /** 按钮最小高度（dp）。 */
-    val minHeight: Int,
-
+    /** 按钮最小尺寸。 */
+    val minSize: DpSize,
     /** 内容内边距——水平（dp）。 */
     val paddingHorizontal: Int,
-
     /** 内容内边距——垂直（dp）。 */
     val paddingVertical: Int,
     /**
-     * 按钮的常态纹理
+     * 按钮的纹理
      */
-    val normalSprite: Identifier,
-    /**
-     * 按钮的按下纹理
-     */
-    val pressedSprite: Identifier,
-    /**
-     * 按钮聚焦时的纹理
-     */
-    val focusedSprite: Identifier,
-    /**
-     * 按钮被禁用时的纹理
-     */
-    val disabledSprite: Identifier,
+    val sprite: UiStateSprite,
 ) {
 
     companion object : Codec<ButtonMeta> {
 
         val default = ButtonMeta(
-            minWidth = 56,
-            minHeight = 56,
+            minSize = DpSize(56.dp, 56.dp),
             paddingHorizontal = 18,
             paddingVertical = 12,
-            normalSprite = identifier("ui/button.normal"),
-            pressedSprite = identifier("ui/button.pressed"),
-            focusedSprite = identifier("ui/button.focused"),
-            disabledSprite = identifier("ui/button.disabled")
+            sprite = UiStateSprite(
+                normal = identifier("ui/button/normal"),
+                pressed = identifier("ui/button/pressed"),
+                focused = identifier("ui/button/focused"),
+                disabled = identifier("ui/button/disabled")
+            )
         )
 
         private val codec = Codec.create<ButtonMeta>()
-            .field(ButtonMeta::minWidth).default(default.minWidth).codec(Codec.int(1..512))
-            .field(ButtonMeta::minHeight).default(default.minHeight).codec(Codec.int(1..512))
+            .field(ButtonMeta::minSize).default(default.minSize).codec(Codec.dpSize(1.dp..512.dp, 1.dp..512.dp))
             .field(ButtonMeta::paddingHorizontal).default(default.paddingHorizontal).codec(Codec.int(0..128))
             .field(ButtonMeta::paddingVertical).default(default.paddingVertical).codec(Codec.int(0..128))
-            .field(ButtonMeta::normalSprite).default(default.normalSprite).codec(Codec.ibukigourdIdentifier)
-            .field(ButtonMeta::pressedSprite).default(default.pressedSprite).codec(Codec.ibukigourdIdentifier)
-            .field(ButtonMeta::focusedSprite).default(default.focusedSprite).codec(Codec.ibukigourdIdentifier)
-            .field(ButtonMeta::disabledSprite).default(default.disabledSprite).codec(Codec.ibukigourdIdentifier)
+            .field(ButtonMeta::sprite).default(default.sprite).codec(UiStateSprite)
             .build(::ButtonMeta)
 
         override fun serialization(target: ButtonMeta): SerializeElement = codec.serialization(target)
@@ -110,3 +92,4 @@ data class ButtonMeta(
  */
 val SokitsuThemeMeta.button: ButtonMeta
     get() = decodeComponent("button", ButtonMeta, ButtonMeta.default)
+
