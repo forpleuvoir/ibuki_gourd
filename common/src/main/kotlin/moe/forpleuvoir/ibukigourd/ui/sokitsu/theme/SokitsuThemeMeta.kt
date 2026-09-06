@@ -3,6 +3,8 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
@@ -13,6 +15,7 @@ import moe.forpleuvoir.nebula.serialization.codec.default
 import moe.forpleuvoir.nebula.serialization.codec.deserialization
 import moe.forpleuvoir.nebula.serialization.codec.map
 import moe.forpleuvoir.nebula.serialization.codec.nullable
+import net.minecraft.resources.Identifier
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -23,8 +26,8 @@ import java.util.concurrent.ConcurrentHashMap
  * 颜色取值支持 hex 字符串（`#8647B3`）与 ARGB int（nebula [Codec.color] 现成解码）。
  */
 data class ColorToneMeta(
-    val base: NebulaColor? = null,
-    val outline: NebulaColor? = null,
+    val base: NebulaColor?,
+    val outline: NebulaColor?,
 ) {
 
     /** base 缺失时返回 null（该槽位回落主题内置默认）。 */
@@ -33,10 +36,22 @@ data class ColorToneMeta(
         return ColorTone.fromBase(base = base.toComposeColor(), outline = outline?.toComposeColor())
     }
 
-    companion object : Codec<ColorToneMeta> by Codec.create<ColorToneMeta>()
-        .field(ColorToneMeta::base).default(null).codec(Codec.color.nullable())
-        .field(ColorToneMeta::outline).default(null).codec(Codec.color.nullable())
-        .build(::ColorToneMeta)
+    companion object : Codec<ColorToneMeta> {
+
+        val default = ColorToneMeta(
+            base = null,
+            outline = null,
+        )
+
+        private val codec = Codec.create<ColorToneMeta>()
+            .field(ColorToneMeta::base).default(default.base).codec(Codec.color.nullable())
+            .field(ColorToneMeta::outline).default(default.outline).codec(Codec.color.nullable())
+            .build(::ColorToneMeta)
+
+        override fun serialization(target: ColorToneMeta): SerializeElement = codec.serialization(target)
+
+        override fun deserialization(data: SerializeElement): Result<ColorToneMeta> = codec.deserialization(data)
+    }
 }
 
 /**
@@ -63,18 +78,37 @@ data class ColorToneMeta(
  * 与屏幕像素的换算由 [pixelScale] 决定。
  */
 class SokitsuThemeMetaFile(
-    val pixelScale: Int? = null,
-    val light: Map<String, ColorToneMeta?> = emptyMap(),
-    val dark: Map<String, ColorToneMeta?> = emptyMap(),
-    val uiMeta: Map<String, SerializeElement> = emptyMap(),
+    val pixelScale: Int?,
+    val uiAtlas: Identifier,
+    val light: Map<String, ColorToneMeta?>,
+    val dark: Map<String, ColorToneMeta?>,
+    val uiMeta: Map<String, SerializeElement>,
 ) {
 
-    companion object : Codec<SokitsuThemeMetaFile> by Codec.create<SokitsuThemeMetaFile>()
-        .field(SokitsuThemeMetaFile::pixelScale).default(null).codec(Codec.int(1..10).nullable())
-        .field(SokitsuThemeMetaFile::light).default(emptyMap()).codec(Codec.map(ColorToneMeta.nullable()))
-        .field(SokitsuThemeMetaFile::dark).default(emptyMap()).codec(Codec.map(ColorToneMeta.nullable()))
-        .field(SokitsuThemeMetaFile::uiMeta).codec(Codec.map(SerializeElementCodec))
-        .build({ pixelScale, light, dark, uiMeta -> SokitsuThemeMetaFile(pixelScale, light, dark, uiMeta) })
+    companion object : Codec<SokitsuThemeMetaFile> {
+
+        val default = SokitsuThemeMetaFile(
+            pixelScale = null,
+            uiAtlas = identifier("ui"),
+            light = emptyMap(),
+            dark = emptyMap(),
+            uiMeta = emptyMap(),
+        )
+
+        private val codec = Codec.create<SokitsuThemeMetaFile>()
+            .field(SokitsuThemeMetaFile::pixelScale).default(default.pixelScale).codec(Codec.int(1..10).nullable())
+            .field(SokitsuThemeMetaFile::uiAtlas).default(default.uiAtlas).codec(Codec.ibukigourdIdentifier)
+            .field(SokitsuThemeMetaFile::light).default(default.light).codec(Codec.map(ColorToneMeta.nullable()))
+            .field(SokitsuThemeMetaFile::dark).default(default.dark).codec(Codec.map(ColorToneMeta.nullable()))
+            .field(SokitsuThemeMetaFile::uiMeta).default(default.uiMeta).codec(Codec.map(SerializeElementCodec))
+            .build({ pixelScale, uiAtlas, light, dark, uiMeta ->
+                SokitsuThemeMetaFile(pixelScale, uiAtlas, light, dark, uiMeta)
+            })
+
+        override fun serialization(target: SokitsuThemeMetaFile): SerializeElement = codec.serialization(target)
+
+        override fun deserialization(data: SerializeElement): Result<SokitsuThemeMetaFile> = codec.deserialization(data)
+    }
 }
 
 private val SerializeElementCodec: Codec<SerializeElement> = object : Codec<SerializeElement> {
@@ -103,6 +137,10 @@ object SokitsuThemeMeta {
 
     /** 像素放大倍率：1 逻辑像素 → N×N 屏幕像素块（见 [LocalSokitsuPixelScale]）。 */
     var pixelScale: Int by mutableStateOf(3)
+        internal set
+
+    /** 组件纹理所在的通用 UI 图集 id（默认 `ibukigourd:ui`，见 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager]），资源包可覆盖。 */
+    var uiAtlas: Identifier by mutableStateOf(identifier("ui"))
         internal set
 
     /** 亮色方案的槽位定义；null 槽位回落 [lightColorScheme] 内置默认。 */
@@ -168,6 +206,7 @@ object SokitsuThemeMeta {
     /** 资源重载入口（[SokitsuThemeMetaLoader] 专调用）：整体刷新并清空解码缓存。 */
     internal fun reload(file: SokitsuThemeMetaFile) {
         pixelScale = file.pixelScale ?: pixelScale
+        uiAtlas = file.uiAtlas
         light = file.light
         dark = file.dark
         uiMeta = file.uiMeta

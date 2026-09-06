@@ -2,8 +2,11 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
+import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
+import moe.forpleuvoir.ibukigourd.util.identifier
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.nebula.serialization.codec.default
+import net.minecraft.resources.Identifier
 
 /**
  * 开关的主题接入声明：token 映射（"什么颜色"）+ 尺寸 meta（"多大/多密"）合一。
@@ -54,24 +57,62 @@ object SwitchTokens {
  */
 data class SwitchMeta(
     /** 轨道宽度（dp），与 switch.track 纹理比例匹配。 */
-    val trackWidth: Int = 90,
+    val trackWidth: Int,
 
     /** 轨道高度（dp），把手贴轨道上下边缘。 */
-    val trackHeight: Int = 48,
+    val trackHeight: Int,
 
     /** 把手尺寸（dp）。 */
-    val thumbSize: Int = 48,
+    val thumbSize: Int,
+
+    /** 把手常态纹理。 */
+    val thumbNormalSprite: Identifier,
+
+    /** 把手按下态纹理。 */
+    val thumbPressedSprite: Identifier,
+
+    /** 把手聚焦态纹理。 */
+    val thumbFocusedSprite: Identifier,
+
+    /** 把手禁用态纹理。 */
+    val thumbDisabledSprite: Identifier,
+
+    /** 轨道纹理。 */
+    val trackSprite: Identifier,
 ) {
 
-    companion object : Codec<SwitchMeta> by Codec.create<SwitchMeta>()
-        .field(SwitchMeta::trackWidth).default(90).codec(Codec.int(8..256))
-        .field(SwitchMeta::trackHeight).default(48).codec(Codec.int(8..256))
-        .field(SwitchMeta::thumbSize).default(48).codec(Codec.int(8..256))
-        .build(::SwitchMeta)
+    companion object : Codec<SwitchMeta> {
+
+        val default = SwitchMeta(
+            trackWidth = 90,
+            trackHeight = 48,
+            thumbSize = 48,
+            thumbNormalSprite = identifier("ui/switch.thumb.normal"),
+            thumbPressedSprite = identifier("ui/switch.thumb.pressed"),
+            thumbFocusedSprite = identifier("ui/switch.thumb.focused"),
+            thumbDisabledSprite = identifier("ui/switch.thumb.disabled"),
+            trackSprite = identifier("ui/switch.track"),
+        )
+
+        private val codec = Codec.create<SwitchMeta>()
+            .field(SwitchMeta::trackWidth).default(default.trackWidth).codec(Codec.int(8..256))
+            .field(SwitchMeta::trackHeight).default(default.trackHeight).codec(Codec.int(8..256))
+            .field(SwitchMeta::thumbSize).default(default.thumbSize).codec(Codec.int(8..256))
+            .field(SwitchMeta::thumbNormalSprite).default(default.thumbNormalSprite).codec(Codec.ibukigourdIdentifier)
+            .field(SwitchMeta::thumbPressedSprite).default(default.thumbPressedSprite).codec(Codec.ibukigourdIdentifier)
+            .field(SwitchMeta::thumbFocusedSprite).default(default.thumbFocusedSprite).codec(Codec.ibukigourdIdentifier)
+            .field(SwitchMeta::thumbDisabledSprite).default(default.thumbDisabledSprite).codec(Codec.ibukigourdIdentifier)
+            .field(SwitchMeta::trackSprite).default(default.trackSprite).codec(Codec.ibukigourdIdentifier)
+            .build(::SwitchMeta)
+
+        override fun serialization(target: SwitchMeta): SerializeElement = codec.serialization(target)
+
+        override fun deserialization(data: SerializeElement): Result<SwitchMeta> = codec.deserialization(data)
+    }
 }
 
 /**
  * 主题 meta 的开关段：缺失/解码失败回落 [SwitchMeta] 内置默认。
  */
 val SokitsuThemeMeta.switch: SwitchMeta
-    get() = decodeComponent("switch", SwitchMeta, SwitchMeta())
+    get() = decodeComponent("switch", SwitchMeta, SwitchMeta.default)

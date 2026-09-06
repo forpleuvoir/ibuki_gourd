@@ -42,12 +42,12 @@ object SokitsuThemeMetaLoader : ClientResourceReloaderListener {
 
     private fun load(resourceManager: ResourceManager): SokitsuThemeMetaFile {
         val resource = resourceManager.getResource(metaFileId).orElse(null)
-            ?: return SokitsuThemeMetaFile()  // 未提供 meta 文件：保持内置默认
+            ?: return SokitsuThemeMetaFile.default  // 未提供 meta 文件：保持内置默认
         return runCatching {
             val json = resource.openAsReader().use { it.readText() }
             val element = JsonDialect.decode(json).getOrThrow()
             SokitsuThemeMetaFile.deserialization(element).getOrThrow()
         }.onFailure { logger.warn("Failed to load sokitsu meta '$metaFileId': ${it.message}") }
-            .getOrDefault(SokitsuThemeMetaFile())
+            .getOrDefault(SokitsuThemeMetaFile.default)
     }
 }

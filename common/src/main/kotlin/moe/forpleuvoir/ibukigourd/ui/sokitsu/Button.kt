@@ -19,7 +19,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
 import moe.forpleuvoir.ibukigourd.util.contrasting
-import moe.forpleuvoir.ibukigourd.util.identifier
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.resources.Identifier
@@ -55,9 +54,9 @@ fun Button(
     val style = colors[state]
 
     // 悬停/聚焦：仅 outline 层覆盖为 selectedOutlineColor（描边高亮），其余层保持色板明暗结构
-    val tone = when (state) {
-        ButtonState.Focused -> colors.tone.copy(outline = colors.selectedOutlineColor)
-        else                -> colors.tone
+    val tone = when {
+        hovered || focused -> colors.tone.copy(outline = colors.selectedOutlineColor)
+        else               -> colors.tone
     }
 
     Surface(
@@ -159,22 +158,12 @@ data class ButtonColors(
 
 object ButtonDefaults {
 
-    /** 按钮默认背景纹理（texture/sokitsu/ui/button.aseprite → <ns>:ui/button），位于 [SokitsuAtlasManager.UI_ATLAS_ID] 通用 UI 图集。 */
-    val textureId: Identifier = identifier("ui/button")
-
-    /** 按钮按下态背景（texture/sokitsu/ui/button.press.aseprite → <ns>:ui/button.press）。 */
-    val pressTextureId: Identifier = identifier("ui/button.press")
-
-    /** 按钮聚焦态背景（texture/sokitsu/ui/button.focus.aseprite → <ns>:ui/button.focus）。 */
-    val focusTextureId: Identifier = identifier("ui/button.focus")
-
-    /** 按钮禁用态背景（texture/sokitsu/ui/button.disable.aseprite → <ns>:ui/button.disable）。 */
-    val disableTextureId: Identifier = identifier("ui/button.disable")
+    inline val meta get() = SokitsuThemeMeta.button
 
     val LocalPressSound = compositionLocalOf<SoundInstance?> { SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f) }
 
     /**
-     * 默认按钮样式集：`ui/button` 四态精灵 + 按组件 token 映射表解析出的容器与内容色。
+     * 默认按钮样式集：按 [ButtonMeta] 四态精灵 + 按组件 token 映射表解析出的容器与内容色。
      *
      * 四个参数**全部默认为未指定**（[ColorTone.Unspecified] / [Color.Unspecified]），
      * 语义是"调用方没意见，请按 [ButtonTokens] 映射表结合当前主题解析"。
@@ -204,10 +193,10 @@ object ButtonDefaults {
             ButtonTokens.DisabledContentOpacity,
         )
         return ButtonColors(
-            normal = ButtonStateStyle(sprite(textureId), resolvedContent),
-            pressed = ButtonStateStyle(sprite(pressTextureId), resolvedContent),
-            focused = ButtonStateStyle(sprite(focusTextureId), resolvedContent),
-            disabled = ButtonStateStyle(sprite(disableTextureId), resolvedDisabledContent),
+            normal = ButtonStateStyle(sprite(meta.normalSprite), resolvedContent),
+            pressed = ButtonStateStyle(sprite(meta.pressedSprite), resolvedContent),
+            focused = ButtonStateStyle(sprite(meta.focusedSprite), resolvedContent),
+            disabled = ButtonStateStyle(sprite(meta.disabledSprite), resolvedDisabledContent),
             tone = resolvedTone,
             selectedOutlineColor = selectedOutlineColor.takeOrElse {
                 resolvedTone.base.contrasting()
@@ -216,26 +205,26 @@ object ButtonDefaults {
     }
 
     private fun sprite(textureId: Identifier): SokitsuSprite =
-        SokitsuAtlasManager.sprite(SokitsuAtlasManager.UI_ATLAS_ID, textureId)
+        SokitsuAtlasManager.sprite(SokitsuThemeMeta.uiAtlas, textureId)
 
     /**
      * 按钮最小宽度：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
      */
     val minWidth: Dp
-        @Composable get() = SokitsuThemeMeta.button.minWidth.dp
+        @Composable get() = meta.minWidth.dp
 
     /**
      * 按钮最小高度：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
      */
     val minHeight: Dp
-        @Composable get() = SokitsuThemeMeta.button.minHeight.dp
+        @Composable get() = meta.minHeight.dp
 
     /**
      * 内容内边距（水平 = [ButtonMeta.paddingHorizontal]，垂直 = [ButtonMeta.paddingVertical]）。
      * 与最小尺寸同源于主题 meta 的 button 段。
      */
     val contentPadding: PaddingValues
-        @Composable get() = SokitsuThemeMeta.button.run {
+        @Composable get() = meta.run {
             PaddingValues(paddingHorizontal.dp, paddingVertical.dp)
         }
 

@@ -1,16 +1,26 @@
 {
   "pixel_scale": 3,
+  "ui_atlas": "ui",
   "ui_meta": {
     "button": {
       "min_width": 56,
       "min_height": 56,
       "padding_horizontal": 18,
-      "padding_vertical": 12
+      "padding_vertical": 12,
+      "normal_sprite": "ui/button.normal",
+      "pressed_sprite": "ui/button.pressed",
+      "focused_sprite": "ui/button.focused",
+      "disabled_sprite": "ui/button.disabled"
     },
     "switch": {
       "track_width": 90,
       "track_height": 48,
-      "thumb_size": 48
+      "thumb_size": 48,
+      "thumb_normal_sprite": "ui/switch.thumb.normal",
+      "thumb_pressed_sprite": "ui/switch.thumb.pressed",
+      "thumb_focused_sprite": "ui/switch.thumb.focused",
+      "thumb_disabled_sprite": "ui/switch.thumb.disabled",
+      "track_sprite": "ui/switch.track"
     }
   }
 }

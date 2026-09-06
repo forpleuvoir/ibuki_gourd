@@ -27,7 +27,7 @@
 | Fabric | Loader `0.19.3` / API `0.157.0+26.2` / Fabric Kotlin `1.13.12+kotlin.2.4.0` / Loom `1.17.19` |
 | NeoForge | `26.2.0.59` / moddev `2.0.143` / Kotlin for Forge `6.3.0` |
 | Mixin | `0.8.5` + MixinExtras `0.5.3` |
-| UI | compose-minecraft `0.1.0`（`moe.forpleuvoir:compose_minecraft-{common,fabric,neoforge}-26.2`，自研 Compose，内嵌 androidx compose runtime/ui/foundation/animation，渲染直连 MC `GuiGraphics`，无 material3/skia；旧 Compose Desktop 离屏渲染已移除，`ui/` 包清理中） |
+| UI | compose-minecraft `0.1.0`（`moe.forpleuvoir:compose_minecraft-{common,fabric,neoforge}-26.2`，自研 Compose，内嵌 androidx compose runtime/ui/foundation/animation，渲染直连 MC `GuiGraphics`，无 material3/skia；旧 Compose Desktop 离屏渲染已移除，新 UI 体系为 `ui/sokitsu`，见下） |
 | 依赖库 | `nebula` `0.4.0` |
 | 构建工具 | Gradle（Kotlin DSL），版本目录 `gradle/libs.versions.toml` |
 
@@ -62,6 +62,8 @@ ibuki_gourd/
 │   ├── src/main/kotlin/.../NeoforgeIbukiGourdClient
 │   ├── src/main/kotlin/.../platform/NeoforgePlatformHelper
 │   └── build.gradle.kts                               # multiloader-loader + neoforgedModDev
+├── aseprite/              # ASE（Aseprite）文件解析库（纯 Kotlin JVM 模块，零第三方依赖，独立发布）
+│   └── src/main/kotlin/moe/forpleuvoir/ibukigourd/asetools/   # Ase / AseParser / AseRenderer
 ├── buildSrc/
 │   ├── build.gradle.kts                               # 预编译 Groovy 插件 + Kotlin/Compose Gradle 插件
 │   └── src/main/groovy/
@@ -69,7 +71,7 @@ ibuki_gourd/
 │       └── multiloader-loader.gradle                  # 加载器侧
 ├── gradle/libs.versions.toml                          # 版本目录
 ├── gradle.properties                                  # mod 元数据占位符
-├── settings.gradle.kts                               # include("common","fabric","neoforge")
+├── settings.gradle.kts                               # include("aseprite","common","fabric","neoforge")
 ├── build.gradle.kts                                  # 顶层：info.toml 生成 + 发布/构建任务
 ├── ibukigourd.info.toml                               # 给 shields.io 用的版本信息（构建生成，勿手改）
 ├── README.md / README-ENG.md                          # 使用说明（含接入示例）
@@ -96,11 +98,19 @@ ibuki_gourd/
 | `render` / `render.extension{,.state,.texture}` | 渲染辅助：`BaseExtension`、`GuiGraphicsExtractorAccessor`、`IGRenderPipelines`；GuiGraphicsExtractor 扩展（`CircleDrawer`、矩形/文本/blit 扩展等）；渲染状态（`IGBlitRenderState` / `IGTiledBlitRenderState` / `ColoredBoxRenderState` 等）；纹理与 UV（`IGTexture`、`TextureUVMapping`、九宫格 `Corner`） |
 | `task` | 调度：`TickTask` / `TickTaskScheduler` / `ClientTickTaskScheduler` / `TaskExecutor` / `SimpleTaskExecutor` |
 | `text` / `text.style` / `text.inlinestyletext{,.modifier}` | 文本 DSL：`TextDSL` / `StyleDSL` / `HoverEventDsl` / `InlineStyleTextParser` + `ColorModifier` / `ClickEventModifier` / `HoverEventModifier` / `DecorationModifier` 等 |
+| `ui` / `ui.sokitsu{,.theme,.draw,.texture{,.atlas}}` | 新 UI 体系（Sokitsu，像素风）：组件 `Button` / `Surface` / `Switch` / `Text`（配 `*Theme` 组件 token 取色）；`theme`：`ColorScheme`/`ColorTone` 色板、`ThemeType`（Light/Dark/Unknown，Unknown 一律回落浅色）、`systemTheme()` 系统主题探测、`SokitsuThemeMeta(+Loader)` 资源包驱动的主题/组件尺寸 meta；`draw`：`sokitsuSprite` 精灵绘制；`texture.atlas`：运行时程序化图集（`SokitsuAtlasManager` / `SokitsuStitcher` / `SokitsuAseLoader`） |
 | `util` / `util.math{,.bezier}` | `ModLogger` + `logger()` 扩展；向量扩展（`Vector2f/2d/2i/3f/3d/3i`）；`Easing` / `Bezier` / 缓动；`PackScanner`、`PageHelper`、`FixedSizeQueue`、`LateInitValue`、`NebulaOps`、`SimpleResourceReloaderListener` |
 
-### `ui` 包现状（迁移中）
+### `ui` 包现状（Sokitsu）
 
-旧的 Compose Desktop 离屏渲染 UI（`ui/` 全部子包：`configwrapper` / `preset` / `toast` / `overlay` / `icon` / `scene` / `skia` / `platformcontext` / `widget` / `util/render`，以及 `mod/ui/` 屏幕、`mod/waht/` 彩蛋游戏）已随迁移分支 `refactor/ui-compose-minecraft` 从仓库中移除，对应的 `ComposeScreen` / `ModScreen` / `SkiaContext` / `ToastHandler` 等对外 API 一并删除，等待基于 compose-minecraft 重新实现。
+旧的 Compose Desktop 离屏渲染 UI（`configwrapper` / `preset` / `toast` / `overlay` / `icon` / `scene` / `skia` / `widget` 等子包，以及 `mod/ui/` 屏幕、`mod/waht/` 彩蛋游戏）已随迁移分支 `refactor/ui-compose-minecraft` 移除，对应的 `ComposeScreen` / `ModScreen` / `SkiaContext` / `ToastHandler` 等对外 API 一并删除。
+
+新 UI 体系 **`ui/sokitsu/`** 已基于 compose-minecraft 落地：
+
+- **像素风渲染**：`LocalSokitsuPixelScale` 整数放大（1 逻辑像素 → N×N 屏幕像素块，缺省 3），素材密度（@1x/@2x）与之正交。
+- **主题**：`SokitsuTheme` 入口；`ColorScheme`/`ColorTone` 色板 + 组件 token 回退链（`调用点传参` > `LocalSokitsuTone` > `组件 token 表` > `主题槽位`）；亮/暗由 `ThemeType`（Light/Dark/Unknown）表达，`systemTheme()` 子进程探测系统主题（Windows 注册表 / macOS `defaults` / Linux `gsettings`），探测失败返回 `Unknown`、按浅色收敛。
+- **资源包驱动**：`SokitsuThemeMeta`（`sokitsu` meta 文件，亮/暗 section + pixelScale + 组件 uiMeta，缺槽回落内置工厂）与运行时程序化图集（ASE 素材 → `SokitsuStitcher` 拼合），均随资源重载整体刷新。
+- **组件**：`Button` / `Surface` / `Switch` / `Text`；devOnly 下有测试屏（`SokitsuTestScreen` / `ButtonTestScreen` 等）与图集校验（`SokitsuAtlasValidation`）。
 
 ## 关键入口点
 
@@ -159,7 +169,7 @@ gradlew.bat :common:test
 
 ## 工作约定（给 AI 助手）
 
-1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例。旧 UI 相关 API（`ui` 包、`ComposeScreen`、`ModScreen` 等）已随迁移删除，重建时注意兼容性。
+1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例。旧 UI 相关 API（旧 `ui` 包、`ComposeScreen`、`ModScreen` 等）已随迁移删除，新 `ui/sokitsu` 体系重建中，对外暴露时注意兼容性。
 2. **跨加载器改动**：能放 `common` 就放 `common`；平台相关能力通过 `platform/services` 抽象，由 fabric/neoforge 各自实现并通过 `META-INF/services` 注册，勿在 common 里硬编码平台判断。
 3. **Mixin**：放 `common/.../mixin`（client 相关放 `mixin/client`），并在对应加载器的 `*.mixins.json` 注册；Fabric access widener 用 `ibukigourd.classtweaker`，NeoForge AT 用 `META-INF/accesstransformer.cfg`。
 4. **compose-minecraft 依赖**：`common` 用 `api` 引入 `compose_minecraft-common-26.2`；`fabric` 用 `includeInternal(api(...))`、`neoforge` 用 `bundledApi`（`api` 配置已 `extendsFrom(bundledApi)`，等价于 `jarJarInternal(api(...))`）打包进 jar（compose_minecraft 构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖；neoforge 保留 compose 旧坐标重定向处理）。构件从 `mavenLocal()` 解析，调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。

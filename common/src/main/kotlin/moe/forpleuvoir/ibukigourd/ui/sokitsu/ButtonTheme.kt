@@ -2,8 +2,11 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
+import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
+import moe.forpleuvoir.ibukigourd.util.identifier
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.nebula.serialization.codec.default
+import net.minecraft.resources.Identifier
 
 /**
  * 按钮的主题接入声明：token 映射（"什么颜色"）+ 尺寸 meta（"多大/多密"）合一。
@@ -44,28 +47,66 @@ object ButtonTokens {
  */
 data class ButtonMeta(
     /** 按钮最小宽度（dp）。 */
-    val minWidth: Int = 56,
+    val minWidth: Int,
 
     /** 按钮最小高度（dp）。 */
-    val minHeight: Int = 56,
+    val minHeight: Int,
 
     /** 内容内边距——水平（dp）。 */
-    val paddingHorizontal: Int = 18,
+    val paddingHorizontal: Int,
 
     /** 内容内边距——垂直（dp）。 */
-    val paddingVertical: Int = 12,
+    val paddingVertical: Int,
+    /**
+     * 按钮的常态纹理
+     */
+    val normalSprite: Identifier,
+    /**
+     * 按钮的按下纹理
+     */
+    val pressedSprite: Identifier,
+    /**
+     * 按钮聚焦时的纹理
+     */
+    val focusedSprite: Identifier,
+    /**
+     * 按钮被禁用时的纹理
+     */
+    val disabledSprite: Identifier,
 ) {
 
-    companion object : Codec<ButtonMeta> by Codec.create<ButtonMeta>()
-        .field(ButtonMeta::minWidth).default(56).codec(Codec.int(1..512))
-        .field(ButtonMeta::minHeight).default(56).codec(Codec.int(1..512))
-        .field(ButtonMeta::paddingHorizontal).default(18).codec(Codec.int(0..128))
-        .field(ButtonMeta::paddingVertical).default(12).codec(Codec.int(0..128))
-        .build(::ButtonMeta)
+    companion object : Codec<ButtonMeta> {
+
+        val default = ButtonMeta(
+            minWidth = 56,
+            minHeight = 56,
+            paddingHorizontal = 18,
+            paddingVertical = 12,
+            normalSprite = identifier("ui/button.normal"),
+            pressedSprite = identifier("ui/button.pressed"),
+            focusedSprite = identifier("ui/button.focused"),
+            disabledSprite = identifier("ui/button.disabled")
+        )
+
+        private val codec = Codec.create<ButtonMeta>()
+            .field(ButtonMeta::minWidth).default(default.minWidth).codec(Codec.int(1..512))
+            .field(ButtonMeta::minHeight).default(default.minHeight).codec(Codec.int(1..512))
+            .field(ButtonMeta::paddingHorizontal).default(default.paddingHorizontal).codec(Codec.int(0..128))
+            .field(ButtonMeta::paddingVertical).default(default.paddingVertical).codec(Codec.int(0..128))
+            .field(ButtonMeta::normalSprite).default(default.normalSprite).codec(Codec.ibukigourdIdentifier)
+            .field(ButtonMeta::pressedSprite).default(default.pressedSprite).codec(Codec.ibukigourdIdentifier)
+            .field(ButtonMeta::focusedSprite).default(default.focusedSprite).codec(Codec.ibukigourdIdentifier)
+            .field(ButtonMeta::disabledSprite).default(default.disabledSprite).codec(Codec.ibukigourdIdentifier)
+            .build(::ButtonMeta)
+
+        override fun serialization(target: ButtonMeta): SerializeElement = codec.serialization(target)
+
+        override fun deserialization(data: SerializeElement): Result<ButtonMeta> = codec.deserialization(data)
+    }
 }
 
 /**
  * 主题 meta 的按钮段：缺失/解码失败回落 [ButtonMeta] 内置默认。
  */
 val SokitsuThemeMeta.button: ButtonMeta
-    get() = decodeComponent("button", ButtonMeta, ButtonMeta())
+    get() = decodeComponent("button", ButtonMeta, ButtonMeta.default)

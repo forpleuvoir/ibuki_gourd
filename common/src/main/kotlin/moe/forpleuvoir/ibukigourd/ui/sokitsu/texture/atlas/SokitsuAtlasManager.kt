@@ -43,10 +43,11 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
 
     /**
      * UI 组件通用图集 id（定义文件 assets/<ns>/sokitsu_atlas/ui.json，
-     * 纹理位于 texture/sokitsu/ui/，如 ui/button、ui/button.press）。
+     * 纹理位于 texture/sokitsu/ui/，如 ui/button.normal、ui/button.pressed）。
      *
-     * 按钮、下拉框、面板等 UI 组件的背景精灵统一放在该图集，组件经
-     * [sprite][SokitusAtlasManager.sprite](UI_ATLAS_ID, textureId) 取用。
+     * 按钮、下拉框、面板等 UI 组件的背景精灵统一放在该图集，组件默认经
+     * [sprite][SokitusAtlasManager.sprite](UI_ATLAS_ID, textureId) 取用；
+     * 实际使用的图集 id 由主题 meta 的 `ui_atlas` 段覆盖（[moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta.uiAtlas]）。
      */
     val UI_ATLAS_ID: Identifier = identifier("ui")
 

@@ -35,7 +35,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.takeOrElse
 import moe.forpleuvoir.ibukigourd.util.contrasting
-import moe.forpleuvoir.ibukigourd.util.identifier
 import net.minecraft.resources.Identifier
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
@@ -121,7 +120,7 @@ fun Switch(
                 },
             )
             .defaultMinSize(trackWidth, trackHeight)
-            .sokitsuSprite(sprite(SwitchDefaults.track), trackTone)
+            .sokitsuSprite(sprite(SwitchDefaults.meta.trackSprite), trackTone)
     ) {
         Box(
             modifier = Modifier
@@ -165,15 +164,9 @@ object SwitchDefaults {
 
     val LocalPressSound = compositionLocalOf<SoundInstance?> { SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f) }
 
-    val thumb: Identifier = identifier("ui/switch.thumb")
+    inline val meta get() = SokitsuThemeMeta.switch
 
-    val thumbPress: Identifier = identifier("ui/switch.thumb.press")
-
-    val thumbFocus: Identifier = identifier("ui/switch.thumb.focus")
-
-    val thumbDisable: Identifier = identifier("ui/switch.thumb.disable")
-
-    val track: Identifier = identifier("ui/switch.track")
+    /** 开关纹理（把手四态 + 轨道）来自全局 [SokitsuThemeMeta] 的 switch 段（资源包可覆盖）。 */
 
     /**
      * 开关默认尺寸：来自全局 [SokitsuThemeMeta] 的 switch 段（**单位 dp**，资源包可覆盖）。
@@ -197,10 +190,10 @@ object SwitchDefaults {
     fun thumbSprite(state: SwitchState): SokitsuSprite = sprite(thumbSpriteId(state))
 
     private fun thumbSpriteId(state: SwitchState): Identifier = when (state) {
-        SwitchState.Normal   -> thumb
-        SwitchState.Pressed  -> thumbPress
-        SwitchState.Focused  -> thumbFocus
-        SwitchState.Disabled -> thumbDisable
+        SwitchState.Normal   -> meta.thumbNormalSprite
+        SwitchState.Pressed  -> meta.thumbPressedSprite
+        SwitchState.Focused  -> meta.thumbFocusedSprite
+        SwitchState.Disabled -> meta.thumbDisabledSprite
     }
 
     /**
@@ -261,7 +254,7 @@ object SwitchDefaults {
 
 
 private fun sprite(textureId: Identifier): SokitsuSprite =
-    SokitsuAtlasManager.sprite(SokitsuAtlasManager.UI_ATLAS_ID, textureId)
+    SokitsuAtlasManager.sprite(SokitsuThemeMeta.uiAtlas, textureId)
 
 
 /**
