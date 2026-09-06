@@ -30,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.takeOrElse
@@ -102,7 +103,7 @@ fun Switch(
         colors.thumbColor(enabled, checked)
     }
 
-    // 颜色平滑过渡：开启/关闭/禁用切换时不再瞬变（compose-minecraft 无 [tween]，用默认 spring，
+    // 颜色平滑过渡：开启/关闭/禁用切换时避免瞬变（compose-minecraft 无 [tween]，用默认 spring，
     // 与 [animateFloatAsState] 的位置动画一致）
     val trackTone = animateColorTone(targetTrackTone)
     val thumbTone = animateColorTone(targetThumbTone)
@@ -175,12 +176,16 @@ object SwitchDefaults {
     val track: Identifier = identifier("ui/switch.track")
 
     /**
-     * 开关默认尺寸（与当前 switch 纹理比例匹配）。组合方法不再写死数字，
-     * 调用方若要整体覆盖尺寸，可经 [Switch] 的 [modifier] 自行 [androidx.compose.ui.Modifier.size] 控制。
+     * 开关默认尺寸：来自全局 [SokitsuThemeMeta] 的 switch 段（**单位 dp**，资源包可覆盖）。
+     * 与当前 switch 纹理比例匹配；调用方若要整体覆盖尺寸，
+     * 可经 [Switch] 的 [modifier] 自行 [androidx.compose.ui.Modifier.size] 控制。
      */
-    val trackWidth: Dp = 60.dp
-    val trackHeight: Dp = 32.dp
-    val thumbSize: Dp = 32.dp
+    val trackWidth: Dp
+        @Composable get() = SokitsuThemeMeta.switch.trackWidth.dp
+    val trackHeight: Dp
+        @Composable get() = SokitsuThemeMeta.switch.trackHeight.dp
+    val thumbSize: Dp
+        @Composable get() = SokitsuThemeMeta.switch.thumbSize.dp
 
     /**
      * 按 [SwitchState] 取对应把手精灵（已解析为 [SokitsuSprite]）。
@@ -204,9 +209,6 @@ object SwitchDefaults {
      * 参数默认 [ColorTone.Unspecified]，语义是"按 [SwitchTokens] 映射表结合当前主题解析"，
      * 回退顺序：`调用点传参` > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone]
      * 作用域 > [SwitchTokens] > [ColorScheme]。
-     *
-     * 此前本函数做不到这一点：关闭态与禁用态没有可推导的槽位，
-     * 只能由调用方硬传——正是因为缺了 token 映射表和"未指定"这套语义。
      *
      * - [selectedOutlineColor] 悬停/聚焦（选中态）把手描边高亮 → 未指定时取**开启态把手**
      *   色板 base 的对比色（[contrasting]），与 [moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults.colors]

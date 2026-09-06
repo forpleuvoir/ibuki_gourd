@@ -12,8 +12,8 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
  * `onSecondary` / `onError`；固定取 token 反而会丢掉这个联动
  * （与 [ButtonTokens.Content] 的处理一致）。
  *
- * 本表与 [Surface] 平级放在同一包；每个组件的 token 表各自独立成文件，
- * 不再集中堆在 `theme` 包的某个文件里。
+ * 本文件与 [Surface] 平级放在同一包；后续若引入 Surface 的数值型 meta
+ * （如面板最小内边距），也应并入本文件，与 [ButtonTheme.kt] / [SwitchTheme.kt] 同规矩。
  */
 object SurfaceTokens {
 

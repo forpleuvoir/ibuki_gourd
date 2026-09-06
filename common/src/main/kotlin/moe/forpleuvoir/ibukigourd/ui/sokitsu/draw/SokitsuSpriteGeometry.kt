@@ -67,7 +67,7 @@ fun ninePatchBoundaries(near: Float, far: Float, size: Float): FloatArray {
  * 边框（[left]/[top]/[right]/[bottom]）已换算到屏幕像素（= 素材物理边框 × pixelScale / atlasDensity）。
  * 语义见 [ninePatchBoundaries]：正值向内收缩、负值向区域外扩、中心只减正值。
  * 当某维度正边框之和超过目标尺寸时，中心格坍缩为负尺寸（被跳过），角/边可能重叠——
- * 这是九宫格的退化形态，与 `pushNineSliced` 一致，不再做 half-width clamp。
+ * 这是九宫格的退化形态，与 `pushNineSliced` 一致，不做 half-width clamp。
  *
  * @return 未禁用的分片列表（跳过 [disabledSlices] 中的索引与零/负面积格子），顺序 = 行优先索引升序。
  */
@@ -112,7 +112,7 @@ fun tileSizePx(logicalSize: Float, scale: Float, pixelScale: Int): Float =
 /**
  * 合成精灵的顶点着色颜色，并处理 [tintAlpha] 语义（与着色模式正交）。
  *
- * - [level] 为 null：该图层无主题染色，返回白色（调用方应改用普通纹理管线，而非着色管线）
+ * - [level] 为 null：该图层无主题染色，返回白色（调用方应使用普通纹理管线，而非着色管线）
  * - [level] 非 null：取 [tone] 对应色阶作为 RGB
  * - [tintAlpha] = false（默认）：顶点 alpha 恒为 1，纹理自身 alpha 直通（shader 内 `tex.a × vertex.a`）
  * - [tintAlpha] = true：顶点 alpha 采用主题色 alpha，由主题接管透明度

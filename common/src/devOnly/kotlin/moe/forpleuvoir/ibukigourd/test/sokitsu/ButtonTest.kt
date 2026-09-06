@@ -33,14 +33,14 @@ fun ButtonTestScreen() = TestScreen {
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Button(
                     {
-                        println("按钮测试1")
+                        println("button test clicked")
                     },
                 ) {
                     Text("按钮测试")
                 }
                 Button(
                     {
-                        println("按钮测试1")
+                        println("button test clicked")
                     },
                 ) {
                 }

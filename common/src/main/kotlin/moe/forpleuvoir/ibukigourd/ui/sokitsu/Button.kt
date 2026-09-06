@@ -218,15 +218,25 @@ object ButtonDefaults {
     private fun sprite(textureId: Identifier): SokitsuSprite =
         SokitsuAtlasManager.sprite(SokitsuAtlasManager.UI_ATLAS_ID, textureId)
 
-    val minWidth: Dp = 54.dp
-    val minHeight: Dp = 54.dp
+    /**
+     * 按钮最小宽度：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
+     */
+    val minWidth: Dp
+        @Composable get() = SokitsuThemeMeta.button.minWidth.dp
 
+    /**
+     * 按钮最小高度：来自全局 [SokitsuThemeMeta] 的 button 段（**单位 dp**，资源包可覆盖）。
+     */
+    val minHeight: Dp
+        @Composable get() = SokitsuThemeMeta.button.minHeight.dp
+
+    /**
+     * 内容内边距（水平 = [ButtonMeta.paddingHorizontal]，垂直 = [ButtonMeta.paddingVertical]）。
+     * 与最小尺寸同源于主题 meta 的 button 段。
+     */
     val contentPadding: PaddingValues
-        @Composable @ReadOnlyComposable
-        get() = LocalButtonContentPadding.current
-
-    val LocalButtonContentPadding = staticCompositionLocalOf {
-        PaddingValues(12.dp, 8.dp)
-    }
+        @Composable get() = SokitsuThemeMeta.button.run {
+            PaddingValues(paddingHorizontal.dp, paddingVertical.dp)
+        }
 
 }

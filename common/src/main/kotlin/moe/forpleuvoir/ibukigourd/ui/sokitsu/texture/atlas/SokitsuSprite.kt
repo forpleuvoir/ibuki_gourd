@@ -87,7 +87,7 @@ class SokitsuSprite(
  * **渲染倍率不在本类**：源图 1px 最终占多少屏幕像素 = `SokitsuTheme.pixelScale / density`
  * （主题渲染密度 ÷ 素材密度），由绘制层在渲染时换算——这样才能运行时切换渲染密度而不重建图集。
  *
- * 注：源图的 region 区域信息已在 LayerExtractor 提取时消费（决定裁剪范围），精灵上不再保留；
+ * 注：源图的 region 区域信息已在 LayerExtractor 提取时消费（决定裁剪范围），精灵上不保留；
  * 渲染所需的信息（atlas 落点、UV、fill、colorLevel、tintMode、tintAlpha、density）已全部内化。
  */
 class SokitsuLayerSprite(

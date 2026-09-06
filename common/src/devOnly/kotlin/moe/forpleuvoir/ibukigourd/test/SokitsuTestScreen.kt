@@ -17,18 +17,20 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.darkColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.lightColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.systemDarkTheme
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
-var TestScreenLight by mutableStateOf(false)
+var TestScreenLight by mutableStateOf(!systemDarkTheme())
 
-var PixelScale by mutableStateOf(2)
+var PixelScale by mutableStateOf(SokitsuThemeMeta.pixelScale)
 
 @Composable
 fun TestScreenTheme(content: @Composable () -> Unit) = SokitsuTheme(
-    colorScheme = if (TestScreenLight) lightColorScheme() else darkColorScheme(),
+    colorScheme = SokitsuThemeMeta.colorScheme(!TestScreenLight),
 ) {
     CompositionLocalProvider(LocalSokitsuPixelScale provides PixelScale) {
         content()
@@ -69,7 +71,7 @@ fun SokitsuTestScreen() {
                         Text("内容色测试:${LocalContentColor.current.toNebulaColor().hexStr}")
 
                         Button({ PixelScale = if (PixelScale == 2) 3 else 2 }) {
-                            Text("切换像素缩放")
+                            Text("切换像素缩放${PixelScale}")
                         }
                     }
                     FlowRow(

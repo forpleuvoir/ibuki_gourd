@@ -29,7 +29,7 @@ data class SokitsuSpriteDrawData(
  * 解析精灵各图层的顶点着色色（组合阶段调用，可读主题色）。
  *
  * [tone] 为染色色板（主题主色 / 辅色 / 错误色 / 自定义）；[colorLevel] 为 null 的图层无主题染色，
- * 返回白色（插件端据此改用原色直通管线，而非着色管线）。
+ * 返回白色（插件端据此使用原色直通管线，而非着色管线）。
  */
 fun buildSokitsuSpriteDrawData(
     sprite: SokitsuSprite,

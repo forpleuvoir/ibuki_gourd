@@ -81,8 +81,7 @@ fun Surface(
  * 具体组件（[Button]）只负责把状态解析出的色板/精灵/内容色交进来。
  *
  * 修饰器顺序为 `外部 modifier → 背景精灵 → clickable`：
- * 精灵作背景画在最底、点击指示（[indication]）画在其上，
- * 与 [Button] 原先的 `.sokitsuSprite(...).clickable(...)` 顺序一致。
+ * 背景精灵绘制在最底层，点击指示（[indication]）绘制在其上。
  *
  * @param pressSound 点击音效，null = 静音；默认 [SurfaceDefaults.LocalPressSound]，
  *   组件可用自己的默认值覆盖（如 [ButtonDefaults.LocalPressSound]）

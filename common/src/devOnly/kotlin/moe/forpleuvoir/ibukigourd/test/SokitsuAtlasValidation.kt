@@ -146,7 +146,7 @@ object SokitsuAtlasValidation {
             region.width == 3 && region.height == 4
         }
 
-        // colorLevel 缺省 null / 枚举值解析（原 ColorRef 已移除，改用 ColorLevel）
+        // colorLevel 缺省 null / 枚举值解析（ColorLevel）
         val jsonLevel = """{"id":"icon","keys":[],"color_level":"Dark","tint_mode":"Luminance","fill":"stretch"}"""
         val layerLevel = TextureLayer.deserialization(JsonDialect.decode(jsonLevel).getOrThrow()).getOrThrow()
         check("layer color_level: null by default") { layer.colorLevel == null }

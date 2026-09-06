@@ -1,0 +1,16 @@
+{
+  "pixel_scale": 3,
+  "ui_meta": {
+    "button": {
+      "min_width": 56,
+      "min_height": 56,
+      "padding_horizontal": 18,
+      "padding_vertical": 12
+    },
+    "switch": {
+      "track_width": 90,
+      "track_height": 48,
+      "thumb_size": 48
+    }
+  }
+}
