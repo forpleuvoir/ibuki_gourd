@@ -10,6 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -57,9 +59,13 @@ fun Button(
         else               -> colors.tone
     }
 
+    val icon = if (enabled) ButtonDefaults.LocalHoverIcon.current else ButtonDefaults.LocalDisableIcon.current
+
+    //给按钮加上鼠标指针图片变化
     Surface(
         onClick = onClick,
         modifier = modifier
+            .pointerHoverIcon(icon)
             .semantics { this.role = role }
             .defaultMinSize(minSize.width, minSize.height),
         enabled = enabled,
@@ -105,6 +111,9 @@ object ButtonDefaults {
     inline val meta get() = SokitsuThemeMeta.button
 
     val LocalPressSound = compositionLocalOf<SoundInstance?> { SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f) }
+
+    val LocalHoverIcon = compositionLocalOf { PointerIcon.Hand }
+    val LocalDisableIcon = compositionLocalOf { PointerIcon.NotAllowed }
 
     /**
      * 默认按钮样式集：按 [ButtonMeta] 四态精灵 + 按组件 token 映射表解析出的容器与内容色。

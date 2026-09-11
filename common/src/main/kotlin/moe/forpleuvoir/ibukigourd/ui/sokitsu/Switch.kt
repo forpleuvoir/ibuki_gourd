@@ -14,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -99,6 +101,7 @@ fun Switch(
     val trackTone = animateColorTone(targetTrackTone)
     val thumbTone = animateColorTone(targetThumbTone)
 
+    val icon = if (enabled) SwitchDefaults.LocalHoverIcon.current else SwitchDefaults.LocalDisableIcon.current
     Layout(
         content = {
             // 把手：唯一的子节点
@@ -110,6 +113,7 @@ fun Switch(
         },
         modifier = modifier
             .semantics { role = Role.Switch }
+            .pointerHoverIcon(icon)
             .clickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,
@@ -142,6 +146,9 @@ fun Switch(
 object SwitchDefaults {
 
     val LocalPressSound = compositionLocalOf<SoundInstance?> { SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f) }
+
+    val LocalHoverIcon = compositionLocalOf { PointerIcon.Hand }
+    val LocalDisableIcon = compositionLocalOf { PointerIcon.NotAllowed }
 
     inline val meta get() = SokitsuThemeMeta.switch
 
