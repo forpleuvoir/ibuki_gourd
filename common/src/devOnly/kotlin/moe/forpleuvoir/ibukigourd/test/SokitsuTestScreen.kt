@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -90,6 +91,11 @@ fun SokitsuTestScreen() {
                             RadioButtonTestScreen()
                         }) {
                             Text("单选测试")
+                        }
+                        Button({
+                            SliderTestScreen()
+                        }) {
+                            Text("滑条测试")
                         }
                     }
                 }

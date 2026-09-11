@@ -98,7 +98,7 @@ ibuki_gourd/
 | `render` / `render.extension{,.state,.texture}` | 渲染辅助：`BaseExtension`、`GuiGraphicsExtractorAccessor`、`IGRenderPipelines`；GuiGraphicsExtractor 扩展（`CircleDrawer`、矩形/文本/blit 扩展等）；渲染状态（`IGBlitRenderState` / `IGTiledBlitRenderState` / `ColoredBoxRenderState` 等）；纹理与 UV（`IGTexture`、`TextureUVMapping`、九宫格 `Corner`） |
 | `task` | 调度：`TickTask` / `TickTaskScheduler` / `ClientTickTaskScheduler` / `TaskExecutor` / `SimpleTaskExecutor` |
 | `text` / `text.style` / `text.inlinestyletext{,.modifier}` | 文本 DSL：`TextDSL` / `StyleDSL` / `HoverEventDsl` / `InlineStyleTextParser` + `ColorModifier` / `ClickEventModifier` / `HoverEventModifier` / `DecorationModifier` 等 |
-| `ui` / `ui.sokitsu{,.theme,.draw,.texture{,.atlas}}` | 新 UI 体系（Sokitsu，像素风）：组件 `Button` / `Surface` / `Switch` / `Text`（配 `*Theme` 组件 token 取色）；`theme`：`ColorScheme`/`ColorTone` 色板、`ThemeType`（Light/Dark/Unknown，Unknown 一律回落浅色）、`systemTheme()` 系统主题探测、`SokitsuThemeMeta(+Loader)` 资源包驱动的主题/组件尺寸 meta；`draw`：`sokitsuSprite` 精灵绘制；`texture.atlas`：运行时程序化图集（`SokitsuAtlasManager` / `SokitsuStitcher` / `SokitsuAseLoader`） |
+| `ui` / `ui.sokitsu{,.theme,.draw,.texture{,.atlas}}` | 新 UI 体系（Sokitsu，像素风）：组件 `Button` / `Surface` / `Switch` / `Slider` / `Text`（配 `*Theme` 组件 token 取色）；`theme`：`ColorScheme`/`ColorTone` 色板、`ThemeType`（Light/Dark/Unknown，Unknown 一律回落浅色）、`systemTheme()` 系统主题探测、`SokitsuThemeMeta(+Loader)` 资源包驱动的主题/组件尺寸 meta；`draw`：`sokitsuSprite` 精灵绘制；`texture.atlas`：运行时程序化图集（`SokitsuAtlasManager` / `SokitsuStitcher` / `SokitsuAseLoader`） |
 | `util` / `util.math{,.bezier}` | `ModLogger` + `logger()` 扩展；向量扩展（`Vector2f/2d/2i/3f/3d/3i`）；`Easing` / `Bezier` / 缓动；`PackScanner`、`PageHelper`、`FixedSizeQueue`、`LateInitValue`、`NebulaOps`、`SimpleResourceReloaderListener` |
 
 ### `ui` 包现状（Sokitsu）
@@ -110,7 +110,7 @@ ibuki_gourd/
 - **像素风渲染**：`LocalSokitsuPixelScale` 整数放大（1 逻辑像素 → N×N 屏幕像素块，缺省 3），素材密度（@1x/@2x）与之正交。
 - **主题**：`SokitsuTheme` 入口；`ColorScheme`/`ColorTone` 色板 + 组件 token 回退链（`调用点传参` > `LocalSokitsuTone` > `组件 token 表` > `主题槽位`）；亮/暗由 `ThemeType`（Light/Dark/Unknown）表达，`systemTheme()` 子进程探测系统主题（Windows 注册表 / macOS `defaults` / Linux `gsettings`），探测失败返回 `Unknown`、按浅色收敛。
 - **资源包驱动**：`SokitsuThemeMeta`（`sokitsu` meta 文件，亮/暗 section + pixelScale + 组件 uiMeta，缺槽回落内置工厂）与运行时程序化图集（ASE 素材 → `SokitsuStitcher` 拼合），均随资源重载整体刷新。
-- **组件**：`Button` / `Surface` / `Switch` / `Text` / `RadioButton`（Button 薄包装：按 index/count/RTL 解析 left/center/right/single 分段纹理，`RadioButtonGroup` 经 `item { }` DSL 自动编号）/ `RadioButtonGroup`；devOnly 下有测试屏（`SokitsuTestScreen` / `ButtonTestScreen` / `RadioButtonTestScreen` 等）与图集校验（`SokitsuAtlasValidation`）。
+- **组件**：`Button` / `Surface` / `Switch` / `Text` / `Slider` / `RadioButton`（Button 薄包装：按 index/count/RTL 解析 left/center/right/single 分段纹理，`RadioButtonGroup` 经 `item { }` DSL 自动编号）/ `RadioButtonGroup`；`Slider` 为「凹槽轨道 + 按进度裁剪的填充」两张精灵叠放，`label` 槽内容画两遍、各裁到进度边界内外以分用两种内容色；devOnly 下有测试屏（`SokitsuTestScreen` / `ButtonTestScreen` / `RadioButtonTestScreen` / `SliderTestScreen` 等）与图集校验（`SokitsuAtlasValidation`）。
 
 ## 关键入口点
 
