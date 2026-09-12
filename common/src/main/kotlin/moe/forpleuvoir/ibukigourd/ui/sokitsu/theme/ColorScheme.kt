@@ -300,6 +300,7 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color {
         secondary.base  -> onSecondary.base
         background.base -> onBackground.base
         surface.base    -> onSurface.base
+        surfaceVariant.base -> onSurfaceVariant.base
         error.base      -> onError.base
         else            -> Color.Unspecified
     }
@@ -527,18 +528,22 @@ fun darkColorScheme(
         darkOffset = -0.1f,
         highlightOffset = 0.2f
     ),
-    // 表面变体：比 surface 亮一档（深底上的层级靠"更亮"表达）
+    // 表面变体：比 surface 亮一档（深底上的层级靠"更亮"表达）。
+    // 注意：Tint 模式下精灵明度完全由纹理灰阶决定，本槽位的 V 不影响精灵渲染，
+    // 只作为 contentColor 配对等场景的语义锚
     surfaceVariant: ColorTone = ColorTone.fromBase(
         base = Color(0xFFA970DC).withHsv(saturation = 0.15f, value = 0.30f),
         outline = Color(0xFFA69E93).withHsv(saturation = 0.15f, value = 0.7f),
         darkOffset = -0.08f,
         highlightOffset = 0.3f
     ),
-    // 表面变体上的内容：比 onSurface 弱一档
     // 表面变体上的内容：比 onSurface 弱一档。显式中亮描边（开关关闭态把手的勾边层，
-    // 深底上默认深描边不可见）
+    // 深底上默认深描边不可见）。
+    // **暗色主题下同样取深色**：surfaceVariant 容器（滑条轨道等精灵）的明度由纹理灰阶
+    // 决定、两种主题下都偏亮，其上的内容色必须压深才可读——与 onSurface 跟随深底
+    // 变亮的逻辑方向相反
     onSurfaceVariant: ColorTone = ColorTone.fromBase(
-        base = Color(0xFFC9C3BA),
+        base = Color(0xFF3F3A45),
         outline = Color(0xFF938F89),
         darkOffset = -0.2f,
         highlightOffset = 0.1f

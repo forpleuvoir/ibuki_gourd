@@ -33,8 +33,9 @@ object SwitchTokens {
     /** 关闭态把手：中性灰（[ColorSchemeToken.OnSurfaceVariant]）。 */
     val UncheckedThumb = ColorSchemeToken.OnSurfaceVariant
 
-    /** 关闭态轨道：退回主题背景色（[ColorSchemeToken.Background]），与页面同色、弱化为"未开启"。 */
-    val UncheckedTrack = ColorSchemeToken.Background
+    /** 关闭态轨道：与滑条轨道同源的中性容器色（[ColorSchemeToken.SurfaceVariant]）——
+     *  两者同为凹槽素材，配色保持一致；此前用 [ColorSchemeToken.Background] 会与页面底色同化。 */
+    val UncheckedTrack = ColorSchemeToken.SurfaceVariant
 
     /** 禁用态把手基准色（会被 [DisabledThumbOpacity] 压透明）。 */
     val DisabledThumb = ColorSchemeToken.OnSurface

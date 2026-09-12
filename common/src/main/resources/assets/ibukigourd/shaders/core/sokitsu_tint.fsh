@@ -93,7 +93,7 @@ void main() {
     rgb = T;
     #else
     #ifdef SOKITSU_TINT
-    // Tint：HSV(T.H, T.S, C.V) —— 主题提供色相与饱和，纹理贡献明度结构
+    // Tint：HSV(T.H, T.S, C.V) —— 主题只改色相/饱和，明度完全由纹理灰阶决定（美术所见即所得）
     vec3 chsv = rgb_to_hsv(C);
     vec3 thsv = rgb_to_hsv(T);
     rgb = hsv_to_rgb(vec3(thsv.x, thsv.y, chsv.z));
