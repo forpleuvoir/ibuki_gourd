@@ -53,7 +53,7 @@ import net.minecraft.sounds.SoundEvents
 /**
  * 输入框（TextField）：凹槽背景精灵 + [BasicTextField]（[TextFieldState] 输入会话）。
  *
- * 参数面与 M3 `OutlinedTextField`（state 版）对齐：[state] / [label] / [leadingIcon] /
+ * 参数面与 M3 `OutlinedTextField`（state 版）对齐：[state] / [leadingIcon] /
  * [trailingIcon] / [lineLimits] / [contentPadding] / [isError] / [readOnly] /
  * [inputTransformation] / [outputTransformation] / [onKeyboardAction]；
  * 本组件只把容器装饰换成凹槽背景精灵（[TextFieldColors.containerColor] 染色，
@@ -84,7 +84,6 @@ import net.minecraft.sounds.SoundEvents
  * @param enabled 是否可用（禁用态压暗配色且不接收输入）
  * @param readOnly 只读（可选择/复制，不可编辑）
  * @param isError 错误态（描边改染错误色）
- * @param label 头部标签，渲染在文本行首（对齐旧版 M3 `labelPosition.Attached` 用法）
  * @param leadingIcon 头部图标/前缀槽
  * @param trailingIcon 尾部图标/后缀槽（如单位、清除按钮）
  * @param lineLimits 行数限制（单行/多行），默认单行；多行的行数上限见 [withoutMaxLineClamp]
@@ -104,7 +103,6 @@ fun TextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isError: Boolean = false,
-    label: (@Composable () -> Unit)? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
@@ -174,7 +172,6 @@ fun TextField(
                     Modifier.fillMaxWidth(),
                     verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
                 ) {
-                    label?.invoke()
                     leadingIcon?.invoke()
                     Box(Modifier.weight(1f)) { inner() }
                     trailingIcon?.invoke()

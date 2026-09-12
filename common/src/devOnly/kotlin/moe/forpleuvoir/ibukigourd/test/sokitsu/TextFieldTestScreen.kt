@@ -35,12 +35,11 @@ fun TextFieldTestScreen() = TestScreen {
                 )
                 Text("echo = ${normal.text}")
 
-                // 头部 label + 尾部图标（对齐旧版 M3 labelPosition.Attached 用法）
+                // 尾部图标槽（如单位）
                 val prefixed = rememberTextFieldState("128")
                 TextField(
                     state = prefixed,
                     modifier = Modifier.width(240.dp),
-                    label = { Text("width") },
                     trailingIcon = { Text("px") },
                 )
 

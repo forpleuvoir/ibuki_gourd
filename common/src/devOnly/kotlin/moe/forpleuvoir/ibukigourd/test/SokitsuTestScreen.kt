@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
@@ -128,6 +129,11 @@ fun SokitsuTestScreen() {
                             TextFieldTestScreen()
                         }) {
                             Text("文本框测试")
+                        }
+                        Button({
+                            NumberFieldTestScreen()
+                        }) {
+                            Text("数字框测试")
                         }
                     }
                 }
