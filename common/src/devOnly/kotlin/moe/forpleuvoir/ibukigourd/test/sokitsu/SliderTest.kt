@@ -15,12 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.CenterBox
 import moe.forpleuvoir.ibukigourd.test.TestScreen
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.DurationSlider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntSlider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.PercentSlider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import kotlin.math.roundToInt
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 fun SliderTestScreen() = TestScreen {
     Surface(Modifier.fillMaxSize()) {
@@ -95,6 +101,29 @@ fun SliderTestScreen() = TestScreen {
                     valueRange = -1f..1f,
                     modifier = Modifier.width(240.dp),
                     label = { Text("%.2f".format(echo)) },
+                )
+
+                // 类型化滑条：整数档吸附 + 百分比 + 时长
+                var count by remember { mutableStateOf(32) }
+                IntSlider(
+                    value = count,
+                    onValueChange = { count = it },
+                    valueRange = 0..100,
+                    modifier = Modifier.width(240.dp),
+                )
+                var volume by remember { mutableStateOf(0.75f) }
+                PercentSlider(
+                    value = volume,
+                    onValueChange = { volume = it },
+                    steps = 99,
+                    modifier = Modifier.width(240.dp),
+                )
+                var duration by remember { mutableStateOf(90.seconds) }
+                DurationSlider(
+                    value = duration,
+                    onValueChange = { duration = it },
+                    valueRange = Duration.ZERO..(10.minutes),
+                    modifier = Modifier.width(240.dp),
                 )
             }
         }
