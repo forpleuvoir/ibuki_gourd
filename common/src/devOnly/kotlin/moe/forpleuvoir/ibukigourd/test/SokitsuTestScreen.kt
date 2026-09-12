@@ -5,15 +5,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
@@ -75,6 +78,29 @@ fun SokitsuTestScreen() {
 
                         Button({ PixelScale = if (PixelScale == 2) 3 else 2 }) {
                             Text("切换像素缩放${PixelScale}")
+                        }
+                    }
+                    // 图层 alpha 传递验证：Modifier.alpha 应同时淡化精灵（按钮/滑条）与其中的文字
+                    Row(
+                        modifier = Modifier.padding(top = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        listOf(1f, 0.6f, 0.3f).forEach { a ->
+                            Box(Modifier.alpha(a)) {
+                                Button({}) {
+                                    Text("alpha ${(a * 100).toInt()}%")
+                                }
+                            }
+                        }
+                        var alphaSlider by remember { mutableStateOf(0.6f) }
+                        Box(Modifier.alpha(0.4f)) {
+                            Slider(
+                                value = alphaSlider,
+                                onValueChange = { alphaSlider = it },
+                                modifier = Modifier.width(160.dp),
+                                label = { Text("40%") },
+                            )
                         }
                     }
                     FlowRow(

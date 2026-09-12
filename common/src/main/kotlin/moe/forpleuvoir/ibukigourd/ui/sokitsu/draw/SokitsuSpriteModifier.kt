@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.recordCustomDraw
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -12,6 +13,7 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import moe.forpleuvoir.compose_minecraft.platform.ui.draw.buildPaint
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.compose_minecraft.platform.ui.LocalShadowLight
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
@@ -36,6 +38,9 @@ import kotlin.math.roundToInt
  * 阴影不是参数：精灵内 layerId 为 "shadow" 的图层（[SokitsuLayerSprite.isShadow]）自动按
  * 阴影渲染 —— 向 [LocalShadowLight] 光源反方向偏移（× 像素放大倍率）并先于普通图层绘制，
  * 外观完全由素材定义。
+ *
+ * 图层级不透明度（`Modifier.alpha` / `graphicsLayer { alpha }`）同样生效：命令携带 paint，
+ * 回放时把图层 alpha 烘焙进 paint.alpha，由 [SokitsuSpritePlugin] 乘进各图层调制色。
  */
 @Stable
 @Composable
@@ -79,10 +84,14 @@ private class SokitsuSpriteNode(
                 (-light.y * pixelScale).roundToInt(),
             )
             val data = buildSokitsuSpriteDrawData(sprite, size, pixelScale, tone, shadowOffset)
+            // paint 必须存在：回放阶段（MinecraftCanvas.replayFrom 的 alphaMultiplier）把图层
+            // alpha 烘焙进 paint.alpha，[SokitsuSpritePlugin] 再从 CustomDrawContext.alpha 取用；
+            // 传 null 则这条命令没有 alpha 通道，Modifier.alpha 对该精灵失效。
+            // color 只作占位（精灵调制色来自 data.tintColors，插件不读 paint.color）。
             drawContext.canvas.recordCustomDraw(
                 tag = SokitsuSpritePlugin.TAG,
                 data = data,
-                paint = null,
+                paint = buildPaint(Color.White),
                 layer3D = null,
             )
         }

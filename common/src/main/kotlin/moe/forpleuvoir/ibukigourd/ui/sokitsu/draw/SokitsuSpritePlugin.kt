@@ -29,6 +29,9 @@ import kotlin.math.roundToInt
  *
  * 阴影：[SokitsuLayerSprite.isShadow] 图层（layerId == "shadow"）先于普通图层绘制，
  * 目标矩形向光源反方向偏移（[SokitsuSpriteDrawData.shadowOffset]），外观由素材定义。
+ *
+ * 图层级不透明度：[CustomDrawContext.alpha]（由 `Modifier.alpha` / `graphicsLayer { alpha }`
+ * 在回放阶段烘焙进命令 paint）乘进每个图层的调制色，因此整层 alpha 对精灵生效。
  */
 object SokitsuSpritePlugin : MinecraftRenderPlugin {
 
@@ -52,24 +55,27 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         val textureSetup = TextureSetup.singleTexture(atlas.getTextureView(), atlas.getSampler())
         val pose = context.matrix.toMatrix3x2f()
         val scissor = context.scissor?.toScreenRectangle()
+        // 图层级不透明度：无图层/未设置 alpha 时为 1f
+        val alpha = context.alpha
 
         // 阴影图层（layerId == "shadow"）先画：向光源反方向偏移，外观由素材定义
 
         sprite.layers.forEachIndexed { index, layer ->
             if (layer.isShadow)
                 emitLayer(
-                    context, layer, data, index, textureSetup, pose, scissor,
+                    context, layer, data, index, textureSetup, pose, scissor, alpha,
                     destOffsetX = data.shadowOffset.x, destOffsetY = data.shadowOffset.y
                 )
             else
-                emitLayer(context, layer, data, index, textureSetup, pose, scissor)
+                emitLayer(context, layer, data, index, textureSetup, pose, scissor, alpha)
         }
     }
 
     /**
      * 提交单个图层（三个 fill 模式分发）。
      *
-     * [destOffsetX]/[destOffsetY] 目标矩形偏移（阴影图层用）。
+     * [destOffsetX]/[destOffsetY] 目标矩形偏移（阴影图层用）；
+     * [alpha] 图层级不透明度（见 [CustomDrawContext.alpha]），乘进该图层调制色。
      */
     private fun emitLayer(
         context: CustomDrawContext,
@@ -79,12 +85,13 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         textureSetup: TextureSetup,
         pose: Matrix3x2f,
         scissor: ScreenRectangle?,
+        alpha: Float,
         destOffsetX: Int = 0,
         destOffsetY: Int = 0,
     ) {
         val w = data.size.width
         val h = data.size.height
-        val color = data.tintColors.getOrNull(index) ?: return
+        val color = scaleAlpha(data.tintColors.getOrNull(index) ?: return, alpha)
         val pipeline = pipelineFor(layer)
         when (val fill = layer.fill) {
             is TextureFill.Stretch   -> context.sink.addElement(
@@ -189,4 +196,16 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
             }
         }
     }
+}
+
+/**
+ * 把图层级不透明度 [alpha] 乘进 0xAARRGGBB 调制色的 alpha 通道。
+ *
+ * [alpha] 为 1f（无 `Modifier.alpha` / `graphicsLayer` 图层，或运行时未携带 paint）时原样返回，
+ * 避免无谓的位运算；结果 alpha 四舍五入取整，0 表示该图层整层不可见（仍会提交命令）。
+ */
+private fun scaleAlpha(argb: Int, alpha: Float): Int {
+    if (alpha >= 1f) return argb
+    val a = ((argb ushr 24 and 0xFF) * alpha).roundToInt().coerceIn(0, 255)
+    return (argb and 0x00FFFFFF) or (a shl 24)
 }
