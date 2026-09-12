@@ -34,7 +34,7 @@ fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {
         colorScheme
             .contentColorFor(backgroundColor)
             .takeOrElse { LocalContentColor.current }
-            .copy(alpha = ContentAlpha.medium)
+            .copy(alpha = LowestContentAlpha)
     return remember(primaryColor, backgroundColor, textColorWithLowsetAlpha) {
         TextSelectionColors(
             handleColor = colorScheme.primary.base,
@@ -232,3 +232,12 @@ private const val MinimumSelectionBackgroundAlpha = DefaultSelectionBackgroundAl
 
 /** Material and WCAG 2.0 sc 1.4.3 minimum contrast for AA text */
 private const val DesiredContrastRatio = 4.5f
+
+/**
+ * 内容可能被压到的**最低**不透明度，用于选区背景的最坏情形对比度估算
+ * （见 [calculateSelectionBackgroundColor] 的 textColor 参数说明）。
+ *
+ * 只参与对比度计算，不参与任何绘制；内容强调等级由语义色槽表达
+ * （`onSurface` / `onSurfaceVariant` 等），不再有"内容 alpha"这一层。
+ */
+private const val LowestContentAlpha = 0.6f

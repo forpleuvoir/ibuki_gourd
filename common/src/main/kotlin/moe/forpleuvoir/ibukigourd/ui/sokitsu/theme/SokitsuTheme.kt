@@ -91,7 +91,6 @@ fun SokitsuTheme(
     val selectionColors = rememberTextSelectionColors(rememberedColors)
     CompositionLocalProvider(
         LocalColorScheme provides rememberedColors,
-        LocalContentAlpha provides ContentAlpha.high,
         LocalContentColor provides rememberedColors.onBackground.base,
         LocalIndication provides SokitsuIndicationNodeFactory,
         LocalTextSelectionColors provides selectionColors,
