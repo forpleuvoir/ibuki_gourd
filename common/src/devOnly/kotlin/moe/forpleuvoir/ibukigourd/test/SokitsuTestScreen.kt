@@ -15,6 +15,7 @@ import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
@@ -122,6 +123,11 @@ fun SokitsuTestScreen() {
                             SliderTestScreen()
                         }) {
                             Text("滑条测试")
+                        }
+                        Button({
+                            TextFieldTestScreen()
+                        }) {
+                            Text("文本框测试")
                         }
                     }
                 }

@@ -416,9 +416,13 @@ fun lightColorScheme(
         darkOffset = -0.08f,
         highlightOffset = 0.08f
     ),
-    // 表面变体上的内容：比 onSurface 弱一档的次要内容色
+    // 表面变体上的内容：比 onSurface 弱一档的次要内容色。
+    // **与暗色主题取同值**：surfaceVariant 容器（输入框填充、滑条轨道等精灵）的明度由
+    // 纹理灰阶决定、两种主题下都偏亮，而容器底的实际色是 HSV(主题 H,S, 纹理 V)，
+    // 两个主题几乎同色（#C3ADD2 / #C2B1D2）→ 其上内容色必须同样压深才可读。
+    // 原 #5A5A5A 对容器底仅 ~3.4:1，看着与背景发糊（用户实测反馈）
     onSurfaceVariant: ColorTone = ColorTone.fromBase(
-        base = Color(0xFF5A5A5A),
+        base = Color(0xFF3F3A45),
         darkOffset = -0.15f,
         highlightOffset = 0.2f
     )
