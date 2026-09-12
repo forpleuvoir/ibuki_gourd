@@ -1,8 +1,15 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.Composable
@@ -11,6 +18,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +45,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
+import moe.forpleuvoir.ibukigourd.util.contrasting
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
@@ -60,7 +69,10 @@ import kotlin.math.roundToInt
  *
  * 交互：按下即定位（无触摸阈值），随后按住拖动实时跟随；[steps] > 0 时吸附到
  * 等分档位。手势结束时回调 [onValueChangeFinished]。本组件无悬停/按下态素材，
- * 故不引入四态精灵，禁用态只反映在配色上。
+ * 不引入四态精灵——悬停、聚焦与拖动中的反馈是轨道 outline 层染色为选中描边色
+ * （[SliderColors.selectedOutlineColor]，与 Button/Switch 同款；拖动时鼠标移出轨道
+ * 描边保持，松手复位），禁用态只反映在配色上。拖动经交互源以 [DragInteraction]
+ * 上报（裸 pointerInput 不会自动上报，故手动发出）。
  *
  * 尺寸：最小尺寸取 [SliderDefaults.trackMinSize]（资源包可覆盖）；[modifier] 给出的
  * 约束优先。填充与文字均按该尺寸铺满 / 居中，`label` 超出轨道宽度时会溢出显示。
@@ -75,6 +87,8 @@ import kotlin.math.roundToInt
  * @param colors 配色集，默认 [SliderDefaults.colors]
  * @param label 轨道内居中的内容槽（通常是一段 [Text]）；内容色由本组件下发，
  *   槽内组件取 [LocalContentColor] 即可自动获得"分界两侧各一色"的效果
+ * @param interactionSource 交互源，不传则内部新建；经 hoverable/focusable 驱动
+ *   悬停/聚焦描边，调用方需要观察交互状态时可传入自己持有的实例
  */
 @Composable
 fun Slider(
@@ -89,6 +103,7 @@ fun Slider(
     trackSprite: SokitsuSprite = SliderDefaults.trackSprite(),
     fillSprite: SokitsuSprite = SliderDefaults.fillSprite(),
     label: (@Composable () -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
 ) {
     val span = valueRange.endInclusive - valueRange.start
     val fraction = if (span > 0f) ((value - valueRange.start) / span).coerceIn(0f, 1f) else 0f
@@ -100,12 +115,24 @@ fun Slider(
     val currentOnValueChange by rememberUpdatedState(onValueChange)
     val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
 
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val hovered by interactionSource.collectIsHoveredAsState()
+    val focused by interactionSource.collectIsFocusedAsState()
+    val dragged by interactionSource.collectIsDraggedAsState()
+
     val clickSound = SliderDefaults.LocalPressSound.current
 
-    val trackTone = if (enabled) colors.trackColor else colors.disabledTrackColor
-    val fillTone = if (enabled) colors.fillColor else colors.disabledFillColor
-    val filledLabelColor = if (enabled) colors.filledLabelColor else colors.disabledLabelColor
-    val unfilledLabelColor = if (enabled) colors.unfilledLabelColor else colors.disabledLabelColor
+    val trackTone = colors.trackColor(enabled)
+    val fillTone = colors.fillColor(enabled)
+    val filledLabelColor = colors.labelColor(enabled, filled = true)
+    val unfilledLabelColor = colors.labelColor(enabled, filled = false)
+
+    // 悬停/聚焦/拖动中：仅轨道 outline 层覆盖为选中描边色（与 Button/Switch 同款），
+    // 其余层保持色板结构；填充精灵无启用中的 outline 层，无需覆盖
+    val trackToneWithSelection = when {
+        hovered || focused || dragged -> trackTone.copy(outline = colors.selectedOutlineColor)
+        else                          -> trackTone
+    }
 
     // 无回调 = 只读展示：不装手势（onValueChange == null 时不接收交互），也不给"手型"指针
     val interactive = enabled && onValueChange != null
@@ -145,18 +172,34 @@ fun Slider(
                 awaitEachGesture {
                     // 按下即定位：不设触摸阈值，点击任意位置先跳到该进度
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    clickSound?.let { sound -> mc.soundManager.play(sound) }
-                    currentOnValueChange?.invoke(valueAt(down.position.x, size.width, valueRange, steps))
-                    down.consume()
-                    drag(down.id) { change ->
-                        currentOnValueChange?.invoke(valueAt(change.position.x, size.width, valueRange, steps))
-                        change.consume()
+                    // 裸 pointerInput 不会像 draggable 那样自动上报拖动交互，
+                    // 这里手动发入交互源，驱动 collectIsDraggedAsState（拖动中描边）
+                    // 并供持有该交互源的调用方观察
+                    val dragInteraction = DragInteraction.Start()
+                    interactionSource.tryEmit(dragInteraction)
+                    try {
+                        clickSound?.let { sound -> mc.soundManager.play(sound) }
+                        currentOnValueChange?.invoke(valueAt(down.position.x, size.width, valueRange, steps))
+                        down.consume()
+                        drag(down.id) { change ->
+                            currentOnValueChange?.invoke(valueAt(change.position.x, size.width, valueRange, steps))
+                            change.consume()
+                        }
+                        // drag() 对抬起与取消都是静默返回，统一以 Stop 收尾
+                        interactionSource.tryEmit(DragInteraction.Stop(dragInteraction))
+                        currentOnValueChangeFinished?.invoke()
+                    } catch (e: Throwable) {
+                        // 协程被取消或回调抛错时补发 Cancel，避免交互源残留未结束的 Start
+                        interactionSource.tryEmit(DragInteraction.Cancel(dragInteraction))
+                        throw e
                     }
-                    currentOnValueChangeFinished?.invoke()
                 }
             }
+            // hover/focus 交互源：驱动选中描边（与 Button 的 clickable、Switch 的 hoverable 同路）
+            .hoverable(interactionSource, enabled = interactive)
+            .focusable(enabled = interactive, interactionSource = interactionSource)
             .defaultMinSize(SliderDefaults.trackMinSize.width, SliderDefaults.trackMinSize.height)
-            .sokitsuSprite(trackSprite, trackTone),
+            .sokitsuSprite(trackSprite, trackToneWithSelection),
     ) {
         // 填充层：整条精灵，绘制时裁掉进度边界右侧
         Box(
@@ -242,7 +285,7 @@ object SliderDefaults {
     val trackMinSize: DpSize get() = meta.trackMinSize
 
     /**
-     * 默认滑条配色：轨道 / 填充两套色板 + 三档文字色。
+     * 默认滑条配色：轨道 / 填充两套色板 + 四档数值文字色。
      *
      * 参数默认 [ColorTone.Unspecified] / [Color.Unspecified]，语义是"按 [SliderTokens]
      * 映射表结合当前主题解析"；回退顺序：`调用点传参` >
@@ -251,10 +294,15 @@ object SliderDefaults {
      *
      * - [trackColor] 凹槽底 → [SliderTokens.Track]（surfaceVariant）
      * - [fillColor] 凸起进度段 → [SliderTokens.Fill]（primary）
-     * - 两档文字色默认取**各自底色色板的配对内容色**（[ColorTone.contentColor]）：
+     * - 启用态两档文字色默认取**各自底色色板的配对内容色**（[ColorTone.contentColor]）：
      *   填充侧 → onPrimary，轨道侧 → onSurfaceVariant。这样作用域整体换色板
      *   （如把滑条切成 secondary）时文字色自动跟随
-     * - 禁用态走 [resolveFaded]，轨道 12%、填充与文字 38%
+     * - 禁用态：轨道 / 填充底色走 [resolveFaded]（12% / 38%）；文字**两半统一**取
+     *   onSurfaceVariant 压 [SliderTokens.DisabledLabelOpacity]（38%）——
+     *   Tint 模式下禁用填充的明度同样由纹理决定（偏亮），文字必须压深才可读，
+     *   取 onPrimary 会在浅色主题（白）下与浅灰底同化
+     * - [selectedOutlineColor] 悬停/聚焦描边 → 未指定时取**填充色板** base 的对比色
+     *   （[contrasting]，对齐 Switch 取主色家族、不随轨道状态漂移）
      */
     @Composable
     fun colors(
@@ -264,10 +312,13 @@ object SliderDefaults {
         disabledFillColor: ColorTone = ColorTone.Unspecified,
         filledLabelColor: Color = Color.Unspecified,
         unfilledLabelColor: Color = Color.Unspecified,
-        disabledLabelColor: Color = Color.Unspecified,
+        disabledFilledLabelColor: Color = Color.Unspecified,
+        disabledUnfilledLabelColor: Color = Color.Unspecified,
+        selectedOutlineColor: Color = Color.Unspecified,
     ): SliderColors {
         val resolvedTrack = trackColor.resolve(SliderTokens.Track)
         val resolvedFill = fillColor.resolve(SliderTokens.Fill)
+        val labelAlpha = SliderTokens.DisabledLabelOpacity
         return SliderColors(
             trackColor = resolvedTrack,
             fillColor = resolvedFill,
@@ -281,22 +332,33 @@ object SliderDefaults {
             ),
             filledLabelColor = filledLabelColor.takeOrElse { resolvedFill.contentColor() },
             unfilledLabelColor = unfilledLabelColor.takeOrElse { resolvedTrack.contentColor() },
-            disabledLabelColor = disabledLabelColor.resolveFaded(
-                SliderTokens.DisabledFill,
-                SliderTokens.DisabledLabelOpacity,
-            ),
+            disabledFilledLabelColor = disabledFilledLabelColor.takeOrElse {
+                resolvedTrack.contentColor().copy(alpha = labelAlpha)
+            },
+            disabledUnfilledLabelColor = disabledUnfilledLabelColor.takeOrElse {
+                resolvedTrack.contentColor().copy(alpha = labelAlpha)
+            },
+            selectedOutlineColor = selectedOutlineColor.takeOrElse { resolvedFill.base.contrasting() },
         )
     }
 }
 
 /**
- * 滑条配色集：两套底色色板（轨道 / 填充）+ 三档数值文字色。
+ * 滑条配色集：两套底色色板（轨道 / 填充）+ 四档数值文字色。
  *
  * 结构对齐 [ButtonColors]——**全部字段都已解析**，因此是普通 data class，
  * `copy(...)` 即为精准覆盖；"哪些槽位映射到主题哪里"由 [SliderDefaults.colors] 承担。
  *
  * [filledLabelColor] 用于进度边界**内侧**的文字，[unfilledLabelColor] 用于**外侧**；
- * [disabledLabelColor] 在禁用态同时接管两份。
+ * [disabledFilledLabelColor] / [disabledUnfilledLabelColor] 是禁用态的两份 ——
+ * 禁用填充的明度同样由纹理决定（偏亮），默认与轨道侧同源（onSurfaceVariant 压低不透明度），
+ * 两个槽位分开是为了让调用方可以只给填充半区换色。
+ *
+ * [selectedOutlineColor] 为悬停/聚焦时轨道 outline 层的染色（选中描边，只影响轨道精灵 ——
+ * 填充精灵没有启用中的 outline 层），默认取填充色板 base 的对比色。
+ *
+ * "状态 → 取值"的映射由 `trackColor` / `fillColor` / `labelColor` 三个方法承担（对齐
+ * [SwitchColors]），调用点不自行按 [enabled] 做 if 判断，配色语义只有这一处定义。
  */
 @Immutable
 data class SliderColors(
@@ -306,7 +368,9 @@ data class SliderColors(
     val disabledFillColor: ColorTone,
     val filledLabelColor: Color,
     val unfilledLabelColor: Color,
-    val disabledLabelColor: Color,
+    val disabledFilledLabelColor: Color,
+    val disabledUnfilledLabelColor: Color,
+    val selectedOutlineColor: Color,
 ) {
 
     /** 轨道底色（按启用状态二选一）。 */
@@ -316,4 +380,14 @@ data class SliderColors(
     /** 填充底色（按启用状态二选一）。 */
     @Stable
     internal fun fillColor(enabled: Boolean): ColorTone = if (enabled) fillColor else disabledFillColor
+
+    /**
+     * 数值文字色：按启用状态与该文字落在进度边界的内侧（[filled] = true）还是外侧二选一。
+     */
+    @Stable
+    internal fun labelColor(enabled: Boolean, filled: Boolean): Color = when {
+        enabled  -> if (filled) filledLabelColor else unfilledLabelColor
+        filled   -> disabledFilledLabelColor
+        else     -> disabledUnfilledLabelColor
+    }
 }
