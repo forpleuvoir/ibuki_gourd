@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.textureManager
@@ -225,6 +226,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             val layerId: String,
             val image: NativeImage,
             val colorSlot: String,
+            val tintMode: TextureTintMode,
             val fill: TextureFill,
         )
         val entries = mutableListOf<Entry>()
@@ -242,6 +244,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
                         aseLayer.layerId,
                         aseLayer.image,
                         aseLayer.layer.colorSlot,
+                        aseLayer.layer.tintMode,
                         aseLayer.layer.fill,
                     )
                 }
@@ -259,7 +262,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             for (layer in texture.layers) {
                 val layerImage = LayerExtractor.extract(baseImage, layer.keys, layer.region)
                 stitcher.add(layerImage.width, layerImage.height)
-                entries += Entry(textureId, layer.id, layerImage, layer.colorSlot, layer.fill)
+                entries += Entry(textureId, layer.id, layerImage, layer.colorSlot, layer.tintMode, layer.fill)
             }
             baseImage.close()
         }
@@ -272,7 +275,10 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
         val layout = stitcher.stitch().getOrThrow()
         val regions = entries.mapIndexed { index, entry ->
             val placed = layout.placed[index]
-            SokitsuAtlasRegion(entry.textureId, entry.layerId, placed.x, placed.y, entry.image, entry.colorSlot, entry.fill)
+            SokitsuAtlasRegion(
+                entry.textureId, entry.layerId, placed.x, placed.y, entry.image,
+                entry.colorSlot, entry.tintMode, entry.fill,
+            )
         }
         return SokitsuAtlasPreparations(layout.width, layout.height, definition.padding, regions, definition.density)
     }

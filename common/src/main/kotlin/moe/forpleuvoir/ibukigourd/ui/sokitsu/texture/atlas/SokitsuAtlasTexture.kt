@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.textures.FilterMode
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import net.minecraft.client.renderer.texture.AbstractTexture
 import net.minecraft.client.gui.render.TextureSetup
 import net.minecraft.resources.Identifier
@@ -35,6 +36,7 @@ data class SokitsuAtlasRegion(
     val y: Int,
     val image: NativeImage,
     val colorSlot: String,
+    val tintMode: TextureTintMode = TextureTintMode.Mask,
     val fill: TextureFill = TextureFill.Stretch,
 )
 
@@ -117,6 +119,7 @@ class SokitsuAtlasTexture(
                 atlasHeight = atlasHeight,
                 density = density,
                 colorSlot = region.colorSlot,
+                tintMode = region.tintMode,
                 fill = region.fill,
             )
         }

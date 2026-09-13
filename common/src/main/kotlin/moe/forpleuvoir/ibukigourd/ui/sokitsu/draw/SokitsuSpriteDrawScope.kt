@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_NONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
@@ -31,19 +32,24 @@ data class SokitsuSpriteDrawData(
 )
 
 /**
- * 按槽位名解析图层的顶点着色色：
+ * 按**合成策略**与**槽位名**解析图层的顶点着色色。
+ *
+ * 两个维度正交：[tintMode] 决定 T 与 C 怎么合（见 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode]），
+ * [slot] 只决定 T 取哪个色：
+ * - [TextureTintMode.Passthrough]：不参与染色，恒取白（配合顶点色 × 纹理管线即为原样输出）
  * - `tone`：组件主色（[componentColor]）
- * - `none`：直出，返回白色（插件端据此使用原色直通管线）
+ * - `none`：无颜色，取白（Multiply 下即灰度原样）
  * - `shadow`：投影固定黑（素材像素自带半透明）
  * - `outline`：[outlineColor] 覆盖优先（悬停/选中/错误描边），否则取 [scheme] 全局描边色
  * - 其它：按名取 [scheme] 语义槽位色；未知名回落 [componentColor]
  */
 fun resolveSlotColor(
     slot: String,
+    tintMode: TextureTintMode,
     componentColor: Color,
     scheme: ColorScheme,
     outlineColor: Color = Color.Unspecified,
-): Color = when (slot) {
+): Color = if (tintMode == TextureTintMode.Passthrough) Color.White else when (slot) {
     SLOT_TONE  -> componentColor
     SLOT_NONE  -> Color.White
     "shadow"   -> Color.Black
@@ -68,7 +74,7 @@ fun buildSokitsuSpriteDrawData(
     outlineColor: Color = Color.Unspecified,
 ): SokitsuSpriteDrawData {
     val tintColors = sprite.layers.map { layer ->
-        resolveSlotColor(layer.colorSlot, componentColor, scheme, outlineColor).toArgb()
+        resolveSlotColor(layer.colorSlot, layer.tintMode, componentColor, scheme, outlineColor).toArgb()
     }
     return SokitsuSpriteDrawData(sprite, size, pixelScale, tintColors, shadowOffset)
 }

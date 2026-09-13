@@ -6,11 +6,13 @@ import moe.forpleuvoir.ibukigourd.asetools.AseRenderer
 import moe.forpleuvoir.ibukigourd.asetools.AseSprite
 import moe.forpleuvoir.ibukigourd.asetools.Layer
 import moe.forpleuvoir.ibukigourd.asetools.PropValue
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_NONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureLayer
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureRegion
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import moe.forpleuvoir.ibukigourd.util.logger
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
@@ -113,6 +115,9 @@ class SokitsuAseLoader(private val resourceManager: ResourceManager) {
             id = layer.name,
             keys = emptyList(),
             colorSlot = props?.string("level")?.trim()?.takeIf { it.isNotEmpty() } ?: SLOT_TONE,
+            // 合成策略与槽位正交：tint 决定"怎么合"，level 决定"取哪个色"；
+            // 未标注（或含历史模式名）由 TextureTintMode.fromName 归一，未知/缺失回落 Mask
+            tintMode = props?.string("tint")?.let(TextureTintMode::fromName) ?: TextureTintMode.Mask,
             fill = fill,
             region = mapRegion(props, canvasW, canvasH),
         )
@@ -133,6 +138,11 @@ class SokitsuAseLoader(private val resourceManager: ResourceManager) {
                     bottom = props.int("borderBottom") ?: 0,
                 ),
                 disableSlice = props.vectorInts("disableSlice") ?: emptyList(),
+                centerFill = when (props.string("centerFill")?.lowercase()) {
+                    "tile" -> CenterFill.Tile
+                    else -> CenterFill.Stretch
+                },
+                centerScale = (props.real("centerScale")?.toFloat() ?: 1f).coerceAtLeast(1f),
             )
             else -> TextureFill.Stretch
         }

@@ -25,11 +25,11 @@ import kotlin.math.roundToInt
  * 在背景绘制一个 Sokitsu 精灵（与 [Modifier.background] 同模式 —— 节点参与 DrawScope 管道，
  * 记录一条自定义绘制命令，由 [SokitsuSpritePlugin] 在渲染阶段提交）。
  *
- * 精灵按 [color] 对各图层染色：图层 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SokitsuTexture.Layer] 的
- * `colorSlot` 决定该层取哪个颜色——
- * - `tone`：Multiply 渲染（[color] × 素材灰度，正片叠底）；
- * - `none`：直出（纹理原样）；
- * - 其它：按槽位名取 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme] 语义色做纯色替换（Mask）。
+ * 精灵按 [color] 对各图层染色，两个维度正交：
+ * - **合成策略**（图层的 `tintMode`）：`Mask` 走纯色替换管线、`Multiply` / `Passthrough` 走
+ *   顶点色 × 纹理管线（`Passthrough` 顶点色取白，即原样输出）；
+ * - **颜色来源**（图层的 `colorSlot`）：`tone` = [color]，`shadow` = 黑，`outline` = 描边色（可覆盖），
+ *   其它 = [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme] 同名词位，`none` = 白。
  *
  * 渲染像素放大倍率取 [LocalSokitsuPixelScale]。
  *

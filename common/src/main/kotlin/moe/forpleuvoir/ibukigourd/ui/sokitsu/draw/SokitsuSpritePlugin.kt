@@ -7,7 +7,9 @@ import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugin
 import moe.forpleuvoir.compose_minecraft.platform.render.toMatrix3x2f
 import moe.forpleuvoir.compose_minecraft.platform.render.toScreenRectangle
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_NONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
@@ -27,9 +29,10 @@ import kotlin.math.roundToInt
  * Sokitsu 精灵渲染插件：消费 [SokitsuSpriteDrawData]，逐图层提交
  * [BlitRenderState]（stretch / 九宫格）或 [TiledBlitRenderState]（tile）。
  *
- * 图层着色：colorSlot 为 `tone` 的图层走 [RenderPipelines.GUI_TEXTURED]（顶点色 × 纹理灰度，
- * 正片叠底）；`none` 直出；其它槽位名走 [IGRenderPipelines.SOKITSU_TINT_MASK]（纯槽位色替换）。
- * 槽位色的解析见 [resolveSlotColor]。
+ * 图层着色两维正交：**合成策略**（[SokitsuLayerSprite.tintMode]）决定管线 ——
+ * Mask 走 [IGRenderPipelines.SOKITSU_TINT_MASK]（纯色替换），Multiply / Passthrough 走
+ * [RenderPipelines.GUI_TEXTURED]（顶点色 × 纹理）；**取哪个色**由 [SokitsuLayerSprite.colorSlot]
+ * 解析，见 [resolveSlotColor]。
  *
  * 阴影：[SokitsuLayerSprite.isShadow] 图层（layerId == "shadow"）先于普通图层绘制，
  * 目标矩形向光源反方向偏移（[SokitsuSpriteDrawData.shadowOffset]），外观由素材定义。
@@ -130,6 +133,10 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
 
     /**
      * 提交九宫格图层：按 [TextureFill.NinePatch.border] + [SokitsuLayerSprite.disabledSlices] 切片。
+     *
+     * 八个边角分片拉伸整片源图；中心格按 [TextureFill.NinePatch.centerFill] 分流：
+     * [CenterFill.Stretch] 拉伸整片，[CenterFill.Tile] 按中心格源图平铺（单元尺寸见
+     * [ninePatchCenterTileSizePx]，末个不满单元由 `TiledBlitRenderState` 按源 UV 截断）。
      */
     private fun drawNinePatch(
         layer: SokitsuLayerSprite,
@@ -169,12 +176,31 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         val su = ninePatchBoundaries(abs(border.left).toFloat(), abs(border.right).toFloat(), srcW)
         val sv = ninePatchBoundaries(abs(border.top).toFloat(), abs(border.bottom).toFloat(), srcH)
 
+        // 中心格平铺：tile 单元取中心格源尺寸（su/sv 中段），与运行时可变的目标中心区域无关
+        val centerTile = fill.centerFill == CenterFill.Tile
+        val centerTileSize =
+            ninePatchCenterTileSizePx(su[2] - su[1], sv[2] - sv[1], fill.centerScale, pixelScale, layer.density)
+        val centerTileW = centerTileSize[0].roundToInt().coerceAtLeast(1)
+        val centerTileH = centerTileSize[1].roundToInt().coerceAtLeast(1)
+
         fun emitCell(col: Int, row: Int, x: Int, y: Int, cw: Int, ch: Int) {
             if (cw <= 0 || ch <= 0) return
             val u0 = layer.getU(su[col] / srcW)
             val u1 = layer.getU(su[col + 1] / srcW)
             val v0 = layer.getV(sv[row] / srcH)
             val v1 = layer.getV(sv[row + 1] / srcH)
+            if (centerTile && col == 1 && row == 1) {
+                context.sink.addElement(
+                    TiledBlitRenderState(
+                        pipeline, textureSetup, pose,
+                        centerTileW, centerTileH,
+                        x + destOffsetX, y + destOffsetY, x + destOffsetX + cw, y + destOffsetY + ch,
+                        u0, u1, v0, v1,
+                        color, scissor,
+                    )
+                )
+                return
+            }
             emitSokitsuBlit(
                 pipeline, textureSetup, pose,
                 x + destOffsetX, y + destOffsetY, cw, ch,
@@ -199,13 +225,15 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
 }
 
 /**
- * 图层的渲染管线：[SokitsuLayerSprite.colorSlot] 为 `tone`（Multiply：顶点色 × 纹理灰度）或
- * `none`（直出）走原版贴图管线；其它槽位名走 Mask 管线（纯该槽位色替换，忽略纹理 RGB）。
+ * 图层的渲染管线，由 **合成策略** [SokitsuLayerSprite.tintMode] 决定（与取哪个色的 colorSlot 无关）：
+ * - [TextureTintMode.Mask]：Mask 管线（纯顶点色替换，忽略纹理 RGB，只留 alpha）
+ * - [TextureTintMode.Multiply] / [TextureTintMode.Passthrough]：原版贴图管线（顶点色 × 纹理）；
+ *   Passthrough 的顶点色由 [resolveSlotColor] 取白，故输出纹理原样
  */
 internal fun sokitsuLayerPipeline(layer: SokitsuLayerSprite): RenderPipeline =
-    when (layer.colorSlot) {
-        SLOT_TONE, SLOT_NONE -> RenderPipelines.GUI_TEXTURED
-        else -> IGRenderPipelines.SOKITSU_TINT_MASK
+    when (layer.tintMode) {
+        TextureTintMode.Mask -> IGRenderPipelines.SOKITSU_TINT_MASK
+        else                 -> RenderPipelines.GUI_TEXTURED
     }
 
 /**

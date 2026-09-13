@@ -21,6 +21,31 @@ fun Color.contrasting(): Color {
     return hsvToColor((h + 0.5f) % 1f, 1f, 0.95f)
 }
 
+/** [contrastContentColor] 的亮度阈值（0..255 感知亮度）。 */
+private const val CONTRAST_CONTENT_THRESHOLD = 186f
+
+/**
+ * 按接收者亮度选取**纯黑/纯白**内容色（只输出两种颜色，不做色相派生）。
+ *
+ * 感知亮度 = `0.299R + 0.587G + 0.114B`（换算到 0..255 区间），大于
+ * [CONTRAST_CONTENT_THRESHOLD]（186）取黑，否则取白。阈值偏亮端：
+ * 中等明度偏亮的底色也落到"白字"一侧，与饱和度无关。
+ *
+ * 典型用途：底色由调用方**任意指定**的容器（[moe.forpleuvoir.ibukigourd.ui.sokitsu.ColorButton]）
+ * 的内容色——这类底色不在 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme] 槽位表里，
+ * 无法按槽位配对，只能按亮度决定黑白。
+ *
+ * 示例：
+ * ```
+ * val content = buttonColor.contrastContentColor()
+ * ```
+ */
+fun Color.contrastContentColor(): Color =
+    if ((red * 0.299f + green * 0.587f + blue * 0.114f) * 255f > CONTRAST_CONTENT_THRESHOLD)
+        Color.Black
+    else
+        Color.White
+
 /**
  * 保留色相，重设饱和度与明度（"色相继承"派生色）。
  *

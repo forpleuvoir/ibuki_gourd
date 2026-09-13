@@ -18,6 +18,7 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostOverlay
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
@@ -126,6 +127,11 @@ fun SokitsuTestScreen() {
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp),
                     ) {
+                        Button({
+                            ColorSchemeTestScreen()
+                        }) {
+                            Text("配色测试")
+                        }
                         Button({
                             ButtonTestScreen()
                         }) {

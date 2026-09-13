@@ -129,8 +129,12 @@ private class SokitsuBubbleSpriteNode(
                 pixelScale = pixelScale,
                 arrowAnchor = arrowAnchor,
                 arrowRatio = arrowRatio,
-                bodyTintColors = body.layers.map { resolveSlotColor(it.colorSlot, color, currentValueOf(LocalColorScheme)).toArgb() },
-                arrowTintColors = arrow.layers.map { resolveSlotColor(it.colorSlot, color, currentValueOf(LocalColorScheme)).toArgb() },
+                bodyTintColors = body.layers.map {
+                    resolveSlotColor(it.colorSlot, it.tintMode, color, currentValueOf(LocalColorScheme)).toArgb()
+                },
+                arrowTintColors = arrow.layers.map {
+                    resolveSlotColor(it.colorSlot, it.tintMode, color, currentValueOf(LocalColorScheme)).toArgb()
+                },
                 shadowOffset = shadowOffset,
             )
             drawContext.canvas.recordCustomDraw(

@@ -23,6 +23,12 @@ local FILL_NINEPATCH = "ninepatch"
 local FILL_TILE = "tile"
 local FILL_OPTIONS = { FILL_STRETCH, FILL_NINEPATCH, FILL_TILE }
 
+-- 九宫格中心格（行优先索引 4）的填充模式：只支持拉伸 / 平铺，
+-- 平铺单元 = 中心格源像素 × 像素放大倍率 × centerScale
+local CENTER_FILL_STRETCH = "stretch"
+local CENTER_FILL_TILE = "tile"
+local CENTER_FILL_OPTIONS = { CENTER_FILL_STRETCH, CENTER_FILL_TILE }
+
 -- tint 顺序与 TextureTintMode 枚举一致：Mask / Multiply / Passthrough
 local TINT_OPTIONS = { "Mask", "Multiply", "Passthrough" }
 
@@ -40,10 +46,13 @@ local function tintHintIndex(mode)
   return nil
 end
 
-local LEVEL_NONE = ""
--- 主题颜色槽位名：tone = 组件主色（Multiply），outline/shadow = 对应语义色（Mask），
--- 留空 = 直出；也可直接写 ColorScheme 的任意槽位名（surface / primary / ...）
-local LEVEL_OPTIONS = { LEVEL_NONE, "tone", "outline", "shadow", "surface", "surfaceVariant", "primary", "primaryContainer", "secondary", "error", "background" }
+-- 空 = 未标注（运行时按 tone 处理，老素材保持原样）；none = 显式直出
+local LEVEL_UNSET = ""
+local LEVEL_PASSTHROUGH = "none"
+-- 颜色槽位名 = 该层"取哪个颜色"，与上面的 tint（"怎么合成"）正交：
+-- tone = 组件主色；outline/shadow = 对应语义色；none = 无颜色（顶点色取白）；
+-- 也可直接写 ColorScheme 的任意槽位名（surface / primary / ...）
+local LEVEL_OPTIONS = { LEVEL_UNSET, LEVEL_PASSTHROUGH, "tone", "outline", "shadow", "surface", "surfaceVariant", "primary", "primaryContainer", "secondary", "error", "background" }
 
 local BORDER_EDGES = {
   { id = "Left", label = "左" },
@@ -86,12 +95,14 @@ local function defaults()
     -- 需要保留手绘明暗的层（灰阶）改用 Multiply
     tint = "Mask",
     tintAlpha = false,
-    level = LEVEL_NONE,
+    level = LEVEL_UNSET,
     borderLeft = 0,
     borderTop = 0,
     borderRight = 0,
     borderBottom = 0,
     disabled = {},   -- 禁用的切片编号集合（0..8）
+    centerFill = CENTER_FILL_STRETCH,
+    centerScale = 1.0,
     scale = 1.0,
   }
 end
@@ -109,14 +120,23 @@ local function read(layer)
     p.enabled = (stored.enabled ~= false)
     if type(stored.fill) == "string" then p.fill = stored.fill end
     if type(stored.tint) == "string" then
-      -- 历史命名映射（素材标注已批量迁移，此处仅为旧文件兜底）：Flat/Tint/Hsv -> Mask/Luminance
+      -- 历史模式名映射（旧文件兜底）：Flat/Tint -> Mask，Hsv/Luminance/Hsl -> Multiply
       p.tint = ({
-        ["Flat"] = "Mask", ["Tint"] = "Mask", ["Hsv"] = "Multiply", ["Hsl"] = "HueShift", ["Luminance"] = "Multiply",
+        ["Flat"] = "Mask", ["Tint"] = "Mask", ["Hsv"] = "Multiply", ["Hsl"] = "Multiply", ["Luminance"] = "Multiply",
       })[stored.tint] or stored.tint
     end
     if stored.tintAlpha == true then p.tintAlpha = true end
     if type(stored.level) == "string" then p.level = stored.level end
     if type(stored.scale) == "number" then p.scale = stored.scale end
+    -- 未知取值回落默认 stretch（面板下拉只认这两个）
+    if stored.centerFill == CENTER_FILL_TILE then
+      p.centerFill = CENTER_FILL_TILE
+    elseif stored.centerFill == CENTER_FILL_STRETCH then
+      p.centerFill = CENTER_FILL_STRETCH
+    end
+    if type(stored.centerScale) == "number" and stored.centerScale > 0 then
+      p.centerScale = stored.centerScale
+    end
 
     for _, edge in ipairs(BORDER_EDGES) do
       local v = stored["border" .. edge.id]
@@ -148,7 +168,7 @@ local function write(layer, p)
   }
 
   if p.tintAlpha then out.tintAlpha = true end
-  if p.level ~= LEVEL_NONE then out.level = p.level end
+  if p.level ~= LEVEL_UNSET then out.level = p.level end
 
   if p.fill == FILL_NINEPATCH then
     for _, edge in ipairs(BORDER_EDGES) do
@@ -159,6 +179,16 @@ local function write(layer, p)
       if p.disabled[i] then table.insert(disabled, i) end
     end
     if #disabled > 0 then out.disableSlice = disabled end
+
+    -- 中心格填充：stretch 也写入，使数据自解释（缺键时烘焙器同样按 stretch 处理）
+    local centerFill = p.centerFill == CENTER_FILL_TILE and CENTER_FILL_TILE or CENTER_FILL_STRETCH
+    out.centerFill = centerFill
+    if centerFill == CENTER_FILL_TILE then
+      local centerScale = tonumber(p.centerScale) or 1.0
+      -- 与面板 scale 同理：整数会被存成 int32，这里强制 float 以免烘焙器类型不符
+      if math.type and math.type(centerScale) == "integer" then centerScale = centerScale + 0.0 end
+      out.centerScale = centerScale
+    end
   elseif p.fill == FILL_TILE then
     out.scale = p.scale
   end
@@ -278,7 +308,7 @@ local function openDialog(layers)
   dlg:newrow()
   dlg:combobox{
     id = "level",
-    label = "色彩层级",
+    label = "颜色槽位",
     option = p.level,
     options = LEVEL_OPTIONS,
   }
@@ -296,6 +326,11 @@ local function openDialog(layers)
     for _, id in ipairs(nineGroup) do
       dlg:modify{ id = id, visible = (f == FILL_NINEPATCH) }
     end
+    -- 中心格平铺缩放比中心填充模式更窄一层：必须 ninepatch + centerFill = tile
+    dlg:modify{
+      id = "centerScale",
+      visible = (f == FILL_NINEPATCH and dlg.data.centerFill == CENTER_FILL_TILE),
+    }
     -- 强制一次重排：部分 Aseprite 版本隐藏控件后不自动收缩布局，
     -- 会残留旧控件像素（拖动窗口可修复），这里模拟同等效果的 relayout
     local ok, b = pcall(function() return dlg.bounds end)
@@ -406,6 +441,7 @@ local function openDialog(layers)
         dlg:modify{ id = "neg" .. edge.id, selected = false }
       end
       dlg:modify{ id = "fill", option = FILL_NINEPATCH }
+      applyFillVisibility()
     end,
   }
   addNine("fromSlice")
@@ -453,6 +489,32 @@ local function openDialog(layers)
     if i % 3 == 2 then dlg:newrow() end
   end
 
+  dlg:separator{
+    id = "sepCenter",
+    text = "中心格填充（ninepatch）",
+    visible = isNine(),
+  }
+  addNine("sepCenter")
+  dlg:combobox{
+    id = "centerFill",
+    label = "模式",
+    option = p.centerFill,
+    options = CENTER_FILL_OPTIONS,
+    visible = isNine(),
+    onchange = applyFillVisibility,
+  }
+  addNine("centerFill")
+  dlg:newrow()
+  -- 中心格平铺缩放：比 nineGroup 更窄一层（还要 centerFill = tile），故由 applyFillVisibility 单独控制
+  dlg:number{
+    id = "centerScale",
+    label = "平铺缩放",
+    text = string.format("%g", p.centerScale),
+    decimals = 2,
+    visible = isNine() and p.centerFill == CENTER_FILL_TILE,
+  }
+  dlg:newrow()
+
   dlg:button{ id = "ok", text = "确定", focus = true }
   dlg:button{ id = "cancel", text = "取消" }
 
@@ -466,13 +528,18 @@ local function openDialog(layers)
   local scale = tonumber(data.scale) or 1.0
   if math.type and math.type(scale) == "integer" then scale = scale + 0.0 end
 
+  local centerScale = tonumber(data.centerScale) or 1.0
+  if math.type and math.type(centerScale) == "integer" then centerScale = centerScale + 0.0 end
+
   local result = {
     enabled = data.enabled == true,
     fill = data.fill or FILL_STRETCH,
     tint = data.tint or TINT_OPTIONS[1],
     tintAlpha = data.tintAlpha == true,
-    level = data.level or LEVEL_NONE,
+    level = data.level or LEVEL_UNSET,
     scale = scale,
+    centerFill = data.centerFill or CENTER_FILL_STRETCH,
+    centerScale = centerScale,
     disabled = {},
   }
   for i = 0, 8 do
@@ -583,7 +650,7 @@ function init(plugin)
             for _, k in ipairs({
               "enabled", "fill", "tint", "level", "scale",
               "borderLeft", "borderTop", "borderRight", "borderBottom",
-              "disableSlice",
+              "disableSlice", "centerFill", "centerScale",
             }) do
               local val = v[k]
               if val ~= nil then

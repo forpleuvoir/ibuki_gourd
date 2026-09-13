@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 
 import androidx.compose.ui.graphics.Color
 import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import kotlin.math.abs
@@ -148,3 +149,27 @@ fun SokitsuSprite.boxHeightPx(pixelScale: Int): Float =
  */
 fun tileSizePx(logicalSize: Float, scale: Float, pixelScale: Int): Float =
     logicalSize * scale * pixelScale
+
+/**
+ * 九宫格中心格平铺（[CenterFill.Tile]）单个 tile 的屏幕尺寸，按 `[宽, 高]` 排列。
+ *
+ * 与整图平铺 [tileSizePx] 不同，tile 单元取**中心格源尺寸**而非目标尺寸：中心区域在运行时
+ * 随组件尺寸变化，tile 单元若跟着变就不再是平铺而是拉伸。最终倍率 =
+ * `pixelScale / density × centerScale`。
+ *
+ * @param srcWidth 中心格源宽（素材物理像素）
+ * @param srcHeight 中心格源高（素材物理像素）
+ * @param centerScale [TextureFill.NinePatch.centerScale]
+ * @param pixelScale 像素放大倍率（1 逻辑像素 = N×N 屏幕像素块）
+ * @param density 素材像素密度（@1x = 1 / @2x = 2）
+ */
+fun ninePatchCenterTileSizePx(
+    srcWidth: Float,
+    srcHeight: Float,
+    centerScale: Float,
+    pixelScale: Int,
+    density: Int,
+): FloatArray {
+    val scale = pixelScale.toFloat() / density.coerceAtLeast(1) * centerScale
+    return floatArrayOf(srcWidth * scale, srcHeight * scale)
+}

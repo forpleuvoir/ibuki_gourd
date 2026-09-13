@@ -8,6 +8,7 @@ import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugin
 import moe.forpleuvoir.compose_minecraft.platform.render.toMatrix3x2f
 import moe.forpleuvoir.compose_minecraft.platform.render.toScreenRectangle
 import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuLayerSprite
@@ -15,6 +16,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.util.identifier
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.render.TextureSetup
+import net.minecraft.client.renderer.state.gui.TiledBlitRenderState
 import net.minecraft.resources.Identifier
 import org.joml.Matrix3x2f
 import kotlin.math.abs
@@ -337,10 +339,16 @@ private class NinePatchSlices(
     private val srcW = layer.width.toFloat()
     private val srcH = layer.height.toFloat()
 
+    /** 中心格是否平铺（[CenterFill.Tile]）及其 tile 单元尺寸（屏幕像素）。 */
+    private val centerTile: Boolean
+    private val centerTileW: Int
+    private val centerTileH: Int
+
     init {
-        val border = (layer.fill as? TextureFill.NinePatch ?: error(
+        val fill = layer.fill as? TextureFill.NinePatch ?: error(
             "bubble sprite '${layer.textureId}' layer '${layer.layerId}' requires nine-patch fill, but was ${layer.fill}"
-        )).border
+        )
+        val border = fill.border
         val scale = pixelScale.toFloat() / layer.density
         val xs = ninePatchBoundaries(border.left * scale, border.right * scale, width.toFloat())
         val ys = ninePatchBoundaries(border.top * scale, border.bottom * scale, height.toFloat())
@@ -354,6 +362,12 @@ private class NinePatchSlices(
         sv = ninePatchBoundaries(
             abs(border.top).toFloat(), abs(border.bottom).toFloat(), srcH
         )
+        centerTile = fill.centerFill == CenterFill.Tile
+        val centerSize = ninePatchCenterTileSizePx(
+            su[2] - su[1], sv[2] - sv[1], fill.centerScale, pixelScale, layer.density
+        )
+        centerTileW = centerSize[0].roundToInt().coerceAtLeast(1)
+        centerTileH = centerSize[1].roundToInt().coerceAtLeast(1)
     }
 
     fun x(col: Int): Int = xi[col]
@@ -365,8 +379,10 @@ private class NinePatchSlices(
     fun height(row: Int): Int = yi[row + 1] - yi[row]
 
     /**
-     * 提交 [col] / [row] 分片覆盖 `[px, px + pw) × [py, py + ph)` 的部分：
-     * 源 UV 恒取整片，故宽高与该分片不一致时该片图案被拉伸。
+     * 提交 [col] / [row] 分片覆盖 `[px, px + pw) × [py, py + ph)` 的部分。
+     *
+     * 源 UV 恒取该分片整片，故宽高与分片不一致时图案被拉伸；中心格在
+     * [CenterFill.Tile] 下例外，改为按中心格源图平铺（箭头所在边的断口只切边格，不影响中心格）。
      */
     fun emit(
         target: EmitTarget,
@@ -376,11 +392,28 @@ private class NinePatchSlices(
         py: Int,
         pw: Int,
         ph: Int,
-    ) = emitSokitsuBlit(
-        target.pipeline, target.textureSetup, target.pose,
-        px, py, pw, ph,
-        layer.getU(su[col] / srcW), layer.getU(su[col + 1] / srcW),
-        layer.getV(sv[row] / srcH), layer.getV(sv[row + 1] / srcH),
-        target.color, target.scissor, target.context,
-    )
+    ) {
+        val u0 = layer.getU(su[col] / srcW)
+        val u1 = layer.getU(su[col + 1] / srcW)
+        val v0 = layer.getV(sv[row] / srcH)
+        val v1 = layer.getV(sv[row + 1] / srcH)
+        if (centerTile && col == 1 && row == 1) {
+            target.context.sink.addElement(
+                TiledBlitRenderState(
+                    target.pipeline, target.textureSetup, target.pose,
+                    centerTileW, centerTileH,
+                    px, py, px + pw, py + ph,
+                    u0, u1, v0, v1,
+                    target.color, target.scissor,
+                )
+            )
+            return
+        }
+        emitSokitsuBlit(
+            target.pipeline, target.textureSetup, target.pose,
+            px, py, pw, ph,
+            u0, u1, v0, v1,
+            target.color, target.scissor, target.context,
+        )
+    }
 }

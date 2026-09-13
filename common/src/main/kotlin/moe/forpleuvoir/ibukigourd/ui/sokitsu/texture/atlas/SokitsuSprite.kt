@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.render.extension.texture.UVMapping
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
 import net.minecraft.resources.Identifier
 
 /**
@@ -72,8 +73,11 @@ class SokitsuSprite(
  * - [x]/[y] 图层内容区在 atlas 内的左上角物理坐标（**已含 padding 偏移**，
  *   与 [SokitsuStitcher.PlacedSprite] 的合约一致）
  * - [width]/[height] 图层内容物理尺寸（= 从源图按 layer.region 裁剪后的尺寸）
- * - [colorSlot] 该图层绑定的主题颜色槽位名（来自 TextureLayer.colorSlot）
- * - [fill] 该图层的填充方式（来自 TextureLayer.fill；NinePatch 内含 border 与 disableSlice）
+ * - [colorSlot] 该图层绑定的主题颜色槽位名（来自 TextureLayer.colorSlot，只回答"取哪个色"）
+ * - [tintMode] 该图层的合成策略（来自 TextureLayer.tintMode：Mask 纯色替换 / Multiply 正片叠底 /
+ *   Passthrough 直出）——与 [colorSlot] 正交，渲染管线由它选
+ * - [fill] 该图层的填充方式（来自 TextureLayer.fill；NinePatch 内含 border、disableSlice
+ *   与中心格填充 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill]）
  * - [disabledSlices] 由 [fill]（NinePatch.disableSlice）派生的九宫格禁用区域索引集合（0..8，从左到右、从上到下）
  * - [density] **素材像素密度**（@1x / @2x，来自 atlas 定义）：源图 [density]×[density] 像素
  *   表达 1 个逻辑像素。图集内始终按源图 1:1 存储，该值只用于换算 [logicalWidth]/[logicalHeight]。
@@ -101,6 +105,7 @@ class SokitsuLayerSprite(
     atlasHeight: Int,
     val density: Int = 1,
     val colorSlot: String = SLOT_TONE,
+    val tintMode: TextureTintMode = TextureTintMode.Mask,
     val fill: TextureFill = TextureFill.Stretch,
 ) {
     val u0: Float = x.toFloat() / atlasWidth
@@ -153,7 +158,7 @@ class SokitsuLayerSprite(
         get() = colorSlot.equals(SHADOW_SLOT, ignoreCase = true)
 
     override fun toString(): String =
-        "SokitsuLayerSprite{atlas=$atlasLocation, texture=$textureId, layer='$layerId', x=$x, y=$y, size=${width}x$height, density=$density, uv=[$u0,$v0,$u1,$v1], colorSlot=$colorSlot, fill=$fill}"
+        "SokitsuLayerSprite{atlas=$atlasLocation, texture=$textureId, layer='$layerId', x=$x, y=$y, size=${width}x$height, density=$density, uv=[$u0,$v0,$u1,$v1], colorSlot=$colorSlot, tintMode=$tintMode, fill=$fill}"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -165,6 +170,7 @@ class SokitsuLayerSprite(
             width == other.width && height == other.height &&
             density == other.density &&
             colorSlot == other.colorSlot &&
+            tintMode == other.tintMode &&
             fill == other.fill
     }
 
@@ -178,6 +184,7 @@ class SokitsuLayerSprite(
         result = 31 * result + height
         result = 31 * result + density
         result = 31 * result + colorSlot.hashCode()
+        result = 31 * result + tintMode.hashCode()
         result = 31 * result + fill.hashCode()
         return result
     }
