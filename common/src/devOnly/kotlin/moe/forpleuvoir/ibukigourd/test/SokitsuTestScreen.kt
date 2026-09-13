@@ -10,11 +10,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.LocalPopupHost
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostOverlay
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
+import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
@@ -101,7 +103,9 @@ fun SokitsuTestScreen() {
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         listOf(1f, 0.6f, 0.3f).forEach { a ->
-                            Box(Modifier.alpha(a)) {
+                            Box(Modifier.graphicsLayer {
+                                alpha = a
+                            }) {
                                 Button({}) {
                                     Text("alpha ${(a * 100).toInt()}%")
                                 }
@@ -151,6 +155,11 @@ fun SokitsuTestScreen() {
                             TooltipTestScreen()
                         }) {
                             Text("气泡测试")
+                        }
+                        Button({
+                            AtlasTestScreen()
+                        }) {
+                            Text("图集测试")
                         }
                     }
                 }

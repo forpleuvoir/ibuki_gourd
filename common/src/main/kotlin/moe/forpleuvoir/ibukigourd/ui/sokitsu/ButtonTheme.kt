@@ -28,14 +28,14 @@ object ButtonTokens {
     /** 容器精灵的染色色板。 */
     val Container = ColorSchemeToken.Primary
 
-    /** 按钮上文字/图标的颜色（取色板的 [ColorTone.base]）。 */
+    /** 按钮上文字/图标的颜色（主题槽位色）。 */
     val Content = ColorSchemeToken.OnPrimary
 
     /** 禁用态文字取中性内容色，再用 [DisabledContentOpacity] 压透明度。 */
     val DisabledContent = ColorSchemeToken.OnSurface
 
-    /** 禁用态内容不透明度，沿用 Material3 `DisabledLabelTextOpacity`。 */
-    const val DisabledContentOpacity = 0.38f
+    /** 禁用态内容不透明度。 */
+    const val DisabledContentOpacity = 0.62f
 }
 
 /**

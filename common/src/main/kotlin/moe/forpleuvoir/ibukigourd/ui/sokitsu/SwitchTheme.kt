@@ -30,24 +30,18 @@ object SwitchTokens {
     /** 开启态轨道：主色容器色（[ColorSchemeToken.PrimaryContainer]），与开启态把手同源、明显可分。 */
     val CheckedTrack = ColorSchemeToken.PrimaryContainer
 
-    /** 关闭态把手：中性灰（[ColorSchemeToken.OnSurfaceVariant]）。 */
-    val UncheckedThumb = ColorSchemeToken.OnSurfaceVariant
+    /** 关闭态把手：中性容器色（[ColorSchemeToken.SurfaceVariant]），与关闭态轨道同源。 */
+    val UncheckedThumb = ColorSchemeToken.SurfaceVariant
 
     /** 关闭态轨道：与滑条轨道同源的中性容器色（[ColorSchemeToken.SurfaceVariant]）——
      *  两者同为凹槽素材，配色保持一致；此前用 [ColorSchemeToken.Background] 会与页面底色同化。 */
     val UncheckedTrack = ColorSchemeToken.SurfaceVariant
 
-    /** 禁用态把手基准色（会被 [DisabledThumbOpacity] 压透明）。 */
-    val DisabledThumb = ColorSchemeToken.OnSurface
+    /** 禁用态把手：表面色（[ColorSchemeToken.Surface]），不透明——亮色下亮白、暗色下暗紫，与 outline 色的 unchecked 把手形成对比。 */
+    val DisabledThumb = ColorSchemeToken.Surface
 
-    /** 禁用态轨道基准色（会被 [DisabledTrackOpacity] 压透明）。 */
+    /** 禁用态轨道基准色。 */
     val DisabledTrack = ColorSchemeToken.SurfaceVariant
-
-    /** 禁用态把手不透明度，沿用 Material3 `DisabledLabelTextOpacity`。 */
-    const val DisabledThumbOpacity = 0.38f
-
-    /** 禁用态轨道不透明度，沿用 Material3 `DisabledContainerOpacity`。 */
-    const val DisabledTrackOpacity = 0.12f
 }
 
 /**

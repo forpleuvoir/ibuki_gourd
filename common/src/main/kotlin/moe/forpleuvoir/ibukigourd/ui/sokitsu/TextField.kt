@@ -37,10 +37,9 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.text.withColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColorFor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.fromToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
@@ -128,11 +127,11 @@ fun TextField(
         if (pressed && enabled) pressSound?.let { mc.soundManager.play(it) }
     }
 
-    val containerTone = colors.containerColor
-    val outlineTone = when {
-        isError -> containerTone.copy(outline = colors.errorOutlineColor)
-        focused -> containerTone.copy(outline = colors.selectedOutlineColor)
-        else    -> containerTone
+    val containerColor = colors.containerColor
+    val outlineOverride = when {
+        isError -> colors.errorOutlineColor
+        focused -> colors.selectedOutlineColor
+        else    -> Color.Unspecified
     }
     val contentColor = if (enabled) colors.contentColor else colors.disabledContentColor
     val singleLine = lineLimits == TextFieldLineLimits.SingleLine
@@ -145,7 +144,7 @@ fun TextField(
             // 启用态不覆盖，头尾槽图标（如清除按钮）保留各自的悬停指针
             .pointerHoverIcon(hoverIcon, overrideDescendants = !enabled)
             .defaultMinSize(minWidth = TextFieldDefaults.meta.minSize.width, minHeight = TextFieldDefaults.meta.minSize.height)
-            .sokitsuSprite(backgroundSprite, outlineTone),
+            .sokitsuSprite(backgroundSprite, containerColor, outlineOverride),
     ) {
         BasicTextField(
             state = state,
@@ -191,8 +190,8 @@ fun TextField(
  * [errorOutlineColor] 在 isError 时接管同一层，优先级高于聚焦。
  */
 data class TextFieldColors(
-    val containerColor: ColorTone,
-    val disabledContainerColor: ColorTone,
+    val containerColor: Color,
+    val disabledContainerColor: Color,
     val contentColor: Color,
     val disabledContentColor: Color,
     val cursorColor: Color,
@@ -235,8 +234,8 @@ object TextFieldDefaults {
      */
     @Composable
     fun colors(
-        containerColor: ColorTone = ColorTone.Unspecified,
-        disabledContainerColor: ColorTone = ColorTone.Unspecified,
+        containerColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
         contentColor: Color = Color.Unspecified,
         disabledContentColor: Color = Color.Unspecified,
         cursorColor: Color = Color.Unspecified,
@@ -250,16 +249,19 @@ object TextFieldDefaults {
                 TextFieldTokens.DisabledContainer,
                 TextFieldTokens.DisabledContainerOpacity,
             ),
-            contentColor = contentColor.takeOrElse { resolvedContainer.contentColor() },
+            contentColor = contentColor.takeOrElse {
+                LocalColorScheme.current.contentColorFor(resolvedContainer)
+            },
             disabledContentColor = disabledContentColor.takeOrElse {
-                resolvedContainer.contentColor().copy(alpha = TextFieldTokens.DisabledContentOpacity)
+                LocalColorScheme.current.contentColorFor(resolvedContainer)
+                    .copy(alpha = TextFieldTokens.DisabledContentOpacity)
             },
             cursorColor = cursorColor.takeOrElse {
-                LocalColorScheme.current.fromToken(TextFieldTokens.Cursor).base
+                LocalColorScheme.current.fromToken(TextFieldTokens.Cursor)
             },
-            selectedOutlineColor = selectedOutlineColor.takeOrElse { resolvedContainer.base.contrasting() },
+            selectedOutlineColor = selectedOutlineColor.takeOrElse { resolvedContainer.contrasting() },
             errorOutlineColor = errorOutlineColor.takeOrElse {
-                LocalColorScheme.current.fromToken(TextFieldTokens.ErrorOutline).base
+                LocalColorScheme.current.fromToken(TextFieldTokens.ErrorOutline)
             },
         )
     }

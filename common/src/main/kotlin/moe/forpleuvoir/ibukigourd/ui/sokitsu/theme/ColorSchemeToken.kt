@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
 
+import androidx.compose.ui.graphics.Color
+
 /**
  * 系统级颜色 token：指向 [ColorScheme] 上的某个**语义槽位**，而不是具体颜色值。
  *
@@ -7,7 +9,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
  * ```
  * 组件部位      ButtonTokens.Container
  *   → 系统 token  ColorSchemeToken.Primary
- *     → 主题槽位   ColorScheme.primary : ColorTone
+ *     → 主题槽位   ColorScheme.primary : Color
  * ```
  *
  * 引入这一层的意义：组件不持有"默认色是什么"，只声明"我要哪个语义槽位"。
@@ -40,18 +42,18 @@ enum class ColorSchemeToken {
 
     Error,
     OnError,
+
+    /** 全局描边色，见 [ColorScheme.outline]。 */
+    Outline,
 }
 
 /**
- * 把系统 token 解析为当前主题上的具体色板。
+ * 把系统 token 解析为当前主题上的具体颜色。
  *
  * 这是回退链的**最后一环**，只在"调用点未指定 + 作用域未指定"时才走到，
- * 因此参数固定为已解析的 [ColorScheme]，返回值必定是 [ColorTone.isSpecified] 的色板。
- *
- * 注意返回类型：像素风精灵染色需要完整的色阶家族（outline/dark/base/highlight），
- * 所以这里给的是 [ColorTone] 而非单个 [Color]；内容色场景自行取 [ColorTone.base]。
+ * 因此参数固定为已解析的 [ColorScheme]，返回值必定是已指定的 [Color]。
  */
-fun ColorScheme.fromToken(token: ColorSchemeToken): ColorTone = when (token) {
+fun ColorScheme.fromToken(token: ColorSchemeToken): Color = when (token) {
     ColorSchemeToken.Background       -> background
     ColorSchemeToken.OnBackground     -> onBackground
     ColorSchemeToken.Surface          -> surface
@@ -66,4 +68,5 @@ fun ColorScheme.fromToken(token: ColorSchemeToken): ColorTone = when (token) {
     ColorSchemeToken.OnSecondary      -> onSecondary
     ColorSchemeToken.Error            -> error
     ColorSchemeToken.OnError          -> onError
+    ColorSchemeToken.Outline          -> outline
 }

@@ -35,7 +35,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.boxHeightPx
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.boxWidthPx
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuBubbleSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ProvideContentColorTextStyle
@@ -80,7 +79,7 @@ fun Modifier.tooltip(
     position: AnchorPosition = AnchorPosition.Above,
     delay: Duration = TooltipDefaults.delay,
     exitDuration: Duration = TooltipDefaults.exitDuration,
-    tone: ColorTone = ColorTone.Unspecified,
+    color: Color = Color.Unspecified,
     contentColor: Color = Color.Unspecified,
     textStyle: TextStyle = LocalTextStyle.current,
     content: @Composable () -> Unit,
@@ -88,9 +87,9 @@ fun Modifier.tooltip(
     val density = LocalDensity.current
     val pixelScale = LocalSokitsuPixelScale.current
     val body = TooltipDefaults.bodySprite()
-    val resolvedTone = tone.resolve(TooltipTokens.Body)
+    val resolvedColor = color.resolve(TooltipTokens.Body)
     val resolvedContent = contentColor.takeOrElse {
-        LocalColorScheme.current.fromToken(TooltipTokens.Content).base
+        LocalColorScheme.current.fromToken(TooltipTokens.Content)
     }
 
     // 锚点 bounds 由本 Modifier 捕获，供定位器惰性读取（定位器另需回写落点/箭头位置）
@@ -130,7 +129,7 @@ fun Modifier.tooltip(
                                 arrow = arrow,
                                 arrowAnchor = anchor,
                                 arrowRatio = positionProvider.arrowRatio,
-                                tone = resolvedTone,
+                                color = resolvedColor,
                             )
                             .sizeIn(
                                 minWidth = TooltipDefaults.minSize.width,

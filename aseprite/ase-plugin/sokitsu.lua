@@ -23,14 +23,14 @@ local FILL_NINEPATCH = "ninepatch"
 local FILL_TILE = "tile"
 local FILL_OPTIONS = { FILL_STRETCH, FILL_NINEPATCH, FILL_TILE }
 
--- tint 顺序与 TextureTintMode 枚举一致：Mask / Tint / HueShift
-local TINT_OPTIONS = { "Mask", "Tint", "HueShift" }
+-- tint 顺序与 TextureTintMode 枚举一致：Mask / Multiply / Passthrough
+local TINT_OPTIONS = { "Mask", "Multiply", "Passthrough" }
 
 -- 与选项同序的说明（面板动态提示用）
 local TINT_HINTS = {
-  "纹理=剪影/形状（颜色会被完全替换，只有 Alpha 生效）",
-  "纹理=明暗（画灰阶，颜色由主题上色）",
-  "纹理=彩色成品（保留纹理深浅，只把色相换成主题）",
+  "纹理=剪影/形状（颜色完全由主题替换，只有 Alpha 生效）",
+  "纹理=明度遮罩（multiply：槽位色 × 素材灰度，白=原样输出槽位色，越黑越暗）",
+  "直出：纹理原样显示，不参与主题染色",
 }
 
 local function tintHintIndex(mode)
@@ -41,8 +41,9 @@ local function tintHintIndex(mode)
 end
 
 local LEVEL_NONE = ""
--- 顺序与 ColorLevel 枚举一致：Outline / Shadow / Dark / Base / Highlight
-local LEVEL_OPTIONS = { LEVEL_NONE, "Outline", "Shadow", "Dark", "Base", "Highlight" }
+-- 主题颜色槽位名：tone = 组件主色（Multiply），outline/shadow = 对应语义色（Mask），
+-- 留空 = 直出；也可直接写 ColorScheme 的任意槽位名（surface / primary / ...）
+local LEVEL_OPTIONS = { LEVEL_NONE, "tone", "outline", "shadow", "surface", "surfaceVariant", "primary", "primaryContainer", "secondary", "error", "background" }
 
 local BORDER_EDGES = {
   { id = "Left", label = "左" },
@@ -81,8 +82,9 @@ local function defaults()
   return {
     enabled = true,
     fill = FILL_STRETCH,
-    -- 默认 Tint：灰阶占位纹理只贡献明度、颜色由主题上色，覆盖绝大多数结构层
-    tint = "Tint",
+    -- 默认 Mask：H/S/V 全部来自主题、纹理仅提供形状与 alpha，覆盖绝大多数结构层；
+    -- 需要保留手绘明暗的层（灰阶）改用 Multiply
+    tint = "Mask",
     tintAlpha = false,
     level = LEVEL_NONE,
     borderLeft = 0,
@@ -107,9 +109,9 @@ local function read(layer)
     p.enabled = (stored.enabled ~= false)
     if type(stored.fill) == "string" then p.fill = stored.fill end
     if type(stored.tint) == "string" then
-      -- 历史命名映射：Flat/Hsv/Hsl -> Mask/Tint/HueShift
+      -- 历史命名映射（素材标注已批量迁移，此处仅为旧文件兜底）：Flat/Tint/Hsv -> Mask/Luminance
       p.tint = ({
-        ["Flat"] = "Mask", ["Hsv"] = "Tint", ["Hsl"] = "HueShift",
+        ["Flat"] = "Mask", ["Tint"] = "Mask", ["Hsv"] = "Multiply", ["Hsl"] = "HueShift", ["Luminance"] = "Multiply",
       })[stored.tint] or stored.tint
     end
     if stored.tintAlpha == true then p.tintAlpha = true end

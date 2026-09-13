@@ -21,7 +21,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.PercentSlider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import kotlin.math.roundToInt
 import kotlin.time.Duration
@@ -84,7 +84,7 @@ fun SliderTestScreen() = TestScreen {
 
                 // 作用域换色板：轨道与填充应随 secondary 走，文字色自动跟随
                 var secondary by remember { mutableStateOf(0.6f) }
-                CompositionLocalProvider(LocalSokitsuTone provides SokitsuTheme.colorScheme.secondary) {
+                CompositionLocalProvider(LocalSokitsuColor provides SokitsuTheme.colorScheme.secondary) {
                     Slider(
                         value = secondary,
                         onValueChange = { secondary = it },

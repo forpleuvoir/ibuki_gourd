@@ -8,7 +8,8 @@ import moe.forpleuvoir.compose_minecraft.platform.render.toMatrix3x2f
 import moe.forpleuvoir.compose_minecraft.platform.render.toScreenRectangle
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_NONE
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuLayerSprite
 import moe.forpleuvoir.ibukigourd.util.identifier
@@ -26,8 +27,9 @@ import kotlin.math.roundToInt
  * Sokitsu 精灵渲染插件：消费 [SokitsuSpriteDrawData]，逐图层提交
  * [BlitRenderState]（stretch / 九宫格）或 [TiledBlitRenderState]（tile）。
  *
- * 图层着色：colorLevel 非 null 走 [IGRenderPipelines] 的 sokitsu_tint 三变体管线；
- * colorLevel 为 null 的图层无主题染色，走原版 [RenderPipelines.GUI_TEXTURED] 原色直通。
+ * 图层着色：colorSlot 为 `tone` 的图层走 [RenderPipelines.GUI_TEXTURED]（顶点色 × 纹理灰度，
+ * 正片叠底）；`none` 直出；其它槽位名走 [IGRenderPipelines.SOKITSU_TINT_MASK]（纯槽位色替换）。
+ * 槽位色的解析见 [resolveSlotColor]。
  *
  * 阴影：[SokitsuLayerSprite.isShadow] 图层（layerId == "shadow"）先于普通图层绘制，
  * 目标矩形向光源反方向偏移（[SokitsuSpriteDrawData.shadowOffset]），外观由素材定义。
@@ -197,18 +199,13 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
 }
 
 /**
- * 图层的渲染管线：[SokitsuLayerSprite.colorLevel] 为 null 走原色直通，否则按
- * [SokitsuLayerSprite.tintMode] 选 sokitsu 着色管线变体。
+ * 图层的渲染管线：[SokitsuLayerSprite.colorSlot] 为 `tone`（Multiply：顶点色 × 纹理灰度）或
+ * `none`（直出）走原版贴图管线；其它槽位名走 Mask 管线（纯该槽位色替换，忽略纹理 RGB）。
  */
 internal fun sokitsuLayerPipeline(layer: SokitsuLayerSprite): RenderPipeline =
-    if (layer.colorLevel == null) {
-        RenderPipelines.GUI_TEXTURED
-    } else {
-        when (layer.tintMode) {
-            TextureTintMode.Mask     -> IGRenderPipelines.SOKITSU_TINT_MASK
-            TextureTintMode.Tint     -> IGRenderPipelines.SOKITSU_TINT
-            TextureTintMode.HueShift -> IGRenderPipelines.SOKITSU_TINT_HUE_SHIFT
-        }
+    when (layer.colorSlot) {
+        SLOT_TONE, SLOT_NONE -> RenderPipelines.GUI_TEXTURED
+        else -> IGRenderPipelines.SOKITSU_TINT_MASK
     }
 
 /**

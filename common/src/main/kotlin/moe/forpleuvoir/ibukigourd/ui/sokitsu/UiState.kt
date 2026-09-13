@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.UiState.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.uiSprite
 import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
@@ -53,13 +52,6 @@ data class UiStateColor(
     override val disabled: Color
 ) : UiStateValue<Color>
 
-@Immutable
-data class UiStateColorTone(
-    override val normal: ColorTone,
-    override val pressed: ColorTone,
-    override val focused: ColorTone,
-    override val disabled: ColorTone
-) : UiStateValue<ColorTone>
 
 interface UiStateValue<T> {
     val normal: T

@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
  *
  * 示例：
  * ```
- * val outline = theme.colors.primary.base.contrasting()
+ * val outline = theme.colors.primary.contrasting()
  * ```
  */
 fun Color.contrasting(): Color {

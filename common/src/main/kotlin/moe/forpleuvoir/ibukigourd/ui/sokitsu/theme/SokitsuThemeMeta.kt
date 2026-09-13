@@ -16,71 +16,12 @@ import net.minecraft.resources.Identifier
 import java.util.concurrent.ConcurrentHashMap
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
-/**
- * 单个 [ColorTone]（五档色阶家族）的 meta 定义。
- *
- * [base] 是唯一必填的档位，[outline] 可选——缺失档位由 [ColorTone.fromBase] 按像素风规则推导
- * （shadow 恒为 50% 纯黑、dark/highlight 按 HSV 明度偏移），主题包作者只关心 base 即可上手。
- * 颜色取值支持 hex 字符串（`#8647B3`）与 ARGB int（nebula [Codec.color] 现成解码）。
- */
-data class ColorToneMeta(
-    val base: NebulaColor?,
-    val outline: NebulaColor?,
-) {
-
-    /** base 缺失时返回 null（该槽位回落主题内置默认）。 */
-    fun toColorTone(): ColorTone? {
-        val base = base ?: return null
-        return ColorTone.fromBase(base = base.toComposeColor(), outline = outline?.toComposeColor())
-    }
-
-    companion object : Codec<ColorToneMeta> {
-
-        val default = ColorToneMeta(
-            base = null,
-            outline = null,
-        )
-
-        private val codec = Codec.create<ColorToneMeta>()
-            .field(ColorToneMeta::base).default(default.base).codec(Codec.color.nullable())
-            .field(ColorToneMeta::outline).default(default.outline).codec(Codec.color.nullable())
-            .build(::ColorToneMeta)
-
-        override fun serialization(target: ColorToneMeta): SerializeElement = codec.serialization(target)
-
-        override fun deserialization(data: SerializeElement): Result<ColorToneMeta> = codec.deserialization(data)
-    }
-}
-
-/**
- * `assets/<ns>/sokitsu_meta.json` 的文件解析形态——**仅资源重载时由 [SokitsuThemeMetaLoader]
- * 解析并深合并**，合并结果写入全局单例 [SokitsuThemeMeta]。
- *
- * JSON 键均为 snake_case（nebula Codec 字段名自动转换）：
- * ```jsonc
- * {
- *   pixel_scale: 3
- *   light: {
- *     primary: { base: "#8647B3" }          // 只写 base，其余档自动推导
- *     surface: { base: "#DDD3E6", outline: "#6B5E7A" }
- *   }
- *   dark: { ... }
- *   ui_meta: {                              // 组件级 meta，各组件自行定义结构
- *     button: { min_width: 56, min_height: 56, padding_horizontal: 18, padding_vertical: 12 }
- *     switch: { track_width: 90, track_height: 48, thumb_size: 48 }
- *   }
- * }
- * ```
- *
- * 字段单位约定：除颜色外所有数值均为 **dp**（逻辑像素），消费端转 `.dp`；
- * 与屏幕像素的换算由 [pixelScale] 决定。
- */
 class SokitsuThemeMetaFile(
     val pixelScale: Int,
     val shadowLight: Offset,
     val uiAtlas: Identifier,
-    val light: Map<String, ColorToneMeta?>,
-    val dark: Map<String, ColorToneMeta?>,
+    val light: Map<String, NebulaColor>,
+    val dark: Map<String, NebulaColor>,
     val uiMeta: Map<String, SerializeElement>,
 ) {
 
@@ -90,8 +31,8 @@ class SokitsuThemeMetaFile(
             pixelScale = 3,
             shadowLight = Offset(-1f, -1f),
             uiAtlas = identifier("ui"),
-            light = emptyMap(),
-            dark = emptyMap(),
+            light = emptyMap<String, NebulaColor>(),
+            dark = emptyMap<String, NebulaColor>(),
             uiMeta = emptyMap(),
         )
 
@@ -99,8 +40,8 @@ class SokitsuThemeMetaFile(
             .field(SokitsuThemeMetaFile::pixelScale).default(default.pixelScale).codec(Codec.int(1..10))
             .field(SokitsuThemeMetaFile::shadowLight).default(default.shadowLight).codec(Codec.offset)
             .field(SokitsuThemeMetaFile::uiAtlas).default(default.uiAtlas).codec(Codec.ibukigourdIdentifier)
-            .field(SokitsuThemeMetaFile::light).default(default.light).codec(Codec.map(ColorToneMeta.nullable()))
-            .field(SokitsuThemeMetaFile::dark).default(default.dark).codec(Codec.map(ColorToneMeta.nullable()))
+            .field(SokitsuThemeMetaFile::light).default(default.light).codec(Codec.map(Codec.color))
+            .field(SokitsuThemeMetaFile::dark).default(default.dark).codec(Codec.map(Codec.color))
             .field(SokitsuThemeMetaFile::uiMeta).default(default.uiMeta).codec(Codec.map(SerializeElementCodec))
             .build({ pixelScale, shadowLight, uiAtlas, light, dark, uiMeta ->
                 SokitsuThemeMetaFile(pixelScale, shadowLight, uiAtlas, light, dark, uiMeta)
@@ -148,11 +89,11 @@ object SokitsuThemeMeta {
         internal set
 
     /** 亮色方案的槽位定义；null 槽位回落 [lightColorScheme] 内置默认。 */
-    var light: Map<String, ColorToneMeta?> by mutableStateOf(SokitsuThemeMetaFile.default.light)
+    var light: Map<String, NebulaColor> by mutableStateOf(SokitsuThemeMetaFile.default.light)
         internal set
 
     /** 暗色方案的槽位定义；null 槽位回落 [darkColorScheme] 内置默认。 */
-    var dark: Map<String, ColorToneMeta?> by mutableStateOf(SokitsuThemeMetaFile.default.dark)
+    var dark: Map<String, NebulaColor> by mutableStateOf(SokitsuThemeMetaFile.default.dark)
         internal set
 
     /** 组件级原始 meta 表（键 = 组件名，值 = 该组件自定义结构的 JSON 子树）。 */
@@ -185,7 +126,7 @@ object SokitsuThemeMeta {
         val isLight = theme.isLight
         val defaults = if (isLight) lightColorScheme() else darkColorScheme()
         val section = if (isLight) light else dark
-        fun tone(name: String): ColorTone? = section[name]?.toColorTone()
+        fun tone(name: String): androidx.compose.ui.graphics.Color? = section[name]?.toComposeColor()
         return defaults.copy(
             background = tone("background") ?: defaults.background,
             surface = tone("surface") ?: defaults.surface,

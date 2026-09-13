@@ -19,7 +19,7 @@ object TextFieldTokens {
     /** 容器（凹槽背景）精灵的染色色板，与滑条轨道/开关关闭态轨道同源。 */
     val Container = ColorSchemeToken.SurfaceVariant
 
-    /** 容器上文本的颜色（取色板的 [ColorTone.base]）。 */
+    /** 容器上文本的颜色（主题槽位色）。 */
     val Content = ColorSchemeToken.OnSurfaceVariant
 
     /** 禁用态容器基准色（会被 [DisabledContainerOpacity] 压透明）。 */

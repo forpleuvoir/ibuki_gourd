@@ -22,20 +22,17 @@ import moe.forpleuvoir.ibukigourd.util.contrasting
 val LocalSokitsuPixelScale: ProvidableCompositionLocal<Int> = staticCompositionLocalOf { 3 }
 
 /**
- * 当前作用域内 [moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite] 的默认染色色板。
+ * 当前作用域内 [moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite] 的默认染色色。
  *
- * 默认为 [ColorTone.Unspecified]，语义是"本作用域不干预，继续按组件 token 映射表 +
+ * 默认为 [Color.Unspecified]，语义是"本作用域不干预，继续按组件 token 映射表 +
  * [LocalColorScheme] 解析"。可通过 [CompositionLocalProvider] 在子树内整体切换为
- * secondary / error / 自定义色板；组件 `Colors` 工厂处显式传参则优先级最高。
- *
- * 类型为非空 [ColorTone]，用 [ColorTone.Unspecified] 而非 null 表达"未指定"，
- * 从而与组件 `Colors` 工厂的默认参数共用一套语义。
+ * secondary / error / 自定义色；组件 `Colors` 工厂处显式传参则优先级最高。
  *
  * 它在组件 token 回退链中位于中间一级：
  * `调用点传参` > `本作用域` > `组件 token 表` > `主题槽位`。
  */
-val LocalSokitsuTone: ProvidableCompositionLocal<ColorTone> =
-    staticCompositionLocalOf { ColorTone.Unspecified }
+val LocalSokitsuColor: ProvidableCompositionLocal<Color> =
+    staticCompositionLocalOf { Color.Unspecified }
 
 object SokitsuTheme {
 
@@ -53,12 +50,12 @@ object SokitsuTheme {
 
     /**
      * 当前生效的选中/焦点外框指示色：
-     * 取 [LocalSelectedOutlineColor] 提供的值；未指定（[Color.Unspecified]）时自动计算与**主色 base**
+     * 取 [LocalSelectedOutlineColor] 提供的值；未指定（[Color.Unspecified]）时自动计算与**主色**
      * 对比度最大的醒目颜色（互补色相 + 明度对立，见 [moe.forpleuvoir.ibukigourd.util.contrasting]）。
      */
     val selectedOutlineColor: Color
         @Composable @ReadOnlyComposable
-        get() = LocalSelectedOutlineColor.current.takeOrElse { colorScheme.primary.base.contrasting() }
+        get() = LocalSelectedOutlineColor.current.takeOrElse { colorScheme.primary.contrasting() }
 
     val typography: Typography
         @Composable @ReadOnlyComposable
@@ -91,7 +88,7 @@ fun SokitsuTheme(
     val selectionColors = rememberTextSelectionColors(rememberedColors)
     CompositionLocalProvider(
         LocalColorScheme provides rememberedColors,
-        LocalContentColor provides rememberedColors.onBackground.base,
+        LocalContentColor provides rememberedColors.onBackground,
         LocalIndication provides SokitsuIndicationNodeFactory,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,

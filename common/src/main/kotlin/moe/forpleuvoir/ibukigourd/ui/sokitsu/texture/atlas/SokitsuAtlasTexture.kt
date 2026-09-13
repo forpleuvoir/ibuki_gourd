@@ -5,9 +5,8 @@ import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.textures.FilterMode
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import net.minecraft.client.renderer.texture.AbstractTexture
+import net.minecraft.client.gui.render.TextureSetup
 import net.minecraft.resources.Identifier
 
 /**
@@ -27,7 +26,7 @@ data class SokitsuAtlasPreparations(
 
 /**
  * atlas 内一个图层区域：image 为待上传的图层图，x/y 为缝合后的内容区坐标（含 padding 偏移）。
- * [colorLevel]/[tintMode]/[tintAlpha]/[fill] 携带该图层（TextureLayer）的渲染所需信息，随 sprite 构建传递。
+ * [colorSlot] 携带该图层的主题颜色槽位名，随 sprite 构建传递。
  */
 data class SokitsuAtlasRegion(
     val textureId: Identifier,
@@ -35,10 +34,8 @@ data class SokitsuAtlasRegion(
     val x: Int,
     val y: Int,
     val image: NativeImage,
-    val colorLevel: ColorLevel? = null,
-    val tintMode: TextureTintMode = TextureTintMode.Tint,
+    val colorSlot: String,
     val fill: TextureFill = TextureFill.Stretch,
-    val tintAlpha: Boolean = false,
 )
 
 /**
@@ -53,6 +50,12 @@ class SokitsuAtlasTexture(
     val location: Identifier
 ) : AbstractTexture() {
 
+    /** atlas 像素尺寸（upload 时赋值；未上传为 0）。 */
+    var width: Int = 0
+        private set
+    var height: Int = 0
+        private set
+
     private var spritesByName: Map<Identifier, SokitsuSprite> = emptyMap()
     private var layersByName: Map<Pair<Identifier, String>, SokitsuLayerSprite> = emptyMap()
 
@@ -62,6 +65,16 @@ class SokitsuAtlasTexture(
 
     val missingLayer: SokitsuLayerSprite by lazy {
         SokitsuLayerSprite(location, location, "<missing>", 0, 0, 0, 0, 1, 1, 1)
+    }
+
+    /**
+     * atlas 的纹理采样设置（整图 UV）；未上传时返回 null。
+     * 供预览 / 调试渲染直接绘制整张 atlas。
+     */
+    fun textureSetupOrNull(): TextureSetup? {
+        val view = this.textureView ?: return null
+        val sampler = this.sampler ?: return null
+        return TextureSetup.singleTexture(view, sampler)
     }
 
     fun upload(preparations: SokitsuAtlasPreparations) {
@@ -78,6 +91,8 @@ class SokitsuAtlasTexture(
         )
         this.textureView = device.createTextureView(this.texture!!)
         this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)
+        this.width = preparations.width
+        this.height = preparations.height
 
         val encoder = device.createCommandEncoder()
         for ((_, _, x, y, image) in preparations.regions) {
@@ -101,10 +116,8 @@ class SokitsuAtlasTexture(
                 atlasWidth = atlasWidth,
                 atlasHeight = atlasHeight,
                 density = density,
-                colorLevel = region.colorLevel,
-                tintMode = region.tintMode,
+                colorSlot = region.colorSlot,
                 fill = region.fill,
-                tintAlpha = region.tintAlpha,
             )
         }
 

@@ -28,8 +28,8 @@ import kotlin.math.min
 
 @Composable
 fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {
-    val primaryColor = colorScheme.primary.base
-    val backgroundColor = colorScheme.background.base
+    val primaryColor = colorScheme.primary
+    val backgroundColor = colorScheme.background
     val textColorWithLowsetAlpha =
         colorScheme
             .contentColorFor(backgroundColor)
@@ -37,7 +37,7 @@ fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {
             .copy(alpha = LowestContentAlpha)
     return remember(primaryColor, backgroundColor, textColorWithLowsetAlpha) {
         TextSelectionColors(
-            handleColor = colorScheme.primary.base,
+            handleColor = colorScheme.primary,
             backgroundColor = calculateSelectionBackgroundColor(
                 selectionColor = primaryColor,
                 textColor = textColorWithLowsetAlpha,

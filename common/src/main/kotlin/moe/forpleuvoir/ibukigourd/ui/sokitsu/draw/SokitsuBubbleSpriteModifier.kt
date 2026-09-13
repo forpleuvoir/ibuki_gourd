@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.recordCustomDraw
 import androidx.compose.ui.graphics.toArgb
@@ -18,11 +19,10 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.draw.buildPaint
 import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.takeOrElse
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import kotlin.math.roundToInt
 
 /**
@@ -37,7 +37,7 @@ import kotlin.math.roundToInt
  *   该边中格按箭头绘制区域断开
  * @param arrowRatio 箭头沿所在边的相对位置（0 = 起端，1 = 终端，0.5 = 居中）；
  *   实际滑动范围按气泡体边框收窄，箭头不会压到圆角
- * @param tone 气泡体与箭头共用的染色色板（默认 surfaceVariant，未指定按 [LocalSokitsuTone] 作用域回落）
+ * @param color 气泡体与箭头共用的染色色（默认 surfaceVariant，未指定按 [LocalSokitsuColor] 作用域回落）
  */
 @Composable
 fun Modifier.sokitsuBubbleSprite(
@@ -45,11 +45,11 @@ fun Modifier.sokitsuBubbleSprite(
     arrow: SokitsuSprite,
     arrowAnchor: AnchorPosition,
     arrowRatio: Float = 0.5f,
-    tone: ColorTone = LocalSokitsuTone.current.takeOrElse { LocalColorScheme.current.surfaceVariant },
+    color: Color = LocalSokitsuColor.current.takeOrElse { LocalColorScheme.current.surfaceVariant },
 ): Modifier {
     requireNinePatch(body, "body")
     requireNinePatch(arrow, "arrow")
-    return this.then(SokitsuBubbleSpriteElement(body, arrow, arrowAnchor, arrowRatio, tone))
+    return this.then(SokitsuBubbleSpriteElement(body, arrow, arrowAnchor, arrowRatio, color))
 }
 
 /**
@@ -70,18 +70,18 @@ private class SokitsuBubbleSpriteElement(
     private val arrow: SokitsuSprite,
     private val arrowAnchor: AnchorPosition,
     private val arrowRatio: Float,
-    private val tone: ColorTone,
+    private val color: Color,
 ) : ModifierNodeElement<SokitsuBubbleSpriteNode>() {
 
     override fun create(): SokitsuBubbleSpriteNode =
-        SokitsuBubbleSpriteNode(body, arrow, arrowAnchor, arrowRatio, tone)
+        SokitsuBubbleSpriteNode(body, arrow, arrowAnchor, arrowRatio, color)
 
     override fun update(node: SokitsuBubbleSpriteNode) {
         node.body = body
         node.arrow = arrow
         node.arrowAnchor = arrowAnchor
         node.arrowRatio = arrowRatio
-        node.tone = tone
+        node.color = color
         node.invalidateDraw()
     }
 
@@ -92,7 +92,7 @@ private class SokitsuBubbleSpriteElement(
                 arrow == other.arrow &&
                 arrowAnchor == other.arrowAnchor &&
                 arrowRatio == other.arrowRatio &&
-                tone == other.tone
+                color == other.color
             )
 
     override fun hashCode(): Int {
@@ -100,7 +100,7 @@ private class SokitsuBubbleSpriteElement(
         result = 31 * result + arrow.hashCode()
         result = 31 * result + arrowAnchor.hashCode()
         result = 31 * result + arrowRatio.hashCode()
-        result = 31 * result + tone.hashCode()
+        result = 31 * result + color.hashCode()
         return result
     }
 }
@@ -110,7 +110,7 @@ private class SokitsuBubbleSpriteNode(
     var arrow: SokitsuSprite,
     var arrowAnchor: AnchorPosition,
     var arrowRatio: Float,
-    var tone: ColorTone,
+    var color: Color,
 ) : DrawModifierNode, Modifier.Node(), CompositionLocalConsumerModifierNode {
 
     override fun ContentDrawScope.draw() {
@@ -129,8 +129,8 @@ private class SokitsuBubbleSpriteNode(
                 pixelScale = pixelScale,
                 arrowAnchor = arrowAnchor,
                 arrowRatio = arrowRatio,
-                bodyTintColors = body.layers.map { tintColor(tone, it.colorLevel, it.tintAlpha).toArgb() },
-                arrowTintColors = arrow.layers.map { tintColor(tone, it.colorLevel, it.tintAlpha).toArgb() },
+                bodyTintColors = body.layers.map { resolveSlotColor(it.colorSlot, color, currentValueOf(LocalColorScheme)).toArgb() },
+                arrowTintColors = arrow.layers.map { resolveSlotColor(it.colorSlot, color, currentValueOf(LocalColorScheme)).toArgb() },
                 shadowOffset = shadowOffset,
             )
             drawContext.canvas.recordCustomDraw(

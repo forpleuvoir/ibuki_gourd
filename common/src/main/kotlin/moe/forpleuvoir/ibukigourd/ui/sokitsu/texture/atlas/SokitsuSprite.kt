@@ -4,9 +4,8 @@ import androidx.compose.runtime.Stable
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.render.extension.texture.UVMapping
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import net.minecraft.resources.Identifier
 
 /**
@@ -73,9 +72,7 @@ class SokitsuSprite(
  * - [x]/[y] 图层内容区在 atlas 内的左上角物理坐标（**已含 padding 偏移**，
  *   与 [SokitsuStitcher.PlacedSprite] 的合约一致）
  * - [width]/[height] 图层内容物理尺寸（= 从源图按 layer.region 裁剪后的尺寸）
- * - [colorLevel] 该图层的主题层级（来自 TextureLayer.colorLevel）
- * - [tintMode] 该图层的着色模式（来自 TextureLayer.tintMode）
- * - [tintAlpha] alpha 是否也由主题接管（来自 TextureLayer.tintAlpha，与 [tintMode] 正交）
+ * - [colorSlot] 该图层绑定的主题颜色槽位名（来自 TextureLayer.colorSlot）
  * - [fill] 该图层的填充方式（来自 TextureLayer.fill；NinePatch 内含 border 与 disableSlice）
  * - [disabledSlices] 由 [fill]（NinePatch.disableSlice）派生的九宫格禁用区域索引集合（0..8，从左到右、从上到下）
  * - [density] **素材像素密度**（@1x / @2x，来自 atlas 定义）：源图 [density]×[density] 像素
@@ -90,7 +87,7 @@ class SokitsuSprite(
  * （主题渲染密度 ÷ 素材密度），由绘制层在渲染时换算——这样才能运行时切换渲染密度而不重建图集。
  *
  * 注：源图的 region 区域信息已在 LayerExtractor 提取时消费（决定裁剪范围），精灵上不保留；
- * 渲染所需的信息（atlas 落点、UV、fill、colorLevel、tintMode、tintAlpha、density）已全部内化。
+ * 渲染所需的信息（atlas 落点、UV、fill、colorSlot、density）已全部内化。
  */
 class SokitsuLayerSprite(
     val atlasLocation: Identifier,
@@ -103,10 +100,8 @@ class SokitsuLayerSprite(
     atlasWidth: Int,
     atlasHeight: Int,
     val density: Int = 1,
-    val colorLevel: ColorLevel? = null,
-    val tintMode: TextureTintMode = TextureTintMode.Tint,
+    val colorSlot: String = SLOT_TONE,
     val fill: TextureFill = TextureFill.Stretch,
-    val tintAlpha: Boolean = false,
 ) {
     val u0: Float = x.toFloat() / atlasWidth
     val u1: Float = (x + width).toFloat() / atlasWidth
@@ -149,16 +144,16 @@ class SokitsuLayerSprite(
     val logicalHeight: Float get() = height / density.toFloat()
 
     /**
-     * 是否为阴影图层（[layerId] 等于 [SHADOW_LAYER_ID]，忽略大小写）。
+     * 是否为阴影图层（[colorSlot] 等于 [SHADOW_SLOT]，忽略大小写）。
      *
      * 阴影图层由渲染端特殊处理：向 [moe.forpleuvoir.compose_minecraft.platform.ui.LocalShadowLight]
      * 光源反方向偏移后先于普通图层绘制。
      */
     val isShadow: Boolean
-        get() = layerId.equals(SHADOW_LAYER_ID, ignoreCase = true)
+        get() = colorSlot.equals(SHADOW_SLOT, ignoreCase = true)
 
     override fun toString(): String =
-        "SokitsuLayerSprite{atlas=$atlasLocation, texture=$textureId, layer='$layerId', x=$x, y=$y, size=${width}x$height, density=$density, uv=[$u0,$v0,$u1,$v1], colorLevel=$colorLevel, tintMode=$tintMode, tintAlpha=$tintAlpha, fill=$fill}"
+        "SokitsuLayerSprite{atlas=$atlasLocation, texture=$textureId, layer='$layerId', x=$x, y=$y, size=${width}x$height, density=$density, uv=[$u0,$v0,$u1,$v1], colorSlot=$colorSlot, fill=$fill}"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -169,9 +164,7 @@ class SokitsuLayerSprite(
             x == other.x && y == other.y &&
             width == other.width && height == other.height &&
             density == other.density &&
-            colorLevel == other.colorLevel &&
-            tintMode == other.tintMode &&
-            tintAlpha == other.tintAlpha &&
+            colorSlot == other.colorSlot &&
             fill == other.fill
     }
 
@@ -184,9 +177,7 @@ class SokitsuLayerSprite(
         result = 31 * result + width
         result = 31 * result + height
         result = 31 * result + density
-        result = 31 * result + (colorLevel?.hashCode() ?: 0)
-        result = 31 * result + tintMode.hashCode()
-        result = 31 * result + tintAlpha.hashCode()
+        result = 31 * result + colorSlot.hashCode()
         result = 31 * result + fill.hashCode()
         return result
     }
@@ -194,6 +185,6 @@ class SokitsuLayerSprite(
     companion object {
 
         /** 阴影图层的 layerId 约定（[SokitsuLayerSprite.isShadow]）。 */
-        const val SHADOW_LAYER_ID = "shadow"
+        const val SHADOW_SLOT = "shadow"
     }
 }

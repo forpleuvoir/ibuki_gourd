@@ -25,11 +25,9 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.takeOrElse
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -40,7 +38,7 @@ import kotlin.math.roundToInt
 /**
  * 开关（Switch）。轨道为静态精灵背景，把手为可滑动精灵，按 [checked] 在轨道上水平滑动。
  *
- * 颜色经 [SwitchColors] 解析（调用点 → 作用域 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone]
+ * 颜色经 [SwitchColors] 解析（调用点 → 作用域 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor]
  * → [SwitchTokens] → [ColorScheme]）；把手精灵按交互状态切换 normal/press/focus/disable 四态，
  * 轨道为单行精灵（无状态变体）。
  *
@@ -90,16 +88,13 @@ fun Switch(
     val targetTrackTone = colors.trackColor(enabled, checked)
 
     // 悬停/聚焦（选中态）：仅 outline 层覆盖为 [SwitchColors.selectedOutlineColor]，
-    // 其余层沿用色板自带的 [ColorTone.outline] 档。
-    val targetThumbTone = if (hovered || focused) {
-        colors.thumbColor(enabled, checked).copy(outline = colors.selectedOutlineColor)
-    } else {
-        colors.thumbColor(enabled, checked)
-    }
+    // 其余层沿用主题 [ColorScheme.outline]。
+    val targetThumbColor = colors.thumbColor(enabled, checked)
+    val thumbOutline = if (hovered || focused) colors.selectedOutlineColor else Color.Unspecified
 
-    // 色板逐字段平滑过渡，开启/关闭/禁用切换时不瞬变（compose-minecraft 无 [tween]，用默认 spring）
-    val trackTone = animateColorTone(targetTrackTone)
-    val thumbTone = animateColorTone(targetThumbTone)
+    // 平滑过渡，开启/关闭/禁用切换时不瞬变（compose-minecraft 无 [tween]，用默认 spring）
+    val trackColor = animateColorAsState(colors.trackColor(enabled, checked)).value
+    val thumbColor = animateColorAsState(targetThumbColor).value
 
     val icon = if (enabled) SwitchDefaults.LocalHoverIcon.current else SwitchDefaults.LocalDisableIcon.current
     Layout(
@@ -108,7 +103,7 @@ fun Switch(
             Box(
                 modifier = thumbModifier
                     .defaultMinSize(thumbMinSize.width, thumbMinSize.height)
-                    .sokitsuSprite(thumbSprite, thumbTone)
+                    .sokitsuSprite(thumbSprite, thumbColor, thumbOutline),
             )
         },
         modifier = modifier
@@ -124,7 +119,7 @@ fun Switch(
                 },
             )
             .defaultMinSize(trackMinSize.width, trackMinSize.height)
-            .sokitsuSprite(trackSprite, trackTone),
+            .sokitsuSprite(trackSprite, trackColor),
         measurePolicy = { measurables, constraints ->
             // 下限归零：把手尺寸由它自身的 defaultMinSize 决定
             val thumb = measurables[0].measure(constraints.copy(minWidth = 0, minHeight = 0))
@@ -177,8 +172,8 @@ object SwitchDefaults {
     /**
      * 默认开关配色集：八个状态色板槽位与选中描边色**全部有默认值**，`SwitchDefaults.colors()` 可无参调用。
      *
-     * 参数默认 [ColorTone.Unspecified]，语义是"按 [SwitchTokens] 映射表结合当前主题解析"，
-     * 回退顺序：`调用点传参` > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone]
+     * 参数默认 [Color.Unspecified]，语义是"按 [SwitchTokens] 映射表结合当前主题解析"，
+     * 回退顺序：`调用点传参` > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor]
      * 作用域 > [SwitchTokens] > [ColorScheme]。
      *
      * - [selectedOutlineColor] 悬停/聚焦（选中态）把手描边高亮 → 未指定时取**开启态把手**
@@ -189,14 +184,14 @@ object SwitchDefaults {
      */
     @Composable
     fun colors(
-        checkedThumbColor: ColorTone = ColorTone.Unspecified,
-        checkedTrackColor: ColorTone = ColorTone.Unspecified,
-        uncheckedThumbColor: ColorTone = ColorTone.Unspecified,
-        uncheckedTrackColor: ColorTone = ColorTone.Unspecified,
-        disabledCheckedThumbColor: ColorTone = ColorTone.Unspecified,
-        disabledCheckedTrackColor: ColorTone = ColorTone.Unspecified,
-        disabledUncheckedThumbColor: ColorTone = ColorTone.Unspecified,
-        disabledUncheckedTrackColor: ColorTone = ColorTone.Unspecified,
+        checkedThumbColor: Color = Color.Unspecified,
+        checkedTrackColor: Color = Color.Unspecified,
+        uncheckedThumbColor: Color = Color.Unspecified,
+        uncheckedTrackColor: Color = Color.Unspecified,
+        disabledCheckedThumbColor: Color = Color.Unspecified,
+        disabledCheckedTrackColor: Color = Color.Unspecified,
+        disabledUncheckedThumbColor: Color = Color.Unspecified,
+        disabledUncheckedTrackColor: Color = Color.Unspecified,
         selectedOutlineColor: Color = Color.Unspecified,
     ): SwitchColors {
         val resolvedCheckedThumb = checkedThumbColor.resolve(SwitchTokens.CheckedThumb)
@@ -205,60 +200,39 @@ object SwitchDefaults {
             checkedTrackColor = checkedTrackColor.resolve(SwitchTokens.CheckedTrack),
             uncheckedThumbColor = uncheckedThumbColor.resolve(SwitchTokens.UncheckedThumb),
             uncheckedTrackColor = uncheckedTrackColor.resolve(SwitchTokens.UncheckedTrack),
-            disabledCheckedThumbColor = disabledCheckedThumbColor.resolveFaded(
+            disabledCheckedThumbColor = disabledCheckedThumbColor.resolve(
                 SwitchTokens.DisabledThumb,
-                SwitchTokens.DisabledThumbOpacity,
             ),
-            disabledCheckedTrackColor = disabledCheckedTrackColor.resolveFaded(
+            disabledCheckedTrackColor = disabledCheckedTrackColor.resolve(
                 SwitchTokens.DisabledTrack,
-                SwitchTokens.DisabledTrackOpacity,
             ),
-            disabledUncheckedThumbColor = disabledUncheckedThumbColor.resolveFaded(
+            disabledUncheckedThumbColor = disabledUncheckedThumbColor.resolve(
                 SwitchTokens.DisabledThumb,
-                SwitchTokens.DisabledThumbOpacity,
             ),
-            disabledUncheckedTrackColor = disabledUncheckedTrackColor.resolveFaded(
+            disabledUncheckedTrackColor = disabledUncheckedTrackColor.resolve(
                 SwitchTokens.DisabledTrack,
-                SwitchTokens.DisabledTrackOpacity,
             ),
             selectedOutlineColor = selectedOutlineColor.takeOrElse {
-                resolvedCheckedThumb.base.contrasting()
+                resolvedCheckedThumb.contrasting()
             },
         )
     }
 
 }
 
-/**
- * 把 [ColorTone] 的五档色（outline/shadow/dark/base/highlight）逐字段用 [animateColorAsState]
- * 平滑过渡，返回动画进行中的色板。用于开关在开启/关闭/禁用态切换时颜色不瞬变。
- *
- * [ColorTone] 是五档数据类，[animateColorAsState] 只能过渡单个 [Color]，因此逐字段动画；
- * compose-minecraft 当前未提供 [androidx.compose.animation.core.tween]，使用默认 spring。
- */
-@Composable
-private fun animateColorTone(tone: ColorTone): ColorTone = ColorTone(
-    outline = animateColorAsState(tone.outline).value,
-    shadow = animateColorAsState(tone.shadow).value,
-    dark = animateColorAsState(tone.dark).value,
-    base = animateColorAsState(tone.base).value,
-    highlight = animateColorAsState(tone.highlight).value,
-)
-
-
 @Immutable
 class SwitchColors(
-    val checkedThumbColor: ColorTone,
-    val checkedTrackColor: ColorTone,
-    val uncheckedThumbColor: ColorTone,
-    val uncheckedTrackColor: ColorTone,
-    val disabledCheckedThumbColor: ColorTone,
-    val disabledCheckedTrackColor: ColorTone,
-    val disabledUncheckedThumbColor: ColorTone,
-    val disabledUncheckedTrackColor: ColorTone,
+    val checkedThumbColor: Color,
+    val checkedTrackColor: Color,
+    val uncheckedThumbColor: Color,
+    val uncheckedTrackColor: Color,
+    val disabledCheckedThumbColor: Color,
+    val disabledCheckedTrackColor: Color,
+    val disabledUncheckedThumbColor: Color,
+    val disabledUncheckedTrackColor: Color,
 
     /**
-     * 悬停/聚焦（选中态）把手描边高亮色，仅覆盖把手 [ColorTone.outline] 层。
+     * 悬停/聚焦（选中态）把手描边高亮色，仅覆盖把手 outline 槽位层。
      * 默认由 [SwitchDefaults.colors] 解析为开启态把手色板 base 的对比色，
      * 也可由调用点显式传入完全接管。
      */
@@ -267,22 +241,22 @@ class SwitchColors(
     /**
      * 返回副本，可选择性覆盖某些值。
      *
-     * **约定**：传入 [ColorTone.Unspecified] 表示"沿用源值"，与 Material3 的
+     * **约定**：传入 [Color.Unspecified] 表示"沿用源值"，与 Material3 的
      * `Color.Unspecified` 语义一致，也与 [SwitchDefaults.colors] 的默认参数语义一致。
-     * 因此 `colors.copy(checkedThumbColor = ColorTone.Unspecified)` 等价于不改动该项。
+     * 因此 `colors.copy(checkedThumbColor = Color.Unspecified)` 等价于不改动该项。
      *
      * 实现上逐项 [takeOrElse] 回落，所以已解析的配色被 copy 后仍是已解析的，
      * 不会退化成未指定。
      */
     fun copy(
-        checkedThumbColor: ColorTone = this.checkedThumbColor,
-        checkedTrackColor: ColorTone = this.checkedTrackColor,
-        uncheckedThumbColor: ColorTone = this.uncheckedThumbColor,
-        uncheckedTrackColor: ColorTone = this.uncheckedTrackColor,
-        disabledCheckedThumbColor: ColorTone = this.disabledCheckedThumbColor,
-        disabledCheckedTrackColor: ColorTone = this.disabledCheckedTrackColor,
-        disabledUncheckedThumbColor: ColorTone = this.disabledUncheckedThumbColor,
-        disabledUncheckedTrackColor: ColorTone = this.disabledUncheckedTrackColor,
+        checkedThumbColor: Color = this.checkedThumbColor,
+        checkedTrackColor: Color = this.checkedTrackColor,
+        uncheckedThumbColor: Color = this.uncheckedThumbColor,
+        uncheckedTrackColor: Color = this.uncheckedTrackColor,
+        disabledCheckedThumbColor: Color = this.disabledCheckedThumbColor,
+        disabledCheckedTrackColor: Color = this.disabledCheckedTrackColor,
+        disabledUncheckedThumbColor: Color = this.disabledUncheckedThumbColor,
+        disabledUncheckedTrackColor: Color = this.disabledUncheckedTrackColor,
         selectedOutlineColor: Color = this.selectedOutlineColor,
     ) =
         SwitchColors(
@@ -304,7 +278,7 @@ class SwitchColors(
      * @param checked whether the [Switch] is checked or not
      */
     @Stable
-    internal fun thumbColor(enabled: Boolean, checked: Boolean): ColorTone =
+    internal fun thumbColor(enabled: Boolean, checked: Boolean): Color =
         if (enabled) {
             if (checked) checkedThumbColor else uncheckedThumbColor
         } else {
@@ -318,7 +292,7 @@ class SwitchColors(
      * @param checked whether the [Switch] is checked or not
      */
     @Stable
-    internal fun trackColor(enabled: Boolean, checked: Boolean): ColorTone =
+    internal fun trackColor(enabled: Boolean, checked: Boolean): Color =
         if (enabled) {
             if (checked) checkedTrackColor else uncheckedTrackColor
         } else {

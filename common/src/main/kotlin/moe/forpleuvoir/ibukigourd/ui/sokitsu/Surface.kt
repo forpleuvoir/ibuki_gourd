@@ -16,9 +16,11 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ProvideContentColorTextStyle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColorFor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.uiSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -30,10 +32,10 @@ import net.minecraft.sounds.SoundEvents
  *
  * 职责（与 M3 同构）：
  * 1. **画背景**：按 [sprite]（九宫格精灵）+ [tone] 绘制容器背景；[tone] 未指定时按
- *    [SurfaceTokens.Container] 解析（调用点 > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone]
+ *    [SurfaceTokens.Container] 解析（调用点 > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor]
  *    作用域 > 组件 token > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme]）；
  * 2. **下发内容色**：经 [ProvideContentColorTextStyle] 把内容色（默认取容器色板的**配对内容色**，
- *    见 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone.contentColor]）与 [textStyle]
+ *    见 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColorFor]）与 [textStyle]
  *    提供给子树，内部的 Text / Icon 自动取到，无需逐个传色；
  * 3. **承载交互**（可点击重载）：[clickable] + 点击音效，指示（[indication]）绘制在背景之上。
  *
@@ -41,8 +43,9 @@ import net.minecraft.sounds.SoundEvents
  * M3 的 Button 正是把容器渲染整块委托给 Surface、自己只留这些"按钮语义"的东西，
  * [Button] 同样如此。
  *
- * [sprite] 为 null 时背景**退化为色板 base 的纯色填充**（即 M3 `Surface` 铺 `color` 的默认行为），
- * 见 [SurfaceDefaults.sprite]：图集里暂无通用面板素材，素材补齐后无需改动调用点即可换成精灵。
+ * [sprite] 为 null 时背景**退化为色板 base 的纯色填充**（即 M3 `Surface` 铺 `color` 的默认行为）；
+ * 默认取 [SurfaceDefaults.sprite]（普通面板，[SurfaceMeta.panelSprite]），Dialog 等浮层容器可传
+ * [SurfaceDefaults.floatingPanel]（凸起带阴影），凹槽 / 内嵌容器可传 [SurfaceDefaults.embeddedPanel]。
  *
  * @param tone 容器背景色板，未指定按 [SurfaceTokens.Container] 解析
  * @param contentColor 内容色，未指定取 [tone] 解析后色板的配对内容色
@@ -55,21 +58,23 @@ import net.minecraft.sounds.SoundEvents
 @Composable
 fun Surface(
     modifier: Modifier = Modifier,
-    tone: ColorTone = ColorTone.Unspecified,
+    color: Color = Color.Unspecified,
     contentColor: Color = Color.Unspecified,
     sprite: SokitsuSprite? = SurfaceDefaults.sprite,
     textStyle: TextStyle = LocalTextStyle.current,
     contentAlignment: Alignment = Alignment.TopStart,
+    outlineColor: Color = Color.Unspecified,
     content: @Composable () -> Unit,
 ) {
     SurfaceContainer(
         modifier = modifier,
         interactiveModifier = Modifier,
-        tone = tone,
+        color = color,
         contentColor = contentColor,
         sprite = sprite,
         textStyle = textStyle,
         contentAlignment = contentAlignment,
+        outlineColor = outlineColor,
         content = content,
     )
 }
@@ -94,7 +99,7 @@ fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    tone: ColorTone = ColorTone.Unspecified,
+    color: Color = Color.Unspecified,
     contentColor: Color = Color.Unspecified,
     sprite: SokitsuSprite? = SurfaceDefaults.sprite,
     textStyle: TextStyle = LocalTextStyle.current,
@@ -102,6 +107,7 @@ fun Surface(
     pressSound: SoundInstance? = SurfaceDefaults.LocalPressSound.current,
     interactionSource: MutableInteractionSource? = null,
     indication: Indication? = LocalIndication.current,
+    outlineColor: Color = Color.Unspecified,
     content: @Composable () -> Unit,
 ) {
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -116,11 +122,12 @@ fun Surface(
                 onClick()
             },
         ),
-        tone = tone,
+        color = color,
         contentColor = contentColor,
         sprite = sprite,
         textStyle = textStyle,
         contentAlignment = contentAlignment,
+        outlineColor = outlineColor,
         content = content,
     )
 }
@@ -135,15 +142,16 @@ fun Surface(
 private fun SurfaceContainer(
     modifier: Modifier,
     interactiveModifier: Modifier,
-    tone: ColorTone,
+    color: Color,
     contentColor: Color,
     sprite: SokitsuSprite?,
     textStyle: TextStyle,
     contentAlignment: Alignment,
+    outlineColor: Color,
     content: @Composable () -> Unit,
 ) {
-    val resolvedTone = tone.resolve(SurfaceTokens.Container)
-    val resolvedContent = contentColor.takeOrElse { resolvedTone.contentColor() }
+    val resolvedColor = color.resolve(SurfaceTokens.Container)
+    val resolvedContent = contentColor.takeOrElse { LocalColorScheme.current.contentColorFor(resolvedColor) }
 
     ProvideContentColorTextStyle(
         contentColor = resolvedContent,
@@ -151,7 +159,7 @@ private fun SurfaceContainer(
     ) {
         Box(
             modifier = modifier
-                .then(surfaceBackgroundModifier(sprite, resolvedTone))
+                .then(surfaceBackgroundModifier(sprite, resolvedColor, outlineColor))
                 .then(interactiveModifier),
             contentAlignment = contentAlignment,
         ) {
@@ -168,19 +176,30 @@ private fun SurfaceContainer(
  * 故暂时用纯色兜底——素材补齐后所有调用点无需改动即可自动换成精灵。
  */
 @Composable
-private fun surfaceBackgroundModifier(sprite: SokitsuSprite?, tone: ColorTone): Modifier =
-    if (sprite != null) Modifier.sokitsuSprite(sprite, tone)
-    else Modifier.background(tone.base)
+private fun surfaceBackgroundModifier(
+    sprite: SokitsuSprite?,
+    color: Color,
+    outlineColor: Color,
+): Modifier =
+    if (sprite != null) Modifier.sokitsuSprite(sprite, color, outlineColor)
+    else Modifier.background(color)
 
 object SurfaceDefaults {
 
+    /** 当前主题的 surface meta（面板精灵 id）；内联转发 [SokitsuThemeMeta.surface]。 */
+    inline val meta get() = SokitsuThemeMeta.surface
+
     /**
-     * 默认背景精灵：**null** —— 图集里目前只有 button / switch 两套素材，没有通用面板精灵，
-     * 因此默认走"色板 base 纯色填充"（M3 `Surface` 的默认行为）；
-     * 需要九宫格背景时由调用方显式传入（如 [Button] 传入自己的四态按钮精灵）。
-     * 待补一张 `ui/surface` 面板素材后，把默认值改为该精灵即可，调用点无需改动。
+     * 默认背景精灵：普通面板（[SurfaceMeta.panelSprite]，`ui/surface/panel`）。
+     * 调用方显式传 `sprite = null` 仍可退化为色板 base 纯色填充。
      */
-    val sprite: SokitsuSprite? = null
+    val sprite: SokitsuSprite get() = SokitsuThemeMeta.uiSprite(meta.panelSprite)
+
+    /** 浮动面板精灵：凸起带阴影（[SurfaceMeta.floatingPanelSprite]），Dialog 等浮层容器用。 */
+    val floatingPanel: SokitsuSprite get() = SokitsuThemeMeta.uiSprite(meta.floatingPanelSprite)
+
+    /** 嵌入面板精灵：凹槽（[SurfaceMeta.embeddedPanelSprite]），内嵌容器用。 */
+    val embeddedPanel: SokitsuSprite get() = SokitsuThemeMeta.uiSprite(meta.embeddedPanelSprite)
 
     /**
      * 点击音效，与 [ButtonDefaults.LocalPressSound]、

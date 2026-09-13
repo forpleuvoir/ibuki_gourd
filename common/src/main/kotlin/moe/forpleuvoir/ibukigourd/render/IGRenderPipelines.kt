@@ -27,7 +27,8 @@ object IGRenderPipelines {
             .build()
     )
 
-    // Sokitsu 精灵着色管线：共用一个 sokitsu_tint.fsh，经 withShaderDefine 切出三变体。
+    // Sokitsu 精灵着色管线：共用一个 sokitsu_tint.fsh，经 withShaderDefine 切出三变体
+    // （Mask / Luminance / HueShift；Passthrough 不走着色管线，直通原版贴图管线）。
     private val SOKITSU_TINT_SNIPPET: RenderPipeline.Snippet = RenderPipeline.builder()
         .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
         .withVertexShader("core/position_tex_color")
@@ -43,9 +44,9 @@ object IGRenderPipelines {
         .withShaderDefine("SOKITSU_MASK")
         .build()
 
-    val SOKITSU_TINT: RenderPipeline = RenderPipeline.builder(SOKITSU_TINT_SNIPPET)
-        .withLocation(identifier("pipeline/sokitsu_tint"))
-        .withShaderDefine("SOKITSU_TINT")
+    val SOKITSU_TINT_LUMINANCE: RenderPipeline = RenderPipeline.builder(SOKITSU_TINT_SNIPPET)
+        .withLocation(identifier("pipeline/sokitsu_tint_luminance"))
+        .withShaderDefine("SOKITSU_LUMINANCE")
         .build()
 
     val SOKITSU_TINT_HUE_SHIFT: RenderPipeline = RenderPipeline.builder(SOKITSU_TINT_SNIPPET)

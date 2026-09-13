@@ -191,7 +191,7 @@ private fun rememberTextLinkStyles(): TextLinkStyles {
     val primaryColor = SokitsuTheme.colorScheme.primary
     return remember(primaryColor) {
         TextLinkStyles(
-            style = SpanStyle(color = primaryColor.base, textDecoration = TextDecoration.Underline)
+            style = SpanStyle(color = primaryColor, textDecoration = TextDecoration.Underline)
         )
     }
 }

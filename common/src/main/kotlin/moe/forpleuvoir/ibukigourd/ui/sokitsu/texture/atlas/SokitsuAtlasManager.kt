@@ -6,8 +6,6 @@ import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.textureManager
@@ -226,10 +224,8 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             val textureId: Identifier,
             val layerId: String,
             val image: NativeImage,
-            val colorLevel: ColorLevel?,
-            val tintMode: TextureTintMode,
+            val colorSlot: String,
             val fill: TextureFill,
-            val tintAlpha: Boolean = false,
         )
         val entries = mutableListOf<Entry>()
 
@@ -245,10 +241,8 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
                         textureId,
                         aseLayer.layerId,
                         aseLayer.image,
-                        aseLayer.layer.colorLevel,
-                        aseLayer.layer.tintMode,
+                        aseLayer.layer.colorSlot,
                         aseLayer.layer.fill,
-                        aseLayer.layer.tintAlpha,
                     )
                 }
                 continue
@@ -265,7 +259,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
             for (layer in texture.layers) {
                 val layerImage = LayerExtractor.extract(baseImage, layer.keys, layer.region)
                 stitcher.add(layerImage.width, layerImage.height)
-                entries += Entry(textureId, layer.id, layerImage, layer.colorLevel, layer.tintMode, layer.fill, layer.tintAlpha)
+                entries += Entry(textureId, layer.id, layerImage, layer.colorSlot, layer.fill)
             }
             baseImage.close()
         }
@@ -278,7 +272,7 @@ object SokitsuAtlasManager : ClientResourceReloaderListener {
         val layout = stitcher.stitch().getOrThrow()
         val regions = entries.mapIndexed { index, entry ->
             val placed = layout.placed[index]
-            SokitsuAtlasRegion(entry.textureId, entry.layerId, placed.x, placed.y, entry.image, entry.colorLevel, entry.tintMode, entry.fill)
+            SokitsuAtlasRegion(entry.textureId, entry.layerId, placed.x, placed.y, entry.image, entry.colorSlot, entry.fill)
         }
         return SokitsuAtlasPreparations(layout.width, layout.height, definition.padding, regions, definition.density)
     }

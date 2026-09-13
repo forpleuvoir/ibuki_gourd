@@ -6,11 +6,11 @@ import moe.forpleuvoir.ibukigourd.asetools.AseRenderer
 import moe.forpleuvoir.ibukigourd.asetools.AseSprite
 import moe.forpleuvoir.ibukigourd.asetools.Layer
 import moe.forpleuvoir.ibukigourd.asetools.PropValue
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_NONE
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SLOT_TONE
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureLayer
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureRegion
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureTintMode
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import moe.forpleuvoir.ibukigourd.util.logger
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
@@ -39,9 +39,10 @@ data class SokitsuAseTexture(
 /**
  * 从资源目录读取 `.aseprite`，按 Sokitsu 规则解析出可直接缝合进 atlas 的图层：
  * - 源文件 = 一个纹理（画布即组件范围），图层顺序即渲染叠加顺序
- * - 跳过：sokitsu 元数据 enabled=false、组（layerType=1）、无像素的隐藏辅助层
- * - 元数据（colorLevel / tintMode / tintAlpha / fill）从层 userData 的 `forpleuvoir/sokitsu`
+ * - 跳过：sokitsu 元数据 enabled=false、组（layerType=1）、`#` 开头的辅助层、无像素的隐藏辅助层
+ * - 元数据（colorSlot / fill）从层 userData 的 `forpleuvoir/sokitsu`
  *   properties 读取，与插件写入的 key 一一对应
+ * - 同 colorSlot 的层**各自独立输出**（不合并），渲染端按 colorSlot 染色
  * - 每个导出层输出**整画布** NativeImage（不做裁剪）
  */
 class SokitsuAseLoader(private val resourceManager: ResourceManager) {
@@ -76,21 +77,25 @@ class SokitsuAseLoader(private val resourceManager: ResourceManager) {
                 skipped += layer.name
                 continue
             }
+            if (layer.name.startsWith("#")) { // 辅助/残留层
+                skipped += layer.name
+                continue
+            }
             val hasPixels = sprite.frames.any { f -> f.cels.any { it.layerIndex == layer.index } }
             if (!layer.isVisible && !hasPixels) {
                 skipped += layer.name
                 continue
             }
-
             val rgba = canvases[layer.index]
             if (rgba == null || rgba.isEmpty()) {
                 skipped += layer.name
                 continue
             }
+            val meta = toTextureLayer(layer, props, w, h)
             exported += SokitsuAseTexture.SokitsuAseLayer(
                 layerId = layer.name,
                 image = rgbaToNativeImage(rgba, w, h),
-                layer = toTextureLayer(layer, props, w, h),
+                layer = meta,
             )
         }
         return exported to skipped
@@ -107,22 +112,10 @@ class SokitsuAseLoader(private val resourceManager: ResourceManager) {
         return TextureLayer(
             id = layer.name,
             keys = emptyList(),
-            colorLevel = props?.string("level")?.let { level ->
-                runCatching { ColorLevel.valueOf(level) }.getOrNull()
-            },
-            tintMode = props?.string("tint")?.let(::mapTintMode) ?: TextureTintMode.Tint,
-            tintAlpha = props?.bool("tintAlpha") == true,
+            colorSlot = props?.string("level")?.trim()?.takeIf { it.isNotEmpty() } ?: SLOT_TONE,
             fill = fill,
             region = mapRegion(props, canvasW, canvasH),
         )
-    }
-
-    /** 插件旧名/现名 → 枚举：Mask/Tint/HueShift（含 Flat/Hsv/Hsl 历史值兼容）。 */
-    private fun mapTintMode(name: String): TextureTintMode = when (name) {
-        "Mask", "Flat"       -> TextureTintMode.Mask
-        "Tint", "Hsv", "Luminance" -> TextureTintMode.Tint
-        "HueShift", "Hsl"    -> TextureTintMode.HueShift
-        else                 -> TextureTintMode.Tint
     }
 
     private fun mapFill(props: Map<String, PropValue>?): TextureFill {

@@ -4,9 +4,6 @@ import androidx.compose.ui.graphics.Color
 import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.get
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -151,20 +148,3 @@ fun SokitsuSprite.boxHeightPx(pixelScale: Int): Float =
  */
 fun tileSizePx(logicalSize: Float, scale: Float, pixelScale: Int): Float =
     logicalSize * scale * pixelScale
-
-/**
- * 合成精灵的顶点着色颜色，并处理 [tintAlpha] 语义（与着色模式正交）。
- *
- * - [level] 为 null：该图层无主题染色，返回白色（调用方应使用普通纹理管线，而非着色管线）
- * - [level] 非 null：取 [tone] 对应色阶作为 RGB
- * - [tintAlpha] = false（默认）：顶点 alpha 恒为 1，纹理自身 alpha 直通（shader 内 `tex.a × vertex.a`）
- * - [tintAlpha] = true：顶点 alpha 采用主题色 alpha，由主题接管透明度
- *
- * @param tone 主题色板（由调用方从 `LocalColorScheme` 选定，如 primary/secondary）
- * @param level 该图层的色阶
- * @param tintAlpha 透明度是否由主题接管
- */
-fun tintColor(tone: ColorTone, level: ColorLevel?, tintAlpha: Boolean): Color {
-    val base = if (level == null) Color.White else tone.get(level)
-    return if (tintAlpha) base else base.copy(alpha = 1f)
-}

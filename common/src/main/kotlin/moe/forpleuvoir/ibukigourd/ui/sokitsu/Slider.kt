@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.DpSize
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.snapToDensity
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColorFor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
 import moe.forpleuvoir.ibukigourd.util.contrasting
@@ -128,11 +128,8 @@ fun Slider(
     val unfilledLabelColor = colors.labelColor(enabled, filled = false)
 
     // 悬停/聚焦/拖动中：仅轨道 outline 层覆盖为选中描边色（与 Button/Switch 同款），
-    // 其余层保持色板结构；填充精灵无启用中的 outline 层，无需覆盖
-    val trackToneWithSelection = when {
-        hovered || focused || dragged -> trackTone.copy(outline = colors.selectedOutlineColor)
-        else                          -> trackTone
-    }
+    // 其余层保持槽位色；填充精灵无启用中的 outline 层，无需覆盖
+    val trackOutline = if (hovered || focused || dragged) colors.selectedOutlineColor else Color.Unspecified
 
     // 无回调 = 只读展示：不装手势（onValueChange == null 时不接收交互），也不给"手型"指针
     val interactive = enabled && onValueChange != null
@@ -199,7 +196,7 @@ fun Slider(
             .hoverable(interactionSource, enabled = interactive)
             .focusable(enabled = interactive, interactionSource = interactionSource)
             .defaultMinSize(SliderDefaults.trackMinSize.width, SliderDefaults.trackMinSize.height)
-            .sokitsuSprite(trackSprite, trackToneWithSelection),
+            .sokitsuSprite(trackSprite, trackTone, trackOutline),
     ) {
         // 填充层：整条精灵，绘制时裁掉进度边界右侧
         Box(
@@ -287,14 +284,14 @@ object SliderDefaults {
     /**
      * 默认滑条配色：轨道 / 填充两套色板 + 四档数值文字色。
      *
-     * 参数默认 [ColorTone.Unspecified] / [Color.Unspecified]，语义是"按 [SliderTokens]
+     * 参数默认 [Color.Unspecified] / [Color.Unspecified]，语义是"按 [SliderTokens]
      * 映射表结合当前主题解析"；回退顺序：`调用点传参` >
-     * [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone] 作用域 >
+     * [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor] 作用域 >
      * [SliderTokens] > [ColorScheme]。
      *
      * - [trackColor] 凹槽底 → [SliderTokens.Track]（surfaceVariant）
      * - [fillColor] 凸起进度段 → [SliderTokens.Fill]（primary）
-     * - 启用态两档文字色默认取**各自底色色板的配对内容色**（[ColorTone.contentColor]）：
+     * - 启用态两档文字色默认取**各自底色色板的配对内容色**（[contentColorFor]）：
      *   填充侧 → onPrimary，轨道侧 → onSurfaceVariant。这样作用域整体换色板
      *   （如把滑条切成 secondary）时文字色自动跟随
      * - 禁用态：轨道 / 填充底色走 [resolveFaded]（12% / 38%）；文字**两半统一**取
@@ -306,10 +303,10 @@ object SliderDefaults {
      */
     @Composable
     fun colors(
-        trackColor: ColorTone = ColorTone.Unspecified,
-        fillColor: ColorTone = ColorTone.Unspecified,
-        disabledTrackColor: ColorTone = ColorTone.Unspecified,
-        disabledFillColor: ColorTone = ColorTone.Unspecified,
+        trackColor: Color = Color.Unspecified,
+        fillColor: Color = Color.Unspecified,
+        disabledTrackColor: Color = Color.Unspecified,
+        disabledFillColor: Color = Color.Unspecified,
         filledLabelColor: Color = Color.Unspecified,
         unfilledLabelColor: Color = Color.Unspecified,
         disabledFilledLabelColor: Color = Color.Unspecified,
@@ -330,15 +327,15 @@ object SliderDefaults {
                 SliderTokens.DisabledFill,
                 SliderTokens.DisabledFillOpacity,
             ),
-            filledLabelColor = filledLabelColor.takeOrElse { resolvedFill.contentColor() },
-            unfilledLabelColor = unfilledLabelColor.takeOrElse { resolvedTrack.contentColor() },
+            filledLabelColor = filledLabelColor.takeOrElse { LocalColorScheme.current.contentColorFor(resolvedFill) },
+            unfilledLabelColor = unfilledLabelColor.takeOrElse { LocalColorScheme.current.contentColorFor(resolvedTrack) },
             disabledFilledLabelColor = disabledFilledLabelColor.takeOrElse {
-                resolvedTrack.contentColor().copy(alpha = labelAlpha)
+                LocalColorScheme.current.contentColorFor(resolvedTrack).copy(alpha = labelAlpha)
             },
             disabledUnfilledLabelColor = disabledUnfilledLabelColor.takeOrElse {
-                resolvedTrack.contentColor().copy(alpha = labelAlpha)
+                LocalColorScheme.current.contentColorFor(resolvedTrack).copy(alpha = labelAlpha)
             },
-            selectedOutlineColor = selectedOutlineColor.takeOrElse { resolvedFill.base.contrasting() },
+            selectedOutlineColor = selectedOutlineColor.takeOrElse { resolvedFill.contrasting() },
         )
     }
 }
@@ -362,10 +359,10 @@ object SliderDefaults {
  */
 @Immutable
 data class SliderColors(
-    val trackColor: ColorTone,
-    val fillColor: ColorTone,
-    val disabledTrackColor: ColorTone,
-    val disabledFillColor: ColorTone,
+    val trackColor: Color,
+    val fillColor: Color,
+    val disabledTrackColor: Color,
+    val disabledFillColor: Color,
     val filledLabelColor: Color,
     val unfilledLabelColor: Color,
     val disabledFilledLabelColor: Color,
@@ -374,17 +371,14 @@ data class SliderColors(
 ) {
 
     /** 轨道底色（按启用状态二选一）。 */
-    @Stable
-    internal fun trackColor(enabled: Boolean): ColorTone = if (enabled) trackColor else disabledTrackColor
+    internal fun trackColor(enabled: Boolean): Color = if (enabled) trackColor else disabledTrackColor
 
     /** 填充底色（按启用状态二选一）。 */
-    @Stable
-    internal fun fillColor(enabled: Boolean): ColorTone = if (enabled) fillColor else disabledFillColor
+    internal fun fillColor(enabled: Boolean): Color = if (enabled) fillColor else disabledFillColor
 
     /**
      * 数值文字色：按启用状态与该文字落在进度边界的内侧（[filled] = true）还是外侧二选一。
      */
-    @Stable
     internal fun labelColor(enabled: Boolean, filled: Boolean): Color = when {
         enabled  -> if (filled) filledLabelColor else unfilledLabelColor
         filled   -> disabledFilledLabelColor

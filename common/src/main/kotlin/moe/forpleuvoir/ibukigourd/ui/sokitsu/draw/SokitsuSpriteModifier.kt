@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.recordCustomDraw
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -15,28 +16,30 @@ import androidx.compose.ui.unit.IntSize
 import moe.forpleuvoir.compose_minecraft.platform.ui.draw.buildPaint
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.compose_minecraft.platform.ui.LocalShadowLight
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.takeOrElse
 import kotlin.math.roundToInt
 
 /**
  * 在背景绘制一个 Sokitsu 精灵（与 [Modifier.background] 同模式 —— 节点参与 DrawScope 管道，
  * 记录一条自定义绘制命令，由 [SokitsuSpritePlugin] 在渲染阶段提交）。
  *
- * 精灵按所选色板（[tone]）对各图层染色：图层 colorLevel 决定色阶、tintMode 决定着色模式；
+ * 精灵按 [color] 对各图层染色：图层 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.SokitsuTexture.Layer] 的
+ * `colorSlot` 决定该层取哪个颜色——
+ * - `tone`：Multiply 渲染（[color] × 素材灰度，正片叠底）；
+ * - `none`：直出（纹理原样）；
+ * - 其它：按槽位名取 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme] 语义色做纯色替换（Mask）。
+ *
  * 渲染像素放大倍率取 [LocalSokitsuPixelScale]。
  *
- * [tone] 默认 = [LocalSokitsuTone].current，未指定时回退 [LocalColorScheme].current.primary。
+ * [color] 默认 = [LocalSokitsuColor].current，未指定时回退 [LocalColorScheme].current.primary。
  * 调用方可：
- * - 显式传 [tone] 覆盖作用域默认；
+ * - 显式传 [color] 覆盖作用域默认；
  * - 或在外层用 [androidx.compose.runtime.CompositionLocalProvider] 整体切换为 secondary / error / 自定义。
  *
- * 阴影不是参数：精灵内 layerId 为 "shadow" 的图层（[SokitsuLayerSprite.isShadow]）自动按
- * 阴影渲染 —— 向 [LocalShadowLight] 光源反方向偏移（× 像素放大倍率）并先于普通图层绘制，
- * 外观完全由素材定义。
+ * 阴影不是参数：`colorSlot` 为 "shadow" 的图层自动按阴影渲染 —— 向 [LocalShadowLight]
+ * 光源反方向偏移（× 像素放大倍率）并先于普通图层绘制，外观完全由素材定义。
  *
  * 图层级不透明度（`Modifier.alpha` / `graphicsLayer { alpha }`）同样生效：命令携带 paint，
  * 回放时把图层 alpha 烘焙进 paint.alpha，由 [SokitsuSpritePlugin] 乘进各图层调制色。
@@ -44,31 +47,35 @@ import kotlin.math.roundToInt
 @Composable
 fun Modifier.sokitsuSprite(
     sprite: SokitsuSprite,
-    tone: ColorTone = LocalSokitsuTone.current.takeOrElse { LocalColorScheme.current.primary },
-): Modifier = this.then(SokitsuSpriteElement(sprite, tone))
+    color: Color = LocalSokitsuColor.current.takeOrElse { LocalColorScheme.current.primary },
+    outlineColor: Color = Color.Unspecified,
+): Modifier = this.then(SokitsuSpriteElement(sprite, color, outlineColor))
 
 private class SokitsuSpriteElement(
     private val sprite: SokitsuSprite,
-    private val tone: ColorTone,
+    private val color: Color,
+    private val outlineColor: Color,
 ) : ModifierNodeElement<SokitsuSpriteNode>() {
 
-    override fun create(): SokitsuSpriteNode = SokitsuSpriteNode(sprite, tone)
+    override fun create(): SokitsuSpriteNode = SokitsuSpriteNode(sprite, color, outlineColor)
 
     override fun update(node: SokitsuSpriteNode) {
         node.sprite = sprite
-        node.tone = tone
+        node.color = color
+        node.outlineColor = outlineColor
         node.invalidateDraw()
     }
 
     override fun equals(other: Any?): Boolean =
-        this === other || (other is SokitsuSpriteElement && sprite == other.sprite && tone == other.tone)
+        this === other || (other is SokitsuSpriteElement && sprite == other.sprite && color == other.color && outlineColor == other.outlineColor)
 
-    override fun hashCode(): Int = 31 * (31 * sprite.hashCode() + tone.hashCode())
+    override fun hashCode(): Int = 31 * (31 * (31 * sprite.hashCode() + color.hashCode()) + outlineColor.hashCode())
 }
 
 private class SokitsuSpriteNode(
     var sprite: SokitsuSprite,
-    var tone: ColorTone,
+    var color: Color,
+    var outlineColor: Color,
 ) : DrawModifierNode, Modifier.Node(), CompositionLocalConsumerModifierNode {
 
     override fun ContentDrawScope.draw() {
@@ -81,7 +88,8 @@ private class SokitsuSpriteNode(
                 (-light.x * pixelScale).roundToInt(),
                 (-light.y * pixelScale).roundToInt(),
             )
-            val data = buildSokitsuSpriteDrawData(sprite, size, pixelScale, tone, shadowOffset)
+            val scheme = currentValueOf(LocalColorScheme)
+            val data = buildSokitsuSpriteDrawData(sprite, size, pixelScale, color, scheme, shadowOffset, outlineColor)
             // paint 必须存在：回放阶段（MinecraftCanvas.replayFrom 的 alphaMultiplier）把图层
             // alpha 烘焙进 paint.alpha，[SokitsuSpritePlugin] 再从 CustomDrawContext.alpha 取用；
             // 传 null 则这条命令没有 alpha 通道，Modifier.alpha 对该精灵失效。

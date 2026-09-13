@@ -53,11 +53,8 @@ fun Button(
 
     val state = UiState.resolve(enabled, pressed, hovered, focused)
 
-    // 悬停/聚焦：仅 outline 层覆盖为 selectedOutlineColor（描边高亮），其余层保持色板明暗结构
-    val tone = when {
-        hovered || focused -> colors.tone.copy(outline = colors.selectedOutlineColor)
-        else               -> colors.tone
-    }
+    // 悬停/聚焦：仅 outline 层覆盖为 selectedOutlineColor（描边高亮），其余层保持槽位色
+    val outlineColor = if (hovered || focused) colors.selectedOutlineColor else Color.Unspecified
 
     val icon = if (enabled) ButtonDefaults.LocalHoverIcon.current else ButtonDefaults.LocalDisableIcon.current
 
@@ -69,8 +66,9 @@ fun Button(
             .semantics { this.role = role }
             .defaultMinSize(minSize.width, minSize.height),
         enabled = enabled,
-        tone = tone,
+        color = colors.color,
         contentColor = colors.contentColor[state],
+        outlineColor = outlineColor,
         sprite = sprite[state],
         textStyle = SokitsuTheme.typography.button,
         contentAlignment = Alignment.Center,
@@ -102,7 +100,7 @@ fun Button(
 @Immutable
 data class ButtonColors(
     val contentColor: UiStateColor,
-    val tone: ColorTone,
+    val color: Color,
     val selectedOutlineColor: Color,
 )
 
@@ -118,12 +116,12 @@ object ButtonDefaults {
     /**
      * 默认按钮样式集：按 [ButtonMeta] 四态精灵 + 按组件 token 映射表解析出的容器与内容色。
      *
-     * 四个参数**全部默认为未指定**（[ColorTone.Unspecified] / [Color.Unspecified]），
+     * 四个参数**全部默认为未指定**（[Color.Unspecified] / [Color.Unspecified]），
      * 语义是"调用方没意见，请按 [ButtonTokens] 映射表结合当前主题解析"。
-     * 回退顺序：`调用点传参` > [LocalSokitsuTone] 作用域 > [ButtonTokens] > [ColorScheme]。
+     * 回退顺序：`调用点传参` > [LocalSokitsuColor] 作用域 > [ButtonTokens] > [ColorScheme]。
      *
      * - [tone] 容器染色色板 → [ButtonTokens.Container]（默认 primary）
-     * - [contentColor] 内容色 → 由**解析后的容器色板**配对推导（[ColorTone.contentColor]）。
+     * - [contentColor] 内容色 → 由**解析后的容器色板**配对推导（[contentColorFor]）。
      *   这样作用域切到 secondary 时内容色会自动跟着变 onSecondary；
      *   若色板不属于主题已知槽位，则回退 [ButtonTokens.Content]
      * - [disabledContentColor] → [ButtonTokens.DisabledContent] 压
@@ -134,13 +132,13 @@ object ButtonDefaults {
      */
     @Composable
     fun colors(
-        tone: ColorTone = ColorTone.Unspecified,
+        color: Color = Color.Unspecified,
         selectedOutlineColor: Color = Color.Unspecified,
         contentColor: Color = Color.Unspecified,
         disabledContentColor: Color = Color.Unspecified,
     ): ButtonColors {
-        val resolvedTone = tone.resolve(ButtonTokens.Container)
-        val resolvedContent = contentColor.takeOrElse { resolvedTone.contentColor() }
+        val resolvedTone = color.resolve(ButtonTokens.Container)
+        val resolvedContent = contentColor.takeOrElse { LocalColorScheme.current.contentColorFor(resolvedTone) }
         val resolvedDisabledContent = disabledContentColor.resolveFaded(
             ButtonTokens.DisabledContent,
             ButtonTokens.DisabledContentOpacity,
@@ -152,9 +150,9 @@ object ButtonDefaults {
                 focused = resolvedContent,
                 disabled = resolvedDisabledContent
             ),
-            tone = resolvedTone,
+            color = resolvedTone,
             selectedOutlineColor = selectedOutlineColor.takeOrElse {
-                resolvedTone.base.contrasting()
+                resolvedTone.contrasting()
             }
         )
     }

@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.CenterBox
 import moe.forpleuvoir.ibukigourd.test.TestScreen
@@ -18,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuTone
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 
 
@@ -52,8 +53,20 @@ fun ButtonTestScreen() = TestScreen {
                 ) {
                     Text("禁用测试")
                 }
+                // 调试：纯红定位实验——主体变红 = Multiply 通路正常；不变红 = 顶点色调制失效
                 CompositionLocalProvider(
-                    LocalSokitsuTone provides SokitsuTheme.colorScheme.secondary
+                    LocalSokitsuColor provides Color(0xFFFF0000)
+                ) {
+                    Button(
+                        {
+                            println("button red clicked")
+                        },
+                    ) {
+                        Text("红色")
+                    }
+                }
+                CompositionLocalProvider(
+                    LocalSokitsuColor provides SokitsuTheme.colorScheme.secondary
                 ) {
                     Button(
                         {
@@ -71,8 +84,8 @@ fun ButtonTestScreen() = TestScreen {
                 Switch(checked = checked, onCheckedChange = { checked = it })
                 var checkedOn by remember { mutableStateOf(true) }
                 Switch(checked = checkedOn, onCheckedChange = { checkedOn = it })
-                var disabledChecked by remember { mutableStateOf(false) }
-                Switch(checked = disabledChecked, onCheckedChange = { disabledChecked = it }, enabled = false)
+                var disabledChecked by remember { mutableStateOf(true) }
+                Switch(checked = disabledChecked, onCheckedChange = { disabledChecked = it }, enabled = checkedOn)
             }
         }
     }

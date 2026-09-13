@@ -92,11 +92,12 @@ void main() {
     // Mask：完全替换为 T，C 只当形状/遮罩
     rgb = T;
     #else
-    #ifdef SOKITSU_TINT
-    // Tint：HSV(T.H, T.S, C.V) —— 主题只改色相/饱和，明度完全由纹理灰阶决定（美术所见即所得）
+    #ifdef SOKITSU_LUMINANCE
+    // Luminance：HSV(T.H, T.S, T.V × C.V) —— 主题定色相/饱和/明度基准，纹理灰阶作为
+    // 明度遮罩（multiply：白 = 原样，越黑越暗），保留手绘明暗细节
     vec3 chsv = rgb_to_hsv(C);
     vec3 thsv = rgb_to_hsv(T);
-    rgb = hsv_to_rgb(vec3(thsv.x, thsv.y, chsv.z));
+    rgb = hsv_to_rgb(vec3(thsv.x, thsv.y, thsv.z * chsv.z));
     #else
     #ifdef SOKITSU_HUESHIFT
     // HueShift：HSL(T.H, C.S, C.L) —— 只转色相，纹理自身饱和与亮度保留

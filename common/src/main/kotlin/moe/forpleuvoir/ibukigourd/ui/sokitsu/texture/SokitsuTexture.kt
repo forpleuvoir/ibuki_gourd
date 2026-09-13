@@ -1,10 +1,8 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.texture
 
 import androidx.compose.ui.unit.IntSize
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import moe.forpleuvoir.ibukigourd.util.codec.intSize
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -12,10 +10,16 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.color
-import moe.forpleuvoir.nebula.serialization.codec.enum
 import moe.forpleuvoir.nebula.serialization.codec.list
 import moe.forpleuvoir.nebula.serialization.codec.nullable
 import moe.forpleuvoir.nebula.serialization.extensions.requireInt
+import moe.forpleuvoir.nebula.common.util.requireType
+
+/** 素材层槽位名：组件主色（Multiply 渲染：槽位色 × 素材灰度）。 */
+const val SLOT_TONE = "tone"
+
+/** 素材层槽位名：直出（纹理原样，不参与主题染色）。 */
+const val SLOT_NONE = "none"
 
 data class SokitsuTexture(
     val size: IntSize,
@@ -31,9 +35,13 @@ data class SokitsuTexture(
 data class TextureLayer(
     val id: String,
     val keys: List<Color>,
-    val colorLevel: ColorLevel?,
-    val tintMode: TextureTintMode,
-    val tintAlpha: Boolean = false,
+    /**
+     * 该层绑定的主题颜色槽位名（如 `tone` / `outline` / `shadow` / 具体槽位名）：
+     * - `tone`：组件主色，Multiply 渲染（槽位色 × 素材灰度，正片叠底）
+     * - 其它槽位名：Mask 渲染（纯该槽位色替换）
+     * - `none`：直出（纹理原样）
+     */
+    val colorSlot: String,
     val fill: TextureFill,
     val region: TextureRegion? = null
 ) {
@@ -41,33 +49,10 @@ data class TextureLayer(
     companion object : Codec<TextureLayer> by Codec.create<TextureLayer>()
         .field(TextureLayer::id).codec(Codec.string)
         .field(TextureLayer::keys).default(emptyList()).codec(Codec.list(Codec.color))
-        .field(TextureLayer::colorLevel).codec(Codec.enum<ColorLevel>().nullable())
-        .field(TextureLayer::tintMode).default(TextureTintMode.Tint).skipDefault().codec(TintModeCodec)
-        .field(TextureLayer::tintAlpha).default(false).skipDefault().codec(Codec.boolean)
+        .field(TextureLayer::colorSlot).default(SLOT_TONE).codec(Codec.string)
         .field(TextureLayer::fill).codec(TextureFill)
         .field(TextureLayer::region).codec(TextureRegion.nullable())
-        .build({ i, k, c, t, ta, f, r -> TextureLayer(i, k, c, t, ta, f, r) })
-}
-
-/**
- * tintMode 序列化：兼容历史命名（Luminance / Flat / Hsv / Hsl），读取时映射为现名
- * 以免旧数据反序列化失败：Luminance/Hsv→[TextureTintMode.Tint]，Flat→[TextureTintMode.Mask]，Hsl→[TextureTintMode.HueShift]。
- */
-private object TintModeCodec : Codec<TextureTintMode> {
-
-    override fun serialization(target: TextureTintMode): SerializeElement =
-        SerializePrimitive(target.name)
-
-    override fun deserialization(data: SerializeElement): Result<TextureTintMode> =
-        DeserializationException.runCatching {
-            val name = data.asString ?: throw IllegalArgumentException("tintMode 应为字符串, 实际: $data")
-            when (name) {
-                "Luminance", "Hsv" -> TextureTintMode.Tint
-                "Flat" -> TextureTintMode.Mask
-                "Hsl" -> TextureTintMode.HueShift
-                else -> TextureTintMode.valueOf(name)
-            }
-        }
+        .build({ i, k, c, f, r -> TextureLayer(i, k, c, f, r) })
 }
 
 /**
@@ -109,18 +94,6 @@ data class TextureRegion(
         }
 
     }
-}
-
-/**
- * 主题色 T（colorLevel 取出的 ColorTone 档）与纹理像素色 C 的 RGB 合成策略：
- * - [Mask]：完全替换为 T（C 只当形状/遮罩，由 alpha 决定）
- * - [Tint]：输出 HSV(T.H, T.S, C.V)——主题提供色相与饱和，纹理只贡献明度结构（默认，灰阶纹理）
- * - [HueShift]：输出 HSL(T.H, C.S, C.L)——只把色相转到主题，纹理自身的饱和与亮度保留（彩色纹理）
- *
- * alpha 是否也由主题接管由 [TextureLayer.tintAlpha] 单独控制，与模式正交。
- */
-enum class TextureTintMode {
-    Mask, Tint, HueShift;
 }
 
 sealed class TextureFill(internal val mode: String) {
