@@ -15,3 +15,87 @@
   - 跨 Scene 状态同步：Compose `SnapshotState` 是 JVM 全局的，`active`、`anchorBounds` 等 State 可跨 Scene 读写
   - 点击 dismiss：`OverlayHost.render()` 仅转发 MOVE 事件，不处理 click；tooltip 通过 `collectIsHoveredAsState` 的 hover 事件 dismiss，`dismissOnClickOutside = false`
 - **进度**: 已完成 ✅ — 方案 2 Portal 模式 + 主题注入
+
+---
+
+## 配置 GUI 重建清单（configwrapper）
+
+> 来源：`6771fcea`（迁移前整理）删除的 15 个 `ui/configwrapper/*.kt` 与所依赖的 23 个 `ui/preset/*.kt`，
+> 按实际调用统计得出。基础设施（Screen / Popup(`LocalPopupHost`) / 滚动 / 文本输入）由 compose-minecraft 提供，不在此列。
+> 相关旧源码可随时取回：`git show 6771fcea^:<path>`。
+
+### 1. 包装器框架（15 个，需重建）
+
+- [ ] `ConfigRowWrapper` 行骨架：配置名 + 控件 + 重置按钮 + tooltip + 悬停高亮（旧 `configwrapper/Base.kt`）
+- [ ] `ConfigManagerWrapper` / `ConfigGroupWrapper` / `ConfigUIWrapper`：页面骨架、分组、按类型分发
+- [ ] `PrimitiveConfigWrapper`：Bool / Int / Long / Float / Double（含 range → 进度型控件）
+- [ ] `StringConfigWrapper`（含多行可扩展编辑器）
+- [ ] `EnumConfigWrapper`
+- [ ] `DurationConfigWrapper`
+- [ ] `VectorConfigWrapper`：2i / 3i / 2f / 3f / 2d / 3d
+- [ ] `ColorConfigWrapper` / `ColorSchemeConfigWrapper`
+- [ ] `KeybindConfigWrapper`
+- [ ] `ListConfigWrapper` / `MapConfigWrapper`（含编辑弹窗、拖拽排序）
+- [ ] `CacheConfigWrapper`（缓存清理 + 用量显示）
+
+### 2. 待实现组件
+
+**图标与按钮**
+
+- [ ] `Icon` 组件 + 图标资源（旧为 `ui/icon/` 下 32 个 Material Symbols `ImageVector`；方案待拍板）
+- [x] `FlatButton` 底座 + `IconButton` + `TextButton`
+      — 落地于 `FlatButton.kt` / `FlatButtonTheme.kt` / `IconButton.kt` / `TextButton.kt`；
+      `ui/flat_button/` 素材只画了 `pressed`(α200) / `focused`(α127) → **其余状态不渲染背景**（不是纯色填充）
+      — 注：**浮动按钮仍需要**，但用普通 `Button` + 定位修饰器拼出，不新增 FAB 组件
+
+**容器与装饰**
+
+- [ ] 分隔线（旧 `HorizontalDivider`）
+- [ ] `Chip` / `AssistChip`（颜色预览、时长、键位标签）
+- [ ] 进度条（旧 `LinearProgressIndicator`，缓存加载用）
+- [ ] 自动隐藏滚动条（旧 `AutoHideScrollbar`；现只有 `verticalScroll`，无滚动条）
+- [ ] `Toast`（操作反馈，旧 `ui/toast/` 5 个文件）
+
+**弹窗与菜单**
+
+- [ ] `Dialog` 体系：Alert / 确认（删除确认）/ 可伸缩编辑弹窗（旧 `FlexibleDialog`、`EditDialog*`）
+- [ ] `DropdownMenu` + 菜单项（旧 `ExposedDropdownMenuBox`）
+- [ ] 文本右键上下文菜单（旧 `Material3TextContextMenu`）
+
+**输入与选择**
+
+- [ ] `Selector` / `EnumSelector`（下拉、可搜索选择）
+- [ ] `ColorPicker`（HSV 面板 + 色相条 + alpha + 透明棋盘 + hex 输入/粘贴）
+- [ ] `KeySetter`（按键捕获、组合键显示；旧 558 行）
+- [ ] 多行可扩展文本编辑器（旧 `ExpandableStringContentEditor`）
+
+**列表**
+
+- [ ] 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）
+- [ ] 删除确认按钮（旧 `RemoveConfirmButton`）
+- [ ] 列表/映射条目编辑弹窗内容（旧 `EditDialogContent*`）
+- [ ] 浮动添加按钮 + 随滚动显隐（旧 FAB / `fabVisibilityAnimation` / `rememberFabVisibilityByScroll`）
+      — 用普通 `Button` + 定位修饰器拼出，不新增 FAB 组件
+
+**其它**
+
+- [ ] `ItemIcon`（MC 物品渲染为图标）
+- [ ] `SearchBar` / `SearchPanel`（配置搜索 + 匹配高亮）
+- [ ] `Keyed` / `rememberKeyedList`（列表 key 稳定工具）
+
+### 3. 已有可直接复用
+
+`Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Switch` / `Slider` + `NumberSlider` /
+`NumberField` / `TextField` / `Text` / `Surface` / `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) /
+主题与 `SokitsuThemeMeta` 体系。
+
+### 4. 待拍板的设计点
+
+- [ ] **图标方案**：沿用矢量（Material Symbols `ImageVector`）还是做 `.aseprite` 像素图标 + `Icon` 按 `ui/icon/xxx` 取图？
+- [ ] **Dialog / Chip / 菜单皮肤**：先用纯色 + 描边，还是先补素材（`ui/dialog/`、`ui/chip/`）？
+- [ ] **ColorPicker 交互模型**：渐变面板拖拽（旧版做法）还是像素风调色板格子点选？
+
+### 5. 建议实现顺序（每层都能先在测试屏里验）
+
+`Icon` + `IconButton` → 分隔线 + `Chip` → `Dialog` / `DropdownMenu` → `Selector` / `KeySetter` →
+`ColorPicker` → 可拖拽列表 → 包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）
