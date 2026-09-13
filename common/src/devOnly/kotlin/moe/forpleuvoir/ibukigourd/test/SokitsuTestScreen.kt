@@ -12,11 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
+import moe.forpleuvoir.compose_minecraft.platform.ui.popup.LocalPopupHost
+import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostOverlay
+import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.TooltipTestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
@@ -37,11 +41,19 @@ var TestScreenLight by mutableStateOf(systemTheme().isLight)
 var PixelScale by mutableStateOf(SokitsuThemeMeta.pixelScale)
 
 @Composable
-fun TestScreenTheme(content: @Composable () -> Unit) = SokitsuTheme(
-    colorScheme = SokitsuThemeMeta.colorScheme(if (TestScreenLight) ThemeType.Light else ThemeType.Dark),
-) {
-    CompositionLocalProvider(LocalSokitsuPixelScale provides PixelScale) {
-        content()
+fun TestScreenTheme(content: @Composable () -> Unit) {
+    val popupHost = remember { PopupHostState() }
+    SokitsuTheme(
+        colorScheme = SokitsuThemeMeta.colorScheme(if (TestScreenLight) ThemeType.Light else ThemeType.Dark),
+    ) {
+        // 场景根弹层：Tooltip 气泡经 LocalPopupHost.register 注册，由 PopupHostOverlay 统一渲染
+        CompositionLocalProvider(
+            LocalSokitsuPixelScale provides PixelScale,
+            LocalPopupHost provides popupHost,
+        ) {
+            content()
+            PopupHostOverlay()
+        }
     }
 }
 
@@ -134,6 +146,11 @@ fun SokitsuTestScreen() {
                             NumberFieldTestScreen()
                         }) {
                             Text("数字框测试")
+                        }
+                        Button({
+                            TooltipTestScreen()
+                        }) {
+                            Text("气泡测试")
                         }
                     }
                 }

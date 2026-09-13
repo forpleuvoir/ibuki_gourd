@@ -40,6 +40,6 @@ fun TooltipTestScreen() = TestScreen {
 @Composable
 private fun AnchorDemo(anchor: AnchorPosition, label: String) {
     Button({}, modifier = Modifier.tooltip(position = anchor) {
-        Text(label)
+        Text("这是${label}的工具提示..................\n换行测试")
     }) { Text("悬停看${label}气泡") }
 }
