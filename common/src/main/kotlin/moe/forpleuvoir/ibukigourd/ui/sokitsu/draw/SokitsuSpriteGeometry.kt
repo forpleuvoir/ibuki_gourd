@@ -1,6 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 
 import androidx.compose.ui.graphics.Color
+import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorLevel
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorTone
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.get
@@ -98,6 +101,46 @@ fun ninePatchSlices(
     }
     return cells
 }
+
+/**
+ * 九宫格纹理绘制在布局盒子**外侧**的边框量（屏幕像素），按 `[左, 上, 右, 下]` 排列。
+ *
+ * border 负值表示该像素带绘制在盒子外侧（正值留在盒子内侧），故单边外扩量 = `max(-border, 0)`；
+ * 各图层取最大值（图层间 border 可不同），非 NinePatch 图层贡献 0。
+ *
+ * 于是「盒子 + 外侧带」= 纹理的完整绘制区域，盒子尺寸 = 纹理尺寸 − 外扩量
+ * （见 [boxWidthPx] / [boxHeightPx]）。
+ */
+fun SokitsuSprite.ninePatchOutsetPx(pixelScale: Int): FloatArray {
+    var left = 0f
+    var top = 0f
+    var right = 0f
+    var bottom = 0f
+    for (layer in layers) {
+        val border = (layer.fill as? TextureFill.NinePatch)?.border ?: continue
+        val scale = pixelScale.toFloat() / layer.density.coerceAtLeast(1)
+        left = maxOf(left, (-border.left).coerceAtLeast(0) * scale)
+        top = maxOf(top, (-border.top).coerceAtLeast(0) * scale)
+        right = maxOf(right, (-border.right).coerceAtLeast(0) * scale)
+        bottom = maxOf(bottom, (-border.bottom).coerceAtLeast(0) * scale)
+    }
+    return floatArrayOf(left, top, right, bottom)
+}
+
+/**
+ * 九宫格精灵的布局盒子宽度（屏幕像素）= 纹理宽度 − 负 border 的外扩量。
+ *
+ * 负 border 的像素带绘制在盒子外侧，故盒子比纹理小；按盒子尺寸布局时，各分片源/目标同宽，
+ * 纹理 1:1 绘制、不触发拉伸。非 NinePatch 填充外扩量为 0，盒子即纹理尺寸。
+ *
+ * @param pixelScale 像素放大倍率（1 逻辑像素 = N×N 屏幕像素块）
+ */
+fun SokitsuSprite.boxWidthPx(pixelScale: Int): Float =
+    logicalWidth * pixelScale - ninePatchOutsetPx(pixelScale).let { it[0] + it[2] }
+
+/** 见 [boxWidthPx]。 */
+fun SokitsuSprite.boxHeightPx(pixelScale: Int): Float =
+    logicalHeight * pixelScale - ninePatchOutsetPx(pixelScale).let { it[1] + it[3] }
 
 /**
  * 平铺（[moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill.Tile]）单个 tile 的屏幕尺寸。

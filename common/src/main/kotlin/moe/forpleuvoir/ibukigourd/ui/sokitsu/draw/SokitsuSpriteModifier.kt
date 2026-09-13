@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -42,7 +41,6 @@ import kotlin.math.roundToInt
  * 图层级不透明度（`Modifier.alpha` / `graphicsLayer { alpha }`）同样生效：命令携带 paint，
  * 回放时把图层 alpha 烘焙进 paint.alpha，由 [SokitsuSpritePlugin] 乘进各图层调制色。
  */
-@Stable
 @Composable
 fun Modifier.sokitsuSprite(
     sprite: SokitsuSprite,
@@ -65,7 +63,7 @@ private class SokitsuSpriteElement(
     override fun equals(other: Any?): Boolean =
         this === other || (other is SokitsuSpriteElement && sprite == other.sprite && tone == other.tone)
 
-    override fun hashCode(): Int = 31 * sprite.hashCode() + tone.hashCode()
+    override fun hashCode(): Int = 31 * (31 * sprite.hashCode() + tone.hashCode())
 }
 
 private class SokitsuSpriteNode(

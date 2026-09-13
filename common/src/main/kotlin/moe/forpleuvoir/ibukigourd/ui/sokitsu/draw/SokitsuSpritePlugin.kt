@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 
 import com.mojang.blaze3d.pipeline.RenderPipeline
+import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
 import moe.forpleuvoir.compose_minecraft.platform.render.CustomDrawContext
 import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugin
 import moe.forpleuvoir.compose_minecraft.platform.render.toMatrix3x2f
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.state.gui.BlitRenderState
 import net.minecraft.client.renderer.state.gui.TiledBlitRenderState
 import net.minecraft.resources.Identifier
 import org.joml.Matrix3x2f
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -92,7 +94,7 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         val w = data.size.width
         val h = data.size.height
         val color = scaleAlpha(data.tintColors.getOrNull(index) ?: return, alpha)
-        val pipeline = pipelineFor(layer)
+        val pipeline = sokitsuLayerPipeline(layer)
         when (val fill = layer.fill) {
             is TextureFill.Stretch   -> context.sink.addElement(
                 BlitRenderState(
@@ -124,17 +126,9 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         }
     }
 
-    private fun pipelineFor(layer: SokitsuLayerSprite): RenderPipeline =
-        if (layer.colorLevel == null) {
-            RenderPipelines.GUI_TEXTURED
-        } else {
-            when (layer.tintMode) {
-                TextureTintMode.Mask     -> IGRenderPipelines.SOKITSU_TINT_MASK
-                TextureTintMode.Tint     -> IGRenderPipelines.SOKITSU_TINT
-                TextureTintMode.HueShift -> IGRenderPipelines.SOKITSU_TINT_HUE_SHIFT
-            }
-        }
-
+    /**
+     * 提交九宫格图层：按 [TextureFill.NinePatch.border] + [SokitsuLayerSprite.disabledSlices] 切片。
+     */
     private fun drawNinePatch(
         layer: SokitsuLayerSprite,
         fill: TextureFill.NinePatch,
@@ -150,7 +144,7 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         destOffsetY: Int = 0,
         pipelineOverride: RenderPipeline? = null,
     ) {
-        val pipeline = pipelineOverride ?: pipelineFor(layer)
+        val pipeline = pipelineOverride ?: sokitsuLayerPipeline(layer)
         val border = fill.border
         // 纹素映射倍率：1 素材像素 = pixelScale / 素材密度 个屏幕像素（负值保留，外扩语义）
         val scale = pixelScale.toFloat() / layer.density
@@ -165,11 +159,26 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
         val xi = IntArray(4) { xs[it].roundToInt() }
         val yi = IntArray(4) { ys[it].roundToInt() }
 
-        // 源 UV 边界（素材物理像素）：负 border 向纹理外扩采样（越界由 getU/getV 线性外推进 padding）
+        // 源 UV 边界（素材物理像素）：取 border 绝对值 —— 目标侧负值负责向外扩，采样侧必须
+        // 落在纹理内（取精灵最外圈真实像素），否则 getU/getV 线性外推进 padding 采到透明，
+        // 外扩段虽在正确位置却不可见（负 border 表现为"被无视"）
         val srcW = layer.width.toFloat()
         val srcH = layer.height.toFloat()
-        val su = ninePatchBoundaries(border.left.toFloat(), border.right.toFloat(), srcW)
-        val sv = ninePatchBoundaries(border.top.toFloat(), border.bottom.toFloat(), srcH)
+        val su = ninePatchBoundaries(abs(border.left).toFloat(), abs(border.right).toFloat(), srcW)
+        val sv = ninePatchBoundaries(abs(border.top).toFloat(), abs(border.bottom).toFloat(), srcH)
+
+        fun emitCell(col: Int, row: Int, x: Int, y: Int, cw: Int, ch: Int) {
+            if (cw <= 0 || ch <= 0) return
+            val u0 = layer.getU(su[col] / srcW)
+            val u1 = layer.getU(su[col + 1] / srcW)
+            val v0 = layer.getV(sv[row] / srcH)
+            val v1 = layer.getV(sv[row + 1] / srcH)
+            emitSokitsuBlit(
+                pipeline, textureSetup, pose,
+                x + destOffsetX, y + destOffsetY, cw, ch,
+                u0, u1, v0, v1, color, scissor, context,
+            )
+        }
 
         for (row in 0..2) {
             for (col in 0..2) {
@@ -180,22 +189,47 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
                 val cy = yi[row]
                 val ch = yi[row + 1] - yi[row]
                 if (cw <= 0 || ch <= 0) continue
-                val u0 = layer.getU(su[col] / srcW)
-                val u1 = layer.getU(su[col + 1] / srcW)
-                val v0 = layer.getV(sv[row] / srcH)
-                val v1 = layer.getV(sv[row + 1] / srcH)
-                context.sink.addElement(
-                    BlitRenderState(
-                        pipeline, textureSetup, pose,
-                        cx + destOffsetX, cy + destOffsetY,
-                        cx + cw + destOffsetX, cy + ch + destOffsetY,
-                        u0, u1, v0, v1,
-                        color, scissor,
-                    )
-                )
+                emitCell(col, row, cx, cy, cw, ch)
             }
         }
     }
+
+}
+
+/**
+ * 图层的渲染管线：[SokitsuLayerSprite.colorLevel] 为 null 走原色直通，否则按
+ * [SokitsuLayerSprite.tintMode] 选 sokitsu 着色管线变体。
+ */
+internal fun sokitsuLayerPipeline(layer: SokitsuLayerSprite): RenderPipeline =
+    if (layer.colorLevel == null) {
+        RenderPipelines.GUI_TEXTURED
+    } else {
+        when (layer.tintMode) {
+            TextureTintMode.Mask     -> IGRenderPipelines.SOKITSU_TINT_MASK
+            TextureTintMode.Tint     -> IGRenderPipelines.SOKITSU_TINT
+            TextureTintMode.HueShift -> IGRenderPipelines.SOKITSU_TINT_HUE_SHIFT
+        }
+    }
+
+/**
+ * 提交单条 blit（目标矩形 + 源 UV + 调制色）：宽或高非正时跳过。
+ */
+internal fun emitSokitsuBlit(
+    pipeline: RenderPipeline, textureSetup: TextureSetup, pose: Matrix3x2f,
+    x: Int, y: Int, w: Int, h: Int,
+    u0: Float, u1: Float, v0: Float, v1: Float,
+    color: Int, scissor: ScreenRectangle?,
+    context: CustomDrawContext,
+) {
+    if (w <= 0 || h <= 0) return
+    context.sink.addElement(
+        BlitRenderState(
+            pipeline, textureSetup, pose,
+            x, y, x + w, y + h,
+            u0, u1, v0, v1,
+            color, scissor,
+        )
+    )
 }
 
 /**
@@ -204,7 +238,7 @@ object SokitsuSpritePlugin : MinecraftRenderPlugin {
  * [alpha] 为 1f（无 `Modifier.alpha` / `graphicsLayer` 图层，或运行时未携带 paint）时原样返回，
  * 避免无谓的位运算；结果 alpha 四舍五入取整，0 表示该图层整层不可见（仍会提交命令）。
  */
-private fun scaleAlpha(argb: Int, alpha: Float): Int {
+internal fun scaleAlpha(argb: Int, alpha: Float): Int {
     if (alpha >= 1f) return argb
     val a = ((argb ushr 24 and 0xFF) * alpha).roundToInt().coerceIn(0, 255)
     return (argb and 0x00FFFFFF) or (a shl 24)

@@ -4,6 +4,7 @@ import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugins
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.SokitsuBubbleSpritePlugin
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.SokitsuSpritePlugin
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMetaLoader
@@ -32,6 +33,7 @@ object IbukiGourdClient {
         inits.forEach { it.init() }
         ClientModConfigHandler.register(IGConfig)
         MinecraftRenderPlugins.register(SokitsuSpritePlugin)
+        MinecraftRenderPlugins.register(SokitsuBubbleSpritePlugin)
     }
 
 

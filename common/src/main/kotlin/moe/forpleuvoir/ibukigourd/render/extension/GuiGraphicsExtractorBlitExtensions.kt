@@ -179,29 +179,6 @@ private fun GuiGraphicsExtractor.nineSlicedSegment(
     )
 }
 
-@JvmInline
-value class AnchorPosition private constructor(private val value: Int) {
-    override fun toString(): String {
-        return when (this) {
-            Above -> "Above"
-            Below -> "Below"
-            Left  -> "Left"
-            Right -> "Right"
-            else  -> "Invalid"
-        }
-    }
-
-    companion object {
-        val Above = AnchorPosition(1)
-
-        val Below = AnchorPosition(2)
-
-        val Left = AnchorPosition(3)
-
-        val Right = AnchorPosition(4)
-    }
-}
-
 fun GuiGraphicsExtractor.pushSpeechBubbleTexture(
     bubbleArea: Rect,
     bubbleTexture: IGTexture,
