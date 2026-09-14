@@ -11,7 +11,9 @@ import moe.forpleuvoir.ibukigourd.test.CenterBox
 import moe.forpleuvoir.ibukigourd.test.TestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
@@ -39,10 +41,9 @@ fun FlatButtonTestScreen() = TestScreen {
                     TextButton(onClick = {}, text = "禁用", enabled = false)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    // 图标占位：图标资源方案待定
-                    IconButton(onClick = {}) { Text("＋") }
-                    IconButton(onClick = {}) { Text("×") }
-                    IconButton(onClick = {}, enabled = false) { Text("＋") }
+                    IconButton(onClick = {}) { Icon(Icons.Add) }
+                    IconButton(onClick = {}) { Icon(Icons.Close) }
+                    IconButton(onClick = {}, enabled = false) { Icon(Icons.Add) }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     FlatButton(onClick = {}) { Text("自定义内容") }

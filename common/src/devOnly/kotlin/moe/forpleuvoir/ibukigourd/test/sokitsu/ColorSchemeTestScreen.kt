@@ -20,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.ColorButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.IbukiGourd
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.darkColorScheme
@@ -82,20 +83,23 @@ private fun TextureSlotProbe() {
  */
 @Composable
 private fun SchemeColumn(title: String, scheme: ColorScheme, modifier: Modifier = Modifier) {
-    Column(
+    Surface(
+        sprite = SurfaceDefaults.embeddedPanel,
+        color = scheme.surface,
         modifier = modifier
             .fillMaxHeight()
-            .background(scheme.surface)
-            .padding(12.dp),
     ) {
-        Text(title, color = scheme.onSurface)
-        Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            scheme.swatches().forEach { (name, color) -> SwatchRow(name, color, scheme) }
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, color = scheme.onSurface)
+            Column(
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                scheme.swatches().forEach { (name, color) -> SwatchRow(name, color, scheme) }
+            }
         }
     }
+
 }
 
 /**
@@ -114,8 +118,8 @@ private fun SwatchRow(name: String, color: Color, scheme: ColorScheme) {
     ) {
         Text(name, color = scheme.onSurface)
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.fillMaxWidth().padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             AlphaLevels.forEach { alpha ->
                 ColorButton(

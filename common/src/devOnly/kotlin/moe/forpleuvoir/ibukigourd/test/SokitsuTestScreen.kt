@@ -20,6 +20,8 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.FlatButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.IconButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.IconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
@@ -142,6 +144,16 @@ fun SokitsuTestScreen() {
                             FlatButtonTestScreen()
                         }) {
                             Text("扁平按钮测试")
+                        }
+                        Button({
+                            IconTestScreen()
+                        }) {
+                            Text("图标总览")
+                        }
+                        Button({
+                            IconButtonTestScreen()
+                        }) {
+                            Text("图标按钮测试")
                         }
                         Button({
                             RadioButtonTestScreen()

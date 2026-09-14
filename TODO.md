@@ -42,7 +42,9 @@
 
 **图标与按钮**
 
-- [ ] `Icon` 组件 + 图标资源（旧为 `ui/icon/` 下 32 个 Material Symbols `ImageVector`；方案待拍板）
+- [x] `Icon` 组件 + 图标集（**像素图标**：36 个手绘 `.aseprite` 于 `texture/sokitsu/icon/`，图集 id `icon`）
+      — 代码 `ui/sokitsu/Icon.kt`：`object Icons` 属性常量（`Icons.Add` etc.，含 `all` / `byId`）+ `Icon(icon, scale, size?, tint)`；
+      尺寸 = 素材尺寸 × `scale`（缺省 `pixelScale`）；配套图标总览屏 `IconTestScreen`
 - [x] `FlatButton` 底座 + `IconButton` + `TextButton`
       — 落地于 `FlatButton.kt` / `FlatButtonTheme.kt` / `IconButton.kt` / `TextButton.kt`；
       `ui/flat_button/` 素材只画了 `pressed`(α200) / `focused`(α127) → **其余状态不渲染背景**（不是纯色填充）
@@ -85,17 +87,19 @@
 
 ### 3. 已有可直接复用
 
-`Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Switch` / `Slider` + `NumberSlider` /
-`NumberField` / `TextField` / `Text` / `Surface` / `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) /
-主题与 `SokitsuThemeMeta` 体系。
+`Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Icon` + `Icons`（36 个像素图标）/
+`Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
+`Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / 主题与 `SokitsuThemeMeta` 体系。
 
 ### 4. 待拍板的设计点
 
-- [ ] **图标方案**：沿用矢量（Material Symbols `ImageVector`）还是做 `.aseprite` 像素图标 + `Icon` 按 `ui/icon/xxx` 取图？
+- [x] **图标方案**：已定为 **`.aseprite` 像素图标**（`texture/sokitsu/icon/`，独立图集 `icon`）+ `Icons` 属性常量集；
+      旧版的 Material Symbols 矢量图标（32 个 `ImageVector`）不采用
 - [ ] **Dialog / Chip / 菜单皮肤**：先用纯色 + 描边，还是先补素材（`ui/dialog/`、`ui/chip/`）？
 - [ ] **ColorPicker 交互模型**：渐变面板拖拽（旧版做法）还是像素风调色板格子点选？
 
 ### 5. 建议实现顺序（每层都能先在测试屏里验）
 
-`Icon` + `IconButton` → 分隔线 + `Chip` → `Dialog` / `DropdownMenu` → `Selector` / `KeySetter` →
-`ColorPicker` → 可拖拽列表 → 包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）
+- **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）
+- **下一步**：分隔线 + `Chip` → `Dialog` / `DropdownMenu` → `Selector` / `KeySetter` →
+  `ColorPicker` → 可拖拽列表 → 包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）

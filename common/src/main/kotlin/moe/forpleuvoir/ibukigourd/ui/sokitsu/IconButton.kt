@@ -7,12 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.DpSize
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 
 /**
  * 图标按钮：[FlatButton] 的薄封装，内容为图标。
  *
- * 尺寸与内边距沿用 `flat_button` meta（缺省 40×40 dp + 12/8 dp 内边距），需要更紧凑的图标按钮时
- * 传 [contentPadding] / [minSize] 覆盖。渲染、交互、配色全部沿用 [FlatButton]（含"无素材状态不画背景"的策略）。
+ * 尺寸与内边距取自**独立的 `icon_button` meta**（缺省 48×48 dp 最小尺寸 + **四边相等 6dp** 内边距），
+ * 需要别的尺寸/留白时传 [contentPadding] / [minSize] 覆盖。渲染、交互、配色全部沿用 [FlatButton]
+ * （含"无素材状态不画背景"的策略），四态纹理缺省与扁平按钮走同一批素材。
  *
  * 图标经 [content] 传入——本项目图标方案尚未定（矢量 vs `.aseprite` 像素素材），
  * 故这里不约束类型，传什么画什么（[Text] / `SokitsuSprite` / 未来的 `Icon` 均可）；
@@ -26,7 +28,7 @@ fun IconButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: FlatButtonColors = FlatButtonDefaults.colors(),
-    sprite: UiStateSprite = FlatButtonDefaults.sprite(),
+    sprite: UiStateSprite = IconButtonDefaults.sprite(),
     contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
     minSize: DpSize = IconButtonDefaults.minSize,
     role: Role = Role.Button,
@@ -49,9 +51,15 @@ fun IconButton(
 
 object IconButtonDefaults {
 
-    /** 内容内边距：沿用扁平按钮 meta 的 flat_button 段（48×48 下图标可占 24×24）。 */
-    val contentPadding: PaddingValues get() = FlatButtonDefaults.contentPadding
+    /** 当前主题的图标按钮 meta（`ui_meta.icon_button`）。 */
+    inline val meta get() = SokitsuThemeMeta.iconButton
 
-    /** 最小尺寸：沿用扁平按钮 meta 的 flat_button 段（缺省 48×48 dp）。 */
-    val minSize: DpSize get() = FlatButtonDefaults.minSize
+    /** 内容内边距（**四边相等**，来自 [IconButtonMeta.padding]）。 */
+    val contentPadding: PaddingValues get() = meta.padding
+
+    /** 最小尺寸（来自 [IconButtonMeta.minSize]，缺省 56×56 dp）。 */
+    val minSize: DpSize get() = meta.minSize
+
+    /** 四态精灵：来自 [IconButtonMeta.sprite]（缺省与扁平按钮指向同一批素材）。 */
+    fun sprite(): UiStateSprite = meta.sprite.toSprite()
 }
