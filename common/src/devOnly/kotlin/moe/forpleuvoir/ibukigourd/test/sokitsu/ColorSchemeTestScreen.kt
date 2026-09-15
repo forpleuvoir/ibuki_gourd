@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.test.sokitsu
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,48 +10,79 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.test.TestScreen
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.ColorButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.IbukiGourd
+import moe.forpleuvoir.ibukigourd.test.TestDarkScheme
+import moe.forpleuvoir.ibukigourd.test.TestLightScheme
+import moe.forpleuvoir.ibukigourd.test.TestScreen
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPickButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.darkColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.lightColorScheme
 import net.minecraft.resources.Identifier
 
 /**
- * 配色测试屏：左右两栏并列，逐槽位列出色板 —— 左栏浅色（[lightColorScheme]）、右栏深色（[darkColorScheme]）。
+ * 配色测试屏：左右两栏并列，编辑的是 **所有测试屏幕共用的两份配色**
+ * （[TestLightScheme] / [TestDarkScheme]，TestScreenTheme 取的就是它们）——
+ * 这里改一个槽位，其它测试屏（按钮 / 滑条 / 弹窗……）立刻跟着变。
  *
- * 每个槽位一行：槽位名 + **四个 [moe.forpleuvoir.ibukigourd.ui.sokitsu.ColorButton]**（透明度档位
- * [AlphaLevels] = 100% / 75% / 50% / 25%），按钮底色 = 该槽位色 × 档位 alpha，内容 = 完整 `#AARRGGBB`。
- * 内容色由 ColorButton 按底色亮度取纯黑/纯白（只看 RGB，与档位无关），故本屏同时是
- * "黑白内容色可读性"的检验现场。
+ * 每栏：
+ * - 槽位按钮一律是 [ColorPickButton] —— 点开弹取色器，确认后写回该栏那份配色；
+ * - `xx` 与 `onXx` **成对排在同一行**（没有对应 `on` 的槽位单独一行，如 `outline`）；
+ * - 栏头「重置」把该份配色换回主题默认值，「导出」把全部槽位序列化为 JSON 写入剪贴板
+ *   （可直接粘进主题 meta 的配色段）。
  *
- * 栏底各铺本方 [ColorScheme.surface]，两栏的亮暗关系一眼可辨，
- * 不由外层测试屏的全局亮暗开关影响（外层主题只决定屏幕背景）。
- *
- * 槽位清单与 [ColorScheme] 的构造参数一一对应，新增槽位时同步 [ColorScheme.swatches]。
+ * 因为 [ColorScheme] 的 setter 是 internal，测试屏改槽位走公开的 [ColorScheme.copy] 重建实例再赋值；
+ * 槽位清单与 [ColorScheme] 构造参数一一对应，新增槽位时同步 [SchemeSlots] / [ColorScheme.withSlot]。
  */
 fun ColorSchemeTestScreen() = TestScreen {
     Surface(Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top = 32.dp).padding(16.dp),
+        ColorSchemeTestContent()
+    }
+}
+
+/**
+ * 测试屏内容：两栏各包一层本栏主题（[SchemeColumn]），因此同一屏里能同时看到浅色与深色两份；
+ * 写入的是全局共享的 [TestLightScheme] / [TestDarkScheme]，故改动对所有测试屏生效。
+ */
+@Composable
+private fun ColorSchemeTestContent() {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(top = 32.dp).padding(16.dp),
+    ) {
+        TextureSlotProbe()
+        Row(
+            modifier = Modifier.fillMaxSize().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            TextureSlotProbe()
-            Row(
-                modifier = Modifier.fillMaxSize().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                SchemeColumn("浅色", lightColorScheme(), Modifier.weight(1f))
-                SchemeColumn("深色", darkColorScheme(), Modifier.weight(1f))
-            }
+            SchemeColumn(
+                title = "浅色",
+                scheme = TestLightScheme,
+                onColorChange = { name, color -> TestLightScheme = TestLightScheme.withSlot(name, color) },
+                onReset = { TestLightScheme = lightColorScheme() },
+                modifier = Modifier.weight(1f),
+            )
+            SchemeColumn(
+                title = "深色",
+                scheme = TestDarkScheme,
+                onColorChange = { name, color -> TestDarkScheme = TestDarkScheme.withSlot(name, color) },
+                onReset = { TestDarkScheme = darkColorScheme() },
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
@@ -76,85 +106,163 @@ private fun TextureSlotProbe() {
 }
 
 /**
- * 一栏：标题 + 该配色方案的全部槽位。
+ * 一栏：栏头（标题 + 重置 / 导出）+ 该栏配色的全部槽位。
  *
- * 标题固定，色板列表独立滚动（`verticalScroll`）——一栏 15 行在常见 GUI 高度下放不满，
- * 内容不足时滚动量为 0，不产生位移。
+ * 整栏内容包在 **本栏主题** `SokitsuTheme(colorScheme = scheme)` 里：这样栏内的组件
+ * （[ColorPickButton]、[FlatButton]、[Text]，以及取色按钮弹出的弹窗——图层会继承组合上下文）
+ * 全部按这一份配色解析，而不是沿用测试屏的全局配色。面板底色 / 内容色也取自该主题
+ * （`SokitsuTheme.colorScheme.surface`），改一个槽位整栏随之刷新。
+ *
+ * 栏头两个按钮都是**整栏级别**：重置换回一份新的默认配色，导出把本栏全部槽位写成 JSON 到剪贴板。
+ * 色板列表独立滚动（`verticalScroll`）。
  */
 @Composable
-private fun SchemeColumn(title: String, scheme: ColorScheme, modifier: Modifier = Modifier) {
-    Surface(
-        sprite = SurfaceDefaults.embeddedPanel,
-        color = scheme.surface,
-        modifier = modifier
-            .fillMaxHeight()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(title, color = scheme.onSurface)
-            Column(
-                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                scheme.swatches().forEach { (name, color) -> SwatchRow(name, color, scheme) }
-            }
-        }
-    }
+private fun SchemeColumn(
+    title: String,
+    scheme: ColorScheme,
+    onColorChange: (String, Color) -> Unit,
+    onReset: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
 
-}
-
-/**
- * 单个槽位：槽位名 + 四个 alpha 档位（[AlphaLevels]）的 [ColorButton] 横排。
- *
- * 四个按钮 `weight(1f)` 等宽平分栏宽：底色 = 槽位色 × 档位 alpha，内容 = 完整 `#AARRGGBB`。
- * 按钮尺寸、内边距、字号**全部用默认值**（color_button meta 的 minSize/padding + typography.button）。
- * 内容色**不指定**，由 ColorButton 按底色 RGB 亮度取纯黑/纯白（与档位无关）：
- * 因此这里同时是该规则的可读性检验（浅底上的深字、深底上的浅字）。
- */
-@Composable
-private fun SwatchRow(name: String, color: Color, scheme: ColorScheme) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        Text(name, color = scheme.onSurface)
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+    SokitsuTheme(colorScheme = scheme) {
+        Surface(
+            sprite = SurfaceDefaults.embeddedPanel,
+            color = SokitsuTheme.colorScheme.surface,
+            modifier = modifier.fillMaxHeight(),
         ) {
-            AlphaLevels.forEach { alpha ->
-                ColorButton(
-                    onClick = {},
-                    color = color.copy(alpha = alpha),
-                    modifier = Modifier.weight(1f),
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(color.copy(alpha = alpha).hex())
+                    Text(title, modifier = Modifier.weight(1f))
+                    FlatButton(onClick = onReset) {
+                        Text("重置")
+                    }
+                    FlatButton(onClick = {
+                        scope.launch { clipboard.setClipEntry(ClipEntry(scheme.toJson())) }
+                    }) {
+                        Text("导出")
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    SchemeSlots.forEach { (base, on) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            SlotPickButton(
+                                name = base,
+                                color = scheme[base],
+                                onValueChange = { onColorChange(base, it) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            if (on != null) {
+                                SlotPickButton(
+                                    name = on,
+                                    color = scheme[on],
+                                    onValueChange = { onColorChange(on, it) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-/** 色块按钮的透明度档位：100% / 75% / 50% / 25%。 */
-private val AlphaLevels = listOf(1f, 0.75f, 0.5f, 0.25f)
+/** 单个槽位的取色按钮：底色即槽位色，内容写槽位名（内容色由 ColorButton 按底色亮度取黑白）。 */
+@Composable
+private fun SlotPickButton(
+    name: String,
+    color: Color,
+    onValueChange: (Color) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ColorPickButton(
+        color = color,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        title = { Text(name) },
+    ) {
+        Text(name)
+    }
+}
 
-/** 配色方案的全部颜色槽位，顺序与构造参数一致。 */
-private fun ColorScheme.swatches(): List<Pair<String, Color>> = listOf(
-    "background" to background,
-    "surface" to surface,
-    "surfaceVariant" to surfaceVariant,
-    "primary" to primary,
-    "secondary" to secondary,
-    "error" to error,
-    "primaryContainer" to primaryContainer,
-    "onBackground" to onBackground,
-    "onSurface" to onSurface,
-    "onSurfaceVariant" to onSurfaceVariant,
-    "onPrimary" to onPrimary,
-    "onPrimaryContainer" to onPrimaryContainer,
-    "onSecondary" to onSecondary,
-    "onError" to onError,
-    "outline" to outline,
+/** 槽位清单：`xx` 与 `onXx` 成对（没有对应 `on` 的单独一行）。 */
+private val SchemeSlots: List<Pair<String, String?>> = listOf(
+    "background" to "onBackground",
+    "surface" to "onSurface",
+    "surfaceVariant" to "onSurfaceVariant",
+    "primary" to "onPrimary",
+    "primaryContainer" to "onPrimaryContainer",
+    "secondary" to "onSecondary",
+    "error" to "onError",
+    "outline" to null,
 )
+
+/** 按名取槽位色（未知槽位给 [Color.Unspecified]）。 */
+private operator fun ColorScheme.get(name: String): Color = when (name) {
+    "background"         -> background
+    "surface"            -> surface
+    "surfaceVariant"     -> surfaceVariant
+    "primary"            -> primary
+    "primaryContainer"   -> primaryContainer
+    "secondary"          -> secondary
+    "error"              -> error
+    "onBackground"       -> onBackground
+    "onSurface"          -> onSurface
+    "onSurfaceVariant"   -> onSurfaceVariant
+    "onPrimary"          -> onPrimary
+    "onPrimaryContainer" -> onPrimaryContainer
+    "onSecondary"        -> onSecondary
+    "onError"            -> onError
+    "outline"            -> outline
+    else                 -> Color.Unspecified
+}
+
+/**
+ * 按名重设槽位色。
+ *
+ * [ColorScheme] 的字段 setter 是 internal（仅供主题内部使用），测试屏属于外部消费者，
+ * 因此走公开的 [ColorScheme.copy] 重建实例。
+ */
+private fun ColorScheme.withSlot(name: String, color: Color): ColorScheme = when (name) {
+    "background"         -> copy(background = color)
+    "surface"            -> copy(surface = color)
+    "surfaceVariant"     -> copy(surfaceVariant = color)
+    "primary"            -> copy(primary = color)
+    "primaryContainer"   -> copy(primaryContainer = color)
+    "secondary"          -> copy(secondary = color)
+    "error"              -> copy(error = color)
+    "onBackground"       -> copy(onBackground = color)
+    "onSurface"          -> copy(onSurface = color)
+    "onSurfaceVariant"   -> copy(onSurfaceVariant = color)
+    "onPrimary"          -> copy(onPrimary = color)
+    "onPrimaryContainer" -> copy(onPrimaryContainer = color)
+    "onSecondary"        -> copy(onSecondary = color)
+    "onError"            -> copy(onError = color)
+    "outline"            -> copy(outline = color)
+    else                 -> this
+}
+
+/** 全部槽位序列化为 JSON（`#AARRGGBB`，可直接粘进主题 meta 的配色段）。 */
+private fun ColorScheme.toJson(): String {
+    val body = SchemeSlots
+        .flatMap { (base, on) -> listOf(base) + listOfNotNull(on) }
+        .joinToString(",\n    ") { "\"$it\": \"${this[it].hex()}\"" }
+    return "{\n    $body\n}"
+}
 
 /** `#AARRGGBB`（含 alpha 位）。 */
 private fun Color.hex(): String = "#%08X".format(toArgb())

@@ -19,6 +19,7 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AlertDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.FlatButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.IconButtonTestScreen
@@ -38,12 +39,24 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.darkColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.lightColorScheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ThemeType
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.systemTheme
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
 var TestScreenLight by mutableStateOf(systemTheme().isLight)
+
+/**
+ * **所有测试屏幕共用**的浅色配色（测试屏专用，与资源包里的主题无关）。
+ *
+ * 在「配色」测试屏里用取色按钮改它，改动会立即反映到**每一个**测试屏幕
+ * （[TestScreenTheme] 取的就是这两份）；默认值由 [lightColorScheme] 提供，可在那里重置。
+ */
+var TestLightScheme by mutableStateOf(lightColorScheme())
+
+/**
+ * **所有测试屏幕共用**的深色配色，语义同 [TestLightScheme]。
+ */
+var TestDarkScheme by mutableStateOf(darkColorScheme())
 
 var PixelScale by mutableStateOf(SokitsuThemeMeta.pixelScale)
 
@@ -51,7 +64,8 @@ var PixelScale by mutableStateOf(SokitsuThemeMeta.pixelScale)
 fun TestScreenTheme(content: @Composable () -> Unit) {
     val popupHost = remember { PopupHostState() }
     SokitsuTheme(
-        colorScheme = SokitsuThemeMeta.colorScheme(if (TestScreenLight) ThemeType.Light else ThemeType.Dark),
+        // 用测试屏自己的两份配色（而非 meta 里的）——这样在配色测试屏里调色能立刻看到全局效果
+        colorScheme = if (TestScreenLight) TestLightScheme else TestDarkScheme,
     ) {
         // 场景根弹层：Tooltip 气泡经 LocalPopupHost.register 注册，由 PopupHostOverlay 统一渲染
         CompositionLocalProvider(
