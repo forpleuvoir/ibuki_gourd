@@ -189,28 +189,28 @@ val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
 val LocalSelectedOutlineColor: ProvidableCompositionLocal<Color> = staticCompositionLocalOf { Color.Unspecified }
 
 /**
- * 亮色主题 —— 主色 #8647B3，暖白背景。
+ * 亮色主题 —— 主色 #A356D9，暖白背景。
  */
 fun lightColorScheme(
     background: Color = Color(0xFFF5F0EB),
     onBackground: Color = Color(0xFF2D2D2D),
-    // 表面/容器：主色色相 + 低饱和 + 高明度
-    surface: Color = Color(0xFF8647B3).withHsv(saturation = 0.12f, value = 0.93f),
+    // 表面/容器：浅紫白（比背景亮一档）
+    surface: Color = Color(0xFFE1D1ED),
     onSurface: Color = Color(0xFF2D2D2D),
-    // 表面变体：与 surface 同色相，饱和度略高、明度略低
-    surfaceVariant: Color = Color(0xFF8647B3).withHsv(saturation = 0.18f, value = 0.86f),
+    // 表面变体：比 surface 更亮更淡的浅紫
+    surfaceVariant: Color = Color(0xFFEED9FF),
     onSurfaceVariant: Color = Color(0xFF3F3A45),
-    primary: Color = Color(0xFF8647B3),
+    primary: Color = Color(0xFFA356D9),
     onPrimary: Color = Color(0xFFFFFFFF),
     // 主色容器：主色的浅色调（开关开启态轨道、选中卡片底）
-    primaryContainer: Color = Color(0xFF8647B3).withHsv(saturation = 0.40f, value = 0.82f),
+    primaryContainer: Color = Color(0xFFAE7DD1),
     onPrimaryContainer: Color = Color(0xFF3A2150),
     // 辅色：暖橙色（与紫色形成对比）
     secondary: Color = Color(0xFFE88A4A),
     onSecondary: Color = Color(0xFF2D2D2D),
     error: Color = Color(0xFFD32F2F),
     onError: Color = Color(0xFFFFFFFF),
-    outline: Color = Color(0xFF000000),
+    outline: Color = Color(0xFF3D2052),
     isLight: Boolean = true,
 ) = ColorScheme(
     background = background,
@@ -239,23 +239,23 @@ fun lightColorScheme(
 fun darkColorScheme(
     background: Color = Color(0xFF1B1916),
     onBackground: Color = Color(0xFFEDE7DF),
-    // 表面/容器：主色色相 + 低饱和暗色（比背景略亮一档，深底上的层级靠"更亮"表达）
-    surface: Color = Color(0xFFA970DC).withHsv(saturation = 0.15f, value = 0.22f),
+    // 表面/容器：深灰紫（比背景略亮一档，深底上的层级靠"更亮"表达）
+    surface: Color = Color(0xFF343038),
     onSurface: Color = Color(0xFFEDE7DF),
     // 表面变体：比 surface 亮一档
-    surfaceVariant: Color = Color(0xFFA970DC).withHsv(saturation = 0.15f, value = 0.30f),
+    surfaceVariant: Color = Color(0xFF47414D),
     // 表面变体上的内容：亮紫灰（深底上的次要内容色必须够亮才可读）
     onSurfaceVariant: Color = Color(0xFFC9BFD2),
     primary: Color = Color(0xFFA970DC),
     onPrimary: Color = Color(0xFF241033),
     // 主色容器：深底上取中亮紫
-    primaryContainer: Color = Color(0xFFA970DC).withHsv(saturation = 0.30f, value = 0.45f),
+    primaryContainer: Color = Color(0xFF625073),
     onPrimaryContainer: Color = Color(0xFFEDE7DF),
     secondary: Color = Color(0xFFF09A55),
     onSecondary: Color = Color(0xFF331B08),
     error: Color = Color(0xFFEF5350),
     onError: Color = Color(0xFF2B0B0A),
-    outline: Color = Color(0xFFA69E93),
+    outline: Color = Color(0xFFB9A3CC),
     isLight: Boolean = false,
 ) = ColorScheme(
     background = background,
