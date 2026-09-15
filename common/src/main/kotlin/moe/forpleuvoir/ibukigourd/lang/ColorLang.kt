@@ -28,5 +28,7 @@ object ColorLang {
 
     inline fun clickCopyColor(color: Color) = lang("click_copy_color", color.hexStr)
 
+    inline val rightClickPasteColor get() = lang("right_click_paste_color")
+
     inline fun copyColorSuccess(color: Color) = lang("copy_success", color.hexStr)
 }

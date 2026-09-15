@@ -8,6 +8,7 @@
   "ibukigourd.color.saturation": "彩度",
   "ibukigourd.color.value": "明度",
   "ibukigourd.color.click_copy_color": "クリックして色 %s をコピー",
+  "ibukigourd.color.right_click_paste_color": "右クリックで色を貼り付け（#RRGGBB または h,s,v）",
   "ibukigourd.color.copy_success": "色 %s をクリップボードにコピーしました",
   "#config_wrapper": "設定ラッパー",
   "ibukigourd.config_wrapper.pair.first": "前項",

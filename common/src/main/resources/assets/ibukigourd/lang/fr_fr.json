@@ -8,6 +8,7 @@
   "ibukigourd.color.saturation": "Saturation",
   "ibukigourd.color.value": "Luminosité",
   "ibukigourd.color.click_copy_color": "Cliquez pour copier la couleur %s",
+  "ibukigourd.color.right_click_paste_color": "Clic droit pour coller une couleur (#RRGGBB ou h,s,v)",
   "ibukigourd.color.copy_success": "Couleur %s copiée dans le presse-papiers",
   "#config_wrapper": "Wrapper de configuration",
   "ibukigourd.config_wrapper.pair.first": "Premier",

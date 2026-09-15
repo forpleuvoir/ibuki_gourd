@@ -187,6 +187,11 @@ fun SokitsuTestScreen() {
                             Text("弹窗测试")
                         }
                         Button({
+                            ColorPickerTestScreen()
+                        }) {
+                            Text("取色器测试")
+                        }
+                        Button({
                             AtlasTestScreen()
                         }) {
                             Text("图集测试")

@@ -8,6 +8,7 @@
   "ibukigourd.color.saturation": "飽和度",
   "ibukigourd.color.value": "亮度",
   "ibukigourd.color.click_copy_color": "點擊複製顏色 %s",
+  "ibukigourd.color.right_click_paste_color": "右鍵貼上顏色（支援 #RRGGBB 與 h,s,v）",
   "ibukigourd.color.copy_success": "已複製顏色 %s 到剪貼板",
   "#config_wrapper": "配置包裝器",
   "ibukigourd.config_wrapper.pair.first": "前項",

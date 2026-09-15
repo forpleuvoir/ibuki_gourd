@@ -8,6 +8,7 @@
   "ibukigourd.color.saturation": "Saturation",
   "ibukigourd.color.value": "Value",
   "ibukigourd.color.click_copy_color": "Click to copy color %s",
+  "ibukigourd.color.right_click_paste_color": "Right-click to paste a color (#RRGGBB or h,s,v)",
   "ibukigourd.color.copy_success": "Copied color %s to clipboard",
   "#config_wrapper": "Config Wrapper",
   "ibukigourd.config_wrapper.pair.first": "First",

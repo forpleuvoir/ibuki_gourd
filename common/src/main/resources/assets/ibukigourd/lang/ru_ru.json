@@ -8,6 +8,7 @@
   "ibukigourd.color.saturation": "Насыщенность",
   "ibukigourd.color.value": "Яркость",
   "ibukigourd.color.click_copy_color": "Нажмите, чтобы скопировать цвет %s",
+  "ibukigourd.color.right_click_paste_color": "ПКМ — вставить цвет (#RRGGBB или h,s,v)",
   "ibukigourd.color.copy_success": "Цвет %s скопирован в буфер обмена",
   "#config_wrapper": "Обёртка конфигурации",
   "ibukigourd.config_wrapper.pair.first": "Первый",

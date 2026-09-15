@@ -8,6 +8,7 @@
   "ibukigourd.color.saturation": "채도",
   "ibukigourd.color.value": "명도",
   "ibukigourd.color.click_copy_color": "클릭하여 색상 %s 복사",
+  "ibukigourd.color.right_click_paste_color": "우클릭으로 색 붙여넣기 (#RRGGBB 또는 h,s,v)",
   "ibukigourd.color.copy_success": "색상 %s 을(를) 클립보드에 복사했습니다",
   "#config_wrapper": "설정 래퍼",
   "ibukigourd.config_wrapper.pair.first": "앞항",
