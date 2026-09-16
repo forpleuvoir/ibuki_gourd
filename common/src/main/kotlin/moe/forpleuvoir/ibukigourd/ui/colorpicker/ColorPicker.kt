@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,12 +53,18 @@ val LocalColorPickerEnableAlpha = compositionLocalOf { true }
  * 2. **内容行**：左栏通道条、右栏预览，两栏**垂直居中对齐**。
  * 两行宽度都按 [ColorPickerDefaults.TotalWidth] 约束（否则 `Row` 会被父布局拉满屏）。
  *
- * 页签切换用 [AnimatedContent] 做横向滑动 + 淡入淡出（HSV → RGB 时新内容自右侧进、旧内容向左出，切回反向）；
- * **alpha 条不参与这个动画**——它是独立维度，固定在三个颜色通道下方不动。
+ * 页签切换用 [AnimatedContent] 做横向滑动 + 淡入淡出；**alpha 不参与该动画**——它是独立维度。
  *
- * **状态模型（关键）**：组件内部**每个通道各持一份独立的值**（见 [HsvChannelColumn] / [RgbChannelColumn]），
- * 拖动某个通道只改它自己、并用当前这一组值合成颜色回调；**不会拿回调后的颜色反算其它通道**。
- * 外部改色（含右键粘贴）用 `lastEmitted` 守卫回灌：只有"传进来的颜色 ≠ 组件刚发出去的那个"才整体重算。
+ * **状态模型（关键，与上一版 M3 实现一致）**：
+ * - 各通道的**显示值只在创建时从颜色取一次**（H / S / V 或 R / G / B，以及 alpha 各一份本地 state），
+ *   之后**只由用户编辑改变**，绝不会因为颜色变化而反算回来；
+ * - 值一律按**显示单位**保存（H 0..360、S / V 0..100、R / G / B / A 0..255），
+ *   只在回调时换算成颜色分量 —— 若存成 0..1 再乘回去，会有 `26 → 26.000002` 的往返误差：
+ *   数值框内部的"外部值同步"会因这个值不相等而重写文本并把光标甩到末尾，正在输入就被打断；
+ * - 编辑时只把**当前颜色**的那一个通道换掉（[Color.withHue] / [Color.withSaturation] /
+ *   [Color.withValue] / `color.copy(...)`），其余通道取自颜色本身 —— 各值互不干扰；
+ * - 因此**外部改色不会同步到本组件的显示值**（与上一版一致）；只有"整色被替换"这类明确动作
+ *   （目前是右键粘贴）才会通过 `valuesKey` 让各值重新取一次。
  *
  * 色值按钮：左键把当前色值文本写入剪贴板；**右键从剪贴板粘贴颜色**，接受
  * 十六进制（`#RGB` / `#RGBA` / `#RRGGBB` / `#AARRGGBB`，`#` 可省）或三 / 四个浮点数（`h, s, v[, a]`），
@@ -67,7 +72,7 @@ val LocalColorPickerEnableAlpha = compositionLocalOf { true }
  *
  * 已知待补：复制成功反馈（Toast 未落地）、hex 手工输入。
  *
- * @param color 外部当前颜色（用于初始化、外部回灌与预览）
+ * @param color 外部当前颜色（各显示值的初始来源、也是"改一个通道"的作用对象）
  * @param onValueChange 颜色变化回调
  */
 @Composable
@@ -78,25 +83,28 @@ fun ColorPicker(
 ) {
     var hsvTab by remember { mutableStateOf(true) }
 
-    // 组件刚发出去的颜色：用于区分"外部改色"与"自己编辑的回声"
-    var lastEmitted by remember { mutableStateOf<Color?>(null) }
-
-    fun emit(value: Color) {
-        lastEmitted = value
-        onValueChange(value)
-    }
+    /**
+     * 各通道值的"重取键"：默认 0，只有**整色被外部替换**（如右键粘贴）时才自增，
+     * 让 H / S / V（或 R / G / B）与 alpha 重新从当前颜色取一次。
+     * 普通的内部编辑**绝不自增** —— 否则正在输入的数字会被反解后的值顶掉。
+     */
+    var valuesKey by remember { mutableStateOf(0) }
 
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
 
-    /** 右键粘贴：读剪贴板 → 解析为颜色 → 交给外部（走 [lastEmitted] 守卫的整组回灌）；失败忽略。 */
+    /** 右键粘贴：整色替换，解析失败则忽略；成功后自增 [valuesKey] 让各显示值重新取值。 */
     fun pasteFromClipboard() {
         scope.launch {
             val text = clipboard.getClipEntry()?.text ?: return@launch
             val pasted = parseColorText(text) ?: return@launch
             onValueChange(pasted)
+            valuesKey++
         }
     }
+
+    // alpha 是独立维度，单独持一份值（不参与页签动画，也不参与另两套通道的合成）
+    var alpha by remember(valuesKey) { mutableStateOf((color.alpha * 255f).roundToInt()) }
 
     Column(modifier) {
         // ── 顶部行：页签 + 色值按钮（宽度按内容宽度约束，否则会被父布局拉满、按钮飞到屏幕最右）──
@@ -163,15 +171,22 @@ fun ColorPicker(
                 ) { tab ->
                     Column {
                         if (tab) {
-                            HsvChannelColumn(color, lastEmitted, ::emit)
+                            HsvChannelColumn(color, valuesKey, onValueChange)
                         } else {
-                            RgbChannelColumn(color, lastEmitted, ::emit)
+                            RgbChannelColumn(color, valuesKey, onValueChange)
                         }
                     }
                 }
 
                 Spacer(Modifier.height(ColorPickerDefaults.RowSpacing))
-                AlphaChannelSlider(color, onValueChange = ::emit)
+                AlphaChannelSlider(
+                    color = color,
+                    alpha = alpha,
+                    onValueChange = { value ->
+                        alpha = value.roundToInt()
+                        onValueChange(color.copy(alpha = alpha / 255f))
+                    },
+                )
             }
 
             Spacer(Modifier.width(ColorPickerDefaults.ColumnGap))
@@ -195,21 +210,23 @@ fun ColorPicker(
 }
 
 /**
- * 独立的 alpha 通道条：不参与页签切换动画，也不受 HSV / RGB 两套通道的本地状态影响，
- * 直接以 [color] 的当前值编辑（alpha 是独立维度，没有 HSV 那种"某通道无意义"的问题，
- * 所以不需要本地 state 兜底）。
+ * 独立的 alpha 通道条：不参与页签切换动画，也不参与另两套通道的合成。
+ *
+ * [alpha] 是本通道自己的值（0..255，只在"整色被替换"时重新取值），[onValueChange] 回传 0..255 的原始值，
+ * 编辑时只把 [color] 的 alpha 换掉。
  */
 @Composable
 private fun AlphaChannelSlider(
     color: Color,
-    onValueChange: (Color) -> Unit,
+    alpha: Int,
+    onValueChange: (Float) -> Unit,
 ) {
     ColorChannelSlider(
         label = "A",
-        value = color.alpha * 255f,
+        value = alpha.toFloat(),
         valueRange = 0f..255f,
         gradientColors = listOf(color.copy(alpha = 0f), color.copy(alpha = 1f)),
-        onValueChange = { onValueChange(color.copy(alpha = it / 255f)) },
+        onValueChange = { onValueChange(it) },
         integral = true,
         showCheckerboard = true,
         enabled = LocalColorPickerEnableAlpha.current,
@@ -217,97 +234,83 @@ private fun AlphaChannelSlider(
 }
 
 /**
- * HSV 页的三个颜色通道：H / S / V 各持一份独立本地 state。
+ * HSV 页的三个颜色通道：H / S / V **各持一份值**。
  *
- * [lastEmitted] 是组件刚发出去的颜色 —— 只有"传进来的 [color] ≠ 它"时才整体回灌各通道，
- * 这样外部改色能同步进来，而自己的编辑（回声）不会把别的通道重置。
- * alpha 不在本栏内（见 [AlphaChannelSlider]），合成时取 [color] 当前的 alpha。
+ * 取值只在创建（或 [valuesKey] 变化）时从 [color] 拿一次，之后只由用户编辑改变，
+ * **不会**因为颜色变化被反算 —— 否则输入框里正在敲的值会被精度差顶掉（如 26 → 25.9）。
+ * 编辑时只把 [color] 的对应通道换掉（[Color.withHue] / [Color.withSaturation] / [Color.withValue]），
+ * 其余通道取自颜色本身，互不干扰。
  */
 @Composable
 private fun HsvChannelColumn(
     color: Color,
-    lastEmitted: Color?,
+    valuesKey: Int,
     onEmit: (Color) -> Unit,
 ) {
-    var hue by remember { mutableStateOf(color.hsvChannels().first) }
-    var saturation by remember { mutableStateOf(color.hsvChannels().second) }
-    var value by remember { mutableStateOf(color.hsvChannels().third) }
-    LaunchedEffect(color) {
-        if (color != lastEmitted) {
-            val (h, s, v) = color.hsvChannels()
-            hue = h
-            saturation = s
-            value = v
-        }
-    }
-
-    val hueDegrees = hue * 360f
-    val alpha = color.alpha
+    // 各通道按**显示单位**存（H 0..360、S / V 0..100），只在回调时换算成分量 ——
+    // 若存 0..1 再乘回去，会有 `26 / 360 * 360 = 26.000002` 的往返误差，
+    // 数值框内部的"外部值同步"会因这个差值重写文本并把光标甩到末尾，正在输入就被打断。
+    var hueDegrees by remember(valuesKey) { mutableStateOf(color.hsvChannels().first * 360f) }
+    var saturation by remember(valuesKey) { mutableStateOf(color.hsvChannels().second * 100f) }
+    var value by remember(valuesKey) { mutableStateOf(color.hsvChannels().third * 100f) }
 
     ColorChannelSlider(
         label = "H",
         value = hueDegrees,
         valueRange = 0f..360f,
         gradientColors = HueGradient,
-        onValueChange = { hue = it / 360f; onEmit(hsvToColor(hue, saturation, value, alpha)) },
+        onValueChange = { hueDegrees = it; onEmit(hsvToColor(hueDegrees / 360f, saturation / 100f, value / 100f, color.alpha)) },
+        suffix = "°",
         valueToText = { "%.1f".format(it) },
     )
     Spacer(Modifier.height(ColorPickerDefaults.RowSpacing))
     ColorChannelSlider(
         label = "S",
-        value = saturation * 100f,
+        value = saturation,
         valueRange = 0f..100f,
         gradientColors = listOf(
-            Color.hsv(hueDegrees, 0f, value),
-            Color.hsv(hueDegrees, 1f, value),
+            Color.hsv(hueDegrees, 0f, value / 100f),
+            Color.hsv(hueDegrees, 1f, value / 100f),
         ),
-        onValueChange = { saturation = it / 100f; onEmit(hsvToColor(hue, saturation, value, alpha)) },
+        onValueChange = { saturation = it; onEmit(hsvToColor(hueDegrees / 360f, saturation / 100f, value / 100f, color.alpha)) },
         suffix = "%",
         valueToText = { "%.1f".format(it) },
     )
     Spacer(Modifier.height(ColorPickerDefaults.RowSpacing))
     ColorChannelSlider(
         label = "V",
-        value = value * 100f,
+        value = value,
         valueRange = 0f..100f,
         gradientColors = listOf(
-            Color.hsv(hueDegrees, saturation, 0f),
-            Color.hsv(hueDegrees, saturation, 1f),
+            Color.hsv(hueDegrees, saturation / 100f, 0f),
+            Color.hsv(hueDegrees, saturation / 100f, 1f),
         ),
-        onValueChange = { value = it / 100f; onEmit(hsvToColor(hue, saturation, value, alpha)) },
+        onValueChange = { value = it; onEmit(hsvToColor(hueDegrees / 360f, saturation / 100f, value / 100f, color.alpha)) },
         suffix = "%",
         valueToText = { "%.1f".format(it) },
     )
 }
 
 /**
- * RGB 页的三个颜色通道：R / G / B 各持一份独立本地 state，规则同 [HsvChannelColumn]。
+ * RGB 页的三个颜色通道：R / G / B **各持一份值**（0..255），规则同 [HsvChannelColumn] ——
+ * 取值只拿一次、编辑时只把 [color] 的对应分量换掉。
  */
 @Composable
 private fun RgbChannelColumn(
     color: Color,
-    lastEmitted: Color?,
+    valuesKey: Int,
     onEmit: (Color) -> Unit,
 ) {
-    var red by remember { mutableStateOf((color.red * 255f).roundToInt()) }
-    var green by remember { mutableStateOf((color.green * 255f).roundToInt()) }
-    var blue by remember { mutableStateOf((color.blue * 255f).roundToInt()) }
-    LaunchedEffect(color) {
-        if (color != lastEmitted) {
-            red = (color.red * 255f).roundToInt()
-            green = (color.green * 255f).roundToInt()
-            blue = (color.blue * 255f).roundToInt()
-        }
-    }
-
-    val alpha = color.alpha
+    var red by remember(valuesKey) { mutableStateOf((color.red * 255f).roundToInt()) }
+    var green by remember(valuesKey) { mutableStateOf((color.green * 255f).roundToInt()) }
+    var blue by remember(valuesKey) { mutableStateOf((color.blue * 255f).roundToInt()) }
 
     ColorChannelSlider(
         label = "R",
         value = red.toFloat(),
         valueRange = 0f..255f,
         gradientColors = listOf(Color(0, green, blue, 255), Color(255, green, blue, 255)),
-        onValueChange = { red = it.roundToInt(); onEmit(Color(red / 255f, green / 255f, blue / 255f, alpha)) },
+        onValueChange = { red = it.roundToInt(); onEmit(color.copy(red = red / 255f)) },
         integral = true,
     )
     Spacer(Modifier.height(ColorPickerDefaults.RowSpacing))
@@ -316,7 +319,7 @@ private fun RgbChannelColumn(
         value = green.toFloat(),
         valueRange = 0f..255f,
         gradientColors = listOf(Color(red, 0, blue, 255), Color(red, 255, blue, 255)),
-        onValueChange = { green = it.roundToInt(); onEmit(Color(red / 255f, green / 255f, blue / 255f, alpha)) },
+        onValueChange = { green = it.roundToInt(); onEmit(color.copy(green = green / 255f)) },
         integral = true,
     )
     Spacer(Modifier.height(ColorPickerDefaults.RowSpacing))
@@ -325,7 +328,7 @@ private fun RgbChannelColumn(
         value = blue.toFloat(),
         valueRange = 0f..255f,
         gradientColors = listOf(Color(red, green, 0, 255), Color(red, green, 255, 255)),
-        onValueChange = { blue = it.roundToInt(); onEmit(Color(red / 255f, green / 255f, blue / 255f, alpha)) },
+        onValueChange = { blue = it.roundToInt(); onEmit(color.copy(blue = blue / 255f)) },
         integral = true,
     )
 }
@@ -461,7 +464,7 @@ private fun parseColorText(raw: String): Color? {
 /**
  * HSV 反解，hue / saturation / value 均为 0..1。
  *
- * 与 [moe.forpleuvoir.ibukigourd.util.ColorContrast] 里的同名实现同源，但那份是 private
+ * 与 `moe.forpleuvoir.ibukigourd.util.ColorContrast.kt` 里的同名实现同源，但那份是 private
  * 且 `hsvToColor` 会丢 alpha；取色器需要保留 alpha，故在此自带一份。
  * 后续若别处也要用，建议把 util 的那份提公开并加 alpha 参数，两边合并。
  */
@@ -471,9 +474,9 @@ private fun Color.hsvChannels(): Triple<Float, Float, Float> {
     val d = max - min
     val h = if (d == 0f) 0f
     else when (max) {
-        red -> ((green - blue) / d).mod(6f)
+        red   -> ((green - blue) / d).mod(6f)
         green -> ((blue - red) / d + 2f).mod(6f)
-        else -> ((red - green) / d + 4f).mod(6f)
+        else  -> ((red - green) / d + 4f).mod(6f)
     } / 6f
     val s = if (max == 0f) 0f else d / max
     return Triple(h, s, max)
@@ -488,12 +491,30 @@ private fun hsvToColor(h: Float, s: Float, v: Float, alpha: Float): Color {
     val q = v * (1f - f * s)
     val t = v * (1f - (1f - f) * s)
     val (r, g, b) = when (i) {
-        0 -> Triple(v, t, p)
-        1 -> Triple(q, v, p)
-        2 -> Triple(p, v, t)
-        3 -> Triple(p, q, v)
-        4 -> Triple(t, p, v)
+        0    -> Triple(v, t, p)
+        1    -> Triple(q, v, p)
+        2    -> Triple(p, v, t)
+        3    -> Triple(p, q, v)
+        4    -> Triple(t, p, v)
         else -> Triple(v, p, q)
     }
     return Color(r, g, b, alpha.coerceIn(0f, 1f))
+}
+
+/** 只换色相：饱和度 / 明度 / alpha 取自接收者本身（对应上一版的 `Color.hue(x)`）。 */
+private fun Color.withHue(hue: Float): Color {
+    val (_, s, v) = hsvChannels()
+    return hsvToColor(hue, s, v, alpha)
+}
+
+/** 只换饱和度：色相 / 明度 / alpha 取自接收者本身。 */
+private fun Color.withSaturation(saturation: Float): Color {
+    val (h, _, v) = hsvChannels()
+    return hsvToColor(h, saturation, v, alpha)
+}
+
+/** 只换明度：色相 / 饱和度 / alpha 取自接收者本身。 */
+private fun Color.withValue(value: Float): Color {
+    val (h, s, _) = hsvChannels()
+    return hsvToColor(h, s, value, alpha)
 }
