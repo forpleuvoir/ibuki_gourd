@@ -21,10 +21,12 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.DividerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.FlatButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.IconButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.IconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.ProgressBarTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
@@ -205,6 +207,16 @@ fun SokitsuTestScreen() {
                             ToastTestScreen()
                         }) {
                             Text("提示测试")
+                        }
+                        Button({
+                            DividerTestScreen()
+                        }) {
+                            Text("分割线测试")
+                        }
+                        Button({
+                            ProgressBarTestScreen()
+                        }) {
+                            Text("进度条测试")
                         }
                         Button({
                             ColorPickerTestScreen()

@@ -15,6 +15,9 @@
   - 跨 Scene 状态同步：Compose `SnapshotState` 是 JVM 全局的，`active`、`anchorBounds` 等 State 可跨 Scene 读写
   - 点击 dismiss：`OverlayHost.render()` 仅转发 MOVE 事件，不处理 click；tooltip 通过 `collectIsHoveredAsState` 的 hover 事件 dismiss，`dismissOnClickOutside = false`
 - **进度**: 已完成 ✅ — 方案 2 Portal 模式 + 主题注入
+  （最终落地：场景根 `LocalPopupHost` + `PopupHostOverlay`，**未**另开独立场景；
+  上面"方案 1 已否决"的理由——Compose Desktop 的 Dialog 是独立 OS 窗口——已随 UI 迁移失效，
+  现在平台的 `Dialog` 是场景内图层，可用）
 
 ---
 
@@ -52,22 +55,38 @@
 
 **容器与装饰**
 
-- [ ] 分隔线（旧 `HorizontalDivider`）
-- [ ] `Chip` / `AssistChip`（颜色预览、时长、键位标签）
-- [ ] 进度条（旧 `LinearProgressIndicator`，缓存加载用）
+- [x] `Divider`（分割线）
+      — `ui/sokitsu/Divider.kt` / `DividerTheme.kt`（meta 键 `divider`）；**纯色矩形**，不依赖素材；
+      颜色走 token `DividerTokens.Line`（= `outline`），默认厚 1dp
+- [x] `ProgressBar`（进度条，缓存加载用）
+      — `ui/sokitsu/ProgressBar.kt` / `ProgressBarTheme.kt`（meta 键 `progress_bar`）；
+      轨道 + 填充两个**纯色矩形**自绘，不依赖素材；默认高 4dp；**不做动画**（进度值由业务驱动）
 - [ ] 自动隐藏滚动条（旧 `AutoHideScrollbar`；现只有 `verticalScroll`，无滚动条）
-- [ ] `Toast`（操作反馈，旧 `ui/toast/` 5 个文件）
+- [x] `Toast`（操作反馈）
+      — 落地于 `ui/sokitsu/toast/`：`Toast` / `ToastStrategy` / `ToastAnimation` / `ToastTheme` /
+      `ToastHandler` / `ToastContainer` / `ToastHost`；**全局常驻**（自持 Compose 场景与渲染器，
+      经 `GuiRendererToastMixin` 每帧驱动），HUD / 原版界面 / Compose 屏幕之上都可见；
+      主题 meta 键 `toast`，面板复用气泡素材，配置在 `IGConfig.Gui.Toast`
 
 **弹窗与菜单**
 
-- [ ] `Dialog` 体系：Alert / 确认（删除确认）/ 可伸缩编辑弹窗（旧 `FlexibleDialog`、`EditDialog*`）
+- [x] `AlertDialog` + `SimpleAlertDialog`
+      — `ui/sokitsu/AlertDialog.kt` / `SimpleAlertDialog.kt`；主题 meta 键 `alert_dialog`，
+      出入场动画由平台 `Dialog` 的图层快照重放承担（调用方用 `if (show)` 控制组合即可）
+- [ ] 删除确认一类语义封装（旧 `RemoveConfirmButton`）
+- [ ] 可伸缩编辑弹窗（旧 `FlexibleDialog`、`EditDialog*`）
 - [ ] `DropdownMenu` + 菜单项（旧 `ExposedDropdownMenuBox`）
 - [ ] 文本右键上下文菜单（旧 `Material3TextContextMenu`）
 
 **输入与选择**
 
 - [ ] `Selector` / `EnumSelector`（下拉、可搜索选择）
-- [ ] `ColorPicker`（HSV 面板 + 色相条 + alpha + 透明棋盘 + hex 输入/粘贴）
+- [x] `ColorPicker`
+      — `ui/colorpicker/`（`ColorPicker` / `ColorChannelSlider` / `Checkerboard` / `ColorPickButton`）：
+      HSV / RGB 页签 + 通道条（含色相条）+ alpha 条 + 透明棋盘 + 色值复制 / 粘贴（带 toast 反馈）
+      — 交互模型定为**逐通道条 + 数值框**（非渐变面板拖拽）；`ColorPickButton` 是"底色 = 当前颜色、
+        点击弹 `AlertDialog` 编辑副本"的入口组件
+- [ ] hex 文本输入框（当前色值只有只读显示 + 整串复制 / 粘贴，没有反向输入）
 - [ ] `KeySetter`（按键捕获、组合键显示；旧 558 行）
 - [ ] 多行可扩展文本编辑器（旧 `ExpandableStringContentEditor`）
 
@@ -89,17 +108,23 @@
 
 `Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Icon` + `Icons`（36 个像素图标）/
 `Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
-`Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / 主题与 `SokitsuThemeMeta` 体系。
+`Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / `AlertDialog`(+`SimpleAlertDialog`) /
+`ColorPicker`(+`ColorPickButton`) / `Toast`（全局常驻） / `Divider` / `ProgressBar` /
+主题与 `SokitsuThemeMeta` 体系。
 
 ### 4. 待拍板的设计点
 
 - [x] **图标方案**：已定为 **`.aseprite` 像素图标**（`texture/sokitsu/icon/`，独立图集 `icon`）+ `Icons` 属性常量集；
       旧版的 Material Symbols 矢量图标（32 个 `ImageVector`）不采用
-- [ ] **Dialog / Chip / 菜单皮肤**：先用纯色 + 描边，还是先补素材（`ui/dialog/`、`ui/chip/`）？
-- [ ] **ColorPicker 交互模型**：渐变面板拖拽（旧版做法）还是像素风调色板格子点选？
+- [ ] **菜单皮肤**：先用纯色 + 描边，还是先补素材（`ui/menu/`）？
+      — `Dialog` 一项已解决：`AlertDialog` 复用 `ui/surface/float_panel`（凸起带阴影的浮层面板）；
+        `Chip` 不做（胶囊圆角与像素风圆角体系冲突，且其过滤/多选语义本项目用不到）
+- [x] **ColorPicker 交互模型**：已定为**逐通道条 + 数值框**（HSV / RGB 页签切换），不用渐变面板拖拽
 
 ### 5. 建议实现顺序（每层都能先在测试屏里验）
 
-- **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）
-- **下一步**：分隔线 + `Chip` → `Dialog` / `DropdownMenu` → `Selector` / `KeySetter` →
-  `ColorPicker` → 可拖拽列表 → 包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）
+- **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）、
+  `AlertDialog` + `SimpleAlertDialog`、`ColorPicker`（含 `ColorPickButton`）、`Toast`、
+  `Divider`、`ProgressBar`
+- **下一步**：`DropdownMenu` → `Selector` / `KeySetter` → 可拖拽列表 →
+  包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）
