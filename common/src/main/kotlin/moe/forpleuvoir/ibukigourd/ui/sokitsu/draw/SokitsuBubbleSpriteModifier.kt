@@ -22,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor
 import kotlin.math.roundToInt
 
 /**

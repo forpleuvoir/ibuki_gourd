@@ -75,7 +75,21 @@
       出入场动画由平台 `Dialog` 的图层快照重放承担（调用方用 `if (show)` 控制组合即可）
 - [ ] 删除确认一类语义封装（旧 `RemoveConfirmButton`）
 - [ ] 可伸缩编辑弹窗（旧 `FlexibleDialog`、`EditDialog*`）
-- [ ] `DropdownMenu` + 菜单项（旧 `ExposedDropdownMenuBox`）
+- [x] `DropdownMenu` + 菜单项（分开式）
+      — `ui/sokitsu/menu/DropdownMenu.kt` / `DropdownMenuTheme.kt`（meta 键 `dropdown_menu`）：
+      核心 API 走**无状态**（`expanded` / `onDismissRequest` / `anchorBounds`），另有把展开标志与
+      锚点打包的 `DropdownMenuState` + `rememberDropdownMenuState` 便利重载；
+      锚点由 `Modifier.dropdownMenuAnchor` 捕获（`(Rect) -> Unit` 与 state 两个版本），不新增布局节点；
+      自带定位器
+      — 面板用**共享的** `BubblePanel`（九宫格气泡体 + 陷边箭头，与 tooltip 同源）；
+        **与锚点中心对齐**、下方不足翻上方；`max_height` 超出时面板内滚动
+      — **容器只管弹出**：染色 / 内边距 / 最大高度等均为可覆盖的默认值；内容放什么由调用方决定；
+        面板宽高与各项宽度**都由内容撑开**（不填充、不拉齐各项）
+      — `DropdownMenuItem` 是**可选**的默认条目：高度取 `heightIn(min)`（内容更高就撑开）、
+        内边距 / 图标间距 / 图标倍率 / 悬停色均为可覆盖的默认值（组件常量，**不进主题 meta**）
+- [ ] 「按钮即首行」形态的下拉（**高度统一**：按钮与菜单项共用同一行高，展开后按钮成为列表首行）
+      — 与上面的分开式互补：分开式用于动作菜单，本形态用于要"整体感"的场合；
+        关键点是行高由**共享 meta** 统一（不靠两边默认值碰巧相等），并保留首末翻转
 - [ ] 文本右键上下文菜单（旧 `Material3TextContextMenu`）
 
 **输入与选择**
@@ -93,6 +107,11 @@
 **列表**
 
 - [ ] 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）
+      — **基础设施已就位**：Reorderable v3.0.0 源码内嵌为独立模块 `reorderable/`（包名保持
+        `sh.calvin.reorderable`，Apache-2.0，见 `NOTICE.md`），已接入 common / fabric / neoforge
+        并通过编译与打包验证；待做的是本项目的列表组件与 `DragHandle` 封装
+        （旧版走 Lazy 路线：`rememberReorderableLazyListState` + `ReorderableItem`；
+        本仓列表目前是 `verticalScroll` + Column，可改用 `ReorderableList` 那套非 Lazy API）
 - [ ] 删除确认按钮（旧 `RemoveConfirmButton`）
 - [ ] 列表/映射条目编辑弹窗内容（旧 `EditDialogContent*`）
 - [ ] 浮动添加按钮 + 随滚动显隐（旧 FAB / `fabVisibilityAnimation` / `rememberFabVisibilityByScroll`）
@@ -110,13 +129,20 @@
 `Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
 `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / `AlertDialog`(+`SimpleAlertDialog`) /
 `ColorPicker`(+`ColorPickButton`) / `Toast`（全局常驻） / `Divider` / `ProgressBar` /
-主题与 `SokitsuThemeMeta` 体系。
+`DropdownMenu`(+`DropdownMenuItem`) / 主题与 `SokitsuThemeMeta` 体系。
+
+另有一个**源码内嵌的独立模块**可用（见 `NOTICE.md`）：
+
+- `reorderable/` — Reorderable v3.0.0（Apache-2.0）的拖拽排序实现，覆盖 Lazy 列表 / Lazy 网格 /
+  交错网格与非 Lazy 列表四套 API，包名保持上游 `sh.calvin.reorderable`；
+  `common` 已以 `compileOnly` 接入，fabric / neoforge 侧随 mod jar 内嵌。
 
 ### 4. 待拍板的设计点
 
 - [x] **图标方案**：已定为 **`.aseprite` 像素图标**（`texture/sokitsu/icon/`，独立图集 `icon`）+ `Icons` 属性常量集；
       旧版的 Material Symbols 矢量图标（32 个 `ImageVector`）不采用
-- [ ] **菜单皮肤**：先用纯色 + 描边，还是先补素材（`ui/menu/`）？
+- [x] **菜单皮肤**：已定为**复用 tooltip 的气泡体素材**（`ui/tooltip/bubble`，meta
+      `dropdown_menu.panel_sprite`），配色与 `TooltipTokens` 同族 —— 不需要另画菜单素材
       — `Dialog` 一项已解决：`AlertDialog` 复用 `ui/surface/float_panel`（凸起带阴影的浮层面板）；
         `Chip` 不做（胶囊圆角与像素风圆角体系冲突，且其过滤/多选语义本项目用不到）
 - [x] **ColorPicker 交互模型**：已定为**逐通道条 + 数值框**（HSV / RGB 页签切换），不用渐变面板拖拽
@@ -125,6 +151,6 @@
 
 - **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）、
   `AlertDialog` + `SimpleAlertDialog`、`ColorPicker`（含 `ColorPickButton`）、`Toast`、
-  `Divider`、`ProgressBar`
-- **下一步**：`DropdownMenu` → `Selector` / `KeySetter` → 可拖拽列表 →
+  `Divider`、`ProgressBar`、`DropdownMenu`（分开式）
+- **下一步**：`Selector` / `KeySetter` → 可拖拽列表（拖拽库已就位，只需写组件）→
   包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）

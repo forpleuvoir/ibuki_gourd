@@ -52,7 +52,8 @@ data class DividerMeta(
 /**
  * 分割线的主题桥接：组合内不直接读取 [SokitsuThemeMeta.divider]。
  *
- * @see moe.forpleuvoir.ibukigourd.ui.sokitsu.Divider
+ * @see moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+ * @see moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
  */
 object DividerDefaults {
 

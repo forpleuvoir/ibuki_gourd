@@ -2,8 +2,10 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,11 +21,13 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
  * 宽度铺满可用空间（[fillMaxWidth]），故需放在有确定宽度的容器里（Column / Box）；
  * 放在 `Row` 这类宽度无界的父布局里会让线条把父布局撑开。
  *
+ * [modifier] 作用于最外层，可覆盖尺寸（如给定 [width]）。
+ *
  * @param thickness 线条厚度，默认 [DividerDefaults.thickness]
  * @param color 线条颜色，未指定按 [DividerTokens.Line] 解析
  */
 @Composable
-fun Divider(
+fun HorizontalDivider(
     modifier: Modifier = Modifier,
     thickness: Dp = DividerDefaults.thickness,
     color: Color = Color.Unspecified,
@@ -32,6 +36,32 @@ fun Divider(
         modifier
             .fillMaxWidth()
             .height(thickness)
+            .background(color.resolve(DividerTokens.Line)),
+    )
+}
+
+/**
+ * 竖向分割线：一条**纯色矩形**，用于在同一行里分隔内容分组。
+ *
+ * 与 [HorizontalDivider] 只差铺满的轴：本组件铺满可用高度（[fillMaxHeight]），
+ * 故需放在有确定高度的容器里（Row / Box）；放在 `Column` 这类高度无界的父布局里
+ * 会让线条把父布局撑开。厚度、颜色、素材策略同 [HorizontalDivider]。
+ *
+ * [modifier] 作用于最外层，可覆盖尺寸（如给定 [height]）。
+ *
+ * @param thickness 线条厚度，默认 [DividerDefaults.thickness]
+ * @param color 线条颜色，未指定按 [DividerTokens.Line] 解析
+ */
+@Composable
+fun VerticalDivider(
+    modifier: Modifier = Modifier,
+    thickness: Dp = DividerDefaults.thickness,
+    color: Color = Color.Unspecified,
+) {
+    Box(
+        modifier
+            .fillMaxHeight()
+            .width(thickness)
             .background(color.resolve(DividerTokens.Line)),
     )
 }
