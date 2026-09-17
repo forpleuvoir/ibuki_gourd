@@ -6,20 +6,32 @@ This project is licensed under the MIT License. See `LICENSE` for details.
 
 ## Bundled (Redistributed) Dependencies
 
-The following dependencies are packaged inside the mod jar for distribution.
+The following dependencies are either embedded as jars inside the mod jar or compiled
+into it. Components that ship their own license / notice files carry them inside their jar.
 
 ### Apache 2.0
 
 The following components are licensed under the Apache License, Version 2.0:
 
-- JetBrains Compose Multiplatform — Material3 (`org.jetbrains.compose.material3:material3`)
-- JetBrains Compose Multiplatform — Material3 Adaptive Navigation Suite
-  (`org.jetbrains.compose.material3:material3-adaptive-navigation-suite`)
-- JetBrains Compose Multiplatform — Desktop (`org.jetbrains.compose.desktop:desktop`)
-- Material Kolor (`com.materialkolor:material-kolor`)
-- Kotlinx AtomicFU (`org.jetbrains.kotlinx:atomicfu`)
-- Backdrop (`io.github.kyant0:backdrop`)
-- Reorderable (`sh.calvin.reorderable:reorderable`)
+- **Reorderable** (`sh.calvin.reorderable`) — vendored source, upstream v3.0.0
+
+  Copyright 2023 Calvin Liang — https://github.com/Calvin-LL/Reorderable
+
+  Vendored into this project as a standalone Gradle module (`reorderable/`), keeping the
+  upstream package name. Source files retain the upstream copyright header and additionally
+  carry a notice stating that they were modified.
+
+- **Compose Minecraft** (`moe.forpleuvoir:compose_minecraft`) — embedded as a jar
+
+  Copyright 2026 forpleuvoir
+
+  This component ships its own `META-INF/LICENSE` and `META-INF/NOTICE` inside its jar,
+  covering its own code, the ported Compose Multiplatform / AndroidX Compose runtime
+  sources it contains, and the third-party binaries it bundles
+  (`androidx.compose.runtime`, `androidx.compose.ui:unit|geometry|util`,
+  `androidx.annotation`, `androidx.collection`, `androidx.lifecycle`,
+  `androidx.savedstate`, `androidx.navigationevent`, and `kotlinx.atomicfu` on NeoForge
+  only — Fabric relies on the loader-provided Kotlin runtime).
 
 ```
                                  Apache License
