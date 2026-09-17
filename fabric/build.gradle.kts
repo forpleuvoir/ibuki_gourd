@@ -42,6 +42,10 @@ dependencies {
     api(project(":aseprite"))
     include(project(":aseprite"))
 
+    //拖拽排序（Reorderable 源码内嵌，随 mod jar include）
+    api(project(":reorderable"))
+    include(project(":reorderable"))
+
     api(libs.composeMinecraft.fabric)
     include(libs.composeMinecraft.fabric)
 }
