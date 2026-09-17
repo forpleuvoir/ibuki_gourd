@@ -35,6 +35,7 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
@@ -93,13 +94,22 @@ fun ColorPicker(
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
 
-    /** 右键粘贴：整色替换，解析失败则忽略；成功后自增 [valuesKey] 让各显示值重新取值。 */
+    /**
+     * 右键粘贴：整色替换，成功后自增 [valuesKey] 让各显示值重新取值。
+     *
+     * 成功与失败（剪贴板为空 / 文本不是可解析的颜色）都给提示——粘贴没有可见结果时，
+     * 静默会让人分不清是"没读到剪贴板"还是"格式不支持"。
+     */
     fun pasteFromClipboard() {
         scope.launch {
-            val text = clipboard.getClipEntry()?.text ?: return@launch
-            val pasted = parseColorText(text) ?: return@launch
+            val pasted = clipboard.getClipEntry()?.text?.let(::parseColorText)
+            if (pasted == null) {
+                ToastHandler.showContent { Text(IGLang.Color.pasteColorFailed) }
+                return@launch
+            }
             onValueChange(pasted)
             valuesKey++
+            ToastHandler.showContent { Text(IGLang.Color.pasteColorSuccess(pasted.toNebulaColor())) }
         }
     }
 
@@ -140,7 +150,15 @@ fun ColorPicker(
                 }
             ) {
                 TextButton(
-                    onClick = { scope.launch { clipboard.setClipEntry(ClipEntry(valueText)) } },
+                    onClick = {
+                        scope.launch {
+                            clipboard.setClipEntry(ClipEntry(valueText))
+                            // 提示里回显的是实际复制的内容（HSV 页签是三元组文本，RGB 页签是 hex）
+                            ToastHandler.showContent {
+                                Text(IGLang.Color.copyTextSuccess(valueText))
+                            }
+                        }
+                    },
                     text = valueText,
                     modifier = Modifier.tooltip {
                         Column {

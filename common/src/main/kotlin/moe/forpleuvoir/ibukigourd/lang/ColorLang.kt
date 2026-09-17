@@ -31,4 +31,14 @@ object ColorLang {
     inline val rightClickPasteColor get() = lang("right_click_paste_color")
 
     inline fun copyColorSuccess(color: Color) = lang("copy_success", color.hexStr)
+
+    /**
+     * 复制成功的提示；[text] 传入**实际复制到剪贴板的内容**（hex 或 HSV 三元组文本等），
+     * 使提示与剪贴板里的内容一致。
+     */
+    inline fun copyTextSuccess(text: Any) = lang("copy_success", text)
+
+    inline fun pasteColorSuccess(color: Color) = lang("paste_success", color.hexStr)
+
+    inline val pasteColorFailed get() = lang("paste_failed")
 }

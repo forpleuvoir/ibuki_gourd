@@ -28,6 +28,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.ToastTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TooltipTestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
@@ -199,6 +200,11 @@ fun SokitsuTestScreen() {
                             AlertDialogTestScreen()
                         }) {
                             Text("弹窗测试")
+                        }
+                        Button({
+                            ToastTestScreen()
+                        }) {
+                            Text("提示测试")
                         }
                         Button({
                             ColorPickerTestScreen()
