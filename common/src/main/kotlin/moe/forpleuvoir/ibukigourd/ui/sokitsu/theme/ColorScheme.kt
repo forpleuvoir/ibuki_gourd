@@ -210,7 +210,7 @@ fun lightColorScheme(
     onSecondary: Color = Color(0xFF2D2D2D),
     error: Color = Color(0xFFD32F2F),
     onError: Color = Color(0xFFFFFFFF),
-    outline: Color = Color(0xFF3D2052),
+    outline: Color = Color(0xFF5F3280),
     isLight: Boolean = true,
 ) = ColorScheme(
     background = background,
