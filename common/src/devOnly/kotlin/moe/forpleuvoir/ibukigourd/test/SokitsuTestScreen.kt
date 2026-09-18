@@ -29,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.IconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ProgressBarTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.ReorderableTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ToastTestScreen
@@ -233,6 +234,11 @@ fun SokitsuTestScreen() {
                             AtlasTestScreen()
                         }) {
                             Text("图集测试")
+                        }
+                        Button({
+                            ReorderableTestScreen()
+                        }) {
+                            Text("拖拽排序测试")
                         }
                     }
                 }

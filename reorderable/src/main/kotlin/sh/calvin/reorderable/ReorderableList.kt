@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key as composeKey
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -372,9 +373,15 @@ class ReorderableRowScope(
  *
  * @param list The list of items to display.
  * @param onSettle The function that is called when the list is reordered. This function is only called when the item is dropped.
+ * The reorder state is cached by the [list] instance; onSettle must produce a **new** list instance
+ * (e.g. `list.toMutableList().apply { add(to, removeAt(from)) }`) so the state resets and stale
+ * drag offsets are cleared. Mutating a SnapshotStateList in place keeps the same instance and
+ * leaves residual offsets applied to the wrong items.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalAlignment The horizontal alignment of the layout's children.
  * @param onMove The function that is called when an item is moved to a new position while dragging.
+ * @param key Returns a stable unique key for each item; item composition state (remember/saveable)
+ * follows the item across reorders instead of the position. Null keys items by position.
  */
 @Composable
 fun <T> ReorderableColumn(
@@ -384,6 +391,7 @@ fun <T> ReorderableColumn(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     onMove: () -> Unit = {},
+    key: ((item: T) -> Any)? = null,
     content: @Composable ReorderableColumnScope.(index: Int, item: T, isDragging: Boolean) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -411,12 +419,16 @@ fun <T> ReorderableColumn(
             val isDragging by reorderableListState.isItemDragging(i)
             val isAnimating by reorderableListState.isItemAnimating(i)
 
-            ReorderableColumnScope(
-                state = reorderableListState,
-                index = i,
-                isAnimating = isAnimating,
-                scope = this,
-            ).content(i, item, isDragging)
+            val itemContent: @Composable () -> Unit = {
+                ReorderableColumnScope(
+                    state = reorderableListState,
+                    index = i,
+                    isAnimating = isAnimating,
+                    scope = this,
+                ).content(i, item, isDragging)
+            }
+            val itemKey = key?.invoke(item)
+            if (itemKey != null) composeKey(itemKey) { itemContent() } else itemContent()
         }
     }
 }
@@ -426,9 +438,13 @@ fun <T> ReorderableColumn(
  *
  * @param list The list of items to display.
  * @param onSettle The function that is called when the list is reordered.
+ * The reorder state is cached by the [list] instance; onSettle must produce a **new** list instance
+ * so the state resets and stale drag offsets are cleared (see [ReorderableColumn]).
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalAlignment The vertical alignment of the layout's children.
  * @param onMove The function that is called when an item is moved.
+ * @param key Returns a stable unique key for each item; item composition state (remember/saveable)
+ * follows the item across reorders instead of the position. Null keys items by position.
  */
 @Composable
 fun <T> ReorderableRow(
@@ -438,6 +454,7 @@ fun <T> ReorderableRow(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     onMove: () -> Unit = {},
+    key: ((item: T) -> Any)? = null,
     content: @Composable ReorderableRowScope.(index: Int, item: T, isDragging: Boolean) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -465,12 +482,16 @@ fun <T> ReorderableRow(
             val isDragging by reorderableListState.isItemDragging(i)
             val isAnimating by reorderableListState.isItemAnimating(i)
 
-            ReorderableRowScope(
-                state = reorderableListState,
-                index = i,
-                isAnimating = isAnimating,
-                scope = this,
-            ).content(i, item, isDragging)
+            val itemContent: @Composable () -> Unit = {
+                ReorderableRowScope(
+                    state = reorderableListState,
+                    index = i,
+                    isAnimating = isAnimating,
+                    scope = this,
+                ).content(i, item, isDragging)
+            }
+            val itemKey = key?.invoke(item)
+            if (itemKey != null) composeKey(itemKey) { itemContent() } else itemContent()
         }
     }
 }
