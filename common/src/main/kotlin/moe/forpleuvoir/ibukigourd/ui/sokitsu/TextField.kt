@@ -46,6 +46,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolveFaded
 import moe.forpleuvoir.ibukigourd.util.contrasting
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.sounds.SoundEvents
 
@@ -83,6 +84,7 @@ import net.minecraft.sounds.SoundEvents
  * @param enabled 是否可用（禁用态压暗配色且不接收输入）
  * @param readOnly 只读（可选择/复制，不可编辑）
  * @param isError 错误态（描边改染错误色）
+ * @param hint 占位提示；**仅在文本为空时**显示在内容区起始处，不参与输入。null = 不显示
  * @param leadingIcon 头部图标/前缀槽
  * @param trailingIcon 尾部图标/后缀槽（如单位、清除按钮）
  * @param lineLimits 行数限制（单行/多行），默认单行；多行的行数上限见 [withoutMaxLineClamp]
@@ -102,6 +104,7 @@ fun TextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isError: Boolean = false,
+    hint: Component? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
@@ -172,7 +175,17 @@ fun TextField(
                     verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
                 ) {
                     leadingIcon?.invoke()
-                    Box(Modifier.weight(1f)) { inner() }
+                    Box(Modifier.weight(1f)) {
+                        // hint 叠在内层文本之下：文本为空时透出来，有字时被盖住。
+                        // 不参与测量（内层已 matchParentSize 撑满），故不影响行高与滚动
+                        if (hint != null && state.text.isEmpty()) {
+                            Text(
+                                component = hint,
+                                color = colors.hintColor,
+                            )
+                        }
+                        inner()
+                    }
                     trailingIcon?.invoke()
                 }
             },
@@ -181,7 +194,7 @@ fun TextField(
 }
 
 /**
- * 输入框配色集：容器色板 + 文本/光标/描边三色。
+ * 输入框配色集：容器色板 + 文本/占位/光标/描边色。
  *
  * 结构对齐 [ButtonColors] —— 全部字段都已解析，`copy(...)` 即为精准覆盖；
  * "哪些槽位映射到主题哪里"由 [TextFieldDefaults.colors] 承担。
@@ -194,6 +207,7 @@ data class TextFieldColors(
     val disabledContainerColor: Color,
     val contentColor: Color,
     val disabledContentColor: Color,
+    val hintColor: Color,
     val cursorColor: Color,
     val selectedOutlineColor: Color,
     val errorOutlineColor: Color,
@@ -229,6 +243,7 @@ object TextFieldDefaults {
      * 默认输入框配色：
      * - 容器 → [TextFieldTokens.Container]（surfaceVariant），禁用压 [TextFieldTokens.DisabledContainerOpacity]
      * - 文本 → 容器色板的配对内容色（onSurfaceVariant），禁用压 [TextFieldTokens.DisabledContentOpacity]
+     * - 占位提示 → 文本色压 [TextFieldTokens.HintOpacity]
      * - 光标 → 主色 base
      * - 聚焦描边 → 容器 base 的对比色（[contrasting]）；错误描边 → 错误色 base
      */
@@ -238,24 +253,27 @@ object TextFieldDefaults {
         disabledContainerColor: Color = Color.Unspecified,
         contentColor: Color = Color.Unspecified,
         disabledContentColor: Color = Color.Unspecified,
+        hintColor: Color = Color.Unspecified,
         cursorColor: Color = Color.Unspecified,
         selectedOutlineColor: Color = Color.Unspecified,
         errorOutlineColor: Color = Color.Unspecified,
     ): TextFieldColors {
         val resolvedContainer = containerColor.resolve(TextFieldTokens.Container)
+        val resolvedContent = contentColor.takeOrElse {
+            LocalColorScheme.current.contentColorFor(resolvedContainer)
+        }
         return TextFieldColors(
             containerColor = resolvedContainer,
             disabledContainerColor = disabledContainerColor.resolveFaded(
                 TextFieldTokens.DisabledContainer,
                 TextFieldTokens.DisabledContainerOpacity,
             ),
-            contentColor = contentColor.takeOrElse {
-                LocalColorScheme.current.contentColorFor(resolvedContainer)
-            },
+            contentColor = resolvedContent,
             disabledContentColor = disabledContentColor.takeOrElse {
                 LocalColorScheme.current.contentColorFor(resolvedContainer)
                     .copy(alpha = TextFieldTokens.DisabledContentOpacity)
             },
+            hintColor = hintColor.takeOrElse { resolvedContent.copy(alpha = TextFieldTokens.HintOpacity) },
             cursorColor = cursorColor.takeOrElse {
                 LocalColorScheme.current.fromToken(TextFieldTokens.Cursor)
             },

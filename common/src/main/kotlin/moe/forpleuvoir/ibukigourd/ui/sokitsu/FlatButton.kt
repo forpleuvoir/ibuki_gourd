@@ -60,6 +60,9 @@ import net.minecraft.sounds.SoundEvents
  * @param colors 配色集，默认 [FlatButtonDefaults.colors]（底色与内容色缺省均取主题 primary）
  * @param sprite 四态精灵覆盖，默认取 [FlatButtonMeta.sprite]
  * @param contentPadding 内容内边距（背景铺满整体，内边距只作用于内容）
+ * @param contentAlignment 内容对齐，默认 [Alignment.Center]；两级分别落到
+ *   `Row.horizontalArrangement` 与 `Row.verticalAlignment`（如 [Alignment.TopStart] =
+ *   `Arrangement.Start` + `Alignment.Top`）
  */
 @Composable
 fun FlatButton(
@@ -71,6 +74,7 @@ fun FlatButton(
     contentPadding: PaddingValues = FlatButtonDefaults.contentPadding,
     minSize: DpSize = FlatButtonDefaults.minSize,
     role: Role = Role.Button,
+    contentAlignment: Alignment = Alignment.Center,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -127,8 +131,8 @@ fun FlatButton(
                     },
                 )
                 .padding(contentPadding),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = contentAlignment.toHorizontalArrangement(),
+            verticalAlignment = contentAlignment.toVerticalAlignment(),
             content = content,
         )
     }
@@ -146,6 +150,27 @@ data class FlatButtonColors(
     val color: Color,
     val contentColor: Color,
 )
+
+/**
+ * 把两轴合一的 [Alignment] 拆成行布局的水平排列：[Alignment.Start] 系 → [Arrangement.Start]、
+ * [Alignment.End] 系 → [Arrangement.End]，其余（含 [Alignment.CenterHorizontally]）→ [Arrangement.Center]。
+ */
+private fun Alignment.toHorizontalArrangement(): Arrangement.Horizontal = when (this) {
+    Alignment.Start, Alignment.TopStart, Alignment.CenterStart, Alignment.BottomStart -> Arrangement.Start
+    Alignment.End, Alignment.TopEnd, Alignment.CenterEnd, Alignment.BottomEnd -> Arrangement.End
+    else -> Arrangement.Center
+}
+
+/**
+ * 把两轴合一的 [Alignment] 拆成行布局的垂直对齐：[Alignment.Top] 系 → [Alignment.Top]、
+ * [Alignment.Bottom] 系 → [Alignment.Bottom]，其余（含 [Alignment.CenterVertically]）→
+ * [Alignment.CenterVertically]。
+ */
+private fun Alignment.toVerticalAlignment(): Alignment.Vertical = when (this) {
+    Alignment.Top, Alignment.TopStart, Alignment.TopEnd -> Alignment.Top
+    Alignment.Bottom, Alignment.BottomStart, Alignment.BottomEnd -> Alignment.Bottom
+    else -> Alignment.CenterVertically
+}
 
 object FlatButtonDefaults {
 

@@ -39,6 +39,9 @@ object TextFieldTokens {
 
     /** 禁用态文本不透明度，沿用 Material3 `DisabledLabelTextOpacity`。 */
     const val DisabledContentOpacity = 0.38f
+
+    /** 占位提示相对文本色的不透明度，量级同禁用态文本。 */
+    const val HintOpacity = 0.38f
 }
 
 /**

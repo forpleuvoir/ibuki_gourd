@@ -155,5 +155,13 @@
   "ibukigourd.config.gui.cache.item_texture_atlas_size": "Item Atlas Size",
   "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "Maximum pixel area of the item rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing",
   "ibukigourd.config.gui.cache.texture_atlas_size": "Texture Atlas Size",
-  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "Maximum pixel area of the texture rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing"
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "Maximum pixel area of the texture rendering GPU atlas (RGBA8, ~4 bytes per pixel). The atlas will be safely rebuilt on the next frame after changing",
+  "#selector": "Selector",
+  "ibukigourd.selector.expand_style": "Expand Style",
+  "ibukigourd.selector.expand_style.comment": "How the expanded list is presented when there are many items. Auto switches to a dialog past the item limit; defining a search filter always uses a dialog",
+  "ibukigourd.selector.expand_style.auto": "Auto",
+  "ibukigourd.selector.expand_style.dropdown": "Dropdown",
+  "ibukigourd.selector.expand_style.dialog": "Dialog",
+  "ibukigourd.selector.auto_max_items": "Auto Item Limit",
+  "ibukigourd.selector.auto_max_items.comment": "Item count above which Auto switches to a dialog"
 }

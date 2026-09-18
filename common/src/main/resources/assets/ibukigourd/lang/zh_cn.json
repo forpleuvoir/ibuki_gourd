@@ -155,5 +155,13 @@
   "ibukigourd.config.gui.cache.item_texture_atlas_size": "物品图集大小",
   "ibukigourd.config.gui.cache.item_texture_atlas_size.comment": "物品渲染 GPU 图集的最大像素面积(RGBA8 每像素约 4 字节),修改后将在下一帧安全重建图集",
   "ibukigourd.config.gui.cache.texture_atlas_size": "纹理图集大小",
-  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "纹理渲染 GPU 图集的最大像素面积(RGBA8 每像素约 4 字节),修改后将在下一帧安全重建图集"
+  "ibukigourd.config.gui.cache.texture_atlas_size.comment": "纹理渲染 GPU 图集的最大像素面积(RGBA8 每像素约 4 字节),修改后将在下一帧安全重建图集",
+  "#selector": "选择器",
+  "ibukigourd.selector.expand_style": "展开载体",
+  "ibukigourd.selector.expand_style.comment": "选项较多时展开体的呈现方式。自动模式下超过设定数量改用弹窗，定义搜索过滤器时一律弹窗",
+  "ibukigourd.selector.expand_style.auto": "自动",
+  "ibukigourd.selector.expand_style.dropdown": "下拉菜单",
+  "ibukigourd.selector.expand_style.dialog": "弹窗",
+  "ibukigourd.selector.auto_max_items": "自动模式选项上限",
+  "ibukigourd.selector.auto_max_items.comment": "展开载体为自动时，选项总数超过此值改用弹窗"
 }

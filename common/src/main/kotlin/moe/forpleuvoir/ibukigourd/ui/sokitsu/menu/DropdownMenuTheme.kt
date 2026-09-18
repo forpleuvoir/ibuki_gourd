@@ -48,7 +48,7 @@ object DropdownMenuTokens {
  *     },
  *     min_size: [96, 0],
  *     padding: 6,
- *     max_height: 240,
+ *     max_height: 480,
  *     spacing: 4
  *   }
  * }
@@ -87,7 +87,7 @@ data class DropdownMenuMeta(
             ),
             minSize = DpSize(96.dp, 0.dp),
             padding = PaddingValues(6.dp),
-            maxHeight = 240.dp,
+            maxHeight = 480.dp,
             spacing = 4.dp,
         )
 

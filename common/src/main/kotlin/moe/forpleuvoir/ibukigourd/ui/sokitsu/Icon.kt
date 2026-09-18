@@ -137,7 +137,7 @@ object Icons {
 fun Icon(
     icon: SokitsuSprite,
     modifier: Modifier = Modifier,
-    scale: Int = LocalSokitsuPixelScale.current,
+    scale: Int = 2,
     size: DpSize? = null,
     tint: Color = Color.Unspecified,
 ) {
