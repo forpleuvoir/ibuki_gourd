@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.ProgressBarTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ReorderableTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.MultiSelectorTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTriggerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
@@ -251,6 +252,11 @@ fun SokitsuTestScreen() {
                             SelectorTestScreen()
                         }) {
                             Text("单选选择器测试")
+                        }
+                        Button({
+                            MultiSelectorTestScreen()
+                        }) {
+                            Text("多选选择器测试")
                         }
                     }
                 }

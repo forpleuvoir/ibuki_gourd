@@ -57,6 +57,7 @@ object Icons {
     val ArrowRight get() = of("arrow_right")
     val ArrowUp get() = of("arrow_up")
     val Back get() = of("back")
+    val Checked get() = of("checked")
     val Close get() = of("close")
     val Compress get() = of("compress")
     val Copy get() = of("copy")
@@ -85,6 +86,7 @@ object Icons {
     val SelectAll get() = of("select_all")
     val Setting get() = of("setting")
     val SyncAlt get() = of("sync_alt")
+    val Unchecked get() = of("unchecked")
     val Unlock get() = of("unlock")
     val Up get() = of("up")
 
@@ -93,7 +95,7 @@ object Icons {
         "add",
         "arrow_down", "arrow_left", "arrow_right", "arrow_up",
         "back",
-        "close", "compress", "copy", "cut",
+        "checked", "close", "compress", "copy", "cut",
         "dark_mode", "delete", "down", "drag_handle",
         "edit", "expand", "export",
         "filter", "forward",
@@ -105,7 +107,7 @@ object Icons {
         "palette", "paste",
         "reset",
         "save", "search", "select_all", "setting", "sync_alt",
-        "unlock", "up",
+        "unchecked", "unlock", "up",
     )
 
     /**

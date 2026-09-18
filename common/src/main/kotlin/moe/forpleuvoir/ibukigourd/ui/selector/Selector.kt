@@ -18,9 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.lang.MiscLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonTokens
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.UiStateSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenuDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.dropdownMenuAnchor
@@ -53,6 +55,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
  * @param searchFilter 搜索过滤：收选项与查询词，返回是否保留；非 null 时强制走弹窗
  * @param expandStyle 展开体载体样式，默认 [SelectorExpandStyle.Auto]
  * @param onExpandedChange 展开状态变化回调
+ * @param expandStyle 展开体载体样式，默认 [SelectorExpandStyle.Auto]
  */
 @Composable
 fun <T> Selector(
@@ -100,6 +103,136 @@ fun <T> Selector(
         itemTrailingIcon = itemTrailingIcon,
         searchFilter = searchFilter,
         style = expandStyle,
+    )
+}
+
+/**
+ * 多选选择器：触发件 + 多选展开体。
+ *
+ * 与单选 [Selector] 只有三处差别，触发器与载体的开合、定位逻辑完全一致：
+ * 1. [selected] 是**集合**而非单值，空集即"什么都没选"；
+ * 2. 点击某项是**切换**该项的选中态，不关闭展开体；
+ * 3. 弹窗载体多出一行确定 / 取消（下拉载体没有）。
+ *
+ * [onSelectionChange] 在**每次点击条目**时回调一次，语义为"把 [T] 这一项设为选中或取消选中"：
+ * - 第一个参数是**点这项之前**的选中集合，第二个参数是本次被点的项；
+ * - 调用方据此自行算新集合：`if (item in before) before - item else before + item`；
+ * - 取消按钮**不**走本回调，而是交回 [onCancel]（纯通知，不含选中信息），
+ *   是否回滚由调用方决定 —— 本组件不持有"展开开始时的集合"，也无从替调用方回滚。
+ *
+ * 展开期间内部另持一份集合用于渲染（初值取自 [selected]），收起即销毁；
+ * 调用方只要在 [onSelectionChange] 里更新 [selected]，两边保持一致。
+ *
+ * @param selected 当前选中集合，空集即未选
+ * @param onSelectionChange 条目被点击：收"点击前的选中集合"与"被点的项"
+ * @param items 全部选项
+ * @param content 触发器内容槽位，收到当前选中集合
+ * @param modifier 修饰
+ * @param enabled 是否可用
+ * @param itemEquals 选项相等判定，默认 `==`
+ * @param itemContent 选项内容槽位，收到选项与是否选中
+ * @param itemLeadingIcon 前置图标槽位工厂：收"是否选中"，返回图标槽位或 null
+ * @param itemTrailingIcon 后置图标槽位工厂：收"是否选中"，返回图标槽位或 null
+ * @param searchFilter 搜索过滤：收选项与查询词，返回是否保留；非 null 时强制走弹窗
+ * @param expandStyle 展开体载体样式，默认 [SelectorExpandStyle.Auto]
+ * @param onExpandedChange 展开状态变化回调
+ * @param onCancel 弹窗载体点取消时回调；下拉载体不会触发
+ */
+@Composable
+fun <T> Selector(
+    selected: Set<T>,
+    onSelectionChange: (Set<T>, T) -> Unit,
+    items: List<T>,
+    content: @Composable (Set<T>) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    itemEquals: (T, T) -> Boolean = { a, b -> a == b },
+    itemContent: @Composable (T, Boolean) -> Unit,
+    itemLeadingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
+    searchFilter: ((T, String) -> Boolean)? = null,
+    expandStyle: SelectorExpandStyle = SelectorExpandStyle.Auto(),
+    onExpandedChange: ((Boolean) -> Unit)? = null,
+    onCancel: (() -> Unit)? = null,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var anchorBounds by remember { mutableStateOf(Rect.Zero) }
+    // 展开期间用于渲染的选中集合；key = expanded，收起即重建、以最新的 selected 为基准
+    val selection = rememberMutableSelection(selected, itemEquals, expanded)
+
+    SelectorTrigger(
+        content = { content(selected) },
+        modifier = modifier.dropdownMenuAnchor { anchorBounds = it },
+        enabled = enabled,
+        expanded = expanded,
+        onClick = {
+            expanded = !expanded
+            onExpandedChange?.invoke(expanded)
+        },
+    )
+
+    SelectorExpanded(
+        expanded = expanded,
+        onDismissRequest = {
+            expanded = false
+            onExpandedChange?.invoke(false)
+        },
+        items = items,
+        // 选中集合由上面的 state 承载，展开体不另算（传 null 即告知走多选路径）
+        selected = null,
+        onSelect = {},
+        anchorBounds = anchorBounds,
+        itemEquals = itemEquals,
+        itemContent = itemContent,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter,
+        style = expandStyle,
+        selection = selection,
+        // 每次点击都交回"点击前的集合 + 被点的项"
+        onItemToggle = { item, before -> onSelectionChange(before, item) },
+        onCancel = onCancel,
+    )
+}
+
+/**
+ * 单选选择器的选项条目：单值语义的 [SelectorItem] 重载（选中判定走 `==`）。
+ *
+ * 多选用 [SelectorItem] 的 `selected: Boolean` 重载。
+ */
+@Composable
+fun <T> SelectorItem(
+    item: T,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: T,
+    enabled: Boolean = true,
+    minHeight: Dp = SelectorItemDefaults.minHeight,
+    padding: PaddingValues = SelectorItemDefaults.padding,
+    iconSpacing: Dp = SelectorItemDefaults.iconSpacing,
+    iconScale: Int = SelectorItemDefaults.iconScale,
+    colors: SelectorItemColors = SelectorItemDefaults.colors(),
+    sprite: UiStateSprite = SelectorItemDefaults.sprite(),
+    contentAlignment: Alignment = SelectorItemDefaults.contentAlignment,
+    leadingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    SelectorItem(
+        onClick = onClick,
+        modifier = modifier,
+        selected = selected == item,
+        enabled = enabled,
+        minHeight = minHeight,
+        padding = padding,
+        iconSpacing = iconSpacing,
+        iconScale = iconScale,
+        colors = colors,
+        sprite = sprite,
+        contentAlignment = contentAlignment,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        content = content,
     )
 }
 
@@ -176,7 +309,7 @@ fun SelectorItem(
 }
 
 /**
- * 选择器条目配色集：常态与选中态各自的背景色板 + 内容色。
+ * 选择器选项条目配色集：常态与选中态各自的背景色板 + 内容色。
  *
  * 选中态用**染色**而非纹理区分（两者共用同一条目素材）。
  */

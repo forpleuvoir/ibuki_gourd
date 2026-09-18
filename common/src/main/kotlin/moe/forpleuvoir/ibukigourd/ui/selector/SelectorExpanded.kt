@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Dp
@@ -16,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.lang.MiscLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
 
@@ -25,14 +27,15 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
  * 载体分发规则见 [SelectorExpandStyle]；[searchFilter] 非 null 时一律走弹窗
  * （搜索栏只在弹窗里提供）。
  *
- * 选项的渲染由 [item] 决定 —— 收到选项、是否选中、以及点击回调，
- * 缺省的 [item] 用 [SelectorItem]。
+ * 选项的选中态与点击行为由 [selection] 决定 —— 传 null 走单值语义（条目按
+ * `itemEquals(selected, item)` 判选中、点击即 [onSelect] 并收起）；传 [MutableSelectionState]
+ * 则由它接管（多选即走这条路：点击是切换选中态、不收起，并回调 [SelectorExpanded] 的 `onItemToggle`）。
  *
  * @param expanded 是否展开；false 时不组合任何内容
  * @param onDismissRequest 请求关闭（点击外部、Esc、选中之后）
  * @param items 全部选项
- * @param selected 当前选中值
- * @param onSelect 选项被点击
+ * @param selected 当前选中值（单选用；多选传 null）
+ * @param onSelect 选项被点击（单选用，选中后自动收起）
  * @param anchorBounds 触发组件在 root 坐标系中的 bounds；下拉菜单载体用作锚点
  * @param style 载体样式，默认 [SelectorExpandStyle.Auto]
  * @param itemEquals 选项相等判定，默认 `==`
@@ -40,6 +43,9 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
  * @param itemLeadingIcon 前置图标槽位工厂：收"是否选中"，返回图标槽位或 null
  * @param itemTrailingIcon 后置图标槽位工厂：收"是否选中"，返回图标槽位或 null
  * @param searchFilter 搜索过滤：收选项与查询词，返回是否保留；非 null 时强制走弹窗
+ * @param selection 多选状态：非 null 时接管选中态与点击行为（走多选路径）
+ * @param onItemToggle 多选下每次切换回调：收"被点的项"与**切换前**的选中集合
+ * @param onCancel 多选下弹窗点取消时的回调；null 则弹窗不渲染确定 / 取消行
  * @param dialogTitle 弹窗标题
  * @param dialogMinWidth 弹窗最小宽度
  * @param dialogMaxWidth 弹窗最大宽度
@@ -50,7 +56,7 @@ fun <T> SelectorExpanded(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     items: List<T>,
-    selected: T,
+    selected: Any?,
     onSelect: (T) -> Unit,
     anchorBounds: Rect,
     modifier: Modifier = Modifier,
@@ -60,6 +66,9 @@ fun <T> SelectorExpanded(
     itemLeadingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)? = null,
     searchFilter: ((T, String) -> Boolean)? = null,
+    selection: MutableSelectionState<T>? = null,
+    onItemToggle: ((T, Set<T>) -> Unit)? = null,
+    onCancel: (() -> Unit)? = null,
     dialogTitle: (@Composable () -> Unit)? = null,
     dialogMinWidth: Dp = SelectorExpandedDefaults.dialogMinWidth,
     dialogMaxWidth: Dp = SelectorExpandedDefaults.dialogMaxWidth,
@@ -69,18 +78,40 @@ fun <T> SelectorExpanded(
 
     val useDialog = SelectorExpandedDefaults.resolveUseDialog(style, searchFilter != null, items.size)
 
+    val toggle: (T) -> Unit
+    val isSelected: (T) -> Boolean
+    if (selection != null) {
+        // 多选：切换选中态、不收起；交回"切换前"的集合快照
+        toggle = { item ->
+            val before = selection.toSet()
+            selection.toggle(item)
+            onItemToggle?.invoke(item, before)
+        }
+        isSelected = { item -> selection.contains(item) }
+    } else {
+        // 单值语义：点击即替换并收起；选中判定走 itemEquals
+        toggle = { item ->
+            onSelect(item)
+            onDismissRequest()
+        }
+        isSelected = { item ->
+            @Suppress("UNCHECKED_CAST")
+            itemEquals(selected as T, item)
+        }
+    }
+
     if (useDialog) {
         SelectorDialogExpanded(
             onDismissRequest = onDismissRequest,
             items = items,
-            selected = selected,
-            onSelect = onSelect,
+            onToggle = toggle,
+            isSelected = isSelected,
             modifier = modifier,
-            itemEquals = itemEquals,
             itemContent = itemContent,
             itemLeadingIcon = itemLeadingIcon,
             itemTrailingIcon = itemTrailingIcon,
             searchFilter = searchFilter,
+            onCancel = if (selection != null) onCancel else null,
             title = dialogTitle,
             minWidth = dialogMinWidth,
             maxWidth = dialogMaxWidth,
@@ -90,11 +121,10 @@ fun <T> SelectorExpanded(
         SelectorMenuExpanded(
             onDismissRequest = onDismissRequest,
             items = items,
-            selected = selected,
-            onSelect = onSelect,
+            onToggle = toggle,
+            isSelected = isSelected,
             anchorBounds = anchorBounds,
             modifier = modifier,
-            itemEquals = itemEquals,
             itemContent = itemContent,
             itemLeadingIcon = itemLeadingIcon,
             itemTrailingIcon = itemTrailingIcon,
@@ -109,11 +139,10 @@ fun <T> SelectorExpanded(
 private fun <T> SelectorMenuExpanded(
     onDismissRequest: () -> Unit,
     items: List<T>,
-    selected: T,
-    onSelect: (T) -> Unit,
+    onToggle: (T) -> Unit,
+    isSelected: (T) -> Boolean,
     anchorBounds: Rect,
     modifier: Modifier,
-    itemEquals: (T, T) -> Boolean,
     itemContent: @Composable (T, Boolean) -> Unit,
     itemLeadingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)?,
     itemTrailingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)?,
@@ -125,42 +154,43 @@ private fun <T> SelectorMenuExpanded(
         modifier = modifier,
     ) {
         items.forEach { item ->
-            val isSelected = itemEquals(selected, item)
-            val leading = itemLeadingIcon?.invoke(isSelected)
-            val trailing = itemTrailingIcon?.invoke(isSelected)
+            val selected = isSelected(item)
+            val leading = itemLeadingIcon?.invoke(selected)
+            val trailing = itemTrailingIcon?.invoke(selected)
             SelectorItem(
-                onClick = {
-                    onSelect(item)
-                    onDismissRequest()
-                },
-                selected = isSelected,
+                onClick = { onToggle(item) },
+                selected = selected,
                 leadingIcon = leading?.let { slot -> { slot(item) } },
                 trailingIcon = trailing?.let { slot -> { slot(item) } },
             ) {
-                itemContent(item, isSelected)
+                itemContent(item, selected)
             }
         }
     }
 }
 
 /**
- * 弹窗载体的展开体：可选搜索栏 + 选项列表。
+ * 弹窗载体的展开体：可选搜索栏 + 选项列表 +（多选时）确定 / 取消行。
  *
  * [searchFilter] 非 null 时在顶部渲染搜索栏（前置放大镜图标 + [MiscLang.search] 提示文本），
  * 列表按查询词过滤；为 null 时直接展示全部选项。
+ *
+ * [confirmation] 非 null 时在底部渲染取消 / 确定一行 —— 取消只关闭（放弃本次改动），
+ * [onCancel] 非 null 时在底部渲染取消 / 确定一行 —— 取消先 [onCancel] 再关闭，
+ * 确定只关闭（条目的点击已在过程中回调过）。
  */
 @Composable
 private fun <T> SelectorDialogExpanded(
     onDismissRequest: () -> Unit,
     items: List<T>,
-    selected: T,
-    onSelect: (T) -> Unit,
+    onToggle: (T) -> Unit,
+    isSelected: (T) -> Boolean,
     modifier: Modifier,
-    itemEquals: (T, T) -> Boolean,
     itemContent: @Composable (T, Boolean) -> Unit,
     itemLeadingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)?,
     itemTrailingIcon: ((Boolean) -> (@Composable (T) -> Unit)?)?,
     searchFilter: ((T, String) -> Boolean)?,
+    onCancel: (() -> Unit)?,
     title: (@Composable () -> Unit)?,
     minWidth: Dp,
     maxWidth: Dp,
@@ -196,21 +226,40 @@ private fun <T> SelectorDialogExpanded(
                 ) {
                     items(filtered.size, key = { index -> index }) { index ->
                         val item = filtered[index]
-                        val isSelected = itemEquals(selected, item)
-                        val leading = itemLeadingIcon?.invoke(isSelected)
-                        val trailing = itemTrailingIcon?.invoke(isSelected)
+                        val selected = isSelected(item)
+                        val leading = itemLeadingIcon?.invoke(selected)
+                        val trailing = itemTrailingIcon?.invoke(selected)
                         SelectorItem(
-                            onClick = {
-                                onSelect(item)
-                                onDismissRequest()
-                            },
+                            onClick = { onToggle(item) },
                             modifier = Modifier.fillMaxWidth(),
-                            selected = isSelected,
+                            selected = selected,
                             leadingIcon = leading?.let { slot -> { slot(item) } },
                             trailingIcon = trailing?.let { slot -> { slot(item) } },
                         ) {
-                            itemContent(item, isSelected)
+                            itemContent(item, selected)
                         }
+                    }
+                }
+
+                onCancel?.let { cancel ->
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = SelectorExpandedDefaults.dialogButtonsTopPadding),
+                        horizontalArrangement = Arrangement.spacedBy(SelectorExpandedDefaults.dialogButtonSpacing),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TextButton(
+                            onClick = {
+                                cancel()
+                                onDismissRequest()
+                            },
+                            text = MiscLang.cancel.string,
+                        )
+                        TextButton(
+                            onClick = onDismissRequest,
+                            text = MiscLang.confirm.string,
+                        )
                     }
                 }
             }
@@ -252,6 +301,12 @@ object SelectorExpandedDefaults {
 
     /** 弹窗列表区最大高度；超出后列表滚动。 */
     val dialogListMaxHeight: Dp = 480.dp
+
+    /** 弹窗按钮行与列表之间的间距。 */
+    val dialogButtonsTopPadding: Dp = 8.dp
+
+    /** 弹窗按钮之间的间距。 */
+    val dialogButtonSpacing: Dp = 8.dp
 
     /**
      * 载体分发判定：按 [SelectorExpandStyle] 的规则求是否走弹窗。
