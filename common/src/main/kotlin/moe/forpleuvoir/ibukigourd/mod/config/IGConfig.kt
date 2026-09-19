@@ -89,19 +89,19 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 val pressedKeys = mutableSetOf<KeyCode>()
                 KeyboardEvent.Pressed.register { context ->
                     pressedKeys.add(context.keyCode)
-                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                    ComposeInputBridge.scaleFactor = scrollMultiplier(pressedKeys)
                 }
                 KeyboardEvent.Released.register { context ->
                     pressedKeys.remove(context.keyCode)
-                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                    ComposeInputBridge.scaleFactor = scrollMultiplier(pressedKeys)
                 }
                 MouseEvent.Pressed.register { context ->
                     pressedKeys.add(context.keyCode)
-                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                    ComposeInputBridge.scaleFactor = scrollMultiplier(pressedKeys)
                 }
                 MouseEvent.Released.register { context ->
                     pressedKeys.remove(context.keyCode)
-                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                    ComposeInputBridge.scaleFactor = scrollMultiplier(pressedKeys)
                 }
             }
 

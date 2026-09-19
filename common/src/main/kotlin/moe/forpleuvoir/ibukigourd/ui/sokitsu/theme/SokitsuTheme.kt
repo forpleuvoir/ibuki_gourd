@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
 
+import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.runtime.*
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import moe.forpleuvoir.compose_minecraft.platform.ui.LocalShadowLight
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ProvideTextStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.SokitsuContextMenuRepresentation
 import moe.forpleuvoir.ibukigourd.util.contrasting
 
 /**
@@ -94,6 +96,7 @@ fun SokitsuTheme(
         LocalTypography provides typography,
         LocalSokitsuPixelScale provides pixelScale,
         LocalShadowLight provides SokitsuThemeMeta.shadowLight,
+        LocalContextMenuRepresentation provides SokitsuContextMenuRepresentation,
     ) {
         ProvideTextStyle(value = typography.body, content = content)
     }
