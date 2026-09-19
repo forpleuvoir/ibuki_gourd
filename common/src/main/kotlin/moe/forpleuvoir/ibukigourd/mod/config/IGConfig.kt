@@ -6,14 +6,10 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
 import moe.forpleuvoir.ibukigourd.config.item.configVector2f
 import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
+import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent
 import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.KeyEnvironment
-import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming
-import moe.forpleuvoir.ibukigourd.input.Keybind
-import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.text.buildText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonColors
 import moe.forpleuvoir.nebula.config.ConfigGroup
@@ -87,35 +83,34 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             val scrollMultiplier3KeyCode by configKeyCode("scroll_multiplier_3_key_code", Keyboard.LEFT_ALT)
 
 
-            private val keybind = Keybind(
-                *KeyCode.ALL_KEYS.toTypedArray(), defaultSetting = KeybindSetting(
-                    env = KeyEnvironment.InGui,
-                    trigger = KeyTriggerTiming.PressAndRelease,
-                    passthrough = true,
-                    strict = false
-                )
-            ) {
-                if (wasPress)
-                    ComposeInputBridge.factorScaleFactor = scrollMultiplier()
-                else
-                    ComposeInputBridge.factorScaleFactor = 1f
-            }
-
-
             override fun init() {
-                keybind.name = Scroller.translateText
-                InputHandler.register(keybind)
+                // 事件在 InputHandler 增删按键状态之前广播，此时尚未计入本次事件的键码，
+                // 查询 InputHandler 会导致释放时倍率不回落；改为用事件自带的键码维护按下集合
+                val pressedKeys = mutableSetOf<KeyCode>()
+                KeyboardEvent.Pressed.register { context ->
+                    pressedKeys.add(context.keyCode)
+                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                }
+                KeyboardEvent.Released.register { context ->
+                    pressedKeys.remove(context.keyCode)
+                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                }
+                MouseEvent.Pressed.register { context ->
+                    pressedKeys.add(context.keyCode)
+                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                }
+                MouseEvent.Released.register { context ->
+                    pressedKeys.remove(context.keyCode)
+                    ComposeInputBridge.factorScaleFactor = scrollMultiplier(pressedKeys)
+                }
             }
 
-            fun scrollMultiplier(): Float {
-                return if (InputHandler.wasKeyPressed(scrollMultiplier1KeyCode)) {
-                    scrollMultiplier1
-                } else if (InputHandler.wasKeyPressed(scrollMultiplier2KeyCode)) {
-                    scrollMultiplier2
-                } else if (InputHandler.wasKeyPressed(scrollMultiplier3KeyCode)) {
-                    scrollMultiplier3
-                } else {
-                    1f
+            private fun scrollMultiplier(pressedKeys: Set<KeyCode>): Float {
+                return when {
+                    scrollMultiplier1KeyCode in pressedKeys -> scrollMultiplier1
+                    scrollMultiplier2KeyCode in pressedKeys -> scrollMultiplier2
+                    scrollMultiplier3KeyCode in pressedKeys -> scrollMultiplier3
+                    else -> 1f
                 }
             }
 
