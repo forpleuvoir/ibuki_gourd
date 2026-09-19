@@ -29,6 +29,10 @@ sealed interface KeyCode : Matchable<Regex> {
 
     companion object : Codec<KeyCode> {
 
+        val ALL_KEYS by lazy {
+            Keyboard.entries.map { it as KeyCode } + MouseButton.entries.map { it as KeyCode }
+        }
+
         internal val keyMap: Map<Int, KeyCode> by lazy {
             buildMap {
                 putAll(MouseButton.entries.map { it.code to it })

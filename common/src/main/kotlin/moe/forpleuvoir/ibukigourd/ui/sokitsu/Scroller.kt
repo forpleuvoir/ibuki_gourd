@@ -2,7 +2,9 @@
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.hoverable
@@ -11,10 +13,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,12 +25,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -43,7 +45,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -51,18 +52,8 @@ import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.snapToDensity
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.uiSprite
-import moe.forpleuvoir.ibukigourd.util.codec.dpSize
-import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
-import moe.forpleuvoir.ibukigourd.util.contrasting
-import moe.forpleuvoir.ibukigourd.util.identifier
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.codec.Codec
-import net.minecraft.resources.Identifier
+import moe.forpleuvoir.ibukigourd.util.mc
 import kotlin.math.roundToInt
 
 /**
@@ -92,8 +83,9 @@ interface ScrollerAdapter {
 /**
  * 由 [ScrollState] 构造 [ScrollerAdapter]：三项全部直读 `ScrollState`，不做任何换算。
  *
- * [ScrollerAdapter.maxScrollOffset] 忽略 `containerSize` 是因为 `ScrollState.maxValue` 已由列表在测量期
- * 写为 `contentSize − viewportSize`，与容器尺寸同源。
+ * [ScrollerAdapter.maxScrollOffset] 忽略 `containerSize` 是因为 `ScrollState.maxValue` 已由滚动容器
+ * 在测量期写为 `contentSize − viewportSize`，与容器尺寸同源；唯一例外是 CMP 的
+ * `Int.MAX_VALUE` 初始哨兵（"尚未测量、值未知"），按 0（无可滚动空间）处理，见实现内注释。
  */
 fun ScrollerAdapter(scrollState: ScrollState): ScrollerAdapter = ScrollStateScrollerAdapter(scrollState)
 
@@ -107,7 +99,13 @@ private class ScrollStateScrollerAdapter(
         scrollState.scrollTo(scrollOffset.roundToInt())
     }
 
-    override fun maxScrollOffset(containerSize: Int): Float = scrollState.maxValue.toFloat()
+    override fun maxScrollOffset(containerSize: Int): Float {
+        // CMP 的 ScrollState 初始 maxValue = Int.MAX_VALUE（"尚未测量、值未知"哨兵，首次测量
+        // 才写入真值）。未知按"无可滚动空间"处理：首帧（滚动源未测量）保持空组合，测量写入
+        // 真值后再正确表态；否则首帧会被未知值误判为"有滚动空间"，闪一帧死滚动条。
+        val max = scrollState.maxValue
+        return if (max == Int.MAX_VALUE) 0f else max.toFloat()
+    }
 }
 
 /** 按 [ScrollState] 记住一个 [ScrollerAdapter]，实例随 state 变化重建。 */
@@ -117,12 +115,80 @@ fun rememberScrollerAdapter(scrollState: ScrollState): ScrollerAdapter = remembe
 }
 
 /**
- * 竖直滚动条：**轨道 + 滑块**两层精灵叠放，滑块沿 y 轴滑动。
+ * 由 [LazyListState] 构造 [ScrollerAdapter]。
+ *
+ * 懒列表不持有"内容总长 / 已滚像素"这类精确值，各成员只能从最近一次布局的
+ * [androidx.compose.foundation.lazy.LazyListLayoutInfo] 估计：以可见条目的平均主轴尺寸
+ * 为换算单位 —— 当前滚动位置 ≈ `首条索引 × 平均尺寸 − 首条偏移`，
+ * 内容总长 ≈ `总条数 × 平均尺寸`。条目尺寸越均匀，滑块位置与实际内容越贴合。
+ * 可滚行程对**列表自身的 viewportSize**（而非传入的 containerSize）作差：
+ * 该值由列表在测量期与 layoutInfo 一起写入，滚动条尚未测量（组合期判定）时也能拿到。
+ */
+fun ScrollerAdapter(lazyListState: LazyListState): ScrollerAdapter = LazyListStateScrollerAdapter(lazyListState)
+
+/** 按 [LazyListState] 记住一个 [ScrollerAdapter]，实例随 state 变化重建。 */
+@Composable
+fun rememberScrollerAdapter(lazyListState: LazyListState): ScrollerAdapter = remember(lazyListState) {
+    ScrollerAdapter(lazyListState)
+}
+
+private class LazyListStateScrollerAdapter(
+    private val state: LazyListState,
+) : ScrollerAdapter {
+
+    /** 可见条目的平均主轴尺寸（像素）；无可见条目时为 0。 */
+    private val averageItemSize: Float
+        get() {
+            val items = state.layoutInfo.visibleItemsInfo
+            if (items.isEmpty()) return 0f
+            return items.sumOf { it.size } / items.size.toFloat()
+        }
+
+    override val scrollOffset: Float
+        get() {
+            val first = state.layoutInfo.visibleItemsInfo.firstOrNull() ?: return 0f
+            return first.index * averageItemSize - first.offset
+        }
+
+    override suspend fun scrollTo(containerSize: Int, scrollOffset: Float) {
+        val average = averageItemSize
+        if (average <= 0f) return
+        // 估计像素 → 估计条目索引：跳到该条目并带上条目内偏移
+        val index = (scrollOffset / average).toInt()
+            .coerceIn(0, (state.layoutInfo.totalItemsCount - 1).coerceAtLeast(0))
+        val withinItem = (scrollOffset - index * average).roundToInt()
+        state.scrollToItem(index, withinItem)
+    }
+
+    override fun maxScrollOffset(containerSize: Int): Float {
+        // 视口直接取列表最近一次布局写入的 viewportSize，而不用调用方传入的 containerSize：
+        // 组合期判定发生在滚动条自身测量之前（containerSize 还是初值 0），若拿全内容长
+        // 对 0 比较会误判"有滚动空间"，显示一帧后再隐藏 —— 闪一帧。viewportSize 与
+        // visibleItemsInfo 同源（列表测量期同步写入），隐藏期间判定依然正确。
+        // 列表未测量（viewport 为 0）时无数据，按"无可滚动空间"处理（保持隐藏）。
+        val info = state.layoutInfo
+        val viewport = if (info.orientation == Orientation.Vertical) {
+            info.viewportSize.height
+        } else {
+            info.viewportSize.width
+        }
+        if (viewport <= 0) return 0f
+        val average = averageItemSize
+        if (average <= 0f) return 0f
+        val contentSize = info.totalItemsCount * average
+        return (contentSize - viewport).coerceAtLeast(0f)
+    }
+}
+
+/**
+ * 竖直滚动条（常规样式）：**轨道 + 滑块**两层精灵叠放，滑块沿 y 轴滑动。
  *
  * 结构与 compose-multiplatform 的 `VerticalScrollbar` 同构：轨道是节点自身的背景精灵，
  * 唯一子节点是滑块 `Box`（尺寸与位置由 [MeasurePolicy] 给定 —— 子节点不声明尺寸，
  * 不给死约束就测成 0×0）。方向差异全部收敛进 [ScrollerAxis]，与 [HorizontalScroller]
  * 共用同一份几何、手势与测量实现。
+ *
+ * 浮于内容之上、不占布局宽度的场景用 [VerticalOverlayScroller]。
  *
  * 几何（内容/轨道均为像素，与 CMP `SliderAdapter` 同式）：
  * - `contentSize = maxScrollOffset + containerSize`；`visiblePart = containerSize / contentSize`；
@@ -141,6 +207,7 @@ fun rememberScrollerAdapter(scrollState: ScrollState): ScrollerAdapter = remembe
  * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
  * @param modifier 修饰；主轴（高度）有界时铺满，无界时回落 meta 主轴下限
  * @param enabled 是否可交互（禁用态压暗配色且不接收手势）
+ * @param autoHide 无可滚动空间（`maxScrollOffset ≤ 0`）时自动隐藏：**完全不组合**（不产生任何节点）。判定在组合期进行，而判定数据（`maxValue` / `layoutInfo`）由滚动容器在测量期写入，故首次出现 / 溢出状态翻转时会晚一帧。默认 false（常驻显示）
  * @param reverseLayout 反转方向（滑块贴末端、滚轮与点击方向取反）
  * @param onValueChangeFinished 手势结束回调，可用于提交 / 保存；null = 不回调
  * @param colors 配色集，默认 [ScrollerDefaults.colors]
@@ -153,6 +220,7 @@ fun VerticalScroller(
     adapter: ScrollerAdapter,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    autoHide: Boolean = false,
     reverseLayout: Boolean = false,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: ScrollerColors = ScrollerDefaults.colors(),
@@ -164,6 +232,9 @@ fun VerticalScroller(
     axis = ScrollerAxis.Vertical,
     modifier = modifier,
     enabled = enabled,
+    autoHide = autoHide,
+    autoFade = false,
+    overlay = false,
     reverseLayout = reverseLayout,
     onValueChangeFinished = onValueChangeFinished,
     colors = colors,
@@ -173,20 +244,22 @@ fun VerticalScroller(
 )
 
 /**
- * 水平滚动条：**轨道 + 滑块**两层精灵叠放，滑块沿 x 轴滑动。
+ * 水平滚动条（常规样式）：**轨道 + 滑块**两层精灵叠放，滑块沿 x 轴滑动。
  *
  * 与 [VerticalScroller] 共用同一实现（[Scroller] + [ScrollerAxis.Horizontal]），仅轴向不同：
  * 厚度（高）恒取 meta 细轴尺寸，宽度铺满；滚轮同样读 `scrollDelta.y`
  * —— 鼠标滚轮只有垂直分量，横向滚动条只是把滚动投影到 x 轴，外观才是横向。
+ * 浮于内容之上、不占布局高度的场景用 [HorizontalOverlayScroller]。
  *
  * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
  * @param modifier 修饰；宽度有界时铺满，无界时回落 meta 主轴下限
  * @param enabled 是否可交互
+ * @param autoHide 无可滚动空间（`maxScrollOffset ≤ 0`）时自动隐藏：**完全不组合**（不产生任何节点）。判定在组合期进行，而判定数据（`maxValue` / `layoutInfo`）由滚动容器在测量期写入，故首次出现 / 溢出状态翻转时会晚一帧。默认 false（常驻显示）
  * @param reverseLayout 反转方向
  * @param onValueChangeFinished 手势结束回调
  * @param colors 配色集，默认 [ScrollerDefaults.colors]
- * @param trackSprite 轨道精灵
- * @param thumbSprite 滑块精灵（四态）
+ * @param trackSprite 轨道精灵，默认 [ScrollerDefaults.trackSprite]
+ * @param thumbSprite 滑块精灵（四态），默认 [ScrollerDefaults.thumbSprite]
  * @param interactionSource 交互源
  */
 @Composable
@@ -194,6 +267,7 @@ fun HorizontalScroller(
     adapter: ScrollerAdapter,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    autoHide: Boolean = false,
     reverseLayout: Boolean = false,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: ScrollerColors = ScrollerDefaults.colors(),
@@ -205,6 +279,101 @@ fun HorizontalScroller(
     axis = ScrollerAxis.Horizontal,
     modifier = modifier,
     enabled = enabled,
+    autoHide = autoHide,
+    autoFade = false,
+    overlay = false,
+    reverseLayout = reverseLayout,
+    onValueChangeFinished = onValueChangeFinished,
+    colors = colors,
+    trackSprite = trackSprite,
+    thumbSprite = thumbSprite,
+    interactionSource = interactionSource,
+)
+
+/**
+ * 竖直滚动条（叠加样式）：外观与交互与 [VerticalScroller] 完全一致，
+ * 仅精灵与最小尺寸取 meta 的 `overlay*` 套装，供**浮于列表内容之上、不占布局宽度**的
+ * 场景使用 —— 放置位置（通常贴滚动容器右缘内侧）与"盖在内容上"的层序由调用方的布局决定。
+ *
+ * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
+ * @param modifier 修饰；主轴（高度）有界时铺满，无界时回落叠加 meta 主轴下限
+ * @param enabled 是否可交互（禁用态压暗配色且不接收手势）
+ * @param autoHide 无可滚动空间（`maxScrollOffset ≤ 0`）时自动隐藏：**完全不组合**（不产生任何节点）。判定在组合期进行，而判定数据（`maxValue` / `layoutInfo`）由滚动容器在测量期写入，故首次出现 / 溢出状态翻转时会晚一帧。默认 false（常驻显示）
+ * @param autoFade 自动降低可见度：悬浮、拖动、滚动位置变化任一视为活跃；全部退出 [ScrollerDefaults.AutoFadeDelay] 后经动画降到 [ScrollerDefaults.AutoFadeAlpha]，再次活跃即恢复。默认 false（常亮）
+ * @param reverseLayout 反转方向（滑块贴末端、滚轮与点击方向取反）
+ * @param onValueChangeFinished 手势结束回调，可用于提交 / 保存；null = 不回调
+ * @param colors 配色集，默认 [ScrollerDefaults.colors]
+ * @param trackSprite 轨道精灵，默认 [ScrollerDefaults.trackSprite]（`overlay = true`，叠加套装）
+ * @param thumbSprite 滑块精灵（四态），默认 [ScrollerDefaults.thumbSprite]（`overlay = true`）
+ * @param interactionSource 交互源，不传则内部新建；驱动悬停高亮与 [DragInteraction] 上报
+ */
+@Composable
+fun VerticalOverlayScroller(
+    adapter: ScrollerAdapter,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    autoHide: Boolean = false,
+    autoFade: Boolean = false,
+    reverseLayout: Boolean = false,
+    onValueChangeFinished: (() -> Unit)? = null,
+    colors: ScrollerColors = ScrollerDefaults.colors(),
+    trackSprite: SokitsuSprite = ScrollerDefaults.trackSprite(overlay = true),
+    thumbSprite: UiStateSprite = ScrollerDefaults.thumbSprite(overlay = true),
+    interactionSource: MutableInteractionSource? = null,
+) = Scroller(
+    adapter = adapter,
+    axis = ScrollerAxis.Vertical,
+    modifier = modifier,
+    enabled = enabled,
+    autoHide = autoHide,
+    autoFade = autoFade,
+    overlay = true,
+    reverseLayout = reverseLayout,
+    onValueChangeFinished = onValueChangeFinished,
+    colors = colors,
+    trackSprite = trackSprite,
+    thumbSprite = thumbSprite,
+    interactionSource = interactionSource,
+)
+
+/**
+ * 水平滚动条（叠加样式）：外观与交互与 [HorizontalScroller] 完全一致，
+ * 仅精灵与最小尺寸取 meta 的 `overlay*` 套装，供**浮于内容之上、不占布局高度**的场景使用，
+ * 放置位置与层序由调用方的布局决定。
+ *
+ * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
+ * @param modifier 修饰；宽度有界时铺满，无界时回落叠加 meta 主轴下限
+ * @param enabled 是否可交互
+ * @param autoHide 无可滚动空间（`maxScrollOffset ≤ 0`）时自动隐藏：**完全不组合**（不产生任何节点）。判定在组合期进行，而判定数据（`maxValue` / `layoutInfo`）由滚动容器在测量期写入，故首次出现 / 溢出状态翻转时会晚一帧。默认 false（常驻显示）
+ * @param autoFade 自动降低可见度：悬浮、拖动、滚动位置变化任一视为活跃；全部退出 [ScrollerDefaults.AutoFadeDelay] 后经动画降到 [ScrollerDefaults.AutoFadeAlpha]，再次活跃即恢复。默认 false（常亮）
+ * @param reverseLayout 反转方向
+ * @param onValueChangeFinished 手势结束回调
+ * @param colors 配色集，默认 [ScrollerDefaults.colors]
+ * @param trackSprite 轨道精灵，默认 [ScrollerDefaults.trackSprite]（`overlay = true`）
+ * @param thumbSprite 滑块精灵（四态），默认 [ScrollerDefaults.thumbSprite]（`overlay = true`）
+ * @param interactionSource 交互源
+ */
+@Composable
+fun HorizontalOverlayScroller(
+    adapter: ScrollerAdapter,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    autoHide: Boolean = false,
+    autoFade: Boolean = false,
+    reverseLayout: Boolean = false,
+    onValueChangeFinished: (() -> Unit)? = null,
+    colors: ScrollerColors = ScrollerDefaults.colors(),
+    trackSprite: SokitsuSprite = ScrollerDefaults.trackSprite(overlay = true),
+    thumbSprite: UiStateSprite = ScrollerDefaults.thumbSprite(overlay = true),
+    interactionSource: MutableInteractionSource? = null,
+) = Scroller(
+    adapter = adapter,
+    axis = ScrollerAxis.Horizontal,
+    modifier = modifier,
+    enabled = enabled,
+    autoHide = autoHide,
+    autoFade = autoFade,
+    overlay = true,
     reverseLayout = reverseLayout,
     onValueChangeFinished = onValueChangeFinished,
     colors = colors,
@@ -262,9 +431,10 @@ private fun ScrollerAxis.placeThumb(
 }
 
 /**
- * 滚动条共用实现，由 [VerticalScroller] / [HorizontalScroller] 转发。
+ * 滚动条共用实现，由 [VerticalScroller] / [HorizontalScroller] /
+ * [VerticalOverlayScroller] / [HorizontalOverlayScroller] 转发。
  *
- * 不是对外 API —— 两个具名组件才是。
+ * 不是对外 API —— 四个具名组件才是；[overlay] 只负责选常规 / 叠加两套 meta 尺寸。
  */
 @Composable
 private fun Scroller(
@@ -272,6 +442,9 @@ private fun Scroller(
     axis: ScrollerAxis,
     modifier: Modifier,
     enabled: Boolean,
+    autoHide: Boolean,
+    autoFade: Boolean,
+    overlay: Boolean,
     reverseLayout: Boolean,
     onValueChangeFinished: (() -> Unit)?,
     colors: ScrollerColors,
@@ -282,8 +455,9 @@ private fun Scroller(
     val pixelScale = LocalSokitsuPixelScale.current
     val density = LocalDensity.current
 
-    val trackMinSize = ScrollerDefaults.trackMinSize
-    val thumbMinSize = ScrollerDefaults.thumbMinSize
+    // 精灵与最小尺寸按常规 / 叠加两套 meta 取用
+    val trackMinSize = if (overlay) ScrollerDefaults.overlayTrackMinSize else ScrollerDefaults.trackMinSize
+    val thumbMinSize = if (overlay) ScrollerDefaults.overlayThumbMinSize else ScrollerDefaults.thumbMinSize
 
     // 滑块最短长度（屏幕像素）：取 meta 主轴分量，与轨道交叉轴的 roundToPx() 同源
     val thumbMinMainPx = with(density) { axis.mainSize(thumbMinSize).toPx() }
@@ -304,6 +478,19 @@ private fun Scroller(
     // 滚动行程与滑块长度都要按它算，手势协程也据此定几何
     var containerSize by remember { mutableStateOf(0) }
 
+    // 自动隐藏：无可滚动空间时**完全不组合**（不产生任何节点）。
+    // 判定在组合期经 derivedStateOf 收敛：adapter 内部的快照读（如 ScrollState.maxValue、
+    // LazyListState.layoutInfo）变化时才重算，Boolean 结果不变则不触发重组；
+    // 隐藏期间订阅仍然存活，滚动范围由 0 变正时滚动条会重新出现。
+    // 判定数据（maxValue / layoutInfo）由滚动容器在测量期写入，而组合先于测量发生，
+    // 故首次出现 / 溢出状态翻转时会晚一帧 —— 这是"空组合"语义下的固有代价。
+    if (autoHide) {
+        val noScrollSpace by remember(adapter) {
+            derivedStateOf { adapter.maxScrollOffset(containerSize) <= 0f }
+        }
+        if (noScrollSpace) return
+    }
+
     // 滚动位置不在组合里另存一份：与 M3 同法，测量期经几何对象直接读 adapter。
     // `ScrollState` 的 value / maxValue 是 State，在测量期读会自动注册观察，
     // 故列表一动就触发重新测量 —— 无需按帧轮询。
@@ -321,7 +508,6 @@ private fun Scroller(
             coroutineScope = scope,
         )
     }
-
     // 滑块被拖动 / 悬停时高亮：底色做渐变（与 CMP 的 hoverColor 渐变同手法）
     val highlighted = hovered || scroller.dragging
     val thumbTone by animateColorAsState(
@@ -330,7 +516,34 @@ private fun Scroller(
     )
     // 悬停 / 拖动（选中态）：仅 outline 层覆盖为选中描边色，其余层沿用主题描边色
     val thumbOutline = if (highlighted) colors.selectedOutlineColor else Color.Unspecified
-    val trackTone = colors.trackColor(enabled)
+    // 轨道底色：常规取弱化容器色，叠加样式取主色容器（ScrollerTokens.OverlayTrack）
+    val trackTone = colors.trackColor(overlay, enabled)
+
+    // 按下音效：仅常规样式发声，叠加样式静音
+    val pressSound = if (overlay) null else ScrollerDefaults.LocalPressSound.current
+
+    // 自动降可见度（仅 overlay）：悬浮 / 拖动 / 滚动位置变化任一视为活跃。
+    // scrollOffset 读入组合作为 key：滚动期间每次位移都重启计时（活跃即恢复不透明）；
+    // 全部退出后经 AutoFadeDelay 延迟置 faded，透明度经动画过渡到 AutoFadeAlpha。
+    val fadeModifier = if (autoFade) {
+        val scrollOffset = adapter.scrollOffset
+        val active = hovered || scroller.dragging
+        var faded by remember { mutableStateOf(false) }
+        LaunchedEffect(active, scrollOffset) {
+            faded = false
+            if (!active) {
+                delay(ScrollerDefaults.AutoFadeDelay)
+                faded = true
+            }
+        }
+        val fadeAlpha by animateFloatAsState(
+            targetValue = if (faded) ScrollerDefaults.AutoFadeAlpha else 1f,
+            animationSpec = TweenSpec(durationMillis = ScrollerDefaults.FadeDurationMillis),
+        )
+        modifier.alpha(fadeAlpha)
+    } else {
+        modifier
+    }
     val thumb = thumbSprite[UiState.resolve(enabled, scroller.dragging, hovered, false)]
 
     // 可交互 = 手型（暗示可拖）；禁用 = 禁止图标
@@ -359,7 +572,7 @@ private fun Scroller(
                     .sokitsuSprite(thumb, thumbTone, thumbOutline),
             )
         },
-        modifier = modifier
+        modifier = fadeModifier
             .pointerHoverIcon(icon)
             .semantics {
                 if (!enabled) disabled()
@@ -398,6 +611,8 @@ private fun Scroller(
                 if (!interactive) return@pointerInput
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
+                    // 按下即响一次（拖动开始或轨道点按），轨道按住的连滚不重复播放
+                    pressSound?.let { sound -> mc.soundManager.play(sound) }
                     val main = axis.mainPosition(down.position)
                     if (scroller.isOnThumb(main)) {
                         dragThumb(down.id, main, source, scroller)
@@ -409,7 +624,6 @@ private fun Scroller(
                 }
             }
             .hoverable(source, enabled = interactive)
-            .defaultMinSize(trackMinSize.width, trackMinSize.height)
             .sokitsuSprite(trackSprite, trackTone),
         measurePolicy = measurePolicy,
     )
@@ -475,6 +689,7 @@ private suspend fun androidx.compose.ui.input.pointer.AwaitPointerEventScope.pre
 /**
  * 滚动条测量：交叉轴**恒取 meta 细轴尺寸**（竖直条宽 / 水平条高，不吃父级约束），
  * 主轴取父级有界约束、无界时回落 meta 主轴下限；滑块按几何式测出后摆到偏移处。
+ * 最小尺寸下限由本测量承担（主轴 `coerceAtLeast(meta 主轴下限)`）。
  *
  * 测量期把容器主轴尺寸写回组合（[Scroller] 的几何与手势都要读），
  * 因此该状态变化必须能触发重新测量 —— `LayoutNode.measurePolicy` 的 setter 按 lambda
@@ -499,8 +714,8 @@ private class ScrollerMeasurePolicy(
 
         val thumbPlaceable = measurables.first().measure(axis.thumbConstraints(thumbMain, cross))
         return layout(
-            width = if (axis.isVertical) cross else main,
-            height = if (axis.isVertical) main else cross,
+            width = if (axis.isVertical) cross else main.coerceAtLeast(trackMinMainPx.roundToInt()),
+            height = if (axis.isVertical) main.coerceAtLeast(trackMinMainPx.roundToInt()) else cross,
         ) {
             axis.placeThumb(this, thumbPlaceable, offset)
         }
@@ -704,198 +919,3 @@ private class ScrollerGeometry(
         pressedAt = null
     }
 }
-
-/**
- * 滚动条的主题接入声明：token 映射（"什么颜色"）+ meta（"多大、用哪张图"）。
- *
- * 竖直与水平两个组件**共用同一份 meta** —— 细轴分量即滚动条厚度，两个方向各自取用。
- */
-object ScrollerTokens {
-
-    /** 轨道底色：弱化容器色，比面板深一档但不抢主体。 */
-    val Track = ColorSchemeToken.SurfaceVariant
-
-    /** 滑块底色：主色，滚动位置是最该被一眼看到的信息。 */
-    val Thumb = ColorSchemeToken.Primary
-
-    /**
-     * 禁用态轨道 / 滑块的色源。
-     *
-     * 两者都取**不透明**的语义槽位色，不叠加 alpha —— 素材的 `base` 层走 Multiply
-     * 合成（顶点色 × 纹理），压 alpha 会让整层在深色底上消失，只剩 outline 层可见。
-     */
-    val DisabledTrack = ColorSchemeToken.SurfaceVariant
-    val DisabledThumb = ColorSchemeToken.Surface
-}
-
-/**
- * 滚动条的 meta：**尺寸单位均为 dp**（逻辑像素），精灵为图集 id。
- *
- * ```jsonc
- * ui_meta: { scroller: {
- *   track_min_size: [28, 28],
- *   track_sprite: "ui/scroller/track",
- *   thumb_min_size: [28, 28],
- *   thumb_sprite: {
- *     normal: "ui/scroller/thumb/normal",
- *     pressed: "ui/scroller/thumb/pressed",
- *     focused: "ui/scroller/thumb/focused",
- *     disabled: "ui/scroller/thumb/disabled"
- *   }
- * } }
- * ```
- *
- * 两个尺寸都是**尺寸下限**，且**两个方向共用一份**（meta 不区分横竖）：
- * - [trackMinSize] 的细轴分量 = 滚动条厚度，是**恒定值**（竖直条取宽、水平条取高），
- *   不吃父级约束；主轴分量只在主轴无界时兜底。
- * - [thumbMinSize] 的主轴分量 = 滑块最短长度（内容极多时滑块仍可见）；交叉轴分量即厚度。
- */
-data class ScrollerMeta(
-    /** 轨道最小尺寸：细轴分量恒为滚动条厚度。 */
-    val trackMinSize: DpSize,
-    /** 轨道精灵图集 id（单张，无状态。交互状态差异由染色承担，不加描边）。 */
-    val trackSprite: Identifier,
-    /** 滑块最小尺寸：主轴分量 = 滑块最短长度。 */
-    val thumbMinSize: DpSize,
-    /** 滑块四态精灵图集 id。 */
-    val thumbSprite: UiStateIdentifier,
-) {
-
-    companion object : Codec<ScrollerMeta> {
-
-        val default = ScrollerMeta(
-            trackMinSize = DpSize(28.dp, 28.dp),
-            trackSprite = identifier("ui/scroller/track"),
-            thumbMinSize = DpSize(28.dp, 28.dp),
-            thumbSprite = UiStateIdentifier(
-                normal = identifier("ui/scroller/thumb/normal"),
-                pressed = identifier("ui/scroller/thumb/pressed"),
-                focused = identifier("ui/scroller/thumb/focused"),
-                disabled = identifier("ui/scroller/thumb/disabled"),
-            ),
-        )
-
-        private val codec = Codec.create<ScrollerMeta>()
-            .field(ScrollerMeta::trackMinSize).default(default.trackMinSize)
-            .codec(Codec.dpSize(1.dp..1024.dp, 1.dp..1024.dp))
-            .field(ScrollerMeta::trackSprite).default(default.trackSprite)
-            .codec(Codec.ibukigourdIdentifier)
-            .field(ScrollerMeta::thumbMinSize).default(default.thumbMinSize)
-            .codec(Codec.dpSize(1.dp..1024.dp, 1.dp..4096.dp))
-            .field(ScrollerMeta::thumbSprite).default(default.thumbSprite)
-            .codec(UiStateIdentifier)
-            .build(::ScrollerMeta)
-
-        override fun serialization(target: ScrollerMeta): SerializeElement = codec.serialization(target)
-
-        override fun deserialization(data: SerializeElement): Result<ScrollerMeta> =
-            codec.deserialization(data)
-    }
-}
-
-/**
- * 滚动条的主题桥接：组合内不直接读取 [SokitsuThemeMeta.scroller]。
- */
-object ScrollerDefaults {
-
-    /** 当前主题的 scroller meta。 */
-    inline val meta get() = SokitsuThemeMeta.scroller
-
-    /** 轨道最小尺寸：内联转发 [ScrollerMeta.trackMinSize]。细轴分量即厚度。 */
-    inline val trackMinSize: DpSize get() = meta.trackMinSize
-
-    /** 滑块最小尺寸：内联转发 [ScrollerMeta.thumbMinSize]。主轴分量即最短长度。 */
-    inline val thumbMinSize: DpSize get() = meta.thumbMinSize
-
-    /** 轨道精灵：经 UI 图集解析。 */
-    fun trackSprite(): SokitsuSprite = SokitsuThemeMeta.uiSprite(meta.trackSprite)
-
-    /** 滑块四态精灵：经 UI 图集解析。 */
-    fun thumbSprite(): UiStateSprite = meta.thumbSprite.toSprite()
-
-    /** 按住拖动时的鼠标指针形状。 */
-    val LocalHoverIcon = compositionLocalOf { PointerIcon.Hand }
-
-    /** 禁用时的鼠标指针形状。 */
-    val LocalDisableIcon = compositionLocalOf { PointerIcon.NotAllowed }
-
-    /** 按住轨道空白时，第一次与第二次滚动之间的停顿（毫秒）。 */
-    const val TrackPressDelayBeforeRepeat = 300L
-
-    /** 按住轨道空白时，后续两次滚动之间的间隔（毫秒）。 */
-    const val TrackPressRepeatInterval = 100L
-
-    /** 悬停 / 拖动高亮的渐变时长（毫秒）。 */
-    const val HighlightDurationMillis = 300
-
-    /**
-     * 默认滚动条配色：轨道 → 弱化容器色，滑块 → 主色；两个禁用色取不透明语义槽位色。
-     *
-     * 参数默认 [Color.Unspecified] 语义是"按 [ScrollerTokens] 映射表结合当前主题解析"；
-     * 回退顺序：`调用点传参` > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuColor]
-     * 作用域 > [ScrollerTokens] > [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme]。
-     *
-     * @param trackColor 轨道底色 → [ScrollerTokens.Track]
-     * @param thumbColor 滑块底色 → [ScrollerTokens.Thumb]
-     * @param disabledTrackColor 禁用轨道底色 → [ScrollerTokens.DisabledTrack]（不透明）
-     * @param disabledThumbColor 禁用滑块底色 → [ScrollerTokens.DisabledThumb]（不透明）
-     * @param highlightThumbColor 悬停 / 拖动中的滑块底色，默认与 [thumbColor] 同源
-     * @param selectedOutlineColor 悬停 / 拖动时滑块描边色，默认取 [thumbColor] 底色的对比色
-     */
-    @Composable
-    fun colors(
-        trackColor: Color = Color.Unspecified,
-        thumbColor: Color = Color.Unspecified,
-        disabledTrackColor: Color = Color.Unspecified,
-        disabledThumbColor: Color = Color.Unspecified,
-        highlightThumbColor: Color = Color.Unspecified,
-        selectedOutlineColor: Color = Color.Unspecified,
-    ): ScrollerColors {
-        val resolvedThumb = thumbColor.resolve(ScrollerTokens.Thumb)
-        return ScrollerColors(
-            trackColor = trackColor.resolve(ScrollerTokens.Track),
-            thumbColor = resolvedThumb,
-            disabledTrackColor = disabledTrackColor.resolve(ScrollerTokens.DisabledTrack),
-            disabledThumbColor = disabledThumbColor.resolve(ScrollerTokens.DisabledThumb),
-            highlightThumbColor = highlightThumbColor.takeIf { it != Color.Unspecified } ?: resolvedThumb,
-            selectedOutlineColor = selectedOutlineColor.takeOrElse { resolvedThumb.contrasting() },
-        )
-    }
-}
-
-/**
- * 滚动条配色集：五个底色槽位（轨道 / 滑块的启用、禁用、高亮）+ 选中描边色。
- *
- * 字段**全部已解析**，因此是普通 data class，`copy(...)` 即精准覆盖；
- * "槽位映射到主题哪里"由 [ScrollerDefaults.colors] 承担。
- * "状态 → 取值"的映射由 [trackColor] / [thumbColor] 两个方法承担，
- * 调用点不自行按启用状态做 if 判断。
- *
- * @param highlightThumbColor 悬停 / 拖动中的滑块底色
- * @param selectedOutlineColor 悬停 / 拖动时滑块 outline 层的覆盖色（选中描边）
- */
-@Immutable
-data class ScrollerColors(
-    val trackColor: Color,
-    val thumbColor: Color,
-    val disabledTrackColor: Color,
-    val disabledThumbColor: Color,
-    val highlightThumbColor: Color,
-    val selectedOutlineColor: Color,
-) {
-
-    /** 轨道底色（按启用状态二选一）。 */
-    internal fun trackColor(enabled: Boolean): Color =
-        if (enabled) trackColor else disabledTrackColor
-
-    /** 滑块底色（禁用 > 高亮 > 常态）。 */
-    internal fun thumbColor(enabled: Boolean, highlighted: Boolean): Color = when {
-        !enabled    -> disabledThumbColor
-        highlighted -> highlightThumbColor
-        else        -> thumbColor
-    }
-}
-
-/** 主题 meta 的滚动条段：缺失 / 解码失败回落 [ScrollerMeta] 内置默认。 */
-val SokitsuThemeMeta.scroller: ScrollerMeta
-    get() = decodeComponent("scroller", ScrollerMeta, ScrollerMeta.default)

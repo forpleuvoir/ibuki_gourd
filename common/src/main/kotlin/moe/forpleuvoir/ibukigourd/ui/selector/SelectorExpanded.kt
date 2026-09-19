@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.selector
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
@@ -9,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -16,10 +19,15 @@ import androidx.compose.ui.window.DialogProperties
 import moe.forpleuvoir.ibukigourd.lang.MiscLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.ScrollerDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalOverlayScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+import kotlin.math.roundToInt
 
 /**
  * 选择器展开体：把选项列表渲染到由 [style] 决定的载体上。
@@ -201,6 +209,7 @@ private fun <T> SelectorDialogExpanded(
     val filtered = remember(items, query, searchFilter) {
         if (searchFilter == null) items else items.filter { searchFilter(it, query) }
     }
+    val listState = rememberLazyListState()
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -219,25 +228,68 @@ private fun <T> SelectorDialogExpanded(
                     SelectorSearchField(searchState)
                 }
 
-                LazyColumn(
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = listMaxHeight),
-                ) {
-                    items(filtered.size, key = { index -> index }) { index ->
-                        val item = filtered[index]
-                        val selected = isSelected(item)
-                        val leading = itemLeadingIcon?.invoke(selected)
-                        val trailing = itemTrailingIcon?.invoke(selected)
-                        SelectorItem(
-                            onClick = { onToggle(item) },
-                            modifier = Modifier.fillMaxWidth(),
-                            selected = selected,
-                            leadingIcon = leading?.let { slot -> { slot(item) } },
-                            trailingIcon = trailing?.let { slot -> { slot(item) } },
-                        ) {
-                            itemContent(item, selected)
+                // 列表 + 滚动条（overlay 样式，并列占位）：滚动条与列表同行、占据自身厚度，
+                // 有滚动条时列表让出其厚度（总宽不超出弹窗宽度钳制），autoHide 空组合时不让位。
+                // 不用 Row+IntrinsicSize：lazy 的固有测量是全量 subcompose 且高度不按 listMaxHeight
+                // 收敛会错位，用 Layout 先测列表再测滚动条，每个 child 只测一次。
+                // autoHide 为空组合语义：判定数据由列表测量期写入，首次出现 / 溢出状态翻转时晚一帧。
+                val (scrollerThickness, scrollSpacing) = with(LocalDensity.current) {
+                    ScrollerDefaults.overlayTrackMinSize.width.toPx() to
+                        (LocalSokitsuPixelScale.current * 2).dp.toPx()
+                }
+                Layout({
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = listMaxHeight),
+                    ) {
+                        items(filtered.size, key = { index -> index }) { index ->
+                            val item = filtered[index]
+                            val selected = isSelected(item)
+                            val leading = itemLeadingIcon?.invoke(selected)
+                            val trailing = itemTrailingIcon?.invoke(selected)
+                            SelectorItem(
+                                onClick = { onToggle(item) },
+                                modifier = Modifier.fillMaxWidth(),
+                                selected = selected,
+                                leadingIcon = leading?.let { slot -> { slot(item) } },
+                                trailingIcon = trailing?.let { slot -> { slot(item) } },
+                            ) {
+                                itemContent(item, selected)
+                            }
                         }
+                    }
+                    VerticalOverlayScroller(
+                        adapter = rememberScrollerAdapter(listState),
+                        modifier = Modifier.fillMaxHeight(),
+                        autoHide = true,
+                        autoFade = true,
+                    )
+                }) { measurables, constraints ->
+                    // 有滚动条才让位：列表宽度收敛出滚动条厚度 + 间距
+                    val reserved = if (measurables.size > 1) {
+                        scrollerThickness.roundToInt() + scrollSpacing.roundToInt()
+                    } else {
+                        0
+                    }
+                    val list = measurables[0].measure(
+                        if (constraints.hasBoundedWidth) {
+                            constraints.copy(maxWidth = (constraints.maxWidth - reserved).coerceAtLeast(0))
+                        } else {
+                            constraints
+                        }
+                    )
+                    val scroller = measurables.getOrNull(1)?.measure(
+                        constraints.copy(minWidth = 0, minHeight = 0, maxHeight = list.height)
+                    )
+                    layout(
+                        width = list.width + (scroller?.let { scrollSpacing.roundToInt() + it.width } ?: 0),
+                        height = maxOf(list.height, scroller?.height ?: 0),
+                    ) {
+                        list.placeRelative(0, 0)
+                        // 与列表隔开间距，滚动条在最右
+                        scroller?.placeRelative(list.width + scrollSpacing.roundToInt(), 0)
                     }
                 }
 
@@ -294,10 +346,10 @@ object SelectorExpandedDefaults {
     val dialogSpacing: Dp = 8.dp
 
     /** 弹窗最小宽度。 */
-    val dialogMinWidth: Dp = 200.dp
+    val dialogMinWidth: Dp = 300.dp
 
     /** 弹窗最大宽度。 */
-    val dialogMaxWidth: Dp = 400.dp
+    val dialogMaxWidth: Dp = 600.dp
 
     /** 弹窗列表区最大高度；超出后列表滚动。 */
     val dialogListMaxHeight: Dp = 480.dp

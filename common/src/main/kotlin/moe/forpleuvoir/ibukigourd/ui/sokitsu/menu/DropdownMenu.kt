@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -22,7 +21,9 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.popup.register
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalOverlayScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
 import kotlin.math.roundToInt
 
@@ -247,21 +248,39 @@ fun DropdownMenu(
                     )
                     .padding(padding),
             ) {
-                Column(
-                    Modifier
-                        // 列宽取最宽子项的整行固有宽：条目不被挤压换行，
-                        // 分割线等 fillMaxWidth 子项据此对齐，而不是铺满弹层的可用宽度
-                        .width(IntrinsicSize.Max)
-                        .heightIn(max = maxHeight)
-                        .verticalScroll(rememberScrollState()),
+                val scrollState = rememberScrollState()
+                // 滚动条与内容共用同一 ScrollState（经 ScrollerAdapter 桥接），滑块位置、
+                // 拖拽、滚轮都与内容严格同步 —— 不引入任何耦合列表的参数；
+                // 内容溢出与否由 autoHide 判定（maxScrollOffset ≤ 0 时空组合）。
+                // overlay 样式 + 并列占位：滚动条与内容同行、占据自身厚度，
+                // 列与滚动条之间留 pixelScale*2 的间距；autoHide 空组合时间距一并消失。
+                val scrollSpacing = (LocalSokitsuPixelScale.current * 2).dp
+                Row(
+                    Modifier.height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(scrollSpacing),
                 ) {
-                    CompositionLocalProvider(
-                        LocalDropdownMenuController provides remember(onDismissRequest) {
-                            DropdownMenuController { onDismissRequest() }
-                        },
+                    Column(
+                        Modifier
+                            // 列宽取最宽子项的整行固有宽：条目不被挤压换行，
+                            // 分割线等 fillMaxWidth 子项据此对齐，而不是铺满弹层的可用宽度
+                            .width(IntrinsicSize.Max)
+                            .heightIn(max = maxHeight)
+                            .verticalScroll(scrollState),
                     ) {
-                        content()
+                        CompositionLocalProvider(
+                            LocalDropdownMenuController provides remember(onDismissRequest) {
+                                DropdownMenuController { onDismissRequest() }
+                            },
+                        ) {
+                            content()
+                        }
                     }
+                    VerticalOverlayScroller(
+                        adapter = rememberScrollerAdapter(scrollState),
+                        modifier = Modifier.fillMaxHeight(),
+                        autoHide = true,
+                        autoFade = true,
+                    )
                 }
             }
         }

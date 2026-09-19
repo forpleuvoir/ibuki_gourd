@@ -1,8 +1,21 @@
 package moe.forpleuvoir.ibukigourd.mod.config
 
+import moe.forpleuvoir.compose_minecraft.platform.textinput.ComposeInputBridge
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
+import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
 import moe.forpleuvoir.ibukigourd.config.item.configVector2f
+import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.input.KeyEnvironment
+import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming
+import moe.forpleuvoir.ibukigourd.input.Keybind
+import moe.forpleuvoir.ibukigourd.input.KeybindSetting
+import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.input.MouseButton
+import moe.forpleuvoir.ibukigourd.text.buildText
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonColors
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.*
 import org.joml.Vector2f
@@ -27,6 +40,7 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
         init {
             addConfig(Toast)
+            addConfig(Scroller)
         }
 
         object Toast : ConfigGroup("toast") {
@@ -55,6 +69,56 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 Vector2f(0f, 0f),
                 Vector2f(1f, 1f),
             )
+        }
+
+
+        object Scroller : ConfigGroup("scroller") {
+
+            val scrollMultiplier1 by configFloat("scroll_multiplier_1", 2.5f, 0f, 20f)
+
+            val scrollMultiplier1KeyCode by configKeyCode("scroll_multiplier_1_key_code", Keyboard.LEFT_SHIFT)
+
+            val scrollMultiplier2 by configFloat("scroll_multiplier_2", 5f, 0f, 20f)
+
+            val scrollMultiplier2KeyCode by configKeyCode("scroll_multiplier_2_key_code", Keyboard.LEFT_CONTROL)
+
+            val scrollMultiplier3 by configFloat("scroll_multiplier_3", 10f, 0f, 20f)
+
+            val scrollMultiplier3KeyCode by configKeyCode("scroll_multiplier_3_key_code", Keyboard.LEFT_ALT)
+
+
+            private val keybind = Keybind(
+                *KeyCode.ALL_KEYS.toTypedArray(), defaultSetting = KeybindSetting(
+                    env = KeyEnvironment.InGui,
+                    trigger = KeyTriggerTiming.PressAndRelease,
+                    passthrough = true,
+                    strict = false
+                )
+            ) {
+                if (wasPress)
+                    ComposeInputBridge.factorScaleFactor = scrollMultiplier()
+                else
+                    ComposeInputBridge.factorScaleFactor = 1f
+            }
+
+
+            override fun init() {
+                keybind.name = Scroller.translateText
+                InputHandler.register(keybind)
+            }
+
+            fun scrollMultiplier(): Float {
+                return if (InputHandler.wasKeyPressed(scrollMultiplier1KeyCode)) {
+                    scrollMultiplier1
+                } else if (InputHandler.wasKeyPressed(scrollMultiplier2KeyCode)) {
+                    scrollMultiplier2
+                } else if (InputHandler.wasKeyPressed(scrollMultiplier3KeyCode)) {
+                    scrollMultiplier3
+                } else {
+                    1f
+                }
+            }
+
         }
     }
 }
