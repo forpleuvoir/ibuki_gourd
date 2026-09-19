@@ -61,7 +61,12 @@
 - [x] `ProgressBar`（进度条，缓存加载用）
       — `ui/sokitsu/ProgressBar.kt` / `ProgressBarTheme.kt`（meta 键 `progress_bar`）；
       轨道 + 填充两个**纯色矩形**自绘，不依赖素材；默认高 4dp；**不做动画**（进度值由业务驱动）
-- [ ] 自动隐藏滚动条（旧 `AutoHideScrollbar`；现只有 `verticalScroll`，无滚动条）
+- [x] 自动隐藏滚动条（旧 `AutoHideScrollbar`）
+      — `ui/sokitsu/Scroller.kt` / `ScrollerTheme.kt`（meta 键 `scroller`）：
+        `VerticalScroller` / `HorizontalScroller` 常规版 + `VerticalOverlayScroller` /
+        `HorizontalOverlayScroller` 叠加版；`autoHide=true` 时无滚动空间**完全不组合**；
+        `autoFade=true` 时非活动（未滚动 / 未悬浮）一段时间后动画降可见度到 30%；
+        滚动源经 `ScrollerAdapter` 解耦（`ScrollState` 直读 / `LazyListState` 估计法）
 - [x] `Toast`（操作反馈）
       — 落地于 `ui/sokitsu/toast/`：`Toast` / `ToastStrategy` / `ToastAnimation` / `ToastTheme` /
       `ToastHandler` / `ToastContainer` / `ToastHost`；**全局常驻**（自持 Compose 场景与渲染器，
@@ -87,14 +92,17 @@
         面板宽高与各项宽度**都由内容撑开**（不填充、不拉齐各项）
       — `DropdownMenuItem` 是**可选**的默认条目：高度取 `heightIn(min)`（内容更高就撑开）、
         内边距 / 图标间距 / 图标倍率 / 悬停色均为可覆盖的默认值（组件常量，**不进主题 meta**）
-- [ ] 「按钮即首行」形态的下拉（**高度统一**：按钮与菜单项共用同一行高，展开后按钮成为列表首行）
-      — 与上面的分开式互补：分开式用于动作菜单，本形态用于要"整体感"的场合；
-        关键点是行高由**共享 meta** 统一（不靠两边默认值碰巧相等），并保留首末翻转
 - [ ] 文本右键上下文菜单（旧 `Material3TextContextMenu`）
 
 **输入与选择**
 
-- [ ] `Selector` / `EnumSelector`（下拉、可搜索选择）
+- [x] `Selector` / `EnumSelector`（下拉、可搜索选择）
+      — `ui/selector/`（`Selector` / `SelectorSelection` / `SelectorTrigger` / `SelectorExpanded` /
+        `SelectorExpandStyle`）：**单选 + 多选共用同一展开体**；
+        `searchFilter` 非 null 时弹窗载体内置搜索栏（放大镜图标 + 过滤）；
+        展开载体由 `SelectorExpandStyle` 分发（下拉菜单 / Dialog 弹窗，搜索时一律弹窗）；
+        弹窗内 `LazyColumn` + 自动隐藏滚动条（overlay 同行占位）
+      — `EnumSelector` 未单独封装：枚举场景直接把枚举值列表传给 `Selector`
 - [x] `ColorPicker`
       — `ui/colorpicker/`（`ColorPicker` / `ColorChannelSlider` / `Checkerboard` / `ColorPickButton`）：
       HSV / RGB 页签 + 通道条（含色相条）+ alpha 条 + 透明棋盘 + 色值复制 / 粘贴（带 toast 反馈）
@@ -129,7 +137,9 @@
 `Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
 `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / `AlertDialog`(+`SimpleAlertDialog`) /
 `ColorPicker`(+`ColorPickButton`) / `Toast`（全局常驻） / `Divider` / `ProgressBar` /
-`DropdownMenu`(+`DropdownMenuItem`) / 主题与 `SokitsuThemeMeta` 体系。
+`DropdownMenu`(+`DropdownMenuItem`) / `Selector`（单/多选 + 搜索，单/多选共用展开体） /
+`VerticalScroller` + `HorizontalScroller`（常规）与 `VerticalOverlayScroller` + `HorizontalOverlayScroller`（叠加，
+支持 `autoHide` / `autoFade`，滚动源经 `ScrollerAdapter` 解耦）/ 主题与 `SokitsuThemeMeta` 体系。
 
 另有一个**源码内嵌的独立模块**可用（见 `NOTICE.md`）：
 
@@ -149,8 +159,17 @@
 
 ### 5. 建议实现顺序（每层都能先在测试屏里验）
 
+> **原则：先补齐基础组件，高层级（配置 GUI 包装器框架）暂不碰**，等基础组件收敛后再开工。
+
 - **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）、
   `AlertDialog` + `SimpleAlertDialog`、`ColorPicker`（含 `ColorPickButton`）、`Toast`、
-  `Divider`、`ProgressBar`、`DropdownMenu`（分开式）
-- **下一步**：`Selector` / `KeySetter` → 可拖拽列表（拖拽库已就位，只需写组件）→
-  包装器框架（`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`）
+  `Divider`、`ProgressBar`、`DropdownMenu`（分开式）、`Selector`（单/多选 + 搜索）、
+  滚动条（常规 + overlay，`autoHide` / `autoFade`）
+- **下一步（基础组件，按依赖从底到顶）**：
+  1. `Keyed` / `rememberKeyedList`（列表 key 稳定工具，最底层）
+  2. 可拖拽排序列表 + `DragHandle`（拖拽库已就位，只需写组件）
+  3. `KeySetter`（按键捕获，配置 GUI 与 keybind 编辑的公共依赖）
+  4. 文本右键上下文菜单、删除确认语义封装
+  5. `ItemIcon`、多行可扩展编辑器、hex 文本输入框
+- **押后（高层级）**：配置 GUI 包装器框架（`ConfigRowWrapper` → 各类型 wrapper →
+  `ConfigManagerWrapper`）、`SearchBar`（配置搜索）、`CacheConfigWrapper` 等页面级内容
