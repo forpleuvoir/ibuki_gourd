@@ -173,3 +173,75 @@
   5. `ItemIcon`、多行可扩展编辑器、hex 文本输入框
 - **押后（高层级）**：配置 GUI 包装器框架（`ConfigRowWrapper` → 各类型 wrapper →
   `ConfigManagerWrapper`）、`SearchBar`（配置搜索）、`CacheConfigWrapper` 等页面级内容
+
+---
+
+## 屏幕 / 对话框进出场动画配置（compose-minecraft 绑定）
+
+> 落地于 `IGConfig.Gui.Screen` / `IGConfig.Gui.Dialog`，绑定 compose-minecraft 的
+> `ScreenAnimationDefaults` / `ComposeScreenDefaults` / `DialogAnimationDefaults` /
+> `DialogComposeScreenDefaults`；配置改动对**之后新建**的屏幕 / 对话框生效。
+
+- [x] 屏幕：`fade_in_duration` / `fade_in_offset` / `fade` / `animation_enabled`、`disable_world_render`
+- [x] 对话框：`scrim_color` / `fade_in_duration` / `initial_scale`、`disable_world_render`
+- [ ] **缓动 easing 占位**：上游 `ScreenAnimationDefaults.easing` / `DialogAnimationDefaults.easing`
+      是任意 `Easing` 对象，nebula 现有配置类型（primitive / duration / color / enum / list / map /
+      自定义 codec）都不承载「曲线函数」，需要专门的配置项。候选：
+  - 预设枚举（`configEnum` → `LinearEasing` / `FastOutSlowInEasing` / `LinearOutSlowInEasing` /
+    `FastOutLinearInEasing`），改动最小，GUI 也好做控件；
+  - 三次贝塞尔四点（`x1,y1,x2,y2` → `CubicBezierEasing`），表达力最强，需自定义 codec + `x∈[0,1]` 校验；
+  - 任意 `Easing` lambda 不可序列化，只能代码注入，不进配置。
+- [x] **不做全局配置**（属具体屏幕的构造参数，上游也没有对应默认值对象）：`pauseGame` /
+      `closeOnEsc` / `density` / `exitParentOnOpen` / `renderParentScreen`
+
+---
+
+## 出处审计（2026-09-19，agent 整理；未删改上面任何条目）
+
+> 基准：`6771fcea^` 的 `ui/` 文件树（`git ls-tree -r 6771fcea^ --name-only`）+ 迁移删除清单 `build/cw_del.log`。
+> 取回任一文件：`git show 6771fcea^:common/src/main/kotlin/moe/forpleuvoir/ibukigourd/ui/<path>`。
+> 行数为 `git show … | Measure-Object -Line` 实测值。
+
+### A. 有出处（旧文件可对照）
+
+| 条目 | 出处（`6771fcea^` 路径） | 行数 |
+|---|---|---|
+| 15 个 config wrapper | `ui/configwrapper/{Base, CacheConfigWrapper, ColorConfigWrapper, ColorSchemeConfigWrapper, ConfigGroupWrapper, ConfigManagerWrapper, ConfigUIWrapper, DurationConfigWrapper, EnumConfigWrapper, KeybindConfigWrapper, ListConfigWrapper, MapConfigWrapper, PrimitiveConfigWrapper, StringConfigWrapper, VectorConfigWrapper}.kt` | 合计 2,786 |
+| 删除确认语义封装 | `ui/preset/RemoveButton.kt`（`fun RemoveConfirmButton` :25） | 60 |
+| 可伸缩编辑弹窗 | `FlexibleDialog` 在 `ui/preset/SimpleAlertDialog.kt:92` | 187 |
+| 列表条目编辑弹窗内容 | `EditDialog*` 在 `ui/configwrapper/{String,Map,List}ConfigWrapper.kt` 里**各一份** | — |
+| 文本右键上下文菜单 | `ui/platformcontext/Material3TextContextMenu.kt` | 133 |
+| `KeySetter` | `ui/preset/KeySetter.kt`（原文写"旧 558 行"，实测 **526**） | 526 |
+| 多行可扩展编辑器 | `ui/configwrapper/StringConfigWrapper.kt:40`（private `ExpandableStringContentEditor`，非独立组件） | 444（含 wrapper 全部） |
+| 拖拽排序列表 + `DragHandle` | `DragHandle`：`ui/preset/DragHandle.kt` | 47 |
+| 同上（`ReorderableItemList`） | `ui/configwrapper/ReorderableItemList.kt` —— **非迁移所删**，`89b4dc16`（2026-07-07「重构配置列表编辑器」）删；取回用 `git show 89b4dc16^:<path>`（见 `build/cw_del.log:18`） | — |
+| 浮动添加按钮 + 随滚动显隐 | `ui/preset/modifier/FabVisibilityAnimation.kt` + `ui/preset/state/FabVisibilityByScroll.kt` | 30 + 128 |
+| `ItemIcon` | `ui/preset/ItemIcon.kt` | 249 |
+| `SearchBar` | `ui/preset/SearchBar.kt`（`SimpleSearchBar` :25） | 72 |
+| `SearchPanel` | `ui/configwrapper/ConfigManagerWrapper.kt:240`（private，非独立组件） | — |
+| `Keyed` / `rememberKeyedList` | `ui/util/Keyed.kt`（**已于 2026-09-19 重建**） | 26 |
+
+### B. 无出处（整理时自造的建议，不对应任何旧代码）
+
+- **hex 文本输入框** —— 旧版 `ui/preset/ColorPicker.kt` 只有"显示 + 点击复制"（无粘贴、无手工输入）；
+  现版为"显示 + 左键复制 + 右键粘贴"。本条出自 `c8f94468`（2026-09-17）整理时的缺口提议。
+- 全表复核后，无出处的**仅此一项**。
+
+### C. 已删但本清单未提 —— 待确认是否已由现有组件 / compose-minecraft 基座覆盖
+
+- `ui/preset/modifier/Backgourd.kt`（47）
+- `ui/preset/state/RememberInputState.kt`（66）、`ui/preset/state/RememberTextFieldState.kt`（29）
+- `ui/widget/ComposeWidget.kt`（80）
+- `ui/util/ComposeScreenHelper.kt`（15）
+- ⚠️ `ItemIcon` 的**隐性依赖** `ui/util/render/`（当前仓库零引用、迁移时全删）：
+  `SkiaItemRenderHelper.kt`(409)、`ItemRenderAtlas.kt`(390)、`TextureAtlasPainter.kt`(217)、
+  `OffscreenRenderTarget.kt`(156)、`AtlasRectAllocator.kt`(133)、`ItemAtlasPainter.kt`(67)，
+  合计 **1,372 行** —— 即 `ItemIcon` 一项的真实成本远大于 249 行。
+
+### D. 陈旧待修
+
+- 「文本右键上下文菜单」已于 R31–R33 完成（`ui/sokitsu/menu/SokitsuContextMenu.kt`），此处仍为 `[ ]`。
+- 「删除确认」重复列了两次（「弹窗与菜单」与「列表」两节各一条）。
+- lang 里 `ibukigourd.config.gui.screen.fade_in_offset` / `fade_in_duration` 的文案仍写「淡入…」，
+  现已被 `IGConfig.Gui.Screen` 复用为**进出场**动画的位移与时长；`gui.screen.pause_game`
+  已无对应配置项（全局暂停不做配置），文案待与配置 GUI 一起修。
