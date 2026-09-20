@@ -24,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.DividerTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.DialogComposeScreenTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.DropdownMenuTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.EditDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.FlatButtonTestScreen
@@ -228,6 +229,11 @@ fun SokitsuTestScreen() {
                             AlertDialogTestScreen()
                         }) {
                             Text("弹窗测试")
+                        }
+                        Button({
+                            DialogComposeScreenTestScreen()
+                        }) {
+                            Text("对话框屏幕测试")
                         }
                         Button({
                             DropdownMenuTestScreen()

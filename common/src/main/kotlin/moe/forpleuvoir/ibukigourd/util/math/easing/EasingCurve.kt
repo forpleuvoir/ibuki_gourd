@@ -1,17 +1,5 @@
-package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
+package moe.forpleuvoir.ibukigourd.util.math.easing
 
-import moe.forpleuvoir.ibukigourd.util.math.easing.BackEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.BounceEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.CircEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.CubicEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.Ease
-import moe.forpleuvoir.ibukigourd.util.math.easing.Easing
-import moe.forpleuvoir.ibukigourd.util.math.easing.ElasticEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.ExpoEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.QuadEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.QuartEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.QuintEasing
-import moe.forpleuvoir.ibukigourd.util.math.easing.SineEasing
 import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
@@ -21,9 +9,9 @@ import moe.forpleuvoir.nebula.serialization.codec.Codec
  * 动画缓动曲线名 —— 组件 meta 里描述"用哪条曲线"的那一半，另一半是 [EasingDirection]。
  *
  * 名字与实现直接取自项目已有的 `moe.forpleuvoir.ibukigourd.util.math.easing`
- * （[moe.forpleuvoir.ibukigourd.util.math.easing.Easing] 的各个 `object` 实现），
- * 不另造曲线；[mode] 是 meta 里的字面量（小写，手写 [Codec] 而非 `Codec.enum`，
- * 与 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill] 的既有风格一致）。
+ * （[Easing] 的各个 `object` 实现），不另造曲线；[mode] 是 meta / 配置里的字面量
+ * （小写，手写 [Codec] 而非 `Codec.enum`，与 [moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.CenterFill]
+ * 的既有风格一致）。
  */
 enum class EasingCurve(val mode: String) {
     Linear("linear"),
@@ -68,10 +56,7 @@ enum class EasingCurve(val mode: String) {
 }
 
 /**
- * 缓动方向 —— [EasingCurve] 的三个求值端，对应
- * [moe.forpleuvoir.ibukigourd.util.math.easing.Easing.easeIn] /
- * [moe.forpleuvoir.ibukigourd.util.math.easing.Easing.easeOut] /
- * [moe.forpleuvoir.ibukigourd.util.math.easing.Easing.easeInOut]。
+ * 缓动方向 —— [EasingCurve] 的三个求值端，对应 [Easing.easeIn] / [Easing.easeOut] / [Easing.easeInOut]。
  *
  * 与曲线名合起来才是完整的一条缓动：`"cubic"` + `"in"` 即 `easeIn(t) = t³`。
  */

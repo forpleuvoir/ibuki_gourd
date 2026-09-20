@@ -6,10 +6,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogTransition
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.EasingCurve
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.EasingDirection
+import moe.forpleuvoir.ibukigourd.util.math.easing.EasingCurve
+import moe.forpleuvoir.ibukigourd.util.math.easing.EasingDirection
+import moe.forpleuvoir.ibukigourd.util.math.easing.ease
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ease
 import moe.forpleuvoir.ibukigourd.util.codec.dp
 import moe.forpleuvoir.ibukigourd.util.codec.ibukigourdIdentifier
 import moe.forpleuvoir.ibukigourd.util.codec.padding
