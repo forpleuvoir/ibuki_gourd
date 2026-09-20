@@ -180,4 +180,10 @@ object EditDialogContentDefaults {
 
     /** 浮动按钮与内容区右下角的间距。 */
     val addButtonPadding: PaddingValues = PaddingValues(12.dp)
+
+    /** [EditDialogContentList] 的列表最大高度。 */
+    val listMaxHeight: Dp = 320.dp
+
+    /** [EditDialogContentList] 的行间距。 */
+    val rowSpacing: Dp = 4.dp
 }
