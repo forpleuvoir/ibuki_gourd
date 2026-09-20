@@ -35,6 +35,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.RemoveConfirmButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ReorderableTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ScrollerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
+import moe.forpleuvoir.ibukigourd.test.keybind.KeySetterTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.MultiSelectorTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTriggerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTestScreen
@@ -181,6 +182,11 @@ fun SokitsuTestScreen() {
                             ItemIconTestScreen()
                         }) {
                             Text("物品图标测试")
+                        }
+                        Button({
+                            KeySetterTestScreen()
+                        }) {
+                            Text("按键绑定测试")
                         }
                         Button({
                             IconButtonTestScreen()
