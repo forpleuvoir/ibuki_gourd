@@ -11,11 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
-import moe.forpleuvoir.compose_minecraft.platform.ui.popup.LocalPopupHost
-import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostOverlay
-import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
 import moe.forpleuvoir.ibukigourd.test.item.ItemIconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AlertDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
@@ -40,6 +38,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.RemoveConfirmButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ReorderableTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ScrollerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.SokitsuScreenTestScreen
 import moe.forpleuvoir.ibukigourd.test.keybind.KeySetterTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.MultiSelectorTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTriggerTestScreen
@@ -49,12 +48,12 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.ToastTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TooltipTestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.darkColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.lightColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.systemTheme
@@ -76,28 +75,40 @@ var TestLightScheme by mutableStateOf(lightColorScheme())
  */
 var TestDarkScheme by mutableStateOf(darkColorScheme())
 
-var PixelScale by mutableStateOf(SokitsuThemeMeta.pixelScale)
+/**
+ * 测试屏的全局缩放倍率：叠在 [SokitsuScreen] 按分辨率解析出的档之上（1 = 不干预）。
+ *
+ * 由测试屏顶部的按钮切换，用于在任意窗口尺寸下验证精灵在不同整数倍率下的对齐。
+ */
+var PixelScaleFactor by mutableStateOf(1)
 
+/**
+ * 测试屏主题：在 [SokitsuScreen] 已铺好的主题之上，叠上 [TestScreenLight] 选中的那份测试配色
+ * 与全局缩放倍率 [PixelScaleFactor]。
+ *
+ * 只覆盖这两项 —— 按分辨率解析的缩放档由 [SokitsuScreen] 的测量包裹给出，场景根弹层
+ * （`LocalPopupHost`）由其底下的平台场景提供，测试屏不再自建。
+ */
 @Composable
 fun TestScreenTheme(content: @Composable () -> Unit) {
-    val popupHost = remember { PopupHostState() }
-    SokitsuTheme(
-        // 用测试屏自己的两份配色（而非 meta 里的）——这样在配色测试屏里调色能立刻看到全局效果
-        colorScheme = if (TestScreenLight) TestLightScheme else TestDarkScheme,
+    val density = LocalDensity.current
+    val pixelScale = LocalSokitsuPixelScale.current
+    CompositionLocalProvider(
+        // 倍率同乘密度与像素倍率（而非直接指定其一），档间比例不变、像素仍对齐
+        LocalDensity provides Density(density.density * PixelScaleFactor, density.fontScale),
     ) {
-        // 场景根弹层：Tooltip 气泡经 LocalPopupHost.register 注册，由 PopupHostOverlay 统一渲染
-        CompositionLocalProvider(
-            LocalSokitsuPixelScale provides PixelScale,
-            LocalPopupHost provides popupHost,
+        SokitsuTheme(
+            // 用测试屏自己的两份配色（而非 meta 里的）——这样在配色测试屏里调色能立刻看到全局效果
+            colorScheme = if (TestScreenLight) TestLightScheme else TestDarkScheme,
+            pixelScale = pixelScale * PixelScaleFactor,
         ) {
             content()
-            PopupHostOverlay()
         }
     }
 }
 
 fun TestScreen(content: @Composable () -> Unit) {
-    ComposeScreen.open(parent = mc.gui.screen()) {
+    SokitsuScreen.open(parent = mc.gui.screen()) {
         TestScreenTheme(content)
     }
 }
@@ -112,7 +123,7 @@ fun CenterBox(
 }
 
 fun SokitsuTestScreen() {
-    ComposeScreen.open {
+    SokitsuScreen.open {
         TestScreenTheme {
             // 背景交给 Surface：铺 surface 色板并下发 onSurface 内容色
             // （暂无面板素材，走纯色填充；素材补齐后这里不用改）
@@ -129,8 +140,8 @@ fun SokitsuTestScreen() {
 
                         Text("内容色测试:${LocalContentColor.current.toNebulaColor().hexStr}")
 
-                        Button({ PixelScale = if (PixelScale == 2) 3 else 2 }) {
-                            Text("切换像素缩放${PixelScale}")
+                        Button({ PixelScaleFactor = if (PixelScaleFactor == 1) 2 else 1 }) {
+                            Text("缩放倍率 ×${PixelScaleFactor}")
                         }
                     }
                     // 图层 alpha 传递验证：Modifier.alpha 应同时淡化精灵（按钮/滑条）与其中的文字
@@ -237,6 +248,11 @@ fun SokitsuTestScreen() {
                             DialogComposeScreenTestScreen()
                         }) {
                             Text("对话框屏幕测试")
+                        }
+                        Button({
+                            SokitsuScreenTestScreen()
+                        }) {
+                            Text("Sokitsu 屏幕测试")
                         }
                         Button({
                             DropdownMenuTestScreen()
