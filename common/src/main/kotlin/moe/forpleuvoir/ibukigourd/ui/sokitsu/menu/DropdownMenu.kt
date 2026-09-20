@@ -266,6 +266,7 @@ fun DropdownMenu(
                             .width(IntrinsicSize.Max)
                             .heightIn(max = maxHeight)
                             .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(DropdownMenuDefaults.itemSpacing),
                     ) {
                         CompositionLocalProvider(
                             LocalDropdownMenuController provides remember(onDismissRequest) {

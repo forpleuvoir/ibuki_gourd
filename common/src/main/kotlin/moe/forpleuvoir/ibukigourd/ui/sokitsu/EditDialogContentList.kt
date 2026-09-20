@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -17,7 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -35,7 +37,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
  * @param modifier 作用于列表
  * @param lazyListState 列表状态；与 `EditDialogContent` 共用同一个，浮动按钮的随滚动显隐才有依据
  * @param maxHeight 列表最大高度（外层弹窗高度由内容决定，这里必须给上界）
- * @param removeButton 尾列槽位，默认给一个删除图标按钮；传 null 则不占尾列
+ * @param removeButton 尾列槽位，默认给带二次确认的删除按钮；传 null 则不占尾列
  * @param itemContent 内容列槽位：当前索引、条目值、是否正在被拖拽
  */
 @Composable
@@ -44,16 +46,14 @@ fun <T> EditDialogContentList(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     maxHeight: Dp = EditDialogContentDefaults.listMaxHeight,
-    removeButton: (@Composable (index: Int) -> Unit)? = { index ->
-        IconButton(
-            onClick = { state.removeAt(index) },
-            modifier = Modifier.padding(0.dp),
-        ) {
-            Icon(
-                icon = Icons.Delete,
-                tint = LocalContentColor.current,
-            )
-        }
+    removeButton: (@Composable (index: Int, value: T) -> Unit)? = { index, value ->
+        RemoveConfirmButton(
+            message = value.toString(),
+            onConfirm = { state.removeAt(index) },
+            modifier = Modifier.height(EditDialogContentDefaults.rowHeight),
+            iconScale = LocalSokitsuPixelScale.current,
+            contentPadding = ConfigControlDefaults.IconButtonPadding,
+        )
     },
     itemContent: @Composable (index: Int, value: T, isDragging: Boolean) -> Unit,
 ) {
@@ -67,9 +67,15 @@ fun <T> EditDialogContentList(
         verticalArrangement = Arrangement.spacedBy(EditDialogContentDefaults.rowSpacing),
     ) {
         itemsIndexed(state.entries, key = { _, entry -> entry.key }) { index, entry ->
-            ReorderableItem(state = reorderableState, key = entry.key) { isDragging ->
+            // 库默认 animateItemModifier = Modifier.animateItem()：新条目淡入 + 走位，看着像“添加有延迟”。
+            // 这里只关掉**淡入**（添加即时出现），保留默认的 fadeOut（删除仍有淡出）与位移；拖拽位移由库自身承担
+            ReorderableItem(
+                state = reorderableState,
+                key = entry.key,
+                animateItemModifier = Modifier.animateItem(fadeInSpec = null),
+            ) { isDragging ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(EditDialogContentDefaults.rowHeight),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
@@ -77,8 +83,11 @@ fun <T> EditDialogContentList(
                         contentAlignment = Alignment.Center,
                     ) {
                         DragHandle(
-                            isDragging = isDragging,
-                            modifier = Modifier.draggableHandle(),
+                            modifier = Modifier
+                                .draggableHandle()
+                                .height(EditDialogContentDefaults.rowHeight),
+                            iconScale = LocalSokitsuPixelScale.current,
+                            contentPadding = ConfigControlDefaults.IconButtonPadding,
                         )
                     }
 
@@ -94,7 +103,7 @@ fun <T> EditDialogContentList(
                             modifier = Modifier.width(EditDialogContentDefaults.removeColumnWidth),
                             contentAlignment = Alignment.Center,
                         ) {
-                            removeButton(index)
+                            removeButton(index, entry.value)
                         }
                     }
                 }

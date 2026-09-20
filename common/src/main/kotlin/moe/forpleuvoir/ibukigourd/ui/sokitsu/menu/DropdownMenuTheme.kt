@@ -115,6 +115,9 @@ object DropdownMenuDefaults {
     /** 当前主题的 dropdown_menu meta。 */
     inline val meta get() = SokitsuThemeMeta.dropdownMenu
 
+    /** 相邻条目之间的间距。 */
+    val itemSpacing: Dp = 8.dp
+
     /** 面板精灵：按 [DropdownMenuMeta.panelSprite] 经 UI 图集解析。 */
     fun panelSprite() = SokitsuThemeMeta.uiSprite(meta.panelSprite)
 

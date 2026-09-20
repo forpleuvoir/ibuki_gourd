@@ -243,6 +243,7 @@ private fun <T> SelectorDialogExpanded(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = listMaxHeight),
+                        verticalArrangement = Arrangement.spacedBy(SelectorExpandedDefaults.itemSpacing),
                     ) {
                         items(filtered.size, key = { index -> index }) { index ->
                             val item = filtered[index]
@@ -344,6 +345,9 @@ object SelectorExpandedDefaults {
 
     /** 弹窗内各段之间的间距。 */
     val dialogSpacing: Dp = 8.dp
+
+    /** 展开体里相邻选项之间的间距。 */
+    val itemSpacing: Dp = 8.dp
 
     /** 弹窗最小宽度。 */
     val dialogMinWidth: Dp = 300.dp

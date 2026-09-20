@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,13 +23,16 @@ fun RemoveButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    iconScale: Int = 2,
+    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
 ) {
     IconButton(
         onClick = onClick,
         modifier = modifier.tooltip { Text(IGLang.Misc.remove) },
         enabled = enabled,
+        contentPadding = contentPadding,
     ) {
-        Icon(Icons.Delete)
+        Icon(Icons.Delete, scale = iconScale)
     }
 }
 
@@ -54,6 +58,8 @@ fun RemoveConfirmButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     quickAction: () -> Boolean = { isQuickAction },
+    iconScale: Int = 2,
+    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
     content: (@Composable () -> Unit)? = null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -62,6 +68,8 @@ fun RemoveConfirmButton(
         onClick = { if (quickAction()) onConfirm() else showDialog = true },
         modifier = modifier,
         enabled = enabled,
+        iconScale = iconScale,
+        contentPadding = contentPadding,
     )
 
     if (showDialog) {

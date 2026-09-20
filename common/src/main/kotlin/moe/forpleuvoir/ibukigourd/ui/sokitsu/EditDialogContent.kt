@@ -71,7 +71,9 @@ fun EditDialogContent(
 
     Box(modifier = modifier.fabScrollVisibility(fabVisibility)) {
         Column(modifier = Modifier) {
+            Spacer(Modifier.height(EditDialogContentDefaults.contentTopPadding))
             header()
+            Spacer(Modifier.height(EditDialogContentDefaults.headerBottomGap))
             content(lazyListState)
         }
 
@@ -161,29 +163,43 @@ fun EditDialogContentHeader(
 object EditDialogContentDefaults {
 
     /** 表头行高。 */
-    val headerHeight: Dp = 40.dp
+    val headerHeight: Dp = 56.dp
 
     /** 表头列之间的水平间距。 */
-    val columnSpacing: Dp = 8.dp
+    val columnSpacing: Dp = 16.dp
 
     /** 首列（移动 / 排序）宽度。 */
-    val moveColumnWidth: Dp = 60.dp
+    val moveColumnWidth: Dp = 80.dp
 
     /** 尾列（删除）宽度。 */
-    val removeColumnWidth: Dp = 60.dp
+    val removeColumnWidth: Dp = 80.dp
+
+    /** 正文区顶部留白：标题与表头之间的间距已由 `FlexibleDialog` 的 titleBottomPadding 给出，这里不再叠加。 */
+    val contentTopPadding: Dp = 0.dp
 
     /** 表头上内边距。 */
     val headerTopPadding: Dp = 8.dp
 
     /** 表头下内边距。 */
-    val headerBottomPadding: Dp = 4.dp
+    val headerBottomPadding: Dp = 8.dp
+
+    /** 表头（含其下分割线）与列表首行之间的留白。 */
+    val headerBottomGap: Dp = 12.dp
 
     /** 浮动按钮与内容区右下角的间距。 */
     val addButtonPadding: PaddingValues = PaddingValues(12.dp)
 
     /** [EditDialogContentList] 的列表最大高度。 */
-    val listMaxHeight: Dp = 320.dp
+    val listMaxHeight: Dp = 640.dp
+
+    /**
+     * [EditDialogContentList] 的行高。
+     *
+     * 取 56dp 与文本输入框的默认最小高度（`text_field.min_size` 的 56dp）一致：
+     * 交互按钮默认只有 48dp，不统一的话输入框的条会比左右按钮各高出一截。
+     */
+    val rowHeight: Dp = 56.dp
 
     /** [EditDialogContentList] 的行间距。 */
-    val rowSpacing: Dp = 4.dp
+    val rowSpacing: Dp = 12.dp
 }
