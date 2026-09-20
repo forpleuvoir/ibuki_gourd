@@ -125,7 +125,26 @@
       — 交互模型定为**逐通道条 + 数值框**（非渐变面板拖拽）；`ColorPickButton` 是"底色 = 当前颜色、
         点击弹 `AlertDialog` 编辑副本"的入口组件
 - [ ] hex 文本输入框（当前色值只有只读显示 + 整串复制 / 粘贴，没有反向输入）
-- [ ] `KeySetter`（按键捕获、组合键显示；旧 558 行）
+- [x] `KeySetter`（按键捕获、组合键显示；旧 558 行）
+      — `ui/keybind/KeySetter.kt`（**非 sokitsu 包**，用 sokitsu 组件拼装）：`KeyCodeSetButton`（单键）/ `KeybindSetButton`（组合键，
+      松开全部按键才写入，`Esc`、`Ctrl + Backspace` 清空）/ `KeybindSettingSetButton` +
+      `KeybindSettingColumn`（穿透 / 严格开关、环境与触发模式 `Selector`、长按阈值与重复间隔
+      `IntField` 按触发模式显隐）/ `Keybind.hoverText()`（按键组合 + 冲突列表）
+      — 捕获状态机在 `ui/util/InputState.kt`：`rememberKeyCapture` 全程由键盘 / 鼠标**事件回调**驱动
+      （不逐帧轮询、不在组合期或协程里写状态）；`rememberPressedKeys` 维护按下顺序
+      — 捕获期间按键 / 鼠标事件在回调里直接 `cancel`：mixin 在事件之后检查 `isCancelled()`，
+      能连**按住的 GLFW_REPEAT** 一起吞掉 —— `InputHandler.onKeyPress` 对重复触发直接放行，
+      靠"注册通配 `Keybind`"只能吞首次按下，会漏成重复输入
+      — 捕获期间气泡用 `tooltip(pinned = inputting)` 钉住：`basicTooltip` / `tooltip` 新增 `pinned` 参数
+      （跳过悬停延迟直接展示、忽略移出、弹层 `dismissOnClickOutside = false`），
+      否则点击按钮本身就算"点弹层外部"会被关掉，看不到实时累计的按键
+      — 捕获的按下集合必须用 `LinkedHashSet`（`MutableList.add` 恒为 true，按住重复会重复入列，
+      释放一次删不净 → 永不提交、隐藏动作键卡在按下态）；`PressedKeysState` 同理
+      — tooltip 内容居中靠 `BubblePanel` 的 `contentAlignment = Center`：面板有 `minSize`，
+      内容窄时会被 `TopStart` 贴在左侧，此时单独给文本 `textAlign` 是无效的（Text 节点宽度即文字宽度）
+      — 冲突高亮读 `InputHandler.detectKeyConflicts` + `keybindVersion`，用主题 `error` / `onError` 配色
+      — 新增 `key_environment` 三档文案（8 个语言文件）；旧 `KeybindAssistChip`（Material3 Chip）不采用
+      — 与旧版差别：旧版用 `withFrameNanos` 逐帧轮询 `InputHandler.pressedKeys`，本版改为事件驱动
 - [ ] 多行可扩展文本编辑器（旧 `ExpandableStringContentEditor`）
 
 **列表**
@@ -176,7 +195,8 @@
 `Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
 `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / `AlertDialog`(+`SimpleAlertDialog`) /
 `FlexibleDialog` / `EditDialog`(+`EditDialogContent` / `EditDialogContentHeader`) /
-`RemoveButton` / `RemoveConfirmButton` /
+`RemoveButton` / `RemoveConfirmButton` / `KeySetter`（`KeyCodeSetButton` / `KeybindSetButton` /
+`KeybindSettingSetButton` / `KeybindSettingColumn`） /
 `ColorPicker`(+`ColorPickButton`) / `Toast`（全局常驻） / `Divider` / `ProgressBar` /
 `DropdownMenu`(+`DropdownMenuItem`) / `SokitsuContextMenu`（文本框右键，theme 级
 `LocalContextMenuRepresentation`） / `Keyed` + `rememberKeyedList`（列表 key 稳定） /
@@ -209,12 +229,12 @@
   `Divider`、`ProgressBar`、`DropdownMenu`（分开式）、`Selector`（单/多选 + 搜索）、
   滚动条（常规 + overlay，`autoHide` / `autoFade`）、`Keyed` / `rememberKeyedList`、
   文本右键上下文菜单（`SokitsuContextMenu`）、`FlexibleDialog` / `EditDialog`（+`EditDialogContent`）、
-  `RemoveButton` / `RemoveConfirmButton`、`ItemIcon`（`ui/item`，原生 modifier 绘制）
+  `RemoveButton` / `RemoveConfirmButton`、`ItemIcon`（`ui/item`，原生 modifier 绘制）、
+  `KeySetter`（按键绑定捕获与设置）
 - **下一步（基础组件，按依赖从底到顶）**：
   1. 可拖拽排序列表 + `DragHandle`（拖拽库 / 手柄图标 / 测试屏都已就位，只需封装组件；
      它同时是 `Keyed` 的首个消费者，也是 `EditDialogContentList` 的落点）
-  2. `KeySetter`（按键捕获，配置 GUI 与 keybind 编辑的公共依赖）
-  3. 多行可扩展编辑器、hex 文本输入框
+  2. 多行可扩展编辑器、hex 文本输入框
 - **押后（高层级）**：配置 GUI 包装器框架（`ConfigRowWrapper` → 各类型 wrapper →
   `ConfigManagerWrapper`）、`SearchBar`（配置搜索）、`CacheConfigWrapper` 等页面级内容
 
