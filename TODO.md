@@ -78,8 +78,21 @@
 - [x] `AlertDialog` + `SimpleAlertDialog`
       — `ui/sokitsu/AlertDialog.kt` / `SimpleAlertDialog.kt`；主题 meta 键 `alert_dialog`，
       出入场动画由平台 `Dialog` 的图层快照重放承担（调用方用 `if (show)` 控制组合即可）
-- [ ] 删除确认一类语义封装（旧 `RemoveConfirmButton`）
-- [ ] 可伸缩编辑弹窗（旧 `FlexibleDialog`、`EditDialog*`）
+- [x] 删除确认语义封装
+      — `ui/sokitsu/RemoveConfirmButton.kt`：`RemoveButton`（`delete` 图标 + 气泡提示，点击直接执行）
+      + `RemoveConfirmButton`（点击弹 `SimpleAlertDialog` 确认，确认按钮用主题 `error` / `onError` 配色，
+      标题取 `IGLang.Misc.removeConfirm`，另有补充正文槽位）
+      — `quickAction` 在**点击时**求值，默认读全局 `isQuickAction`
+      （`InputHandler.wasKeyPressed(IGConfig.Gui.quickActionKeyCode)`，配置项缺省左 Shift）→ 按住跳过确认
+- [x] 可伸缩编辑弹窗（旧 `FlexibleDialog`、`EditDialog*`）
+      — `ui/sokitsu/FlexibleDialog.kt`：面板宽度由内容决定（`usePlatformDefaultWidth = false`，
+      `minWidth` / `maxWidth` 缺省不约束），正文区 `weight(1f, fill = false)` 便于放滚动列表，
+      面板精灵 / 配色 / 进出场动画沿用 `alert_dialog` 主题槽位
+      — `ui/sokitsu/EditDialog.kt`：以可编辑副本承载内容，确认时把副本快照交回
+      `onConfirm: (List<E>) -> Boolean`（返回 false 保持打开），取消 / 遮罩关闭直接丢弃副本
+      — `ui/sokitsu/EditDialogContent.kt`：`EditDialogContent`（表头 + 正文 + 角标按钮槽位）与
+      `EditDialogContentHeader`（可选首 / 尾列 + 内容列 + 分割线）
+      — 未含 `EditDialogContentList`（拖拽排序行列表，随「可拖拽排序列表 + `DragHandle`」一项）
 - [x] `DropdownMenu` + 菜单项（分开式）
       — `ui/sokitsu/menu/DropdownMenu.kt` / `DropdownMenuTheme.kt`（meta 键 `dropdown_menu`）：
       核心 API 走**无状态**（`expanded` / `onDismissRequest` / `anchorBounds`），另有把展开标志与
@@ -92,7 +105,10 @@
         面板宽高与各项宽度**都由内容撑开**（不填充、不拉齐各项）
       — `DropdownMenuItem` 是**可选**的默认条目：高度取 `heightIn(min)`（内容更高就撑开）、
         内边距 / 图标间距 / 图标倍率 / 悬停色均为可覆盖的默认值（组件常量，**不进主题 meta**）
-- [ ] 文本右键上下文菜单（旧 `Material3TextContextMenu`）
+- [x] 文本右键上下文菜单的 Sokitsu 呈现层
+      — `ui/sokitsu/menu/SokitsuContextMenu.kt`：`SokitsuContextMenuRepresentation` 由
+      `SokitsuTheme` 经 `LocalContextMenuRepresentation` 提供，文本框右键即走此呈现层
+      （旧 `ui/platformcontext/Material3TextContextMenu.kt` 不采用）
 
 **输入与选择**
 
@@ -120,24 +136,51 @@
         并通过编译与打包验证；待做的是本项目的列表组件与 `DragHandle` 封装
         （旧版走 Lazy 路线：`rememberReorderableLazyListState` + `ReorderableItem`；
         本仓列表目前是 `verticalScroll` + Column，可改用 `ReorderableList` 那套非 Lazy API）
-- [ ] 删除确认按钮（旧 `RemoveConfirmButton`）
-- [ ] 列表/映射条目编辑弹窗内容（旧 `EditDialogContent*`）
-- [ ] 浮动添加按钮 + 随滚动显隐（旧 FAB / `fabVisibilityAnimation` / `rememberFabVisibilityByScroll`）
-      — 用普通 `Button` + 定位修饰器拼出，不新增 FAB 组件
+      — 另已就位：手柄图标 `Icons.DragHandle`（`drag_handle`）；`devOnly` 的 `ReorderableTest.kt`
+        已有可用手柄实现（按下 armed / 拖拽中反馈、平移跟随），待提成组件
+- [x] 列表/映射条目编辑弹窗内容（旧 `EditDialogContent*`）
+      — `ui/sokitsu/EditDialogContent.kt`：`EditDialogContent`（默认表头 + 正文槽位
+      `(LazyListState) -> Unit` + 右下角浮动按钮槽位）与 `EditDialogContentHeader`
+      （可选首 / 尾列 + 内容列 + 分割线）；表头由默认槽位渲染，内容区不要再写一次
+- [x] 浮动添加按钮 + 随滚动显隐（旧 FAB / `fabVisibilityAnimation` / `rememberFabVisibilityByScroll`）
+      — 普通 `Button` + 定位修饰器拼出，不新增 FAB 组件；显隐逻辑在 `ui/util/FabVisibility.kt`：
+      `rememberFabScrollVisibility`（`LazyListState` / `LazyGridState` / `LazyStaggeredGridState` /
+      `ScrollState` / 项目 `ScrollerAdapter` 五版）返回 `FabScrollVisibility`（自身即
+      `NestedScrollConnection`），由 `Modifier.fabScrollVisibility` 挂在滚动容器**祖先**上：
+      **方向判定**（向下累计超 `hideDistance` 收起、向上滚动立即恢复、回到起始端恒可见、≤2px 抖动忽略）
+      在嵌套滚动回调 `onPreScroll` 里推进 —— 回调发生在滚动事件派发期，既不在组合期也不在帧派发器上
+      — 位移取「索引 / 偏移」单调标记差值，不用"可见项平均尺寸"（后者随可见集抖动，会误判方向）
+      — ⚠️ **滚动不得触发组合期或协程里的快照写入**：两种写法在本平台都会与测量 / 快照锁撞成
+      **永久死等**（卡死 + CPU 空闲 + 完全无响应，暂停栈停在 `System.nanoTime`）；
+      只在组合期**读**滚动状态是安全的（本仓 `Scroller` / `Selector` 即此）
+      — `Modifier.fabVisibilityAnimation`（图层透明度 / 位移 / 缩放）保留给外部低频显隐；
+      组件侧由 `EditDialogContent` 用 `AnimatedVisibility`（淡入 / 上移 / 缩放，隐藏后移出组合）
+      内置到浮动按钮槽位；强制隐藏默认读隐藏动作键 `IGConfig.Gui.hideActionKeyCode`（缺省左 Alt）
 
 **其它**
 
-- [ ] `ItemIcon`（MC 物品渲染为图标）
+- [x] `ItemIcon`（MC 物品渲染为图标）
+      — `ui/item/ItemIcon.kt`（**非 sokitsu 包**）：物品本体走 `Modifier.minecraftItem`（原生物品模型，
+      与 Compose 内容共享绘制顺序 / 裁剪，可参与 Popup / Dialog 图层），悬停 tooltip 走
+      `Modifier.minecraftTooltip`（`TooltipLines.fromItem`），悬停放大走 `graphicsLayer`
+      （尺寸变化由绘制节点画布矩阵承担），数量用 `BasicText` 叠在右下角；
+      布局尺寸即绘制尺寸（默认 48dp，取 16 的整数倍），另有 `color` / `seed`；**不再走离屏烘焙与逐帧原生推流**
 - [ ] `SearchBar` / `SearchPanel`（配置搜索 + 匹配高亮）
-- [ ] `Keyed` / `rememberKeyedList`（列表 key 稳定工具）
+- [x] `Keyed` / `rememberKeyedList`（列表 key 稳定工具）
+      — `ui/util/Keyed.kt`：key 跟**数据**走而非位置，重排时条目组合状态不丢；
+      目前尚无业务引用，拖拽排序列表将是首个消费者
 
 ### 3. 已有可直接复用
 
 `Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Icon` + `Icons`（36 个像素图标）/
 `Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
 `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / `AlertDialog`(+`SimpleAlertDialog`) /
+`FlexibleDialog` / `EditDialog`(+`EditDialogContent` / `EditDialogContentHeader`) /
+`RemoveButton` / `RemoveConfirmButton` /
 `ColorPicker`(+`ColorPickButton`) / `Toast`（全局常驻） / `Divider` / `ProgressBar` /
-`DropdownMenu`(+`DropdownMenuItem`) / `Selector`（单/多选 + 搜索，单/多选共用展开体） /
+`DropdownMenu`(+`DropdownMenuItem`) / `SokitsuContextMenu`（文本框右键，theme 级
+`LocalContextMenuRepresentation`） / `Keyed` + `rememberKeyedList`（列表 key 稳定） /
+`Selector`（单/多选 + 搜索，单/多选共用展开体） /
 `VerticalScroller` + `HorizontalScroller`（常规）与 `VerticalOverlayScroller` + `HorizontalOverlayScroller`（叠加，
 支持 `autoHide` / `autoFade`，滚动源经 `ScrollerAdapter` 解耦）/ 主题与 `SokitsuThemeMeta` 体系。
 
@@ -164,13 +207,14 @@
 - **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）、
   `AlertDialog` + `SimpleAlertDialog`、`ColorPicker`（含 `ColorPickButton`）、`Toast`、
   `Divider`、`ProgressBar`、`DropdownMenu`（分开式）、`Selector`（单/多选 + 搜索）、
-  滚动条（常规 + overlay，`autoHide` / `autoFade`）
+  滚动条（常规 + overlay，`autoHide` / `autoFade`）、`Keyed` / `rememberKeyedList`、
+  文本右键上下文菜单（`SokitsuContextMenu`）、`FlexibleDialog` / `EditDialog`（+`EditDialogContent`）、
+  `RemoveButton` / `RemoveConfirmButton`、`ItemIcon`（`ui/item`，原生 modifier 绘制）
 - **下一步（基础组件，按依赖从底到顶）**：
-  1. `Keyed` / `rememberKeyedList`（列表 key 稳定工具，最底层）
-  2. 可拖拽排序列表 + `DragHandle`（拖拽库已就位，只需写组件）
-  3. `KeySetter`（按键捕获，配置 GUI 与 keybind 编辑的公共依赖）
-  4. 文本右键上下文菜单、删除确认语义封装
-  5. `ItemIcon`、多行可扩展编辑器、hex 文本输入框
+  1. 可拖拽排序列表 + `DragHandle`（拖拽库 / 手柄图标 / 测试屏都已就位，只需封装组件；
+     它同时是 `Keyed` 的首个消费者，也是 `EditDialogContentList` 的落点）
+  2. `KeySetter`（按键捕获，配置 GUI 与 keybind 编辑的公共依赖）
+  3. 多行可扩展编辑器、hex 文本输入框
 - **押后（高层级）**：配置 GUI 包装器框架（`ConfigRowWrapper` → 各类型 wrapper →
   `ConfigManagerWrapper`）、`SearchBar`（配置搜索）、`CacheConfigWrapper` 等页面级内容
 
@@ -238,10 +282,11 @@
   `OffscreenRenderTarget.kt`(156)、`AtlasRectAllocator.kt`(133)、`ItemAtlasPainter.kt`(67)，
   合计 **1,372 行** —— 即 `ItemIcon` 一项的真实成本远大于 249 行。
 
-### D. 陈旧待修
+### D. 陈旧待修（2026-09-20 复核）
 
-- 「文本右键上下文菜单」已于 R31–R33 完成（`ui/sokitsu/menu/SokitsuContextMenu.kt`），此处仍为 `[ ]`。
-- 「删除确认」重复列了两次（「弹窗与菜单」与「列表」两节各一条）。
-- lang 里 `ibukigourd.config.gui.screen.fade_in_offset` / `fade_in_duration` 的文案仍写「淡入…」，
-  现已被 `IGConfig.Gui.Screen` 复用为**进出场**动画的位移与时长；`gui.screen.pause_game`
-  已无对应配置项（全局暂停不做配置），文案待与配置 GUI 一起修。
+- **未修**：lang 里 `ibukigourd.config.gui.screen.fade_in_offset` / `fade_in_duration` 的文案
+  仍写「淡入…」，现已被 `IGConfig.Gui.Screen` 复用为**进出场**动画的位移与时长（dialog 侧
+  同名键已改成 Enter/Exit）；`gui.screen.pause_game` 的标题 + 注释在 8 个语言文件里都还在，
+  但已无任何 Kotlin 引用（全局暂停不做配置）——两项随配置 GUI 一起修。
+- 2026-09-20 复核已解决：「文本右键上下文菜单」已勾选（`ui/sokitsu/menu/SokitsuContextMenu.kt`，
+  R31–R33）；「删除确认」重复条目已去重（保留「弹窗与菜单」一条）。
