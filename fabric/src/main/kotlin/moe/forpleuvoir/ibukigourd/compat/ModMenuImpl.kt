@@ -1,11 +1,14 @@
 package moe.forpleuvoir.ibukigourd.compat
 
+import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ibukiGourdConfigScreen
 
 /**
- * ModMenu 集成。
- *
- * 配置界面已随 Compose Desktop UI 一并移除，待 compose-minecraft UI 落地后
- * 在此重新注册 [com.terraformersmc.modmenu.api.ConfigScreenFactory]。
+ * ModMenu 集成：把模组列表里的"配置"按钮接到 [ibukiGourdConfigScreen]。
  */
-object ModMenuImpl : ModMenuApi
+object ModMenuImpl : ModMenuApi {
+
+    override fun getModConfigScreenFactory(): ConfigScreenFactory<*> =
+        ConfigScreenFactory { parent -> ibukiGourdConfigScreen(parent) }
+}
