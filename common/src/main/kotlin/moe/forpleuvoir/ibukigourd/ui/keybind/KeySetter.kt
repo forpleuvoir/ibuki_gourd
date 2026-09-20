@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -15,7 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.input.InputHandler
@@ -35,6 +38,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
@@ -105,7 +109,11 @@ fun KeyCodeSetButton(
     ) {
         Icon(Icons.Keyboard)
         Spacer(Modifier.width(8.dp))
-        Text(if (inputting) singleCaptureLabel(last) else value.keyNameText)
+        Text(
+            if (inputting) singleCaptureLabel(last) else value.keyNameText,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -158,7 +166,11 @@ fun KeybindSetButton(
     ) {
         Icon(Icons.Keyboard)
         Spacer(Modifier.width(8.dp))
-        Text(if (inputting) captureLabel(captured) else keybind.asText)
+        Text(
+            if (inputting) captureLabel(captured) else keybind.asText,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -176,9 +188,18 @@ fun KeybindSettingSetButton(
     onValueChange: (KeybindSetting) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    iconScale: Int = 2,
+    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf(keybindSetting) }
+    val focusManager = LocalFocusManager.current
+
+    /** 关闭设置弹窗：顺带清掉按钮焦点（`Button` 在 focused 时画描边，不清会"永久变色"）。 */
+    fun closeDialog() {
+        showDialog = false
+        focusManager.clearFocus()
+    }
 
     IconButton(
         onClick = {
@@ -187,15 +208,17 @@ fun KeybindSettingSetButton(
         },
         modifier = modifier.tooltip { Text(IGLang.Misc.edit) },
         enabled = enabled,
+        contentPadding = contentPadding,
     ) {
-        Icon(Icons.Edit)
+        Icon(Icons.Edit, scale = iconScale)
     }
 
     if (showDialog) {
         SimpleAlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { closeDialog() },
             onConfirmRequest = {
                 onValueChange(editing)
+                closeDialog()
                 true
             },
             title = { Text(IGLang.Input.KeybindSetting.title) },

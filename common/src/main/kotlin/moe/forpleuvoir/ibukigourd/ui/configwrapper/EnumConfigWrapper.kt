@@ -26,11 +26,13 @@ fun <E : Enum<E>> EnumConfigWrapper(config: ConfigEnum<E>, modifier: Modifier = 
     val items = enumConstantsOf(value)
 
     ConfigRowWrapper(config, modifier) {
-        EnumSelectorContent(
+        ConfigControlBlock {
+            EnumSelectorContent(
             value = value,
             items = items,
-            onSelect = { config.setValue(it) },
-        )
+                onSelect = { config.setValue(it) },
+            )
+        }
     }
 }
 
@@ -39,6 +41,7 @@ private fun <E : Enum<E>> EnumSelectorContent(
     value: E,
     items: List<E>,
     onSelect: (E) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Selector(
         selected = value,
@@ -51,7 +54,7 @@ private fun <E : Enum<E>> EnumSelectorContent(
         } else {
             null
         },
-        modifier = Modifier.width(ConfigControlDefaults.SelectorWidth),
+        modifier = modifier,
     )
 }
 

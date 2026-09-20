@@ -174,7 +174,7 @@ private fun ConfigSearchBar(
         modifier = modifier.fillMaxWidth().padding(ConfigManagerDefaults.SearchPadding),
         hint = IGLang.Misc.search,
         leadingIcon = {
-            Icon(Icons.Search, scale = ConfigRowDefaults.IconScale)
+            Icon(Icons.Search, scale = configIconScale())
         },
         lineLimits = TextFieldLineLimits.SingleLine,
     )
@@ -268,7 +268,7 @@ private fun ConfigNodesScroller(
 object ConfigManagerDefaults {
 
     /** 左侧分组列宽度。 */
-    val GroupListWidth: Dp = 180.dp
+    val GroupListWidth: Dp = 240.dp
 
     /** 分组项间距。 */
     val GroupSpacing: Dp = 4.dp

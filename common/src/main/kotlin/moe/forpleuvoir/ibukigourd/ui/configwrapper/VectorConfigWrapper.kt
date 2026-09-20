@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import moe.forpleuvoir.ibukigourd.config.item.range
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.DoubleField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
@@ -34,28 +33,27 @@ import org.joml.Vector3ic
  * **按分量展开**这一条最短路径 —— 上一版还有"分量折叠 / 展开"等展示态，收益不抵复杂度。
  */
 
-/** 单个分量框宽度。 */
-private val ComponentWidth: Dp = ConfigControlDefaults.FieldWidth
-
 @Composable
 fun Vector2iConfigWrapper(config: Config<Vector2ic>, modifier: Modifier = Modifier) {
     val value by config.asState()
     val range = config.range
     ConfigRowWrapper(config, modifier) {
-        IntField(
-            value = value.x(),
-            leadingIcon = { Text("x") },
-            onValueChange = { config.setValue(Vector2i(it, value.y())) },
-            valueRange = range?.let { it.first.x()..it.second.x() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        IntField(
-            value = value.y(),
-            leadingIcon = { Text("y") },
-            onValueChange = { config.setValue(Vector2i(value.x(), it)) },
-            valueRange = range?.let { it.first.y()..it.second.y() },
-            modifier = Modifier.width(ComponentWidth),
-        )
+        ConfigControlBlock {
+            IntField(
+                value = value.x(),
+                leadingIcon = { Text("x") },
+                onValueChange = { config.setValue(Vector2i(it, value.y())) },
+                valueRange = range?.let { it.first.x()..it.second.x() },
+                modifier = Modifier.weight(1f),
+            )
+            IntField(
+                value = value.y(),
+                leadingIcon = { Text("y") },
+                onValueChange = { config.setValue(Vector2i(value.x(), it)) },
+                valueRange = range?.let { it.first.y()..it.second.y() },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -64,27 +62,29 @@ fun Vector3iConfigWrapper(config: Config<Vector3ic>, modifier: Modifier = Modifi
     val value by config.asState()
     val range = config.range
     ConfigRowWrapper(config, modifier) {
-        IntField(
-            value = value.x(),
-            leadingIcon = { Text("x") },
-            onValueChange = { config.setValue(Vector3i(it, value.y(), value.z())) },
-            valueRange = range?.let { it.first.x()..it.second.x() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        IntField(
-            value = value.y(),
-            leadingIcon = { Text("y") },
-            onValueChange = { config.setValue(Vector3i(value.x(), it, value.z())) },
-            valueRange = range?.let { it.first.y()..it.second.y() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        IntField(
-            value = value.z(),
-            leadingIcon = { Text("z") },
-            onValueChange = { config.setValue(Vector3i(value.x(), value.y(), it)) },
-            valueRange = range?.let { it.first.z()..it.second.z() },
-            modifier = Modifier.width(ComponentWidth),
-        )
+        ConfigControlBlock {
+            IntField(
+                value = value.x(),
+                leadingIcon = { Text("x") },
+                onValueChange = { config.setValue(Vector3i(it, value.y(), value.z())) },
+                valueRange = range?.let { it.first.x()..it.second.x() },
+                modifier = Modifier.weight(1f),
+            )
+            IntField(
+                value = value.y(),
+                leadingIcon = { Text("y") },
+                onValueChange = { config.setValue(Vector3i(value.x(), it, value.z())) },
+                valueRange = range?.let { it.first.y()..it.second.y() },
+                modifier = Modifier.weight(1f),
+            )
+            IntField(
+                value = value.z(),
+                leadingIcon = { Text("z") },
+                onValueChange = { config.setValue(Vector3i(value.x(), value.y(), it)) },
+                valueRange = range?.let { it.first.z()..it.second.z() },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -93,20 +93,22 @@ fun Vector2fConfigWrapper(config: Config<Vector2fc>, modifier: Modifier = Modifi
     val value by config.asState()
     val range = config.range
     ConfigRowWrapper(config, modifier) {
-        FloatField(
-            value = value.x(),
-            leadingIcon = { Text("x") },
-            onValueChange = { config.setValue(Vector2f(it, value.y())) },
-            valueRange = range?.let { it.first.x()..it.second.x() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        FloatField(
-            value = value.y(),
-            leadingIcon = { Text("y") },
-            onValueChange = { config.setValue(Vector2f(value.x(), it)) },
-            valueRange = range?.let { it.first.y()..it.second.y() },
-            modifier = Modifier.width(ComponentWidth),
-        )
+        ConfigControlBlock {
+            FloatField(
+                value = value.x(),
+                leadingIcon = { Text("x") },
+                onValueChange = { config.setValue(Vector2f(it, value.y())) },
+                valueRange = range?.let { it.first.x()..it.second.x() },
+                modifier = Modifier.weight(1f),
+            )
+            FloatField(
+                value = value.y(),
+                leadingIcon = { Text("y") },
+                onValueChange = { config.setValue(Vector2f(value.x(), it)) },
+                valueRange = range?.let { it.first.y()..it.second.y() },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -115,27 +117,29 @@ fun Vector3fConfigWrapper(config: Config<Vector3fc>, modifier: Modifier = Modifi
     val value by config.asState()
     val range = config.range
     ConfigRowWrapper(config, modifier) {
-        FloatField(
-            value = value.x(),
-            leadingIcon = { Text("x") },
-            onValueChange = { config.setValue(Vector3f(it, value.y(), value.z())) },
-            valueRange = range?.let { it.first.x()..it.second.x() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        FloatField(
-            value = value.y(),
-            leadingIcon = { Text("y") },
-            onValueChange = { config.setValue(Vector3f(value.x(), it, value.z())) },
-            valueRange = range?.let { it.first.y()..it.second.y() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        FloatField(
-            value = value.z(),
-            leadingIcon = { Text("z") },
-            onValueChange = { config.setValue(Vector3f(value.x(), value.y(), it)) },
-            valueRange = range?.let { it.first.z()..it.second.z() },
-            modifier = Modifier.width(ComponentWidth),
-        )
+        ConfigControlBlock {
+            FloatField(
+                value = value.x(),
+                leadingIcon = { Text("x") },
+                onValueChange = { config.setValue(Vector3f(it, value.y(), value.z())) },
+                valueRange = range?.let { it.first.x()..it.second.x() },
+                modifier = Modifier.weight(1f),
+            )
+            FloatField(
+                value = value.y(),
+                leadingIcon = { Text("y") },
+                onValueChange = { config.setValue(Vector3f(value.x(), it, value.z())) },
+                valueRange = range?.let { it.first.y()..it.second.y() },
+                modifier = Modifier.weight(1f),
+            )
+            FloatField(
+                value = value.z(),
+                leadingIcon = { Text("z") },
+                onValueChange = { config.setValue(Vector3f(value.x(), value.y(), it)) },
+                valueRange = range?.let { it.first.z()..it.second.z() },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -144,20 +148,22 @@ fun Vector2dConfigWrapper(config: Config<Vector2dc>, modifier: Modifier = Modifi
     val value by config.asState()
     val range = config.range
     ConfigRowWrapper(config, modifier) {
-        DoubleField(
-            value = value.x(),
-            leadingIcon = { Text("x") },
-            onValueChange = { config.setValue(Vector2d(it, value.y())) },
-            valueRange = range?.let { it.first.x()..it.second.x() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        DoubleField(
-            value = value.y(),
-            leadingIcon = { Text("y") },
-            onValueChange = { config.setValue(Vector2d(value.x(), it)) },
-            valueRange = range?.let { it.first.y()..it.second.y() },
-            modifier = Modifier.width(ComponentWidth),
-        )
+        ConfigControlBlock {
+            DoubleField(
+                value = value.x(),
+                leadingIcon = { Text("x") },
+                onValueChange = { config.setValue(Vector2d(it, value.y())) },
+                valueRange = range?.let { it.first.x()..it.second.x() },
+                modifier = Modifier.weight(1f),
+            )
+            DoubleField(
+                value = value.y(),
+                leadingIcon = { Text("y") },
+                onValueChange = { config.setValue(Vector2d(value.x(), it)) },
+                valueRange = range?.let { it.first.y()..it.second.y() },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -166,26 +172,28 @@ fun Vector3dConfigWrapper(config: Config<Vector3dc>, modifier: Modifier = Modifi
     val value by config.asState()
     val range = config.range
     ConfigRowWrapper(config, modifier) {
-        DoubleField(
-            value = value.x(),
-            leadingIcon = { Text("x") },
-            onValueChange = { config.setValue(Vector3d(it, value.y(), value.z())) },
-            valueRange = range?.let { it.first.x()..it.second.x() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        DoubleField(
-            value = value.y(),
-            leadingIcon = { Text("y") },
-            onValueChange = { config.setValue(Vector3d(value.x(), it, value.z())) },
-            valueRange = range?.let { it.first.y()..it.second.y() },
-            modifier = Modifier.width(ComponentWidth),
-        )
-        DoubleField(
-            value = value.z(),
-            leadingIcon = { Text("z") },
-            onValueChange = { config.setValue(Vector3d(value.x(), value.y(), it)) },
-            valueRange = range?.let { it.first.z()..it.second.z() },
-            modifier = Modifier.width(ComponentWidth),
-        )
+        ConfigControlBlock {
+            DoubleField(
+                value = value.x(),
+                leadingIcon = { Text("x") },
+                onValueChange = { config.setValue(Vector3d(it, value.y(), value.z())) },
+                valueRange = range?.let { it.first.x()..it.second.x() },
+                modifier = Modifier.weight(1f),
+            )
+            DoubleField(
+                value = value.y(),
+                leadingIcon = { Text("y") },
+                onValueChange = { config.setValue(Vector3d(value.x(), it, value.z())) },
+                valueRange = range?.let { it.first.y()..it.second.y() },
+                modifier = Modifier.weight(1f),
+            )
+            DoubleField(
+                value = value.z(),
+                leadingIcon = { Text("z") },
+                onValueChange = { config.setValue(Vector3d(value.x(), value.y(), it)) },
+                valueRange = range?.let { it.first.z()..it.second.z() },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }

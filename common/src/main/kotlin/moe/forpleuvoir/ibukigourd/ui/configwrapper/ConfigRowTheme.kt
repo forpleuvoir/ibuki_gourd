@@ -1,9 +1,14 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+import moe.forpleuvoir.ibukigourd.util.identifier
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -17,7 +22,18 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 object ConfigRowTokens {
 
-    /** 悬停底色：中性容器色（按 [HoverAlpha] 压淡）。 */
+    /**
+     * 行悬停底：一笔圆角面板素材 `ui/surface/flat_1x_round`。
+     *
+     * 只做**透明度**动画（0 → 1），不做颜色渐变 —— 之前用 `animateColorAsState` 在
+     * `Color.Transparent` 与带色值之间插值，会经过黑色，肉眼就是"闪一下"。
+     */
+    val HoverSprite: SokitsuSprite get() = SokitsuAtlasManager.sprite(
+        SokitsuAtlasManager.UI_ATLAS_ID,
+        identifier("ui/surface/flat_1x_round"),
+    )
+
+    /** 悬停底的染色：中性容器色。 */
     val Container = ColorSchemeToken.SurfaceVariant
 
     /** 配置名（标题）色。 */
@@ -28,9 +44,6 @@ object ConfigRowTokens {
 
     /** 重置按钮与分组展开箭头的图标色。 */
     val Icon = ColorSchemeToken.OnSurfaceVariant
-
-    /** 悬停底色不透明度。 */
-    const val HoverAlpha: Float = 0.35f
 
     /** 图标禁用态不透明度。 */
     const val DisabledAlpha: Float = 0.38f
@@ -56,12 +69,6 @@ object ConfigRowDefaults {
     /** 注释最多显示行数（超出省略，悬停气泡展示全文）。 */
     const val CommentMaxLines: Int = 1
 
-    /** 图标倍率：素材为 16×16，取 1 即 16dp（配置行是信息密集页面，不随 pixelScale 放大）。 */
-    const val IconScale: Int = 1
-
-    /** 重置按钮的点击区尺寸。 */
-    val ResetButtonSize: Dp = 28.dp
-
     /** 重置图标的旋转动画时长。 */
     val ResetAnimation: Duration = 400.milliseconds
 
@@ -85,32 +92,25 @@ object ConfigRowDefaults {
  */
 object ConfigControlDefaults {
 
-    /** 数值框宽度。 */
-    val FieldWidth: Dp = 96.dp
-
-    /** 需要更宽输入的框（字符串 / 时长）。 */
-    val WideFieldWidth: Dp = 140.dp
-
-    /** 滑条宽度。 */
-    val SliderWidth: Dp = 180.dp
-
-    /** 颜色预览按钮宽度。 */
-    val ColorButtonWidth: Dp = 120.dp
-
-    /** 枚举选择器宽度。 */
-    val SelectorWidth: Dp = 160.dp
-
-    /** 行内小图标按钮尺寸（重置、滑条 ⇄ 数值框切换）。 */
-    val IconButtonSize: Dp = 28.dp
-
-    /** 列表 / 映射的「条目数」按钮宽度。 */
-    val ListButtonWidth: Dp = 160.dp
+    /**
+     * 控件区宽度：**所有单控件行统一用这个宽度**。
+     *
+     * 行骨架的排布是「名称列（weight 1f）+ 控件 + 重置按钮」，控件区宽度一致时
+     * 各行控件的左右边缘才会对齐；宽度参差会让整个页面看起来是斜的。
+     */
+    val ControlWidth: Dp = 280.dp
 
     /** 缓动曲线在行内的速览画布边长。 */
-    val CurvePreviewSize: Dp = 56.dp
+    val CurvePreviewSize: Dp = 96.dp
 
     /** 曲线编辑弹窗的内容内边距。 */
-    val CurveDialogPadding: PaddingValues = PaddingValues(8.dp)
+    val CurveDialogPadding: PaddingValues = PaddingValues(16.dp)
+
+    /**
+     * 配置 GUI 里图标按钮的内边距：调小让按钮贴合图标（按钮尺寸 = `max(minSize, 图标 + 2×padding)`，
+     * 取对称值才能保持正方形）。
+     */
+    val IconButtonPadding: PaddingValues = PaddingValues(4.dp)
 
     /** 数值滑条可用的区间跨度上限：超过该跨度时只给数值框。 */
     const val SliderSpanLimit: Int = 1000
@@ -142,8 +142,17 @@ data class ConfigRowPadding(
 object ConfigDialogDefaults {
 
     /** 内容区宽度。 */
-    val ContentWidth: Dp = 480.dp
+    val ContentWidth: Dp = 960.dp
 
     /** 浮层最小宽度。 */
-    val MinWidth: Dp = 360.dp
+    val MinWidth: Dp = 720.dp
 }
+
+/**
+ * 配置 GUI 的图标倍率：**跟随 sokitsu 像素缩放**（缺省 3，即 16×16 素材 → 48dp）。
+ *
+ * 行内图标原先按 [moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon] 的缺省倍率 2 画（32dp），
+ * 在配置页里显得偏小；配置页信息密度低、以辨识为主，因此这里改用像素缩放倍率。
+ */
+@Composable
+fun configIconScale(): Int = LocalSokitsuPixelScale.current

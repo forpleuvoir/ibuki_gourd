@@ -41,22 +41,27 @@ fun StringConfigWrapper(config: Config<String>, modifier: Modifier = Modifier) {
     var editing by remember(config) { mutableStateOf(false) }
 
     ConfigRowWrapper(config, modifier) {
-        StringValueField(
-            value = value,
-            onValueChange = { config.setValue(it) },
-            modifier = Modifier.width(ConfigControlDefaults.WideFieldWidth),
-        )
-        IconButton(
-            onClick = { editing = true },
-            modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
+        ConfigControlBlock(
+            action = {
+                IconButton(
+                    onClick = { editing = true },
+                    contentPadding = ConfigControlDefaults.IconButtonPadding,
+                ) {
+                    Icon(Icons.Edit, scale = configIconScale())
+                }
+            },
         ) {
-            Icon(Icons.Edit, scale = ConfigRowDefaults.IconScale)
+            StringValueField(
+                value = value,
+                onValueChange = { config.setValue(it) },
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 
     if (editing) {
         StringEditDialog(
-            title = { Text(InlineStyleText(config.translateText.plainText)) },
+            title = { ConfigDialogTitle(config) },
             initial = value,
             onDismiss = { editing = false },
             onConfirm = {
@@ -127,7 +132,7 @@ private fun StringEditDialog(
         content = {
             TextField(
                 state = state,
-                modifier = Modifier.width(420.dp).height(180.dp),
+                modifier = Modifier.width(840.dp).height(360.dp),
                 lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
             )
         },

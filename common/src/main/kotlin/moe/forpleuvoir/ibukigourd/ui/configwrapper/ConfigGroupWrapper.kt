@@ -59,7 +59,7 @@ fun ConfigGroupWrapper(config: ConfigGroup, modifier: Modifier = Modifier) {
                 val rotation by animateFloatAsState(if (expanded) 180f else 0f)
                 Icon(
                     icon = Icons.ArrowDown,
-                    scale = ConfigRowDefaults.IconScale,
+                    scale = configIconScale(),
                     tint = Color.Unspecified.resolve(ConfigRowTokens.Icon),
                     modifier = Modifier.rotate(rotation),
                 )

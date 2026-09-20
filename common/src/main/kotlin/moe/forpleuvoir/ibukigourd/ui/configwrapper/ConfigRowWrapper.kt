@@ -1,14 +1,14 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -30,11 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.config.translateComment
+import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -42,8 +44,13 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextFieldDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.nebula.common.api.Resettable
@@ -123,47 +130,112 @@ fun ConfigRowWrapper(
     val interactionSource = remember { MutableInteractionSource() }
     val hovered by interactionSource.collectIsHoveredAsState()
 
-    val container = Color.Unspecified.resolve(ConfigRowTokens.Container)
-    val background by animateColorAsState(
-        targetValue = if (hovered) container.copy(alpha = ConfigRowTokens.HoverAlpha) else Color.Transparent,
+    // 悬停底是**一层精灵**，只对它的图层做透明度动画：
+    // 用 animateColorAsState 在 Transparent 与带色值之间插值会经过黑色，肉眼就是“闪一下”
+    val hoverAlpha by animateFloatAsState(
+        targetValue = if (hovered) 1f else 0f,
         animationSpec = tween(ConfigRowDefaults.HoverAnimation.inWholeMilliseconds.toInt()),
-        label = "configRowBackground",
+        label = "configRowHoverAlpha",
     )
+    val container = Color.Unspecified.resolve(ConfigRowTokens.Container)
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(background)
-            .hoverable(interactionSource)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(
-                start = ConfigRowWrapper.padding.start,
-                top = ConfigRowWrapper.padding.top,
-                end = ConfigRowWrapper.padding.end,
-                bottom = ConfigRowWrapper.padding.bottom,
-            ),
-        horizontalArrangement = horizontalArrangement,
-        verticalAlignment = verticalAlignment,
-    ) {
+    Box(modifier.fillMaxWidth()) {
+        Box(
+            Modifier
+                .matchParentSize()
+                .graphicsLayer { alpha = hoverAlpha }
+                .sokitsuSprite(ConfigRowTokens.HoverSprite, color = container),
+        )
+
         Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .hoverable(interactionSource)
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+                .padding(
+                    start = ConfigRowWrapper.padding.start,
+                    top = ConfigRowWrapper.padding.top,
+                    end = ConfigRowWrapper.padding.end,
+                    bottom = ConfigRowWrapper.padding.bottom,
+                ),
+            horizontalArrangement = horizontalArrangement,
+            verticalAlignment = verticalAlignment,
         ) {
-            icon?.let {
-                it()
-                Spacer(Modifier.width(ConfigRowWrapper.spacing))
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                icon?.let {
+                    it()
+                    Spacer(Modifier.width(ConfigRowWrapper.spacing))
+                }
+                ConfigName(config)
             }
-            ConfigName(config)
-        }
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            content()
-            if (resettable) ResetButton(config, onReset = { onReset() })
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                content()
+                if (resettable) ResetButton(config, onReset = { onReset() })
+            }
         }
     }
+}
+
+/**
+ * 配置行的控件区：**固定总宽**，主控件撑满，可选的尾部动作按钮占最后一格。
+ *
+ * 存在的理由是对齐：行骨架是「名称列（weight 1f）+ 控件区 + 重置按钮」，若各行控件自带宽度、
+ * 带尾部按钮的行还会再多出一格，重置按钮列就会一行一个位置、整页看起来是斜的。
+ * 这里把总宽固定为 [ConfigControlDefaults.ControlWidth] + 间距 + 一个图标按钮宽：
+ * - 单控件行：主控件 `weight(1f)` 撑满，右缘与带按钮的行一致；
+ * - 带动作按钮行：主控件恰好占 [ConfigControlDefaults.ControlWidth]，按钮在最后一格。
+ *
+ * @param modifier 作用于控件区
+ * @param action 尾部动作按钮（滑条 ⇄ 数值框切换、编辑、齿轮…），null 时不占位
+ * @param content 主控件；需要撑满时给 `Modifier.weight(1f)`
+ */
+@Composable
+fun ConfigControlBlock(
+    modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val blockWidth = ConfigControlDefaults.ControlWidth + ConfigRowWrapper.spacing + IconButtonDefaults.minSize.width
+    Row(
+        modifier = modifier.width(blockWidth),
+        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        content()
+        action?.invoke()
+    }
+}
+
+/**
+ * 单行控件的统一高度：直接取文本输入框的默认最小高度（`text_field.min_size`，缺省 56dp）。
+ *
+ * 滑条组件的高度由 `slider.track_height` 决定（缺省 48dp），比输入框矮一截 ——
+ * 同一列里两种控件交替出现时行高就会一跳一跳，因此滑条显式按本高度对齐。
+ */
+@Composable
+fun configControlHeight(): Dp = TextFieldDefaults.meta.minSize.height
+
+/**
+ * 编辑浮层的标题：显式给 `title` 字号。
+ *
+ * `FlexibleDialog` / `AlertDialog` 的 title 槽位都只经 `ProvideContentColorTextStyle` 下发内容色
+ * 与 `subtitle` 样式，而 sokitsu 的 `Text` 缺省字号取自**字体自身**的 defaultSizeSp
+ * （不是 `LocalTextStyle`），标题因此会退化成正文大小 —— 这里显式给 `subtitle` 字号，
+ * 与 AlertDialog 的标题保持同一档。
+ */
+@Composable
+fun ConfigDialogTitle(config: ConfigNode) {
+    Text(
+        component = InlineStyleText(config.translateText.plainText),
+        fontSize = SokitsuTheme.typography.subtitle.fontSize,
+    )
 }
 
 /**
@@ -232,6 +304,7 @@ fun ResetButton(resettable: Resettable, onReset: () -> Unit = {}) {
     val interactionSource = remember { MutableInteractionSource() }
 
     IconButton(
+        contentPadding = ConfigControlDefaults.IconButtonPadding,
         onClick = {
             resettable.resetDefault()
             onReset()
@@ -243,7 +316,6 @@ fun ResetButton(resettable: Resettable, onReset: () -> Unit = {}) {
             }
         },
         modifier = Modifier
-            .size(ConfigRowDefaults.ResetButtonSize)
             .hoverable(interactionSource)
             .tooltip(interactionSource = interactionSource) {
                 Text(IGLang.Misc.reset)
@@ -252,7 +324,7 @@ fun ResetButton(resettable: Resettable, onReset: () -> Unit = {}) {
     ) {
         Icon(
             icon = Icons.Reset,
-            scale = ConfigRowDefaults.IconScale,
+            scale = configIconScale(),
             tint = Color.Unspecified.resolve(ConfigRowTokens.Icon),
             modifier = Modifier.rotate(rotation.value),
         )

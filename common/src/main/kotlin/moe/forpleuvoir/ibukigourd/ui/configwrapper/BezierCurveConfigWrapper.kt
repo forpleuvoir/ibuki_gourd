@@ -1,7 +1,13 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,15 +20,16 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurveEditor
-import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurvePlot
 import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurvePlotDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.util.math.easing.CubicBezier
 import moe.forpleuvoir.nebula.config.Config
+import java.util.Locale
 
 /**
  * 缓动曲线：行内一块**可拖的速览画布**，右侧编辑按钮打开完整编辑器。
@@ -47,17 +54,23 @@ fun BezierCurveConfigWrapper(
     var editing by remember(config) { mutableStateOf(false) }
 
     ConfigRowWrapper(config, modifier) {
-        BezierCurvePlot(
-            value = value,
-            onValueChange = { config.setValue(it) },
-            modifier = Modifier.size(ConfigControlDefaults.CurvePreviewSize),
-            yRange = yRange,
-        )
-        IconButton(
-            onClick = { editing = true },
-            modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
+        // 行上不放画布（太小也看不清），只给控制点数值摘要；编辑一律进弹窗
+        ConfigControlBlock(
+            action = {
+                IconButton(
+                    onClick = { editing = true },
+                    contentPadding = ConfigControlDefaults.IconButtonPadding,
+                ) {
+                    Icon(Icons.Edit, scale = configIconScale())
+                }
+            },
         ) {
-            Icon(Icons.Edit, scale = ConfigRowDefaults.IconScale)
+            Surface(
+                modifier = Modifier.weight(1f).height(configControlHeight()),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(ConfigBezierSummary(value))
+            }
         }
     }
 
@@ -65,7 +78,7 @@ fun BezierCurveConfigWrapper(
         FlexibleDialog(
             onDismissRequest = { editing = false },
             onConfirmRequest = { true },
-            title = { Text(InlineStyleText(config.translateText.plainText)) },
+            title = { ConfigDialogTitle(config) },
             content = {
                 BezierCurveEditor(
                     value = value,
@@ -77,3 +90,7 @@ fun BezierCurveConfigWrapper(
         )
     }
 }
+
+/** 行上的控制点摘要：四个分量各两位小数（只说明"当前曲线长什么样"，编辑进弹窗）。 */
+private fun ConfigBezierSummary(value: CubicBezier): String =
+    "(%.2f, %.2f, %.2f, %.2f)".format(Locale.ROOT, value.x1, value.y1, value.x2, value.y2)

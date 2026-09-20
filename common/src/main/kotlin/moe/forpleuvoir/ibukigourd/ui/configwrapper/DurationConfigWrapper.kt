@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +34,7 @@ fun DurationConfigWrapper(config: Config<Duration>, modifier: Modifier = Modifie
                     value = value,
                     onValueChange = { config.setValue(it) },
                     valueRange = range,
-                    modifier = Modifier.width(ConfigControlDefaults.SliderWidth),
+                    modifier = Modifier.weight(1f).height(configControlHeight()),
                 )
             }
         } else {
@@ -45,7 +46,7 @@ fun DurationConfigWrapper(config: Config<Duration>, modifier: Modifier = Modifie
             value = value,
             onValueChange = { config.setValue(it) },
             valueRange = range,
-            modifier = Modifier.width(ConfigControlDefaults.WideFieldWidth),
+            modifier = Modifier.weight(1f),
         )
     }
 }

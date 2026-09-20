@@ -2,7 +2,9 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -16,14 +18,15 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.EditDialogContent
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.EditDialogContentList
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.nebula.config.ConfigNode
@@ -102,13 +105,13 @@ fun PairListConfigWrapper(config: ConfigList<Pair<Any, Any>>, modifier: Modifier
                     ConfigElementEditor(
                         value = value.first,
                         onValueChange = { onValueChange(value.copy(first = it)) },
-                        modifier = Modifier.width(ConfigControlDefaults.WideFieldWidth),
+                        modifier = Modifier.width(ConfigControlDefaults.ControlWidth / 2),
                     )
                     Text(IGLang.ConfigWrapper.pairSecond)
                     ConfigElementEditor(
                         value = value.second,
                         onValueChange = { onValueChange(value.copy(second = it)) },
-                        modifier = Modifier.width(ConfigControlDefaults.WideFieldWidth),
+                        modifier = Modifier.width(ConfigControlDefaults.ControlWidth / 2),
                     )
                 }
             },
@@ -132,17 +135,23 @@ internal fun ConfigListRow(
     onEdit: () -> Unit,
 ) {
     ConfigRowWrapper(config, modifier) {
-        FlatButton(
-            onClick = onEdit,
-            modifier = Modifier.width(ConfigControlDefaults.ListButtonWidth),
+        ConfigControlBlock(
+            action = {
+                IconButton(
+                    onClick = onEdit,
+                    contentPadding = ConfigControlDefaults.IconButtonPadding,
+                ) {
+                    Icon(Icons.Edit, scale = configIconScale())
+                }
+            },
         ) {
-            Text(component = label)
-        }
-        IconButton(
-            onClick = onEdit,
-            modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
-        ) {
-            Icon(Icons.Edit, scale = ConfigRowDefaults.IconScale)
+            // 纯展示：条目数放进 Surface（不是按钮），点开编辑走右侧的编辑按钮
+            Surface(
+                modifier = Modifier.weight(1f).height(configControlHeight()),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(component = label)
+            }
         }
     }
 }
@@ -170,18 +179,18 @@ internal fun <E : Any> ConfigListEditDialog(
             config.setValue(keyed.entries.values())
             true
         },
-        title = { Text(InlineStyleText(config.translateText.plainText)) },
+        title = { ConfigDialogTitle(config) },
         minWidth = ConfigDialogDefaults.MinWidth,
         content = {
             EditDialogContent(
                 modifier = Modifier.width(ConfigDialogDefaults.ContentWidth),
                 addButton = newElement?.let { factory ->
                     {
-                        IconButton(
+                        Button(
                             onClick = { keyed.add(factory()) },
-                            modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
+                            contentPadding = ConfigControlDefaults.IconButtonPadding,
                         ) {
-                            Icon(Icons.Add, scale = ConfigRowDefaults.IconScale)
+                            Icon(Icons.Add, scale = configIconScale())
                         }
                     }
                 },

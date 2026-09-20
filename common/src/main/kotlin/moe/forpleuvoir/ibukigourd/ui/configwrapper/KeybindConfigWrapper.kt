@@ -28,11 +28,13 @@ fun KeyCodeConfigWrapper(config: Config<KeyCode>, modifier: Modifier = Modifier)
     val value by config.asState()
 
     ConfigRowWrapper(config, modifier) {
-        KeyCodeSetButton(
-            value = value,
-            onValueChange = { config.setValue(it) },
-            modifier = Modifier.width(ConfigControlDefaults.SelectorWidth),
-        )
+        ConfigControlBlock {
+            KeyCodeSetButton(
+                value = value,
+                onValueChange = { config.setValue(it) },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -55,20 +57,25 @@ fun KeybindConfigWrapper(config: ConfigKeybind, modifier: Modifier = Modifier) {
     val keybind = config.getValue()
 
     ConfigRowWrapper(config, modifier, onReset = { version++ }) {
-        key(version) {
-            KeybindSetButton(
-                keybind = keybind,
-                onValueChange = { version++ },
-                modifier = Modifier.width(ConfigControlDefaults.SelectorWidth),
-            )
-        }
-        KeybindSettingSetButton(
-            keybindSetting = keybind.setting,
-            onValueChange = {
-                keybind.setFrom(it)
-                version++
+        ConfigControlBlock(
+            action = {
+                KeybindSettingSetButton(
+                    keybindSetting = keybind.setting,
+                    onValueChange = {
+                        keybind.setFrom(it)
+                        version++
+                    },
+                )
             },
-        )
+        ) {
+            key(version) {
+                KeybindSetButton(
+                    keybind = keybind,
+                    onValueChange = { version++ },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
     }
 }
 
@@ -88,26 +95,31 @@ fun ToggleKeybindConfigWrapper(config: ConfigToggleKeybind, modifier: Modifier =
     val keybind = config.keybind
 
     ConfigRowWrapper(config, modifier, onReset = { version++ }) {
-        Switch(
-            checked = enabled,
-            onCheckedChange = {
-                config.enabled = it
-                version++
+        ConfigControlBlock(
+            action = {
+                KeybindSettingSetButton(
+                    keybindSetting = keybind.setting,
+                    onValueChange = {
+                        keybind.setFrom(it)
+                        version++
+                    },
+                )
             },
-        )
-        key(version) {
-            KeybindSetButton(
-                keybind = keybind,
-                onValueChange = { version++ },
-                modifier = Modifier.width(ConfigControlDefaults.SelectorWidth),
+        ) {
+            Switch(
+                checked = enabled,
+                onCheckedChange = {
+                    config.enabled = it
+                    version++
+                },
             )
+            key(version) {
+                KeybindSetButton(
+                    keybind = keybind,
+                    onValueChange = { version++ },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
-        KeybindSettingSetButton(
-            keybindSetting = keybind.setting,
-            onValueChange = {
-                keybind.setFrom(it)
-                version++
-            },
-        )
     }
 }

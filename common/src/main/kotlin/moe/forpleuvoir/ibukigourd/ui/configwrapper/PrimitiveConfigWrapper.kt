@@ -2,6 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.LongSlider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigNode
+import java.util.Locale
 import moe.forpleuvoir.nebula.config.item.ConfigRange
 
 /**
@@ -46,18 +48,23 @@ internal fun NumberRow(
     field: @Composable RowScope.() -> Unit,
 ) = ConfigRowWrapper(config, modifier) {
     if (slider == null) {
-        field()
+        ConfigControlBlock { field() }
         return@ConfigRowWrapper
     }
 
     var sliderMode by remember(config) { mutableStateOf(true) }
     val rotation by animateFloatAsState(if (sliderMode) 0f else 180f)
-    if (sliderMode) slider() else field()
-    IconButton(
-        onClick = { sliderMode = !sliderMode },
-        modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
+    ConfigControlBlock(
+        action = {
+            IconButton(
+                onClick = { sliderMode = !sliderMode },
+                contentPadding = ConfigControlDefaults.IconButtonPadding,
+            ) {
+                Icon(Icons.SyncAlt, scale = configIconScale(), modifier = Modifier.rotate(rotation))
+            }
+        },
     ) {
-        Icon(Icons.SyncAlt, scale = ConfigRowDefaults.IconScale, modifier = Modifier.rotate(rotation))
+        if (sliderMode) slider() else field()
     }
 }
 
@@ -65,6 +72,7 @@ internal fun NumberRow(
 @Composable
 fun BooleanConfigWrapper(config: Config<Boolean>, modifier: Modifier = Modifier) {
     val value by config.asState()
+    // 开关不参与控件区对齐：行骨架的 SpaceBetween 会把它推到最右（重置按钮之前）
     ConfigRowWrapper(config, modifier) {
         Switch(
             checked = value,
@@ -81,7 +89,14 @@ fun IntConfigWrapper(config: Config<Int>, modifier: Modifier = Modifier) {
     val span = range?.let { it.last - it.first }
     val slider: (@Composable RowScope.() -> Unit)? =
         if (range != null && span != null && span in 1 until ConfigControlDefaults.SliderSpanLimit) {
-            { IntSlider(value, { config.setValue(it) }, valueRange = range, modifier = Modifier.width(ConfigControlDefaults.SliderWidth)) }
+            {
+                IntSlider(
+                    value = value,
+                    onValueChange = { config.setValue(it) },
+                    valueRange = range,
+                    modifier = Modifier.weight(1f).height(configControlHeight()),
+                )
+            }
         } else {
             null
         }
@@ -90,7 +105,7 @@ fun IntConfigWrapper(config: Config<Int>, modifier: Modifier = Modifier) {
             value = value,
             onValueChange = { config.setValue(it) },
             valueRange = range,
-            modifier = Modifier.width(ConfigControlDefaults.FieldWidth),
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -103,7 +118,14 @@ fun LongConfigWrapper(config: Config<Long>, modifier: Modifier = Modifier) {
     val span = range?.let { it.last - it.first }
     val slider: (@Composable RowScope.() -> Unit)? =
         if (range != null && span != null && span in 1 until ConfigControlDefaults.SliderSpanLimit.toLong()) {
-            { LongSlider(value, { config.setValue(it) }, valueRange = range, modifier = Modifier.width(ConfigControlDefaults.SliderWidth)) }
+            {
+                LongSlider(
+                    value = value,
+                    onValueChange = { config.setValue(it) },
+                    valueRange = range,
+                    modifier = Modifier.weight(1f).height(configControlHeight()),
+                )
+            }
         } else {
             null
         }
@@ -112,7 +134,7 @@ fun LongConfigWrapper(config: Config<Long>, modifier: Modifier = Modifier) {
             value = value,
             onValueChange = { config.setValue(it) },
             valueRange = range,
-            modifier = Modifier.width(ConfigControlDefaults.FieldWidth),
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -125,7 +147,15 @@ fun FloatConfigWrapper(config: Config<Float>, modifier: Modifier = Modifier) {
     val span = range?.let { it.endInclusive - it.start }
     val slider: (@Composable RowScope.() -> Unit)? =
         if (range != null && span != null && span.isFinite() && span > 0f && span < ConfigControlDefaults.SliderSpanLimit) {
-            { FloatSlider(value, { config.setValue(it) }, valueRange = range, modifier = Modifier.width(ConfigControlDefaults.SliderWidth)) }
+            {
+                FloatSlider(
+                    value = value,
+                    onValueChange = { config.setValue(it) },
+                    valueRange = range,
+                    valueToText = FloatSliderText,
+                    modifier = Modifier.weight(1f).height(configControlHeight()),
+                )
+            }
         } else {
             null
         }
@@ -134,7 +164,7 @@ fun FloatConfigWrapper(config: Config<Float>, modifier: Modifier = Modifier) {
             value = value,
             onValueChange = { config.setValue(it) },
             valueRange = range,
-            modifier = Modifier.width(ConfigControlDefaults.FieldWidth),
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -147,7 +177,15 @@ fun DoubleConfigWrapper(config: Config<Double>, modifier: Modifier = Modifier) {
     val span = range?.let { it.endInclusive - it.start }
     val slider: (@Composable RowScope.() -> Unit)? =
         if (range != null && span != null && span.isFinite() && span > 0f && span < ConfigControlDefaults.SliderSpanLimit) {
-            { DoubleSlider(value, { config.setValue(it) }, valueRange = range, modifier = Modifier.width(ConfigControlDefaults.SliderWidth)) }
+            {
+                DoubleSlider(
+                    value = value,
+                    onValueChange = { config.setValue(it) },
+                    valueRange = range,
+                    valueToText = DoubleSliderText,
+                    modifier = Modifier.weight(1f).height(configControlHeight()),
+                )
+            }
         } else {
             null
         }
@@ -156,7 +194,17 @@ fun DoubleConfigWrapper(config: Config<Double>, modifier: Modifier = Modifier) {
             value = value,
             onValueChange = { config.setValue(it) },
             valueRange = range,
-            modifier = Modifier.width(ConfigControlDefaults.FieldWidth),
+            modifier = Modifier.weight(1f),
         )
     }
 }
+
+/**
+ * 滑条数值的显示精度：`float` 两位、`double` 四位。
+ *
+ * 拖动滑条得到的值是连续量（`2.3333333` 这类），直接 `toString` 又长又跳；
+ * 固定 `Locale.ROOT` 是为了避免区域设置把小数点变成逗号。
+ */
+private val FloatSliderText: (Float) -> String = { "%.2f".format(Locale.ROOT, it) }
+
+private val DoubleSliderText: (Double) -> String = { "%.4f".format(Locale.ROOT, it) }

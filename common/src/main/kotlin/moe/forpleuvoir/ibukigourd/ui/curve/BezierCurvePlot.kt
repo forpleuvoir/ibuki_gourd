@@ -59,6 +59,8 @@ import kotlin.math.sqrt
  * @param onValueChange 控制点拖动后的回调；拖拽期间每次移动都会回调一次
  * @param modifier 尺寸与布局修饰符（必须能给出确定的宽高）
  * @param enabled 是否可交互；false 时绘制整体压 [BezierCurvePlotTokens.DisabledOpacity] 且不响应指针
+ * @param interactive 是否响应指针（FALSE = 只读预览：**照常满不透明度绘制**，只是拖不动；
+ *   与 [enabled] 的区别是 [enabled] 表达"这个配置项不可改"、本参数表达"这里只是展示"）
  * @param yRange y 轴显示区间（须递增）；要严格限制在 `0f..1f` 就传 `0f..1f`
  * @param snapStep 按住 Alt 时的吸附步长
  * @param snapWithAlt 是否启用 Alt 吸附
@@ -75,6 +77,7 @@ fun BezierCurvePlot(
     onValueChange: (CubicBezier) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    interactive: Boolean = true,
     yRange: ClosedFloatingPointRange<Float> = BezierCurvePlotDefaults.YRange,
     snapStep: Float = BezierCurvePlotDefaults.SnapStep,
     snapWithAlt: Boolean = BezierCurvePlotDefaults.SnapWithAlt,
@@ -122,10 +125,16 @@ fun BezierCurvePlot(
 
     Canvas(
         modifier
-            .pointerHoverIcon(if (enabled) PointerIcon.Hand else PointerIcon.NotAllowed)
+            .pointerHoverIcon(
+                when {
+                    !enabled -> PointerIcon.NotAllowed
+                    !interactive -> PointerIcon.Default
+                    else -> PointerIcon.Hand
+                },
+            )
             // 拖拽：按下时拾取控制点，随后跟随指针；x 夹 0..1、y 夹 yRange，Alt 吸附 / Shift 锁角
             .pointerInput(
-                enabled,
+                enabled && interactive,
                 yRange.start,
                 yRange.endInclusive,
                 snapStep,
@@ -134,7 +143,7 @@ fun BezierCurvePlot(
                 edgePaddingPx,
                 hitRadiusPx,
             ) {
-                if (!enabled) return@pointerInput
+                if (!enabled || !interactive) return@pointerInput
                 awaitEachGesture {
                     val space = plotSpace(size.width, size.height, yRange, edgePaddingPx)
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -174,8 +183,8 @@ fun BezierCurvePlot(
                 }
             }
             // 悬停：只跟踪指针与两个控制点的命中关系，命中结果变化时才写状态
-            .pointerInput(enabled, yRange.start, yRange.endInclusive, edgePaddingPx, hitRadiusPx) {
-                if (!enabled) {
+            .pointerInput(enabled && interactive, yRange.start, yRange.endInclusive, edgePaddingPx, hitRadiusPx) {
+                if (!enabled || !interactive) {
                     hoveredHandle = null
                     return@pointerInput
                 }

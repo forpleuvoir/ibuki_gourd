@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -28,11 +27,13 @@ fun ColorConfigWrapper(config: Config<NebulaColor>, modifier: Modifier = Modifie
     val value by config.asState()
 
     ConfigRowWrapper(config, modifier) {
-        ColorPickButton(
-            color = value.toComposeColor(),
-            onValueChange = { config.setValue(it.toNebulaColor()) },
-            title = { Text(InlineStyleText(config.translateText.plainText)) },
-            modifier = Modifier.width(ConfigControlDefaults.ColorButtonWidth),
-        )
+        ConfigControlBlock {
+            ColorPickButton(
+                color = value.toComposeColor(),
+                onValueChange = { config.setValue(it.toNebulaColor()) },
+                title = { Text(InlineStyleText(config.translateText.plainText)) },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }

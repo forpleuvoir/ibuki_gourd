@@ -2,7 +2,9 @@ package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.EditDialogContent
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.EditDialogContentList
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
@@ -76,18 +79,18 @@ private fun MapEditDialog(config: ConfigMap<Any>, onDismiss: () -> Unit) {
                 true
             }
         },
-        title = { Text(InlineStyleText(config.translateText.plainText)) },
+        title = { ConfigDialogTitle(config) },
         minWidth = ConfigDialogDefaults.MinWidth,
         content = {
             EditDialogContent(
                 modifier = Modifier.width(ConfigDialogDefaults.ContentWidth),
                 addButton = newValue?.let { factory ->
                     {
-                        IconButton(
+                        Button(
                             onClick = { keyed.add(uniqueKey(keyed.entries.values()) to factory()) },
-                            modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
+                            contentPadding = ConfigControlDefaults.IconButtonPadding,
                         ) {
-                            Icon(Icons.Add, scale = ConfigRowDefaults.IconScale)
+                            Icon(Icons.Add, scale = configIconScale())
                         }
                     }
                 },
@@ -101,7 +104,7 @@ private fun MapEditDialog(config: ConfigMap<Any>, onDismiss: () -> Unit) {
                         StringValueField(
                             value = entry.first,
                             onValueChange = { keyed.setValue(index, it to entry.second) },
-                            modifier = Modifier.width(ConfigControlDefaults.WideFieldWidth),
+                            modifier = Modifier.width(ConfigControlDefaults.ControlWidth / 2),
                         )
                         Text(IGLang.ConfigWrapper.mapValue)
                         ConfigElementEditor(
