@@ -1,5 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.colorpicker
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,11 +45,24 @@ fun ColorPickButton(
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
+    // 交互源按"弹窗代的编号"重建：悬停 / 焦点 / 按下三种瞬时态都记在交互源上，
+    // 弹窗是场景内图层，图层进出时底层按钮不一定会补发 hover 的 Exit 或失焦的 Unfocus，
+    // 残留任一态都会让按钮一直画高亮描边。关窗时编号 +1 换一个干净的源，
+    // 三种态一并归零（平台侧 ClickableNode 换源时也会清掉自己的悬停/按下记录）。
+    var dialogGeneration by remember { mutableStateOf(0) }
+    val interactionSource = remember(dialogGeneration) { MutableInteractionSource() }
+
+    fun closeDialog() {
+        showDialog = false
+        dialogGeneration++
+    }
+
     ColorButton(
         onClick = { showDialog = true },
         color = color,
         modifier = modifier,
         enabled = enabled,
+        interactionSource = interactionSource,
         content = content,
     )
 
@@ -56,17 +70,17 @@ fun ColorPickButton(
         // 编辑副本：弹窗内的改动不回写外部，确认时才提交
         var editingColor by remember { mutableStateOf(color) }
         AlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { closeDialog() },
             confirmButton = {
                 FlatButton(onClick = {
                     onValueChange(editingColor)
-                    showDialog = false
+                    closeDialog()
                 }) {
                     Text(IGLang.Misc.confirm)
                 }
             },
             dismissButton = {
-                FlatButton(onClick = { showDialog = false }) {
+                FlatButton(onClick = { closeDialog() }) {
                     Text(IGLang.Misc.cancel)
                 }
             },
