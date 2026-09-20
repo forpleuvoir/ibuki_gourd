@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -22,7 +23,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
  * 气泡面板：九宫格气泡体 + 陷进气泡体边缘的九宫格箭头，内容经 [contentPadding] 内缩。
  *
  * 宽度与高度由 [content] 撑开，只受 [minSize] 下限约束 —— 不含任何 `fill`，因此不会铺满
- * 弹层的可用宽度。
+ * 弹层的可用宽度；内容比面板小时在面板内**居中**摆放。
  *
  * 箭头主体伸在气泡体外、仅根部插进气泡缺口，故节点在箭头方向留出该箭头布局盒子的空隙
  * （见 [boxWidthPx] / [boxHeightPx]），否则伸出部分会被弹层裁剪。
@@ -64,6 +65,7 @@ fun BubblePanel(
             )
             .sizeIn(minWidth = minSize.width, minHeight = minSize.height)
             .padding(contentPadding),
+        contentAlignment = Alignment.Center,
     ) { content() }
 }
 

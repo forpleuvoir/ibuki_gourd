@@ -62,6 +62,8 @@ private class TooltipScopeImpl(override val visible: Boolean) : TooltipScope
  *   （内部由 `boundsInRoot` 记录，首帧可能是 `Rect.Zero`），返回的定位器决定弹层落点。
  *   写成工厂而非实例，是因为锚点只能由本 Modifier 自己的 `onGloballyPositioned` 捕获
  * @param exitDuration 退出动画预留时长；[TooltipScope.visible] 转 `false` 后再过此时长卸载弹层
+ * @param pinned 钉住展示：为 `true` 时忽略悬停与 [delay] 直接展示，且弹层不再被外部点击关闭
+ *   （适用于"点击后进入某种状态、期间需要持续看到提示"的场景）
  * @param properties 弹层行为配置；默认非聚焦（不拦截下层指针，避免多图层悬停闪烁）
  * @param content 提示内容，接收 [TooltipScope]；外观与动画全部由它决定
  */
@@ -71,6 +73,7 @@ fun Modifier.basicTooltip(
     delay: Duration,
     positionProvider: (anchorBounds: () -> Rect) -> PopupPositionProvider,
     exitDuration: Duration,
+    pinned: Boolean = false,
     properties: PopupProperties = PopupProperties(focusable = false),
     content: @Composable TooltipScope.() -> Unit,
 ): Modifier {
@@ -83,9 +86,9 @@ fun Modifier.basicTooltip(
     // 弹层是否已挂载：挂载期独立于 active，为退出动画留出时间
     var mounted by remember { mutableStateOf(false) }
 
-    LaunchedEffect(isHovered) {
-        if (isHovered) {
-            delay(delay)
+    LaunchedEffect(isHovered, pinned) {
+        if (pinned || isHovered) {
+            if (!pinned) delay(delay)
             active = true
             mounted = true
         } else if (mounted) {
@@ -104,8 +107,8 @@ fun Modifier.basicTooltip(
         popupHost.register(
             key = popupKey,
             positionProvider = provider,
-            onDismissRequest = { active = false },
-            properties = properties,
+            onDismissRequest = { if (!pinned) active = false },
+            properties = if (pinned) properties.withoutClickDismiss() else properties,
             content = {
                 var firstFrame by remember { mutableStateOf(true) }
                 LaunchedEffect(Unit) { firstFrame = false }
@@ -118,3 +121,13 @@ fun Modifier.basicTooltip(
         .let { if (interactionSource == null) it.hoverable(source) else it }
         .onGloballyPositioned { anchorBounds = it.boundsInRoot() }
 }
+
+/** 复制 [PopupProperties] 并关闭「点击外部关闭」：该类不是 data class，需逐项重建。 */
+private fun PopupProperties.withoutClickDismiss(): PopupProperties = PopupProperties(
+    focusable = focusable,
+    dismissOnBackPress = dismissOnBackPress,
+    dismissOnClickOutside = false,
+    clippingEnabled = clippingEnabled,
+    usePlatformDefaultWidth = usePlatformDefaultWidth,
+    usePlatformInsets = usePlatformInsets,
+)

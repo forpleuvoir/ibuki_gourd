@@ -58,6 +58,8 @@ import kotlin.time.Duration
  * @param color 气泡体染色色板；未指定按 [TooltipTokens.Body] 解析
  * @param contentColor 气泡内内容色；未指定按 [TooltipTokens.Content] 解析
  * @param textStyle 下发给气泡内文本的样式；默认沿用当前 [LocalTextStyle]
+ * @param pinned 钉住展示：为 `true` 时忽略悬停与 [TooltipDefaults.delay] 直接展示，
+ *   且弹层不再被外部点击关闭 —— 适用于"点击后进入某状态、期间要持续看到提示"的场景
  * @param content 气泡内内容
  */
 @Composable
@@ -69,6 +71,7 @@ fun Modifier.tooltip(
     color: Color = Color.Unspecified,
     contentColor: Color = Color.Unspecified,
     textStyle: TextStyle = LocalTextStyle.current,
+    pinned: Boolean = false,
     content: @Composable () -> Unit,
 ): Modifier {
     val density = LocalDensity.current
@@ -94,6 +97,7 @@ fun Modifier.tooltip(
         delay = delay,
         positionProvider = { positionProvider },
         exitDuration = exitDuration,
+        pinned = pinned,
     ) {
         val anchor = positionProvider.resolvedPosition
         val arrow = TooltipDefaults.arrowSprite(anchor)
