@@ -16,6 +16,7 @@ import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.LocalPopupHost
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostOverlay
 import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
+import moe.forpleuvoir.ibukigourd.test.item.ItemIconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AlertDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
@@ -23,12 +24,14 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.DividerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.DropdownMenuTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.EditDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.FlatButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.IconButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.IconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.NumberFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ProgressBarTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.RadioButtonTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.RemoveConfirmButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ReorderableTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ScrollerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SliderTestScreen
@@ -175,6 +178,11 @@ fun SokitsuTestScreen() {
                             Text("图标总览")
                         }
                         Button({
+                            ItemIconTestScreen()
+                        }) {
+                            Text("物品图标测试")
+                        }
+                        Button({
                             IconButtonTestScreen()
                         }) {
                             Text("图标按钮测试")
@@ -263,6 +271,16 @@ fun SokitsuTestScreen() {
                             MultiSelectorTestScreen()
                         }) {
                             Text("多选选择器测试")
+                        }
+                        Button({
+                            EditDialogTestScreen()
+                        }) {
+                            Text("编辑弹窗测试")
+                        }
+                        Button({
+                            RemoveConfirmButtonTestScreen()
+                        }) {
+                            Text("删除按钮测试")
                         }
                     }
                 }

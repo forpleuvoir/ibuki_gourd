@@ -148,7 +148,7 @@ fun AlertDialog(
  * 这里原样透传其余字段，只覆盖 `enterTransition` / `exitTransition`
  * （即调用方在 properties 里自带的过渡会被本组件的 enterAnimation / exitAnimation 接管）。
  */
-private fun DialogProperties.withTransitions(
+internal fun DialogProperties.withTransitions(
     enter: AlertDialogAnimationMeta,
     exit: AlertDialogAnimationMeta,
 ): DialogProperties = DialogProperties(
