@@ -64,6 +64,12 @@ object BezierCurvePlotDefaults {
     /** 是否启用 Shift 锁角（控制点只沿"自身锚点 → 当前位置"这条直线移动）。 */
     const val LockAngleWithShift: Boolean = true
 
+    /** 是否启用 Ctrl 微调（按住 Ctrl 拖动时，位移按 [SlowMoveFactor] 缩放）。 */
+    const val SlowMoveWithControl: Boolean = true
+
+    /** 按住 Ctrl 时控制点位移相对指针位移的比例（1/10）。 */
+    const val SlowMoveFactor: Float = 0.1f
+
     /** 画布四周留白：至少完整容下一个控制点方块（贴到 `x = 0` / `y = 0` 时不被裁掉一半）。 */
     val EdgePadding: Dp = 6.dp
 

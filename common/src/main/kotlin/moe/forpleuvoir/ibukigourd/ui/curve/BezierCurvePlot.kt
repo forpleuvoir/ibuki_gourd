@@ -44,11 +44,13 @@ import kotlin.math.sqrt
  * - 画布四周留 [BezierCurvePlotDefaults.EdgePadding]，控制点贴到边界时仍完整可见。
  *
  * 手势：**命中式拾取**——只有按在控制点的命中半径内才开始拖拽，点空白处不动（避免把曲线误拽变形）；
- * 拖动时 x 夹在 `0f..1f`、y 夹在 [yRange]；拖动过程中支持两个修饰键：
+ * 拖动时 x 夹在 `0f..1f`、y 夹在 [yRange]；拖动过程中支持三个修饰键：
  * - **Alt**：落点吸附到 [snapStep] 网格（按住 Alt 期间才生效）；
  * - **Shift**：锁定角度——控制点只能沿"自身锚点（P1 对 `(0,0)`、P2 对 `(1,1)`）→ 当前位置"这条直线移动，
  *   只改变长度、不改变方向；不允许越过锚点反向（长度夹在 `≥ 0`），并在坐标边界处按比例截断以保持角度；
  *   与 Alt 同时按住时，吸附的是**长度**（曲线坐标下的距离）而不是 x / y 分量。
+ * - **Ctrl**：微调——按住期间控制点的位移只有指针位移的 [slowMoveFactor]（缺省 1/10），
+ *   便于精确落点；拖拽中途按下 / 松开以当时的位置重新起算，控制点不会跳变。
  *
  * 悬停中的控制点用 [BezierCurvePlotTokens.HandleActive] 高亮。
  *
@@ -65,6 +67,8 @@ import kotlin.math.sqrt
  * @param snapStep 按住 Alt 时的吸附步长
  * @param snapWithAlt 是否启用 Alt 吸附
  * @param lockAngleWithShift 是否启用 Shift 锁角
+ * @param slowMoveWithControl 是否启用 Ctrl 微调
+ * @param slowMoveFactor 按住 Ctrl 时控制点位移相对指针位移的比例（`0f..1f` 内才有微调意义）
  * @param backgroundColor 画布底色，未指定按 [BezierCurvePlotTokens.Background] 解析
  * @param unitAreaColor 单位正方形填充色，未指定按 [BezierCurvePlotTokens.UnitArea] 解析
  * @param gridColor 网格 / 边框 / 引导线颜色，未指定按 [BezierCurvePlotTokens.Grid] 解析
@@ -82,6 +86,8 @@ fun BezierCurvePlot(
     snapStep: Float = BezierCurvePlotDefaults.SnapStep,
     snapWithAlt: Boolean = BezierCurvePlotDefaults.SnapWithAlt,
     lockAngleWithShift: Boolean = BezierCurvePlotDefaults.LockAngleWithShift,
+    slowMoveWithControl: Boolean = BezierCurvePlotDefaults.SlowMoveWithControl,
+    slowMoveFactor: Float = BezierCurvePlotDefaults.SlowMoveFactor,
     backgroundColor: Color = Color.Unspecified,
     unitAreaColor: Color = Color.Unspecified,
     gridColor: Color = Color.Unspecified,
@@ -90,17 +96,20 @@ fun BezierCurvePlot(
 ) {
     require(yRange.endInclusive > yRange.start) { "yRange 必须递增，实际为 $yRange" }
     require(snapStep > 0f) { "snapStep 必须为正数，实际为 $snapStep" }
+    require(slowMoveFactor > 0f) { "slowMoveFactor 必须为正数，实际为 $slowMoveFactor" }
 
     // 手势协程要读到最新值与最新回调，避免 pointerInput 因 lambda / 值变化而重启（重启会打断正在进行的拖拽）
     val currentValue by rememberUpdatedState(value)
     val currentOnValueChange by rememberUpdatedState(onValueChange)
 
-    // Alt 吸附 / Shift 锁角所需的按键状态来自仓库自己的输入事件总线（屏幕打开期间同样维护）
+    // Alt 吸附 / Shift 锁角 / Ctrl 微调所需的按键状态来自仓库自己的输入事件总线（屏幕打开期间同样维护）
     val pressedKeys = rememberPressedKeys()
     val altPressed = Keyboard.LEFT_ALT in pressedKeys.keys || Keyboard.RIGHT_ALT in pressedKeys.keys
     val shiftPressed = Keyboard.LEFT_SHIFT in pressedKeys.keys || Keyboard.RIGHT_SHIFT in pressedKeys.keys
+    val controlPressed = Keyboard.LEFT_CONTROL in pressedKeys.keys || Keyboard.RIGHT_CONTROL in pressedKeys.keys
     val currentAlt by rememberUpdatedState(altPressed)
     val currentShift by rememberUpdatedState(shiftPressed)
+    val currentControl by rememberUpdatedState(controlPressed)
 
     val density = LocalDensity.current
     val edgePaddingPx = with(density) { BezierCurvePlotDefaults.EdgePadding.toPx() }
@@ -132,7 +141,7 @@ fun BezierCurvePlot(
                     else -> PointerIcon.Hand
                 },
             )
-            // 拖拽：按下时拾取控制点，随后跟随指针；x 夹 0..1、y 夹 yRange，Alt 吸附 / Shift 锁角
+            // 拖拽：按下时拾取控制点，随后跟随指针；x 夹 0..1、y 夹 yRange，Alt 吸附 / Shift 锁角 / Ctrl 微调
             .pointerInput(
                 enabled && interactive,
                 yRange.start,
@@ -140,6 +149,8 @@ fun BezierCurvePlot(
                 snapStep,
                 snapWithAlt,
                 lockAngleWithShift,
+                slowMoveWithControl,
+                slowMoveFactor,
                 edgePaddingPx,
                 hitRadiusPx,
             ) {
@@ -156,8 +167,25 @@ fun BezierCurvePlot(
                     val grabOffsetX = center.x - down.position.x
                     val grabOffsetY = center.y - down.position.y
 
+                    // Ctrl 微调：位移按比例缩放。基准取"上一次事件"，中途按下 / 松开 Ctrl 时
+                    // 以当前位置重新起算，已拖出来的位置不会被缩回去
+                    var basePointer = down.position
+                    var baseEffective = down.position
+                    var lastPointer = down.position
+                    var lastEffective = down.position
+                    var lastFactor = 1f
+
                     fun emitAt(position: Offset) {
-                        val target = Offset(position.x + grabOffsetX, position.y + grabOffsetY)
+                        val factor = if (slowMoveWithControl && currentControl) slowMoveFactor else 1f
+                        if (factor != lastFactor) {
+                            basePointer = lastPointer
+                            baseEffective = lastEffective
+                            lastFactor = factor
+                        }
+                        val effective = baseEffective + (position - basePointer) * factor
+                        lastPointer = position
+                        lastEffective = effective
+                        val target = Offset(effective.x + grabOffsetX, effective.y + grabOffsetY)
                         val next = movedBezier(
                             space = space,
                             position = target,
@@ -182,7 +210,7 @@ fun BezierCurvePlot(
                     }
                 }
             }
-            // 悬停：只跟踪指针与两个控制点的命中关系，命中结果变化时才写状态
+            // 悬停：按每个指针事件的位置重算与两个控制点的命中关系，命中结果变化时才写状态
             .pointerInput(enabled && interactive, yRange.start, yRange.endInclusive, edgePaddingPx, hitRadiusPx) {
                 if (!enabled || !interactive) {
                     hoveredHandle = null
@@ -191,19 +219,17 @@ fun BezierCurvePlot(
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent()
-                        when (event.type) {
-                            PointerEventType.Move,
-                            PointerEventType.Enter,
-                            PointerEventType.Press,
-                            -> {
-                                val position = event.changes.lastOrNull()?.position
-                                val space = plotSpace(size.width, size.height, yRange, edgePaddingPx)
-                                val hit = position?.let { space.pick(it, currentValue, hitRadiusPx) }
-                                if (hit != hoveredHandle) hoveredHandle = hit
-                            }
-
-                            PointerEventType.Exit -> if (hoveredHandle != null) hoveredHandle = null
+                        if (event.type == PointerEventType.Exit) {
+                            if (hoveredHandle != null) hoveredHandle = null
+                            continue
                         }
+                        // 除 Exit 外都按事件里的指针位置重算命中：按住期间平台不派发 Exit
+                        // （只有未按下的指针才算悬停），拖出画布后松手（Release）如果不重算，
+                        // 高亮就会一直留在那个控制点上
+                        val position = event.changes.lastOrNull()?.position ?: continue
+                        val space = plotSpace(size.width, size.height, yRange, edgePaddingPx)
+                        val hit = space.pick(position, currentValue, hitRadiusPx)
+                        if (hit != hoveredHandle) hoveredHandle = hit
                     }
                 }
             }
@@ -263,33 +289,33 @@ fun BezierCurvePlot(
             }
 
             // 引导线：起点 → P1、终点 → P2
-            drawLine(
-                gridLine,
-                Offset(space.screenX(0f), space.screenY(0f)),
-                space.handleCenter(Handle.P1, value),
-                strokeWidth = lineThicknessPx,
-            )
-            drawLine(
-                gridLine,
-                Offset(space.screenX(1f), space.screenY(1f)),
-                space.handleCenter(Handle.P2, value),
-                strokeWidth = lineThicknessPx,
-            )
+            val lineStart0 = Offset(space.screenX(0f), space.screenY(0f))
+            val lineEnd0 = space.handleCenter(Handle.P1, value)
+            val lineStart1 = Offset(space.screenX(1f), space.screenY(1f))
+            val lineEnd1 = space.handleCenter(Handle.P2, value)
+            drawLine(gridLine, lineStart0, lineEnd0, strokeWidth = lineThicknessPx)
+            drawLine(gridLine, lineStart1, lineEnd1, strokeWidth = lineThicknessPx)
 
             // 控制点方块：坐标取整到整像素，像素风下边缘才不糊
             val side = handleSizePx.roundToInt().toFloat().coerceAtLeast(1f)
-            listOf(Handle.P1, Handle.P2).forEach { handle ->
-                val center = space.handleCenter(handle, value)
-                val fill = if (handle == activeHandle || handle == hoveredHandle) resolvedHandleActive else resolvedHandle
-                val topLeft = Offset(
-                    (center.x - side / 2f).roundToInt().toFloat(),
-                    (center.y - side / 2f).roundToInt().toFloat(),
+            val rawCenters = arrayOf(
+                space.handleCenter(Handle.P1, value),
+                space.handleCenter(Handle.P2, value),
+            )
+            val tops = Array(2) { i ->
+                Offset(
+                    (rawCenters[i].x - side / 2f).roundToInt().toFloat(),
+                    (rawCenters[i].y - side / 2f).roundToInt().toFloat(),
                 )
+            }
+            for (i in 0..1) {
+                val handle = if (i == 0) Handle.P1 else Handle.P2
+                val fill = if (handle == activeHandle || handle == hoveredHandle) resolvedHandleActive else resolvedHandle
                 val handleBox = Size(side, side)
-                drawRect(color = fade(fill), topLeft = topLeft, size = handleBox)
+                drawRect(color = fade(fill), topLeft = tops[i], size = handleBox)
                 drawRect(
                     color = fade(resolvedHandleOutline),
-                    topLeft = topLeft,
+                    topLeft = tops[i],
                     size = handleBox,
                     style = Stroke(width = lineThicknessPx),
                 )
@@ -412,7 +438,7 @@ private fun plotSpace(
  * [lockAngle] 开启时（Shift）：控制点只能沿"自身锚点 → 当前位置"这条直线移动，方向不变、只改长度：
  * - 指针先投影到该直线，投影在**画布坐标**下进行，保证拖动过程中点始终贴着指针；
  * - 长度以 `≥ 0` 夹取，不允许越过锚点反向；
- * - 长度再按 [maxScale] 截断，于是在坐标边界处仍然保持角度（而不是先落到界外再逐轴夹回来）；
+ * - 长度再按 [PlotSpace.maxScale] 截断，于是在坐标边界处仍然保持角度（而不是先落到界外再逐轴夹回来）；
  * - 与 [snap] 同时开启时吸附的是**长度**（曲线坐标下的距离）而不是 x / y 分量。
  *
  * 锚点与当前点重合（方向未定义）时退回自由拖动。
@@ -470,10 +496,10 @@ private fun movedBezier(
 /** 网格吸附：取最接近的 [step] 整数倍。 */
 private fun snapTo(value: Float, step: Float): Float = (value / step).roundToInt() * step
 
-/** 曲线上 `x = t` 处的画布坐标（坐标取整到整像素）。 */
+/** 曲线上 `x = t` 处的画布坐标。坐标不取整：逐像素 x 采样下取整会把浅斜段烘成 1px 台阶（dy<0.5 连续归零再跳变），AA 无法挽回。 */
 private fun curvePoint(space: PlotSpace, easing: Easing, t: Float): Offset = Offset(
-    space.screenX(t).roundToInt().toFloat(),
-    space.screenY(easing.easeIn(t)).roundToInt().toFloat(),
+    space.screenX(t),
+    space.screenY(easing.easeIn(t)),
 )
 
 /** 手绘虚线：渲染后端不消费 `Paint.pathEffect`，这里按 `dashLength` / `gapLength` 交替切分。 */
