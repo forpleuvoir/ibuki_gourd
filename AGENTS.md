@@ -168,6 +168,7 @@ gradlew.bat :common:test
 
 - 主分支 `dev`（`compose-test` 已合入）；当前默认 PR 目标分支为 `dev`；Compose 部分的重构在分支 `refactor/ui-compose`（基于 `dev`）上进行；**迁移到 compose-minecraft 的清理/重构在分支 `refactor/ui-compose-minecraft`（基于 `dev`）上进行**。
 - commit message 用中文，遵循 Conventional Commits（参考历史：`feat:` / `fix:` / `refactor(ui):` / `docs:` 等）。
+- **提交前先把草稿给用户确认**：拟拆分的提交数量与文件范围 + 每个提交的完整 message（含版本号是否变更 / 是否需要打 tag），确认后才 `git commit`；用户说"提交"不等于可以跳过确认。
 - 仅在被明确要求时才执行 `git commit` / `git push`；在默认分支上应先开分支。
 - 提交前勿带入 `build/`、`runs/`、`modJar/`、`out/`、`net/` 等忽略目录。
 
