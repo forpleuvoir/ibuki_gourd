@@ -19,6 +19,7 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
 import moe.forpleuvoir.ibukigourd.test.item.ItemIconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AlertDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.BezierCurvePlotTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorSchemeTestScreen
@@ -287,6 +288,11 @@ fun SokitsuTestScreen() {
                             RemoveConfirmButtonTestScreen()
                         }) {
                             Text("删除按钮测试")
+                        }
+                        Button({
+                            BezierCurvePlotTestScreen()
+                        }) {
+                            Text("曲线编辑器测试")
                         }
                     }
                 }
