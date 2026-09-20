@@ -19,6 +19,9 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.popup.PopupHostState
 import moe.forpleuvoir.ibukigourd.test.item.ItemIconTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AlertDialogTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
+import moe.forpleuvoir.ibukigourd.test.configwrapper.ConfigWrapperTestScreen
+import moe.forpleuvoir.ibukigourd.test.configwrapper.ConfigManagerTestScreen
+import moe.forpleuvoir.ibukigourd.test.configwrapper.IgConfigManagerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.BezierCurvePlotTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
@@ -299,6 +302,21 @@ fun SokitsuTestScreen() {
                             BezierCurvePlotTestScreen()
                         }) {
                             Text("曲线编辑器测试")
+                        }
+                        Button({
+                            ConfigWrapperTestScreen()
+                        }) {
+                            Text("配置包装器测试")
+                        }
+                        Button({
+                            ConfigManagerTestScreen()
+                        }) {
+                            Text("配置页面测试")
+                        }
+                        Button({
+                            IgConfigManagerTestScreen()
+                        }) {
+                            Text("IGConfig 页面测试")
                         }
                     }
                 }

@@ -1,0 +1,79 @@
+package moe.forpleuvoir.ibukigourd.ui.configwrapper
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurveEditor
+import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurvePlot
+import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurvePlotDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.util.math.easing.CubicBezier
+import moe.forpleuvoir.nebula.config.Config
+
+/**
+ * 缓动曲线：行内一块**可拖的速览画布**，右侧编辑按钮打开完整编辑器。
+ *
+ * 行内画布尺寸小（[ConfigControlDefaults.CurvePreviewSize]），但手势与完整编辑器一致
+ * （命中式拾取、Alt 吸附、Shift 锁角），因此常用的微调不必开弹窗；要精确填数值或套预设时
+ * 用右侧按钮打开 [BezierCurveEditor]（数值框 + 预设行）。
+ *
+ * 编辑**即时写回**配置（弹窗的确认 / 取消都只是关闭，不回滚）——需要恢复默认值时用行尾的重置按钮。
+ *
+ * @param config 曲线配置项
+ * @param modifier 作用于整行
+ * @param yRange y 轴显示区间（同时作为编辑器的显示区间）
+ */
+@Composable
+fun BezierCurveConfigWrapper(
+    config: Config<CubicBezier>,
+    modifier: Modifier = Modifier,
+    yRange: ClosedFloatingPointRange<Float> = BezierCurvePlotDefaults.YRange,
+) {
+    val value by config.asState()
+    var editing by remember(config) { mutableStateOf(false) }
+
+    ConfigRowWrapper(config, modifier) {
+        BezierCurvePlot(
+            value = value,
+            onValueChange = { config.setValue(it) },
+            modifier = Modifier.size(ConfigControlDefaults.CurvePreviewSize),
+            yRange = yRange,
+        )
+        IconButton(
+            onClick = { editing = true },
+            modifier = Modifier.size(ConfigControlDefaults.IconButtonSize),
+        ) {
+            Icon(Icons.Edit, scale = ConfigRowDefaults.IconScale)
+        }
+    }
+
+    if (editing) {
+        FlexibleDialog(
+            onDismissRequest = { editing = false },
+            onConfirmRequest = { true },
+            title = { Text(InlineStyleText(config.translateText.plainText)) },
+            content = {
+                BezierCurveEditor(
+                    value = value,
+                    onValueChange = { config.setValue(it) },
+                    yRange = yRange,
+                    modifier = Modifier.padding(ConfigControlDefaults.CurveDialogPadding),
+                )
+            },
+        )
+    }
+}

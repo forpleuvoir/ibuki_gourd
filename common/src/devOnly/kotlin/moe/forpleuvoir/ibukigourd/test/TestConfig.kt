@@ -9,11 +9,15 @@ import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.math.*
+import moe.forpleuvoir.ibukigourd.util.math.easing.CubicBezier
+import moe.forpleuvoir.nebula.config.config
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.config.item.*
 import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.duration
+import moe.forpleuvoir.nebula.serialization.codec.enum
 import net.minecraft.client.gui.Font
 import net.minecraft.core.Direction
 import kotlin.time.Duration.Companion.seconds
@@ -49,6 +53,11 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
 
     var testDuration2 by configDuration("test_duration2", 30.seconds)
 
+    var testBezier by config("test_bezier", CubicBezier.Standard, CubicBezier)
+
+    /** 没有任何 wrapper 注册的类型：用于验证兜底行「暂不支持」（见 `UnspecifiedConfigWrapper`）。 */
+    var testChar by configChar("test_char", 'a')
+
     var testKeyBind by configKeybind("test_key_bind", Keybind {
         println("按下了测试按键")
     })
@@ -72,6 +81,18 @@ object TestConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "test") {
             "k3" to "k3"
         ), Codec.string
     )
+
+    /** 元素为枚举：验证列表元素控件分发里的「枚举 → 下拉」。 */
+    val testEnumList by configList("test_enum_list", listOf(Direction.NORTH, Direction.SOUTH), Codec.enum())
+
+    /** 元素为时长：验证「时长 → 时长框」。 */
+    val testDurationList by configList("test_duration_list", listOf(1.seconds, 2.seconds), Codec.duration)
+
+    /** 元素为曲线：验证「CubicBezier → 行内曲线画布」。 */
+    val testBezierList by configList("test_bezier_list", listOf(CubicBezier.Standard, CubicBezier.EaseInOut), CubicBezier)
+
+    /** 元素为**整数对**：验证对列表不再假设分量是字符串。 */
+    val testIntPairList by configList("test_int_pair_list", listOf(1 to 2, 3 to 4), Codec.pair(Codec.int, Codec.int))
 
     val testStringPairList by configPairList(
         "test_string_pair_list",
