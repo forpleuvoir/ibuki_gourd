@@ -127,6 +127,8 @@ ibuki_gourd/
 ## 构建与常用任务
 
 > Windows 默认 shell 为 `cmd.exe`，请使用 `gradlew.bat`（PowerShell 下用 `.\gradlew`）。
+>
+> 下面这些 Gradle 命令是给**人**（手工构建 / 发布）用的。**AI 助手一律不得执行**——助手侧的编译、构建与检查只能走 IntelliJ IDEA MCP 的原生能力，见「IntelliJ IDEA MCP 与验证」。
 
 ```bash
 # 构建 fabric + neoforge 的 jar，输出到 modJar/<mc>/<version>/
@@ -179,17 +181,19 @@ gradlew.bat :common:test
 2. **跨加载器改动**：能放 `common` 就放 `common`；平台相关能力通过 `platform/services` 抽象，由 fabric/neoforge 各自实现并通过 `META-INF/services` 注册，勿在 common 里硬编码平台判断。
 3. **Mixin**：放 `common/.../mixin`（client 相关放 `mixin/client`），并在对应加载器的 `*.mixins.json` 注册；Fabric access widener 用 `ibukigourd.classtweaker`，NeoForge AT 用 `META-INF/accesstransformer.cfg`。
 4. **compose-minecraft 依赖**：`common` 用 `api` 引入 `compose_minecraft-common-26.2`；`fabric` 用 `includeInternal(api(...))`、`neoforge` 用 `bundledApi`（`api` 配置已 `extendsFrom(bundledApi)`，等价于 `jarJarInternal(api(...))`）打包进 jar（compose_minecraft 构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖；neoforge 保留 compose 旧坐标重定向处理）。构件从 `mavenLocal()` 解析，调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。
+   **改完 CMP（`Compose-Minecraft`）源码后必须提醒用户手动发布/推送一次** —— 未发布时本仓仍会解析到 mavenLocal 里的旧构件，改了也不生效；发布动作由用户执行，助手只负责提醒。
 5. **先读后写**：修改文件前先读取确认现状；遵循周边代码的命名、注释密度与惯用法。
-6. **构建验证**：完成 Kotlin 改动后，优先用 `gradlew.bat :<module>:build` 或对应编译任务验证；不要声称“已通过测试”除非真的运行过。
+6. **构建验证**：完成 Kotlin 改动后，只能用 IntelliJ IDEA MCP 的原生构建/检查能力验证（见下节「IntelliJ IDEA MCP 与验证」）；**不得在终端或 shell 里跑 Gradle**。不要声称“已通过测试”除非真的在 IDEA 里跑过。
 7. **`nebula` 基类**：若改动触及 `ConfigManager` / `Event` 等定义，注意其声明在 `nebula` 依赖中，本仓库无法直接修改，只能通过包装/扩展。
 
 ## IntelliJ IDEA MCP 与验证
 
-执行编译、构建、代码检查或运行配置前，先检查当前环境是否提供 IntelliJ IDEA / JetBrains MCP，并枚举其实际能力，例如项目模型、Gradle 任务、编译、问题检查和运行配置。
+**硬性约束：编译、构建、代码检查、运行配置一律只能通过 IntelliJ IDEA MCP 的原生能力完成。**
 
-- 不假定 MCP 的固定工具名。
-- IDEA MCP 能覆盖目标时优先使用，以复用 IDE 已导入的项目模型与环境。
+- 允许：IDE 侧原生的项目模型 / 编译 / 构建 / 检查 / 运行配置工具（如 `build_project` 及 `filesToRebuild`、`get_file_problems`、`lint_files`、`get_project_modules`、`get_run_configurations`、`execute_run_configuration`）。
+- 禁止：任何**脱离 IDEA** 的 Gradle 调用 —— 终端 / shell 里跑 `gradlew`、`gradlew.bat`、Wrapper、用 IDE 终端工具包一层命令、另起构建进程等，全部不允许。**即使 IDEA 不可用也不允许降级去跑 Gradle。**
+- 不假定 MCP 的固定工具名；内置 `mcp__idea*` 工具缺失时用 `idea-mcp` CLI（见 skill `idea-mcp`），它同样是 IDEA MCP 通道。
 - 不使用 `ps`、系统进程列表或类似方式探测 IDEA 或 Gradle 导入状态。
-- 只有在 IDEA MCP 未提供、明确不可用或不能覆盖目标任务时，才回退到仓库根目录的 Gradle Wrapper。
-- 先执行覆盖改动范围的最小检查，再按风险扩大验证。
-- 交付时说明实际采用的验证方式；回退到 Wrapper 时简述原因。
+- 端点/会话失效（如 `404 Streamable HTTP session not found`）时，先在 IDE MCP 通道内恢复（`idea-mcp fresh` 重建会话）后重试；仍不可用就**停下来报告"当前无法验证"**，不得改用 Gradle。
+- 先执行覆盖改动范围的最小检查（如单文件 `build_project` + `filesToRebuild`、`get_file_problems`），再按风险扩大验证（整项目 `build_project`）。
+- 交付时说明实际采用的验证方式与结果（工具名 + 结论）；**禁止声称"构建通过"而实际没在 IDEA 里跑过**。
