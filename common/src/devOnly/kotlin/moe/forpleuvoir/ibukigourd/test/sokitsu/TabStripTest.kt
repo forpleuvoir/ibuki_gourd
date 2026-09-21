@@ -30,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntSlider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabStrip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabStripDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabStripPlacement
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabStripTab
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -185,5 +186,93 @@ private fun tabStripTestLabels(count: Int): List<String> = (0 until count).map {
         2    -> "一般功能 ${index + 1}"
         3    -> "非常长的页签名字 ${index + 1}"
         else -> "S${index + 1}"
+    }
+}
+
+/**
+ * 全屏页签条测试屏：`TabStrip` 铺满整屏，用全屏面板精灵（只提供顶部边框）。
+ *
+ * 验证点与 [TabStripTestScreen] 一致，区别在于面板没有固定宽度 —— 页签条吃满屏幕可用宽度，
+ * 页签数、朝向与溢出翻页行为在整屏尺寸下的表现。
+ */
+fun TabStripScreenTestScreen() = TestScreen {
+    var count by remember { mutableIntStateOf(8) }
+    var selected by remember { mutableIntStateOf(0) }
+    var placement by remember { mutableStateOf(TabStripPlacement.Top) }
+    val labels = remember(count) { tabStripTestLabels(count) }
+    val current = selected.coerceIn(0, count - 1)
+
+    Column(
+        Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("页签数：")
+            listOf(3, 8, 20, 40).forEach { size ->
+                Button({
+                    // 先按新数量收敛选中、再写数量：写入过程中选中始终落在 [0, 新数量)
+                    selected = selected.coerceIn(0, size - 1)
+                    count = size
+                }) {
+                    Text("$size")
+                }
+            }
+            Text(TabStripRev)
+            Text("朝向：")
+            TabStripPlacement.entries.forEach { side ->
+                Button({
+                    // 换朝向不涉及页签集，选中保持不变
+                    placement = side
+                }) {
+                    Text(if (side == TabStripPlacement.Top) "上方" else "下方")
+                }
+            }
+        }
+
+        TabStrip(
+            selectedTab = current,
+            placement = placement,
+            modifier = Modifier.fillMaxSize(),
+            sprites = TabStripDefaults.screenPanelSprites(placement),
+            tabs = {
+                labels.forEachIndexed { index, label ->
+                    TabStripTab(
+                        selected = index == current,
+                        onClick = { selected = index },
+                    ) {
+                        Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            },
+        ) {
+            // 面板内容也吃渐变过渡：切页签时整块 Crossfade 淡入淡出。
+            // 色带用横向渐变、每个页签一档配色，淡入淡出看得更清楚。
+            // 点箭头只翻窗口、不改选中，所以不会触发它。
+            Crossfade(targetState = current, animationSpec = tween(220)) { tab ->
+                // Crossfade 动画期间 tab 是**旧值**：页签集缩小后旧下标会越界（labels 已经变短），
+                // 所以这里按当前列表把动画值钳进范围再用。
+                val index = tab.coerceIn(0, labels.lastIndex.coerceAtLeast(0))
+                val accent = TabStripTestAccents[index % TabStripTestAccents.size]
+                Column(Modifier.padding(12.dp).fillMaxSize()) {
+                    Text("面板内容：第 ${index + 1} 个页签「${labels[index]}」")
+                    Text("切页签 → 这段内容淡入淡出；箭头翻页不改选中，不触发")
+                    Spacer(Modifier.height(8.dp))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(accent, accent.copy(alpha = 0.2f)),
+                                ),
+                            ),
+                    )
+                    Spacer(Modifier.height(150.dp))
+                }
+            }
+        }
     }
 }

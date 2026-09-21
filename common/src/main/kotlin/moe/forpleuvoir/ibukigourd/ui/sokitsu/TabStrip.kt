@@ -530,9 +530,9 @@ private fun TabStripLayout(
         // 整条对齐：两侧都有隐藏时看最近一次翻页方向；只有一侧有隐藏时由该侧决定
         // （起点 0 → 左对齐；末位露出 → 右对齐，否则那一侧会空出一截）
         val alignRight = when {
-            start <= 0 -> false
+            start <= 0       -> false
             end >= count - 1 -> true
-            else -> window.alignRight
+            else             -> window.alignRight
         }
 
         // 记录本帧窗口，供点击处理与选中变化判定"目标是否可见"
@@ -612,9 +612,9 @@ private fun TabStripLayout(
             val newEnd = newWindow.third
             // 目标窗口的对齐：两侧都有隐藏时看"往目标方向翻"的结果，否则由该侧强制
             val newAlignRight = when {
-                newStart <= 0 -> false
+                newStart <= 0       -> false
                 newEnd >= count - 1 -> true
-                else -> newStart > start
+                else                -> newStart > start
             }
             val ref = maxOf(start, newStart)
             if (ref <= minOf(end, newEnd)) {
@@ -928,9 +928,10 @@ fun TabStripTab(
     val hovered by interactionSource.collectIsHoveredAsState()
     val pressed by interactionSource.collectIsPressedAsState()
     val tone = when {
-        pressed -> lerp(base, colors.outline, TabStripDefaults.PressedBlend)
-        hovered -> lerp(base, colors.tabHighlight, TabStripDefaults.HoverBlend)
-        else    -> base
+        selected -> base
+        pressed  -> lerp(base, colors.outline, TabStripDefaults.PressedBlend)
+        hovered  -> lerp(base, colors.tabHighlight, TabStripDefaults.HoverBlend)
+        else     -> base
     }
 
     val hoverIcon = FlatButtonDefaults.LocalHoverIcon.current
@@ -950,10 +951,8 @@ fun TabStripTab(
         bottom = padVertical + if (placement == TabStripPlacement.Top) extra else 0.dp,
     )
 
-    Box(
+    val unSelectedModifier = if (!selected) {
         Modifier
-            .layoutId(indexTag)
-            .then(modifier)
             .pointerHoverIcon(hoverIcon)
             .clickable(
                 interactionSource = interactionSource,
@@ -964,6 +963,13 @@ fun TabStripTab(
                     onClick()
                 },
             )
+    } else Modifier
+
+    Box(
+        Modifier
+            .layoutId(indexTag)
+            .then(modifier)
+            .then(unSelectedModifier)
             .graphicsLayer {
                 // 绘制期读取：动画不触发重组与重新测量
                 translationX = slide.distance * (1f - progress)

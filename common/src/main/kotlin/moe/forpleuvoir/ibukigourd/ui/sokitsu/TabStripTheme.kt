@@ -87,6 +87,10 @@ object TabStripTokens {
 data class TabStripMeta(
     /** 面板精灵图集 id。 */
     val panelSprite: Identifier,
+    /**
+     * 全屏用的面板精灵图,只提供顶部边框,适用于全屏的标签页
+     */
+    val screenPanelSprite: Identifier,
     /** 未选中页签精灵图集 id（页签行在面板上方）。 */
     val topTabSprite: Identifier,
     /** 选中页签精灵图集 id（页签行在面板上方）。 */
@@ -142,6 +146,7 @@ data class TabStripMeta(
 
         val default = TabStripMeta(
             panelSprite = identifier("ui/tab_strip/panel"),
+            screenPanelSprite = identifier("ui/tab_strip/screen_panel"),
             topTabSprite = identifier("ui/tab_strip/tab/top_inactive"),
             topSelectedTabSprite = identifier("ui/tab_strip/tab/top_active"),
             bottomTabSprite = identifier("ui/tab_strip/tab/bottom_inactive"),
@@ -157,6 +162,7 @@ data class TabStripMeta(
 
         private val codec = Codec.create<TabStripMeta>()
             .field(TabStripMeta::panelSprite).default(default.panelSprite).codec(Codec.ibukigourdIdentifier)
+            .field(TabStripMeta::screenPanelSprite).default(default.screenPanelSprite).codec(Codec.ibukigourdIdentifier)
             .field(TabStripMeta::topTabSprite).default(default.topTabSprite).codec(Codec.ibukigourdIdentifier)
             .field(TabStripMeta::topSelectedTabSprite).default(default.topSelectedTabSprite).codec(Codec.ibukigourdIdentifier)
             .field(TabStripMeta::bottomTabSprite).default(default.bottomTabSprite).codec(Codec.ibukigourdIdentifier)
@@ -279,6 +285,20 @@ object TabStripDefaults {
     @Composable
     fun sprites(placement: TabStripPlacement): TabStripSprites = TabStripSprites(
         panel = SokitsuThemeMeta.uiSprite(meta.panelSprite),
+        tabSelected = SokitsuThemeMeta.uiSprite(meta.tabSprite(placement, selected = true)),
+        tab = SokitsuThemeMeta.uiSprite(meta.tabSprite(placement, selected = false)),
+        arrowLeft = SokitsuThemeMeta.uiSprite(meta.arrowLeftSprite),
+        arrowRight = SokitsuThemeMeta.uiSprite(meta.arrowRightSprite),
+    )
+
+    /**
+     * 按朝向解析全部精灵。
+     *
+     * @param placement 页签行相对面板的位置
+     */
+    @Composable
+    fun screenPanelSprites(placement: TabStripPlacement): TabStripSprites = TabStripSprites(
+        panel = SokitsuThemeMeta.uiSprite(meta.screenPanelSprite),
         tabSelected = SokitsuThemeMeta.uiSprite(meta.tabSprite(placement, selected = true)),
         tab = SokitsuThemeMeta.uiSprite(meta.tabSprite(placement, selected = false)),
         arrowLeft = SokitsuThemeMeta.uiSprite(meta.arrowLeftSprite),
