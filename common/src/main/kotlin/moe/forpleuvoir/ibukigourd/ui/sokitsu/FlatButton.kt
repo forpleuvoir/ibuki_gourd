@@ -2,6 +2,8 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -19,10 +21,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -121,6 +127,8 @@ fun FlatButton(
                 .defaultMinSize(minSize.width, minSize.height)
                 // 背景铺满整个按钮（含内边距），故在 padding 之前
                 .then(if (background != null) Modifier.sokitsuSprite(background, colors.color) else Modifier)
+                // 需在 clickable 之前：Initial 趟自外向内派发，指针观察要先拿到按下事件
+                .releaseFocusOnPointerPress(enabled)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
@@ -139,10 +147,38 @@ fun FlatButton(
 }
 
 /**
+ * 指针按下后清掉焦点：**只有鼠标点击会清**，键盘激活（Enter / Space）保留聚焦反馈。
+ *
+ * CMP 在非 Android 目标上把 `isRequestFocusOnClickEnabled()` 写死为 `true`（上游 TODO：CMP-5814），
+ * `clickable` 于是**按下即请求焦点**，松手后聚焦纹理一直亮着；而键盘激活走 `clickable` 的按键分支、
+ * 不经过指针手势 —— 两类交互因此可以按"有没有指针按下"干净区分，不需要拿 `hovered` / `focused` 去猜。
+ *
+ * 时序：Initial 趟拿到按下（此时 `clickable` 还没处理，故 `requireUnconsumed = false`），
+ * 再等这一个事件的 Final 趟 —— `clickable` 在 Main 趟请求焦点，早于此刻清才不会又被它点亮。
+ * 手势其余部分交给 [awaitEachGesture] 收尾（等所有指针抬起再进下一次）。
+ *
+ * 必须放在 `.clickable(...)` **之前**：Initial 趟自外向内派发，指针观察要先于点击处理拿到按下事件。
+ *
+ * @param enabled 控件禁用时 `clickable` 不会请求焦点，也就不需要挂指针观察
+ */
+@Composable
+private fun Modifier.releaseFocusOnPointerPress(enabled: Boolean): Modifier {
+    if (!enabled) return this
+    val focusManager: FocusManager = LocalFocusManager.current
+    return this.pointerInput(Unit) {
+        awaitEachGesture {
+            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            awaitPointerEvent(PointerEventPass.Final)
+            focusManager.clearFocus()
+        }
+    }
+}
+
+/**
  * 扁平按钮配色集：只有两个**基准色** —— [color] 为背景精灵的染色色板，
  * [contentColor] 为内容色基准值。
  *
- * 各状态的内容色**不在这里逐个指定**：由 [FlatButtonMeta.contentAlpha] 的逐状态系数
+ * 各状态的内容色**不在这里逐个指定**：由 [FlatButtonMeta.contentBlend] 的逐状态系数
  * 乘在 [contentColor] 上得到（可用 data class `copy` 微调基准色）。
  */
 @Immutable
@@ -189,7 +225,7 @@ object FlatButtonDefaults {
      * 两个参数默认 [Color.Unspecified]，语义是"调用方没意见，按 token 解析"；
      * 显式传值即完全接管该槽位。
      *
-     * 这里只给**基准色**：各状态的内容色 = 基准色 × [FlatButtonMeta.contentAlpha] 对应系数
+     * 这里只给**基准色**：各状态的内容色 = 基准色 × [FlatButtonMeta.contentBlend] 对应系数
      * （禁用态默认 0.62，其余状态 1.0），系数在主题 meta 里调，不在此处。
      */
     @Composable

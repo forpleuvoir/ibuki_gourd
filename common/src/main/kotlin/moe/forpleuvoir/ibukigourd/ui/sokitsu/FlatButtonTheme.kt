@@ -20,7 +20,7 @@ object FlatButtonTokens {
     /** 背景精灵的染色色板（`flat_button` 素材 `base` 层 `level=tone`）。 */
     val Container = ColorSchemeToken.Primary
 
-    /** 内容色（文字/图标）的基准色；各状态的实际内容色见 [FlatButtonMeta.contentAlpha]。 */
+    /** 内容色（文字/图标）的基准色；各状态的实际内容色见 [FlatButtonMeta.contentBlend]。 */
     val Content = ColorSchemeToken.Primary
 }
 
