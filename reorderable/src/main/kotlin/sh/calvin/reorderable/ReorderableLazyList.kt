@@ -292,30 +292,35 @@ fun LazyItemScope.ReorderableItem(
 ) {
     val orientation by derivedStateOf { state.orientation }
     val dragging by state.isItemDragging(key)
+    // 位移在**组合期**读取（且只在本项走到的分支里读）：本渲染栈下 graphicsLayer 的 lambda 不会因
+    // 快照读变化重算，只在绘制期读 Animatable / 快照状态会让拖拽位移与回落动画停在旧值上；
+    // 放进分支则只有被拖 / 正在回落的那一项会逐帧重组，其余项不受影响。
     val offsetModifier = if (dragging) {
+        val draggingOffset = state.draggingItemOffset
         Modifier
             .zIndex(1f)
             .then(
                 when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
-                    translationY = state.draggingItemOffset.y
+                    translationY = draggingOffset.y
                 }
 
                 Orientation.Horizontal -> Modifier.graphicsLayer {
-                    translationX = state.draggingItemOffset.x
+                    translationX = draggingOffset.x
                 }
             })
     } else if (key == state.previousDraggingItemKey) {
+        val settledOffset = state.previousDraggingItemOffset.value
         Modifier
             .zIndex(1f)
             .then(
                 when (orientation) {
                 Orientation.Vertical -> Modifier.graphicsLayer {
-                    translationY = state.previousDraggingItemOffset.value.y
+                    translationY = settledOffset.y
                 }
 
                 Orientation.Horizontal -> Modifier.graphicsLayer {
-                    translationX = state.previousDraggingItemOffset.value.x
+                    translationX = settledOffset.x
                 }
             })
     } else {

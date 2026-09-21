@@ -321,6 +321,9 @@ open class ReorderableListScope(
         modifier: Modifier = Modifier,
         content: @Composable ReorderableListItemScope.() -> Unit,
     ) {
+        // 位移在**组合期**读取后交给 graphicsLayer 捕获：本渲染栈下 graphicsLayer 的 lambda 不会因
+        // 快照读变化重算，只在绘制期读 Animatable 会让让位 / 回落位移停在旧值上。
+        val itemOffset = state.itemOffsets[index].value
         Box(
             modifier = modifier
                 .onGloballyPositioned { cord ->
@@ -336,9 +339,9 @@ open class ReorderableListScope(
                 }
                 .graphicsLayer {
                     when (orientation) {
-                        Orientation.Vertical -> translationY = state.itemOffsets[index].value
+                        Orientation.Vertical -> translationY = itemOffset
 
-                        Orientation.Horizontal -> translationX = state.itemOffsets[index].value
+                        Orientation.Horizontal -> translationX = itemOffset
                     }
 
                 }
