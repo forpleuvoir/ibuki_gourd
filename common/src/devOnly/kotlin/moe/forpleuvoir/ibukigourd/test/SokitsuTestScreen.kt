@@ -20,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.AtlasTestScreen
 import moe.forpleuvoir.ibukigourd.test.configwrapper.ConfigWrapperTestScreen
 import moe.forpleuvoir.ibukigourd.test.configwrapper.ConfigManagerTestScreen
 import moe.forpleuvoir.ibukigourd.test.configwrapper.IgConfigManagerTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.TabStripTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.BezierCurvePlotTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ButtonTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ColorPickerTestScreen
@@ -318,6 +319,11 @@ fun SokitsuTestScreen() {
                             BezierCurvePlotTestScreen()
                         }) {
                             Text("曲线编辑器测试")
+                        }
+                        Button({
+                            TabStripTestScreen()
+                        }) {
+                            Text("页签溢出测试")
                         }
                         Button({
                             ConfigWrapperTestScreen()
