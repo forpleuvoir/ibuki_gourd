@@ -48,6 +48,12 @@ class SokitsuSprite(
     /** 见 [logicalWidth]。 */
     val logicalHeight: Float get() = layers.maxOfOrNull { it.logicalHeight } ?: 0f
 
+    fun filterLayer(predicate: (SokitsuLayerSprite) -> Boolean) = SokitsuSprite(
+        atlasLocation = atlasLocation,
+        textureId = textureId,
+        layers = layers.filter(predicate)
+    )
+
     override fun toString(): String =
         "SokitsuSprite{atlas=$atlasLocation, texture=$textureId, density=$density, layers=$layers}"
 
@@ -55,8 +61,8 @@ class SokitsuSprite(
         if (this === other) return true
         if (other !is SokitsuSprite) return false
         return atlasLocation == other.atlasLocation &&
-            textureId == other.textureId &&
-            layers == other.layers
+                textureId == other.textureId &&
+                layers == other.layers
     }
 
     override fun hashCode(): Int {
@@ -164,14 +170,14 @@ class SokitsuLayerSprite(
         if (this === other) return true
         if (other !is SokitsuLayerSprite) return false
         return atlasLocation == other.atlasLocation &&
-            textureId == other.textureId &&
-            layerId == other.layerId &&
-            x == other.x && y == other.y &&
-            width == other.width && height == other.height &&
-            density == other.density &&
-            colorSlot == other.colorSlot &&
-            tintMode == other.tintMode &&
-            fill == other.fill
+                textureId == other.textureId &&
+                layerId == other.layerId &&
+                x == other.x && y == other.y &&
+                width == other.width && height == other.height &&
+                density == other.density &&
+                colorSlot == other.colorSlot &&
+                tintMode == other.tintMode &&
+                fill == other.fill
     }
 
     override fun hashCode(): Int {

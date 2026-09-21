@@ -56,7 +56,7 @@ enum class TextureTintMode(val mode: String) {
 
         override fun deserialization(data: SerializeElement): Result<TextureTintMode> =
             DeserializationException.runCatching {
-                val name = data.asString ?: error("tint 应为字符串, 实际: $data")
+                val name = data.asString ?: data.requireType("tint")
                 fromName(name) ?: error("Invalid TextureTintMode: '$name'")
             }
     }
