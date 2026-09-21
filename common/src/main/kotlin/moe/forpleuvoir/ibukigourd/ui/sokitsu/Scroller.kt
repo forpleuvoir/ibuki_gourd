@@ -1,4 +1,4 @@
-﻿package moe.forpleuvoir.ibukigourd.ui.sokitsu
+package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
@@ -136,27 +136,55 @@ private class LazyListStateScrollerAdapter(
     private val state: LazyListState,
 ) : ScrollerAdapter {
 
-    /** 可见条目的平均主轴尺寸（像素）；无可见条目时为 0。 */
-    private val averageItemSize: Float
+    /**
+     * 条目间距（像素；"主轴尺寸 + 条目间距"，即相邻条目起点的距离）；无可见条目时为 0。
+     *
+     * 以可见条目为样本估计全表，口径与上游 `visibleItemsAverageSize()` 一致。
+     * **排除粘性表头**：`stickyHeader` 被钉在视口顶端时会出现在 `visibleItemsInfo` 里，
+     * 但它的 index 落在滚动位置之前（不属于滚动区间）；把它算进样本，平均值会随可见行数
+     * 每帧变化，滑块的**位置与长度**随之抖动。
+     */
+    private val itemPitch: Float
         get() {
-            val items = state.layoutInfo.visibleItemsInfo
-            if (items.isEmpty()) return 0f
-            return items.sumOf { it.size } / items.size.toFloat()
+            val info = state.layoutInfo
+            val firstIndex = state.firstVisibleItemIndex
+            var sum = 0
+            var count = 0
+            info.visibleItemsInfo.forEach { item ->
+                if (item.index >= firstIndex) {
+                    sum += item.size
+                    count++
+                }
+            }
+            if (count == 0) return 0f
+            return sum.toFloat() / count + info.mainAxisItemSpacing
         }
 
+    /**
+     * 当前滚动位置（估计像素）。
+     *
+     * 位置取自列表自身的滚动位置（[LazyListState.firstVisibleItemIndex] /
+     * [LazyListState.firstVisibleItemScrollOffset]），**不**取
+     * `layoutInfo.visibleItemsInfo` 的第一项：粘性表头（`stickyHeader`）被钉在视口顶端时也会出现在
+     * `visibleItemsInfo` 里（index 0 / offset 0），拿它当位置会让滑块永远停在顶端。
+     *
+     * 注意 [LazyListState.firstVisibleItemScrollOffset] 的语义是**向前滚动为正**
+     * （与 `LazyListItemInfo.offset` 的视口内坐标相反），故这里是相加。
+     */
     override val scrollOffset: Float
         get() {
-            val first = state.layoutInfo.visibleItemsInfo.firstOrNull() ?: return 0f
-            return first.index * averageItemSize - first.offset
+            val pitch = itemPitch
+            if (pitch <= 0f) return 0f
+            return state.firstVisibleItemIndex * pitch + state.firstVisibleItemScrollOffset
         }
 
     override suspend fun scrollTo(containerSize: Int, scrollOffset: Float) {
-        val average = averageItemSize
-        if (average <= 0f) return
+        val pitch = itemPitch
+        if (pitch <= 0f) return
         // 估计像素 → 估计条目索引：跳到该条目并带上条目内偏移
-        val index = (scrollOffset / average).toInt()
+        val index = (scrollOffset / pitch).toInt()
             .coerceIn(0, (state.layoutInfo.totalItemsCount - 1).coerceAtLeast(0))
-        val withinItem = (scrollOffset - index * average).roundToInt()
+        val withinItem = (scrollOffset - index * pitch).roundToInt()
         state.scrollToItem(index, withinItem)
     }
 
@@ -173,9 +201,13 @@ private class LazyListStateScrollerAdapter(
             info.viewportSize.width
         }
         if (viewport <= 0) return 0f
-        val average = averageItemSize
-        if (average <= 0f) return 0f
-        val contentSize = info.totalItemsCount * average
+        val pitch = itemPitch
+        if (pitch <= 0f) return 0f
+        // 全内容长 = 条目尺寸总和 + 条目间距总和 + 首尾内容内边距（同上游 calculateContentSize）
+        val itemSize = pitch - info.mainAxisItemSpacing
+        val contentSize = itemSize * info.totalItemsCount +
+                info.mainAxisItemSpacing * (info.totalItemsCount - 1).coerceAtLeast(0) +
+                info.beforeContentPadding + info.afterContentPadding
         return (contentSize - viewport).coerceAtLeast(0f)
     }
 }
