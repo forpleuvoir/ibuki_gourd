@@ -22,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.lang.MiscLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonTokens
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.UiStateSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenuDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.dropdownMenuAnchor

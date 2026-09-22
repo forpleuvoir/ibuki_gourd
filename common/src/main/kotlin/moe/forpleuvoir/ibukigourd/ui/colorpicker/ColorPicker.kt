@@ -159,14 +159,15 @@ fun ColorPicker(
                             }
                         }
                     },
-                    text = valueText,
                     modifier = Modifier.tooltip {
                         Column {
                             Text(IGLang.Color.clickCopyColor(color.toNebulaColor()))
                             Text(IGLang.Color.rightClickPasteColor)
                         }
                     },
-                )
+                ) {
+                    Text(valueText)
+                }
             }
         }
 

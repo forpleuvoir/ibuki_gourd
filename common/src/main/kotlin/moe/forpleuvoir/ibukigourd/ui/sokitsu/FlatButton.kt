@@ -45,7 +45,7 @@ import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.sounds.SoundEvents
 
 /**
- * 扁平按钮：**没有常驻背景**的按钮底座，[IconButton] / [TextButton] 都基于它。
+ * 扁平按钮：**没有常驻背景**的按钮底座，[IconButton] / [TextButton] 是基于它的便捷封装。
  *
  * 与 [Button] 的差别在状态渲染策略：
  * - Button 四态各有素材，**总是**画背景（外框色块）；

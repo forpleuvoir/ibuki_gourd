@@ -60,8 +60,8 @@ fun AlertDialogTestContent() {
         if (basic) {
             AlertDialog(
                 onDismissRequest = { basic = false; lastAction = "1. 遮罩 / Esc 关闭" },
-                confirmButton = { TextButton({ basic = false; lastAction = "1. 确认" }, "确认") },
-                dismissButton = { TextButton({ basic = false; lastAction = "1. 取消" }, "取消") },
+                confirmButton = { TextButton(onClick = { basic = false; lastAction = "1. 确认" }) { Text("确认") } },
+                dismissButton = { TextButton(onClick = { basic = false; lastAction = "1. 取消" }) { Text("取消") } },
                 title = { Text("提示") },
                 text = { Text("标题取主题 subtitle 字号，正文取 body 字号，按钮行右对齐。") },
             )
@@ -73,7 +73,7 @@ fun AlertDialogTestContent() {
         if (withIcon) {
             AlertDialog(
                 onDismissRequest = { withIcon = false },
-                confirmButton = { TextButton({ withIcon = false; lastAction = "2. 知道了" }, "知道了") },
+                confirmButton = { TextButton(onClick = { withIcon = false; lastAction = "2. 知道了" }) { Text("知道了") } },
                 icon = { Icon(Icons.Delete) },
                 title = { Text("删除这一项？") },
                 text = { Text("图标默认按像素放大倍率取尺寸（16×16 素材 → 48 逻辑像素）。") },
@@ -86,7 +86,7 @@ fun AlertDialogTestContent() {
         if (minimal) {
             AlertDialog(
                 onDismissRequest = { minimal = false },
-                confirmButton = { TextButton({ minimal = false }, "关闭") },
+                confirmButton = { TextButton(onClick = { minimal = false }) { Text("关闭") } },
                 text = { Text("没有 title / icon / dismissButton，面板上方不应出现多余留白。") },
             )
         }
@@ -115,7 +115,7 @@ fun AlertDialogTestContent() {
         if (strict) {
             AlertDialog(
                 onDismissRequest = { strict = false; lastAction = "5. 关闭请求（遮罩/Esc 已禁用，不应触发）" },
-                confirmButton = { TextButton({ strict = false; lastAction = "5. 确认关闭" }, "确认") },
+                confirmButton = { TextButton(onClick = { strict = false; lastAction = "5. 确认关闭" }) { Text("确认") } },
                 title = { Text("强制选择") },
                 text = { Text("properties 关掉了 dismissOnClickOutside 与 dismissOnBackPress。") },
                 properties = DialogProperties(
@@ -131,7 +131,7 @@ fun AlertDialogTestContent() {
         if (longText) {
             AlertDialog(
                 onDismissRequest = { longText = false },
-                confirmButton = { TextButton({ longText = false }, "好") },
+                confirmButton = { TextButton(onClick = { longText = false }) { Text("好") } },
                 title = { Text("长正文") },
                 text = {
                     Text(
@@ -149,7 +149,7 @@ fun AlertDialogTestContent() {
         if (slow) {
             AlertDialog(
                 onDismissRequest = { slow = false },
-                confirmButton = { TextButton({ slow = false }, "关闭") },
+                confirmButton = { TextButton(onClick = { slow = false }) { Text("关闭") } },
                 title = { Text("慢速动画") },
                 text = { Text("入场 640ms：从下方 32dp 处滑入并淡入；关闭时反向滑回下方并加速淡出，遮罩同步淡出。") },
                 enterAnimation = AlertDialogDefaults.enterAnimation.copy(durationMillis = 640, offset = 32.dp),
