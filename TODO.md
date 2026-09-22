@@ -1,6 +1,6 @@
 # TODO
 
-## 4. Tooltip Popup 布局污染修复
+## Tooltip Popup 布局污染修复（已完成）
 
 - **位置**: `Tooltip.kt` — `Modifier.tooltip()`
 - **问题**: `Modifier.tooltip()` 中 `Popup()` 作为子 Composable 被发射到父布局（Row/Column）的组合作用域中，虽然 Popup 渲染在独立层且尺寸为 0，但仍在组合树中参与 Row 的 `Arrangement.SpaceBetween` 等布局算法的 child 计数，导致布局异常。
@@ -21,31 +21,42 @@
 
 ---
 
-## 配置 GUI 重建清单（configwrapper）
+## 配置 GUI 重建清单（configwrapper）—— 主体已完成，余 2 项
 
 > 来源：`6771fcea`（迁移前整理）删除的 15 个 `ui/configwrapper/*.kt` 与所依赖的 23 个 `ui/preset/*.kt`，
 > 按实际调用统计得出。基础设施（Screen / Popup(`LocalPopupHost`) / 滚动 / 文本输入）由 compose-minecraft 提供，不在此列。
 > 相关旧源码可随时取回：`git show 6771fcea^:<path>`。
 
-### 1. 包装器框架（15 个，需重建）
+### 1. 包装器框架（15 个，已重建）
 
-- [ ] `ConfigRowWrapper` 行骨架：配置名 + 控件 + 重置按钮 + tooltip + 悬停高亮（旧 `configwrapper/Base.kt`）
-- [ ] `ConfigManagerWrapper` / `ConfigGroupWrapper` / `ConfigUIWrapper`：页面骨架、分组、按类型分发
-- [ ] `PrimitiveConfigWrapper`：Bool / Int / Long / Float / Double（含 range → 进度型控件）
-- [ ] `StringConfigWrapper`（含多行可扩展编辑器）
-- [ ] `EnumConfigWrapper`
-- [ ] `DurationConfigWrapper`
-- [ ] `VectorConfigWrapper`：2i / 3i / 2f / 3f / 2d / 3d
-- [ ] `ColorConfigWrapper` / `ColorSchemeConfigWrapper`
-- [ ] `KeybindConfigWrapper`
-- [ ] `ListConfigWrapper` / `MapConfigWrapper`（含编辑弹窗、拖拽排序与 `DragHandle` / `EditDialogContentList`）
-- [ ] `CacheConfigWrapper`（缓存清理 + 用量显示）
+> 落地提交：`9bad2f4f feat(config): 重建配置 GUI 包装器框架与各类型 wrapper`（2026-09-20，20 文件 / +2600 行）。
+> 基础设施（Screen / Popup(`LocalPopupHost`) / 滚动 / 文本输入）由 compose-minecraft 提供；配置行 UI 由 `ui/configwrapper/` 承载。
 
-### 2. 待实现组件
+- [x] `ConfigRowWrapper` 行骨架：配置名 + 控件 + 重置按钮 + tooltip + 悬停高亮（旧 `configwrapper/Base.kt`）
+- [x] `ConfigManagerWrapper` / `ConfigGroupWrapper` / `ConfigUIWrapper`：页面骨架、分组、按类型分发
+      — `ConfigManagerWrapper` 自带搜索栏（旧 `SearchPanel` 语义）与分组导航；
+      `ConfigUIWrapper` + `UIWrappers` 注册表按谓词分发整行，节点也可用 `uiWrapper` 指定专用实现
+- [x] `PrimitiveConfigWrapper`：Bool / Int / Long / Float / Double（含 range → 进度型控件）
+- [x] `StringConfigWrapper`（含多行可扩展编辑器：编辑弹窗内 `TextFieldLineLimits.MultiLine(6..12)`）
+- [x] `EnumConfigWrapper`（选项 > 10 个自动挂搜索框）
+- [x] `DurationConfigWrapper`
+- [x] `VectorConfigWrapper`：2i / 3i / 2f / 3f / 2d / 3d
+- [x] `ColorConfigWrapper`
+- [ ] `ColorSchemeConfigWrapper` —— 「一整套配色槽位」的编辑入口，**未实现**
+- [x] `KeybindConfigWrapper`
+- [x] `ListConfigWrapper` / `MapConfigWrapper`（含编辑弹窗、拖拽排序与 `DragHandle` / `EditDialogContentList`）
+- [ ] `CacheConfigWrapper`（缓存清理 + 用量显示）—— 迁移时移除的 Cache 配置组尚未回归，
+      语言文件里 `ibukigourd.config.gui.cache.*` 文案仍留着（见 §D）
+- [x] 旧版没有的新件：`ConfigElementEditor`（编辑弹窗内按值的运行时类型取控件，不带行骨架）/
+      `ConfigRowTheme`（配置行的组件 token 声明）/ `ConfigState`（`Config` → Compose `State`）/
+      `BezierCurveConfigWrapper`（自定义缓动曲线，见「缓动 easing 配置化」节）/
+      `IbukiGourdConfigScreen`（配置页入口 `ibukiGourdConfigScreen(parent)`，Fabric ModMenu 与 NeoForge 配置按钮共用）
+
+### 2. 组件清单（均已落地）
 
 **图标与按钮**
 
-- [x] `Icon` 组件 + 图标集（**像素图标**：36 个手绘 `.aseprite` 于 `texture/sokitsu/icon/`，图集 id `icon`）
+- [x] `Icon` 组件 + 图标集（**像素图标**：38 个手绘 `.aseprite` 于 `texture/sokitsu/icon/`，图集 id `icon`）
       — 代码 `ui/sokitsu/Icon.kt`：`object Icons` 属性常量（`Icons.Add` etc.，含 `all` / `byId`）+ `Icon(icon, scale, size?, tint)`；
       尺寸 = 素材尺寸 × `scale`（缺省 `pixelScale`）；配套图标总览屏 `IconTestScreen`
 - [x] `FlatButton` 底座 + `IconButton` + `TextButton`
@@ -61,6 +72,12 @@
 - [x] `ProgressBar`（进度条，缓存加载用）
       — `ui/sokitsu/ProgressBar.kt` / `ProgressBarTheme.kt`（meta 键 `progress_bar`）；
       轨道 + 填充两个**纯色矩形**自绘，不依赖素材；默认高 4dp；**不做动画**（进度值由业务驱动）
+- [x] `TabStrip`（页签条 + 面板）
+      — `ui/sokitsu/TabStrip.kt` / `TabStripTheme.kt`：按 `TabStripPlacement`（Top / Bottom）选素材
+      （素材只在贴面板的那一侧开口）；另有 `TabStripTab`；点页签原地不动，只有外部改选中才复位滚动窗口
+- [x] `TableLayout` + `LazyTableLayout`（表格）
+      — `ui/sokitsu/TableLayout.kt` / `TableLayoutDefaults.kt`：`TableLayoutScope` 的 `row` / `spanItem` DSL、
+      `TableCellScope` 单元格对齐，表头与数据列尺寸对齐；`LazyTableLayout` 为惰性行版本
 - [x] 自动隐藏滚动条（旧 `AutoHideScrollbar`）
       — `ui/sokitsu/Scroller.kt` / `ScrollerTheme.kt`（meta 键 `scroller`）：
         `VerticalScroller` / `HorizontalScroller` 常规版 + `VerticalOverlayScroller` /
@@ -92,7 +109,8 @@
       `onConfirm: (List<E>) -> Boolean`（返回 false 保持打开），取消 / 遮罩关闭直接丢弃副本
       — `ui/sokitsu/EditDialogContent.kt`：`EditDialogContent`（表头 + 正文 + 角标按钮槽位）与
       `EditDialogContentHeader`（可选首 / 尾列 + 内容列 + 分割线）
-      — 未含 `EditDialogContentList`（拖拽排序行列表，随 §1 的 `ListConfigWrapper` / `MapConfigWrapper`）
+      — `ui/sokitsu/EditDialogContentList.kt`：可拖拽排序的编辑行列表（三列对齐：拖拽手柄 / 内容 / 删除），
+      条目 key 由 `KeyedListState` 单调分配；`ListConfigWrapper` / `MapConfigWrapper` 即其消费者
 - [x] `DropdownMenu` + 菜单项（分开式）
       — `ui/sokitsu/menu/DropdownMenu.kt` / `DropdownMenuTheme.kt`（meta 键 `dropdown_menu`）：
       核心 API 走**无状态**（`expanded` / `onDismissRequest` / `anchorBounds`），另有把展开标志与
@@ -168,6 +186,10 @@
 
 **其它**
 
+- [x] `SokitsuScreen` + `SokitsuScreenScale`（屏幕基座与分辨率自适应）
+      — `ui/sokitsu/SokitsuScreen.kt`：`ComposeScreen` 的薄包装，只补主题与缩放两件事；
+      `SokitsuScreenScale.kt` 把「Compose 密度 + pixelScale」打包成一档，按窗口分辨率选择后下发，
+      只改其一会让组件外框与框内素材对不上（九宫格边框按 pixelScale 折算）
 - [x] `ItemIcon`（MC 物品渲染为图标）
       — `ui/item/ItemIcon.kt`（**非 sokitsu 包**）：物品本体走 `Modifier.minecraftItem`（原生物品模型，
       与 Compose 内容共享绘制顺序 / 裁剪，可参与 Popup / Dialog 图层），悬停 tooltip 走
@@ -176,22 +198,25 @@
       布局尺寸即绘制尺寸（默认 48dp，取 16 的整数倍），另有 `color` / `seed`；**不再走离屏烘焙与逐帧原生推流**
 - [x] `Keyed` / `rememberKeyedList`（列表 key 稳定工具）
       — `ui/util/Keyed.kt`：key 跟**数据**走而非位置，重排时条目组合状态不丢；
-      目前尚无业务引用，拖拽排序列表将是首个消费者
+      消费者：`ListConfigWrapper` / `MapConfigWrapper`，以及 `EditDialogContentList`（`KeyedListState`）
 
 ### 3. 已有可直接复用
 
-`Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Icon` + `Icons`（36 个像素图标）/
+`Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Icon` + `Icons`（38 个像素图标）/
 `Switch` / `Slider` + `NumberSlider` / `NumberField` / `TextField` / `Text` / `Surface` /
 `Tooltip` + `BasicTooltip` / `RadioButton`(+`RadioButtonGroup`) / `AlertDialog`(+`SimpleAlertDialog`) /
-`FlexibleDialog` / `EditDialog`(+`EditDialogContent` / `EditDialogContentHeader`) /
-`RemoveButton` / `RemoveConfirmButton` / `KeySetter`（`KeyCodeSetButton` / `KeybindSetButton` /
+`FlexibleDialog` / `EditDialog`(+`EditDialogContent` / `EditDialogContentHeader` / `EditDialogContentList`) /
+`RemoveButton` / `RemoveConfirmButton` / `DragHandle` / `KeySetter`（`KeyCodeSetButton` / `KeybindSetButton` /
 `KeybindSettingSetButton` / `KeybindSettingColumn`） /
 `ColorPicker`(+`ColorPickButton`) / `Toast`（全局常驻） / `Divider` / `ProgressBar` /
+`TabStrip` / `TableLayout` + `LazyTableLayout` / `SokitsuScreen` + `SokitsuScreenScale` /
 `DropdownMenu`(+`DropdownMenuItem`) / `SokitsuContextMenu`（文本框右键，theme 级
 `LocalContextMenuRepresentation`） / `Keyed` + `rememberKeyedList`（列表 key 稳定） /
 `Selector`（单/多选 + 搜索，单/多选共用展开体） /
 `VerticalScroller` + `HorizontalScroller`（常规）与 `VerticalOverlayScroller` + `HorizontalOverlayScroller`（叠加，
-支持 `autoHide` / `autoFade`，滚动源经 `ScrollerAdapter` 解耦）/ 主题与 `SokitsuThemeMeta` 体系。
+支持 `autoHide` / `autoFade`，滚动源经 `ScrollerAdapter` 解耦）/
+`BezierCurveEditor` + `BezierCurvePlot`（曲线编辑与预览）/ `UiState`（交互状态）/
+主题与 `SokitsuThemeMeta` 体系。
 
 另有一个**源码内嵌的独立模块**可用（见 `NOTICE.md`）：
 
@@ -199,7 +224,7 @@
   交错网格与非 Lazy 列表四套 API，包名保持上游 `sh.calvin.reorderable`；
   `common` 已以 `compileOnly` 接入，fabric / neoforge 侧随 mod jar 内嵌。
 
-### 4. 待拍板的设计点
+### 4. 设计点（已拍板）
 
 - [x] **图标方案**：已定为 **`.aseprite` 像素图标**（`texture/sokitsu/icon/`，独立图集 `icon`）+ `Icons` 属性常量集；
       旧版的 Material Symbols 矢量图标（32 个 `ImageVector`）不采用
@@ -209,28 +234,27 @@
         `Chip` 不做（胶囊圆角与像素风圆角体系冲突，且其过滤/多选语义本项目用不到）
 - [x] **ColorPicker 交互模型**：已定为**逐通道条 + 数值框**（HSV / RGB 页签切换），不用渐变面板拖拽
 
-### 5. 建议实现顺序（每层都能先在测试屏里验）
+### 5. 实现顺序与现状
 
-> **原则：先补齐基础组件，高层级（配置 GUI 包装器框架）暂不碰**，等基础组件收敛后再开工。
+> 原原则是「先补齐基础组件，配置 GUI 包装器框架暂不碰」。§1 已于 `9bad2f4f` 落地，
+> 现在只剩 `ColorSchemeConfigWrapper` / `CacheConfigWrapper` 两项（另见「曲线编辑器 —— 遗留项」）。
 
-- **已完成**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（36 个）、
+- **基础组件（已完成）**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（38 个）、
   `AlertDialog` + `SimpleAlertDialog`、`ColorPicker`（含 `ColorPickButton`）、`Toast`、
   `Divider`、`ProgressBar`、`DropdownMenu`（分开式）、`Selector`（单/多选 + 搜索）、
   滚动条（常规 + overlay，`autoHide` / `autoFade`）、`Keyed` / `rememberKeyedList`、
   文本右键上下文菜单（`SokitsuContextMenu`）、`FlexibleDialog` / `EditDialog`（+`EditDialogContent`）、
   `RemoveButton` / `RemoveConfirmButton`、`ItemIcon`（`ui/item`，原生 modifier 绘制）、
-  `KeySetter`（按键绑定捕获与设置）
-- **§2 基础组件已收尾**：原「列表」「其它」两节还挂着的两项都属于**配置 GUI 专有**，已归入 §1（押后）：
-  - 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）：`Reorderable` 库已内嵌为
-    `reorderable/` 模块、手柄图标 `Icons.DragHandle`、devOnly 的 `ReorderableTest.kt` 都已就位；
-    组件本身随 §1 的 `ListConfigWrapper` / `MapConfigWrapper`（含 `EditDialogContentList`）
-  - `SearchBar` / `SearchPanel`：配置搜索；旧版 `SearchPanel` 本就是 `ConfigManagerWrapper` 的私有件
-- **不单列（随 §1 或不做）**：
-  - 多行可扩展文本编辑器：旧版是 `StringConfigWrapper` 的私有内嵌件（§A），随 §1 的
-    `StringConfigWrapper` 一起做，不作为独立组件
-  - hex 反向输入框：**当前不需要**（无出处，见 §B）
-- **押后（§1 配置 GUI 包装器框架）**：`ConfigRowWrapper` → 各类型 wrapper → `ConfigManagerWrapper`，
-  以及随其做的拖拽排序列表 / `DragHandle`、`SearchBar` + `SearchPanel`、`CacheConfigWrapper` 等页面级内容
+  `KeySetter`（按键绑定捕获与设置）、`TabStrip`、`TableLayout` + `LazyTableLayout`、
+  `SokitsuScreen` + `SokitsuScreenScale`、`BezierCurveEditor` + `BezierCurvePlot`
+- **配置 GUI 专有件（已完成，随 §1）**：
+  - 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）：`reorderable/` 模块内嵌、
+    `Icons.DragHandle` + `ui/sokitsu/DragHandle.kt`、`ui/sokitsu/EditDialogContentList.kt`
+  - `SearchBar` / `SearchPanel`：配置搜索，即 `ConfigManagerWrapper` 的私有 `ConfigSearchBar`
+  - 多行可扩展文本编辑器：`StringConfigWrapper` 编辑弹窗内的 `MultiLine(6..12)`，非独立组件（§A）
+- **仍未做**：`ColorSchemeConfigWrapper`、`CacheConfigWrapper`（§1）；曲线编辑器预设行卡片化
+  （见「曲线编辑器 —— 遗留项」）
+- **不做**：hex 反向输入框（无出处，见 §B）
 
 ---
 
@@ -242,17 +266,16 @@
 
 - [x] 屏幕：`fade_in_duration` / `fade_in_offset` / `fade` / `animation_enabled`、`disable_world_render`
 - [x] 对话框：`scrim_color` / `fade_in_duration` / `initial_scale`、`disable_world_render`
-- [ ] **缓动 easing 占位**：上游 `ScreenAnimationDefaults.easing` / `DialogAnimationDefaults.easing`
-      是任意 `Easing` 对象，nebula 现有配置类型（primitive / duration / color / enum / list / map /
-      自定义 codec）都不承载「曲线函数」，需要专门的配置项。候选：
-  - 预设枚举（`configEnum` → `LinearEasing` / `FastOutSlowInEasing` / `LinearOutSlowInEasing` /
-    `FastOutLinearInEasing`），改动最小，GUI 也好做控件；
-  - 三次贝塞尔四点（`x1,y1,x2,y2` → `CubicBezierEasing`），表达力最强，需自定义 codec + `x∈[0,1]` 校验；
-  - 任意 `Easing` lambda 不可序列化，只能代码注入，不进配置。
+- [x] **缓动 easing 配置化**（2026-09-20 `8d787350` 落地）：`IGConfig.Gui.Screen` / `Gui.Dialog` **各一份**
+      `easing`（`configEnum`，`EasingPreset`：9 个预设含 `Custom`）+ `easing_custom`
+      （`ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier))`，两个控制点，
+      **不是** `configVector4`）；`init()` 与 `observe` 里经 `EasingPreset.resolve(custom)` 解析成
+      `ComposeEasing` 灌给上游 `ScreenAnimationDefaults.easing` / `DialogAnimationDefaults.easing`。
+      详见下节「缓动 easing 配置化」。
 - [x] **不做全局配置**（属具体屏幕的构造参数，上游也没有对应默认值对象）：`pauseGame` /
       `closeOnEsc` / `density` / `exitParentOnOpen` / `renderParentScreen`
 
-### 缓动 easing 配置化 —— 事实清单（2026-09-20 整理，供单独会话讨论）
+### 缓动 easing 配置化 —— 事实清单与定案（2026-09-20）
 
 **上游签名（compose-minecraft 0.1.0 源码）**
 
@@ -265,9 +288,9 @@
 要点：**一条 easing 同时作用于进场与退场**（上游没有 in / out 两段）；`Easing` 即
 `androidx.compose.animation.core.Easing`，`CubicBezierEasing` 在 CMP 内嵌的 animation 库里可用。
 
-**仓库里已有的同类机制（候选 A 其实已实现一半）**
+**仓库里已有的同类机制**
 
-- `ui/sokitsu/theme/EasingCurve.kt`：
+- `util/math/easing/EasingCurve.kt`：
   - `enum class EasingCurve(mode)`：`linear / sine / quad / cubic / quart / quint / expo / circ /
     back / bounce / elastic` 共 11 条，`val easing: Easing` 映射到本仓 `util/math/easing/*` 的实现，
     自带手写 `Codec`（序列化为小写 `mode`）
@@ -278,30 +301,38 @@
 - 配置侧现有构造器：`configFloat` / `configInt` / `configDuration` / `configBoolean` / `configColor` /
   `configEnum` / `configKeyCode` + `ConfigVector`(2i/2f/2d/3i/3f/3d) + `ConfigPairList`；**没有 vector4**；
   自定义结构可照 `AlertDialogMeta` 的写法用 `Codec.create<T>().field(...)` 组合
-- 消费点现状（`IGConfig.kt`）：`Gui.Screen` 已有 `fade_in_duration` / `fade_in_offset` / `fade` /
-  `animation_enabled` / `disable_world_render`；`Gui.Dialog` 已有 `scrim_color` / `fade_in_duration` /
-  `initial_scale` / `disable_world_render`；两处都留了同一句代码内 `// TODO 缓动(easing)：…`，
-  并在 `init()` 里把默认值整体灌给上游
+- 消费点现状（`IGConfig.kt`）：`Gui.Screen` = `fade_in_duration` / `fade_in_offset` / `fade` /
+  `animation_enabled` / `disable_world_render` / `easing` / `easing_custom`；`Gui.Dialog` = `scrim_color` /
+  `fade_in_duration` / `initial_scale` / `disable_world_render` / `easing` / `easing_custom`；
+  两处都在 `init()` 与各项 `observe` 里把值灌给上游
 
-**候选方案**
+**已定案（2026-09-20 实现，`8d787350`）**
 
-- **A. 预设枚举**（复用 `EasingCurve` + `EasingDirection`）：`configEnum` 两项，缺省 `cubic` + `out`；
-  `init()` 里 `easing = Easing { curve.ease(direction)(it) }`。零新增编解码、与 `alert_dialog` meta 语义一致、
-  GUI 直接 `Selector`；表达力限于 11×3 组合。
-- **B. 三次贝塞尔四点**（`x1,y1,x2,y2` → `CubicBezierEasing`）：需新配置项承载 4 个 float（无 vector4），
-  自定义 `Codec` 或拆两个 `configVector2f`；`x ∈ [0,1]` 校验；GUI 要 4 个数值框。
-  优点：能表达平台默认曲线 `(0,0,0.2,1)` 与任意 M3 曲线。
-- **C. A + B 并存**：枚举加 `Custom` 变体，选中才读四点。
-- **D. 任意 lambda**：不可序列化，只能代码注入（保持现状）。
+走的是 **A + B 并存（即原候选 C）**，但预设集合不是直接复用 `EasingCurve`：
 
-**待拍板**
+- 新增 `util/math/easing/EasingPreset.kt`：`standard` / `linear` / `ease_in` / `ease_out` / `ease_in_out` /
+  `back_out` / `bounce_out` / `elastic_out` / `custom` 共 9 项，自带手写 `Codec`；
+  `fun EasingPreset.resolve(custom: CubicBezier): Ease` 负责解析 —— 贝塞尔项复用 `CubicBezier` 常量
+  （与曲线编辑器预设行同一套曲线），回弹类走 `EasingCurve`（不是三次贝塞尔，四点表达不了），
+  `Custom` 取外部传入的四点。
+- 新增 `util/math/easing/CubicBezier.kt`：`Linear` / `Standard` / `EaseIn` / `EaseOut` / `EaseInOut` 常量
+  + `toEasing()`，自带 `Codec`（供 `ConfigSerde.of(CubicBezier)` 使用）。
+- `IGConfig`：`easing` 用 `configEnum("easing", EasingPreset.Standard, EasingPreset)`；`easing_custom` 用
+  `ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier))` —— 即问题 4 选了
+  「自定义 Codec 的结构体」而非两个 `configVector2f`，默认取 `CubicBezier.Standard`。
+- GUI 控件：`ui/curve/BezierCurveEditor.kt` + `BezierCurvePlot.kt`（预设行 + 四点编辑 + 曲线预览），
+  经 `ui/configwrapper/BezierCurveConfigWrapper.kt` 接进配置页。
+- 原「待拍板」5 问的答案：①「方向」**不进配置**（上游只有一条曲线，出场为进场镜像）；②屏幕与对话框
+  **各一份**；③只做枚举不够，**必须支持自定义四点**（平台默认曲线 `(0,0,0.2,1)` 要能在配置里表达）；
+  ④自定义 Codec 结构体；⑤`easing` / `easing_custom` 的 label + comment 已落 8 个语言文件
+  （`fade_in_*` 文案也已改为「进出场」，见 §D）。
 
-1. 「方向」要不要进配置？（上游只有一条曲线；`EasingDirection` 目前只在 `alert_dialog` meta 里有语义，
-   给屏幕/对话框加 direction 等于人为把一条曲线拆成 in/out 两用）
-2. 屏幕与对话框**共用一个** easing 配置项，还是各一份？（两处默认值相同；分两份=多 2~3 个配置项）
-3. A 就够，还是必须支持 B？（平台的默认曲线本身是贝塞尔四点；只做枚举则"恢复平台默认曲线"无法在配置里表达）
-4. 若做 B：编码用「自定义 Codec 的四 float 结构」还是「两个 `configVector2f`」？默认取 `(0, 0, 0.2, 1)`？
-5. 语言文件：新增配置项 label + comment 需落 8 个语言文件（本仓惯例）；§D 已记 `fade_in_*` 文案要一起改为「进出场」。
+**备查：当时评估过的候选**
+
+- **A. 预设枚举**（复用 `EasingCurve` + `EasingDirection`）：零新增编解码，表达力限于 11×3 组合。
+- **B. 三次贝塞尔四点**：表达力最强，需自定义 `Codec` 承载四个 float（无 vector4）。
+- **C. A + B 并存**：枚举加 `Custom` 变体，选中才读四点 —— **最终采纳**。
+- **D. 任意 lambda**：不可序列化，只能代码注入 —— 未采纳。
 
 ### 曲线编辑器 —— 遗留项（2026-09-20 记录）
 
@@ -320,7 +351,7 @@
 
 | 条目 | 出处（`6771fcea^` 路径） | 行数 |
 |---|---|---|
-| 15 个 config wrapper | `ui/configwrapper/{Base, CacheConfigWrapper, ColorConfigWrapper, ColorSchemeConfigWrapper, ConfigGroupWrapper, ConfigManagerWrapper, ConfigUIWrapper, DurationConfigWrapper, EnumConfigWrapper, KeybindConfigWrapper, ListConfigWrapper, MapConfigWrapper, PrimitiveConfigWrapper, StringConfigWrapper, VectorConfigWrapper}.kt` | 合计 2,786 |
+| 15 个 config wrapper（2026-09-20 已重建，仍缺 `ColorSchemeConfigWrapper` / `CacheConfigWrapper`） | `ui/configwrapper/{Base, CacheConfigWrapper, ColorConfigWrapper, ColorSchemeConfigWrapper, ConfigGroupWrapper, ConfigManagerWrapper, ConfigUIWrapper, DurationConfigWrapper, EnumConfigWrapper, KeybindConfigWrapper, ListConfigWrapper, MapConfigWrapper, PrimitiveConfigWrapper, StringConfigWrapper, VectorConfigWrapper}.kt` | 合计 2,786 |
 | 删除确认语义封装 | `ui/preset/RemoveButton.kt`（`fun RemoveConfirmButton` :25） | 60 |
 | 可伸缩编辑弹窗 | `FlexibleDialog` 在 `ui/preset/SimpleAlertDialog.kt:92` | 187 |
 | 列表条目编辑弹窗内容 | `EditDialog*` 在 `ui/configwrapper/{String,Map,List}ConfigWrapper.kt` 里**各一份** | — |
@@ -353,11 +384,28 @@
   `OffscreenRenderTarget.kt`(156)、`AtlasRectAllocator.kt`(133)、`ItemAtlasPainter.kt`(67)，
   合计 **1,372 行** —— 即 `ItemIcon` 一项的真实成本远大于 249 行。
 
-### D. 陈旧待修（2026-09-20 复核）
+> 2026-09-22 复核：`ItemIcon` 已按原生 `Modifier.minecraftItem` / `Modifier.minecraftTooltip` 重做
+> （见 §2），不再需要 `ui/util/render/` 那 1,372 行；其余条目由 compose-minecraft 基座覆盖。
 
-- **未修**：lang 里 `ibukigourd.config.gui.screen.fade_in_offset` / `fade_in_duration` 的文案
-  仍写「淡入…」，现已被 `IGConfig.Gui.Screen` 复用为**进出场**动画的位移与时长（dialog 侧
-  同名键已改成 Enter/Exit）；`gui.screen.pause_game` 的标题 + 注释在 8 个语言文件里都还在，
-  但已无任何 Kotlin 引用（全局暂停不做配置）——两项随配置 GUI 一起修。
-- 2026-09-20 复核已解决：「文本右键上下文菜单」已勾选（`ui/sokitsu/menu/SokitsuContextMenu.kt`，
-  R31–R33）；「删除确认」重复条目已去重（保留「弹窗与菜单」一条）。
+### D. 语言文件孤儿文案（2026-09-22 复核）
+
+上一版记的两项**都已解决**：
+
+- ✅ `gui.screen.fade_in_offset` / `fade_in_duration` 文案已改为「进出场」（8 个语言文件），
+  并新增 `easing` / `easing_custom` 文案；
+- ✅ `gui.screen.pause_game` 的标题 + 注释已从 8 个语言文件删除（全局暂停不做配置）。
+
+**当前真正待清的是三组孤儿键** —— 对应配置项已随 UI 迁移移除，Kotlin 侧零引用
+（`IGConfig` 下只剩 `Gui` 的 `Toast` / `Scroller` / `Screen` / `Dialog` 四组）：
+
+| 语言键前缀 | 键数/文件 | 原属 |
+|---|---|---|
+| `ibukigourd.config.gui.cache.*` | 6 | 已移除的 Cache 配置组（`item_texture_atlas_size` / `texture_atlas_size`），见 §1 `CacheConfigWrapper` |
+| `ibukigourd.config.gui.theme.*` | 8 | 已移除的 Theme 配置组（`light_mode` / `color_scheme_seeds` / `color_scheme_seed`） |
+| `ibukigourd.config.open_screen*` | 2 | 已移除的"打开模组屏幕"快捷键 |
+
+合计 **16 键 × 8 个语言文件 = 128 条**。处理方式二选一：随对应配置项回归（如 §1 的 `CacheConfigWrapper`），
+或直接删除。
+
+- 2026-09-20 复核已解决：「文本右键上下文菜单」已勾选（`ui/sokitsu/menu/SokitsuContextMenu.kt`）；
+  「删除确认」重复条目已去重（保留「弹窗与菜单」一条）。
