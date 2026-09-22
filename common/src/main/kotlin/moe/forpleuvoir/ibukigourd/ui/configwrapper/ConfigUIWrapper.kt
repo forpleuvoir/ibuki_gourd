@@ -188,6 +188,11 @@ object UIWrappers {
             @Suppress("UNCHECKED_CAST")
             PairListConfigWrapper(it as ConfigList<Pair<Any, Any>>)
         }
+        // 曲线列表：每条曲线一张卡片（卡片体是完整编辑器），同样要比普通列表特殊
+        register({ it is ConfigList<*> && it.elementType == CubicBezier::class }) {
+            @Suppress("UNCHECKED_CAST")
+            BezierListConfigWrapper(it as ConfigList<CubicBezier>)
+        }
 
         // 输入
         registerCheckValueType<KeyCode>(strict = false) { KeyCodeConfigWrapper(it) }

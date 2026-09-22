@@ -1,7 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -15,14 +14,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.nebula.config.Config
 
@@ -77,12 +72,15 @@ fun StringConfigWrapper(config: Config<String>, modifier: Modifier = Modifier) {
  *
  * 与 `NumberField` 相同的同步策略：外部值变化才回写文本（`lastSynced` 守卫，不打断正在进行的输入）；
  * 文本变化只回调外部、不回写。
+ *
+ * @param isError 错误态，描边改染错误色
  */
 @Composable
 internal fun StringValueField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    isError: Boolean = false,
 ) {
     val state = rememberTextFieldState(value)
     var lastSynced by remember { mutableStateOf(value) }
@@ -106,6 +104,7 @@ internal fun StringValueField(
     TextField(
         state = state,
         modifier = modifier,
+        isError = isError,
         lineLimits = TextFieldLineLimits.SingleLine,
     )
 }
@@ -114,7 +113,7 @@ internal fun StringValueField(
  * 多行字符串编辑弹窗：确认时才把整段文本交回（取消 / 遮罩关闭直接丢弃）。
  */
 @Composable
-private fun StringEditDialog(
+internal fun StringEditDialog(
     title: @Composable () -> Unit,
     initial: String,
     onDismiss: () -> Unit,

@@ -188,7 +188,7 @@ fun KeybindSettingSetButton(
     onValueChange: (KeybindSetting) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    iconScale: Int = 2,
+    iconScale: Int = 3,
     contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
 ) {
     var showDialog by remember { mutableStateOf(false) }

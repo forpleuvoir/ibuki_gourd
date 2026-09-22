@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
@@ -111,7 +112,7 @@ object ConfigControlDefaults {
      * 配置 GUI 里图标按钮的内边距：调小让按钮贴合图标（按钮尺寸 = `max(minSize, 图标 + 2×padding)`，
      * 取对称值才能保持正方形）。
      */
-    val IconButtonPadding: PaddingValues = PaddingValues(4.dp)
+    val IconButtonPadding: PaddingValues = PaddingValues(2.dp)
 
     /** 数值滑条可用的区间跨度上限：超过该跨度时只给数值框。 */
     const val SliderSpanLimit: Int = 1000
@@ -147,11 +148,20 @@ object ConfigDialogDefaults {
     /** 内容区宽度。 */
     val ContentWidth: Dp = 960.dp
 
+    /** 卡片式浮层（如曲线列表）的内容宽度：卡片按列排布，比表格浮层窄一些。 */
+    val CardContentWidth: Dp = 720.dp
+
     /** 浮层最小宽度。 */
     val MinWidth: Dp = 720.dp
 
-    /** 内容区最小高度：条目很少时浮层不缩成一条。 */
-    val MinHeight: Dp = 560.dp
+    /** 浮层高度上限（含标题与按钮行）：超过就由内容表格自身滚动，浮层不会一路撑到窗口底。 */
+    val MaxHeight: Dp = 740.dp
+
+    /** 弹性列宽（缺省）：按权重均分剩余宽度。 */
+    val FillColumnWidth: TableColumnWidth = TableColumnWidth.Fraction(1f)
+
+    /** 映射键列宽（缺省）：弹性列，但不低于 240dp，免得被值列挤成一条。 */
+    val KeyColumnWidth: TableColumnWidth = TableColumnWidth.Fraction(1f, min = 240.dp)
 }
 
 /**

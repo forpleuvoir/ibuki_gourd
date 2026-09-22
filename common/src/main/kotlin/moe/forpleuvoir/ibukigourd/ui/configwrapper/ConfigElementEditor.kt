@@ -1,14 +1,19 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.text.MutableText
@@ -22,10 +27,14 @@ import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.DoubleField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.DurationField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LongField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.util.math.easing.CubicBezier
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
@@ -58,7 +67,7 @@ internal fun ConfigElementEditor(
     modifier: Modifier = Modifier,
 ) {
     when (value) {
-        is String -> StringValueField(value, onValueChange, modifier)
+        is String -> StringElementEditor(value, onValueChange, modifier)
         is Boolean -> Switch(checked = value, onCheckedChange = { onValueChange(it) })
         is Int -> IntField(value, { onValueChange(it) }, modifier = modifier)
         is Long -> LongField(value, { onValueChange(it) }, modifier = modifier)
@@ -83,6 +92,50 @@ internal fun ConfigElementEditor(
         )
 
         else -> Text(value.toString(), modifier = modifier.fillMaxWidth())
+    }
+}
+
+/**
+ * 字符串元素：单行框 + 尾部「编辑」按钮，按钮打开多行编辑浮层（与字符串配置同一套）。
+ *
+ * 单行框塞不下长文本，行内又没法换行，所以长字符串统一走浮层编辑。
+ */
+@Composable
+private fun StringElementEditor(
+    value: String,
+    onValueChange: (Any) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var editing by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        StringValueField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(
+            onClick = { editing = true },
+            contentPadding = ConfigControlDefaults.IconButtonPadding,
+        ) {
+            Icon(Icons.Edit, scale = LocalSokitsuPixelScale.current)
+        }
+    }
+
+    if (editing) {
+        StringEditDialog(
+            title = { Text(IGLang.Misc.edit) },
+            initial = value,
+            onDismiss = { editing = false },
+            onConfirm = {
+                onValueChange(it)
+                editing = false
+            },
+        )
     }
 }
 
@@ -161,5 +214,6 @@ internal fun defaultElementFactory(elementType: KClass<*>): (() -> Any)? = when 
     Duration::class -> { { Duration.ZERO } }
     CubicBezier::class -> { { CubicBezier.Standard } }
     NebulaColor::class -> { { NebulaColor.fromARGB(0xFFFFFFFF.toInt()) } }
-    else -> null
+    // 枚举：第一个常量（枚举至少有一个常量，且一定是合法取值）
+    else -> elementType.java.enumConstants?.firstOrNull()?.let { first -> { first } }
 }

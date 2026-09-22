@@ -2,10 +2,10 @@ package moe.forpleuvoir.ibukigourd.ui.curve
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -34,12 +34,12 @@ data class BezierCurvePreset(
 )
 
 /**
- * 曲线编辑器：左侧 [BezierCurvePlot] 画布，右侧四个数值框（各控制点的 x / y），下方预设行。
+ * 曲线编辑器：左侧 [BezierCurvePlot] 画布，右侧一列（四个数值框 + 预设按钮），三者等宽。
  *
  * 数值框与拖拽共用同一份外部状态：x 限 `0f..1f`、y 限 [yRange]（与画布的拖动夹取一致）。
  * 数值框内部有 `lastSynced` 守卫，拖拽产生的值变化不会在正在输入时把文本顶掉。
  *
- * 画布尺寸由 [plotSize] 给定；数值框与预设行都在同一 [Column] 内，无需调用方额外排版。
+ * 画布尺寸由 [plotSize] 给定；数值框与预设按钮同处画布右侧的一列，列宽见 [BezierCurveEditorDefaults.ControlRowWidth]。
  *
  * @param value 当前曲线（外部状态）
  * @param onValueChange 数值框 / 预设按钮 / 画布拖拽任一来源的改变回调
@@ -50,7 +50,7 @@ data class BezierCurvePreset(
  * @param snapWithAlt 是否启用画布 Alt 吸附
  * @param lockAngleWithShift 是否启用画布 Shift 锁角（控制点只沿自身锚点与当前位置的直线移动）
  * @param plotSize 画布边长
- * @param presets 预设行；传空列表则不渲染预设行
+ * @param presets 预设列表；传空列表则不渲染。预设竖排在数值行下方，按数值行宽度铺满
  */
 @Composable
 fun BezierCurveEditor(
@@ -80,7 +80,12 @@ fun BezierCurveEditor(
 
             Spacer(Modifier.width(BezierCurveEditorDefaults.ContentGap))
 
-            Column(verticalArrangement = Arrangement.spacedBy(BezierCurveEditorDefaults.RowGap)) {
+            // 数值行与预设同在**一列**，列宽取数值行的自然宽度（见 ControlRowWidth）：
+            // 于是 P1 / P2 / 每个预设按钮宽度完全一致，不会各是一截
+            Column(
+                modifier = Modifier.width(BezierCurveEditorDefaults.ControlRowWidth),
+                verticalArrangement = Arrangement.spacedBy(BezierCurveEditorDefaults.ControlRowSpacing),
+            ) {
                 ControlPointRow(
                     label = "P1",
                     x = value.x1,
@@ -99,21 +104,17 @@ fun BezierCurveEditor(
                     onXChange = { onValueChange(value.copy(x2 = it)) },
                     onYChange = { onValueChange(value.copy(y2 = it)) },
                 )
-            }
-        }
 
-        if (presets.isNotEmpty()) {
-            Spacer(Modifier.height(BezierCurveEditorDefaults.ContentGap))
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(BezierCurveEditorDefaults.PresetGap),
-                verticalArrangement = Arrangement.spacedBy(BezierCurveEditorDefaults.PresetGap),
-            ) {
-                presets.forEach { preset ->
-                    TextButton(
-                        onClick = { onValueChange(preset.value) },
-                        text = preset.label,
-                        enabled = enabled,
-                    )
+                if (presets.isNotEmpty()) {
+                    presets.forEach { preset ->
+                        TextButton(
+                            onClick = { onValueChange(preset.value) },
+                            enabled = enabled,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(preset.label)
+                        }
+                    }
                 }
             }
         }
@@ -145,7 +146,7 @@ private fun ControlPointRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(BezierCurveEditorDefaults.RowGap),
     ) {
-        Text(label, modifier = Modifier.width(BezierCurveEditorDefaults.LabelWidth))
+        Text(label, modifier = Modifier.width(BezierCurveEditorDefaults.LabelWidth), maxLines = 1)
         FloatField(
             value = x,
             onValueChange = onXChange,
@@ -153,7 +154,7 @@ private fun ControlPointRow(
             valueToText = BezierCurveEditorDefaults.ValueToText,
             valueStep = BezierCurveEditorDefaults.ValueStep,
             enabled = enabled,
-            leadingIcon = { Text("x") },
+            leadingIcon = { Text("x", Modifier.padding(end = BezierCurveEditorDefaults.IconGap)) },
             modifier = Modifier.width(BezierCurveEditorDefaults.FieldWidth),
         )
         FloatField(
@@ -163,7 +164,7 @@ private fun ControlPointRow(
             valueToText = BezierCurveEditorDefaults.ValueToText,
             valueStep = BezierCurveEditorDefaults.ValueStep,
             enabled = enabled,
-            leadingIcon = { Text("y") },
+            leadingIcon = { Text("y", Modifier.padding(end = BezierCurveEditorDefaults.IconGap)) },
             modifier = Modifier.width(BezierCurveEditorDefaults.FieldWidth),
         )
     }
@@ -178,7 +179,7 @@ private fun ControlPointRow(
 object BezierCurveEditorDefaults {
 
     /** 画布边长。 */
-    val PlotSize: Dp = 200.dp
+    val PlotSize: Dp = 560.dp
 
     /** 画布与数值列之间、数值列与预设行之间的间距。 */
     val ContentGap: Dp = 16.dp
@@ -187,13 +188,26 @@ object BezierCurveEditorDefaults {
     val RowGap: Dp = 8.dp
 
     /** 控制点行首标签宽度（P1 / P2）。 */
-    val LabelWidth: Dp = 24.dp
+    val LabelWidth: Dp = 48.dp
 
     /** 单个数值框宽度。 */
-    val FieldWidth: Dp = 96.dp
+    val FieldWidth: Dp = 128.dp
 
-    /** 预设按钮之间的间距。 */
-    val PresetGap: Dp = 8.dp
+    /** 数值框内前缀（x / y）与数值之间的间距。 */
+    val IconGap: Dp = 6.dp
+
+
+    /** 右列里相邻两行（数值行 / 预设按钮）之间的纵向间距。 */
+    val ControlRowSpacing: Dp = 12.dp
+
+    /**
+     * 右列宽度 = 数值行的自然宽度（标签 + 行内间距 + 两个数值框）。
+     *
+     * 预设按钮按这个宽度铺满，三个部分因此等宽；这里用常量算而不是 \`IntrinsicSize.Max\`，
+     * 因为数值框内部的 \`BasicTextField\` 不支持固有测量（会抛异常）。
+     */
+    val ControlRowWidth: Dp
+        get() = LabelWidth + RowGap * 2 + FieldWidth * 2
 
     /** 数值框的显示格式：固定三位小数，且不随系统区域设置切换小数点符号（否则解析会失败）。 */
     val ValueToText: (Float) -> String = { "%.3f".format(Locale.ROOT, it) }
