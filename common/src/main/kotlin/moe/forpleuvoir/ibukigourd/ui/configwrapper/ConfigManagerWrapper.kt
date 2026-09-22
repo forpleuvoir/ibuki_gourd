@@ -42,7 +42,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalOverlayScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
@@ -211,7 +211,7 @@ private fun ConfigGroupList(
                 }
             }
         }
-        VerticalOverlayScroller(
+        VerticalFlatScroller(
             adapter = rememberScrollerAdapter(scrollState),
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
             autoHide = true,
@@ -255,7 +255,7 @@ private fun ConfigNodesScroller(
                 ConfigsWrapper(nodes)
             }
         }
-        VerticalOverlayScroller(
+        VerticalFlatScroller(
             adapter = rememberScrollerAdapter(scrollState),
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
             autoHide = true,

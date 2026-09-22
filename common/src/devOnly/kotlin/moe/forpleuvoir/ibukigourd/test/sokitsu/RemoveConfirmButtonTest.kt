@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.CenterBox
 import moe.forpleuvoir.ibukigourd.test.TestScreen
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveButton
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RemoveButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
@@ -45,6 +46,8 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
  * @param titleBottomPadding 标题与正文的间距，默认取 `alert_dialog` meta
  * @param minWidth 面板最小宽度，未指定时不约束
  * @param maxWidth 面板最大宽度，未指定时不约束
+ * @param maxHeight 面板最大高度（含标题与按钮行），未指定时不约束
+ * @param screenPadding 面板与窗口四边的间距：面板的可用尺寸按它收窄，因此内容再高也不会顶到窗口边缘
  * @param colors 面板配色，默认 [AlertDialogDefaults.colors]
  * @param sprite 面板精灵，默认 [AlertDialogDefaults.sprite]
  * @param enterAnimation 入场过渡，默认取 meta
@@ -74,6 +77,8 @@ fun FlexibleDialog(
     titleBottomPadding: Dp = AlertDialogDefaults.meta.titleBottomPadding,
     minWidth: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
+    maxHeight: Dp = Dp.Unspecified,
+    screenPadding: PaddingValues = FlexibleDialogDefaults.screenPadding,
     colors: AlertDialogColors = AlertDialogDefaults.colors(),
     sprite: SokitsuSprite = AlertDialogDefaults.sprite,
     enterAnimation: AlertDialogAnimationMeta = AlertDialogDefaults.enterAnimation,
@@ -84,40 +89,47 @@ fun FlexibleDialog(
         onDismissRequest = onDismissRequest,
         properties = properties.withTransitions(enterAnimation, exitAnimation),
     ) {
-        Surface(
-            modifier = modifier
-                .then(if (minWidth != Dp.Unspecified) Modifier.widthIn(min = minWidth) else Modifier)
-                .then(if (maxWidth != Dp.Unspecified) Modifier.widthIn(max = maxWidth) else Modifier),
-            color = colors.containerColor,
-            contentColor = colors.textContentColor,
-            sprite = sprite,
+        // 外层盒子只负责让出 screenPadding：面板的可用尺寸按它收窄，内容再高也只能用剩下的高度
+        Box(
+            modifier = Modifier.padding(screenPadding),
+            contentAlignment = Alignment.Center,
         ) {
-            Column(modifier = Modifier.padding(contentPadding)) {
-                title?.let { titleContent ->
-                    Box(Modifier.padding(bottom = titleBottomPadding)) {
-                        ProvideContentColorTextStyle(colors.titleContentColor, SokitsuTheme.typography.subtitle) {
-                            titleContent()
+            Surface(
+                modifier = modifier
+                    .then(if (minWidth != Dp.Unspecified) Modifier.widthIn(min = minWidth) else Modifier)
+                    .then(if (maxWidth != Dp.Unspecified) Modifier.widthIn(max = maxWidth) else Modifier)
+                    .then(if (maxHeight != Dp.Unspecified) Modifier.heightIn(max = maxHeight) else Modifier),
+                color = colors.containerColor,
+                contentColor = colors.textContentColor,
+                sprite = sprite,
+            ) {
+                Column(modifier = Modifier.padding(contentPadding)) {
+                    title?.let { titleContent ->
+                        Box(Modifier.padding(bottom = titleBottomPadding)) {
+                            ProvideContentColorTextStyle(colors.titleContentColor, SokitsuTheme.typography.subtitle) {
+                                titleContent()
+                            }
                         }
                     }
-                }
 
-                content?.let { contentContent ->
-                    Column(modifier = Modifier.weight(1f, fill = false)) {
-                        ProvideContentColorTextStyle(colors.textContentColor, SokitsuTheme.typography.body) {
-                            contentContent()
+                    content?.let { contentContent ->
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
+                            ProvideContentColorTextStyle(colors.textContentColor, SokitsuTheme.typography.body) {
+                                contentContent()
+                            }
                         }
                     }
-                }
 
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(top = buttonsTopPadding),
-                    horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    dismissButton?.invoke()
-                    confirmButton()
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = buttonsTopPadding),
+                        horizontalArrangement = Arrangement.spacedBy(buttonSpacing),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        dismissButton?.invoke()
+                        confirmButton()
+                    }
                 }
             }
         }
@@ -135,4 +147,7 @@ object FlexibleDialogDefaults {
 
     /** 按钮之间的水平间距。 */
     val buttonSpacing: Dp = 8.dp
+
+    /** 面板与窗口四边的间距。 */
+    val screenPadding: PaddingValues = PaddingValues(24.dp)
 }

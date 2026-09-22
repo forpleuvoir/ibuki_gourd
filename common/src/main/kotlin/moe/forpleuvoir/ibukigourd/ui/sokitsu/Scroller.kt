@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -213,6 +214,84 @@ private class LazyListStateScrollerAdapter(
 }
 
 /**
+ * 由 [LazyGridState] 构造 [ScrollerAdapter]：换算口径与 [LazyListState] 版本一致，差别只在主轴单位是
+ * **行**而不是单元格 —— 网格的 `firstVisibleItemIndex` 数的是单元格，除以 [spanCount] 才是行号。
+ *
+ * @param spanCount 该网格的列数；网格自身不对外暴露列数，由调用方给（与 `GridCells.Fixed(...)` 一致）
+ */
+fun ScrollerAdapter(lazyGridState: LazyGridState, spanCount: Int): ScrollerAdapter =
+    LazyGridStateScrollerAdapter(lazyGridState, spanCount)
+
+/** 按 [LazyGridState] 记住一个 [ScrollerAdapter]，实例随 state / [spanCount] 变化重建。 */
+@Composable
+fun rememberScrollerAdapter(lazyGridState: LazyGridState, spanCount: Int): ScrollerAdapter =
+    remember(lazyGridState, spanCount) {
+        ScrollerAdapter(lazyGridState, spanCount)
+    }
+
+private class LazyGridStateScrollerAdapter(
+    private val state: LazyGridState,
+    spanCount: Int,
+) : ScrollerAdapter {
+
+    private val columns = spanCount.coerceAtLeast(1)
+
+    /** 行数（不足一行按一行算）。 */
+    private val rowCount: Int get() = (state.layoutInfo.totalItemsCount + columns - 1) / columns
+
+    /**
+     * 相邻两行起点的距离（像素）：可见单元格的平均主轴尺寸 + 行间距。
+     *
+     * 同一行的单元格主轴尺寸相同，因此按单元格取样与按行取样等价；与列表版本一样排除滚动区间
+     * 之前的项（粘性项 / 上一行残留），否则平均值会逐帧抖动。
+     */
+    private val rowPitch: Float
+        get() {
+            val info = state.layoutInfo
+            val firstRow = state.firstVisibleItemIndex / columns
+            var sum = 0
+            var count = 0
+            info.visibleItemsInfo.forEach { item ->
+                if (item.index / columns >= firstRow) {
+                    sum += if (info.orientation == Orientation.Vertical) item.size.height else item.size.width
+                    count++
+                }
+            }
+            if (count == 0) return 0f
+            return sum.toFloat() / count + info.mainAxisItemSpacing
+        }
+
+    override val scrollOffset: Float
+        get() {
+            val pitch = rowPitch
+            if (pitch <= 0f) return 0f
+            return state.firstVisibleItemIndex / columns * pitch + state.firstVisibleItemScrollOffset
+        }
+
+    override suspend fun scrollTo(containerSize: Int, scrollOffset: Float) {
+        val pitch = rowPitch
+        if (pitch <= 0f) return
+        val row = (scrollOffset / pitch).toInt().coerceIn(0, (rowCount - 1).coerceAtLeast(0))
+        state.scrollToItem(row * columns, (scrollOffset - row * pitch).roundToInt())
+    }
+
+    override fun maxScrollOffset(containerSize: Int): Float {
+        val info = state.layoutInfo
+        val viewport = if (info.orientation == Orientation.Vertical) {
+            info.viewportSize.height
+        } else {
+            info.viewportSize.width
+        }
+        if (viewport <= 0) return 0f
+        val pitch = rowPitch
+        if (pitch <= 0f) return 0f
+        // 全内容长 = 行数 × 行距 + 首尾内容内边距（行距已含行间距）
+        val contentSize = pitch * rowCount + info.beforeContentPadding + info.afterContentPadding
+        return (contentSize - viewport).coerceAtLeast(0f)
+    }
+}
+
+/**
  * 竖直滚动条（常规样式）：**轨道 + 滑块**两层精灵叠放，滑块沿 y 轴滑动。
  *
  * 结构与 compose-multiplatform 的 `VerticalScrollbar` 同构：轨道是节点自身的背景精灵，
@@ -220,7 +299,7 @@ private class LazyListStateScrollerAdapter(
  * 不给死约束就测成 0×0）。方向差异全部收敛进 [ScrollerAxis]，与 [HorizontalScroller]
  * 共用同一份几何、手势与测量实现。
  *
- * 浮于内容之上、不占布局宽度的场景用 [VerticalOverlayScroller]。
+ * 细条（flat）样式的同类见 [VerticalFlatScroller]。
  *
  * 几何（内容/轨道均为像素，与 CMP `SliderAdapter` 同式）：
  * - `contentSize = maxScrollOffset + containerSize`；`visiblePart = containerSize / contentSize`；
@@ -281,7 +360,7 @@ fun VerticalScroller(
  * 与 [VerticalScroller] 共用同一实现（[Scroller] + [ScrollerAxis.Horizontal]），仅轴向不同：
  * 厚度（高）恒取 meta 细轴尺寸，宽度铺满；滚轮同样读 `scrollDelta.y`
  * —— 鼠标滚轮只有垂直分量，横向滚动条只是把滚动投影到 x 轴，外观才是横向。
- * 浮于内容之上、不占布局高度的场景用 [HorizontalOverlayScroller]。
+ * 细条（flat）样式的同类见 [HorizontalFlatScroller]。
  *
  * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
  * @param modifier 修饰；宽度有界时铺满，无界时回落 meta 主轴下限
@@ -323,9 +402,9 @@ fun HorizontalScroller(
 )
 
 /**
- * 竖直滚动条（叠加样式）：外观与交互与 [VerticalScroller] 完全一致，
- * 仅精灵与最小尺寸取 meta 的 `overlay*` 套装，供**浮于列表内容之上、不占布局宽度**的
- * 场景使用 —— 放置位置（通常贴滚动容器右缘内侧）与"盖在内容上"的层序由调用方的布局决定。
+ * 竖直滚动条（flat 细条样式）：外观与交互与 [VerticalScroller] 相同，仅精灵与最小尺寸取 meta 的
+ * `overlay*` 套装。因为细，它**既可以**放在布局里占一列（如列表右侧），**也可以**按调用方的布局浮在
+ * 内容之上 —— 本组件只负责画，摆在哪由调用方决定。
  *
  * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
  * @param modifier 修饰；主轴（高度）有界时铺满，无界时回落叠加 meta 主轴下限
@@ -340,7 +419,7 @@ fun HorizontalScroller(
  * @param interactionSource 交互源，不传则内部新建；驱动悬停高亮与 [DragInteraction] 上报
  */
 @Composable
-fun VerticalOverlayScroller(
+fun VerticalFlatScroller(
     adapter: ScrollerAdapter,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -369,9 +448,9 @@ fun VerticalOverlayScroller(
 )
 
 /**
- * 水平滚动条（叠加样式）：外观与交互与 [HorizontalScroller] 完全一致，
- * 仅精灵与最小尺寸取 meta 的 `overlay*` 套装，供**浮于内容之上、不占布局高度**的场景使用，
- * 放置位置与层序由调用方的布局决定。
+ * 水平滚动条（flat 细条样式）：外观与交互与 [HorizontalScroller] 相同，仅精灵与最小尺寸取 meta 的
+ * `overlay*` 套装。因为细，它**既可以**放在布局里占一行（如列表底部），**也可以**按调用方的布局浮在
+ * 内容之上 —— 本组件只负责画，摆在哪由调用方决定。
  *
  * @param adapter 与滚动组件通信的桥；见 [ScrollerAdapter] / [rememberScrollerAdapter]
  * @param modifier 修饰；宽度有界时铺满，无界时回落叠加 meta 主轴下限
@@ -386,7 +465,7 @@ fun VerticalOverlayScroller(
  * @param interactionSource 交互源
  */
 @Composable
-fun HorizontalOverlayScroller(
+fun HorizontalFlatScroller(
     adapter: ScrollerAdapter,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -464,7 +543,7 @@ private fun ScrollerAxis.placeThumb(
 
 /**
  * 滚动条共用实现，由 [VerticalScroller] / [HorizontalScroller] /
- * [VerticalOverlayScroller] / [HorizontalOverlayScroller] 转发。
+ * [VerticalFlatScroller] / [HorizontalFlatScroller] 转发。
  *
  * 不是对外 API —— 四个具名组件才是；[overlay] 只负责选常规 / 叠加两套 meta 尺寸。
  */

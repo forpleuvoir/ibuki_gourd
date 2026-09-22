@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.ui.sokitsu
+package moe.forpleuvoir.ibukigourd.ui.editdialog
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -28,6 +28,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityDefaults
 import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityState
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
@@ -188,9 +190,6 @@ object EditDialogContentDefaults {
     /** 浮动按钮与内容区右下角的间距。 */
     val addButtonPadding: PaddingValues = PaddingValues(32.dp)
 
-    /** [EditDialogContentList] 的列表最大高度。 */
-    val listMaxHeight: Dp = 640.dp
-
     /**
      * [EditDialogContentList] 的行高。
      *
@@ -201,4 +200,19 @@ object EditDialogContentDefaults {
 
     /** [EditDialogContentList] 的行间距。 */
     val rowSpacing: Dp = 12.dp
+
+    /** [EditDialogContentCards] 的卡片内容内边距。 */
+    val cardPadding: PaddingValues = PaddingValues(12.dp)
+
+    /** [EditDialogContentCards] 的卡片间距。 */
+    val cardSpacing: Dp = 12.dp
+
+    /** [EditDialogContentCards] 卡片头部与卡片体之间的间距。 */
+    val cardHeaderGap: Dp = 12.dp
+
+    /** 滚动条与列表内容之间的间距（滚动条自己留，隐藏时不占位）。 */
+    val scrollbarGap: Dp = 8.dp
+
+    /** 内容区图标按钮（拖拽手柄 / 删除）的内容内边距。 */
+    val iconPadding: PaddingValues = PaddingValues(2.dp)
 }

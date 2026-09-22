@@ -1,8 +1,12 @@
-package moe.forpleuvoir.ibukigourd.ui.sokitsu
+package moe.forpleuvoir.ibukigourd.ui.editdialog
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 
 /**
  * 拖拽手柄：一个标准 [IconButton] + [Icons.DragHandle] 图标。

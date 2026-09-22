@@ -1,4 +1,4 @@
-package moe.forpleuvoir.ibukigourd.ui.sokitsu
+package moe.forpleuvoir.ibukigourd.ui.editdialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -7,6 +7,10 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialogDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 
 /**
  * 编辑对话框：以可编辑副本承载内容，确认时把副本交回调用方。

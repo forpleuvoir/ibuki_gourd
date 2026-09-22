@@ -4,15 +4,17 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,6 +28,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -53,9 +56,16 @@ sealed interface TableColumnWidth {
     @JvmInline
     value class Fixed(val width: Dp) : TableColumnWidth
 
-    /** 按权重分配行内剩余宽度（同 `RowScope.weight` 语义）。 */
-    @JvmInline
-    value class Fraction(val weight: Float) : TableColumnWidth
+    /**
+     * 按权重分配行内剩余宽度（同 `RowScope.weight` 语义），并用 [min] / [max] 夹住结果。
+     *
+     * 夹出来的余额会补给仍然可变的弹性列，因此一行始终正好铺满可用宽度。
+     */
+    data class Fraction(
+        val weight: Float,
+        val min: Dp = Dp.Unspecified,
+        val max: Dp = Dp.Unspecified,
+    ) : TableColumnWidth
 }
 
 /**
@@ -94,8 +104,18 @@ interface TableLayoutScope<T> {
     /** 固定列宽。 */
     fun fixed(width: Dp): TableColumnWidth = TableColumnWidth.Fixed(width)
 
-    /** 按权重分配剩余宽度的列宽。 */
-    fun weight(weight: Float = 1f): TableColumnWidth = TableColumnWidth.Fraction(weight)
+    /**
+     * 按权重分配剩余宽度的列宽。
+     *
+     * @param weight 权重（同 `RowScope.weight`）
+     * @param min 宽度下限，[Dp.Unspecified] 表示不限制
+     * @param max 宽度上限，[Dp.Unspecified] 表示不限制
+     */
+    fun weight(
+        weight: Float = 1f,
+        min: Dp = Dp.Unspecified,
+        max: Dp = Dp.Unspecified,
+    ): TableColumnWidth = TableColumnWidth.Fraction(weight, min, max)
 
     /**
      * 声明一列：宽度、对齐与表头都和它绑在一起。
@@ -103,12 +123,15 @@ interface TableLayoutScope<T> {
      * @param width 列宽
      * @param alignment 单元格内容的默认对齐；单元格内可用 `Modifier.align(...)` 覆盖
      * @param header 表头单元格；**所有列都不声明表头 = 整表没有表头行**
+     * @param headerAlignment 表头单元格的对齐，默认居中；与 [alignment] 分开，"表头居中、单元格左对齐"
+     *   这类组合不需要额外处理
      * @param cell 单元格内容；`index` 为该元素在本次 `rows(...)` 里的下标
      */
     fun column(
         width: TableColumnWidth,
         alignment: Alignment = Alignment.Center,
         header: (@Composable TableCellScope.() -> Unit)? = null,
+        headerAlignment: Alignment = Alignment.Center,
         cell: @Composable TableCellScope.(index: Int, item: T) -> Unit,
     )
 
@@ -148,7 +171,7 @@ interface TableLayoutScope<T> {
  * @param fixedHeader 是否把表头钉在顶部（见上）
  * @param rowGap 行间距
  * @param columnGap 列间距
- * @param scrollState 固定表头时表体所用的滚动状态，可直接交给 `VerticalOverlayScroller`；不固定表头时不使用
+ * @param scrollState 固定表头时表体所用的滚动状态，可直接交给 `VerticalFlatScroller`；不固定表头时不使用
  * @param rowModifier 逐行附加的修饰（悬停底色、选中态等），参数为该行在所属 `rows(...)` 里的下标；
  *   是 composable 函数类型，可以直接读悬停 / 动画状态
  * @param headerModifier 表头行的附加修饰；固定表头时表头浮在内容之上，给它一个**不透明底色**
@@ -166,23 +189,28 @@ fun <T> TableLayout(
     headerModifier: Modifier = Modifier,
     content: TableLayoutScope<T>.() -> Unit,
 ) {
-    val description = TableDescriptionBuilder<T>().apply(content).build(requireItemKey = false)
+    val description = TableDescriptionBuilder<T>().apply(content)
+        .build(requireItemKey = false, headerInList = !fixedHeader)
     val pinnedHeader = fixedHeader && description.hasHeader
 
-    if (pinnedHeader) {
-        Column(modifier = modifier) {
-            TableHeaderRow(description.columns, columnGap, headerModifier)
-            Spacer(Modifier.height(rowGap))
-            Box(Modifier.weight(1f).verticalScroll(scrollState)) {
-                Column(verticalArrangement = Arrangement.spacedBy(rowGap)) {
-                    TableBodyContent(description, columnGap, rowModifier)
+    BoxWithConstraints(modifier = modifier, propagateMinConstraints = true) {
+        val widths = resolveColumnWidths(description.columns.map { it.width }, maxWidth, columnGap)
+
+        if (pinnedHeader) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TableHeaderRow(description.columns, widths, columnGap, headerModifier)
+                Spacer(Modifier.height(rowGap))
+                Box(Modifier.weight(1f).verticalScroll(scrollState)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(rowGap)) {
+                        TableBodyContent(description, widths, columnGap, rowModifier)
+                    }
                 }
             }
-        }
-    } else {
-        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(rowGap)) {
-            if (description.hasHeader) TableHeaderRow(description.columns, columnGap, headerModifier)
-            TableBodyContent(description, columnGap, rowModifier)
+        } else {
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(rowGap)) {
+                if (description.hasHeader) TableHeaderRow(description.columns, widths, columnGap, headerModifier)
+                TableBodyContent(description, widths, columnGap, rowModifier)
+            }
         }
     }
 }
@@ -191,21 +219,25 @@ fun <T> TableLayout(
  * 表格（lazy）：行是 `LazyColumn` 的 item，只有可见行被组合；列对齐与 [TableLayout] 同构
  * （每行一个 [Row]、每格挂 `width` / `weight`），因此惰性化不会让列错位。
  *
- * 表头：[fixedHeader] 为 true 时走 `LazyColumn` 的 `stickyHeader`（滚动中恒在顶部），
- * 否则是普通的首个 item（随内容滚走）。
+ * 表头：[fixedHeader] 为 true 且至少一列声明了表头时，表头排在惰性列表**之外**、恒在列表上方
+ * （与 [TableLayout] 同义），行在表头下方的视口里滚动、被视口裁在表头下沿，不会从表头下面穿过去；
+ * 否则表头是列表的首个 item，随内容一起滚走。
  *
  * 行拖拽（[onRowMove]）：内部用 `reorderable` 的 `ReorderableItem` 包装每一行，
  * 拖拽手柄由单元格作用域的 `Modifier.dragHandle()` 提供（见 [TableCellScope.dragHandle]）。
  * 表头与 [TableLayoutScope.spanItem] 不参与拖拽（后者会随行让位，但本身不可拖）。
  *
- * @param modifier 作用于整表
- * @param fixedHeader 是否把表头钉在顶部
+ * @param modifier 作用于整表；[fixedHeader] 生效时它挂在"表头 + 列表"的列上，需要外层给出**有界高度**
+ * @param fixedHeader 是否把表头钉在列表上方（不随内容滚动）
  * @param rowGap 行间距
  * @param columnGap 列间距
- * @param listState 列表状态，可直接交给 `VerticalOverlayScroller`
+ * @param listState 列表状态，可直接交给 `VerticalFlatScroller`
  * @param rowModifier 逐行附加的修饰，参数为该行在所属 `rows(...)` 里的下标（同上，可读 composition 状态）
- * @param headerModifier 表头行的附加修饰；`fixedHeader` 走 `stickyHeader` 时表头钉在视口顶端、
- *   内容从它下方滚过，给一个**不透明底色**才能盖住下面的行
+ * @param rowAnimateItemModifier 行（含 [TableLayoutScope.spanItem]）的条目动画修饰，默认
+ *   `Modifier.animateItem()`；例如传 `{ Modifier.animateItem(fadeInSpec = null) }` 可关掉新增行的淡入
+ *   （保留删除淡出与位移）
+ * @param headerModifier 表头行的附加修饰（底色、间距等）；表头与列表不重叠，不需要不透明底色
+ * @param listTrailing 列表体右侧的附加内容（如滚动条）：与列表体同高，[fixedHeader] 生效时排在表头下方
  * @param onRowMove 行拖拽落点回调，参数是**可拖拽行的序号**（跳过表头与 `spanItem`，按
  *   `rows(...)` 的登记顺序连续编号）；为 null 时完全不接入拖拽。开启后每个 `rows(...)` 必须给 `key`
  * @param content 列与行的声明
@@ -218,11 +250,14 @@ fun <T> LazyTableLayout(
     columnGap: Dp = TableLayoutDefaults.ColumnGap,
     listState: LazyListState = rememberLazyListState(),
     rowModifier: @Composable (index: Int) -> Modifier = { Modifier },
+    rowAnimateItemModifier: LazyItemScope.() -> Modifier = { Modifier.animateItem() },
     headerModifier: Modifier = Modifier,
+    listTrailing: (@Composable () -> Unit)? = null,
     onRowMove: ((from: Int, to: Int) -> Unit)? = null,
     content: TableLayoutScope<T>.() -> Unit,
 ) {
-    val description = TableDescriptionBuilder<T>().apply(content).build(requireItemKey = onRowMove != null)
+    val description = TableDescriptionBuilder<T>().apply(content)
+        .build(requireItemKey = onRowMove != null, headerInList = !fixedHeader)
     val reorderState = if (onRowMove != null) {
         rememberReorderableLazyListState(listState) { from, to ->
             // 惰性 item 序号里含着表头与 spanItem，不能当行号用；按块起点换算（O(块数)，不随行数增长）
@@ -237,64 +272,102 @@ fun <T> LazyTableLayout(
         null
     }
 
-    LazyColumn(
-        state = listState,
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(rowGap),
-    ) {
-        if (description.hasHeader) {
-            if (fixedHeader) {
-                stickyHeader(key = TableHeaderKey) {
-                    TableHeaderRow(description.columns, columnGap, headerModifier)
-                }
-            } else {
-                item(key = TableHeaderKey) { TableHeaderRow(description.columns, columnGap, headerModifier) }
-            }
-        }
+    BoxWithConstraints(modifier = modifier, propagateMinConstraints = true) {
+        val widths = resolveColumnWidths(description.columns.map { it.width }, maxWidth, columnGap)
 
-        description.entries.forEachIndexed { entryIndex, entry ->
-            when (entry) {
-                is TableSpanEntry -> {
-                    val spanKey = entry.key ?: "$TableSpanKeyPrefix$entryIndex"
-                    item(key = spanKey) {
-                        if (reorderState != null) {
-                            ReorderableTableItem(reorderState, spanKey, enabled = false) { entry.content() }
-                        } else {
-                            entry.content()
+        // 行与整行条目：表头钉在列表之外时，这段内容落在表头下方的独立视口里（惰性序号里也没有表头）
+        val body: LazyListScope.() -> Unit = {
+            description.entries.forEachIndexed { entryIndex, entry ->
+                when (entry) {
+                    is TableSpanEntry -> {
+                        val spanKey = entry.key ?: "$TableSpanKeyPrefix$entryIndex"
+                        item(key = spanKey) {
+                            if (reorderState != null) {
+                                val animateItemModifier = rowAnimateItemModifier()
+                                ReorderableTableItem(
+                                    state = reorderState,
+                                    itemKey = spanKey,
+                                    enabled = false,
+                                    animateItemModifier = animateItemModifier,
+                                ) { entry.content() }
+                            } else {
+                                entry.content()
+                            }
+                        }
+                    }
+
+                    is TableRowsEntry -> {
+                        val columns = entry.columns
+                        val itemKey = entry.itemKey
+                        val lazyKeys: ((index: Int, item: T) -> Any)? =
+                            itemKey?.let { keyOf -> { _, item -> keyOf(item) } }
+                        itemsIndexed(items = entry.items, key = lazyKeys) { index, item ->
+                            val row: @Composable (Boolean) -> Unit = { dragging ->
+                                TableRowContent(
+                                    columns = columns,
+                                    widths = widths,
+                                    index = index,
+                                    item = item,
+                                    columnGap = columnGap,
+                                    modifier = rowModifier(index),
+                                    isRowDragging = dragging,
+                                )
+                            }
+                            // 拖拽开启时 itemKey 必非 null（见 TableDescriptionBuilder.build 的校验）
+                            if (reorderState != null) {
+                                val animateItemModifier = rowAnimateItemModifier()
+                                ReorderableTableItem(
+                                    state = reorderState,
+                                    itemKey = itemKey!!.invoke(item),
+                                    enabled = true,
+                                    animateItemModifier = animateItemModifier,
+                                    content = row,
+                                )
+                            } else {
+                                row(false)
+                            }
                         }
                     }
                 }
-
-                is TableRowsEntry -> {
-                    val columns = entry.columns
-                    val itemKey = entry.itemKey
-                    val lazyKeys: ((index: Int, item: T) -> Any)? =
-                        itemKey?.let { keyOf -> { _, item -> keyOf(item) } }
-                    itemsIndexed(items = entry.items, key = lazyKeys) { index, item ->
-                        val row: @Composable (Boolean) -> Unit = { dragging ->
-                            TableRowContent(
-                                columns = columns,
-                                index = index,
-                                item = item,
-                                columnGap = columnGap,
-                                modifier = rowModifier(index),
-                                isRowDragging = dragging,
-                            )
-                        }
-                        // 拖拽开启时 itemKey 必非 null（见 TableDescriptionBuilder.build 的校验）
-                        if (reorderState != null) {
-                            ReorderableTableItem(reorderState, itemKey!!.invoke(item), enabled = true, content = row)
-                        } else {
-                            row(false)
-                        }
-                    }
-                }
             }
         }
-    }
+
+        if (fixedHeader && description.hasHeader) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TableHeaderRow(description.columns, widths, columnGap, headerModifier)
+                Spacer(Modifier.height(rowGap))
+                // fill = false：列表按内容定高（有上限），短表不会把外层撑到满高
+                Row(modifier = Modifier.weight(1f, fill = false).fillMaxWidth()) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(rowGap),
+                    ) {
+                        body()
+                    }
+                    // 排在表头**下方**、与列表体同高（例如滚动条）
+                    listTrailing?.invoke()
+                }
+            }
+        } else {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(rowGap),
+                ) {
+                    if (description.hasHeader) {
+                        item(key = TableHeaderKey) { TableHeaderRow(description.columns, widths, columnGap, headerModifier) }
+                    }
+                    body()
+                }
+                listTrailing?.invoke()
+            }
+        }
+        }
 }
 
-/** 表头在惰性列表里的 key（与行 key 同处一个命名空间，取带前缀的字符串避免碰撞）。 */
+/** 表头作为惰性列表首个 item 时的 key（表头钉在列表之外时用不到；与行 key 同处一个命名空间）。 */
 private const val TableHeaderKey = "ibukigourd:table/header"
 
 /** [TableLayoutScope.spanItem] 未给 key 时的 key 前缀。 */
@@ -306,12 +379,14 @@ private const val TableSpanKeyPrefix = "ibukigourd:table/span/"
  * @param width 列宽
  * @param alignment 单元格默认对齐
  * @param header 表头单元格；null = 本列没有表头内容
+ * @param headerAlignment 表头单元格的对齐
  * @param cell 单元格内容
  */
 private class TableColumnSpec<T>(
     val width: TableColumnWidth,
     val alignment: Alignment,
     val header: (@Composable TableCellScope.() -> Unit)?,
+    val headerAlignment: Alignment,
     val cell: @Composable TableCellScope.(index: Int, item: T) -> Unit,
 )
 
@@ -381,9 +456,10 @@ private class TableDescriptionBuilder<T> : TableLayoutScope<T> {
         width: TableColumnWidth,
         alignment: Alignment,
         header: (@Composable TableCellScope.() -> Unit)?,
+        headerAlignment: Alignment,
         cell: @Composable TableCellScope.(index: Int, item: T) -> Unit,
     ) {
-        columns += TableColumnSpec(width, alignment, header, cell)
+        columns += TableColumnSpec(width, alignment, header, headerAlignment, cell)
     }
 
     override fun spanItem(key: Any?, content: @Composable () -> Unit) {
@@ -399,8 +475,9 @@ private class TableDescriptionBuilder<T> : TableLayoutScope<T> {
      * 只读各块的长度。
      *
      * @param requireItemKey 是否强制 `rows(...)` 给出行 key（行拖拽依赖它）
+     * @param headerInList 表头是否占惰性 item 序号 0（[LazyTableLayout] 钉住表头时表头在列表之外）
      */
-    fun build(requireItemKey: Boolean): TableDescription<T> {
+    fun build(requireItemKey: Boolean, headerInList: Boolean): TableDescription<T> {
         val rowsEntries = entries.filterIsInstance<TableRowsEntry<T>>()
         require(rowsEntries.all { it.columns.isNotEmpty() }) {
             "TableLayout: rows(...) 之前必须先声明至少一列 —— column(...) 要写在 rows(...) 前面"
@@ -412,7 +489,7 @@ private class TableDescriptionBuilder<T> : TableLayoutScope<T> {
         }
 
         // 惰性 item 序号：表头（若声明）占 0，之后按登记顺序铺开（spanItem 占 1 个 item）
-        var itemIndex = if (columns.any { it.header != null }) 1 else 0
+        var itemIndex = if (headerInList && columns.any { it.header != null }) 1 else 0
         var ordinal = 0
         val rowBlocks = ArrayList<TableRowBlock>(rowsEntries.size)
         entries.forEach { entry ->
@@ -430,20 +507,79 @@ private class TableDescriptionBuilder<T> : TableLayoutScope<T> {
     }
 }
 
+/** 列宽解析的最大轮数：每轮把被夹住的列排除，把余额交给剩下的弹性列。 */
+private const val ColumnWidthResolvePasses = 4
+
 /**
- * 一列的宽度修饰（须在 `Row` 作用域内调用）。
+ * 把列宽声明解析成实际宽度：固定列取自身宽度；弹性列先按权重分剩余宽度，再逐列夹到
+ * [TableColumnWidth.Fraction.min] / [TableColumnWidth.Fraction.max]，夹剩的余额交给仍然可变的弹性列继续分
+ * —— 一行因此始终正好铺满可用宽度，列与表头也用同一批宽度，天然对齐。
+ *
+ * @param widths 各列声明，顺序即列顺序
+ * @param available 整行可用宽度（含列间距）
+ * @param gap 列间距
  */
-private fun RowScope.columnWidthModifier(width: TableColumnWidth): Modifier = when (width) {
-    is TableColumnWidth.Fixed    -> Modifier.width(width.width)
-    is TableColumnWidth.Fraction -> Modifier.weight(width.weight)
+private fun resolveColumnWidths(widths: List<TableColumnWidth>, available: Dp, gap: Dp): List<Dp> {
+    val resolved = MutableList<Dp?>(widths.size) { null }
+    widths.forEachIndexed { index, width ->
+        if (width is TableColumnWidth.Fixed) resolved[index] = width.width
+    }
+
+    val totalGap = gap * (widths.size - 1).coerceAtLeast(0)
+    var space = (available - resolved.filterNotNull().fold(0.dp, Dp::plus) - totalGap).coerceAtLeast(0.dp)
+    var pending = widths.indices.filter { resolved[it] == null }
+
+    repeat(ColumnWidthResolvePasses) {
+        if (pending.isEmpty() || space <= 0.dp) return@repeat
+        val weightSum = pending.sumOf { (widths[it] as TableColumnWidth.Fraction).weight.toDouble() }
+        if (weightSum <= 0.0) {
+            pending.forEach { resolved[it] = 0.dp }
+            return@repeat
+        }
+
+        var used = 0.dp
+        val next = mutableListOf<Int>()
+        pending.forEach { index ->
+            val fraction = widths[index] as TableColumnWidth.Fraction
+            val want = space * (fraction.weight.toDouble() / weightSum).toFloat()
+            val min = fraction.min.takeIf { it != Dp.Unspecified } ?: 0.dp
+            val max = (fraction.max.takeIf { it != Dp.Unspecified } ?: Dp.Infinity).coerceAtLeast(min)
+            val got = want.coerceIn(min, max)
+            resolved[index] = got
+            used += got
+            // 没被夹住的列还能分下一轮的余额；被夹住的列已经吃满自己的上下限
+            if (got == want) next += index
+        }
+
+        val leftover = space - used
+        if (next.isEmpty() || leftover <= 0.dp) return@repeat
+        pending = next
+        space = leftover
+    }
+
+    // 兜底：下限合计超过可用宽度时（窗口很窄、下限又都不小）按比例压缩弹性列，
+    // 否则整行会溢出、把尾列挤出表外
+    val flexible = widths.indices.filter { widths[it] is TableColumnWidth.Fraction }
+    val assigned = resolved.filterNotNull().fold(0.dp, Dp::plus)
+    val overflow = assigned + totalGap - available
+    if (overflow > 0.dp) {
+        val flexibleTotal = flexible.fold(0.dp) { acc, index -> acc + (resolved[index] ?: 0.dp) }
+        if (flexibleTotal > 0.dp) {
+            val scale = ((flexibleTotal - overflow) / flexibleTotal).coerceAtLeast(0f)
+            flexible.forEach { resolved[it] = (resolved[it] ?: 0.dp) * scale }
+        }
+    }
+
+    return resolved.map { it ?: 0.dp }
 }
 
 /**
- * 表头行：与 [TableRowContent] 同一套列宽修饰，因此两者天然对齐。
+ * 表头行：用与 [TableRowContent] 同一批解析好的列宽，因此两者天然对齐。
  */
 @Composable
 private fun <T> TableHeaderRow(
     columns: List<TableColumnSpec<T>>,
+    widths: List<Dp>,
     columnGap: Dp,
     modifier: Modifier = Modifier,
 ) {
@@ -452,10 +588,10 @@ private fun <T> TableHeaderRow(
         horizontalArrangement = Arrangement.spacedBy(columnGap),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        columns.forEach { column ->
+        columns.forEachIndexed { index, column ->
             Box(
-                modifier = columnWidthModifier(column.width),
-                contentAlignment = column.alignment,
+                modifier = Modifier.width(widths[index]),
+                contentAlignment = column.headerAlignment,
             ) {
                 val header = column.header
                 if (header != null) {
@@ -472,12 +608,13 @@ private fun <T> TableHeaderRow(
 }
 
 /**
- * 一行数据：每格一个 `Box`，尺寸由列宽修饰决定、内容按列对齐；单元格作用域继承该 `Box` 的
+ * 一行数据：每格一个 `Box`，宽度取解析好的列宽、内容按列对齐；单元格作用域继承该 `Box` 的
  * [BoxScope]，因此内容可用 `Modifier.align(...)` 覆盖对齐。
  */
 @Composable
 private fun <T> TableRowContent(
     columns: List<TableColumnSpec<T>>,
+    widths: List<Dp>,
     index: Int,
     item: T,
     columnGap: Dp,
@@ -489,9 +626,9 @@ private fun <T> TableRowContent(
         horizontalArrangement = Arrangement.spacedBy(columnGap),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        columns.forEach { column ->
+        columns.forEachIndexed { columnIndex, column ->
             Box(
-                modifier = columnWidthModifier(column.width),
+                modifier = Modifier.width(widths[columnIndex]),
                 contentAlignment = column.alignment,
             ) {
                 val scope = TableCellScopeImpl(
@@ -513,6 +650,7 @@ private fun <T> TableRowContent(
 @Composable
 private fun <T> TableBodyContent(
     description: TableDescription<T>,
+    widths: List<Dp>,
     columnGap: Dp,
     rowModifier: @Composable (index: Int) -> Modifier,
 ) {
@@ -525,6 +663,7 @@ private fun <T> TableBodyContent(
                     val row: @Composable () -> Unit = {
                         TableRowContent(
                             columns = entry.columns,
+                            widths = widths,
                             index = index,
                             item = item,
                             columnGap = columnGap,
@@ -547,15 +686,22 @@ private fun <T> TableBodyContent(
  * 下发；对外只暴露 `Modifier.dragHandle()`，公开 API 不出现库的类型。
  *
  * @param enabled false 时该行不进入拖拽库的可重排集合（表头、`spanItem` 用）
+ * @param animateItemModifier 条目的增删 / 位移动画修饰，透传给拖拽库的 `ReorderableItem`
  */
 @Composable
 private fun LazyItemScope.ReorderableTableItem(
     state: ReorderableLazyListState,
     itemKey: Any,
     enabled: Boolean,
+    animateItemModifier: Modifier,
     content: @Composable (isDragging: Boolean) -> Unit,
 ) {
-    ReorderableItem(state = state, key = itemKey, enabled = enabled) { isDragging ->
+    ReorderableItem(
+        state = state,
+        key = itemKey,
+        enabled = enabled,
+        animateItemModifier = animateItemModifier,
+    ) { isDragging ->
         val itemScope = this
         val factory = remember(itemScope) {
             TableDragHandleFactory { modifier, dragEnabled ->
@@ -585,4 +731,19 @@ private class TableCellScopeImpl(
 
     override fun Modifier.dragHandle(enabled: Boolean): Modifier =
         dragHandleFactory?.create(this, enabled) ?: this
+}
+
+/**
+ * 表格的排版缺省值。
+ *
+ * 表格是**应用级页面的排版量**（不随主题或资源包变化），因此不设 `ui_meta` 段，
+ * 需要局部调整时在调用点覆盖 [TableLayout] / [LazyTableLayout] 的对应参数即可。
+ */
+object TableLayoutDefaults {
+
+    /** 行间距。 */
+    val RowGap: Dp = 2.dp
+
+    /** 列间距。 */
+    val ColumnGap: Dp = 12.dp
 }

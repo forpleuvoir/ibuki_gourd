@@ -58,7 +58,7 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
         }
 
         /**
-         * 快速动作键：按下时 [moe.forpleuvoir.ibukigourd.ui.sokitsu.RemoveConfirmButton] 一类操作
+         * 快速动作键：按下时 [moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton] 一类操作
          * 跳过二次确认直接执行。缺省左 Shift。
          */
         val quickActionKeyCode by configKeyCode("quick_action_key_code", Keyboard.LEFT_SHIFT)

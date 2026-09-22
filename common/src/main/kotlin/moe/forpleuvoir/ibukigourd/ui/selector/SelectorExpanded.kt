@@ -21,9 +21,10 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ScrollerDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalOverlayScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
@@ -264,7 +265,7 @@ fun <T> SelectorDialogExpanded(
                             }
                         }
                     }
-                    VerticalOverlayScroller(
+                    VerticalFlatScroller(
                         adapter = rememberScrollerAdapter(listState),
                         modifier = Modifier.fillMaxHeight(),
                         autoHide = true,
@@ -310,12 +311,12 @@ fun <T> SelectorDialogExpanded(
                                 cancel()
                                 onDismissRequest()
                             },
-                            text = MiscLang.cancel.string,
-                        )
-                        TextButton(
-                            onClick = onDismissRequest,
-                            text = MiscLang.confirm.string,
-                        )
+                        ) {
+                            Text(MiscLang.cancel)
+                        }
+                        TextButton(onClick = onDismissRequest) {
+                            Text(MiscLang.confirm)
+                        }
                     }
                 }
             }

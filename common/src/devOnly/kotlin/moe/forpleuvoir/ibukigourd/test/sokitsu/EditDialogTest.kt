@@ -26,14 +26,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.CenterBox
 import moe.forpleuvoir.ibukigourd.test.TestScreen
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.EditDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.EditDialogContent
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.FabScrollVisibility

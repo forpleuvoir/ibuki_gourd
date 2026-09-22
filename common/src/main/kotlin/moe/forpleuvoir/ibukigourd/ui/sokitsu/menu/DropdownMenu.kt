@@ -22,7 +22,7 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.popup.register
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalOverlayScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.*
@@ -279,7 +279,7 @@ fun DropdownMenu(
                             content()
                         }
                     }
-                    VerticalOverlayScroller(
+                    VerticalFlatScroller(
                         adapter = rememberScrollerAdapter(scrollState),
                         modifier = Modifier.fillMaxHeight(),
                         autoHide = true,

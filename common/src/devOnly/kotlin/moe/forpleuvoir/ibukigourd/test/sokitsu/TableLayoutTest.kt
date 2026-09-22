@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.TestScreen
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
@@ -41,7 +41,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.LazyTableLayout
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableLayout
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalOverlayScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.logicalSize
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
@@ -97,9 +97,6 @@ fun TableLayoutTestScreen() = TestScreen {
             val iconScale = LocalSokitsuPixelScale.current
             val dragColumnWidth = tableIconColumnWidth(Icons.DragHandle, iconScale)
             val removeColumnWidth = tableIconColumnWidth(Icons.Close, iconScale)
-            // 固定表头浮在内容之上，必须是不透明底色，否则下面滚过的行会从表头文字里透出来
-            val scheme = LocalColorScheme.current
-            val headerBackground = Modifier.drawBehind { drawRect(scheme.surfaceVariant) }
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -133,7 +130,6 @@ fun TableLayoutTestScreen() = TestScreen {
                             columnGap = 12.dp,
                             scrollState = eagerScroll,
                             rowModifier = { tableRowHover() },
-                            headerModifier = headerBackground,
                         ) {
                             column(width = fixed(32.dp), header = { Text("#") }) { index, _ ->
                                 Text("${index + 1}")
@@ -155,7 +151,7 @@ fun TableLayoutTestScreen() = TestScreen {
                             spanItem { TableGroupTitle("分组：常规（spanItem）") }
                             rows(eagerRows.entries, key = { it.key })
                         }
-                        VerticalOverlayScroller(
+                        VerticalFlatScroller(
                             adapter = rememberScrollerAdapter(eagerScroll),
                             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                             autoHide = true,
@@ -174,7 +170,6 @@ fun TableLayoutTestScreen() = TestScreen {
                             columnGap = 12.dp,
                             listState = lazyListState,
                             rowModifier = { tableRowHover() },
-                            headerModifier = headerBackground,
                             onRowMove = { from, to -> lazyRows.move(from, to) },
                         ) {
                             column(width = fixed(dragColumnWidth)) { _, _ ->
@@ -200,7 +195,7 @@ fun TableLayoutTestScreen() = TestScreen {
                             spanItem { TableGroupTitle("分组：常规（spanItem）") }
                             rows(lazyRows.entries, key = { it.key })
                         }
-                        VerticalOverlayScroller(
+                        VerticalFlatScroller(
                             adapter = rememberScrollerAdapter(lazyListState),
                             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                             autoHide = true,

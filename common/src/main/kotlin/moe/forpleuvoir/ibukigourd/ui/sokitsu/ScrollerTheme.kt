@@ -83,8 +83,8 @@ object ScrollerTokens {
  * - `trackMinSize` 的细轴分量 = 滚动条厚度，是**恒定值**（竖直条取宽、水平条取高），
  *   不吃父级约束；主轴分量只在主轴无界时兜底。
  * - `thumbMinSize` 的主轴分量 = 滑块最短长度（内容极多时滑块仍可见）；交叉轴分量即厚度。
- * - `overlay*` 一组用于 [VerticalOverlayScroller] / [HorizontalOverlayScroller] 的叠加式滚动条
- *   （浮于内容之上、不占布局宽度），精灵与最小尺寸均独立于常规组。
+ * - `overlay*` 一组用于 [VerticalFlatScroller] / [HorizontalFlatScroller] 的**细条（flat）**滚动条，
+ *   精灵与最小尺寸均独立于常规组；细条既占布局也浮在内容上都行，由调用方决定。
  */
 data class ScrollerMeta(
     /** 轨道最小尺寸：细轴分量恒为滚动条厚度。 */
@@ -192,7 +192,7 @@ object ScrollerDefaults {
      * 按下滚动条（拖滑块 / 点轨道空白）时播放的音效；null = 静音。
      *
      * 仅常规样式（[VerticalScroller] / [HorizontalScroller]）发声；
-     * 叠加样式（[VerticalOverlayScroller] / [HorizontalOverlayScroller]）按下不播放。
+     * 细条样式（[VerticalFlatScroller] / [HorizontalFlatScroller]）按下不播放。
      */
     val LocalPressSound = compositionLocalOf<SoundInstance?> {
         SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f)
