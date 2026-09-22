@@ -144,7 +144,7 @@ fun <T> SelectorExpanded(
  * 下拉菜单载体的展开体：在 [DropdownMenu] 里逐项渲染 [SelectorItem]。
  */
 @Composable
-private fun <T> SelectorMenuExpanded(
+fun <T> SelectorMenuExpanded(
     onDismissRequest: () -> Unit,
     items: List<T>,
     onToggle: (T) -> Unit,
@@ -167,6 +167,9 @@ private fun <T> SelectorMenuExpanded(
             val trailing = itemTrailingIcon?.invoke(selected)
             SelectorItem(
                 onClick = { onToggle(item) },
+                // 与弹窗载体一致：条目填满菜单内容列（列宽 = 最宽那一项），
+                // 长短不一的选项因此等宽，选中 / 悬停背景不再长短不一
+                modifier = Modifier.fillMaxWidth(),
                 selected = selected,
                 leadingIcon = leading?.let { slot -> { slot(item) } },
                 trailingIcon = trailing?.let { slot -> { slot(item) } },
@@ -188,7 +191,7 @@ private fun <T> SelectorMenuExpanded(
  * 确定只关闭（条目的点击已在过程中回调过）。
  */
 @Composable
-private fun <T> SelectorDialogExpanded(
+fun <T> SelectorDialogExpanded(
     onDismissRequest: () -> Unit,
     items: List<T>,
     onToggle: (T) -> Unit,
@@ -235,7 +238,7 @@ private fun <T> SelectorDialogExpanded(
                 // autoHide 为空组合语义：判定数据由列表测量期写入，首次出现 / 溢出状态翻转时晚一帧。
                 val (scrollerThickness, scrollSpacing) = with(LocalDensity.current) {
                     ScrollerDefaults.overlayTrackMinSize.width.toPx() to
-                        (LocalSokitsuPixelScale.current * 2).dp.toPx()
+                            (LocalSokitsuPixelScale.current * 2).dp.toPx()
                 }
                 Layout({
                     LazyColumn(
@@ -379,10 +382,10 @@ object SelectorExpandedDefaults {
         hasSearchFilter: Boolean,
         itemCount: Int,
     ): Boolean = when {
-        hasSearchFilter -> true
-        style is SelectorExpandStyle.Dialog -> true
+        hasSearchFilter                       -> true
+        style is SelectorExpandStyle.Dialog   -> true
         style is SelectorExpandStyle.Dropdown -> false
-        style is SelectorExpandStyle.Auto -> itemCount > style.maxItems
-        else -> false
+        style is SelectorExpandStyle.Auto     -> itemCount > style.maxItems
+        else                                  -> false
     }
 }

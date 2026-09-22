@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -28,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 
 /**
@@ -112,8 +115,13 @@ fun SelectorTrigger(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            content()
-            expandIcon(expanded, padEnd)
+            Box(Modifier.weight(1f, fill = false)) {
+                content()
+            }
+            val scheme = LocalColorScheme.current
+            CompositionLocalProvider(LocalColorScheme provides scheme.copy(outline = outlineColor.takeOrElse { scheme.outline })) {
+                expandIcon(expanded, padEnd)
+            }
         }
     }
 }

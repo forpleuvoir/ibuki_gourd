@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -186,7 +187,8 @@ private fun Modifier.sideHeightLimit(anchorBounds: Rect, spacingPx: Int): Modifi
  * 可用 [DropdownMenuItem]，也可直接组合任意 Compose 内容。
  *
  * 面板为气泡体：宽高由内容撑开（只受 [DropdownMenuDefaults.minSize] 下限约束），
- * 各项宽度即各自内容宽度。外观参数均为可覆盖的默认值，取自 [DropdownMenuDefaults] 与主题 meta。
+ * 宽取最宽的那一项（内容列按 `IntrinsicSize.Max` 量），各条目再统一拉到该宽度。
+ * 外观参数均为可覆盖的默认值，取自 [DropdownMenuDefaults] 与主题 meta。
  *
  * @param expanded 是否展开
  * @param onDismissRequest 请求关闭（点击外部、Esc、以及默认条目点击之后）
@@ -262,7 +264,8 @@ fun DropdownMenu(
                     Column(
                         Modifier
                             // 列宽取最宽子项的整行固有宽：条目不被挤压换行，
-                            // 分割线等 fillMaxWidth 子项据此对齐，而不是铺满弹层的可用宽度
+                            // 分割线等 fillMaxWidth 子项据此对齐，而不是铺满弹层的可用宽度；
+                            // 条目自身也 fillMaxWidth，于是统一到这个宽度、左右边缘齐平
                             .width(IntrinsicSize.Max)
                             .heightIn(max = maxHeight)
                             .verticalScroll(scrollState),
@@ -315,8 +318,10 @@ fun DropdownMenu(
 /**
  * 一行可点击的菜单条目。
  *
- * 宽度即内容宽度（不填充父级）；所有视觉参数都是默认值，可逐个覆盖，[modifier] 里的尺寸
- * 约束优先于组件默认值。
+ * 宽度**填满面板内容列**：面板宽由最宽的那一项撑开（内容列按 `IntrinsicSize.Max` 量），
+ * 条目再统一拉到该宽度 —— 长短不一的条目左右边缘因此都对齐，悬停背景与点击区域也随之
+ * 等宽。内容靠左（[Alignment.CenterStart]）；所有视觉参数都是默认值，可逐个覆盖，
+ * [modifier] 里的尺寸约束优先于组件默认值（它排在填充之前）。
  *
  * - 高度按 [minHeight] 取**下限**，内容更高时条目随之撑开；
  * - 点击后先执行 [onClick]，随后关闭所属菜单；
@@ -356,12 +361,13 @@ fun DropdownMenuItem(
             onClick()
             controller?.dismiss()
         },
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         enabled = enabled,
         interactionSource = interactionSource,
         sprite = DropdownMenuDefaults.itemSprite(),
         contentPadding = padding,
         minSize = DpSize(Dp.Hairline, minHeight),
+        contentAlignment = Alignment.CenterStart,
         colors = FlatButtonDefaults.colors(contentColor = resolvedContent),
     ) {
         leadingIcon?.let {
