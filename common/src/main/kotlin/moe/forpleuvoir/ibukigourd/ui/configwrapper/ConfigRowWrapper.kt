@@ -152,12 +152,7 @@ fun ConfigRowWrapper(
                 .fillMaxWidth()
                 .hoverable(interactionSource)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-                .padding(
-                    start = ConfigRowWrapper.padding.start,
-                    top = ConfigRowWrapper.padding.top,
-                    end = ConfigRowWrapper.padding.end,
-                    bottom = ConfigRowWrapper.padding.bottom,
-                ),
+                .padding(ConfigRowWrapper.padding.toPadding()),
             horizontalArrangement = horizontalArrangement,
             verticalAlignment = verticalAlignment,
         ) {
@@ -310,7 +305,7 @@ fun ResetButton(resettable: Resettable, onReset: () -> Unit = {}) {
             onReset()
             scope.launch {
                 rotation.animateTo(
-                    targetValue = rotation.value - 360f,
+                    targetValue = rotation.value + 360f,
                     animationSpec = tween(ConfigRowDefaults.ResetAnimation.inWholeMilliseconds.toInt()),
                 )
             }
@@ -325,7 +320,6 @@ fun ResetButton(resettable: Resettable, onReset: () -> Unit = {}) {
         Icon(
             icon = Icons.Reset,
             scale = configIconScale(),
-            tint = Color.Unspecified.resolve(ConfigRowTokens.Icon),
             modifier = Modifier.rotate(rotation.value),
         )
     }

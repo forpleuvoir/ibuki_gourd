@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -183,7 +184,9 @@ internal fun <E : Any> ConfigListEditDialog(
         minWidth = ConfigDialogDefaults.MinWidth,
         content = {
             EditDialogContent(
-                modifier = Modifier.width(ConfigDialogDefaults.ContentWidth),
+                modifier = Modifier
+                    .width(ConfigDialogDefaults.ContentWidth)
+                    .heightIn(min = ConfigDialogDefaults.MinHeight),
                 addButton = newElement?.let { factory ->
                     {
                         Button(

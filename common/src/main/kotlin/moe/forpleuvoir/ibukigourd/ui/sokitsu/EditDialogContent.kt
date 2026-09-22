@@ -81,25 +81,24 @@ fun EditDialogContent(
             val duration = FabVisibilityDefaults.hideDuration.inWholeMilliseconds.toInt()
             val offsetPx = with(LocalDensity.current) { FabVisibilityDefaults.translationY.roundToPx() }
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(addButtonPadding),
-            ) {
-                if (addButtonAnimated) {
-                    AnimatedVisibility(
-                        visible = visible,
-                        enter = fadeIn(tween(duration)) +
-                                scaleIn(tween(duration), initialScale = 0.8f) +
-                                slideInVertically(tween(duration)) { offsetPx },
-                        exit = fadeOut(tween(duration)) +
-                                scaleOut(tween(duration), targetScale = 0.8f) +
-                                slideOutVertically(tween(duration)) { offsetPx },
-                    ) {
+            // 外层只负责贴右下角，内层只负责留边：留边作用在盒子上，按钮才会被推离边缘
+            Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                Box(modifier = Modifier.padding(addButtonPadding)) {
+                    if (addButtonAnimated) {
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = fadeIn(tween(duration)) +
+                                    scaleIn(tween(duration), initialScale = 0.8f) +
+                                    slideInVertically(tween(duration)) { offsetPx },
+                            exit = fadeOut(tween(duration)) +
+                                    scaleOut(tween(duration), targetScale = 0.8f) +
+                                    slideOutVertically(tween(duration)) { offsetPx },
+                        ) {
+                            addButton()
+                        }
+                    } else if (visible) {
                         addButton()
                     }
-                } else if (visible) {
-                    addButton()
                 }
             }
         }
@@ -187,7 +186,7 @@ object EditDialogContentDefaults {
     val headerBottomGap: Dp = 12.dp
 
     /** 浮动按钮与内容区右下角的间距。 */
-    val addButtonPadding: PaddingValues = PaddingValues(12.dp)
+    val addButtonPadding: PaddingValues = PaddingValues(32.dp)
 
     /** [EditDialogContentList] 的列表最大高度。 */
     val listMaxHeight: Dp = 640.dp

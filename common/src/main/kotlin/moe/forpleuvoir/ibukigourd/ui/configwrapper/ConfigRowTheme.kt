@@ -28,10 +28,11 @@ object ConfigRowTokens {
      * 只做**透明度**动画（0 → 1），不做颜色渐变 —— 之前用 `animateColorAsState` 在
      * `Color.Transparent` 与带色值之间插值，会经过黑色，肉眼就是"闪一下"。
      */
-    val HoverSprite: SokitsuSprite get() = SokitsuAtlasManager.sprite(
-        SokitsuAtlasManager.UI_ATLAS_ID,
-        identifier("ui/surface/flat_1x_round"),
-    )
+    val HoverSprite: SokitsuSprite
+        get() = SokitsuAtlasManager.sprite(
+            SokitsuAtlasManager.UI_ATLAS_ID,
+            identifier("ui/surface/flat_1x_round"),
+        )
 
     /** 悬停底的染色：中性容器色。 */
     val Container = ColorSchemeToken.SurfaceVariant
@@ -98,7 +99,7 @@ object ConfigControlDefaults {
      * 行骨架的排布是「名称列（weight 1f）+ 控件 + 重置按钮」，控件区宽度一致时
      * 各行控件的左右边缘才会对齐；宽度参差会让整个页面看起来是斜的。
      */
-    val ControlWidth: Dp = 280.dp
+    val ControlWidth: Dp = 320.dp
 
     /** 缓动曲线在行内的速览画布边长。 */
     val CurvePreviewSize: Dp = 96.dp
@@ -131,6 +132,8 @@ data class ConfigRowPadding(
 
     /** 在左（start）侧再增加一段缩进，用于嵌套层级。 */
     fun indented(indent: Dp): ConfigRowPadding = copy(start = start + indent)
+
+    fun toPadding() = PaddingValues(start = start, top = top, end = end, bottom = bottom)
 }
 
 /**
@@ -146,6 +149,9 @@ object ConfigDialogDefaults {
 
     /** 浮层最小宽度。 */
     val MinWidth: Dp = 720.dp
+
+    /** 内容区最小高度：条目很少时浮层不缩成一条。 */
+    val MinHeight: Dp = 560.dp
 }
 
 /**
