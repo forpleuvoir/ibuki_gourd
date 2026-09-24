@@ -6,6 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
@@ -128,6 +133,10 @@ object Icons {
  *   （当前像素放大倍率，缺省 3）—— 即"一个素材像素对应 N 个逻辑像素"，
  *   图标大小随像素缩放设置联动；需要固定尺寸时传 [size] 直接接管；
  * - 倍率必须是**整数**（配合整数像素缩放，非整数倍会让纹素大小不均、糊边）；
+ * - **父级约束放不下时按能放下的最大整数倍率收缩**：精灵绘制是把源图拉伸到布局尺寸
+ *   （`TextureFill.Stretch`），布局尺寸一旦被父级压小，素材就被**非等比**拉伸 —— 例如
+ *   48dp 的图标塞进输入框 36dp 高的内容区，圆会变成椭圆。这里在测量阶段就把倍率降到放得下的
+ *   最大值，宁可变小也不变形；传 [size] 时按调用方给定尺寸绘制，不做这层收缩；
  * - [tint] 缺省取 [LocalContentColor]（即"当前内容色"）—— 放进 [FlatButton] 等按钮里会自动
  *   拿到按钮内容色，连 `contentBlend` / `disabledBlend` 的状态修正一起吃到；
  * - 精灵为空（缺素材）时布局尺寸为 0，等于什么都没画。
@@ -143,10 +152,43 @@ fun Icon(
     size: DpSize? = null,
     tint: Color = Color.Unspecified,
 ) {
-    val resolvedSize = size ?: DpSize(icon.logicalWidth.dp * scale, icon.logicalHeight.dp * scale)
+    if (icon.isEmpty) {
+        Box(modifier.size(0.dp, 0.dp))
+        return
+    }
+    val density = LocalDensity.current
     Box(
         modifier = modifier
-            .size(resolvedSize)
+            .then(
+                if (size != null) Modifier.size(size)
+                else Modifier.fittedIconSize(icon.logicalWidth.dp, icon.logicalHeight.dp, scale, density)
+            )
             .sokitsuSprite(icon, tint.takeOrElse { LocalContentColor.current })
     )
 }
+
+/**
+ * 图标布局尺寸 = 素材尺寸 × [scale]，但**父级约束放不下时降到能放下的最大整数倍率**。
+ *
+ * 布局尺寸必须严格等于「素材像素 × 整数」：精灵是把源图拉伸到布局尺寸绘制的，父级压小布局尺寸
+ * 会让素材非等比变形，非整数倍率则会让纹素大小不均、糊边。两个轴共用同一个倍率，故收缩后仍等比。
+ *
+ * 可用空间连 1 倍都放不下时保持 1 倍（宁可变大也不变形）。
+ */
+private fun Modifier.fittedIconSize(unitWidth: Dp, unitHeight: Dp, scale: Int, density: Density): Modifier =
+    layout { measurable, constraints ->
+        val unitWidthPx = with(density) { unitWidth.roundToPx() }.coerceAtLeast(1)
+        val unitHeightPx = with(density) { unitHeight.roundToPx() }.coerceAtLeast(1)
+        var effective = scale.coerceAtLeast(1)
+        while (effective > 1 && (
+                    unitWidthPx * effective > constraints.maxWidth ||
+                            unitHeightPx * effective > constraints.maxHeight
+                    )
+        ) {
+            effective--
+        }
+        val width = unitWidthPx * effective
+        val height = unitHeightPx * effective
+        val placeable = measurable.measure(Constraints.fixed(width, height))
+        layout(width, height) { placeable.place(0, 0) }
+    }

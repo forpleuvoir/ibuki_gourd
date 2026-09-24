@@ -1,9 +1,11 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.ScrollerDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
@@ -68,11 +70,42 @@ object ConfigRowDefaults {
     /** 每嵌套一层增加的左缩进。 */
     val Indent: Dp = 16.dp
 
+    /**
+     * 内容列与滚动条之间的横向间距。
+     *
+     * 滚动条**占自己的布局列**而不是浮在内容上（浮着会盖住行尾的重置按钮），
+     * 这一档是内容与那条列之间的留白。
+     */
+    val ScrollbarSpacing: Dp = 6.dp
+
+    /** 滚动条列宽：flat 细条的固定厚度（取主题 `scroller` meta，缺省 15dp）。 */
+    val ScrollbarWidth: Dp get() = ScrollerDefaults.overlayTrackMinSize.width
+
+    /**
+     * 分割线厚度：**一个素材像素**（跟随当前 [LocalSokitsuPixelScale]）。
+     *
+     * sokitsu 的 [moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider] 缺省按屏幕 `dp` 取值，
+     * 在像素风页面里会细到看不见；配置页统一显式传这个值，线条与相邻的九宫格边框同宽。
+     */
+    val DividerThickness: Dp
+        @Composable @ReadOnlyComposable get() = LocalSokitsuPixelScale.current.dp
+
     /** 注释最多显示行数（超出省略，悬停气泡展示全文）。 */
     const val CommentMaxLines: Int = 1
 
     /** 重置图标的旋转动画时长。 */
     val ResetAnimation: Duration = 400.milliseconds
+
+    /** 分组展开 / 收起（纵向张开 + 淡入淡出）的过渡时长。 */
+    val ExpandAnimation: Duration = 200.milliseconds
+
+    /**
+     * 分组展开指示的图标倍率（16×16 素材 → 32dp）。
+     *
+     * 与选择器展开图标（[moe.forpleuvoir.ibukigourd.ui.selector.SelectorTriggerDefaults.expandIcon]）
+     * 同档，比页内其它图标（[configIconScale]）小一号 —— 它只是个折叠指示，不该和内容抢视线。
+     */
+    const val ExpandIconScale: Int = 2
 
     /** 行悬停底色的过渡时长。 */
     val HoverAnimation: Duration = 120.milliseconds
@@ -125,9 +158,9 @@ object ConfigControlDefaults {
  * 无法在其上做"加一段缩进"。）
  */
 data class ConfigRowPadding(
-    val start: Dp = 8.dp,
+    val start: Dp = 16.dp,
     val top: Dp = 6.dp,
-    val end: Dp = 8.dp,
+    val end: Dp = 16.dp,
     val bottom: Dp = 6.dp,
 ) {
 

@@ -1,12 +1,15 @@
 package moe.forpleuvoir.ibukigourd.ui.selector
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -121,9 +124,13 @@ object SelectorTriggerDefaults {
     inline val padding: PaddingValues get() = meta.padding
 
     /**
-     * 默认展开图标：一道竖直分割线 + 按 [expanded] 取 `Icons.Down` / `Icons.Up` 的箭头。
+     * 默认展开图标：一道竖直分割线 + 一张转动的 `Icons.Down` 折角。
      *
      * 分割线属于本图标自身（两者一起构成"展开指示区"），换掉本槽位即整体替换。
+     *
+     * 箭头用**一张素材旋转**而不是按 [expanded] 换 `Icons.Down` / `Icons.Up`：`up` 素材正是
+     * `down` 的上下翻转，而这张折角左右对称，翻转等价于旋转 180° —— 落点就是 `Icons.Up`，
+     * 中间还多出过渡过程（与配置页分组指示同一套做法）。
      *
      * 三个尺寸都跟随当前渲染体系：
      * - 分割线厚度 = 当前 [LocalSokitsuPixelScale]（一个素材像素的宽度）；
@@ -134,13 +141,13 @@ object SelectorTriggerDefaults {
      */
     @Composable
     fun expandIcon(expanded: Boolean, contentPaddingEnd: Dp) {
-        val arrow = if (expanded) Icons.Up else Icons.Down
         val thickness = LocalSokitsuPixelScale.current.dp
+        val rotation by animateFloatAsState(if (expanded) 180f else 0f)
         Row(verticalAlignment = Alignment.CenterVertically) {
             // 定长而非 fillMaxHeight：本 Row 的高度由内容撑开，铺满会解析为 0（不可见）
-            VerticalDivider(length = arrow.logicalHeight.dp * IconArrowScale, thickness = thickness)
+            VerticalDivider(length = Icons.Down.logicalHeight.dp * IconArrowScale, thickness = thickness)
             Spacer(Modifier.width(contentPaddingEnd))
-            Icon(arrow)
+            Icon(Icons.Down, modifier = Modifier.rotate(rotation))
         }
     }
 

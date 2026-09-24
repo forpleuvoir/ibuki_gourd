@@ -89,8 +89,9 @@ fun ConfigWrapperTestScreen() = TestScreen {
 /**
  * 配置页面骨架测试屏：把 devOnly 的 [TestConfig] 整页交给 [ConfigManagerWrapper]。
  *
- * 验证点：左侧分组列表（含 3 层嵌套的 nested / nested2 / vector）、选中态配色、
- * 顶部搜索（输入 `int` 应平铺出各分组的 int 项）、内容区随滚动显隐的叠加滚动条。
+ * 验证点：左侧分组列表（含 3 层嵌套的 nested / nested2 / vector）、文字左对齐与选中项的
+ * `focused` 常驻底色、右下搜索入口（点开后输入 `int` 应平铺出各分组的 int 项，返回可回分组）、
+ * 内容区随滚动显隐的叠加滚动条。
  */
 fun ConfigManagerTestScreen() = TestScreen {
     Surface(Modifier.fillMaxSize()) {

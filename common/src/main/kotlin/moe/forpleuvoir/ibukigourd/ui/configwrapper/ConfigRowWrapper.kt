@@ -113,6 +113,9 @@ fun indentedConfigRowPadding(indent: Dp): ConfigRowPadding = ConfigRowWrapper.pa
  * @param resettable 是否显示重置按钮
  * @param onClick 整行点击回调（分组行用来折叠 / 展开）；为 null 时整行不可点
  * @param onReset 重置后的回调
+ * @param hoverHighlight 是否由本行自己画悬停底；分组行传 false，由 [ConfigGroupWrapper]
+ *   把同一层底铺到"整组"范围上（标题 + 子项），否则只有标题那一行会亮
+ * @param interactionSource 交互源；分组行把自己的源传进来，好让悬停底画在整组上
  * @param content 右侧控件槽
  */
 @Composable
@@ -125,10 +128,12 @@ fun ConfigRowWrapper(
     resettable: Boolean = true,
     onClick: (() -> Unit)? = null,
     onReset: () -> Unit = {},
+    hoverHighlight: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val hovered by interactionSource.collectIsHoveredAsState()
+    val source = interactionSource ?: remember { MutableInteractionSource() }
+    val hovered by source.collectIsHoveredAsState()
 
     // 悬停底是**一层精灵**，只对它的图层做透明度动画：
     // 用 animateColorAsState 在 Transparent 与带色值之间插值会经过黑色，肉眼就是“闪一下”
@@ -140,17 +145,20 @@ fun ConfigRowWrapper(
     val container = Color.Unspecified.resolve(ConfigRowTokens.Container)
 
     Box(modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .matchParentSize()
-                .graphicsLayer { alpha = hoverAlpha }
-                .sokitsuSprite(ConfigRowTokens.HoverSprite, color = container),
-        )
+        // 分组把这层底挪到"整组"上去画（见 ConfigGroupWrapper），本行就不再自己画
+        if (hoverHighlight) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .graphicsLayer { alpha = hoverAlpha }
+                    .sokitsuSprite(ConfigRowTokens.HoverSprite, color = container),
+            )
+        }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .hoverable(interactionSource)
+                .hoverable(source)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
                 .padding(ConfigRowWrapper.padding.toPadding()),
             horizontalArrangement = horizontalArrangement,

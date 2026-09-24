@@ -6,9 +6,11 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +39,6 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.text.platformDefaultFontSiz
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.withColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.contentColorFor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
@@ -175,6 +177,7 @@ fun TextField(
                     verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
                 ) {
                     leadingIcon?.invoke()
+                    if (leadingIcon != null) Spacer(Modifier.width(TextFieldDefaults.iconGap))
                     Box(Modifier.weight(1f)) {
                         // hint 叠在内层文本之下：文本为空时透出来，有字时被盖住。
                         // 不参与测量（内层已 matchParentSize 撑满），故不影响行高与滚动
@@ -186,6 +189,7 @@ fun TextField(
                         }
                         inner()
                     }
+                    if (trailingIcon != null) Spacer(Modifier.width(TextFieldDefaults.iconGap))
                     trailingIcon?.invoke()
                 }
             },
@@ -238,6 +242,9 @@ object TextFieldDefaults {
      * 让文本不贴着凹槽边。默认水平 12dp / 垂直 10dp。
      */
     fun contentPadding(): PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+
+    /** 头部 / 尾部图标槽与文本之间的间距；只在对应一侧有图标时占位。 */
+    val iconGap: Dp = 6.dp
 
     /**
      * 默认输入框配色：

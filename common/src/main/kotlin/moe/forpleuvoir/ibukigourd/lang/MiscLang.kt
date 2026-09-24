@@ -47,6 +47,8 @@ object MiscLang {
 
     inline val search get() = lang("search")
 
+    inline val back get() = lang("back")
+
     inline val moveUp get() = lang("move_up")
 
     inline val moveDown get() = lang("move_down")

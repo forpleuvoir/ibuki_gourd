@@ -158,7 +158,9 @@ object UIWrappers {
         wrappers.find { it.first(config) }?.second as? ConfigUIWrapper<C>
 
     init {
-        register<ConfigGroup> { ConfigGroupWrapper(it) }
+        // 用谓词而不是 register<ConfigGroup>：分组普遍写成 `object X : ConfigGroup("x")`
+        // （子类），而 register 缺省 strict = true 只认"类完全相同"，会把子类全漏到兜底行
+        register({ it is ConfigGroup }) { ConfigGroupWrapper(it as ConfigGroup) }
 
         // 基础类型
         registerCheckValueType<Boolean> { BooleanConfigWrapper(it) }

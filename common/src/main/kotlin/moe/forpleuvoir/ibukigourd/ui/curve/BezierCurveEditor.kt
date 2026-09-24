@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -154,7 +153,7 @@ private fun ControlPointRow(
             valueToText = BezierCurveEditorDefaults.ValueToText,
             valueStep = BezierCurveEditorDefaults.ValueStep,
             enabled = enabled,
-            leadingIcon = { Text("x", Modifier.padding(end = BezierCurveEditorDefaults.IconGap)) },
+            leadingIcon = { Text("x") },
             modifier = Modifier.width(BezierCurveEditorDefaults.FieldWidth),
         )
         FloatField(
@@ -164,7 +163,7 @@ private fun ControlPointRow(
             valueToText = BezierCurveEditorDefaults.ValueToText,
             valueStep = BezierCurveEditorDefaults.ValueStep,
             enabled = enabled,
-            leadingIcon = { Text("y", Modifier.padding(end = BezierCurveEditorDefaults.IconGap)) },
+            leadingIcon = { Text("y") },
             modifier = Modifier.width(BezierCurveEditorDefaults.FieldWidth),
         )
     }
@@ -192,10 +191,6 @@ object BezierCurveEditorDefaults {
 
     /** 单个数值框宽度。 */
     val FieldWidth: Dp = 128.dp
-
-    /** 数值框内前缀（x / y）与数值之间的间距。 */
-    val IconGap: Dp = 6.dp
-
 
     /** 右列里相邻两行（数值行 / 预设按钮）之间的纵向间距。 */
     val ControlRowSpacing: Dp = 12.dp
