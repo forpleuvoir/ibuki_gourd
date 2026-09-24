@@ -45,6 +45,7 @@ import moe.forpleuvoir.ibukigourd.test.sokitsu.MultiSelectorTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTriggerTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.SelectorTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TabStripScreenTestScreen
+import moe.forpleuvoir.ibukigourd.test.sokitsu.TabRowTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TableLayoutTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.TextFieldTestScreen
 import moe.forpleuvoir.ibukigourd.test.sokitsu.ToastTestScreen
@@ -331,6 +332,11 @@ fun SokitsuTestScreen() {
                             TabStripScreenTestScreen()
                         }) {
                             Text("全屏页签溢出测试")
+                        }
+                        Button({
+                            TabRowTestScreen()
+                        }) {
+                            Text("M3 页签测试")
                         }
                         Button({
                             TableLayoutTestScreen()
