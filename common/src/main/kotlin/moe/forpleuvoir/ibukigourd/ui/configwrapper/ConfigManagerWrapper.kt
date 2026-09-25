@@ -11,6 +11,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -51,15 +53,19 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Tab
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRow
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextFieldTokens
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.UiStateIdentifier
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.UiStateSprite
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.util.identifier
@@ -84,62 +90,115 @@ import moe.forpleuvoir.nebula.config.ConfigNode
  *
  * @param manager 目标配置管理器
  * @param modifier 作用于整页
- * @param groupListWidth 左侧分组列宽度
+ * @param groupListMinWidth 左侧分组列的最小宽度
+ * @param groupListMaxWidth 左侧分组列的最大宽度（实际宽度取分组名固有宽度，夹在两者之间）
  */
 @Composable
 fun ConfigManagerWrapper(
     manager: ConfigManager,
     modifier: Modifier = Modifier,
-    groupListWidth: Dp = ConfigManagerDefaults.GroupListWidth,
+    groupListMinWidth: Dp = ConfigManagerDefaults.GroupListMinWidth,
+    groupListMaxWidth: Dp = ConfigManagerDefaults.GroupListMaxWidth,
 ) {
     val pages = remember(manager) { configPages(manager) }
     var selected by remember(manager) { mutableIntStateOf(0) }
-    var searching by remember(manager) { mutableStateOf(false) }
     val searchState = rememberTextFieldState()
 
     val query = searchState.text.toString()
     val searchResult = remember(manager, query) { manager.search(query) }
+    // 两块内嵌面板共用一档底色：分组导航 / 配置本体与搜索框是"同一种凹槽"
+    val panelColor = Color.Unspecified.resolve(ConfigManagerDefaults.PanelTone)
 
-    Row(modifier.fillMaxSize()) {
-        ConfigGroupList(
-            pages = pages,
-            selected = selected,
-            searching = searching,
-            onSelect = {
-                selected = it
-                searching = false
-            },
-            onSearch = { searching = true },
-            modifier = Modifier.width(groupListWidth).fillMaxHeight(),
-        )
-        VerticalDivider(Modifier.fillMaxHeight(), thickness = ConfigRowDefaults.DividerThickness)
-        AnimatedContent(
-            targetState = searching,
-            modifier = Modifier.weight(1f).fillMaxHeight().padding(ConfigManagerDefaults.ContentPadding),
-            transitionSpec = {
-                // 进搜索页：新页自右进、旧页向左出；返回时反向
-                val direction = if (targetState) 1 else -1
-                val duration = ConfigManagerDefaults.ContentTransitionMillis
-                (slideInHorizontally(tween(duration)) { width -> direction * width } + fadeIn(tween(duration))) togetherWith
-                        (slideOutHorizontally(tween(duration)) { width -> -direction * width } + fadeOut(tween(duration)))
-            },
-            label = "configManagerContent",
-        ) { isSearching ->
-            if (isSearching) {
-                ConfigSearchPanel(
-                    state = searchState,
-                    result = searchResult,
-                    onClose = { searching = false },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                ConfigPageContent(
-                    page = pages.getOrNull(selected),
-                    modifier = Modifier.fillMaxSize(),
-                )
+    // 整页外围留白统一由 Row 给：两块面板的四边留白才一致，两列之间的横向间距也只剩这一处间距
+    Row(
+        modifier = modifier.fillMaxSize().padding(ConfigManagerDefaults.ContentPadding),
+        horizontalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.ColumnSpacing),
+    ) {
+        // 左列（分组导航）与右列同款：都坐在一张内嵌面板上
+        // 宽度不写死：贴合最宽的分组名，再用 min / max 夹住
+        Surface(
+            modifier = Modifier
+                .widthIn(min = groupListMinWidth, max = groupListMaxWidth)
+                .width(IntrinsicSize.Max)
+                .fillMaxHeight(),
+            color = panelColor,
+            sprite = SurfaceDefaults.embeddedPanel,
+        ) {
+            ConfigGroupList(
+                pages = pages,
+                selected = selected,
+                onSelect = {
+                    selected = it
+                    // 结果区被搜索占着时，点分组要能看到这一页 —— 顺手把关键词清掉
+                    searchState.edit { replace(0, length, "") }
+                },
+                modifier = Modifier.fillMaxSize().padding(ConfigManagerDefaults.EmbedContentPadding),
+            )
+        }
+        // 左列与右侧内容之间**不画分割线**：两块内嵌面板自带边框，再加一条线会显得脏
+        Column(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+        ) {
+            // 搜索框在**内嵌面板之外**、右列最上面：它是工具栏，不是配置本体的一部分；
+            // 非空时面板里换成跨分组结果，清空即回到当前页
+            ConfigSearchField(state = searchState, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(ConfigManagerDefaults.SearchResultSpacing))
+            Surface(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                color = panelColor,
+                sprite = SurfaceDefaults.embeddedPanel,
+            ) {
+                Column(Modifier.fillMaxSize().padding(ConfigManagerDefaults.EmbedContentPadding)) {
+                    if (query.isBlank()) {
+                        ConfigPageContent(
+                            page = pages.getOrNull(selected),
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                        )
+                    } else {
+                        CompositionLocalProvider(LocalSearchFilter provides searchResult.filter) {
+                            ConfigNodesScroller(
+                                nodes = searchResult.nodes,
+                                modifier = Modifier.weight(1f).fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+/**
+ * 常驻搜索框：单行输入 + 头部放大镜 + 非空时的清除按钮。
+ *
+ * 输入即过滤（[ConfigManagerWrapper] 直接读 [TextFieldState]），不再是"点入口切搜索页"。
+ */
+@Composable
+private fun ConfigSearchField(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+) {
+    val clear: (@Composable () -> Unit)? = if (state.text.isNotEmpty()) {
+        {
+            IconButton(
+                onClick = { state.edit { replace(0, length, "") } },
+                contentPadding = ConfigControlDefaults.IconButtonPadding,
+            ) {
+                Icon(Icons.Close, scale = configIconScale())
+            }
+        }
+    } else null
+
+    TextField(
+        state = state,
+        modifier = modifier,
+        hint = IGLang.Misc.search,
+        leadingIcon = {
+            Icon(Icons.Search, scale = configIconScale())
+        },
+        trailingIcon = clear,
+        lineLimits = TextFieldLineLimits.SingleLine,
+    )
 }
 
 /** 配置页：一个分组（或管理器的直属条目）对应一页。 */
@@ -225,6 +284,9 @@ private fun ConfigPageContent(page: ConfigPage?, modifier: Modifier = Modifier) 
                     )
                 }
             }
+            // 页签行与下面的配置行之间留一段：页签行的选中指示器就贴在它的底边，
+            // 不留这段的话第一行的悬停底色会直接顶到指示器上
+            Spacer(Modifier.height(ConfigManagerDefaults.PageContentTopSpacing))
         }
         AnimatedContent(
             targetState = current,
@@ -330,57 +392,41 @@ private fun ConfigNavItem(
 }
 
 /**
- * 左列：分组导航（滚动）+ 底部常驻搜索入口。
+ * 左列：分组导航（可滚动），搜索入口不在这里（见 [ConfigSearchField]，常驻在右侧内容区顶部）。
  *
- * 搜索入口与分组项**同款底座、同一高度**，只多一个图标；两者之间垫一条分割线，
- * 于是分组列表滚动时搜索入口始终贴在底部，不会被列表推走。
+ * 内边距由调用方给（[ConfigManagerDefaults.EmbedContentPadding]，与右列面板内一致），
+ * 本组件只负责"列表 + 并列滚动条"。
  *
  * @param pages 全部分组页
- * @param selected 当前选中的分组下标（进入搜索页时不高亮任何分组）
- * @param searching 是否处于搜索页
+ * @param selected 当前选中的分组下标
  * @param onSelect 选中分组回调
- * @param onSearch 打开搜索页回调
  * @param modifier 作用于整列
  */
 @Composable
 private fun ConfigGroupList(
     pages: List<ConfigPage>,
     selected: Int,
-    searching: Boolean,
     onSelect: (Int) -> Unit,
-    onSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
 
-    Column(modifier) {
-        Row(Modifier.weight(1f).fillMaxWidth()) {
-            Column(
-                modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(scrollState).padding(ConfigManagerDefaults.GroupListPadding),
-                verticalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.GroupSpacing),
-            ) {
-                pages.forEachIndexed { index, page ->
-                    ConfigNavItem(
-                        selected = index == selected && !searching,
-                        onClick = { onSelect(index) },
-                        modifier = Modifier.fillMaxWidth().tooltip { Text(component = page.title) },
-                    ) {
-                        Text(component = page.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
+    Row(modifier) {
+        Column(
+            modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.GroupSpacing),
+        ) {
+            pages.forEachIndexed { index, page ->
+                ConfigNavItem(
+                    selected = index == selected,
+                    onClick = { onSelect(index) },
+                    modifier = Modifier.fillMaxWidth().tooltip { Text(component = page.title) },
+                ) {
+                    Text(component = page.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
-            ConfigScrollbar(scrollState)
         }
-        HorizontalDivider(thickness = ConfigRowDefaults.DividerThickness)
-        ConfigNavItem(
-            selected = false,
-            onClick = onSearch,
-            modifier = Modifier.fillMaxWidth().padding(ConfigManagerDefaults.GroupListPadding),
-        ) {
-            Icon(Icons.Search, scale = ConfigManagerDefaults.NavItemIconScale)
-            Spacer(Modifier.width(ConfigManagerDefaults.NavItemIconSpacing))
-            Text(IGLang.Misc.search)
-        }
+        ConfigScrollbar(scrollState)
     }
 }
 
@@ -404,76 +450,6 @@ private fun RowScope.ConfigScrollbar(scrollState: ScrollState) {
             autoHide = true,
             autoFade = true,
         )
-    }
-}
-
-/**
- * 搜索页：顶行「返回 + 输入框（可清除）」，隔一段间距后是按**分组**组织的结果。
- *
- * 结果不铺平成一行一条：同一分组下的多个命中合并成一个可折叠的分组行，组内只列命中的子项
- * （[LocalSearchFilter] 驱动，见 [ConfigGroupWrapper]），命中分散时才并列几个分组 ——
- * 这样"是不是同一个容器"一眼可见，也不用每行背一串所属分组。
- *
- * 输入框的 [TextFieldState] 由 [ConfigManagerWrapper] 持有，本页只读不持有，
- * 所以返回再进来关键词还在。
- *
- * 返回用 [Icons.ArrowLeft]（带箭杆的整支箭头）而非 [Icons.Back]：后者是 5×10 的细折角，
- * 与输入框头部同为 16×16 画布时视觉重量差一档，看起来像被挤扁。
- *
- * @param state 搜索输入状态
- * @param result 命中结果（顶层节点为空时内容区显示"无"）
- * @param onClose 返回分组页
- * @param modifier 作用于整列
- */
-@Composable
-private fun ConfigSearchPanel(
-    state: TextFieldState,
-    result: ConfigSearchResult,
-    onClose: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val clear: (@Composable () -> Unit)? = if (state.text.isNotEmpty()) {
-        {
-            IconButton(
-                onClick = { state.edit { replace(0, length, "") } },
-                contentPadding = ConfigControlDefaults.IconButtonPadding,
-            ) {
-                Icon(Icons.Close, scale = configIconScale())
-            }
-        }
-    } else null
-
-    Column(modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.SearchPanelSpacing),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(
-                onClick = onClose,
-                modifier = Modifier.tooltip { Text(IGLang.Misc.back) },
-                contentPadding = ConfigControlDefaults.IconButtonPadding,
-            ) {
-                Icon(Icons.ArrowLeft, scale = configIconScale())
-            }
-            TextField(
-                state = state,
-                modifier = Modifier.weight(1f),
-                hint = IGLang.Misc.search,
-                leadingIcon = {
-                    Icon(Icons.Search, scale = configIconScale())
-                },
-                trailingIcon = clear,
-                lineLimits = TextFieldLineLimits.SingleLine,
-            )
-        }
-        Spacer(Modifier.height(ConfigManagerDefaults.SearchPanelResultSpacing))
-        CompositionLocalProvider(LocalSearchFilter provides result.filter) {
-            ConfigNodesScroller(
-                nodes = result.nodes,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-            )
-        }
     }
 }
 
@@ -507,14 +483,19 @@ private fun ConfigNodesScroller(
 /** 配置页面的排版常量。 */
 object ConfigManagerDefaults {
 
-    /** 左侧分组列宽度。 */
-    val GroupListWidth: Dp = 240.dp
+    /** 左侧分组列的最小宽度。 */
+    val GroupListMinWidth: Dp = 200.dp
+
+    /**
+     * 左侧分组列的最大宽度。
+     *
+     * 列宽贴合最宽的分组名，上下由 [GroupListMinWidth] / 本值夹住，
+     * 以免分组名长短悬殊时列宽跟着跳动、或过长分组名把内容区挤没。
+     */
+    val GroupListMaxWidth: Dp = 320.dp
 
     /** 分组项间距。 */
     val GroupSpacing: Dp = 4.dp
-
-    /** 分组列内边距；搜索入口复用同一套，两处左右边缘因此对齐。 */
-    val GroupListPadding: PaddingValues = PaddingValues(8.dp)
 
     /** 导航项最小尺寸：高度统一，宽度交给容器（`fillMaxWidth`）。 */
     val NavItemMinSize: DpSize = DpSize(0.dp, 40.dp)
@@ -522,23 +503,31 @@ object ConfigManagerDefaults {
     /** 导航项内容内边距（比组件缺省矮一档，配合 32dp 图标把行高钉在 [NavItemMinSize] 上）。 */
     val NavItemPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
 
-    /** 搜索入口图标倍率：16×16 素材 → 32dp。 */
-    const val NavItemIconScale: Int = 2
+    /** 整页外围留白：两块内嵌面板与页签条面板外沿之间的四边留白。 */
+    val ContentPadding: PaddingValues = PaddingValues(16.dp)
 
-    /** 搜索入口图标与文案的间距。 */
-    val NavItemIconSpacing: Dp = 8.dp
+    /**
+     * 两块内嵌面板（分组导航 / 配置本体）的染色槽位，取 [TextFieldTokens.Container]：
+     * 面板与搜索框同为凹槽，同底色才不会一块深一块浅。
+     */
+    val PanelTone: ColorSchemeToken = TextFieldTokens.Container
 
-    /** 右侧内容区（分组页 / 搜索页共用）的内边距。 */
-    val ContentPadding: PaddingValues = PaddingValues(8.dp)
+    /**
+     * 内嵌面板**内部**的内边距：面板是凹槽，内容要离开自己的描边。
+     *
+     * 凹槽描边本身要占掉约一个素材像素（= pixelScale 个屏幕像素），给小了内容看着仍像贴着描边，
+     * 因此与外层 [ContentPadding] 同档。
+     */
+    val EmbedContentPadding: PaddingValues = PaddingValues(16.dp)
 
-    /** 搜索页顶行「返回按钮 + 输入框」的间距。 */
-    val SearchPanelSpacing: Dp = 8.dp
+    /** 搜索框与下方内容（页签 / 结果）之间的纵向间距。 */
+    val SearchResultSpacing: Dp = 8.dp
 
-    /** 搜索页顶行与结果列表之间的纵向间距。 */
-    val SearchPanelResultSpacing: Dp = 8.dp
+    /** 左侧分组列与右侧内容之间的横向间距：与 [SearchResultSpacing] 同档，横向留白不比纵向更宽。 */
+    val ColumnSpacing: Dp = SearchResultSpacing
 
-    /** 分组页 ⇄ 搜索页的切换时长。 */
-    const val ContentTransitionMillis: Int = 200
+    /** 页签行与配置节点之间的纵向间距（页签选中指示器贴在页签行底边，要给下面留出这段）。 */
+    val PageContentTopSpacing: Dp = 12.dp
 
     /** 配置页内页签切换的时长。 */
     const val TabSwitchMillis: Int = 150

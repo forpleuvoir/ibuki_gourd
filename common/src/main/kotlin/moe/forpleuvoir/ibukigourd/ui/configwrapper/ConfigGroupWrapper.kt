@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,10 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigNode
@@ -45,9 +43,9 @@ val LocalConfigGroupAutoExpandLimit = staticCompositionLocalOf { ConfigRowDefaul
 /**
  * 分组：一行可折叠的标题 + 缩进一级的子节点。
  *
- * **整组是一块**：悬停标题行时，[ConfigRowTokens.Container] 底色铺满标题 + 子项（而不是只亮标题
- * 那一行），子项各自悬停时仍只亮自己那一行。底色由本组件画在整组之后，标题行因此
- * 以 `hoverHighlight = false` 交出自己那层底。
+ * **整组是一块**：悬停标题行时，[moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight] 高亮铺满
+ * 标题 + 子项（而不是只亮标题那一行），子项各自悬停时仍只亮自己那一行。高亮由本组件挂在整组
+ * 容器上，标题行因此以 `hoverHighlight = false` 交出自己那层。
  *
  * 展开 / 收起经 [AnimatedVisibility] 做纵向张开 + 淡入淡出；展开指示沿用选择器同款折角，
  * 见下方注释。搜索期间（[LocalSearchFilter] 非 null）默认展开，且只列出命中的子项。
@@ -70,22 +68,8 @@ fun ConfigGroupWrapper(config: ConfigGroup, modifier: Modifier = Modifier) {
     }
 
     val source = remember { MutableInteractionSource() }
-    val hovered by source.collectIsHoveredAsState()
-    val hoverAlpha by animateFloatAsState(
-        targetValue = if (hovered) 1f else 0f,
-        animationSpec = tween(ConfigRowDefaults.HoverAnimation.inWholeMilliseconds.toInt()),
-        label = "configGroupHoverAlpha",
-    )
-    val container = Color.Unspecified.resolve(ConfigRowTokens.Container)
 
-    Box(modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .matchParentSize()
-                .graphicsLayer { alpha = hoverAlpha }
-                .sokitsuSprite(ConfigRowTokens.HoverSprite, color = container),
-        )
-
+    Box(modifier.fillMaxWidth().hoverHighlight(source)) {
         CompositionLocalProvider(ConfigRowWrapper.LocalLevel provides level + 1) {
             Column(Modifier.fillMaxWidth()) {
                 ConfigRowWrapper(

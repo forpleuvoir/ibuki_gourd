@@ -7,11 +7,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ScrollerDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-import moe.forpleuvoir.ibukigourd.util.identifier
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -21,24 +18,10 @@ import kotlin.time.Duration.Companion.milliseconds
  * 与 sokitsu 组件（[moe.forpleuvoir.ibukigourd.ui.sokitsu.SliderTokens] 等）同构，
  * 颜色走"调用点传参 > 作用域色 > 组件 token > 主题槽位"回退链。
  *
- * 像素风里没有圆角卡片：行本身**常态完全透明**，只把悬停底色与文字色映射到主题。
+ * 像素风里没有圆角卡片：行本身**常态完全透明**，架在分组 / 页面上；悬停高亮由
+ * [moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight] 提供，本表只管文字与图标色。
  */
 object ConfigRowTokens {
-
-    /**
-     * 行悬停底：一笔圆角面板素材 `ui/surface/flat_1x_round`。
-     *
-     * 只做**透明度**动画（0 → 1），不做颜色渐变 —— 之前用 `animateColorAsState` 在
-     * `Color.Transparent` 与带色值之间插值，会经过黑色，肉眼就是"闪一下"。
-     */
-    val HoverSprite: SokitsuSprite
-        get() = SokitsuAtlasManager.sprite(
-            SokitsuAtlasManager.UI_ATLAS_ID,
-            identifier("ui/surface/flat_1x_round"),
-        )
-
-    /** 悬停底的染色：中性容器色。 */
-    val Container = ColorSchemeToken.SurfaceVariant
 
     /** 配置名（标题）色。 */
     val Title = ColorSchemeToken.OnSurface
@@ -106,9 +89,6 @@ object ConfigRowDefaults {
      * 同档，比页内其它图标（[configIconScale]）小一号 —— 它只是个折叠指示，不该和内容抢视线。
      */
     const val ExpandIconScale: Int = 2
-
-    /** 行悬停底色的过渡时长。 */
-    val HoverAnimation: Duration = 120.milliseconds
 
     /** 注释被截断时的悬停气泡延迟。 */
     val TooltipDelay: Duration = 250.milliseconds

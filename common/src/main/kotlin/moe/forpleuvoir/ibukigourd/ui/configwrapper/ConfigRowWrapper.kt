@@ -1,12 +1,10 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -30,10 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -48,9 +43,9 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextFieldDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.nebula.common.api.Resettable
@@ -102,7 +97,8 @@ fun indentedConfigRowPadding(indent: Dp): ConfigRowPadding = ConfigRowWrapper.pa
 /**
  * 配置行骨架：名称列（标题 + 注释 + 截断时的全文气泡）+ 控件槽 + 重置按钮。
  *
- * 像素风下**不画圆角卡片**：常态行完全透明，悬停时铺一层 [ConfigRowTokens.Container] 底色；
+ * 像素风下**不画圆角卡片**：常态行完全透明，悬停时由
+ * [moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight] 铺一层高亮；
  * 分组的边界由 [ConfigGroupWrapper] 的缩进与分割线承担，行自己不做容器。
  *
  * @param config 该行对应的配置节点（取 [ConfigNode.translateText] / [ConfigNode.translateComment]）
@@ -133,28 +129,13 @@ fun ConfigRowWrapper(
     content: @Composable RowScope.() -> Unit,
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
-    val hovered by source.collectIsHoveredAsState()
 
-    // 悬停底是**一层精灵**，只对它的图层做透明度动画：
-    // 用 animateColorAsState 在 Transparent 与带色值之间插值会经过黑色，肉眼就是“闪一下”
-    val hoverAlpha by animateFloatAsState(
-        targetValue = if (hovered) 1f else 0f,
-        animationSpec = tween(ConfigRowDefaults.HoverAnimation.inWholeMilliseconds.toInt()),
-        label = "configRowHoverAlpha",
-    )
-    val container = Color.Unspecified.resolve(ConfigRowTokens.Container)
-
-    Box(modifier.fillMaxWidth()) {
-        // 分组把这层底挪到"整组"上去画（见 ConfigGroupWrapper），本行就不再自己画
-        if (hoverHighlight) {
-            Box(
-                Modifier
-                    .matchParentSize()
-                    .graphicsLayer { alpha = hoverAlpha }
-                    .sokitsuSprite(ConfigRowTokens.HoverSprite, color = container),
-            )
-        }
-
+    Box(
+        modifier
+            .fillMaxWidth()
+            // 分组把这层高亮挪到"整组"上去画（见 ConfigGroupWrapper），本行就不再自己挂
+            .then(if (hoverHighlight) Modifier.hoverHighlight(source) else Modifier),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
