@@ -8,9 +8,18 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import net.minecraft.network.chat.Style
+import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -26,7 +35,9 @@ import kotlin.time.Duration.Companion.seconds
  * 3. **失焦 / 回车提交**：收敛后回写格式化文本并把光标置于末尾，同时清错误态；
  * 4. **滚轮步进**：悬停且聚焦时滚轮一格 = 一步，Shift/Ctrl/Alt 放大步长（见 [ValueStep]），
  *    事件在 Initial 阶段消费掉，不影响外层可滚动容器与输入框自身的水平滚动；
- * 5. **类型化字符过滤**：各入口默认只放行本类型合法字符，调用方传入的 `inputTransformation`
+ * 5. **方向键按位步进**（C4D 式）：聚焦时上下方向键只改**光标所指示的那一位数字**
+ *    （`NumberFieldDigits.kt`），不做整数值加减、也不移动光标；
+ * 6. **类型化字符过滤**：各入口默认只放行本类型合法字符，调用方传入的 `inputTransformation`
  *    在其后叠加。
  *
  * 与 [NumberSlider] 同构：入口命名与参数面保持一致，`onValueChange == null` 表示只读展示。
@@ -96,8 +107,10 @@ fun IntField(
     toText = valueToText,
     step = valueStep,
     times = Int::times,
-    plus = Int::plus,
-    minus = Int::minus,
+    // 整数没有小数位：位权至少为 1（末尾光标那条会算出 10^-1，取整会变 0）
+    placeValue = { text, cursor -> 10.0.pow(placeExponent(text, cursor)).toInt().coerceAtLeast(1) },
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
     isValidChar = { it.isDigit() || it == '-' },
     modifier = modifier,
     enabled = enabled,
@@ -146,8 +159,9 @@ fun LongField(
     toText = valueToText,
     step = valueStep,
     times = Long::times,
-    plus = Long::plus,
-    minus = Long::minus,
+    placeValue = { text, cursor -> 10.0.pow(placeExponent(text, cursor)).toLong().coerceAtLeast(1L) },
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
     isValidChar = { it.isDigit() || it == '-' },
     modifier = modifier,
     enabled = enabled,
@@ -196,8 +210,9 @@ fun FloatField(
     toText = valueToText,
     step = valueStep,
     times = Float::times,
-    plus = Float::plus,
-    minus = Float::minus,
+    placeValue = { text, cursor -> 10f.pow(placeExponent(text, cursor)) },
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
     isValidChar = { it.isDigit() || it == '-' || it == '.' },
     modifier = modifier,
     enabled = enabled,
@@ -246,8 +261,9 @@ fun DoubleField(
     toText = valueToText,
     step = valueStep,
     times = Double::times,
-    plus = Double::plus,
-    minus = Double::minus,
+    placeValue = { text, cursor -> 10.0.pow(placeExponent(text, cursor)) },
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
     isValidChar = { it.isDigit() || it == '-' || it == '.' },
     modifier = modifier,
     enabled = enabled,
@@ -267,8 +283,12 @@ fun DoubleField(
  * 百分比输入框：取值与 [PercentSlider] 同为区间占比（默认 `0f..1f`），文本按占比显示为
  * `xx%`，输入同样按百分比解释（`50` 与 `50%` 都等于占比 0.5）。
  *
+ * 文本保留 [decimals] 位小数，这样"按位步进"改到十分位 / 百分位时（如 `50.1%`）显示得出来，
+ * 否则低位步进会被整数格式化吞掉、看起来像没反应。
+ *
  * @param valueRange 取值区间；解析失败或越界都会收敛进该区间
- * @param valueToText 自定义文本；null = 区间占比四舍五入到整数百分比
+ * @param valueToText 自定义文本；null = 按 [decimals] 位小数显示区间占比
+ * @param decimals 默认文本的小数位数；`1` = 十分位（`50.1%`），`0` = 整数（`50%`）
  * @param valueStep 滚轮步进：基础 1%，Shift ×10、Ctrl ×15、Alt ×30
  */
 @Composable
@@ -277,6 +297,7 @@ fun PercentField(
     onValueChange: ((Float) -> Unit)?,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     valueToText: ((Float) -> String)? = null,
+    decimals: Int = 1,
     valueStep: ValueStep<Float> = ValueStep(0.01f),
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -298,14 +319,17 @@ fun PercentField(
     toText = { current ->
         valueToText?.invoke(current) ?: run {
             val span = valueRange.endInclusive - valueRange.start
-            val percent = if (span > 0f) ((current - valueRange.start) / span * 100).roundToInt() else 0
-            "$percent%"
+            val percent = if (span > 0f) (current - valueRange.start) / span * 100 else 0f
+            "%.${decimals.coerceAtLeast(0)}f%%".format(percent)
         }
     },
     step = valueStep,
     times = Float::times,
-    plus = Float::plus,
-    minus = Float::minus,
+    // PercentField 显示是「值 × 100 + %」（内部 0..1），所以文本位权要再除 100：
+    // 文本十位 +1（50% → 60%）对应内部值只 +0.1。
+    placeValue = { text, cursor -> 10f.pow(placeExponent(text, cursor) - 2) },
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
     isValidChar = { it.isDigit() || it == '-' || it == '.' || it == '%' },
     modifier = modifier,
     enabled = enabled,
@@ -355,8 +379,9 @@ fun DurationField(
     toText = valueToText,
     step = valueStep,
     times = Duration::times,
-    plus = Duration::plus,
-    minus = Duration::minus,
+    placeValue = null,
+    plus = { a, b -> a + b },
+    minus = { a, b -> a - b },
     isValidChar = { it.isDigit() || it == '.' || it == ' ' || it in "dhms" },
     modifier = modifier,
     enabled = enabled,
@@ -384,6 +409,9 @@ fun DurationField(
  * @param parse 文本 → 数值；null 表示格式非法
  * @param fix 解析结果（可为 null）→ 合法值：越界收敛、非法取默认
  * @param step 滚轮步长配置，与 [times] 一起解析修饰键倍率
+ * @param placeValue 光标所指示数位的位权（该位的"1"值多少，如十位 = 10、十分位 = 0.1）：`(文本, 光标下标) -> 位权`。
+ *   方向键按位步进就是把**这个位权**加/减到当前值上，不做任何字符串进位。
+ *   `null` = 该类型没有位权概念（如 [DurationField] 的 `1h 30m`），不接管方向键。
  */
 @Composable
 private fun <T> NumberFieldImpl(
@@ -409,6 +437,9 @@ private fun <T> NumberFieldImpl(
     colors: TextFieldColors,
     backgroundSprite: SokitsuSprite,
     interactionSource: MutableInteractionSource?,
+    /** 行数限制；按位步进只在 [TextFieldLineLimits.SingleLine] 下接管方向键。 */
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
+    placeValue: ((text: String, cursor: Int) -> T)?,
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
@@ -432,6 +463,40 @@ private fun <T> NumberFieldImpl(
         isError = false
         if (fixed != value) latestOnValueChange.value?.invoke(fixed)
         state.setTextAndPlaceCursorAtEnd(latestToText.value(fixed))
+    }
+
+    /**
+     * 方向键按位步进：光标位置决定这一步的数值量（个位 1、十分位 0.1、百分位 0.01 …），
+     * 然后把该位权加/减到当前值上。
+     *
+     * 位权由 `placeValue` 给出：光标右边有数字时取那一位的位权（`|35` → 10、`0|.25` → 0.1）；
+     * 右边没有数字时取**再下一位**（`16|` → 0.1、`16.1|` → 0.01）。
+     *
+     * 之后就是对数值做一次普通加减 —— 没有字符串进位 / 借位，`0` 退一位自然是 `-1`，
+     * 跨位进位（`9.09` 的个位 +1 → `10.09`）由数值运算本身承担。
+     *
+     * 基于 [lastSynced]（已规范化的值）运算，回写后再把光标落回原位（长度变化时按位次找回），
+     * 使下一次按键仍指向同一位。
+     *
+     * **只要 `placeValue` 存在就消费方向键**：数值可能因 `valueRange` 收敛而没变化（钳制在边界），
+     * 此时依然消费并让光标留在原处，避免事件漏给输入框自身的上下行命令、把光标顶走而叠加出
+     * 第二套语义。`placeValue` 为 `null`（如 [DurationField] 的 `1h 30m`）时才不消费。
+     *
+     * @return 是否消费方向键
+     */
+    fun stepDigit(delta: Int): Boolean {
+        val place = placeValue ?: return false
+        val text = state.text.toString()
+        val cursor = state.selection.start
+        val unit = place(text, cursor)
+        // 步长恒为**正的位权**，方向只由下面的 if 分支决定：`delta` 不能再乘进位权，
+        // 否则会双重取负（`minus(x, -unit)` == `x + unit`），表现就是「按 ⬇️ 数值反而变大」。
+        val rightDigits = digitsRightOf(text, cursor)
+        val candidate = if (delta > 0) plus(lastSynced, unit) else minus(lastSynced, unit)
+        commit(candidate)
+        // 光标按"右侧数字个数不变"落回同一位（`-`、`.` 不算数字，见 restoreDigitCursor）
+        state.restoreDigitCursor(rightDigits)
+        return true
     }
 
     // 外部值变化 → 同步文本；值与 lastSynced 相同则不写，避免打断输入
@@ -474,6 +539,8 @@ private fun <T> NumberFieldImpl(
     }
 
     val interactive = enabled && !readOnly && onValueChange != null
+    // 方向键按位步进只对单行字段成立；多行字段保留输入框默认的上下行走（跨行移动光标）
+    val digitStepEnabled = interactive && lineLimits == TextFieldLineLimits.SingleLine
 
     TextField(
         state = state,
@@ -485,13 +552,26 @@ private fun <T> NumberFieldImpl(
                     val stepValue = step.resolve(modifiers, times)
                     commit(if (direction > 0) plus(lastSynced, stepValue) else minus(lastSynced, stepValue))
                 },
-            ),
+            )
+            // 方向键按位步进：Preview 阶段先于平台输入框自身的按键处理拿到事件，命中数字即消费
+            // （未命中时返回 false，方向键照常用于移动光标/选择）
+            .onPreviewKeyEvent onPreviewKey@{ event ->
+                if (event.type != KeyEventType.KeyDown || !digitStepEnabled || event.isShiftPressed || event.isAltPressed || event.isCtrlPressed) {
+                    return@onPreviewKey false
+                }
+                when (event.key) {
+                    Key.DirectionUp   -> stepDigit(+1)
+                    Key.DirectionDown -> stepDigit(-1)
+                    else              -> false
+                }
+            },
         enabled = enabled,
         readOnly = readOnly || onValueChange == null,
         isError = isError,
         textStyle = textStyle,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
+        lineLimits = lineLimits,
         onKeyboardAction = KeyboardActionHandler { performDefaultAction ->
             commit(latestParse.value(state.text.toString()))
             if (onKeyboardAction == null) performDefaultAction() else onKeyboardAction.onKeyboardAction(performDefaultAction)

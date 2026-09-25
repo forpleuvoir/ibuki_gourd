@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.test.TestScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.DoubleField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.DurationField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.PercentField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
@@ -29,7 +31,8 @@ import kotlin.time.Duration.Companion.seconds
  * 数字输入框测试屏。
  *
  * 重点验证：输入期不回写文本（`-`、`1.` 等中间态可正常输入）、失焦/回车提交回写、越界与非法格式的
- * 错误描边、悬停聚焦后滚轮步进（Shift ×10 / Ctrl ×15 / Alt ×30）、只读与禁用表现。
+ * 错误描边、悬停聚焦后滚轮步进（Shift ×10 / Ctrl ×15 / Alt ×30）、C4D 式方向键按位步进、
+ * 只读与禁用表现。
  *
  * 列内容可滚动：滚轮悬停聚焦在输入框上时应步进数值而**不**滚动本列（步进会消费事件），
  * 未聚焦时滚轮照常滚动本列。
@@ -51,6 +54,19 @@ fun NumberFieldTestScreen() = TestScreen {
                 trailingIcon = { Text("px") },
             )
             Text("IntField = $intValue（范围 0..256；悬停聚焦后滚轮步进，Shift ×10）")
+            Text("方向键按位步进：光标右侧那一位决定步长（0.|25 按上 → 0.35）；右侧没有数字则不接管")
+            Text("鼠标悬停时输入框边框也点亮（聚焦 / 悬停共用描边色）")
+
+            // 定长小数：对应「0.|25 按上 → 0.35」的按位步进
+            var digitStep by remember { mutableStateOf(0.25f) }
+            FloatField(
+                value = digitStep,
+                onValueChange = { digitStep = it },
+                valueRange = -999f..999f,
+                valueToText = { "%.2f".format(it) },
+                modifier = Modifier.width(220.dp),
+            )
+            Text("FloatField = ${"%.2f".format(digitStep)}（把光标停在 0.|25 的 2 上按上 → 0.35；范围 -999..999）")
 
             var doubleValue by remember { mutableStateOf(1.5) }
             DoubleField(
