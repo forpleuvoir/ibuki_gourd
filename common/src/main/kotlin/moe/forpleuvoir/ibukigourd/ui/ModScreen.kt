@@ -252,7 +252,7 @@ object ModScreenDefaults {
     val HeaderSpacing: Dp = 8.dp
 
     /** 顶栏模组图标边长：素材是 32×32，按 1 纹理像素 = 1 逻辑像素画。 */
-    val IconSize: Dp = 32.dp
+    val IconSize: Dp = 64.dp
 
     /** 页签行相对面板的缺省位置。 */
     val Placement: TabStripPlacement = TabStripPlacement.Top

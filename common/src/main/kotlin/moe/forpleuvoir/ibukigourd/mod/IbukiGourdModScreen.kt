@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -21,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.ui.ModScreenTab
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.util.identifier
 import net.minecraft.client.gui.screens.Screen
 
@@ -55,7 +57,7 @@ fun IbukiGourdModScreen(modifier: Modifier = Modifier) {
     ModScreen(
         tabs = ibukiGourdModScreenTabs,
         modifier = modifier,
-        title = { Text(component = Literal(IbukiGourd.MOD_NAME).style { bold() }) },
+        title = { Text(IbukiGourd.MOD_NAME, style = SokitsuTheme.typography.subtitle.copy(fontWeight = FontWeight.Bold),) },
         icon = { ModScreenIcon(identifier("icon.png"), onClick = rememberEasterEggTrigger()) },
     )
 }
