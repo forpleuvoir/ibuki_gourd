@@ -46,8 +46,22 @@ object BezierCurvePlotTokens {
  */
 object BezierCurvePlotDefaults {
 
-    /** y 轴显示区间：上下各留 0.2 的越界带，回弹 / 过冲曲线也能画全。 */
-    val YRange: ClosedFloatingPointRange<Float> = -0.2f..1.2f
+    /** 单位区间两侧各留的越界带宽度（x / y 相同）。 */
+    const val OvershootMargin: Float = 0.2f
+
+    /**
+     * 曲线 x 的**取值区间**（定义域）：控制点 x 恒被夹在这个区间内。
+     *
+     * x 分量越界会让 `x(s)` 失去单调性，曲线不再是一个 x 对应一个 y 的函数，
+     * 因此这里与 [XRange]（显示区间）分开：显示可以带越界带，取值不可以。
+     */
+    val ValidXRange: ClosedFloatingPointRange<Float> = 0f..1f
+
+    /** x 轴显示区间：左右各留 [OvershootMargin]，控制点贴到 `x = 0f` / `x = 1f` 时仍完整可见。 */
+    val XRange: ClosedFloatingPointRange<Float> = -OvershootMargin..(1f + OvershootMargin)
+
+    /** y 轴显示区间：上下各留 [OvershootMargin]，回弹 / 过冲曲线也能画全。 */
+    val YRange: ClosedFloatingPointRange<Float> = -OvershootMargin..(1f + OvershootMargin)
 
     /** 单位正方形内网格的等分数（N×N）。 */
     const val GridDivisions: Int = 4

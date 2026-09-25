@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
-import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.config.item.ConfigEnum
@@ -14,5 +13,5 @@ import moe.forpleuvoir.nebula.serialization.codec.Codec
  * [Codec]（本仓的 `EasingCurve` / `EasingDirection` / `EasingPreset` 都是这种写法）。
  */
 context(group: ConfigGroup)
-fun <E : Enum<E>> configEnum(name: String, default: E, codec: Codec<E>): Config<E> =
+fun <E : Enum<E>> configEnum(name: String, default: E, codec: Codec<E>): ConfigEnum<E> =
     group.addConfig(ConfigEnum(name, default, ConfigSerde.of(codec)))

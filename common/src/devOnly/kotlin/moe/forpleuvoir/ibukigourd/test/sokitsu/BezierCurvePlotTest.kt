@@ -54,7 +54,8 @@ import kotlin.math.floor
  * 1. 画布拖拽：x 夹在 `0f..1f`、y 夹在 y 轴区间内；命中式拾取（点空白不动）；
  *    按住 **Alt** 吸附 1/20，按住 **Shift** 锁角（控制点只沿自身锚点与当前位置的直线移动，不允许反向）；
  *    两者同时按住时锁角 + 长度吸附；悬停 / 拖拽中的控制点换次色；
- * 2. 数值框与画布共用同一份状态（双向同步），x 框限 `0f..1f`、y 框限 y 轴区间；
+ * 2. 数值框与画布共用同一份状态（双向同步），x 框限 `0f..1f`（曲线定义域，越界报错并收敛），
+ *    y 框不限（可越过 y 轴区间，表达回弹 / 过冲）；
  * 3. 预设行点击后整条曲线被替换；
  * 4. 动画预览：滑块给的是**线性**时间 t，方块位置给的是 `ease(t)`，两者对照即可看出曲线手感；
  * 5. 裸画布：越界区间（`-0.4f..1.4f`）能画出过冲、严格模式（`0f..1f`）与禁用态的表现。
@@ -204,6 +205,7 @@ fun BezierCurvePlotTestScreen() = TestScreen {
                     BezierCurvePlot(
                         value = strict,
                         onValueChange = { strict = it },
+                        xRange = 0f..1f,
                         yRange = 0f..1f,
                         modifier = Modifier.size(160.dp),
                     )
@@ -218,6 +220,7 @@ fun BezierCurvePlotTestScreen() = TestScreen {
                         // 漂移/扫描开着时跟着上面那份值走：同一组坐标在两种 y 轴比例下同时呈现，覆盖更多像素斜率
                         value = if (autoDrift) plot else wide,
                         onValueChange = { wide = it },
+                        xRange = -0.4f..1.4f,
                         yRange = -0.4f..1.4f,
                         modifier = Modifier.size(160.dp),
                     )
@@ -238,10 +241,26 @@ fun BezierCurvePlotTestScreen() = TestScreen {
             }
 
             // 每块画布的读数（单行、不换行，录屏里一帧就能读到全部坐标与对应像素位置）
-            Text(plotReadout("编辑器 $editorSize", plot, editorSize, BezierCurvePlotDefaults.YRange))
-            Text(plotReadout("严格 0..1 160dp", strict, 160.dp, 0f..1f))
-            Text(plotReadout("过冲 -0.4..1.4 160dp", if (autoDrift) plot else wide, 160.dp, -0.4f..1.4f))
-            Text(plotReadout("禁用态 160dp", CubicBezier.EaseInOut, 160.dp, BezierCurvePlotDefaults.YRange))
+            Text(
+                plotReadout(
+                    "编辑器 $editorSize",
+                    plot,
+                    editorSize,
+                    BezierCurvePlotDefaults.XRange,
+                    BezierCurvePlotDefaults.YRange,
+                )
+            )
+            Text(plotReadout("严格 0..1 160dp", strict, 160.dp, 0f..1f, 0f..1f))
+            Text(plotReadout("过冲 -0.4..1.4 160dp", if (autoDrift) plot else wide, 160.dp, -0.4f..1.4f, -0.4f..1.4f))
+            Text(
+                plotReadout(
+                    "禁用态 160dp",
+                    CubicBezier.EaseInOut,
+                    160.dp,
+                    BezierCurvePlotDefaults.XRange,
+                    BezierCurvePlotDefaults.YRange,
+                )
+            )
         }
     }
 }
@@ -250,7 +269,7 @@ fun BezierCurvePlotTestScreen() = TestScreen {
  * 单行读数：画布标识 + 控制点**全精度**值（`Float.toString()`，不截断）+ 该画布内的像素坐标。
  *
  * 像素换算与 `BezierCurvePlot` 的 `PlotSpace` 一致（边距 [BezierCurvePlotDefaults.EdgePadding]、
- * 画布尺寸 = [plotSize] 经密度换算、y 轴区间 = [yRange]），所以录屏里"画面位置 vs 这行 px"
+ * 画布尺寸 = [plotSize] 经密度换算、x / y 轴区间 = [xRange] / [yRange]），所以录屏里"画面位置 vs 这行 px"
  * 对不上就说明是渲染侧，对得上就说明传进去的值本身如此。
  */
 @Composable
@@ -258,13 +277,14 @@ private fun plotReadout(
     label: String,
     value: CubicBezier,
     plotSize: Dp,
+    xRange: ClosedFloatingPointRange<Float>,
     yRange: ClosedFloatingPointRange<Float>,
 ): String {
     val density = LocalDensity.current
     val canvas = with(density) { plotSize.toPx() }
     val edge = with(density) { BezierCurvePlotDefaults.EdgePadding.toPx() }
     val inner = (canvas - 2f * edge).coerceAtLeast(1f)
-    fun sx(x: Float): Float = edge + x * inner
+    fun sx(x: Float): Float = edge + (x - xRange.start) / (xRange.endInclusive - xRange.start) * inner
     fun sy(y: Float): Float = edge + (yRange.endInclusive - y) / (yRange.endInclusive - yRange.start) * inner
     return "$label  x1=${value.x1} y1=${value.y1} x2=${value.x2} y2=${value.y2}  " +
             "px P1=(${sx(value.x1)}, ${sy(value.y1)}) P2=(${sx(value.x2)}, ${sy(value.y2)})"
@@ -274,7 +294,8 @@ private fun plotReadout(
  * 诊断读数：**当前扫描行** + 控制点**全精度**值（`Float.toString()`，不做格式化截断）+ 画布内像素坐标。
  *
  * 像素换算与 `BezierCurvePlot` 的 `PlotSpace` 一致（边距取 [BezierCurvePlotDefaults.EdgePadding]、
- * y 轴区间取编辑器默认的 [BezierCurvePlotDefaults.YRange]、画布尺寸取编辑器的 `plotSize` ×2），
+ * x / y 轴区间取编辑器默认的 [BezierCurvePlotDefaults.XRange] / [BezierCurvePlotDefaults.YRange]、
+ * 画布尺寸取编辑器的 `plotSize` ×2），
  * 这样录屏回放里能直接读出"传进去的值"和"应该画在哪"，不必再去对日志时间戳。
  */
 @Composable
@@ -282,9 +303,10 @@ private fun driftReadout(value: CubicBezier, row: Int, rows: Int, alongY: Boolea
     val density = LocalDensity.current
     val canvas = with(density) { (BezierCurveEditorDefaults.PlotSize * 2).toPx() }
     val edge = with(density) { BezierCurvePlotDefaults.EdgePadding.toPx() }
+    val xRange = BezierCurvePlotDefaults.XRange
     val range = BezierCurvePlotDefaults.YRange
     val inner = (canvas - 2f * edge).coerceAtLeast(1f)
-    fun sx(x: Float): Float = edge + x * inner
+    fun sx(x: Float): Float = edge + (x - xRange.start) / (xRange.endInclusive - xRange.start) * inner
     fun sy(y: Float): Float = edge + (range.endInclusive - y) / (range.endInclusive - range.start) * inner
     return "扫描 轴=${if (alongY) "Y" else "X"}  第 ${row + 1}/$rows 行\n" +
             "值 x1=${value.x1}  y1=${value.y1}  x2=${value.x2}  y2=${value.y2}\n" +

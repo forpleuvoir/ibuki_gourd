@@ -19,19 +19,21 @@ import moe.forpleuvoir.nebula.config.item.ConfigEnum
  *
  * @param config 枚举配置项
  * @param modifier 作用于整行
+ * @param controlModifier 附加到控件区（选择器那一格）；用于给选择器挂 tooltip 一类修饰
  * @param onSelected 选中某项后的回调（值已写入配置）；用于"选中特定项时顺带做点什么"
  */
 @Composable
 fun <E : Enum<E>> EnumConfigWrapper(
     config: ConfigEnum<E>,
     modifier: Modifier = Modifier,
+    controlModifier: Modifier = Modifier,
     onSelected: ((E) -> Unit)? = null,
 ) {
     val value by config.asState()
     val items = enumConstantsOf(value)
 
     ConfigRowWrapper(config, modifier) {
-        ConfigControlBlock {
+        ConfigControlBlock(modifier = controlModifier) {
             EnumSelectorContent(
             value = value,
             items = items,

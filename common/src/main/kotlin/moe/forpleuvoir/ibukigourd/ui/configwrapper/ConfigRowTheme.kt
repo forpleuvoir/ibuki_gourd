@@ -118,6 +118,9 @@ object ConfigControlDefaults {
     /** 缓动曲线在行内的速览画布边长。 */
     val CurvePreviewSize: Dp = 96.dp
 
+    /** 缓动曲线悬停气泡里预览画布的边长。 */
+    val CurveTooltipPreviewSize: Dp = 192.dp
+
     /** 曲线编辑弹窗的内容内边距。 */
     val CurveDialogPadding: PaddingValues = PaddingValues(16.dp)
 

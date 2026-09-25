@@ -104,7 +104,7 @@ fun ConfigManagerTestScreen() = TestScreen {
  *
  * 与 [ConfigManagerTestScreen] 的区别是数据来自**真实配置**（快捷键 / 滚动倍率 / 提示 /
  * 屏幕与对话框动画 / 缓动曲线），因此这里是"按类型分发在真实数据上都成立"的验收面：
- * 尤其 `easing_custom`（`CubicBezier`）应显示行内曲线速览并可打开编辑器，而不是落在兜底行。
+ * 尤其屏幕与对话框的 `easing` 行应能选到"自定义"并弹出曲线编辑器，而不是落在兜底行。
  */
 fun IgConfigManagerTestScreen() = TestScreen {
     Surface(Modifier.fillMaxSize()) {

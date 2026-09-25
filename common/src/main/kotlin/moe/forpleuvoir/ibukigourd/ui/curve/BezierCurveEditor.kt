@@ -35,7 +35,10 @@ data class BezierCurvePreset(
 /**
  * 曲线编辑器：左侧 [BezierCurvePlot] 画布，右侧一列（四个数值框 + 预设按钮），三者等宽。
  *
- * 数值框与拖拽共用同一份外部状态：x 限 `0f..1f`、y 限 [yRange]（与画布的拖动夹取一致）。
+ * 数值框、画布拖拽与写回共用同一份外部状态，取值按**曲线定义域**而不是显示区间约束：
+ * x 夹在 [BezierCurvePlotDefaults.ValidXRange]（`0f..1f`，越界会让 `x(s)` 失去单调性、曲线不再是
+ * x 的单值函数），y 允许越界（回弹 / 过冲）——数值框接受任意 y，画布拖拽夹在 [yRange] 内。
+ * 写回前一律经 [CubicBezier.normalize] 收敛。
  * 数值框内部有 `lastSynced` 守卫，拖拽产生的值变化不会在正在输入时把文本顶掉。
  *
  * 画布尺寸由 [plotSize] 给定；数值框与预设按钮同处画布右侧的一列，列宽见 [BezierCurveEditorDefaults.ControlRowWidth]。
@@ -44,7 +47,7 @@ data class BezierCurvePreset(
  * @param onValueChange 数值框 / 预设按钮 / 画布拖拽任一来源的改变回调
  * @param modifier 作用于最外层 [Column]
  * @param enabled 是否可交互（同时作用于画布、数值框与预设按钮）
- * @param yRange y 轴显示区间，同时作为 y 数值框的取值区间
+ * @param yRange y 轴显示区间：画布绘制与拖动夹取用；数值框不受其限制
  * @param snapStep 画布上按住 Alt 拖动时的吸附步长
  * @param snapWithAlt 是否启用画布 Alt 吸附
  * @param lockAngleWithShift 是否启用画布 Shift 锁角（控制点只沿自身锚点与当前位置的直线移动）
@@ -89,18 +92,16 @@ fun BezierCurveEditor(
                     label = "P1",
                     x = value.x1,
                     y = value.y1,
-                    yRange = yRange,
                     enabled = enabled,
-                    onXChange = { onValueChange(value.copy(x1 = it)) },
+                    onXChange = { onValueChange(value.copy(x1 = it).normalize()) },
                     onYChange = { onValueChange(value.copy(y1 = it)) },
                 )
                 ControlPointRow(
                     label = "P2",
                     x = value.x2,
                     y = value.y2,
-                    yRange = yRange,
                     enabled = enabled,
-                    onXChange = { onValueChange(value.copy(x2 = it)) },
+                    onXChange = { onValueChange(value.copy(x2 = it).normalize()) },
                     onYChange = { onValueChange(value.copy(y2 = it)) },
                 )
 
@@ -123,10 +124,12 @@ fun BezierCurveEditor(
 /**
  * 一个控制点的数值行：行首标签 + x 框 + y 框。
  *
+ * x 是曲线定义域，取值夹在 [BezierCurvePlotDefaults.ValidXRange]（越界会让 `x(s)` 失去单调性）；
+ * y 允许越界（回弹 / 过冲），不设区间。x 框越界时框内报错、提交时收敛到端点。
+ *
  * @param label 行首标签（如 `P1`）
- * @param x 控制点 x（限 `0f..1f`）
- * @param y 控制点 y（限 [yRange]）
- * @param yRange y 的取值区间
+ * @param x 控制点 x
+ * @param y 控制点 y
  * @param enabled 是否可编辑
  * @param onXChange x 改变回调
  * @param onYChange y 改变回调
@@ -136,7 +139,6 @@ private fun ControlPointRow(
     label: String,
     x: Float,
     y: Float,
-    yRange: ClosedFloatingPointRange<Float>,
     enabled: Boolean,
     onXChange: (Float) -> Unit,
     onYChange: (Float) -> Unit,
@@ -149,7 +151,7 @@ private fun ControlPointRow(
         FloatField(
             value = x,
             onValueChange = onXChange,
-            valueRange = 0f..1f,
+            valueRange = BezierCurvePlotDefaults.ValidXRange,
             valueToText = BezierCurveEditorDefaults.ValueToText,
             valueStep = BezierCurveEditorDefaults.ValueStep,
             enabled = enabled,
@@ -159,7 +161,6 @@ private fun ControlPointRow(
         FloatField(
             value = y,
             onValueChange = onYChange,
-            valueRange = yRange,
             valueToText = BezierCurveEditorDefaults.ValueToText,
             valueStep = BezierCurveEditorDefaults.ValueStep,
             enabled = enabled,
