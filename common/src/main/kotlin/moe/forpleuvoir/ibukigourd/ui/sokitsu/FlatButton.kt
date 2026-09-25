@@ -91,8 +91,9 @@ fun FlatButton(
 
     val state = UiState.resolve(enabled, pressed, hovered, focused)
 
-    // 该状态没有素材 → 不画背景（保持透明）；有素材才提交精灵命令
-    val background = sprite[state].takeIf { !it.isEmpty }
+    // 该状态没有素材 → 精灵为空，绘制阶段直接跳过（视觉上仍是透明背景）；**绘制节点始终留在
+    // modifier 链上**：链形状不随交互状态变化，省掉悬停 / 按下时节点反复挂载与卸载。
+    val background = sprite[state]
 
     // 内容色修正：按状态系数向纯黑/纯白混合，**拉大与背景的明暗差**（不涉及 alpha）。
     // 方向按主题亮暗定：亮色主题的背景偏亮 → 内容压暗；暗色主题反过来。
@@ -126,7 +127,7 @@ fun FlatButton(
                 .semantics { this.role = role }
                 .defaultMinSize(minSize.width, minSize.height)
                 // 背景铺满整个按钮（含内边距），故在 padding 之前
-                .then(if (background != null) Modifier.sokitsuSprite(background, colors.color) else Modifier)
+                .sokitsuSprite(background, colors.color)
                 // 需在 clickable 之前：Initial 趟自外向内派发，指针观察要先拿到按下事件
                 .releaseFocusOnPointerPress(enabled)
                 .clickable(

@@ -422,7 +422,14 @@ private fun ConfigGroupList(
                     onClick = { onSelect(index) },
                     modifier = Modifier.fillMaxWidth().tooltip { Text(component = page.title) },
                 ) {
-                    Text(component = page.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    // 单行标签：不折行、不省略 —— 固有宽度恒等于文本宽度，最宽那一项因此正好卡在
+                    // "刚好放得下"的临界点上；超宽不再由省略号兜底，交给面板宽度上限裁掉。
+                    Text(
+                        component = page.title,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Clip,
+                    )
                 }
             }
         }
