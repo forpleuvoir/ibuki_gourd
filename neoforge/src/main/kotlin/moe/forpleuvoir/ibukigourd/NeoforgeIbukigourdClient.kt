@@ -1,12 +1,12 @@
 package moe.forpleuvoir.ibukigourd
 
+import moe.forpleuvoir.ibukigourd.mod.ibukiGourdModScreen
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.ModContainer
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ibukiGourdConfigScreen
 
 @Mod(IbukiGourd.MOD_ID, dist = [Dist.CLIENT])
 class NeoforgeIbukigourdClient(eventBus: IEventBus, modContainer: ModContainer) {
@@ -15,7 +15,7 @@ class NeoforgeIbukigourdClient(eventBus: IEventBus, modContainer: ModContainer) 
         // 模组列表的"配置"按钮
         modContainer.registerExtensionPoint(
             IConfigScreenFactory::class.java,
-            IConfigScreenFactory { _, modListScreen -> ibukiGourdConfigScreen(modListScreen) },
+            IConfigScreenFactory { _, modListScreen -> ibukiGourdModScreen(modListScreen) },
         )
     }
 

@@ -1,14 +1,19 @@
 package moe.forpleuvoir.ibukigourd
 
+import moe.forpleuvoir.compose_minecraft.ComposeWarmup
 import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugins
 import moe.forpleuvoir.ibukigourd.api.ClientResourceReloaderListener
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
+import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
+import moe.forpleuvoir.ibukigourd.mod.IbukiGourdModScreen
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.ibukiGourdModScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.SokitsuBubbleSpritePlugin
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.SokitsuSpritePlugin
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMetaLoader
 import moe.forpleuvoir.ibukigourd.util.logger
+import moe.forpleuvoir.ibukigourd.util.mc
 
 object IbukiGourdClient {
 
@@ -31,6 +36,11 @@ object IbukiGourdClient {
     fun init() {
         val initPhase = "${IbukiGourd.MOD_ID}:init"
         inits.forEach { it.init() }
+        ClientLifecycleEvent.Starting.register(initPhase) {
+            it.schedule {
+                ComposeWarmup.warmup(::IbukiGourdModScreen)
+            }
+        }
         ClientModConfigHandler.register(IGConfig)
         MinecraftRenderPlugins.register(SokitsuSpritePlugin)
         MinecraftRenderPlugins.register(SokitsuBubbleSpritePlugin)
