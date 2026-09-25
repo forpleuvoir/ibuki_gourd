@@ -24,6 +24,8 @@ import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.mod.openIbukiGourdModScreen
 import moe.forpleuvoir.ibukigourd.text.buildText
+import moe.forpleuvoir.ibukigourd.ui.ComposeScreenHelper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EasingConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonColors
@@ -275,20 +277,30 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             val disableWorldRender by configBoolean("disable_world_render", false)
                 .apply { observe { ComposeScreenDefaults.disableWorldRenderByDefault = it.getValue() } }
 
+            /** 打开 Compose 屏幕时是否解除原版"界面内 60 帧"限制（无世界 + 有界面时原版会压帧）。 */
+            val unlimitFramerate by configBoolean("unlimit_framerate", true)
+                .apply { observe { ComposeScreenHelper.unlimitFramerate = it.getValue() } }
+
             /**
-             * 进出场缓动：内置效果；选 `custom` 时取 [easingCustom]。
+             * 进出场缓动：内置效果 + [EasingPreset.Custom]（取 [easingCustom]，见 [EasingConfigWrapper]）。
              *
              * 一条曲线同时作用于进场与出场（出场是它的镜像），与平台默认值的行为一致。
              */
             val easing by configEnum("easing", EasingPreset.Standard, EasingPreset)
                 .apply { observe { applyEasing() } }
+                .uiWrapper { EasingConfigWrapper(it, easingCustomConfig) }
 
             /**
              * 自定义缓动曲线（`easing = custom` 时生效）：起点 `(0, 0)` 与终点 `(1, 1)` 固定，
              * 这里存两个控制点 `x1 / y1 / x2 / y2`。
+             *
+             * 不在页面上单独出行：编辑器入口挂在 `easing` 行上（选中"自定义"即打开）。
              */
-            val easingCustom by addConfig(ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier)))
+            private val easingCustomConfig =
+                addConfig(ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier)))
+            val easingCustom by easingCustomConfig
                 .apply { observe { applyEasing() } }
+                .uiWrapper { }
 
             override fun init() {
                 super.init()
@@ -302,6 +314,7 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 ComposeScreenDefaults.animation =
                     if (animationEnabled) ScreenAnimation.Default else ScreenAnimation.None
                 ComposeScreenDefaults.disableWorldRenderByDefault = disableWorldRender
+                ComposeScreenHelper.unlimitFramerate = unlimitFramerate
                 applyEasing()
             }
 
@@ -313,10 +326,10 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
         }
 
         /**
-         * 对话框屏幕（compose-minecraft 的 `DialogComposeScreen`）的进出场动画与对话框默认值。
+         * 对话框屏幕（compose-minecraft 的 `DialogComposeScreen`）的进出场动画与默认值。
          *
          * 全部绑定到平台的 [DialogAnimationDefaults] / [DialogComposeScreenDefaults]，
-         * 改动对**之后新建**的对话框生效。
+         * 改动对**之后新建**的对话框屏幕生效。
          */
         object Dialog : ConfigGroup("dialog") {
 
@@ -338,24 +351,30 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             val initialScale by configFloat("initial_scale", 0.8f, 0f, 2f)
                 .apply { observe { DialogAnimationDefaults.initialScale = it.getValue() } }
 
-            /** 新建的对话框是否停画世界（背后是原版屏或世界时通常保持关闭）。 */
+            /** 新建的对话框屏幕是否停画世界（背后是原版屏或世界时通常保持关闭）。 */
             val disableWorldRender by configBoolean("disable_world_render", false)
                 .apply { observe { DialogComposeScreenDefaults.disableWorldRender = it.getValue() } }
 
             /**
-             * 进出场缓动：内置效果；选 `custom` 时取 [easingCustom]。
+             * 进出场缓动：内置效果 + [EasingPreset.Custom]（取 [easingCustom]，见 [EasingConfigWrapper]）。
              *
              * 一条曲线同时作用于进场与出场（出场是它的镜像），与平台默认值的行为一致。
              */
             val easing by configEnum("easing", EasingPreset.Standard, EasingPreset)
                 .apply { observe { applyEasing() } }
+                .uiWrapper { EasingConfigWrapper(it, easingCustomConfig) }
 
             /**
              * 自定义缓动曲线（`easing = custom` 时生效）：起点 `(0, 0)` 与终点 `(1, 1)` 固定，
              * 这里存两个控制点 `x1 / y1 / x2 / y2`。
+             *
+             * 不在页面上单独出行：编辑器入口挂在 `easing` 行上（选中"自定义"即打开）。
              */
-            val easingCustom by addConfig(ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier)))
+            private val easingCustomConfig =
+                addConfig(ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier)))
+            val easingCustom by easingCustomConfig
                 .apply { observe { applyEasing() } }
+                .uiWrapper { }
 
             override fun init() {
                 super.init()
@@ -370,7 +389,7 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 applyEasing()
             }
 
-            /** 把当前缓动（内置效果或自定义四点）灌给平台的对话框动画默认值。 */
+            /** 把当前缓动（内置效果或自定义四点）灌给平台的对话框屏幕动画默认值。 */
             private fun applyEasing() {
                 val curve: Ease = easing.resolve(easingCustom)
                 DialogAnimationDefaults.easing = ComposeEasing { fraction -> curve(fraction) }
