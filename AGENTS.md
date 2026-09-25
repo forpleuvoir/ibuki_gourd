@@ -56,7 +56,7 @@ ibuki_gourd/
 │   ├── src/main/kotlin/.../FabricIbukiGourd(.kt)      # ModInitializer 入口
 │   ├── src/main/kotlin/.../FabricIbukiGourdClient     # client 入口
 │   ├── src/main/kotlin/.../platform/FabricPlatformHelper
-│   ├── src/main/kotlin/.../compat/ModMenuImpl         # ModMenu 集成（接 ibukiGourdConfigScreen）
+│   ├── src/main/kotlin/.../compat/ModMenuImpl         # ModMenu 集成（接 ibukiGourdModScreen）
 │   ├── src/main/kotlin/.../fabricevent/ReloadListenerRegistry  # 资源重载监听注册
 │   ├── src/main/resources/META-INF/services/          # PlatformHelper 注册
 │   ├── src/main/resources/fabric.mod.json             # 入口 + custom.ibukigourd.package 元数据
@@ -106,14 +106,15 @@ ibuki_gourd/
 | `event` / `event.events.{client,server}` | 事件（基于 nebula `EventFactory`）：`ClientLifecycleEvent`、`ClientTickEvent`、`ServerLifecycleEvent`、`ClientCommandRegistrationEvent`、`ServerCommandRegistrationEvent`、`event.events.client.input` 下的 `MouseEvent` / `KeyboardEvent` 等；`CancellableContext` |
 | `input` | `Keybind` / `KeybindSetting` / `KeyCode` / `KeyTriggerTiming` / `KeyEnvironment` / `Keyboard` / `MouseButton` / `MouseCursor` / `InputHandler` |
 | `lang` | `IGLang`（i18n 键命名空间中心）、`MiscLang` / `ColorLang` / `ConfigWrapperLang` / `InputLang`、`TranslationRecorder` |
-| `mod` / `mod.config` | IbukiGourd 自身配置：`IGConfig`（`Gui` 组下 `Toast` / `Scroller` / `Screen` / `Dialog`，以及 `quickActionKeyCode` / `hideActionKeyCode`） |
+| `mod` / `mod.config` | IbukiGourd 自身内容：配置 `IGConfig`（`Gui` 组下 `Theme` / `Toast` / `Scroller` / `Screen` / `Dialog`，以及 `quickActionKeyCode` / `hideActionKeyCode` / `openScreen`）；自身屏幕 `IbukiGourdModScreen.kt`（`ibukiGourdModScreen` / `openIbukiGourdModScreen`：顶栏 + 彩蛋触发 + 页签条，**配置页是其中一页**；ModMenu / NeoForge 模组列表的"配置"按钮也开它） |
 | `platform` / `platform.services` | 多加载器抽象：`Services`（`java.util.ServiceLoader` 加载 `PlatformHelper` + 全部 `ModInitialization`）、`PlatformHelper`、`INITS` / `PLATFORM` |
 | `render` / `render.extension{,.state,.texture}` | 渲染辅助：`BaseExtension`、`GuiGraphicsExtractorAccessor`、`IGRenderPipelines`；GuiGraphicsExtractor 扩展（`CircleDrawer`、矩形/文本/blit/misc 扩展、`AnchorPosition`）；渲染状态（`IGBlitRenderState` / `IGTiledBlitRenderState` / `ColoredBoxRenderState` / `GuiTextRenderStateExtensions` / `ItemRenderStateExtension`）；纹理与 UV（`IGTexture`、`TextureInfo`、`TextureUVMapping` / `UVMapping`、九宫格 `Corner`） |
 | `task` | 调度：`TickTask` / `TickTaskScheduler` / `ClientTickTaskScheduler` / `TaskExecutor` / `SimpleTaskExecutor` |
 | `text` / `text.style` / `text.inlinestyletext{,.modifier}` | 文本 DSL：`TextDSL` / `Texts` / `TextDslMark` / `StyleDSL` / `HoverEventDsl` / `InlineStyleTextParser` + `ColorModifier` / `ClickEventModifier` / `HoverEventModifier` / `DecorationModifier` / `LegacyChatFormattingModifier` / `TextContentModifier` / `TextModifier` 等；另有 `TextSizeSupplier`、客户端文本扩展 |
 | `ui.keybind` | 按键绑定编辑（**非 sokitsu 包**，用 sokitsu 组件拼装）：`KeySetter.kt` —— `KeyCodeSetButton`（单键捕获）/ `KeybindSetButton`（组合键，事件驱动捕获、捕获期取消事件吞键（含按住重复）、捕获气泡 `tooltip(pinned = true)` 钉住）/ `KeybindSettingSetButton` + `KeybindSettingColumn`（穿透 / 严格 / 环境 / 触发模式 / 长按阈值 / 重复间隔）/ `Keybind.hoverText()`（冲突提示） |
 | `ui.item` | 非主题 UI 原子：`ItemIcon`（MC 物品图标 —— `Modifier.minecraftItem` 原生物品绘制 + `Modifier.minecraftTooltip` 原版 tooltip + `graphicsLayer` 悬停放大 + `BasicText` 数量叠层；布局尺寸即绘制尺寸） |
-| `ui.configwrapper` | 配置 GUI（**已重建**，入口 `ibukiGourdConfigScreen(parent)`）：页面骨架 `ConfigManagerWrapper`（搜索栏 + 分组导航）/ `ConfigGroupWrapper` / 行骨架 `ConfigRowWrapper`（名称 + 控件 + 重置 + tooltip）/ `ConfigUIWrapper` + `UIWrappers` 类型注册表（按谓词分发整行，节点可用 `uiWrapper` 指定专用实现）/ `ConfigElementEditor`（编辑弹窗内按值的运行时类型取控件，不带行骨架）/ `ConfigRowTheme` / `ConfigState`（`Config` → Compose `State`）；各类型 wrapper：`Primitive`(Bool/Int/Long/Float/Double) / `String` / `Enum` / `Duration` / `Vector` / `Color` / `Keybind` / `List` / `Map` / `BezierCurve` |
+| `ui`（根） | `ModScreen.kt` —— **公共模组屏幕 API**：`ModScreen`（两个重载：缺省顶栏 = `title` / `icon` / `headerActions` 三个可组合槽位，或整个顶栏由调用方给）+ `ModScreenTab` / `ModScreenState` / `rememberModScreenState` / `ModScreenHeader` / `ModScreenIcon` / `ModScreenDefaults`；页签条走 `TabStrip`（上朝向）铺主题全屏面板素材，不绑定具体模组 |
+| `ui.configwrapper` | 配置 GUI（**已重建**，作为模组屏幕 `mod/IbukiGourdModScreen.kt` 的一页）：页面骨架 `ConfigManagerWrapper`（搜索栏 + 分组导航）/ `ConfigGroupWrapper` / 行骨架 `ConfigRowWrapper`（名称 + 控件 + 重置 + tooltip）/ `ConfigUIWrapper` + `UIWrappers` 类型注册表（按谓词分发整行，节点可用 `uiWrapper` 指定专用实现）/ `ConfigElementEditor`（编辑弹窗内按值的运行时类型取控件，不带行骨架）/ `ConfigRowTheme` / `ConfigState`（`Config` → Compose `State`）；各类型 wrapper：`Primitive`(Bool/Int/Long/Float/Double) / `String` / `Enum` / `Duration` / `Vector` / `Color` / `Keybind` / `List` / `Map` / `BezierCurve` |
 | `ui.editdialog` | 编辑浮层骨架（**非 sokitsu 包**，用 sokitsu 组件拼装）：`EditDialog`（可编辑副本，确认时把快照交回）/ `EditDialogContent`（表头 + 浮动新增按钮 + 正文，含 `EditDialogContentHeader` / `EditDialogContentDefaults`）/ `EditDialogContentList`（表格式条目容器：可拖拽排序、右侧 flat 细条滚动条、挂钩 `KeyedListState`）/ `EditDialogContentCards`（卡片网格容器：头部 = 拖拽手柄 + 尾部操作组，可指定列数）/ `DragHandle` / `RemoveButton` + `RemoveConfirmButton`（弹确认，按住快速动作键跳过） |
 | `ui.colorpicker` | `ColorPicker` / `ColorChannelSlider` / `Checkerboard` / `ColorPickButton`（HSV / RGB 页签 + 通道条 + alpha 条 + 透明棋盘 + 色值复制粘贴） |
 | `ui.selector` | `Selector` / `SelectorSelection` / `SelectorTrigger`(+Theme) / `SelectorExpanded` / `SelectorExpandStyle`（单/多选共用展开体；`searchFilter` 非空时展开体内置搜索栏；载体按下拉菜单 / 弹窗分发） |
@@ -125,7 +126,7 @@ ibuki_gourd/
 
 旧的 Compose Desktop 离屏渲染 UI（`preset` / `overlay` / `icon` / `scene` / `skia` / `widget` 等子包，以及 `mod/ui/` 屏幕、`mod/waht/` 彩蛋游戏）已随迁移移除，对应的 `ModScreen` / `SkiaContext` 等旧 API 一并删除。注意 `ui/configwrapper/` 现已存在，但它是基于 sokitsu 组件**重建的新实现**，与迁移前的同名包无关。
 
-新 UI 体系 **`ui/sokitsu/`** 已基于 compose-minecraft 落地，屏幕基座是 `SokitsuScreen`（`ComposeScreen` 的薄包装：套 `SokitsuTheme` + `SokitsuScreenRoot`，按窗口分辨率选一档 `SokitsuScreenScale` 后下发 `LocalDensity` 与主题 `pixelScale`）；IbukiGourd 自身配置页见 `ui/configwrapper/IbukiGourdConfigScreen.kt`。
+新 UI 体系 **`ui/sokitsu/`** 已基于 compose-minecraft 落地，屏幕基座是 `SokitsuScreen`（`ComposeScreen` 的薄包装：套 `SokitsuTheme` + `SokitsuScreenRoot`，按窗口分辨率选一档 `SokitsuScreenScale` 后下发 `LocalDensity` 与主题 `pixelScale`）；IbukiGourd 自身屏幕见 `mod/IbukiGourdModScreen.kt`（模组屏幕：`ui/ModScreen.kt` + 顶栏彩蛋触发；配置页 = 主题 + 底色面板 + `ConfigManagerWrapper`，是它的第一页）。
 
 - **像素风渲染**：`LocalSokitsuPixelScale` 整数放大（1 逻辑像素 → N×N 屏幕像素块，缺省 3），素材密度（@1x/@2x）与之正交；`SokitsuScreenScale` 把「Compose 密度 + pixelScale」打包成一档，两者必须同向变化才不会让组件外框与框内素材对不上。
 - **主题**：`SokitsuTheme` 入口；色板为 `ColorScheme`，组件不持有具体颜色、只声明语义槽位 `ColorSchemeToken`，由 `TokenResolution` 按「调用点传参 > 组件 token 表 > 主题槽位」解析；亮/暗由 `ThemeType`（Light/Dark/Unknown）表达，`systemTheme()` 子进程探测系统主题（Windows 注册表 / macOS `defaults` / Linux `gsettings`），探测失败返回 `Unknown`、按浅色收敛；`ContentColor` / `Typography` / `SokitsuIndicationNodeFactory` / `SokitsuTextSelectionColors` 分别接入内容色、字体、指示器与文本选区。
@@ -143,7 +144,7 @@ ibuki_gourd/
 
 - **common 入口**：`IbukiGourd.init()` —— 遍历 `INITS`（平台 `ModInitialization`，经 ServiceLoader 收集）+ 本地 `inits`（如 `ServerModConfigHandler`）调用 `init()`。
 - **client 入口**：`IbukiGourdClient.init()` —— 注册 `ClientModConfigHandler` 与 `IGConfig`；向 `MinecraftRenderPlugins` 注册 `SokitsuSpritePlugin` / `SokitsuBubbleSpritePlugin`（精灵与气泡体绘制）；`SokitsuAtlasManager` / `SokitsuThemeMetaLoader` 作为 `ClientResourceReloaderListener` 随资源重载整体刷新。
-- **fabric**：`FabricIbukiGourd : ModInitializer`（委托 `IbukiGourd.init()`），`FabricIbukiGourdClient`，`compat/ModMenuImpl`（模组列表的"配置"按钮接 `ibukiGourdConfigScreen`），`fabricevent/ReloadListenerRegistry`。入口在 `fabric.mod.json`。
+- **fabric**：`FabricIbukiGourd : ModInitializer`（委托 `IbukiGourd.init()`），`FabricIbukiGourdClient`，`compat/ModMenuImpl`（模组列表的"配置"按钮接 `ibukiGourdModScreen`），`fabricevent/ReloadListenerRegistry`。入口在 `fabric.mod.json`。
 - **neoforge**：`@Mod(IbukiGourd.MOD_ID) class NeoforgeIbukigourd`，在 `FMLCommonSetupEvent` 调 `IbukiGourd.init()`；`NeoforgeIbukigourdClient` 另有 `neoforgeevent/{CommandRegistry,ReloadListenerRegistry}`。
 - **平台抽象**：`Services` 通过 `ServiceLoader` 解析 `PlatformHelper`（fabric/neoforge 各自实现）与所有 `ModInitialization`。`PlatformHelper.getIGModClasses()` 反射扫描各 MOD 元数据中的 `package` 键（fabric 为 `custom.ibukigourd.package`，neoforge 为 `modproperties.$modId.package`），加载其 KClass（跳过 `.mixin` 包）——**这是 IbukiGourd 发现消费方 MOD 中被注解的配置/屏幕类的机制**。
 
@@ -200,7 +201,7 @@ gradlew.bat :aseprite:test
 
 ## 工作约定（给 AI 助手）
 
-1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例（README 目前尚未随 UI 迁移重写）。旧 UI 相关 API（旧 `ui` 包、`ModScreen` 等）已随迁移删除；新 `ui/sokitsu`（含 `ui.configwrapper` 配置 GUI）已落地，`SokitsuScreen` / `Modifier.tooltip` / `Toast` 等已成对外面，改动同样需谨慎。
+1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例（README 目前尚未随 UI 迁移重写）。旧 UI 相关 API（旧 `ui` 包、旧抽屉式 `ModScreen` 等）已随迁移删除；新 `ui/sokitsu`（含 `ui.configwrapper` 配置 GUI）已落地，`SokitsuScreen` / `ui/ModScreen.kt` 的模组屏幕 / `Modifier.tooltip` / `Toast` 等已成对外面，改动同样需谨慎。
 2. **跨加载器改动**：能放 `common` 就放 `common`；平台相关能力通过 `platform/services` 抽象，由 fabric/neoforge 各自实现并通过 `META-INF/services` 注册，勿在 common 里硬编码平台判断。
 3. **Mixin**：放 `common/.../mixin`（client 相关放 `mixin/client`），并在对应加载器的 `*.mixins.json` 注册；Fabric access widener 用 `ibukigourd.classtweaker`，NeoForge AT 用 `META-INF/accesstransformer.cfg`。
 4. **compose-minecraft 依赖**：`common` 用 **`compileOnly(libs.composeMinecraft.common)`**（只编译、不传递，打包由加载器侧负责）；`fabric` 用 `api(libs.composeMinecraft.fabric)` + `include(...)`；`neoforge` 用 `api(libs.composeMinecraft.neoforge)` + `jarJar(...)`。构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖，所以同时把 `nebula` / `aseprite` / `reorderable` 各自 `api + include`/`jarJar`。neoforge 另有 `bundledApi` 配置：`api` 已 `extendsFrom(bundledApi)`，并在别处解析其完整传递依赖树后逐个提升为 `jarJar` 直接依赖（等价于 Loom 的 `jarJarInternal`）。构件从 `mavenLocal()` 解析（neoforge 保留 compose 旧坐标重定向处理），调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。
