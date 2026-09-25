@@ -937,18 +937,18 @@ fun TabStripTab(
     val hoverIcon = FlatButtonDefaults.LocalHoverIcon.current
     val pressSound = FlatButtonDefaults.LocalPressSound.current
 
-    // 页签的高矮完全由内容 + 内边距决定（没有别的高度尺寸）；
-    // 选中页签多出的那点量加在**贴面板那一侧**的内边距上 —— 那条边被对齐钉住，
-    // 这点内边距于是把内容朝远离面板的一侧顶开、页签也朝那一侧长出去。
-    // 行在面板上方时贴面板的是底边、在下方时是顶边，两侧不一样，不能照抄。
+    // 页签的高矮完全由内容 + 内边距决定（没有别的高度尺寸）。
+    // **贴面板那一侧只留"选中多出的那点量"**：未选中页签在那侧不占内边距，底边直接落在面板边上；
+    // 选中页签则吃掉 selectedExtraHeight，朝远离面板的一侧长出去。另一侧（远离面板的顶边 / 底边）
+    // 用 tabPaddingVertical 留常驻呼吸位。行在面板上方时贴面板的是底边、在下方时是顶边，两侧不能照抄。
     val padHorizontal = TabStripDefaults.tabPaddingHorizontal
     val padVertical = TabStripDefaults.tabPaddingVertical
     val extra = if (selected) TabStripDefaults.selectedExtraHeight else 0.dp
     val contentPadding = PaddingValues(
         start = padHorizontal,
         end = padHorizontal,
-        top = padVertical + if (placement == TabStripPlacement.Bottom) extra else 0.dp,
-        bottom = padVertical + if (placement == TabStripPlacement.Top) extra else 0.dp,
+        top = if (placement == TabStripPlacement.Bottom) extra else padVertical,
+        bottom = if (placement == TabStripPlacement.Top) extra else padVertical,
     )
 
     val unSelectedModifier = if (!selected) {

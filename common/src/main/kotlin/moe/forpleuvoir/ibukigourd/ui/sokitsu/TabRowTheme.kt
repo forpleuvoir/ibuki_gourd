@@ -19,6 +19,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorSchemeToken
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.util.codec.dp
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import kotlin.math.roundToInt
@@ -40,11 +41,16 @@ object TabRowTokens {
     /** 选中指示器颜色。 */
     val Indicator = ColorSchemeToken.Primary
 
-    /** 未选中标签按交互状态绘制底色时的染色基准。 */
-    val TabContainer = ColorSchemeToken.OnSurfaceVariant
-
-    /** 选中标签按交互状态绘制底色时的染色基准。 */
-    val TabContainerSelected = ColorSchemeToken.Primary
+    /**
+     * 标签按交互状态绘制底色时的染色基准（**选中与未选中共用同一个**）。
+     *
+     * 选中与否由底部指示器 + 内容色表达，底色不参与区分：底片是纯白的 `flat_button/1x/focused`
+     * （`(255,255,255,90)`、`tint=Multiply`），底色只提供"悬停 / 按下"这一层薄薄的容器色。
+     *
+     * 取 [ColorSchemeToken.Primary]，与 [FlatButtonTokens.Container] 同档；**不要**取
+     * `OnSurfaceVariant` 这类"面上的前景色"——浅色主题下它近黑（`0xFF3F3A45`），乘上去就是一块黑斑。
+     */
+    val TabContainer = ColorSchemeToken.Primary
 }
 
 /**
@@ -60,7 +66,9 @@ object TabRowTokens {
  *   secondary_indicator_height: 6,
  *   secondary_indicator_width: 24,
  *   tab_divider_gap: 3,
- *   icon_spacing: 4
+ *   icon_spacing: 4,
+ *   sprite: { normal: "ui/flat_button/1x/normal", pressed: "ui/flat_button/1x/pressed",
+ *             focused: "ui/flat_button/1x/focused", disabled: "ui/flat_button/1x/disabled" }
  * } }
  * ```
  */
@@ -83,6 +91,13 @@ data class TabRowMeta(
     val tabDividerGap: Dp,
     /** 图标与文字之间的垂直间距。 */
     val iconSpacing: Dp,
+    /**
+     * 标签底色的四态纹理。
+     *
+     * 缺省取 `flat_button` 的 squared 变体（切角 1 素材像素），与整格宽度的标签更贴：
+     * 素材同样只画了 `pressed` / `focused` 两张，`normal` / `disabled` 查询落空 → 该状态不渲染背景。
+     */
+    val sprite: UiStateIdentifier,
 ) {
 
     companion object : Codec<TabRowMeta> {
@@ -97,6 +112,12 @@ data class TabRowMeta(
             secondaryIndicatorWidth = 24.dp,
             tabDividerGap = 3.dp,
             iconSpacing = 4.dp,
+            sprite = UiStateIdentifier(
+                normal = identifier("ui/flat_button/1x/normal"),
+                pressed = identifier("ui/flat_button/1x/pressed"),
+                focused = identifier("ui/flat_button/1x/focused"),
+                disabled = identifier("ui/flat_button/1x/disabled"),
+            ),
         )
 
         private val codec = Codec.create<TabRowMeta>()
@@ -109,6 +130,7 @@ data class TabRowMeta(
             .field(TabRowMeta::secondaryIndicatorWidth).default(default.secondaryIndicatorWidth).codec(Codec.dp(1.dp..512.dp))
             .field(TabRowMeta::tabDividerGap).default(default.tabDividerGap).codec(Codec.dp(0.dp..64.dp))
             .field(TabRowMeta::iconSpacing).default(default.iconSpacing).codec(Codec.dp(0.dp..64.dp))
+            .field(TabRowMeta::sprite).default(default.sprite).codec(UiStateIdentifier)
             .build(::TabRowMeta)
 
         override fun serialization(target: TabRowMeta): SerializeElement = codec.serialization(target)
@@ -206,6 +228,9 @@ object TabRowDefaults {
 
     /** 标签传给 [FlatButton] 的最小尺寸；宽度由页签行测量决定。 */
     val tabMinSize: DpSize get() = DpSize(0.dp, minHeight)
+
+    /** 标签底色的四态精灵：来自 [TabRowMeta.sprite]（`normal` / `disabled` 无素材则为空容器 → 不渲染背景）。 */
+    fun tabSprite(): UiStateSprite = meta.sprite.toSprite()
 
     /** Primary 指示器切换动画时长（毫秒）。 */
     const val IndicatorAnimationDurationMillis = 220

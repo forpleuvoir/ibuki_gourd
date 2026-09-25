@@ -313,7 +313,8 @@ fun Tab(
                 .takeOrElse { LocalColorScheme.current.fromToken(TabRowTokens.Content) }
         }
     }
-    val tone = if (selected) TabRowTokens.TabContainerSelected else TabRowTokens.TabContainer
+    // 底色不区分选中：选中由底部指示器与内容色表达
+    val tone = TabRowTokens.TabContainer
 
     FlatButton(
         onClick = onClick,
@@ -323,7 +324,7 @@ fun Tab(
             color = Color.Unspecified.resolve(tone),
             contentColor = contentColor,
         ),
-        sprite = FlatButtonDefaults.sprite(),
+        sprite = TabRowDefaults.tabSprite(),
         contentPadding = FlatButtonDefaults.contentPadding,
         minSize = TabRowDefaults.tabMinSize,
         role = Role.Tab,

@@ -154,7 +154,8 @@ data class TabStripMeta(
             arrowLeftSprite = identifier("ui/tab_strip/arrow_left"),
             arrowRightSprite = identifier("ui/tab_strip/arrow_right"),
             tabGap = 12.dp,
-            rowPadding = 36.dp,
+            // 页签行左右缩进：36dp 时第一个页签离面板左缘太远，改成"只让开面板圆角"的量
+            rowPadding = 8.dp,
             tabPaddingHorizontal = 22.dp,
             tabPaddingVertical = 8.dp,
             selectedExtraHeight = 6.dp,
