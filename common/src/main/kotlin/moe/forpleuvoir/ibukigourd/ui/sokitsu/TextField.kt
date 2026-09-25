@@ -1,7 +1,9 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
+import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -70,9 +72,10 @@ import net.minecraft.sounds.SoundEvents
  *   多行自顶部起排，超出内容区时由平台内部滚动 + 裁剪承载（光标自动滚入视野）。
  *
  * 状态：
- * - **聚焦**时容器 outline 层染 [TextFieldColors.selectedOutlineColor]
- *   （与 Button/Slider 同款描边机制，[BasicTextField] 经传入的交互源上报聚焦）；
- * - [isError] = true 时 outline 改染 [TextFieldColors.errorOutlineColor]，优先级高于聚焦；
+ * - **悬停或聚焦**时容器 outline 层染 [TextFieldColors.selectedOutlineColor]
+ *   （与 Button/Slider 同款描边机制：鼠标悬停由 [Modifier.hoverable] 上报，
+ *   聚焦由 [BasicTextField] 经传入的交互源上报）；
+ * - [isError] = true 时 outline 改染 [TextFieldColors.errorOutlineColor]，优先级高于悬停与聚焦；
  * - [enabled] = false：容器与文本压暗，不接收输入，指针形态保持不变
  *   （[TextFieldDefaults.LocalDisableIcon]）；
  * - [readOnly] = true：可选择/复制但不可编辑。
@@ -97,7 +100,7 @@ import net.minecraft.sounds.SoundEvents
  *   内部按 `fontSize / 平台默认字号` 派生渲染缩放（T.26）
  * @param colors 配色集，默认 [TextFieldDefaults.colors]
  * @param backgroundSprite 容器背景纹理，默认 [TextFieldDefaults.backgroundSprite]
- * @param interactionSource 交互源，不传则内部新建；聚焦状态经此驱动描边
+ * @param interactionSource 交互源，不传则内部新建；悬停/聚焦状态经此驱动描边
  */
 @Composable
 fun TextField(
@@ -123,6 +126,7 @@ fun TextField(
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
+    val hovered by source.collectIsHoveredAsState()
     val pressed by source.collectIsPressedAsState()
     val pressSound = TextFieldDefaults.LocalPressSound.current
 
@@ -135,7 +139,7 @@ fun TextField(
     val containerColor = colors.containerColor
     val outlineOverride = when {
         isError -> colors.errorOutlineColor
-        focused -> colors.selectedOutlineColor
+        hovered || focused -> colors.selectedOutlineColor
         else    -> Color.Unspecified
     }
     val contentColor = if (enabled) colors.contentColor else colors.disabledContentColor
@@ -145,6 +149,8 @@ fun TextField(
 
     Box(
         modifier = modifier
+            // 悬停上报与平台内层输入框共用同一个交互源：悬停态据此点亮 outline 层
+            .hoverable(source, enabled = enabled)
             // 平台内层输入框无条件挂 PointerIcon.Text：禁用态覆盖其后代，指针形态保持不变；
             // 启用态不覆盖，头尾槽图标（如清除按钮）保留各自的悬停指针
             .pointerHoverIcon(hoverIcon, overrideDescendants = !enabled)
