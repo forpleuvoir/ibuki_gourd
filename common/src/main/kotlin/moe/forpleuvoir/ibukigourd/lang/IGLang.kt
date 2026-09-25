@@ -9,4 +9,6 @@ object IGLang {
     val ConfigWrapper = ConfigWrapperLang
 
     val Input = InputLang
+
+    val Theme = ThemeLang
 }

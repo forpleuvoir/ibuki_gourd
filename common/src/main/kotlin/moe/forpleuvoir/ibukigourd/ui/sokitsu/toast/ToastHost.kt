@@ -3,6 +3,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.toast
 import androidx.compose.ui.InternalComposeUiApi
 import moe.forpleuvoir.compose_minecraft.platform.screen.MinecraftComposeScene
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.currentSokitsuColorScheme
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
@@ -64,6 +65,9 @@ object ToastHost {
      * 场景根只提供主题：`MinecraftComposeScene.setContent` 已自动挂载弹层宿主
      * （`LocalPopupHost` + `PopupHostOverlay`），[SokitsuTheme] 自带像素放大倍率，
      * `density` 固定 `1f`（1dp == 1 像素，与 [MinecraftComposeScene] 的默认语义一致）。
+     *
+     * 配色取 [ToastHandler.activeScheme]，为 `null` 时跟随当前主题
+     * （[currentSokitsuColorScheme]）——"提示是否跟界面走"由配置决定。
      */
     @OptIn(InternalComposeUiApi::class)
     private fun ensureScene(): MinecraftComposeScene = scene ?: MinecraftComposeScene(
@@ -72,7 +76,8 @@ object ToastHost {
         density = 1f,
     ).apply {
         setContent {
-            SokitsuTheme {
+            // 配色：提示自己的那份（activeScheme）优先，否则跟随当前主题
+            SokitsuTheme(colorScheme = ToastHandler.activeScheme ?: currentSokitsuColorScheme()) {
                 ToastContainer()
             }
         }

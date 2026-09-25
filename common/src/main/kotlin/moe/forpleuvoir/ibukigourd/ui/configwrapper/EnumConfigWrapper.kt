@@ -19,9 +19,14 @@ import moe.forpleuvoir.nebula.config.item.ConfigEnum
  *
  * @param config 枚举配置项
  * @param modifier 作用于整行
+ * @param onSelected 选中某项后的回调（值已写入配置）；用于"选中特定项时顺带做点什么"
  */
 @Composable
-fun <E : Enum<E>> EnumConfigWrapper(config: ConfigEnum<E>, modifier: Modifier = Modifier) {
+fun <E : Enum<E>> EnumConfigWrapper(
+    config: ConfigEnum<E>,
+    modifier: Modifier = Modifier,
+    onSelected: ((E) -> Unit)? = null,
+) {
     val value by config.asState()
     val items = enumConstantsOf(value)
 
@@ -30,7 +35,10 @@ fun <E : Enum<E>> EnumConfigWrapper(config: ConfigEnum<E>, modifier: Modifier = 
             EnumSelectorContent(
             value = value,
             items = items,
-                onSelect = { config.setValue(it) },
+                onSelect = {
+                    config.setValue(it)
+                    onSelected?.invoke(it)
+                },
             )
         }
     }

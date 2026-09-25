@@ -66,22 +66,37 @@ object SokitsuTheme {
 }
 
 /**
+ * 当前生效的配色：配置里的主题配色（[SokitsuThemeOverride.scheme]）优先，
+ * 否则取资源包 meta 中当前亮/暗 section（[SokitsuThemeMeta.colorScheme]），
+ * 亮暗由**操作系统**偏好探测（[systemTheme]，[ThemeType.Unknown] 按浅色）。
+ *
+ * [SokitsuTheme] 的缺省色就是它；不经 [SokitsuTheme] 而需要"按当前主题取一份配色"的场合
+ * （如提示宿主的自建场景）也用它。
+ */
+@Composable
+@ReadOnlyComposable
+fun currentSokitsuColorScheme(): ColorScheme =
+    SokitsuThemeOverride.scheme ?: SokitsuThemeMeta.colorScheme(systemTheme())
+
+/**
  * Sokitsu 主题入口。
  *
  * 颜色来源（优先级高 → 低）：
  * 1. 显式传入的 [colorScheme]（完全接管，逃生舱）；
- * 2. 全局 [SokitsuThemeMeta] 中当前亮/暗 section（资源包定义，缺槽回落内置工厂默认）。
+ * 2. 配置里的主题配色（[SokitsuThemeOverride.scheme]，用户在配置界面选的方案）；
+ * 3. 全局 [SokitsuThemeMeta] 中当前亮/暗 section（资源包定义，缺槽回落内置工厂默认），
+ *    亮暗由**操作系统**偏好探测（[systemTheme]，[ThemeType.Unknown] 按浅色）。
+ *
+ * 2 / 3 即 [currentSokitsuColorScheme]。
  *
  * [pixelScale] 与组件默认尺寸/内边距同样来自全局 [SokitsuThemeMeta]，
  * 资源重载时整体刷新，无需重新进入界面。
  *
- * 默认 [colorScheme] 探测**操作系统**的主题偏好（[systemTheme]，[ThemeType.Unknown] 按浅色），
- * 也可显式传入（如测试屏的亮暗切换）。
- * @param colorScheme 显式指定的配色方案；null = 由 meta 构建
+ * @param colorScheme 显式指定的配色方案；未指定时按 [currentSokitsuColorScheme] 解析
  */
 @Composable
 fun SokitsuTheme(
-    colorScheme: ColorScheme = SokitsuThemeMeta.colorScheme(systemTheme()),
+    colorScheme: ColorScheme = currentSokitsuColorScheme(),
     typography: Typography = SokitsuTheme.typography,
     pixelScale: Int = SokitsuThemeMeta.pixelScale,
     content: @Composable () -> Unit,

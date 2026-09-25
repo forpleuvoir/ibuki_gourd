@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme
 import kotlin.time.Duration
 
 /**
@@ -38,6 +39,14 @@ object ToastHandler {
 
     /** 同时可见的条数上限，取自 [IGConfig.Gui.Toast.maxVisible]。 */
     private val maxVisible: Int get() = IGConfig.Gui.Toast.maxVisible
+
+    /**
+     * 提示渲染用的配色：`null` = 跟随当前主题（配置里"跟随主题配色"打开时的状态）。
+     *
+     * 需要"提示不跟界面走、自己固定亮或暗"时由配置项写入具体配色；
+     * 宿主 [ToastHost] 在场景根套 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme] 时读它。
+     */
+    var activeScheme: ColorScheme? by mutableStateOf(null)
 
     /** 退场宽限期 = 主题 meta 的出场动画时长。 */
     private val exitGrace: Duration get() = ToastDefaults.exitDuration

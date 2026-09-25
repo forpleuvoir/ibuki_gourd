@@ -2,7 +2,20 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.theme
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 import moe.forpleuvoir.ibukigourd.util.withHsv
+import moe.forpleuvoir.nebula.common.util.expectedType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.common.util.requireTypeOrNull
+import moe.forpleuvoir.nebula.serialization.DeserializationException
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.color
+import moe.forpleuvoir.nebula.serialization.extensions.requireBoolean
 
 /**
  * Sokitsu 配色方案：每个槽位是一个**纯 [Color]**。
@@ -161,6 +174,39 @@ class ColorScheme(
         return "ColorScheme(background=$background, surface=$surface, surfaceVariant=$surfaceVariant, primary=$primary, secondary=$secondary, error=$error, primaryContainer=$primaryContainer, onBackground=$onBackground, onSurface=$onSurface, onSurfaceVariant=$onSurfaceVariant, onPrimary=$onPrimary, onPrimaryContainer=$onPrimaryContainer, onSecondary=$onSecondary, onError=$onError, outline=$outline, isLight=$isLight)"
     }
 
+    /**
+     * 序列化：槽位名（snake_case）→ 颜色，外加 `is_light` 标记。
+     *
+     * 与主题 meta 的配色段同构（颜色都是 `#AARRGGBB`），因此一份配色既可以是资源包 meta 里的段，
+     * 也可以是配置里的一项。
+     */
+    companion object : Codec<ColorScheme> {
+
+        override fun serialization(target: ColorScheme): SerializeElement = SerializeObject.build {
+            ColorSchemeSlots.flatMap { (slot, on) -> listOf(slot) + listOfNotNull(on) }.forEach { name ->
+                name.toSnakeCase() to Codec.color.serialization(target.slot(name).toNebulaColor())
+            }
+            "is_light" to target.isLight
+        }
+
+        override fun deserialization(data: SerializeElement): Result<ColorScheme> =
+            DeserializationException.runCatching {
+                val obj = data.requireTypeOrNull<SerializeObject>()
+                    ?: throw expectedType(data::class, SerializeObject::class)
+                val isLight = obj.requireBoolean("is_light")
+                // 缺槽位回落该亮暗档的内置默认，因此手写的配色段可以只列出想改的槽位
+                var scheme = if (isLight) lightColorScheme() else darkColorScheme()
+                ColorSchemeSlots.flatMap { (slot, on) -> listOf(slot) + listOfNotNull(on) }.forEach { name ->
+                    if (obj.containsKey(name.toSnakeCase())) {
+                        val color = Codec.color.deserialization(obj.requireKey(name.toSnakeCase())).getOrThrow()
+                        scheme = scheme.withSlot(name, color.toComposeColor())
+                    }
+                }
+                scheme.copy(isLight = isLight)
+            }
+
+    }
+
 }
 
 /**
@@ -275,3 +321,94 @@ fun darkColorScheme(
     outline = outline,
     isLight = isLight,
 )
+
+/**
+ * 配色方案的可编辑槽位清单：`xx` 与 `onXx` 成对（没有配对 `on` 的槽位写成 `null`）。
+ *
+ * 与 [ColorScheme] 的构造参数、主题 meta 的配色段、[ColorScheme] 的序列化一一对应；
+ * 新增槽位时同步本表与 [withSlot]。
+ */
+val ColorSchemeSlots: List<Pair<String, String?>> = listOf(
+    "background" to "onBackground",
+    "surface" to "onSurface",
+    "surfaceVariant" to "onSurfaceVariant",
+    "primary" to "onPrimary",
+    "primaryContainer" to "onPrimaryContainer",
+    "secondary" to "onSecondary",
+    "error" to "onError",
+    "outline" to null,
+)
+
+/** 全部槽位名（`xx` 与 `onXx` 都算一个），顺序同 [ColorSchemeSlots]。 */
+val ColorSchemeSlotNames: List<String>
+    get() = ColorSchemeSlots.flatMap { (slot, on) -> listOf(slot) + listOfNotNull(on) }
+
+/** 按槽位名取色（未知槽位给 [Color.Unspecified]）。 */
+fun ColorScheme.slot(name: String): Color = when (name) {
+    "background"         -> background
+    "surface"            -> surface
+    "surfaceVariant"     -> surfaceVariant
+    "primary"            -> primary
+    "primaryContainer"   -> primaryContainer
+    "secondary"          -> secondary
+    "error"              -> error
+    "onBackground"       -> onBackground
+    "onSurface"          -> onSurface
+    "onSurfaceVariant"   -> onSurfaceVariant
+    "onPrimary"          -> onPrimary
+    "onPrimaryContainer" -> onPrimaryContainer
+    "onSecondary"        -> onSecondary
+    "onError"            -> onError
+    "outline"            -> outline
+    else                 -> Color.Unspecified
+}
+
+/**
+ * 按槽位名重设一个槽位色（未知槽位原样返回）。
+ *
+ * [ColorScheme] 的字段 setter 是 internal（只给主题内部用），所以外部改槽位走公开的
+ * [ColorScheme.copy] 重建实例。
+ */
+fun ColorScheme.withSlot(name: String, color: Color): ColorScheme = when (name) {
+    "background"         -> copy(background = color)
+    "surface"            -> copy(surface = color)
+    "surfaceVariant"     -> copy(surfaceVariant = color)
+    "primary"            -> copy(primary = color)
+    "primaryContainer"   -> copy(primaryContainer = color)
+    "secondary"          -> copy(secondary = color)
+    "error"              -> copy(error = color)
+    "onBackground"       -> copy(onBackground = color)
+    "onSurface"          -> copy(onSurface = color)
+    "onSurfaceVariant"   -> copy(onSurfaceVariant = color)
+    "onPrimary"          -> copy(onPrimary = color)
+    "onPrimaryContainer" -> copy(onPrimaryContainer = color)
+    "onSecondary"        -> copy(onSecondary = color)
+    "onError"            -> copy(onError = color)
+    "outline"            -> copy(outline = color)
+    else                 -> this
+}
+
+/** 驼峰槽位名 → 序列化 / meta 里的 snake_case 键。 */
+internal fun String.toSnakeCase(): String = buildString {
+    this@toSnakeCase.forEach { char ->
+        if (char.isUpperCase()) {
+            append('_')
+            append(char.lowercaseChar())
+        } else {
+            append(char)
+        }
+    }
+}
+
+/**
+ * 全部槽位序列化为**主题 meta 的配色段** JSON（键 snake_case，值 `#AARRGGBB`）。
+ *
+ * 结果可直接粘进 `sokitsu_meta.json` 的 `light` / `dark` 段。
+ */
+fun ColorScheme.toMetaJson(): String = ColorSchemeSlotNames.joinToString(
+    separator = ",\n    ",
+    prefix = "{\n    ",
+    postfix = "\n}",
+) { name ->
+    "\"${name.toSnakeCase()}\": \"#%08X\"".format(slot(name).toArgb())
+}

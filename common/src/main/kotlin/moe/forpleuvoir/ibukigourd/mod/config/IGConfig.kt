@@ -1,5 +1,9 @@
 package moe.forpleuvoir.ibukigourd.mod.config
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreenDefaults
 import moe.forpleuvoir.compose_minecraft.platform.screen.DialogAnimationDefaults
 import moe.forpleuvoir.compose_minecraft.platform.screen.DialogComposeScreenDefaults
@@ -10,14 +14,25 @@ import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.item.configEnum
 import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
+import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.config.item.configVector2f
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent
 import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.mod.openIbukiGourdModScreen
 import moe.forpleuvoir.ibukigourd.text.buildText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonColors
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeOverride
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ThemeType
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.lightColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.math.easing.CubicBezier
 import moe.forpleuvoir.ibukigourd.util.math.easing.Ease
 import moe.forpleuvoir.ibukigourd.util.math.easing.EasingPreset
@@ -28,6 +43,8 @@ import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigItem
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.config.item.*
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.color
 import org.joml.Vector2f
 import org.joml.Vector2fc
 import androidx.compose.animation.core.Easing as ComposeEasing
@@ -44,6 +61,16 @@ import kotlin.time.Duration.Companion.seconds
  */
 object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
 
+    /**
+     * 打开模组屏幕的快捷键（缺省 `I` + `G`）。
+     *
+     * 屏幕内容见 [openIbukiGourdModScreen]：模组图标 + 模组名顶栏 + 页签条 + 各页内容。
+     * 父屏取按下时的当前屏幕，关掉后回到它。
+     */
+    private val openScreen by configKeybind("open_screen", Keybind(Keyboard.I, Keyboard.G) {
+        openIbukiGourdModScreen()
+    })
+
     init {
         addConfig(Gui)
     }
@@ -51,10 +78,51 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
     object Gui : ConfigGroup("gui") {
 
         init {
+            addConfig(Theme)
             addConfig(Toast)
             addConfig(Scroller)
             addConfig(Screen)
             addConfig(Dialog)
+        }
+
+        /**
+         * 主题配色：跟随系统 / 深色 / 浅色 / 自定义。
+         *
+         * 界面上只有"配色模式"一行：选到"自定义"即打开配色编辑器（再选一次也能重新打开），
+         * 用户那份配色整份存在 [customScheme] 里，不出行。
+         * 模式一改就经 [applyTheme] 写进 [SokitsuThemeOverride]；
+         * 资源包配色与系统探测仍是"跟随系统"档的来源。
+         */
+        object Theme : ConfigGroup("theme") {
+
+            /** 主题配色模式。 */
+            private val modeConfig = configEnum("mode", ThemeMode.FollowSystem)
+            val mode by modeConfig
+                .apply { observe { applyTheme() } }
+                .uiWrapper { config ->
+                    var editing by remember { mutableStateOf(false) }
+                    EnumConfigWrapper(config) { selected ->
+                        if (selected == ThemeMode.Custom) editing = true
+                    }
+                    if (editing) CustomColorSchemeEditor(customSchemeConfig) { editing = false }
+                }
+
+            /** 用户那份配色：整份 [ColorScheme] 直接存（含亮暗标记）；不出行，入口在模式行上。 */
+            private val customSchemeConfig =
+                addConfig(ConfigItem("custom_scheme", lightColorScheme(), ConfigSerde.of(ColorScheme)))
+            val customScheme by customSchemeConfig
+                .apply { observe { applyTheme() } }
+                .uiWrapper { }
+
+            override fun init() {
+                super.init()
+                applyTheme()
+            }
+
+            /** 把当前配置算成运行时配色，写进全局覆盖。 */
+            private fun applyTheme() {
+                SokitsuThemeOverride.scheme = resolveThemeScheme(mode, customScheme)
+            }
         }
 
         /**
@@ -78,6 +146,14 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
              */
             var duration: Duration by configDuration("duration", 2.seconds, Duration.ZERO, 30.seconds)
 
+            /** 提示是否跟随当前主题配色；关闭后用 [lightMode] 指定的那一份。 */
+            var adaptiveColorScheme: Boolean by configBoolean("adaptive_color_scheme", true)
+                .apply { observe { applyColorScheme() } }
+
+            /** 提示自己的亮暗（仅在关闭 [adaptiveColorScheme] 时生效）。 */
+            var lightMode: Boolean by configBoolean("light_mode", true)
+                .apply { observe { applyColorScheme() } }
+
             /**
              * 同屏可见条数上限。超出的提示（[moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastStrategy.Enqueue]）
              * 排队等待；多条同时可见时落点相同、相互重叠。
@@ -94,6 +170,20 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 Vector2f(0f, 0f),
                 Vector2f(1f, 1f),
             )
+
+            override fun init() {
+                super.init()
+                applyColorScheme()
+            }
+
+            /** 把"跟随主题 / 提示自己的亮暗"算成提示宿主用的配色（null = 跟随主题）。 */
+            private fun applyColorScheme() {
+                ToastHandler.activeScheme = if (adaptiveColorScheme) {
+                    null
+                } else {
+                    SokitsuThemeMeta.colorScheme(if (lightMode) ThemeType.Light else ThemeType.Dark)
+                }
+            }
         }
 
 
