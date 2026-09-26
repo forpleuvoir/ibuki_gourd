@@ -1,12 +1,19 @@
 package moe.forpleuvoir.ibukigourd.config.item
 
+import androidx.compose.runtime.getValue
 import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendLTRArrow
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.asDerivedState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastStrategy
 import moe.forpleuvoir.nebula.common.api.Matchable
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
@@ -172,12 +179,26 @@ class ConfigToggleKeybind(
 
 }
 
+/**
+ * 开关式快捷键的默认反馈：以「配置路径」为 tag 弹一条提示，内容为「所属组 → 配置名 : 开 / 关」。
+ *
+ * tag 相同即复用同一条提示（`ToastStrategy.Tagged.Refresh` 只刷新时长、不替换内容），
+ * 所以内容必须读 [asDerivedState] 的实时值 —— 否则连按同一个快捷键时，第二次显示的还是上一次的状态。
+ */
+private fun ConfigToggleKeybind.showSwitchToast() {
+    val config = this
+    ToastHandler.showContent(strategy = ToastStrategy.Tagged.Refresh("toggle_keybind:${pathWithRoot}")) {
+        val enabled by config.asDerivedState { it.enabled }
+        Text(config.translateTextWithParent(1, " → ").append(" : ").append(IGLang.Misc.coloredSwitch(enabled)))
+    }
+}
+
 context(group: ConfigGroup)
 fun configToggleKeybind(
     name: String,
     defaultEnabled: Boolean,
     defaultValue: Keybind,
-    onSwitch: ConfigToggleKeybind.() -> Unit = {},
+    onSwitch: ConfigToggleKeybind.() -> Unit = { showSwitchToast() },
 ) =
     group.addConfig(ConfigToggleKeybind(name, defaultEnabled, defaultValue, onSwitch))
 
@@ -187,7 +208,7 @@ fun configToggleKeybind(
     defaultEnabled: Boolean,
     vararg defaultKeys: KeyCode,
     setting: KeybindSetting = KeybindSetting(),
-    onSwitch: ConfigToggleKeybind.() -> Unit = {},
+    onSwitch: ConfigToggleKeybind.() -> Unit = { showSwitchToast() },
 ) =
     group.addConfig(ConfigToggleKeybind(name, defaultEnabled, Keybind(*defaultKeys, defaultSetting = setting), onSwitch))
 
