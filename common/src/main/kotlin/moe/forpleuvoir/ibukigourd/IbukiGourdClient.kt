@@ -12,6 +12,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.SokitsuBubbleSpritePlugin
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.SokitsuSpritePlugin
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMetaLoader
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastOverlay
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 
@@ -42,6 +43,7 @@ object IbukiGourdClient {
             }
         }
         ClientModConfigHandler.register(IGConfig)
+        ToastOverlay.install()
         MinecraftRenderPlugins.register(SokitsuSpritePlugin)
         MinecraftRenderPlugins.register(SokitsuBubbleSpritePlugin)
     }

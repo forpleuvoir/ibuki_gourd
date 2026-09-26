@@ -17,7 +17,7 @@ import kotlin.time.Duration
  * 提示服务的唯一入口：持有队列与活动列表，按 [ToastStrategy] 处置冲突。
  *
  * **时间推进由外部驱动**（[tick]）——提示本身不依赖 Compose 的帧时钟，因此没有屏幕、
- * 没有 Compose 内容时也能正常计时。[ToastHost] 每帧调用一次 [tick]。
+ * 没有 Compose 内容时也能正常计时。[ToastOverlay] 注册的每帧回调调用 [tick]。
  *
  * 活动条目在 `remaining` 扣到 `-exitGrace` 之后才移出列表：退场动画期间条目必须存活，
  * 否则 [ToastContainer] 的 `AnimatedVisibility` 会随条目消失被直接撤组合，动画不可见。
@@ -44,7 +44,7 @@ object ToastHandler {
      * 提示渲染用的配色：`null` = 跟随当前主题（配置里"跟随主题配色"打开时的状态）。
      *
      * 需要"提示不跟界面走、自己固定亮或暗"时由配置项写入具体配色；
-     * 宿主 [ToastHost] 在场景根套 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme] 时读它。
+     * [ToastOverlay] 注册的条目在内容外再套一层 [moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme] 时读它。
      */
     var activeScheme: ColorScheme? by mutableStateOf(null)
 
@@ -124,7 +124,7 @@ object ToastHandler {
     /**
      * 推进时间：扣减各活动条目的剩余时长，移除已过宽限期的条目，并按需从队列补充。
      *
-     * 由 [ToastHost] 每帧驱动，`delta` 为距上一帧的时长。
+     * 由 [ToastOverlay] 注册的每帧回调驱动，`delta` 为距上一帧的时长。
      */
     internal fun tick(delta: Duration) {
         synchronized(lock) {

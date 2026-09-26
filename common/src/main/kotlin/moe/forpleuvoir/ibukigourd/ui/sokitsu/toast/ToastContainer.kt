@@ -86,7 +86,8 @@ private val ToastPlacement = Alignment { size, space, _ ->
 /**
  * 提示渲染层：铺满场景，把 [ToastHandler.active] 中的每条提示按 [ToastPlacement] 摆放。
  *
- * 组合在提示宿主（[ToastHost]）的常驻场景根，因此**不依赖任何
+ * 作为[全局覆盖层][moe.forpleuvoir.ibukigourd.ui.overlay.OverlayService]的一个条目组合，
+ * 因此**不依赖任何
  * [moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen]** —— 打开原版界面、
  * 关闭全部界面乃至 HUD 状态下都持续渲染。
  */
