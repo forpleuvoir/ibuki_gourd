@@ -4,212 +4,129 @@
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-[IbukiGourd](https://modrinth.com/mod/ibukigourd) 是一个主要由`kotlin`编写的`Minecraft Fabric&Neoforge MOD`
-,主要为其他MOD提供前置功能
+[IbukiGourd](https://modrinth.com/mod/ibukigourd) 是一个用 **Kotlin** 编写的 **Minecraft Fabric / NeoForge 前置库**，
+本身不提供玩法内容，只为其它 MOD 提供基础设施：
 
-如:`配置管理` `配置GUI` `指令DSL` `GUI`
+| 能力 | 说明 | 入口 |
+|---|---|---|
+| **配置管理** | 委托式配置项、分组、序列化、自动加载 / 保存、类型化 GUI 编辑器 | `ClientModConfigManager` / `ClientModConfigHandler` |
+| **配置 GUI** | 把配置管理器直接渲染成一个界面（搜索 / 页签导航 / 各类型控件 / 拖拽排序编辑弹窗） | `ConfigManagerWrapper` |
+| **UI 组件库** | 像素风 Compose 组件（按钮 / 输入 / 选择器 / 表格 / 页签 / 弹窗 / 颜色选择 / 曲线编辑…） | `ui/sokitsu/**`、`SokitsuScreen` |
+| **全局覆盖层** | 画在原版 HUD / 原版界面 / Compose 屏幕之上的常驻内容（Toast 即基于它实现） | `ui/overlay/OverlayService` |
+| **指令 DSL** | Brigadier 的 Kotlin DSL 包装 | `CommandDispatcher.registerCommand` |
+| **事件总线** | 生命周期 / 每帧 / 键鼠事件（基于 nebula `EventFactory`） | `ClientLifecycleEvent` / `ClientTickEvent` / `KeyboardEvent`… |
+| **输入系统** | 组合键注册、触发模式（按下 / 长按 / 重复）、穿透与环境判定、冲突检测 | `Keybind` / `InputHandler` |
+| **文本 DSL** | 文本构建（字面量 / 可翻译 / 内联样式解析）+ 排版辅助 | `buildText` / `InlineStyleText` / `Texts` |
+| **i18n** | 语言键命名空间与文案录制 | `IGLang` / `TranslationRecorder` |
+| **任务调度 / 工具** | 客户端 tick 任务、协程工具、向量 / 颜色 / 编解码 / 数学（贝塞尔 / 缓动） | `task/**`、`util/**` |
+
+界面渲染基于自研的 [compose-minecraft](https://github.com/forpleuvoir/Compose-Minecraft)（内嵌 androidx Compose，
+渲染直连原版 `GuiGraphics`，**不使用 Material3 / Skia 离屏渲染**），观感是像素风（整数倍放大 + `.aseprite` 素材）。
 
 ![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
-依赖于:
-
-- Fabric
-    - [Fabric API](https://github.com/FabricMC/fabric)
-    - [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
-
-- NeoForge
-    - [Kotlin for Forge](https://github.com/thedarkcolour/KotlinForForge)
-
 ## 如何使用
 
-### 依赖
-
-添加仓库到你的Gradle项目
-
-Gradle Groovy:
-
-```groovy
-//快照仓库
-maven {
-    name "forpleuvoirSnapshots"
-    url "https://maven.forpleuvoir.moe/snapshots"
-}
-//发布仓库
-maven {
-    name "forpleuvoirReleases"
-    url "https://maven.forpleuvoir.moe/releases"
-}
-```
-
-Gradle Kotlin:
+### 1. 添加仓库与依赖
 
 ```kts
-//快照仓库
-maven {
-    name = "forpleuvoirSnapshots"
-    url = uri("https://maven.forpleuvoir.moe/snapshots")
+repositories {
+    maven("https://maven.forpleuvoir.moe/releases")   // 发布版
+    maven("https://maven.forpleuvoir.moe/snapshots")  // 快照版
 }
-//发布仓库
-maven {
-    name = "forpleuvoirReleases"
-    url = uri("https://maven.forpleuvoir.moe/releases")
-}
-```
 
-添加依赖
-
-```kts
 dependencies {
-    implementation("moe.forpleuvoir:ibukigourd-$platform-$minecraftVersion:$modVersion")
+    // fabric 侧
+    implementation("moe.forpleuvoir:ibukigourd-fabric-$minecraftVersion:$ibukigourdVersion")
+    // neoforge 侧
+    implementation("moe.forpleuvoir:ibukigourd-neoforge-$minecraftVersion:$ibukigourdVersion")
+    // 纯逻辑（服务端 / 不需要界面时）
+    implementation("moe.forpleuvoir:ibukigourd-common-$minecraftVersion:$ibukigourdVersion")
 }
 ```
 
-### 配置
+| 占位符 | 当前值 |
+|---|---|
+| `$minecraftVersion` | `26.2` |
+| `$ibukigourdVersion` | `0.11.1+alpha` |
 
-配置由 nebula 提供，客户端配置需要继承 `ClientModConfigManager(modId, name)`。
-配置项通过 nebula 的扩展函数（`configString` / `configBoolean` / `configInt` / `configLong` /
-`configFloat` / `configDouble` / `configEnum` / `configColor` / `configDuration` / `configList` /
-`configMap` 等）以属性委托方式声明，并可以嵌套 `ConfigGroup`。
+依赖的库（`nebula`、`compose-minecraft`、`reorderable`、`aseprite`）会随加载器构件内嵌
+（fabric 走 `include`、neoforge 走 `jarJar`），通常无需另行声明；运行时还需要对应加载器的
+Fabric API + Fabric Language Kotlin，或 Kotlin for Forge。
 
-例:
+### 2. 三分钟上手
+
+**配置**：继承 `ClientModConfigManager`，配置项用委托声明，注册到处理器后生命周期自动管理。
 
 ```kotlin
 object YourModConfigs : ClientModConfigManager("your_mod_id", "config") {
 
-    init {
-        addConfig(Gui)
-    }
-
-    // 配置组
     object Gui : ConfigGroup("gui") {
-        var stringConfig by configString("config_key_1", "defaultValue")
-
-        var intConfig by configInt("config_key_2", 100, 0, 1000)
-
-        var booleanConfig by configBoolean("config_key_3", true)
+        var title by configString("title", "Hello")
+        var scale by configFloat("scale", 1f, 0.5f, 2f)
+        val openKey by configKeybind("open_key", Keyboard.RIGHT_SHIFT)
     }
 
+    init { addConfig(Gui) }
 }
-```
 
-注册到配置处理器后，生命周期（加载/保存）由处理器自动管理：
-
-```kotlin
+// 在你的 mod 入口（或 ModInitialization 服务里）
 ClientModConfigHandler.register(YourModConfigs)
 ```
 
-手动管理配置管理器：
+**打开配置界面**：套一层 `SokitsuScreen`（主题 + 分辨率缩放）即可。
 
 ```kotlin
-//初始化
-YourModConfigs.init()
-//从文件中加载配置
-YourModConfigs.load()
-//保存配置到文件中
-YourModConfigs.save()
-//强制保存
-YourModConfigs.forceSave()
-//一键初始化并加载，加载失败时强制保存
-YourModConfigs.startup()
-```
-
-服务端配置,需要继承`ServerModConfigManager(modId, name)`,并注册到服务端处理器：
-
-```kotlin
-object YourServerConfigs : ServerModConfigManager("your_mod_id", "config") {
-    //配置项与客户端配置相同
-}
-
-ServerModConfigHandler.register(YourServerConfigs)
-```
-
-若要使用配置屏幕,使用配置屏管理器包装器
-`ConfigManagerWrapper(configManager: ConfigManager,modifier: Modifier = Modifier)`
-
-```kotlin
-//示例
-openComposeScreen {
-    IbukiGourdTheme {
-        ConfigManagerWrapper(YourModConfigs)
-    }
+SokitsuScreen.open {
+    ConfigManagerWrapper(YourModConfigs)
 }
 ```
 
-### 指令DSL
-
-根指令应该调用此方法注册
-
-```kotlin
-fun <S> CommandDispatcher<S>.registerCommand(
-   name: String,
-   scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit
-)
-```
+**指令**：
 
 ```kotlin
 dispatcher.registerCommand("yourCommand") {
-    literal("subCommand") {
-        suggests {
-            //do something
-        }
-        execute {
-            //do something
-        }
-    }
-    argument("argName", ArgumentType) {
-        execute {
-            //do something
-        }
+    literal("hello") {
+        executes { source.sendSuccess({ Literal("hi!") }, false); 1 }
     }
 }
-
 ```
 
-### GUI
-
-GUI 基于 JetBrains Compose Multiplatform + Material3 构建，通过 Skia 渲染到 Minecraft 屏幕，
-不再依赖原生 `GuiGraphics`。屏幕内容即普通 `@Composable` 组合，可以使用 Compose 的全部能力
-（布局、动画、Material3 主题、状态管理等）。
-
-打开一个 Compose 屏幕：
+**屏幕 + 提示**：
 
 ```kotlin
-openComposeScreen {
-    IbukiGourdTheme {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Button(
-                onClick = {
-                    ToastHandler.showContent { Text("hello minecraft") }
-                }
-            ) {
-                Text("hello minecraft")
-            }
+SokitsuScreen.open {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("hello minecraft")
+        Button(onClick = { ToastHandler.showContent { Text("clicked") } }) {
+            Text("Click me")
         }
     }
 }
 ```
 
-打开弹窗屏幕：
+### 3. 文档
 
-```kotlin
-openComposePopupScreen {
-    Card(Modifier.padding(24.dp)) {
-        Text("Dialog")
-    }
-}
-```
+完整的开发者手册在 [`doc/manual/`](doc/manual/README.md)：
 
-常用入口：
+| 章节 | 内容 |
+|---|---|
+| [01 接入与依赖](doc/manual/01-接入与依赖.md) | 坐标、注册方式、元数据、平台抽象 |
+| [02 配置系统](doc/manual/02-配置系统.md) | 配置项构造器、分组、观测、生命周期、序列化 |
+| [03 配置界面](doc/manual/03-配置界面.md) | `ConfigManagerWrapper`、控件分发与自定义、文案 |
+| [04 指令 DSL](doc/manual/04-指令DSL.md) | 注册、参数、建议、权限 |
+| [05 事件总线](doc/manual/05-事件总线.md) | 生命周期 / tick / 键鼠事件与取消 |
+| [06 输入与快捷键](doc/manual/06-输入与快捷键.md) | `Keybind`、触发模式、冲突检测、UI 编辑器 |
+| [07 文本与 i18n](doc/manual/07-文本与i18n.md) | 文本 DSL、内联样式、排版、语言键 |
+| [08 屏幕与 UI 组件](doc/manual/08-屏幕与UI组件.md) | `SokitsuScreen`、主题与像素缩放、组件清单 |
+| [09 覆盖层与提示](doc/manual/09-覆盖层与提示.md) | 全局覆盖层、Toast、Tooltip |
+| [10 任务与工具](doc/manual/10-任务与工具.md) | tick 调度、协程、向量 / 颜色 / 数学工具 |
+| [11 多加载器与平台抽象](doc/manual/11-多加载器与平台抽象.md) | `PlatformHelper`、服务注册、跨加载器写法 |
+| [12 常见问题](doc/manual/12-常见问题.md) | 踩坑清单与设计约定 |
 
-- `openComposeScreen(content)`：打开全屏 Compose 屏幕，可配置 `pauseGame` / `renderParent` / `parentScreen` /
-  `shouldRenderLevel` / `entryAnimation`。
-- `openComposePopupScreen(content)`：打开 Compose 弹窗屏幕。
-- `ComposeScreen(...)` / `Screen.open()`：直接构建并打开屏幕实例。
-- `IbukiGourdTheme`：提供主题（亮/暗、Material3 ColorScheme）。
-- `ConfigManagerWrapper(configManager)`：将配置管理器渲染为配置界面。
-- 预置组件：`ItemIcon` / `ItemIconVanilla`（物品图标）、`BlitTexture`（纹理）、`Text`、`TipBox`、`SearchBar`、
-  `ColorButton` / `ColorPicker`、`NumberField` / `NumberSlider`、`Selector`、`KeySetter` 等。
+> 想直接从源码看用法：`common/src/devOnly/` 下有 30+ 个组件测试屏（`SokitsuTestScreen` 主菜单），
+> 是仓库里最全的活例子。
+
+## 许可
+
+本项目以 MIT 许可发布，见 [LICENSE](LICENSE)；内嵌的第三方源码见 [NOTICE.md](NOTICE.md)。

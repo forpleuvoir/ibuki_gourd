@@ -80,14 +80,14 @@ ibuki_gourd/
 │   └── src/main/groovy/
 │       ├── multiloader-common.gradle                  # 公共：kotlin/compose 插件、Java25、processResources 模板、publishing
 │       └── multiloader-loader.gradle                  # 加载器侧
-├── doc/                   # 文档用图（logo、截图）
+├── doc/                   # 文档用图（logo、截图）+ 开发者手册 `doc/manual/`
 ├── resources/             # 素材源文件（.aseprite / .blend，不参与构建）
 ├── gradle/libs.versions.toml                          # 版本目录
 ├── gradle.properties                                  # mod 元数据占位符
 ├── settings.gradle.kts                               # include("aseprite","reorderable","common","fabric","neoforge")
 ├── build.gradle.kts                                  # 顶层：info.toml 生成 + 发布/构建任务
 ├── ibukigourd.info.toml                               # 给 shields.io 用的版本信息（构建生成，勿手改）
-├── README.md / README-ENG.md                          # 使用说明（含接入示例）
+├── README.md / README-ENG.md                          # 使用说明（已随 UI 迁移重写，手册见 doc/manual/）
 ├── CHANGE_LOG.md / TODO.md / NOTICE.md / AGENTS.md    # 变更/计划/许可/协作规范
 └── .gitignore
 ```
@@ -134,7 +134,7 @@ ibuki_gourd/
 - **资源包驱动**：`SokitsuThemeMeta`（亮/暗 section + pixelScale + 组件 uiMeta，缺槽回落内置工厂）与运行时程序化图集（ASE 素材 → `SokitsuStitcher` 拼合），均随资源重载整体刷新。主题 meta 文件为 `assets/ibukigourd/sokitsu_meta.json`，**库内默认不提供**——它只是资源包自定义的入口，缺失时全部走内置默认值。
 - **素材着色**（两个**正交**维度，均为逐图层标注）：合成策略 `tint`（`TextureTintMode`：`Mask` 纯色替换 / `Multiply` 槽位色 × 灰度 / `Passthrough` 直出 → 决定渲染管线）× 颜色来源 `level`（`tone` 组件主色 / `shadow` 黑 / `outline` 描边色 / 任意 `ColorScheme` 槽位名 / `none` 白 → 决定顶点色）。
 - **图集约定**：定义 `assets/<ns>/sokitsu_atlas/<atlasId>.json`；扫描目录 `texture/sokitsu/<atlasId>/`；纹理 id = 文件路径去掉 `texture/sokitsu/` 前缀与 `.aseprite` 后缀（如 `icon/add`）。现有图集定义 `ui` / `icon`；`SokitsuAtlasManager.DEFAULT_ATLAS_ID` 为 `sokitsu`，库内未提供其定义文件（同主题 meta，留给资源包）。
-- **按钮与图标**：`Button` / `ColorButton`（Button 薄包装：底色由调用方给定**具体颜色**而非主题槽位，内容色按底色亮度取纯黑/纯白，自有 `color_button` meta 段）/ `FlatButton`（**无常驻背景**的按钮底座：只在"当前状态有素材"时渲染背景，`normal` / `disabled` 无素材即整块透明（不能复用 `Surface`，其 `sprite=null` 会退化成纯色填充）；内容色按 meta 的 `contentBlend` 逐状态系数向黑白混合、禁用态按 `disabledBlend` 向背景混合；`IconButton` / `TextButton` 基于它，各有独立 meta 段；两者内容都是**可组合槽位**（`@Composable RowScope.() -> Unit`，不是 `String` 参数），文字类型不受限（`String` / `AnnotatedString` / `Component`，i18n 文案传 `MiscLang.xxx` 即可），文字 + 图标混排也直接支持）/ `Icon` + `Icons`（**像素图标集**：38 个 `.aseprite` 于 `texture/sokitsu/icon/`，独立图集 `icon`；`Icons.Add` 式属性常量 + `all` / `byId`，`Icon` 尺寸 = 素材尺寸 × `scale`（缺省 `pixelScale`），`tint` 缺省跟随 `LocalContentColor`）。
+- **按钮与图标**：`Button` / `ColorButton`（Button 薄包装：底色由调用方给定**具体颜色**而非主题槽位，内容色按底色亮度取纯黑/纯白，自有 `color_button` meta 段）/ `FlatButton`（**无常驻背景**的按钮底座：只在"当前状态有素材"时渲染背景，`normal` / `disabled` 无素材即整块透明（不能复用 `Surface`，其 `sprite=null` 会退化成纯色填充）；内容色按 meta 的 `contentBlend` 逐状态系数向黑白混合、禁用态按 `disabledBlend` 向背景混合；`IconButton` / `TextButton` 基于它，各有独立 meta 段；两者内容都是**可组合槽位**（`@Composable RowScope.() -> Unit`，不是 `String` 参数），文字类型不受限（`String` / `AnnotatedString` / `Component`，i18n 文案传 `MiscLang.xxx` 即可），文字 + 图标混排也直接支持）/ `Icon` + `Icons`（**像素图标集**：38 个 `.aseprite` 于 `texture/sokitsu/icon/`，独立图集 `icon`；`Icons.Add` 式属性常量 + `all` / `byId`，`Icon` 尺寸 = 素材尺寸 × `scale`（`scale` 缺省是字面量 `2`，**不**跟随 `pixelScale`；要联动需显式传 `LocalSokitsuPixelScale.current`），`tint` 缺省跟随 `LocalContentColor`）。
 - **容器与装饰**：`Surface` / `Divider`（纯色矩形，不依赖素材）/ `ProgressBar`（轨道 + 填充两个纯色矩形，不做动画）/ `Scroller`（`Vertical` / `Horizontal` 常规版 + `*FlatScroller` flat 细条版；`autoHide` 无滚动空间时完全不组合，`autoFade` 非活动时降可见度；滚动源经 `ScrollerAdapter` 解耦，含 `LazyListState` / `LazyGridState` 两种适配器）/ `TabStrip`（页签条 + 面板，按 `TabStripPlacement` 选素材）/ `TabStripTab` / `TabRow`（等宽页签行 + 选中指示器，标签经 `Tab` 入槽、每格宽度统一测量）/ `TableLayout` + `LazyTableLayout`（`TableLayoutScope` 的 `column` / `rows` / `spanItem` DSL：列宽可取固定值或权重并用 min / max 夹住，表头默认居中且可钉在列表之外、`listTrailing` 给列表体右侧挂附加内容）。
 - **输入与选择**：`Switch` / `Slider`（「凹槽轨道 + 按进度裁剪的填充」两张精灵叠放，`label` 槽内容画两遍、各裁到进度边界内外以分用两种内容色）+ `NumberSlider`（类型化入口：Int/Long/Float/Double/Duration/Percent）；`TextField`（凹槽背景精灵 + `BasicTextField`，悬停与聚焦共用 outline 层染色、`isError` 错误描边优先级更高）+ `NumberField`（文本 ↔ 数值双向换算与钳制；悬停聚焦时滚轮整体步进，上下方向键走 `NumberFieldDigits` 的 **C4D 式按位步进** —— 只改光标所指示的那一位数字并把光标收回该位）；`RadioButton`（按 index/count/RTL 解析 left/center/right/single 分段纹理）+ `RadioButtonGroup`（`item { }` DSL 自动编号）。
 - **弹窗与列表**：`AlertDialog`(+`SimpleAlertDialog`)（出入场动画由平台 `Dialog` 的图层快照重放承担，调用方用 `if (show)` 控制组合）/ `FlexibleDialog`（宽度由内容决定，`usePlatformDefaultWidth = false`；`screenPadding` 给面板与窗口留边、`maxHeight` 给高度上限）。编辑浮层骨架（`EditDialog` / `EditDialogContent` / `EditDialogContentList` / `EditDialogContentCards` / `DragHandle` / `RemoveButton` / `RemoveConfirmButton`）见 `ui.editdialog`。
@@ -202,7 +202,7 @@ gradlew.bat :aseprite:test
 
 ## 工作约定（给 AI 助手）
 
-1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 示例（README 目前尚未随 UI 迁移重写）。旧 UI 相关 API（旧 `ui` 包、旧抽屉式 `ModScreen` 等）已随迁移删除；新 `ui/sokitsu`（含 `ui.configwrapper` 配置 GUI）已落地，`SokitsuScreen` / `ui/ModScreen.kt` 的模组屏幕 / `Modifier.tooltip` / `Toast` 等已成对外面，改动同样需谨慎。
+1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 与 `doc/manual/` 对应章节。旧 UI 相关 API（旧 `ui` 包、旧抽屉式 `ModScreen` 等）已随迁移删除；新 `ui/sokitsu`（含 `ui.configwrapper` 配置 GUI）已落地，`SokitsuScreen` / `ui/ModScreen.kt` 的模组屏幕 / `Modifier.tooltip` / `Toast` / `ui.overlay` 等已成对外面，改动同样需谨慎。
 2. **跨加载器改动**：能放 `common` 就放 `common`；平台相关能力通过 `platform/services` 抽象，由 fabric/neoforge 各自实现并通过 `META-INF/services` 注册，勿在 common 里硬编码平台判断。
 3. **Mixin**：放 `common/.../mixin`（client 相关放 `mixin/client`），并在对应加载器的 `*.mixins.json` 注册；Fabric access widener 用 `ibukigourd.classtweaker`，NeoForge AT 用 `META-INF/accesstransformer.cfg`。
 4. **compose-minecraft 依赖**：`common` 用 **`compileOnly(libs.composeMinecraft.common)`**（只编译、不传递，打包由加载器侧负责）；`fabric` 用 `api(libs.composeMinecraft.fabric)` + `include(...)`；`neoforge` 用 `api(libs.composeMinecraft.neoforge)` + `jarJar(...)`。构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖，所以同时把 `nebula` / `aseprite` / `reorderable` 各自 `api + include`/`jarJar`。neoforge 另有 `bundledApi` 配置：`api` 已 `extendsFrom(bundledApi)`，并在别处解析其完整传递依赖树后逐个提升为 `jarJar` 直接依赖（等价于 Loom 的 `jarJarInternal`）。构件从 `mavenLocal()` 解析（neoforge 保留 compose 旧坐标重定向处理），调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。

@@ -4,231 +4,115 @@
 
 <img src = "doc/logo.png" width ="256" alt="icon">
 
-[IbukiGourd](https://modrinth.com/mod/ibukigourd) is a `Minecraft Fabric&Neoforge MOD` primarily written in `Kotlin`. It
-is
-designed to provide essential features for
-other mods, including:
+[IbukiGourd](https://modrinth.com/mod/ibukigourd) is a **Minecraft Fabric / NeoForge library** written in **Kotlin**.
+It ships no gameplay content — only infrastructure for other mods:
 
-- **Config Management**
-- **Config GUI**
-- **Command DSL**
-- **GUI**
+| Feature | What you get | Entry point |
+|---|---|---|
+| **Config system** | Delegated config entries, groups, serialization, automatic load/save, typed GUI editors | `ClientModConfigManager` / `ClientModConfigHandler` |
+| **Config GUI** | Render a config manager as a screen (search, tab navigation, per-type controls, drag-and-drop edit dialogs) | `ConfigManagerWrapper` |
+| **UI toolkit** | Pixel-art Compose components (buttons, inputs, selectors, tables, tabs, dialogs, color picker, curve editor…) | `ui/sokitsu/**`, `SokitsuScreen` |
+| **Global overlay** | Persistent content drawn above vanilla HUD / screens / Compose screens (Toast is built on it) | `ui/overlay/OverlayService` |
+| **Command DSL** | Kotlin DSL over Brigadier | `CommandDispatcher.registerCommand` |
+| **Event bus** | Lifecycle / tick / mouse & keyboard events (backed by nebula `EventFactory`) | `ClientLifecycleEvent` / `ClientTickEvent` / `KeyboardEvent`… |
+| **Input system** | Key combos, trigger timings (press / long press / repeat), pass-through & environment rules, conflict detection | `Keybind` / `InputHandler` |
+| **Text DSL** | Text building (literal / translatable / inline-style parsing) + layout helpers | `buildText` / `InlineStyleText` / `Texts` |
+| **i18n** | Language-key namespaces and recording | `IGLang` / `TranslationRecorder` |
+| **Scheduling & utils** | Client tick tasks, coroutine helpers, vectors / colors / codecs / math (bezier, easing) | `task/**`, `util/**` |
+
+Rendering is powered by the in-house [compose-minecraft](https://github.com/forpleuvoir/Compose-Minecraft)
+(embedded androidx Compose, drawing straight into vanilla `GuiGraphics`, **no Material3 / Skia offscreen rendering**).
+The look is pixel art: integer upscaling plus `.aseprite` assets.
 
 ![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
-Dependencies:
-
-- Fabric
-    - [Fabric API](https://github.com/FabricMC/fabric)
-    - [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin/)
-
-- NeoForge
-    - [Kotlin for Forge](https://github.com/thedarkcolour/KotlinForForge)
-
 ## How to Use
 
-### Dependency
-
-Add repositories to your Gradle project:
-
-**Gradle Groovy:**
-
-```groovy
-// Snapshot repository
-maven {
-    name "forpleuvoirSnapshots"
-    url "https://maven.forpleuvoir.moe/snapshots"
-}
-// Release repository
-maven {
-    name "forpleuvoirReleases"
-    url "https://maven.forpleuvoir.moe/releases"
-}
-```
-
-**Gradle Kotlin:**
+### 1. Repository and dependency
 
 ```kts
-// Snapshot repository
-maven {
-    name = "forpleuvoirSnapshots"
-    url = uri("https://maven.forpleuvoir.moe/snapshots")
+repositories {
+    maven("https://maven.forpleuvoir.moe/releases")   // releases
+    maven("https://maven.forpleuvoir.moe/snapshots")  // snapshots
 }
-// Release repository
-maven {
-    name = "forpleuvoirReleases"
-    url = uri("https://maven.forpleuvoir.moe/releases")
-}
-```
 
-Add the dependency:
-
-```kts
 dependencies {
-    implementation("moe.forpleuvoir:ibukigourd-$platform-$minecraftVersion:$modVersion")
+    // Fabric
+    implementation("moe.forpleuvoir:ibukigourd-fabric-$minecraftVersion:$ibukigourdVersion")
+    // NeoForge
+    implementation("moe.forpleuvoir:ibukigourd-neoforge-$minecraftVersion:$ibukigourdVersion")
+    // Logic only (server side / no UI)
+    implementation("moe.forpleuvoir:ibukigourd-common-$minecraftVersion:$ibukigourdVersion")
 }
 ```
 
-### Configuration
+| Placeholder | Current value |
+|---|---|
+| `$minecraftVersion` | `26.2` |
+| `$ibukigourdVersion` | `0.11.1+alpha` |
 
-Configuration is powered by nebula. For client-side configurations, the class should
-extend `ClientModConfigManager(modId, name)`. Config items are declared via nebula's
-extension functions (`configString` / `configBoolean` / `configInt` / `configLong` /
-`configFloat` / `configDouble` / `configEnum` / `configColor` / `configDuration` /
-`configList` / `configMap`, etc.) with property delegation, and can be nested in `ConfigGroup`s.
+Bundled dependencies (`nebula`, `compose-minecraft`, `reorderable`, `aseprite`) travel inside the loader artifacts
+(`include` on Fabric, `jarJar` on NeoForge), so you normally do not declare them. At runtime you still need
+Fabric API + Fabric Language Kotlin, or Kotlin for Forge.
 
-**Example:**
+### 2. Three-minute tour
+
+**Config** — extend `ClientModConfigManager`, declare entries as delegated properties, register the manager
+and its lifecycle is handled for you.
 
 ```kotlin
 object YourModConfigs : ClientModConfigManager("your_mod_id", "config") {
 
-    init {
-        addConfig(Gui)
-    }
-
-    // Config group
     object Gui : ConfigGroup("gui") {
-        var stringConfig by configString("config_key_1", "defaultValue")
-
-        var intConfig by configInt("config_key_2", 100, 0, 1000)
-
-        var booleanConfig by configBoolean("config_key_3", true)
+        var title by configString("title", "Hello")
+        var scale by configFloat("scale", 1f, 0.5f, 2f)
+        val openKey by configKeybind("open_key", Keyboard.RIGHT_SHIFT)
     }
 
+    init { addConfig(Gui) }
 }
-```
 
-Register the manager with the config handler and its lifecycle (load/save) is managed
-automatically:
-
-```kotlin
+// in your mod entry point (or a ModInitialization service)
 ClientModConfigHandler.register(YourModConfigs)
 ```
 
-**How to manage the configuration manually:**
+**Config screen** — wrap it in `SokitsuScreen` (theme + resolution scaling):
 
 ```kotlin
-// Initialize
-YourModConfigs.init()
-// Load configuration from file
-YourModConfigs.load()
-// Save configuration to file
-YourModConfigs.save()
-// Force save configuration
-YourModConfigs.forceSave()
-// Initialize and load in one step, falling back to a forced save if loading fails
-YourModConfigs.startup()
-```
-
-#### Server-side Configuration
-
-For server-side configurations, the class should extend `ServerModConfigManager(modId, name)`
-and be registered with the server handler:
-
-```kotlin
-object YourServerConfigs : ServerModConfigManager("your_mod_id", "config") {
-    // Config items are the same as for client configurations
-}
-
-ServerModConfigHandler.register(YourServerConfigs)
-```
-
-#### Configuration Screen
-
-To render the configuration screen, use the config screen manager wrapper
-`ConfigManagerWrapper(configManager: ConfigManager, modifier: Modifier = Modifier)`:
-
-```kotlin
-// Example
-openComposeScreen {
-    IbukiGourdTheme {
-        ConfigManagerWrapper(YourModConfigs)
-    }
+SokitsuScreen.open {
+    ConfigManagerWrapper(YourModConfigs)
 }
 ```
 
-### Command DSL
-
-Use the following method to register root commands:
-
-```kotlin
-fun <S> CommandDispatcher<S>.registerCommand(
-   name: String,
-   scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit
-)
-```
-
-**Example:**
+**Command**:
 
 ```kotlin
 dispatcher.registerCommand("yourCommand") {
-   literal("subCommand") {
-        suggests {
-           // Provide suggestions
-        }
-        execute {
-           // Execute the command
-        }
-    }
-   argument("argName", ArgumentType) {
-        execute {
-           // Execution logic with command arguments
-        }
+    literal("hello") {
+        executes { source.sendSuccess({ Literal("hi!") }, false); 1 }
     }
 }
 ```
 
-This example demonstrates how root commands can contain nested subcommands and arguments.
-
-### GUI
-
-The GUI is built with JetBrains Compose Multiplatform + Material3 and rendered into the
-Minecraft screen through Skia, instead of the native `GuiGraphics`. Screen content is an
-ordinary `@Composable` composition, giving you access to the full Compose toolset
-(layout, animation, Material3 themes, state management, and more).
-
-Open a Compose screen:
+**Screen + toast**:
 
 ```kotlin
-openComposeScreen {
-    IbukiGourdTheme {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Button(
-                onClick = {
-                    ToastHandler.showContent { Text("hello minecraft") }
-                }
-            ) {
-                Text("hello minecraft")
-            }
+SokitsuScreen.open {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("hello minecraft")
+        Button(onClick = { ToastHandler.showContent { Text("clicked") } }) {
+            Text("Click me")
         }
     }
 }
 ```
 
-Open a popup screen:
+### 3. Documentation
 
-```kotlin
-openComposePopupScreen {
-    Card(Modifier.padding(24.dp)) {
-        Text("Dialog")
-    }
-}
-```
+The full developer manual lives in [`doc/manual/`](doc/manual/README.md) (Chinese); the chapter list is also
+mirrored in [README.md](README.md). For live examples, browse `common/src/devOnly/` — that dev-only source set
+contains 30+ component test screens reachable from the `SokitsuTestScreen` main menu.
 
-Common entry points:
+## License
 
-- `openComposeScreen(content)`: opens a full-screen Compose screen, configurable via
-  `pauseGame` / `renderParent` / `parentScreen` / `shouldRenderLevel` / `entryAnimation`.
-- `openComposePopupScreen(content)`: opens a Compose popup screen.
-- `ComposeScreen(...)` / `Screen.open()`: construct and open a screen instance directly.
-- `IbukiGourdTheme`: provides theming (light/dark, Material3 ColorScheme).
-- `ConfigManagerWrapper(configManager)`: renders a config manager as a configuration UI.
-- Built-in components: `ItemIcon` / `ItemIconVanilla` (item icons), `BlitTexture` (textures),
-  `Text`, `TipBox`, `SearchBar`, `ColorButton` / `ColorPicker`, `NumberField` / `NumberSlider`,
-  `Selector`, `KeySetter`, and more.
-
-The Compose-based GUI enables intuitive layout and interaction design within Minecraft.
+Released under the MIT license, see [LICENSE](LICENSE); bundled third-party sources are listed in [NOTICE.md](NOTICE.md).

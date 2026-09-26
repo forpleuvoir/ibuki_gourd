@@ -448,16 +448,23 @@
 - ✅ `ibukigourd.config.open_screen*`（2 键）**不再算孤儿**：`IGConfig` 重新用
   `configKeybind("open_screen", …)` 接 `openIbukiGourdModScreen()`，文案已复活。
 
-**待补的翻译缺口**（不是孤儿键，是没译）：
+**待清的孤儿键**（2026-09-26 复核新增一项）：
+
+| 语言 | 键 | 说明 |
+|---|---|---|
+| `en_us` / `zh_cn` 各 8 行 | `ibukigourd.selector.*`（`#selector` 分节标记 + `expand_style` 系列 + `auto_max_items`） | Kotlin 侧**零引用**（无对应配置组，也没有 `SelectorLang`）：要么给选择器落地对应配置项，要么连同 en / zh 一起删。其余 6 个语言没有这 8 行，所以不是一个"翻译缺口" |
+
+> 更正：上一版把 `selector` 那 8 行记成「6 个语言待补的翻译」，实际是 en / zh 单方面的孤儿键。
+
+**待补的翻译缺口**（真·没译，与上面的孤儿键无关）：
 
 | 语言 | 缺的键 | 键数 |
 |---|---|---|
-| `fr_fr` | `gui.toast.duration`(+comment) / `gui.toast.max_visible`(+comment) / `color.paste_success` / `color.paste_failed` / 整段 selector 文案 | 14 |
-| `ja_jp` / `ko_kr` / `ru_ru` / `zh_hk` / `zh_tw` | 整段 selector 文案（`#selector` 分节标记 + `selector.auto_max_items` / `selector.expand_style` 系列） | 各 8 |
+| `fr_fr` | `gui.toast.duration`(+comment) / `gui.toast.max_visible`(+comment) / `color.paste_success` / `color.paste_failed` | 6 |
 
 删完后 `en_us` / `zh_cn` 各 194 键，其余 6 个语言各 180 ~ 186 键。
-（`"#xxx"` 是语言文件里的**分节标记**约定，如 `#color` / `#config` / `#input`；六个语言缺 `#selector`
-是整段 selector 文案都没译的结果，不是异常键。）
+（`"#xxx"` 是语言文件里的**分节标记**约定，如 `#color` / `#config` / `#input`；`#selector` 只在
+`en_us` / `zh_cn` 里有，与上面那批 `selector.*` 孤儿键同源 —— 另外 6 个语言从头就没有这一段。）
 
 另：`common/src/devOnly/lang/config.json` 不是资源包文案，而是 `igtest` 指令经 `TranslationRecorder.dump`
 生成的 dump（`TestCommand.kt`），内容仍停在旧主题组（含上述 6 个已删键、也没有 `mode` / `custom_scheme`）——
