@@ -129,9 +129,8 @@ object Icons {
 /**
  * 图标：把 [Icons] 里的精灵按 **素材尺寸 × 倍率** 画出来。
  *
- * - 尺寸 = [SokitsuSprite.logicalSize] × [scale]，[scale] 缺省取 [LocalSokitsuPixelScale]
- *   （当前像素放大倍率，缺省 3）—— 即"一个素材像素对应 N 个逻辑像素"，
- *   图标大小随像素缩放设置联动；需要固定尺寸时传 [size] 直接接管；
+ * - 尺寸 = [SokitsuSprite.logicalSize] × [scale]，[scale] 缺省是**字面量 2** —— 需要与像素缩放联动时
+ *   显式传 `LocalSokitsuPixelScale.current`；需要固定尺寸时传 [size] 直接接管；
  * - 倍率必须是**整数**（配合整数像素缩放，非整数倍会让纹素大小不均、糊边）；
  * - **父级约束放不下时按能放下的最大整数倍率收缩**：精灵绘制是把源图拉伸到布局尺寸
  *   （`TextureFill.Stretch`），布局尺寸一旦被父级压小，素材就被**非等比**拉伸 —— 例如
@@ -141,7 +140,7 @@ object Icons {
  *   拿到按钮内容色，连 `contentBlend` / `disabledBlend` 的状态修正一起吃到；
  * - 精灵为空（缺素材）时布局尺寸为 0，等于什么都没画。
  *
- * @param scale 尺寸倍率（素材逻辑尺寸 → 布局尺寸），默认跟随 [LocalSokitsuPixelScale]
+ * @param scale 尺寸倍率（素材逻辑尺寸 → 布局尺寸），缺省 `2`
  * @param size 显式尺寸；非 null 时无视 [scale]
  */
 @Composable
