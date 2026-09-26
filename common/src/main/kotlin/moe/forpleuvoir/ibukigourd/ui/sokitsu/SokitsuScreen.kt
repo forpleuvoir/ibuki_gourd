@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.IntSize
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreenDefaults
 import moe.forpleuvoir.compose_minecraft.platform.screen.ScreenAnimation
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 import net.minecraft.client.gui.screens.Screen
@@ -40,7 +41,7 @@ object SokitsuScreen {
         parent: Screen? = null,
         renderParentScreen: Boolean = false,
         disableWorldRender: Boolean = ComposeScreenDefaults.disableWorldRenderByDefault,
-        pauseGame: Boolean = true,
+        pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
         closeOnEsc: Boolean = true,
         animation: ScreenAnimation = ComposeScreenDefaults.animation,
         exitParentOnOpen: Boolean = true,
@@ -72,7 +73,7 @@ object SokitsuScreen {
         parent: Screen? = null,
         renderParentScreen: Boolean = false,
         disableWorldRender: Boolean = ComposeScreenDefaults.disableWorldRenderByDefault,
-        pauseGame: Boolean = true,
+        pauseGame: Boolean = IGConfig.Gui.Screen.pauseGame,
         closeOnEsc: Boolean = true,
         animation: ScreenAnimation = ComposeScreenDefaults.animation,
         exitParentOnOpen: Boolean = true,

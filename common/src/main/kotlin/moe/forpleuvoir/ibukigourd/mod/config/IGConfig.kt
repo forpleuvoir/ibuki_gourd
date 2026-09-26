@@ -277,6 +277,14 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
             val disableWorldRender by configBoolean("disable_world_render", false)
                 .apply { observe { ComposeScreenDefaults.disableWorldRenderByDefault = it.getValue() } }
 
+            /**
+             * 新开的屏幕是否默认暂停游戏。
+             *
+             * 作为 [moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen] 的 `pauseGame` 缺省值，
+             * 逐屏调用时可显式覆盖。
+             */
+            val pauseGame by configBoolean("pause_game", false)
+
             /** 打开 Compose 屏幕时是否解除原版"界面内 60 帧"限制（无世界 + 有界面时原版会压帧）。 */
             val unlimitFramerate by configBoolean("unlimit_framerate", true)
                 .apply { observe { ComposeScreenHelper.unlimitFramerate = it.getValue() } }
