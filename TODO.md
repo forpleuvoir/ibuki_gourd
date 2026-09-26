@@ -21,7 +21,7 @@
 
 ---
 
-## 配置 GUI 重建清单（configwrapper）—— 主体已完成，余 2 项
+## 配置 GUI 重建清单（configwrapper）—— 主体已完成，余 1 项
 
 > 来源：`6771fcea`（迁移前整理）删除的 15 个 `ui/configwrapper/*.kt` 与所依赖的 23 个 `ui/preset/*.kt`，
 > 按实际调用统计得出。基础设施（Screen / Popup(`LocalPopupHost`) / 滚动 / 文本输入）由 compose-minecraft 提供，不在此列。
@@ -42,15 +42,25 @@
 - [x] `DurationConfigWrapper`
 - [x] `VectorConfigWrapper`：2i / 3i / 2f / 3f / 2d / 3d
 - [x] `ColorConfigWrapper`
-- [ ] `ColorSchemeConfigWrapper` —— 「一整套配色槽位」的编辑入口，**未实现**
+- [ ] `ColorSchemeConfigWrapper` —— 「一整套配色槽位」的编辑入口。**通用包装器仍未实现**：
+      `UIWrappers`（`ConfigUIWrapper.kt`）没有注册 `ColorScheme` 值类型，消费方要显示一份配色只能自己写 `uiWrapper`。
+      用户可见的那份需求已由主题组覆盖（2026-09-26 `f099e188`）：`IGConfig.Gui.Theme` 的 `mode` 行 +
+      `mod/config/ThemeConfig.kt` 的 `CustomColorSchemeEditor` → `ui/sokitsu/theme/ColorSchemeEditor.kt`
+      （`ColorSchemeEditorDialog`，槽位按钮组 + 亮暗标记 + 以默认浅/深色为底）；配色整份存在 `custom_scheme`
+      配置项里并以 `.uiWrapper { }` 整行不出
 - [x] `KeybindConfigWrapper`
 - [x] `ListConfigWrapper` / `MapConfigWrapper`（含编辑弹窗、拖拽排序与 `DragHandle` / `EditDialogContentList`）
-- [ ] `CacheConfigWrapper`（缓存清理 + 用量显示）—— 迁移时移除的 Cache 配置组尚未回归，
-      语言文件里 `ibukigourd.config.gui.cache.*` 文案仍留着（见 §D）
+- [x] ~~`CacheConfigWrapper`（缓存清理 + 用量显示）~~ —— **不再重建**（2026-09-26 结案）：它服务的两张 GPU 图集
+      （`item_texture_atlas_size` / `texture_atlas_size`）属旧 Skia 离屏渲染（`ui/util/render/`，见 §C），
+      `ItemIcon` 改原生 `Modifier.minecraftItem` 后已无对应实现，配置项没有回归落点；
+      对应文案（§D 的 `gui.cache.*`）同批删除
 - [x] 旧版没有的新件：`ConfigElementEditor`（编辑弹窗内按值的运行时类型取控件，不带行骨架）/
       `ConfigRowTheme`（配置行的组件 token 声明）/ `ConfigState`（`Config` → Compose `State`）/
-      `BezierCurveConfigWrapper`（自定义缓动曲线，见「缓动 easing 配置化」节）/
-      `IbukiGourdConfigScreen`（配置页入口 `ibukiGourdConfigScreen(parent)`，Fabric ModMenu 与 NeoForge 配置按钮共用）
+      `BezierCurveConfigWrapper`（自定义缓动曲线）/ `EasingConfigWrapper`（缓动预设行：选中「自定义」
+      即弹曲线编辑器、悬停控件显示当前自定义曲线预览，见「缓动 easing 配置化」节）/
+      `mod/config/ThemeConfig.kt`（`ThemeMode` / `resolveThemeScheme` / `CustomColorSchemeEditor`）/
+      配置页入口见 `mod/IbukiGourdModScreen.kt` 的 `openIbukiGourdModScreen(parent)`
+      （Fabric ModMenu 与 NeoForge 配置按钮共用），配置页只是它的一页
 
 ### 2. 组件清单（均已落地）
 
@@ -75,13 +85,18 @@
 - [x] `TabStrip`（页签条 + 面板）
       — `ui/sokitsu/TabStrip.kt` / `TabStripTheme.kt`：按 `TabStripPlacement`（Top / Bottom）选素材
       （素材只在贴面板的那一侧开口）；另有 `TabStripTab`；点页签原地不动，只有外部改选中才复位滚动窗口
+- [x] `TabRow`（等宽页签行 + 选中指示器）
+      — `ui/sokitsu/TabRow.kt` / `TabRowTheme.kt`（`676d1133`）：标签经 `Tab` 放进 `tabs` 槽，
+      每格宽度由页签行统一测量（`SubcomposeLayout`）、标签内容由 `Tab` 自己承担；
+      `indicator` 可替换（缺省整格宽的 Primary 指示器）；配置页的分页导航即用它
+      （`ConfigManagerWrapper`，`4dfd7a13` 改用页签导航）
 - [x] `TableLayout` + `LazyTableLayout`（表格）
-      — `ui/sokitsu/TableLayout.kt` / `TableLayoutDefaults.kt`：`TableLayoutScope` 的 `row` / `spanItem` DSL、
+      — `ui/sokitsu/TableLayout.kt`（`TableLayoutDefaults` 同文件内）：`TableLayoutScope` 的 `row` / `spanItem` DSL、
       `TableCellScope` 单元格对齐，表头与数据列尺寸对齐；`LazyTableLayout` 为惰性行版本
 - [x] 自动隐藏滚动条（旧 `AutoHideScrollbar`）
       — `ui/sokitsu/Scroller.kt` / `ScrollerTheme.kt`（meta 键 `scroller`）：
-        `VerticalScroller` / `HorizontalScroller` 常规版 + `VerticalOverlayScroller` /
-        `HorizontalOverlayScroller` 叠加版；`autoHide=true` 时无滚动空间**完全不组合**；
+        `VerticalScroller` / `HorizontalScroller` 常规版 + `VerticalFlatScroller` /
+        `HorizontalFlatScroller` flat 细条版；`autoHide=true` 时无滚动空间**完全不组合**；
         `autoFade=true` 时非活动（未滚动 / 未悬浮）一段时间后动画降可见度到 30%；
         滚动源经 `ScrollerAdapter` 解耦（`ScrollState` 直读 / `LazyListState` 估计法）
 - [x] `Toast`（操作反馈）
@@ -96,7 +111,7 @@
       — `ui/sokitsu/AlertDialog.kt` / `SimpleAlertDialog.kt`；主题 meta 键 `alert_dialog`，
       出入场动画由平台 `Dialog` 的图层快照重放承担（调用方用 `if (show)` 控制组合即可）
 - [x] 删除确认语义封装
-      — `ui/sokitsu/RemoveConfirmButton.kt`：`RemoveButton`（`delete` 图标 + 气泡提示，点击直接执行）
+      — `ui/editdialog/RemoveConfirmButton.kt`：`RemoveButton`（`delete` 图标 + 气泡提示，点击直接执行）
       + `RemoveConfirmButton`（点击弹 `SimpleAlertDialog` 确认，确认按钮用主题 `error` / `onError` 配色，
       标题取 `IGLang.Misc.removeConfirm`，另有补充正文槽位）
       — `quickAction` 在**点击时**求值，默认读全局 `isQuickAction`
@@ -105,12 +120,15 @@
       — `ui/sokitsu/FlexibleDialog.kt`：面板宽度由内容决定（`usePlatformDefaultWidth = false`，
       `minWidth` / `maxWidth` 缺省不约束），正文区 `weight(1f, fill = false)` 便于放滚动列表，
       面板精灵 / 配色 / 进出场动画沿用 `alert_dialog` 主题槽位
-      — `ui/sokitsu/EditDialog.kt`：以可编辑副本承载内容，确认时把副本快照交回
+      — `ui/editdialog/EditDialog.kt`：以可编辑副本承载内容，确认时把副本快照交回
       `onConfirm: (List<E>) -> Boolean`（返回 false 保持打开），取消 / 遮罩关闭直接丢弃副本
-      — `ui/sokitsu/EditDialogContent.kt`：`EditDialogContent`（表头 + 正文 + 角标按钮槽位）与
+      — `ui/editdialog/EditDialogContent.kt`：`EditDialogContent`（表头 + 正文 + 角标按钮槽位）与
       `EditDialogContentHeader`（可选首 / 尾列 + 内容列 + 分割线）
-      — `ui/sokitsu/EditDialogContentList.kt`：可拖拽排序的编辑行列表（三列对齐：拖拽手柄 / 内容 / 删除），
+      — `ui/editdialog/EditDialogContentList.kt`：可拖拽排序的编辑行列表（三列对齐：拖拽手柄 / 内容 / 删除），
       条目 key 由 `KeyedListState` 单调分配；`ListConfigWrapper` / `MapConfigWrapper` 即其消费者
+      — `ui/editdialog/EditDialogContentCards.kt`（`7f38d198`）：卡片网格容器（头部 = 拖拽手柄 + 尾部操作组，
+      可指定列数），装"整块编辑器"这类非表格内容；`BezierCurveConfigWrapper` 即其消费者
+      — 注：以上骨架与 `DragHandle` 都在 **`ui.editdialog/`**（`5ca8dec5` 从 `ui/sokitsu/` 拆出），不在 sokitsu 包内
 - [x] `DropdownMenu` + 菜单项（分开式）
       — `ui/sokitsu/menu/DropdownMenu.kt` / `DropdownMenuTheme.kt`（meta 键 `dropdown_menu`）：
       核心 API 走**无状态**（`expanded` / `onDismissRequest` / `anchorBounds`），另有把展开标志与
@@ -166,7 +184,7 @@
 **列表**
 
 - [x] 列表/映射条目编辑弹窗内容（旧 `EditDialogContent*`）
-      — `ui/sokitsu/EditDialogContent.kt`：`EditDialogContent`（默认表头 + 正文槽位
+      — `ui/editdialog/EditDialogContent.kt`：`EditDialogContent`（默认表头 + 正文槽位
       `(LazyListState) -> Unit` + 右下角浮动按钮槽位）与 `EditDialogContentHeader`
       （可选首 / 尾列 + 内容列 + 分割线）；表头由默认槽位渲染，内容区不要再写一次
 - [x] 浮动添加按钮 + 随滚动显隐（旧 FAB / `fabVisibilityAnimation` / `rememberFabVisibilityByScroll`）
@@ -213,9 +231,11 @@
 `DropdownMenu`(+`DropdownMenuItem`) / `SokitsuContextMenu`（文本框右键，theme 级
 `LocalContextMenuRepresentation`） / `Keyed` + `rememberKeyedList`（列表 key 稳定） /
 `Selector`（单/多选 + 搜索，单/多选共用展开体） /
-`VerticalScroller` + `HorizontalScroller`（常规）与 `VerticalOverlayScroller` + `HorizontalOverlayScroller`（叠加，
+`VerticalScroller` + `HorizontalScroller`（常规）与 `VerticalFlatScroller` + `HorizontalFlatScroller`（flat 细条，
 支持 `autoHide` / `autoFade`，滚动源经 `ScrollerAdapter` 解耦）/
-`BezierCurveEditor` + `BezierCurvePlot`（曲线编辑与预览）/ `UiState`（交互状态）/
+`BezierCurveEditor` + `BezierCurvePlot`（曲线编辑与预览）/ `TabRow`（等宽页签行 + 指示器）/
+`ColorSchemeEditorDialog` + `SokitsuThemeOverride`（配色编辑与配置驱动的主题覆盖）/
+`UiState`（交互状态）/
 主题与 `SokitsuThemeMeta` 体系。
 
 另有一个**源码内嵌的独立模块**可用（见 `NOTICE.md`）：
@@ -237,7 +257,8 @@
 ### 5. 实现顺序与现状
 
 > 原原则是「先补齐基础组件，配置 GUI 包装器框架暂不碰」。§1 已于 `9bad2f4f` 落地，
-> 现在只剩 `ColorSchemeConfigWrapper` / `CacheConfigWrapper` 两项（另见「曲线编辑器 —— 遗留项」）。
+> 现在只剩 `ColorSchemeConfigWrapper` 一项（通用包装器，用户可见需求已由主题组覆盖），
+> 另见「曲线编辑器 —— 遗留项」。
 
 - **基础组件（已完成）**：`FlatButton` 底座 + `IconButton` / `TextButton`、`Icon` + `Icons`（38 个）、
   `AlertDialog` + `SimpleAlertDialog`、`ColorPicker`（含 `ColorPickButton`）、`Toast`、
@@ -249,12 +270,13 @@
   `SokitsuScreen` + `SokitsuScreenScale`、`BezierCurveEditor` + `BezierCurvePlot`
 - **配置 GUI 专有件（已完成，随 §1）**：
   - 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）：`reorderable/` 模块内嵌、
-    `Icons.DragHandle` + `ui/sokitsu/DragHandle.kt`、`ui/sokitsu/EditDialogContentList.kt`
-  - `SearchBar` / `SearchPanel`：配置搜索，即 `ConfigManagerWrapper` 的私有 `ConfigSearchBar`
+    `Icons.DragHandle` + `ui/editdialog/DragHandle.kt`、`ui/editdialog/EditDialogContentList.kt`
+  - `SearchBar` / `SearchPanel`：配置搜索，即 `ConfigManagerWrapper` 的私有 `ConfigSearchField`
+    （原先的分组导航现已改为 `TabRow` 页签导航 + 底部搜索栏）
   - 多行可扩展文本编辑器：`StringConfigWrapper` 编辑弹窗内的 `MultiLine(6..12)`，非独立组件（§A）
-- **仍未做**：`ColorSchemeConfigWrapper`、`CacheConfigWrapper`（§1）；曲线编辑器预设行卡片化
+- **仍未做**：`ColorSchemeConfigWrapper`（§1，通用包装器）；曲线编辑器预设行卡片化
   （见「曲线编辑器 —— 遗留项」）
-- **不做**：hex 反向输入框（无出处，见 §B）
+- **不做**：`CacheConfigWrapper`（§1，其配置项已随旧 Skia 图集消失）；hex 反向输入框（无出处，见 §B）
 
 ---
 
@@ -264,7 +286,9 @@
 > `ScreenAnimationDefaults` / `ComposeScreenDefaults` / `DialogAnimationDefaults` /
 > `DialogComposeScreenDefaults`；配置改动对**之后新建**的屏幕 / 对话框生效。
 
-- [x] 屏幕：`fade_in_duration` / `fade_in_offset` / `fade` / `animation_enabled`、`disable_world_render`
+- [x] 屏幕：`fade_in_duration` / `fade_in_offset` / `fade` / `animation_enabled`、`disable_world_render`、
+      `unlimit_framerate`（`eb3a879f`：无世界的 Compose 界面不再被原版压到 60 帧；开关经
+      `ui/ComposeScreenHelper.kt` 暴露给每帧查询它的 `mixin/client/FramerateLimitTrackerMixin.java`）
 - [x] 对话框：`scrim_color` / `fade_in_duration` / `initial_scale`、`disable_world_render`
 - [x] **缓动 easing 配置化**（2026-09-20 `8d787350` 落地）：`IGConfig.Gui.Screen` / `Gui.Dialog` **各一份**
       `easing`（`configEnum`，`EasingPreset`：9 个预设含 `Custom`）+ `easing_custom`
@@ -272,7 +296,10 @@
       **不是** `configVector4`）；`init()` 与 `observe` 里经 `EasingPreset.resolve(custom)` 解析成
       `ComposeEasing` 灌给上游 `ScreenAnimationDefaults.easing` / `DialogAnimationDefaults.easing`。
       详见下节「缓动 easing 配置化」。
-- [x] **不做全局配置**（属具体屏幕的构造参数，上游也没有对应默认值对象）：`pauseGame` /
+- [x] **暂停游戏**：`pause_game`（2026-09-26 恢复）：`SokitsuScreen.create/open` 的 `pauseGame` 缺省值
+      直接取该配置项，逐屏可覆盖。上游 `ComposeScreen` 的缺省是常量 `true`、没有全局默认值对象，
+      所以本项只作为本仓屏幕入口的缺省值，不写回 CMP。
+- [x] **不做全局配置**（属具体屏幕的构造参数，上游也没有对应默认值对象）：
       `closeOnEsc` / `density` / `exitParentOnOpen` / `renderParentScreen`
 
 ### 缓动 easing 配置化 —— 事实清单与定案（2026-09-20）
@@ -320,8 +347,12 @@
 - `IGConfig`：`easing` 用 `configEnum("easing", EasingPreset.Standard, EasingPreset)`；`easing_custom` 用
   `ConfigItem("easing_custom", CubicBezier.Standard, ConfigSerde.of(CubicBezier))` —— 即问题 4 选了
   「自定义 Codec 的结构体」而非两个 `configVector2f`，默认取 `CubicBezier.Standard`。
-- GUI 控件：`ui/curve/BezierCurveEditor.kt` + `BezierCurvePlot.kt`（预设行 + 四点编辑 + 曲线预览），
-  经 `ui/configwrapper/BezierCurveConfigWrapper.kt` 接进配置页。
+- GUI 控件：`ui/curve/BezierCurveEditor.kt` + `BezierCurvePlot.kt`（预设行 + 四点编辑 + 曲线预览）。
+  `easing` 行走 `ui/configwrapper/EasingConfigWrapper.kt`（`80f521d9`：一行预设选择器，选中「自定义」即弹曲线编辑器，
+  悬停控件显示当前自定义曲线的预览）；`easing_custom` 一整份 `CubicBezier` 不再单独出选项行，
+  只作为 `easing` 行的另一份配置项存在。`ui/configwrapper/BezierCurveConfigWrapper.kt` 现在服务于
+  **`CubicBezier` 值类型**的默认分发（`ConfigUIWrapper` 注册表命中），编辑体改用 `EditDialogContentCards` 卡片容器
+  （`7f38d198`）。
 - 原「待拍板」5 问的答案：①「方向」**不进配置**（上游只有一条曲线，出场为进场镜像）；②屏幕与对话框
   **各一份**；③只做枚举不够，**必须支持自定义四点**（平台默认曲线 `(0,0,0.2,1)` 要能在配置里表达）；
   ④自定义 Codec 结构体；⑤`easing` / `easing_custom` 的 label + comment 已落 8 个语言文件
@@ -336,8 +367,9 @@
 
 ### 曲线编辑器 —— 遗留项（2026-09-20 记录）
 
-- [ ] **预设行改卡片式**：`ui/curve/BezierCurveEditor` 的预设行现在是 `FlowRow` + `TextButton`
-      的纯文字按钮；改成卡片式（每个预设一张卡片、内含迷你曲线预览）。**用户明确押后**，先记录不做。
+- [ ] **预设行改卡片式**：`ui/curve/BezierCurveEditor` 的预设行现在是 `Column` 里一列等宽 `TextButton`
+      （`BezierCurveEditor.kt` 预设循环，代码里没有 `FlowRow`）；改成卡片式（每个预设一张卡片、内含迷你曲线预览）。
+      **用户明确押后**，先记录不做。
 
 ---
 
@@ -351,7 +383,8 @@
 
 | 条目 | 出处（`6771fcea^` 路径） | 行数 |
 |---|---|---|
-| 15 个 config wrapper（2026-09-20 已重建，仍缺 `ColorSchemeConfigWrapper` / `CacheConfigWrapper`） | `ui/configwrapper/{Base, CacheConfigWrapper, ColorConfigWrapper, ColorSchemeConfigWrapper, ConfigGroupWrapper, ConfigManagerWrapper, ConfigUIWrapper, DurationConfigWrapper, EnumConfigWrapper, KeybindConfigWrapper, ListConfigWrapper, MapConfigWrapper, PrimitiveConfigWrapper, StringConfigWrapper, VectorConfigWrapper}.kt` | 合计 2,786 |
+| 15 个 config wrapper（2026-09-20 已重建） | `ui/configwrapper/{Base, CacheConfigWrapper, ColorConfigWrapper, ColorSchemeConfigWrapper, ConfigGroupWrapper, ConfigManagerWrapper, ConfigUIWrapper, DurationConfigWrapper, EnumConfigWrapper, KeybindConfigWrapper, ListConfigWrapper, MapConfigWrapper, PrimitiveConfigWrapper, StringConfigWrapper, VectorConfigWrapper}.kt` | 合计 2,786 |
+| ↑ 现状（2026-09-26） | 目录里 18 个文件 = 15 项里的 13 项（`Base.kt` 现名 `ConfigRowWrapper.kt`）+ 新增 5 个（`BezierCurveConfigWrapper` / `EasingConfigWrapper` / `ConfigElementEditor` / `ConfigRowTheme` / `ConfigState`）；`CacheConfigWrapper` **不做**，通用 `ColorSchemeConfigWrapper` 仍缺（见 §1） | — |
 | 删除确认语义封装 | `ui/preset/RemoveButton.kt`（`fun RemoveConfirmButton` :25） | 60 |
 | 可伸缩编辑弹窗 | `FlexibleDialog` 在 `ui/preset/SimpleAlertDialog.kt:92` | 187 |
 | 列表条目编辑弹窗内容 | `EditDialog*` 在 `ui/configwrapper/{String,Map,List}ConfigWrapper.kt` 里**各一份** | — |
@@ -378,7 +411,9 @@
 - `ui/preset/modifier/Backgourd.kt`（47）
 - `ui/preset/state/RememberInputState.kt`（66）、`ui/preset/state/RememberTextFieldState.kt`（29）
 - `ui/widget/ComposeWidget.kt`（80）
-- `ui/util/ComposeScreenHelper.kt`（15）
+- `ui/util/ComposeScreenHelper.kt`（15）—— **同名文件已按新用途重写**（2026-09-26）：现为
+  `ui/ComposeScreenHelper.kt`，只回答「当前屏幕是不是 `ComposeScreen`」并给原版补丁提供
+  `unlimitFramerate` / `shouldUnlimitFramerate()`，与旧那份 15 行的屏幕辅助无关
 - ⚠️ `ItemIcon` 的**隐性依赖** `ui/util/render/`（当前仓库零引用、迁移时全删）：
   `SkiaItemRenderHelper.kt`(409)、`ItemRenderAtlas.kt`(390)、`TextureAtlasPainter.kt`(217)、
   `OffscreenRenderTarget.kt`(156)、`AtlasRectAllocator.kt`(133)、`ItemAtlasPainter.kt`(67)，
@@ -386,26 +421,47 @@
 
 > 2026-09-22 复核：`ItemIcon` 已按原生 `Modifier.minecraftItem` / `Modifier.minecraftTooltip` 重做
 > （见 §2），不再需要 `ui/util/render/` 那 1,372 行；其余条目由 compose-minecraft 基座覆盖。
+>
+> 2026-09-26 复核：`ui/overlay` **已按新基座重建**（与 26.1.2 同 API 的常驻覆盖层）——
+> `OverlayService`（`register(key, present, content)` / `registerFrameListener` → `OverlayHandle`）、
+> `OverlayHost`（自持 `MinecraftComposeScene`，场景根复用 `SokitsuScreenRoot` —— 覆盖层与屏幕同档缩放，
+> 经 `mixin/client/GuiRendererOverlayMixin.java` 挂在 `GuiRenderer.render` TAIL 每帧驱动，
+> 只转发鼠标 MOVE、`present` 全 false 时整帧跳过）、
+> `OverlayContainer`（按注册顺序铺满窗口组合条目）。
+> `Toast` 不再是自持场景的独立宿主：它经 `ui/sokitsu/toast/ToastOverlay.install()` 注册成覆盖层的
+> 一个条目（`present = { !ToastHandler.isIdle }`）并用 `registerFrameListener` 推进 `ToastHandler.tick`，
+> 提示自己的配色在条目内套 `SokitsuTheme`。工具提示（tooltip）仍在场景内（`LocalPopupHost`），不经覆盖层。
 
-### D. 语言文件孤儿文案（2026-09-22 复核）
+### D. 语言文件文案（2026-09-26 复核）
 
-上一版记的两项**都已解决**：
+已解决的历史项：
 
 - ✅ `gui.screen.fade_in_offset` / `fade_in_duration` 文案已改为「进出场」（8 个语言文件），
   并新增 `easing` / `easing_custom` 文案；
-- ✅ `gui.screen.pause_game` 的标题 + 注释已从 8 个语言文件删除（全局暂停不做配置）。
+- ✅ `gui.screen.pause_game` 的标题 + 注释一度随「全局暂停不做配置」删除，2026-09-26 随配置项
+  `pause_game`（`SokitsuScreen.pauseGame` 的缺省值）恢复，8 个语言文件的文案沿用 26.1.2 的原文；
+- ✅ **12 个孤儿键（12 键 × 8 文件 = 96 条）已删除**：
+  `ibukigourd.config.gui.cache.*`（组标题 + 注释 + 2 项 + 2 注释，共 6 键）随 §1 的 `CacheConfigWrapper`
+  结案一并删除；`ibukigourd.config.gui.theme.{light_mode, color_scheme_seeds, color_scheme_seed}`
+  （各含 `.comment`，共 6 键）是旧主题组的残留 —— 主题组虽已回归，但配置项换成了
+  `mode` + `custom_scheme`，这 6 键在 Kotlin 侧零引用。
+- ✅ `ibukigourd.config.open_screen*`（2 键）**不再算孤儿**：`IGConfig` 重新用
+  `configKeybind("open_screen", …)` 接 `openIbukiGourdModScreen()`，文案已复活。
 
-**当前真正待清的是三组孤儿键** —— 对应配置项已随 UI 迁移移除，Kotlin 侧零引用
-（`IGConfig` 下只剩 `Gui` 的 `Toast` / `Scroller` / `Screen` / `Dialog` 四组）：
+**待补的翻译缺口**（不是孤儿键，是没译）：
 
-| 语言键前缀 | 键数/文件 | 原属 |
+| 语言 | 缺的键 | 键数 |
 |---|---|---|
-| `ibukigourd.config.gui.cache.*` | 6 | 已移除的 Cache 配置组（`item_texture_atlas_size` / `texture_atlas_size`），见 §1 `CacheConfigWrapper` |
-| `ibukigourd.config.gui.theme.*` | 8 | 已移除的 Theme 配置组（`light_mode` / `color_scheme_seeds` / `color_scheme_seed`） |
-| `ibukigourd.config.open_screen*` | 2 | 已移除的"打开模组屏幕"快捷键 |
+| `fr_fr` | `gui.toast.duration`(+comment) / `gui.toast.max_visible`(+comment) / `color.paste_success` / `color.paste_failed` / 整段 selector 文案 | 14 |
+| `ja_jp` / `ko_kr` / `ru_ru` / `zh_hk` / `zh_tw` | 整段 selector 文案（`#selector` 分节标记 + `selector.auto_max_items` / `selector.expand_style` 系列） | 各 8 |
 
-合计 **16 键 × 8 个语言文件 = 128 条**。处理方式二选一：随对应配置项回归（如 §1 的 `CacheConfigWrapper`），
-或直接删除。
+删完后 `en_us` / `zh_cn` 各 194 键，其余 6 个语言各 180 ~ 186 键。
+（`"#xxx"` 是语言文件里的**分节标记**约定，如 `#color` / `#config` / `#input`；六个语言缺 `#selector`
+是整段 selector 文案都没译的结果，不是异常键。）
+
+另：`common/src/devOnly/lang/config.json` 不是资源包文案，而是 `igtest` 指令经 `TranslationRecorder.dump`
+生成的 dump（`TestCommand.kt`），内容仍停在旧主题组（含上述 6 个已删键、也没有 `mode` / `custom_scheme`）——
+它靠游戏内重新 dump 刷新，不手工维护。
 
 - 2026-09-20 复核已解决：「文本右键上下文菜单」已勾选（`ui/sokitsu/menu/SokitsuContextMenu.kt`）；
   「删除确认」重复条目已去重（保留「弹窗与菜单」一条）。
