@@ -50,9 +50,10 @@ dependencies {
 | `$minecraftVersion` | `26.2` |
 | `$ibukigourdVersion` | `0.11.1+alpha` |
 
-依赖的库（`nebula`、`compose-minecraft`、`reorderable`、`aseprite`）会随加载器构件内嵌
-（fabric 走 `include`、neoforge 走 `jarJar`），通常无需另行声明；运行时还需要对应加载器的
-Fabric API + Fabric Language Kotlin，或 Kotlin for Forge。
+依赖的库（`nebula`、`compose-minecraft`）会随加载器构件内嵌（fabric 走 `include`、neoforge
+走 `jarJar`），通常无需另行声明；`.ase` 解析（`asetools`）与拖拽排序（`sh.calvin.reorderable`）
+已并入本库源码、随构件直接分发。运行时还需要对应加载器的 Fabric API + Fabric Language
+Kotlin，或 Kotlin for Forge。
 
 ### 2. 三分钟上手
 

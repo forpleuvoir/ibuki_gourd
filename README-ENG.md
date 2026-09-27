@@ -51,9 +51,10 @@ dependencies {
 | `$minecraftVersion` | `26.2` |
 | `$ibukigourdVersion` | `0.11.1+alpha` |
 
-Bundled dependencies (`nebula`, `compose-minecraft`, `reorderable`, `aseprite`) travel inside the loader artifacts
-(`include` on Fabric, `jarJar` on NeoForge), so you normally do not declare them. At runtime you still need
-Fabric API + Fabric Language Kotlin, or Kotlin for Forge.
+Bundled dependencies (`nebula`, `compose-minecraft`) travel inside the loader artifacts (`include` on Fabric,
+`jarJar` on NeoForge), so you normally do not declare them. `.ase` parsing (`asetools`) and drag-and-drop
+(`sh.calvin.reorderable`) are now inlined into this library's own sources and ship with the artifacts.
+At runtime you still need Fabric API + Fabric Language Kotlin, or Kotlin for Forge.
 
 ### 2. Three-minute tour
 

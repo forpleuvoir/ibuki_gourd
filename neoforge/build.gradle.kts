@@ -121,14 +121,6 @@ dependencies {
     api(libs.nebula)
     jarJar(libs.nebula)
 
-    //ASE 解析（.ase 直读，jarJar 打进 mod）
-    api(project(":aseprite"))
-    jarJar(project(":aseprite"))
-
-    //拖拽排序（Reorderable 源码内嵌，jarJar 打进 mod）
-    api(project(":reorderable"))
-    jarJar(project(":reorderable"))
-
     api(libs.composeMinecraft.neoforge)
     jarJar(libs.composeMinecraft.neoforge)
 }

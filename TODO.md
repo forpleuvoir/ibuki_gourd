@@ -238,11 +238,11 @@
 `UiState`（交互状态）/
 主题与 `SokitsuThemeMeta` 体系。
 
-另有一个**源码内嵌的独立模块**可用（见 `NOTICE.md`）：
+另有一套**源码内嵌**的拖拽排序可用（见 `NOTICE.md`）：
 
-- `reorderable/` — Reorderable v3.0.0（Apache-2.0）的拖拽排序实现，覆盖 Lazy 列表 / Lazy 网格 /
-  交错网格与非 Lazy 列表四套 API，包名保持上游 `sh.calvin.reorderable`；
-  `common` 已以 `compileOnly` 接入，fabric / neoforge 侧随 mod jar 内嵌。
+- `sh.calvin.reorderable` — Reorderable v3.0.0（Apache-2.0），覆盖 Lazy 列表 / Lazy 网格 /
+  交错网格与非 Lazy 列表四套 API，包名保持上游；源码已并入 `common/src/main/kotlin/sh/calvin/reorderable/`，
+  随本库自身类分发。
 
 ### 4. 设计点（已拍板）
 
@@ -269,7 +269,7 @@
   `KeySetter`（按键绑定捕获与设置）、`TabStrip`、`TableLayout` + `LazyTableLayout`、
   `SokitsuScreen` + `SokitsuScreenScale`、`BezierCurveEditor` + `BezierCurvePlot`
 - **配置 GUI 专有件（已完成，随 §1）**：
-  - 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）：`reorderable/` 模块内嵌、
+  - 可拖拽排序列表 + `DragHandle`（旧 `ReorderableItemList`）：`sh.calvin.reorderable` 源码内嵌、
     `Icons.DragHandle` + `ui/editdialog/DragHandle.kt`、`ui/editdialog/EditDialogContentList.kt`
   - `SearchBar` / `SearchPanel`：配置搜索，即 `ConfigManagerWrapper` 的私有 `ConfigSearchField`
     （原先的分组导航现已改为 `TabRow` 页签导航 + 底部搜索栏）

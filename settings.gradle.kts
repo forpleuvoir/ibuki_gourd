@@ -37,8 +37,6 @@ plugins {
 
 rootProject.name = "IbukiGourd"
 
-include("aseprite")
-include("reorderable")
 include("common")
 include("fabric")
 include("neoforge")

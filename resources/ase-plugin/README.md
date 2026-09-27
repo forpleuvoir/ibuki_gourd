@@ -12,7 +12,7 @@ Aseprite 扩展：为 `.ase` 的图层附加 **Sokitsu 纹理元数据**，供�
 ## 安装
 
 ```bash
-cd aseprite/ase-plugin
+cd resources/ase-plugin
 zip sokitsu.aseprite-extension package.json sokitsu.lua
 ```
 

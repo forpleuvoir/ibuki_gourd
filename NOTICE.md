@@ -17,9 +17,10 @@ The following components are licensed under the Apache License, Version 2.0:
 
   Copyright 2023 Calvin Liang — https://github.com/Calvin-LL/Reorderable
 
-  Vendored into this project as a standalone Gradle module (`reorderable/`), keeping the
-  upstream package name. Source files retain the upstream copyright header and additionally
-  carry a notice stating that they were modified.
+  Vendored into this project as source under `common/src/main/kotlin/sh/calvin/reorderable/`,
+  keeping the upstream package name; it ships inside the IbukiGourd artifacts. Source files
+  retain the upstream copyright header and additionally carry a notice stating that they were
+  modified.
 
 - **Compose Minecraft** (`moe.forpleuvoir:compose_minecraft`) — embedded as a jar
 

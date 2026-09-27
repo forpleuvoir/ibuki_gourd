@@ -3,6 +3,7 @@ v1.0.0-alpha
   - 本条目覆盖自 `v0.11.0+alpha`（`26.1.2`）之后的全部改动，共 100+ 次提交
   - `Minecraft`版本更新至`26.2`（Fabric API `0.157.0+26.2` / Loader `0.19.3` / Loom `1.17.19`；NeoForge `26.2.0.59` / moddev `2.0.143`；ModMenu `20.0.1`）
   - 工具链更新至`Kotlin` `2.4.0` / `JVM` `25`；依赖库`nebula`更新至`0.4.0`
+  - **【工程】**`aseprite`（`.ase` 解析）与 `reorderable`（拖拽排序，Apache-2.0）两个独立模块并入 `common` 源码：不再作为独立坐标发布、不再出现在对外 POM，也不再作为嵌套 jar 内嵌，随本库自身类一起分发
   - **【UI 重写】**渲染改用自研`compose-minecraft` `0.1.0`：内嵌 androidx Compose，绘制直连原版`GuiGraphics`；移除`Compose Multiplatform`桌面离屏渲染与`Skia` / `Material3` / `MaterialKolor` / `backdrop`依赖
   - **【UI 重写】**新增像素风组件库`ui/sokitsu`：`Button` / `ColorButton` / `FlatButton`(+`IconButton` / `TextButton`) / `Icon`+`Icons`(38 个`.aseprite`图标) / `Surface` / `Switch` / `Slider`(+`NumberSlider`) / `TextField`(+`NumberField`) / `Text` / `Divider` / `ProgressBar` / `RadioButton`(+`RadioButtonGroup`) / `Scroller`(常规 + flat 细条，`autoHide` / `autoFade`) / `TabStrip` / `TabRow` / `TableLayout`(+`LazyTableLayout`) / `AlertDialog`(+`SimpleAlertDialog`) / `FlexibleDialog` / `DropdownMenu` / `Tooltip` / `Toast` / `UiState`
   - **【UI 重写】**新增主题体系：`SokitsuTheme`入口、语义槽位`ColorScheme`+`ColorSchemeToken`与「调用点 > 组件 token 表 > 主题槽位」回退链、资源包主题 meta`SokitsuThemeMeta`、配置驱动的运行时覆盖`SokitsuThemeOverride`、`ThemeType`+`systemTheme()`系统主题探测

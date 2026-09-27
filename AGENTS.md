@@ -41,6 +41,8 @@
 ibuki_gourd/
 ├── common/                 # 共享逻辑（绝大部分 Kotlin 代码）
 │   ├── src/main/kotlin/moe/forpleuvoir/ibukigourd/   # 见下“源码包结构”
+│   ├── src/main/kotlin/sh/calvin/reorderable/         # Reorderable v3.0.0 源码内嵌（Apache-2.0），包名保持上游
+│   ├── src/test/                                      # asetools 单元测试 + .aseprite 固件（仓内唯一纳入版本管理的测试源集）
 │   ├── src/main/java/.../mixin/                       # mixin（含 client 子包）
 │   ├── src/main/resources/
 │   │   ├── META-INF/accesstransformer.cfg             # NeoForge AT
@@ -70,21 +72,16 @@ ibuki_gourd/
 │   ├── src/main/resources/META-INF/{neoforge.mods.toml,services/}
 │   ├── src/main/resources/ibukigourd.neoforge.mixins.json
 │   └── build.gradle.kts                               # multiloader-loader + neoforgedModDev
-├── aseprite/              # ASE（Aseprite）文件解析库（纯 Kotlin JVM 模块，零第三方依赖，独立发布）
-│   ├── src/main/kotlin/moe/forpleuvoir/ibukigourd/asetools/   # Ase / AseParser / AseRenderer
-│   └── src/test/                                      # 单元测试（仓内唯一纳入版本管理的测试源集）
-├── reorderable/           # Reorderable v3.0.0 源码内嵌（Apache-2.0），包名保持 sh.calvin.reorderable
-│   └── src/main/kotlin/sh/calvin/reorderable/         # Lazy 列表 / 网格 / 交错网格 / 非 Lazy 列表四套 API
 ├── buildSrc/
 │   ├── build.gradle.kts                               # 预编译 Groovy 插件 + Kotlin/Compose Gradle 插件
 │   └── src/main/groovy/
 │       ├── multiloader-common.gradle                  # 公共：kotlin/compose 插件、Java25、processResources 模板、publishing
 │       └── multiloader-loader.gradle                  # 加载器侧
 ├── doc/                   # 文档用图（logo、截图）+ 开发者手册 `doc/manual/`
-├── resources/             # 素材源文件（.aseprite / .blend，不参与构建）
+├── resources/             # 素材源文件（.aseprite / .blend，不参与构建）+ Aseprite 插件 `ase-plugin/`
 ├── gradle/libs.versions.toml                          # 版本目录
 ├── gradle.properties                                  # mod 元数据占位符
-├── settings.gradle.kts                               # include("aseprite","reorderable","common","fabric","neoforge")
+├── settings.gradle.kts                               # include("common","fabric","neoforge")
 ├── build.gradle.kts                                  # 顶层：info.toml 生成 + 发布/构建任务
 ├── ibukigourd.info.toml                               # 给 shields.io 用的版本信息（构建生成，勿手改）
 ├── README.md / README-ENG.md                          # 使用说明（已随 UI 迁移重写，手册见 doc/manual/）
@@ -93,13 +90,14 @@ ibuki_gourd/
 ```
 
 > `runs/`、`build/`、`modJar/`、`.gradle/`、`.idea/`、`.kotlin/` 等已在 `.gitignore` 中，勿提交。
-> `src/test/**` 默认被忽略；开发期测试代码放在 `src/devOnly/`（`aseprite/src/test/` 除外，该模块测试纳入版本管理）。
+> 仓库根的 `src/test/**` 被忽略；纳入版本管理的测试是 `common/src/test/`（asetools 单元测试 + `.aseprite` 固件），开发期测试代码放在 `common/src/devOnly/`。
 
 ## 源码包结构（`common/.../moe/forpleuvoir/ibukigourd/`）
 
 | 包 | 职责 |
 |---|---|
 | `(根)` | `IbukiGourd`（common 入口 `object`，`MOD_ID="ibukigourd"`）、`IbukiGourdClient`（client 入口） |
+| `asetools` | ASE（Aseprite）文件解析：`Ase` / `AseParser`（`.ase` 直读）/ `AseRenderer`；零第三方依赖 |
 | `api` | 框架 SPI：`Tickable`、`ClientResourceReloaderListener` |
 | `command` / `command.dsl` | Brigadier 包装；DSL：`ArgumentScope`、`RequiredArgumentScope`、`createCommand`、`registerCommand`、`@CommandDslMark` |
 | `config` / `config.item` | 配置框架：`ModConfigManager`、`ModConfigHandler`、`ClientModConfigManager/Handler`、`ServerModConfigManager/Handler`（另含 `ConfigExtensions`、`LoggerExceptionHandler`）；配置项构造器 `ConfigKeyBind`（`configToggleKeybind` 的默认 `onSwitch` 会弹一条「组 → 配置名 : 开/关」的 Toast，tag 取配置路径所以连按只刷新同一条）/ `ConfigVector` / `ConfigPairList` / `ConfigEnum` |
@@ -167,7 +165,7 @@ gradlew.bat publishModToLocalRepository       # Maven Local
 # 单模块构建/测试
 gradlew.bat :fabric:build
 gradlew.bat :neoforge:build
-gradlew.bat :aseprite:test
+gradlew.bat :common:test
 ```
 
 - 开发期运行配置由 `fabric`/`neoforge` 的 `build.gradle.kts` 中的 `runs{}` 定义：fabric 为 `client` / `server`（client 用 `devOnly` 源集），neoforge 为 `client` / `server` / `data`；运行目录 `runs/client`、`runs/server`。
@@ -205,7 +203,7 @@ gradlew.bat :aseprite:test
 1. **改公共 API 前确认影响面**：`config` / `command.dsl` / `event` / `render` 属于对外 API，消费方 MOD 依赖其签名，破坏性改动需谨慎并更新 `README.md` 与 `doc/manual/` 对应章节。旧 UI 相关 API（旧 `ui` 包、旧抽屉式 `ModScreen` 等）已随迁移删除；新 `ui/sokitsu`（含 `ui.configwrapper` 配置 GUI）已落地，`SokitsuScreen` / `ui/ModScreen.kt` 的模组屏幕 / `Modifier.tooltip` / `Toast` / `ui.overlay` 等已成对外面，改动同样需谨慎。
 2. **跨加载器改动**：能放 `common` 就放 `common`；平台相关能力通过 `platform/services` 抽象，由 fabric/neoforge 各自实现并通过 `META-INF/services` 注册，勿在 common 里硬编码平台判断。
 3. **Mixin**：放 `common/.../mixin`（client 相关放 `mixin/client`），并在对应加载器的 `*.mixins.json` 注册；Fabric access widener 用 `ibukigourd.classtweaker`，NeoForge AT 用 `META-INF/accesstransformer.cfg`。
-4. **compose-minecraft 依赖**：`common` 用 **`compileOnly(libs.composeMinecraft.common)`**（只编译、不传递，打包由加载器侧负责）；`fabric` 用 `api(libs.composeMinecraft.fabric)` + `include(...)`；`neoforge` 用 `api(libs.composeMinecraft.neoforge)` + `jarJar(...)`。构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖，所以同时把 `nebula` / `aseprite` / `reorderable` 各自 `api + include`/`jarJar`。neoforge 另有 `bundledApi` 配置：`api` 已 `extendsFrom(bundledApi)`，并在别处解析其完整传递依赖树后逐个提升为 `jarJar` 直接依赖（等价于 Loom 的 `jarJarInternal`）。构件从 `mavenLocal()` 解析（neoforge 保留 compose 旧坐标重定向处理），调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。
+4. **compose-minecraft 依赖**：`common` 用 **`compileOnly(libs.composeMinecraft.common)`**（只编译、不传递，打包由加载器侧负责）；`fabric` 用 `api(libs.composeMinecraft.fabric)` + `include(...)`；`neoforge` 用 `api(libs.composeMinecraft.neoforge)` + `jarJar(...)`。构件 pom 已排除 kotlin/kotlinx/annotations 传递依赖，所以同时把 `nebula` 以 `api + include`/`jarJar` 打包。`asetools`（`.ase` 直读）与 `sh.calvin.reorderable`（拖拽排序）已并入 `common` 源码，随本库自身类一起分发，不再作为嵌套 jar 内嵌。neoforge 另有 `bundledApi` 配置：`api` 已 `extendsFrom(bundledApi)`，并在别处解析其完整传递依赖树后逐个提升为 `jarJar` 直接依赖（等价于 Loom 的 `jarJarInternal`）。构件从 `mavenLocal()` 解析（neoforge 保留 compose 旧坐标重定向处理），调试本地版本时在 `~/.m2/repository/moe/forpleuvoir/` 下确认其版本。新增 UI 依赖请沿用此模式。
    **改完 CMP（`Compose-Minecraft`）源码后必须提醒用户手动发布/推送一次** —— 未发布时本仓仍会解析到 mavenLocal 里的旧构件，改了也不生效；发布动作由用户执行，助手只负责提醒。
 5. **先读后写**：修改文件前先读取确认现状；遵循周边代码的命名、注释密度与惯用法。
 6. **构建验证**：完成 Kotlin 改动后，只能用 IntelliJ IDEA MCP 的原生构建/检查能力验证（见下节「IntelliJ IDEA MCP 与验证」）；**不得在终端或 shell 里跑 Gradle**。不要声称“已通过测试”除非真的在 IDEA 里跑过。
