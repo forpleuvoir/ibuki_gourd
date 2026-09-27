@@ -268,7 +268,7 @@ fun ConfigName(config: ConfigNode, modifier: Modifier = Modifier) {
             color = Color.Unspecified.resolve(ConfigRowTokens.Comment),
             maxLines = ConfigRowDefaults.CommentMaxLines,
             overflow = TextOverflow.Ellipsis,
-            onTextLayout = { truncated = it.hasVisualOverflow },
+            onTextLayout = { truncated = it.hasVisualOverflow || it.lineCount > 1 },
         )
     }
 }

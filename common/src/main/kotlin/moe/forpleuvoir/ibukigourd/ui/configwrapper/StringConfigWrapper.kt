@@ -76,7 +76,7 @@ fun StringConfigWrapper(config: Config<String>, modifier: Modifier = Modifier) {
  * @param isError 错误态，描边改染错误色
  */
 @Composable
-internal fun StringValueField(
+fun StringValueField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -113,7 +113,7 @@ internal fun StringValueField(
  * 多行字符串编辑弹窗：确认时才把整段文本交回（取消 / 遮罩关闭直接丢弃）。
  */
 @Composable
-internal fun StringEditDialog(
+fun StringEditDialog(
     title: @Composable () -> Unit,
     initial: String,
     onDismiss: () -> Unit,
