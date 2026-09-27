@@ -81,6 +81,7 @@
   "ibukigourd.misc.not_in_range": "%s は %s ~ %s の範囲内ではありません",
   "ibukigourd.misc.copy_success": "%s をクリップボードにコピーしました",
   "ibukigourd.misc.ui_disabled": "現在のグラフィックスバックエンドは IbukiGourd UI に対応していないため、UI を無効にしました",
+  "ibukigourd.misc.screen_crash": "%s、画面は自動的に閉じました",
   "ibukigourd.theme.editor.title": "カラースキーム",
   "ibukigourd.theme.base_from_light": "既定のライト",
   "ibukigourd.theme.base_from_dark": "既定のダーク",

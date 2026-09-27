@@ -73,4 +73,6 @@ object MiscLang {
 
     inline val uiDisabled get() = lang("ui_disabled")
 
+    inline fun screenCrash(exception: String) = lang("screen_crash", exception)
+
 }
