@@ -57,7 +57,7 @@ fun IbukiGourdModScreen(modifier: Modifier = Modifier) {
     ModScreen(
         tabs = ibukiGourdModScreenTabs,
         modifier = modifier,
-        title = { Text(IbukiGourd.MOD_NAME, style = SokitsuTheme.typography.subtitle.copy(fontWeight = FontWeight.Bold),) },
+        title = { Text(IbukiGourd.MOD_NAME, fontWeight = FontWeight.Bold,) },
         icon = { ModScreenIcon(identifier("icon.png"), onClick = rememberEasterEggTrigger()) },
     )
 }

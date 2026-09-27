@@ -153,6 +153,7 @@ fun Text(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     fontSize: TextUnit = resolveDefaultFontSize(),
+    textAlign: TextAlign = TextAlign.Unspecified,
 ) {
     val textColor = color.takeOrElse { style.color?.toColor() ?: LocalContentColor.current }
     BasicText(
@@ -164,7 +165,8 @@ fun Text(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        fontSize = fontSize
+        fontSize = fontSize,
+        textAlign = textAlign,
     )
 }
 
