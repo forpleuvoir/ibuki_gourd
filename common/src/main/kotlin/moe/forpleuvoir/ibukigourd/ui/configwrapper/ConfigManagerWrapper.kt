@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.config.matchWithTranslate
 import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -275,10 +276,8 @@ private fun ConfigPageContent(page: ConfigPage?, modifier: Modifier = Modifier) 
                     Tab(
                         selected = index == current,
                         onClick = { selectedTab = index },
-                        modifier = if (tab.comment.plainText.isNotEmpty()) {
+                        modifier = Modifier.thenIf(tab.comment.plainText.isNotEmpty()) {
                             Modifier.tooltip { Text(component = tab.comment) }
-                        } else {
-                            Modifier
                         },
                         text = { Text(component = tab.title) },
                     )

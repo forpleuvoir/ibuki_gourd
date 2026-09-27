@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurveEditor
 import moe.forpleuvoir.ibukigourd.ui.curve.BezierCurvePlotDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
@@ -43,12 +44,10 @@ fun EasingConfigWrapper(
     var editing by remember(config) { mutableStateOf(false) }
 
     // 预览只对自定义曲线有意义：回弹 / 弹跳 / 弹性不是三次贝塞尔，没有四点可画
-    val preview = if (value == EasingPreset.Custom) {
+    val preview = Modifier.thenIf(value == EasingPreset.Custom) {
         Modifier.tooltip(delay = ConfigRowDefaults.TooltipDelay) {
             CurveTooltipPreview(customCurve, yRange)
         }
-    } else {
-        Modifier
     }
 
     EnumConfigWrapper(

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ProvideContentColorTextStyle
@@ -96,9 +97,9 @@ fun FlexibleDialog(
         ) {
             Surface(
                 modifier = modifier
-                    .then(if (minWidth != Dp.Unspecified) Modifier.widthIn(min = minWidth) else Modifier)
-                    .then(if (maxWidth != Dp.Unspecified) Modifier.widthIn(max = maxWidth) else Modifier)
-                    .then(if (maxHeight != Dp.Unspecified) Modifier.heightIn(max = maxHeight) else Modifier),
+                    .thenIf(minWidth != Dp.Unspecified) { Modifier.widthIn(min = minWidth) }
+                    .thenIf(maxWidth != Dp.Unspecified) { Modifier.widthIn(max = maxWidth) }
+                    .thenIf(maxHeight != Dp.Unspecified) { Modifier.heightIn(max = maxHeight) },
                 color = colors.containerColor,
                 contentColor = colors.textContentColor,
                 sprite = sprite,

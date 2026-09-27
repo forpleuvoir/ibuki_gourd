@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIfElse
 import moe.forpleuvoir.ibukigourd.test.TestScreen
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
@@ -120,11 +121,11 @@ fun TableLayoutTestScreen() = TestScreen {
                 TableDemoColumn("TableLayout（eager，${eagerRows.size} 行）", Modifier.weight(1.2f)) {
                     Box(Modifier.fillMaxWidth().weight(1f)) {
                         TableLayout<Keyed<TableRowValue>>(
-                            modifier = if (fixedHeader) {
-                                Modifier.fillMaxSize()
-                            } else {
-                                Modifier.fillMaxWidth().verticalScroll(eagerScroll)
-                            },
+                            modifier = Modifier.thenIfElse(
+                                condition = fixedHeader,
+                                ifTrue = { Modifier.fillMaxSize() },
+                                ifFalse = { Modifier.fillMaxWidth().verticalScroll(eagerScroll) },
+                            ),
                             fixedHeader = fixedHeader,
                             rowGap = 2.dp,
                             columnGap = 12.dp,

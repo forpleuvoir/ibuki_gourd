@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIfElse
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
@@ -158,9 +159,10 @@ fun Icon(
     val density = LocalDensity.current
     Box(
         modifier = modifier
-            .then(
-                if (size != null) Modifier.size(size)
-                else Modifier.fittedIconSize(icon.logicalWidth.dp, icon.logicalHeight.dp, scale, density)
+            .thenIfElse(
+                condition = size != null,
+                ifTrue = { Modifier.size(size!!) },
+                ifFalse = { Modifier.fittedIconSize(icon.logicalWidth.dp, icon.logicalHeight.dp, scale, density) },
             )
             .sokitsuSprite(icon, tint.takeOrElse { LocalContentColor.current })
     )

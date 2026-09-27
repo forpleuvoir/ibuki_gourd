@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import moe.forpleuvoir.compose_minecraft.platform.ui.LocalShadowLight
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.draw.sokitsuSprite
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
@@ -951,25 +952,23 @@ fun TabStripTab(
         bottom = if (placement == TabStripPlacement.Top) extra else padVertical,
     )
 
-    val unSelectedModifier = if (!selected) {
-        Modifier
-            .pointerHoverIcon(hoverIcon)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = {
-                    pressSound?.let { mc.soundManager.play(it) }
-                    state.onTabClick(index())
-                    onClick()
-                },
-            )
-    } else Modifier
-
     Box(
         Modifier
             .layoutId(indexTag)
             .then(modifier)
-            .then(unSelectedModifier)
+            .thenIf(!selected) {
+                Modifier
+                    .pointerHoverIcon(hoverIcon)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = LocalIndication.current,
+                        onClick = {
+                            pressSound?.let { mc.soundManager.play(it) }
+                            state.onTabClick(index())
+                            onClick()
+                        },
+                    )
+            }
             .graphicsLayer {
                 // 绘制期读取：动画不触发重组与重新测量
                 translationX = slide.distance * (1f - progress)

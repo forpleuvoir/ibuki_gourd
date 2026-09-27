@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIfElse
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 
 /**
@@ -36,7 +37,11 @@ fun HorizontalDivider(
 ) {
     Box(
         modifier
-            .then(if (length == null) Modifier.fillMaxWidth() else Modifier.width(length))
+            .thenIfElse(
+                condition = length == null,
+                ifTrue = { Modifier.fillMaxWidth() },
+                ifFalse = { Modifier.width(length!!) },
+            )
             .height(thickness)
             .background(color.resolve(DividerTokens.Line)),
     )
@@ -65,7 +70,11 @@ fun VerticalDivider(
 ) {
     Box(
         modifier
-            .then(if (length == null) Modifier.fillMaxHeight() else Modifier.height(length))
+            .thenIfElse(
+                condition = length == null,
+                ifTrue = { Modifier.fillMaxHeight() },
+                ifFalse = { Modifier.height(length!!) },
+            )
             .width(thickness)
             .background(color.resolve(DividerTokens.Line)),
     )

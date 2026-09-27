@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPickButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
@@ -71,7 +72,7 @@ fun ColorSchemeSlotButtons(
 ) {
     Column(
         modifier = modifier
-            .then(if (maxHeight != Dp.Unspecified) Modifier.heightIn(max = maxHeight) else Modifier)
+            .thenIf(maxHeight != Dp.Unspecified) { Modifier.heightIn(max = maxHeight) }
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(ColorSchemeEditorDefaults.SlotSpacing),
     ) {

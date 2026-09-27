@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.compose_minecraft.platform.ui.draw.minecraftItem
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.compose_minecraft.platform.ui.tooltip.TooltipLines
 import moe.forpleuvoir.compose_minecraft.platform.ui.tooltip.minecraftTooltip
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -80,24 +81,23 @@ fun ItemIcon(
         modifier = modifier
             .size(size)
             .hoverable(interactionSource)
-            .then(
-                if (showTooltip) Modifier.minecraftTooltip(
+            .thenIf(showTooltip) {
+                Modifier.minecraftTooltip(
                     lines = tooltip,
                     guiScaleEnabled = tooltipGuiScale,
                     interactionSource = interactionSource,
-                ) else Modifier
-            ),
+                )
+            },
     ) {
         Box(
             Modifier
                 .fillMaxSize()
-                .then(
-                    if (scaleOnHover == 1f) Modifier
-                    else Modifier.graphicsLayer {
+                .thenIf(scaleOnHover != 1f) {
+                    Modifier.graphicsLayer {
                         scaleX = scale
                         scaleY = scale
                     }
-                )
+                }
                 .minecraftItem(stack, color = color, level = mc.level, player = mc.player, seed = seed)
         )
 

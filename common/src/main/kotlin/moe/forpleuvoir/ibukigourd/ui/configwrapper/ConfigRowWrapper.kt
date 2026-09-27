@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.launch
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIfNotNull
 import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -134,13 +136,13 @@ fun ConfigRowWrapper(
         modifier
             .fillMaxWidth()
             // 分组把这层高亮挪到"整组"上去画（见 ConfigGroupWrapper），本行就不再自己挂
-            .then(if (hoverHighlight) Modifier.hoverHighlight(source) else Modifier),
+            .thenIf(hoverHighlight) { Modifier.hoverHighlight(source) },
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .hoverable(source)
-                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+                .thenIfNotNull(onClick) { Modifier.clickable(onClick = it) }
                 .padding(ConfigRowWrapper.padding.toPadding()),
             horizontalArrangement = horizontalArrangement,
             verticalAlignment = verticalAlignment,
@@ -236,18 +238,14 @@ fun ConfigName(config: ConfigNode, modifier: Modifier = Modifier) {
     var truncated by remember(config) { mutableStateOf(false) }
     val interactionSource = remember(config) { MutableInteractionSource() }
 
-    val nameModifier = modifier.then(
-        if (truncated) {
-            Modifier.tooltip(
-                interactionSource = interactionSource,
-                delay = ConfigRowDefaults.TooltipDelay,
-            ) {
-                Text(InlineStyleText(config.translateComment.plainText))
-            }
-        } else {
-            Modifier
+    val nameModifier = modifier.thenIf(truncated) {
+        Modifier.tooltip(
+            interactionSource = interactionSource,
+            delay = ConfigRowDefaults.TooltipDelay,
+        ) {
+            Text(InlineStyleText(config.translateComment.plainText))
         }
-    )
+    }
 
     val breadcrumb = ConfigRowWrapper.LocalBreadcrumb.current
     val title = InlineStyleText(config.translateText.plainText)
