@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.FabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityDefaults
 import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityState
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
@@ -68,8 +69,6 @@ fun EditDialogContent(
     content: @Composable ColumnScope.(LazyListState) -> Unit,
 ) {
     val fabVisibility = rememberFabScrollVisibility(lazyListState)
-    val hiddenByKey = rememberHideActionState()
-    val visible = fabVisibility.state == FabVisibilityState.Visible && !hiddenByKey
 
     Box(modifier = modifier.fabScrollVisibility(fabVisibility)) {
         Column(modifier = Modifier) {
@@ -80,29 +79,58 @@ fun EditDialogContent(
         }
 
         if (addButton != null) {
-            val duration = FabVisibilityDefaults.hideDuration.inWholeMilliseconds.toInt()
-            val offsetPx = with(LocalDensity.current) { FabVisibilityDefaults.translationY.roundToPx() }
-
-            // 外层只负责贴右下角，内层只负责留边：留边作用在盒子上，按钮才会被推离边缘
-            Box(modifier = Modifier.align(Alignment.BottomEnd)) {
-                Box(modifier = Modifier.padding(addButtonPadding)) {
-                    if (addButtonAnimated) {
-                        AnimatedVisibility(
-                            visible = visible,
-                            enter = fadeIn(tween(duration)) +
-                                    scaleIn(tween(duration), initialScale = 0.8f) +
-                                    slideInVertically(tween(duration)) { offsetPx },
-                            exit = fadeOut(tween(duration)) +
-                                    scaleOut(tween(duration), targetScale = 0.8f) +
-                                    slideOutVertically(tween(duration)) { offsetPx },
-                        ) {
-                            addButton()
-                        }
-                    } else if (visible) {
-                        addButton()
-                    }
-                }
+            EditDialogAddButton(
+                visibility = fabVisibility,
+                modifier = Modifier.align(Alignment.BottomEnd),
+                padding = addButtonPadding,
+                animated = addButtonAnimated,
+            ) {
+                addButton()
             }
+        }
+    }
+}
+
+/**
+ * 编辑浮层的浮动按钮：显隐由给定的滚动显隐状态决定（列表 / 网格 / 滚动条皆可，见
+ * `rememberFabScrollVisibility` 的各重载），按住隐藏动作键期间强制收起，并做淡入 / 上移 / 缩放过渡。
+ *
+ * 只负责定位与显隐，按钮本体由 [content] 给出 —— 编辑浮层（列表或卡片网格）共用同一份显隐规则。
+ *
+ * @param visibility 滚动显隐状态
+ * @param modifier 作用于定位外层（如 `Modifier.align(Alignment.BottomEnd)`）
+ * @param padding 按钮与浮层右下角的间距
+ * @param animated 是否对显隐做过渡；`false` 时直接按显隐状态控制组合
+ * @param content 按钮内容
+ */
+@Composable
+fun EditDialogAddButton(
+    visibility: FabScrollVisibility,
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = EditDialogContentDefaults.addButtonPadding,
+    animated: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    val hiddenByKey = rememberHideActionState()
+    val visible = visibility.state == FabVisibilityState.Visible && !hiddenByKey
+    val duration = FabVisibilityDefaults.hideDuration.inWholeMilliseconds.toInt()
+    val offsetPx = with(LocalDensity.current) { FabVisibilityDefaults.translationY.roundToPx() }
+
+    Box(modifier.padding(padding)) {
+        if (animated) {
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(tween(duration)) +
+                        scaleIn(tween(duration), initialScale = 0.8f) +
+                        slideInVertically(tween(duration)) { offsetPx },
+                exit = fadeOut(tween(duration)) +
+                        scaleOut(tween(duration), targetScale = 0.8f) +
+                        slideOutVertically(tween(duration)) { offsetPx },
+            ) {
+                content()
+            }
+        } else if (visible) {
+            content()
         }
     }
 }

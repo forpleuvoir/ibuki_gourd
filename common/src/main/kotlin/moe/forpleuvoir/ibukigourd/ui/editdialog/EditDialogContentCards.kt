@@ -19,10 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
@@ -67,13 +67,13 @@ fun <T> EditDialogContentCards(
         RemoveConfirmButton(
             message = value.toString(),
             onConfirm = { state.removeAt(index) },
-            iconScale = LocalSokitsuPixelScale.current,
+            iconScale = LocalIconScale.current,
             contentPadding = EditDialogContentDefaults.iconPadding,
         )
     },
     content: @Composable (index: Int, value: T, onValueChange: (T) -> Unit) -> Unit,
 ) {
-    val iconScale = LocalSokitsuPixelScale.current
+    val cardIconScale = LocalIconScale.current
     val reorderableState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
         state.move(from.index, to.index)
     }
@@ -108,7 +108,7 @@ fun <T> EditDialogContentCards(
                             ) {
                                 DragHandle(
                                     modifier = Modifier.draggableHandle(),
-                                    iconScale = iconScale,
+                                    iconScale = cardIconScale,
                                     contentPadding = EditDialogContentDefaults.iconPadding,
                                 )
                                 // 尾部操作是**一组**：组内顺序由调用方定，不被外层的 SpaceBetween 拆开
