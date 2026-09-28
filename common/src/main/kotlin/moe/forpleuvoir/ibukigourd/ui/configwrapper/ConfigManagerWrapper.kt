@@ -8,8 +8,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,18 +32,23 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.first
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.config.matchWithTranslate
 import moe.forpleuvoir.ibukigourd.config.translateComment
@@ -58,6 +65,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Tab
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRow
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRowDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextFieldTokens
@@ -267,22 +275,11 @@ private fun ConfigPageContent(page: ConfigPage?, modifier: Modifier = Modifier) 
 
     Column(modifier) {
         if (tabs.size > 1) {
-            TabRow(
+            ConfigPageTabRow(
+                tabs = tabs,
                 selectedTabIndex = current,
-                containerColor = Color.Transparent,
-                divider = { HorizontalDivider(thickness = ConfigRowDefaults.DividerThickness) },
-            ) {
-                tabs.forEachIndexed { index, tab ->
-                    Tab(
-                        selected = index == current,
-                        onClick = { selectedTab = index },
-                        modifier = Modifier.thenIf(tab.comment.plainText.isNotEmpty()) {
-                            Modifier.tooltip { Text(component = tab.comment) }
-                        },
-                        text = { Text(component = tab.title) },
-                    )
-                }
-            }
+                onSelect = { selectedTab = it },
+            )
             // 页签行与下面的配置行之间留一段：页签行的选中指示器就贴在它的底边，
             // 不留这段的话第一行的悬停底色会直接顶到指示器上
             Spacer(Modifier.height(ConfigManagerDefaults.PageContentTopSpacing))
@@ -303,6 +300,89 @@ private fun ConfigPageContent(page: ConfigPage?, modifier: Modifier = Modifier) 
                 nodes = tabs.getOrNull(index)?.nodes.orEmpty(),
                 modifier = Modifier.fillMaxSize(),
             )
+        }
+    }
+}
+
+/**
+ * 配置页的页签行：**内容装得下就铺满整行（等分），装不下就整行横向滚动**，选中项自动滚到居中。
+ *
+ * 判据用的是页签行按内容固有宽排出来的**实际宽度**（无界约束下测量回填），而不是 meta 里的
+ * `min_tab_width` 估值 —— 后者比中文标签窄，"装不下"会被误判成"装得下"，页签随即被等分压窄：
+ * - 内容宽 ≤ 可用宽 → 给页签行可用宽那一点不差的有界宽度，[TabRow] 等分铺满，左右不留白；
+ * - 内容宽 > 可用宽 → 页签行按内容宽排（每格 = 最宽标签的固有宽，夹 `min_tab_width` /
+ *   `max_tab_width`），多出来的部分交给 [horizontalScroll]，标签不会被压到省略。
+ *
+ * 内容宽只随页签集变、与可用宽无关，量到一次即可一直沿用（换页签集时重新量；量出来之前先按
+ * 滚动模式摆，下一帧就收敛）。"选中项居中"按 M3 `ScrollableTabData.calculateTabOffset`
+ * 同式在 [LaunchedEffect] 里滚过去。
+ *
+ * @param tabs 当前页的页签（页的直属分组）
+ * @param selectedTabIndex 当前选中的页签下标
+ * @param onSelect 选中回调
+ */
+@Composable
+private fun ConfigPageTabRow(
+    tabs: List<ConfigPageTab>,
+    selectedTabIndex: Int,
+    onSelect: (Int) -> Unit,
+) {
+    val density = LocalDensity.current
+    val scrollState = rememberScrollState()
+
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val availablePx = constraints.maxWidth
+        val tabGapPx = with(density) { TabRowDefaults.tabGap.roundToPx() }
+        // 页签行按**内容固有宽**排出来有多宽：无界约束下由测量回填。它与可用宽无关、只随页签集变，
+        // 所以量到一次就能一直用（换页签集时重来）。判据必须用它 —— 用 meta 的 min_tab_width 估
+        // 会偏小（中文标签比它宽），于是"装不下"被误判成"装得下"，页签又被等分压窄。
+        var contentWidth by remember(tabs) { mutableIntStateOf(0) }
+        // 内容宽 ≤ 可用宽 → 铺满整行（等分后每格都不小于自己的固有宽，不会压窄）；
+        // 还没量出来、或确实装不下 → 按内容宽排，多出来的部分交给横向滚动
+        val fills = contentWidth in 1..availablePx
+        val rowWidthPx = if (fills) availablePx else contentWidth
+
+        LaunchedEffect(selectedTabIndex, fills, rowWidthPx, availablePx) {
+            if (fills || rowWidthPx <= availablePx) return@LaunchedEffect
+            // ScrollState.maxValue 初始为 Int.MAX_VALUE，需等布局写出真实上界后再滚动
+            val maxScroll = snapshotFlow { scrollState.maxValue }.first { it in 1 until Int.MAX_VALUE }
+            val visibleWidth = rowWidthPx - maxScroll
+            // 相邻页签起点的距离：页签等宽，由整行宽反推（整行宽 = 页签宽 × 个数 + 间隙 × (个数 − 1)）
+            val tabStridePx = (rowWidthPx + tabGapPx) / tabs.size
+            val tabWidthPx = tabStridePx - tabGapPx
+            val centeredTabOffset =
+                selectedTabIndex * tabStridePx - (visibleWidth / 2 - tabWidthPx / 2)
+            val availableSpace = (rowWidthPx - visibleWidth).coerceAtLeast(0)
+            scrollState.animateScrollTo(
+                value = centeredTabOffset.coerceIn(0, availableSpace),
+                animationSpec = tween(ConfigManagerDefaults.TabSwitchMillis),
+            )
+        }
+
+        Box(modifier = Modifier.fillMaxWidth().horizontalScroll(scrollState)) {
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = if (fills) {
+                    Modifier.width(with(density) { availablePx.toDp() })
+                } else {
+                    Modifier.onGloballyPositioned { contentWidth = it.size.width }
+                },
+                containerColor = Color.Transparent,
+                divider = { HorizontalDivider(thickness = ConfigRowDefaults.DividerThickness) },
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = index == selectedTabIndex,
+                        onClick = { onSelect(index) },
+                        modifier = Modifier.thenIf(tab.comment.plainText.isNotEmpty()) {
+                            Modifier.tooltip { Text(component = tab.comment) }
+                        },
+                        text = {
+                            Text(component = tab.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        },
+                    )
+                }
+            }
         }
     }
 }
