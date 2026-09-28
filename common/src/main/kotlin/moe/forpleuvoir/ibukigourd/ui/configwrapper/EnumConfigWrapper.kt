@@ -1,6 +1,5 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -8,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.selector.SelectorExpandStyle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.config.item.ConfigEnum
 
@@ -34,9 +34,9 @@ fun <E : Enum<E>> EnumConfigWrapper(
 
     ConfigRowWrapper(config, modifier) {
         ConfigControlBlock(modifier = controlModifier) {
-            EnumSelectorContent(
-            value = value,
-            items = items,
+            EnumSelector(
+                selected = value,
+                items = items,
                 onSelect = {
                     config.setValue(it)
                     onSelected?.invoke(it)
@@ -47,24 +47,39 @@ fun <E : Enum<E>> EnumConfigWrapper(
 }
 
 @Composable
-private fun <E : Enum<E>> EnumSelectorContent(
-    value: E,
-    items: List<E>,
+fun <E : Enum<E>> EnumSelector(
+    selected: E,
     onSelect: (E) -> Unit,
+    items: List<E>,
+    content: @Composable (E) -> Unit = { Text(InlineStyleText(it.translateText.plainText)) },
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    itemEquals: (E, E) -> Boolean = { a, b -> a == b },
+    itemContent: @Composable (E, Boolean) -> Unit = { item, _ -> Text(InlineStyleText(item.translateText.plainText)) },
+    itemLeadingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
+    searchFilter: ((E, String) -> Boolean)? = if (items.size > EnumSearchThreshold) {
+        { item, query -> item.translateText.plainText.contains(query, ignoreCase = true) }
+    } else {
+        null
+    },
+    expandStyle: SelectorExpandStyle = SelectorExpandStyle.Auto(),
+    onExpandedChange: ((Boolean) -> Unit)? = null,
 ) {
     Selector(
-        selected = value,
+        selected = selected,
         onSelect = onSelect,
         items = items,
-        content = { Text(InlineStyleText(it.translateText.plainText)) },
-        itemContent = { item, _ -> Text(InlineStyleText(item.translateText.plainText)) },
-        searchFilter = if (items.size > EnumSearchThreshold) {
-            { item, query -> item.translateText.plainText.contains(query, ignoreCase = true) }
-        } else {
-            null
-        },
+        content = content,
         modifier = modifier,
+        enabled = enabled,
+        itemEquals = itemEquals,
+        itemContent = itemContent,
+        searchFilter =searchFilter,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        expandStyle = expandStyle,
+        onExpandedChange = onExpandedChange,
     )
 }
 

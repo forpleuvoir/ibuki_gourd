@@ -152,7 +152,7 @@ fun PairListConfigWrapper(
  * @param onEdit 打开编辑浮层
  */
 @Composable
-internal fun ConfigListRow(
+fun ConfigListRow(
     config: ConfigNode,
     label: Component,
     modifier: Modifier = Modifier,
@@ -192,7 +192,7 @@ internal fun ConfigListRow(
  * @param columns 内容列声明；参数为可写回的条目容器
  */
 @Composable
-internal fun <E : Any> ConfigListEditDialog(
+fun <E : Any> ConfigListEditDialog(
     config: ConfigList<E>,
     newElement: (() -> E)?,
     onDismiss: () -> Unit,
