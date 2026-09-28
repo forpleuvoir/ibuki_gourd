@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -131,7 +132,7 @@ fun StringEditDialog(
         content = {
             TextField(
                 state = state,
-                modifier = Modifier.width(840.dp).height(360.dp),
+                modifier = Modifier.size(ConfigDialogDefaults.StringEditSize),
                 lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
             )
         },

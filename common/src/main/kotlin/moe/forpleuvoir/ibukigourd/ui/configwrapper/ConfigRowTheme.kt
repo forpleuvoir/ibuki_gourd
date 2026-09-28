@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ScrollerDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
@@ -132,6 +133,9 @@ object ConfigControlDefaults {
 
     /** 数值滑条可用的区间跨度上限：超过该跨度时只给数值框。 */
     const val SliderSpanLimit: Int = 1000
+
+    /** 枚举选择器挂搜索框的选项数阈值：选项更多时用带搜索栏的弹窗载体。 */
+    const val EnumSelectSearchThreshold: Int = 10
 }
 
 /**
@@ -178,6 +182,12 @@ object ConfigDialogDefaults {
 
     /** 映射键列宽（缺省）：弹性列，但不低于 240dp，免得被值列挤成一条。 */
     val KeyColumnWidth: TableColumnWidth = TableColumnWidth.Fraction(1f, min = 240.dp)
+
+    /** 多行字符串编辑浮层（如字符串配置、字符串元素）的输入区尺寸。 */
+    val StringEditSize: DpSize = DpSize(840.dp, 360.dp)
+
+    /** 曲线列表浮层一行摆几张卡片。 */
+    const val BezierCardColumns: Int = 2
 }
 
 /**

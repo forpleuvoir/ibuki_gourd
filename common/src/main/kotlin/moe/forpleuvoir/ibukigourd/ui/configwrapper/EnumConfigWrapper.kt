@@ -58,7 +58,7 @@ fun <E : Enum<E>> EnumSelector(
     itemContent: @Composable (E, Boolean) -> Unit = { item, _ -> Text(InlineStyleText(item.translateText.plainText)) },
     itemLeadingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
-    searchFilter: ((E, String) -> Boolean)? = if (items.size > EnumSearchThreshold) {
+    searchFilter: ((E, String) -> Boolean)? = if (items.size > ConfigControlDefaults.EnumSelectSearchThreshold) {
         { item, query -> item.translateText.plainText.contains(query, ignoreCase = true) }
     } else {
         null
@@ -92,5 +92,3 @@ fun <E : Enum<E>> EnumSelector(
 private fun <E : Enum<E>> enumConstantsOf(value: E): List<E> =
     value.declaringJavaClass.enumConstants?.toList() ?: listOf(value)
 
-/** 选项数超过该值时给选择器挂搜索框。 */
-private const val EnumSearchThreshold = 10

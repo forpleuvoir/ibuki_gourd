@@ -1,6 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
@@ -25,6 +28,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableCellScope
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
@@ -48,11 +52,14 @@ import moe.forpleuvoir.nebula.config.item.ConfigMap
  * @param valueColumnWidth 值列宽度
  */
 @Composable
-fun ConfigMapWrapper(
-    config: ConfigMap<Any>,
+fun <V : Any> ConfigMapWrapper(
+    config: ConfigMap<V>,
     modifier: Modifier = Modifier,
     keyColumnWidth: TableColumnWidth = ConfigDialogDefaults.KeyColumnWidth,
     valueColumnWidth: TableColumnWidth = ConfigDialogDefaults.FillColumnWidth,
+    keyHeader: @Composable TableCellScope.() -> Unit = { Text(IGLang.ConfigWrapper.mapKey) },
+    valueHeader: @Composable TableCellScope.() -> Unit = { Text(IGLang.ConfigWrapper.mapValue) },
+    removeMessage: ((key: String, value: V) -> String)? = null,
 ) {
     var editing by remember(config) { mutableStateOf(false) }
     val size by config.asDerivedState { it.size }
@@ -60,20 +67,40 @@ fun ConfigMapWrapper(
     ConfigListRow(config, IGLang.ConfigWrapper.mapConfigWrapperText(size), modifier) { editing = true }
 
     if (editing) {
-        MapEditDialog(config, keyColumnWidth, valueColumnWidth, onDismiss = { editing = false })
+        MapEditDialog(config, keyColumnWidth, valueColumnWidth, keyHeader, valueHeader, removeMessage, onDismiss = { editing = false })
     }
 }
 
+/**
+ * 映射浮层的排版量：键列窄，改键按钮比配置页默认的图标小一档、热区仍够点。
+ */
+object MapConfigWrapperDefaults {
+
+    /** 键单元格的内容内边距：左侧留白给文本、右侧给按钮。 */
+    val KeyCellPadding: PaddingValues = PaddingValues(start = 16.dp, end = 12.dp)
+
+    /** 键列编辑按钮的最小尺寸：按 2 倍图标（32dp）留一圈。 */
+    val KeyButtonMinSize: DpSize = DpSize(40.dp, 40.dp)
+
+    /** 键列编辑按钮的图标倍率。 */
+    const val KeyIconScale: Int = 2
+}
+
 /** 映射编辑浮层：键值两列 + 增删 + 拖拽排序。 */
+@Suppress("UNCHECKED_CAST")
 @Composable
-private fun MapEditDialog(
-    config: ConfigMap<Any>,
+private fun <V : Any> MapEditDialog(
+    config: ConfigMap<V>,
     keyColumnWidth: TableColumnWidth,
     valueColumnWidth: TableColumnWidth,
+    keyHeader: @Composable TableCellScope.() -> Unit,
+    valueHeader: @Composable TableCellScope.() -> Unit,
+    removeMessage: ((key: String, value: V) -> String)?,
     onDismiss: () -> Unit,
 ) {
     val keyed = rememberKeyedList(config.getValue().entries.map { it.key to it.value }, key = config)
-    val newValue = defaultElementFactory(config.entryValueType)
+    @Suppress("UNCHECKED_CAST")
+    val newValue = ConfigElementEditors.factoryOf(config.entryValueType) as (() -> V)?
     // 正在改键的条目：存条目 key 而不是下标 —— 拖拽重排后下标会变，key 不会
     var editingKey by remember { mutableStateOf<Long?>(null) }
 
@@ -105,10 +132,18 @@ private fun MapEditDialog(
                 EditDialogContentList(
                     state = keyed,
                     lazyListState = listState,
+                    removeButton = { index, value ->
+                        RemoveConfirmButton(
+                            message = removeMessage?.invoke(value.first, value.second) ?: value.toString(),
+                            onConfirm = { keyed.removeAt(index) },
+                            iconScale = LocalSokitsuPixelScale.current,
+                            contentPadding = EditDialogContentDefaults.iconPadding,
+                        )
+                    },
                     columns = {
                         column(
                             width = keyColumnWidth,
-                            header = { Text(IGLang.ConfigWrapper.mapKey) },
+                            header = keyHeader,
                         ) { _, entry ->
                             // 键只做展示，改键走右侧的编辑按钮：行内输入没法在提交时拦住重复键
                             Surface(
@@ -116,7 +151,7 @@ private fun MapEditDialog(
                                 contentAlignment = Alignment.CenterStart,
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(MapConfigWrapperDefaults.KeyCellPadding),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
@@ -127,8 +162,8 @@ private fun MapEditDialog(
                                     )
                                     MapEditButton(
                                         onClick = { editingKey = entry.key },
-                                        iconScale = MapKeyIconScale,
-                                        minSize = MapKeyButtonMinSize,
+                                        iconScale = MapConfigWrapperDefaults.KeyIconScale,
+                                        minSize = MapConfigWrapperDefaults.KeyButtonMinSize,
                                     )
                                 }
                             }
@@ -136,11 +171,11 @@ private fun MapEditDialog(
                         column(
                             width = valueColumnWidth,
                             alignment = Alignment.CenterStart,
-                            header = { Text(IGLang.ConfigWrapper.mapValue) },
+                            header = valueHeader,
                         ) { index, entry ->
-                            ConfigElementEditor(
+                            ConfigElementValue(
                                 value = entry.value.second,
-                                onValueChange = { keyed.setValue(index, entry.value.first to it) },
+                                onValueChange = { keyed.setValue(index, entry.value.first to it as V) },
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
@@ -237,14 +272,8 @@ private fun MapEditButton(
     }
 }
 
-/** 键列编辑按钮的最小尺寸：按 2 倍图标（32dp）留一圈。 */
-private val MapKeyButtonMinSize = DpSize(40.dp, 40.dp)
-
-/** 键列编辑按钮的图标倍率：键列窄，比配置页默认的像素倍率小一档。 */
-private const val MapKeyIconScale = 2
-
 /** 生成一个当前不冲突的默认键（`key1`、`key2`…）。 */
-private fun uniqueKey(existing: List<Pair<String, Any>>): String {
+private fun uniqueKey(existing: List<Pair<String, *>>): String {
     val used = existing.mapTo(mutableSetOf()) { it.first }
     var index = 1
     while ("key$index" in used) index++

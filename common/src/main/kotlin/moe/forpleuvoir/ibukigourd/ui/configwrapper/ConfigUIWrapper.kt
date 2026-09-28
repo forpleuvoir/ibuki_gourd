@@ -1,10 +1,13 @@
 package moe.forpleuvoir.ibukigourd.ui.configwrapper
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.ConfigManager
 import moe.forpleuvoir.nebula.config.ConfigNode
 import moe.forpleuvoir.ibukigourd.config.item.ConfigKeybind
 import moe.forpleuvoir.ibukigourd.config.item.ConfigToggleKeybind
@@ -47,6 +50,14 @@ fun <C : ConfigNode> C.uiWrapper(content: ConfigUIWrapper<C>): C {
     setMetadata(UI_WRAPPER_KEY, content)
     return this
 }
+
+/**
+ * 该节点是否注册了专用 wrapper（[uiWrapper]）。
+ *
+ * 分组页渲染据此判断整页内容是否交给分组自己的专用实现排版（如「左预览 + 右配置行」），
+ * 而不是按子项逐行铺排。
+ */
+fun ConfigNode.hasUIWrapper(): Boolean = getMetadata(UI_WRAPPER_KEY) != null
 
 /**
  * 按 [UIWrappers] 的类型分发呈现一个配置节点。
@@ -161,6 +172,12 @@ object UIWrappers {
         // 用谓词而不是 register<ConfigGroup>：分组普遍写成 `object X : ConfigGroup("x")`
         // （子类），而 register 缺省 strict = true 只认"类完全相同"，会把子类全漏到兜底行
         register({ it is ConfigGroup }) { ConfigGroupWrapper(it as ConfigGroup) }
+
+        // 管理器页（整页骨架）：同样走注册表，消费方可用 uiWrapper 接管整个配置页；
+        // 后注册 ⇒ 优先级更高 —— ConfigManager 本身也是 ConfigGroup，否则会被上面那条吃掉
+        register({ it is ConfigManager }) {
+            ConfigManagerWrapper(it as ConfigManager, Modifier.fillMaxSize())
+        }
 
         // 基础类型
         registerCheckValueType<Boolean> { BooleanConfigWrapper(it) }

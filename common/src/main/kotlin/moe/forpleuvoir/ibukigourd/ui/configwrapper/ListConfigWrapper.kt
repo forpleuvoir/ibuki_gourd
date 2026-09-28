@@ -13,14 +13,18 @@ import androidx.compose.ui.Modifier
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableCellScope
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableLayoutScope
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
@@ -40,15 +44,19 @@ import net.minecraft.network.chat.Component
  * @param modifier 作用于整行
  * @param contentColumnWidth 内容列宽度
  */
+@Suppress("UNCHECKED_CAST")
 @Composable
-fun ConfigListWrapper(
-    config: ConfigList<Any>,
+fun <E : Any> ta(
+    config: ConfigList<E>,
     modifier: Modifier = Modifier,
     contentColumnWidth: TableColumnWidth = ConfigDialogDefaults.FillColumnWidth,
+    contentHeader: @Composable TableCellScope.() -> Unit = { Text(IGLang.Misc.content) },
+    removeMessage: ((E) -> String)? = null,
 ) {
     var editing by remember(config) { mutableStateOf(false) }
     val size by config.asDerivedState { it.size }
-    val newElement = defaultElementFactory(config.elementType)
+    @Suppress("UNCHECKED_CAST")
+    val newElement = ConfigElementEditors.factoryOf(config.elementType) as (() -> E)?
 
     ConfigListRow(config, IGLang.ConfigWrapper.listConfigWrapperText(size), modifier) { editing = true }
 
@@ -57,15 +65,16 @@ fun ConfigListWrapper(
             config = config,
             newElement = newElement,
             onDismiss = { editing = false },
+            removeMessage = removeMessage,
             columns = { state ->
                 column(
                     width = contentColumnWidth,
                     alignment = Alignment.CenterStart,
-                    header = { Text(IGLang.Misc.content) },
+                    header = contentHeader,
                 ) { index, entry ->
-                    ConfigElementEditor(
+                    ConfigElementValue(
                         value = entry.value,
-                        onValueChange = { state.setValue(index, it) },
+                        onValueChange = { state.setValue(index, it as E) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -85,12 +94,14 @@ fun ConfigListWrapper(
  * @param firstColumnWidth 前项列宽度
  * @param secondColumnWidth 后项列宽度
  */
+@Suppress("UNCHECKED_CAST")
 @Composable
-fun PairListConfigWrapper(
-    config: ConfigList<Pair<Any, Any>>,
+fun <A : Any, B : Any> PairListConfigWrapper(
+    config: ConfigList<Pair<A, B>>,
     modifier: Modifier = Modifier,
     firstColumnWidth: TableColumnWidth = ConfigDialogDefaults.FillColumnWidth,
     secondColumnWidth: TableColumnWidth = ConfigDialogDefaults.FillColumnWidth,
+    removeMessage: ((Pair<A, B>) -> String)? = null,
 ) {
     var editing by remember(config) { mutableStateOf(false) }
     val size by config.asDerivedState { it.size }
@@ -99,13 +110,14 @@ fun PairListConfigWrapper(
 
     if (editing) {
         val sample = config.getValue().firstOrNull()
-        val newElement: (() -> Pair<Any, Any>)? = if (sample == null) {
-            { "" to "" }
+        val newElement: (() -> Pair<A, B>)? = if (sample == null) {
+            @Suppress("UNCHECKED_CAST")
+            ({ "" to "" } as () -> Pair<A, B>)
         } else {
-            val first = defaultElementFactory(sample.first::class)
-            val second = defaultElementFactory(sample.second::class)
+            val first = ConfigElementEditors.factoryOf(sample.first::class)
+            val second = ConfigElementEditors.factoryOf(sample.second::class)
             if (first != null && second != null) {
-                { first() to second() }
+                ({ first() as A to second() as B })
             } else {
                 null
             }
@@ -115,15 +127,16 @@ fun PairListConfigWrapper(
             config = config,
             newElement = newElement,
             onDismiss = { editing = false },
+            removeMessage = removeMessage,
             columns = { state ->
                 column(
                     width = firstColumnWidth,
                     alignment = Alignment.CenterStart,
                     header = { Text(IGLang.ConfigWrapper.pairFirst) },
                 ) { index, entry ->
-                    ConfigElementEditor(
+                    ConfigElementValue(
                         value = entry.value.first,
-                        onValueChange = { state.setValue(index, entry.value.copy(first = it)) },
+                        onValueChange = { state.setValue(index, entry.value.copy(first = it as A)) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -132,9 +145,9 @@ fun PairListConfigWrapper(
                     alignment = Alignment.CenterStart,
                     header = { Text(IGLang.ConfigWrapper.pairSecond) },
                 ) { index, entry ->
-                    ConfigElementEditor(
+                    ConfigElementValue(
                         value = entry.value.second,
-                        onValueChange = { state.setValue(index, entry.value.copy(second = it)) },
+                        onValueChange = { state.setValue(index, entry.value.copy(second = it as B)) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -196,6 +209,7 @@ fun <E : Any> ConfigListEditDialog(
     config: ConfigList<E>,
     newElement: (() -> E)?,
     onDismiss: () -> Unit,
+    removeMessage: ((E) -> String)? = null,
     columns: TableLayoutScope<Keyed<E>>.(state: KeyedListState<E>) -> Unit,
 ) {
     val keyed = rememberKeyedList(config.getValue(), key = config)
@@ -228,6 +242,15 @@ fun <E : Any> ConfigListEditDialog(
                 EditDialogContentList(
                     state = keyed,
                     lazyListState = listState,
+                    removeButton = { index, value ->
+                        RemoveConfirmButton(
+                            message = removeMessage?.invoke(value) ?: value.toString(),
+                            onConfirm = { keyed.removeAt(index) },
+                            modifier = Modifier.height(EditDialogContentDefaults.rowHeight),
+                            iconScale = LocalSokitsuPixelScale.current,
+                            contentPadding = EditDialogContentDefaults.iconPadding,
+                        )
+                    },
                     columns = { columns(keyed) },
                 )
             }

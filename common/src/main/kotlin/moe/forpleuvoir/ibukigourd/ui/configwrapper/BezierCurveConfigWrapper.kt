@@ -105,7 +105,7 @@ fun BezierCurveConfigWrapper(
 }
 
 /**
- * 缓动曲线列表：**一个条目一张卡片**（一行 [BezierCardColumns] 张）—— 卡片头部两端是拖拽手柄与
+ * 缓动曲线列表：**一个条目一张卡片**（一行 [ConfigDialogDefaults.BezierCardColumns] 张）—— 卡片头部两端是拖拽手柄与
  * "编辑 + 删除"一组按钮，卡片体是可直接拖的曲线画布；要填数值 / 套预设点编辑按钮开完整编辑器。
  *
  * 条目增删、拖拽排序与条目编辑都在副本上做，浮层确认时才把整份列表写回配置。
@@ -172,7 +172,7 @@ private fun BezierListEditDialog(
             ) {
                 EditDialogContentCards(
                     state = keyed,
-                    columns = BezierCardColumns,
+                    columns = ConfigDialogDefaults.BezierCardColumns,
                     actions = { index, _ ->
                         IconButton(
                             onClick = { editingKey = keyed.entries[index].key },
@@ -221,7 +221,6 @@ private fun BezierListEditDialog(
 }
 
 /** 卡片列表的列数：一行两张卡片（卡片只放速览，宽度够放两张即可）。 */
-private const val BezierCardColumns = 2
 
 /**
  * 曲线悬停气泡的内容：按给定 y 轴区间画一张**只读**画布（不响应拖拽）。

@@ -12,6 +12,8 @@ import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import moe.forpleuvoir.compose_minecraft.platform.ui.LocalShadowLight
@@ -146,3 +148,43 @@ private class SokitsuBubbleSpriteNode(
         drawContent()
     }
 }
+
+/**
+ * 在绘制作用域内直接画一个气泡（气泡体 + 箭头），不产生任何布局节点：
+ * 位置由调用方用 [androidx.compose.ui.graphics.drawscope.translate] 给出，[size] 为气泡的绘制区域（像素）。
+ *
+ * 与 [sokitsuBubbleSprite] 的区别：那个是 Modifier（尺寸由节点决定），这个是纯绘制入口，
+ * 用于把气泡和实体一样画进同一块画布。
+ */
+fun DrawScope.drawSokitsuBubbleSprite(
+    body: SokitsuSprite,
+    arrow: SokitsuSprite,
+    arrowAnchor: AnchorPosition,
+    size: IntSize,
+    pixelScale: Int,
+    bodyTintColors: List<Int>,
+    arrowTintColors: List<Int>,
+    arrowRatio: Float = 0.5f,
+    shadowOffset: IntOffset = IntOffset.Zero,
+) {
+    if (size.width <= 0 || size.height <= 0 || body.isEmpty) return
+    drawIntoCanvas { canvas ->
+        canvas.recordCustomDraw(
+            tag = SokitsuBubbleSpritePlugin.TAG,
+            data = SokitsuBubbleSpriteDrawData(
+                body = body,
+                arrow = arrow,
+                size = size,
+                pixelScale = pixelScale,
+                arrowAnchor = arrowAnchor,
+                arrowRatio = arrowRatio,
+                bodyTintColors = bodyTintColors,
+                arrowTintColors = arrowTintColors,
+                shadowOffset = shadowOffset,
+            ),
+            paint = buildPaint(Color.White),
+            layer3D = null,
+        )
+    }
+}
+

@@ -542,6 +542,9 @@ private fun RowScope.ConfigScrollbar(scrollState: ScrollState) {
 /**
  * 内容区：一组配置节点 + 并列的滚动条；为空时显示"无"。
  *
+ * 节点所属分组注册了专用 wrapper（[uiWrapper]）时，整块内容交给它排版 —— 分组页因此可以自定义
+ * 整页布局；搜索结果里的节点来自不同分组，仍走逐行铺排。
+ *
  * @param nodes 待呈现的节点
  * @param modifier 作用于内容区
  */
@@ -557,10 +560,17 @@ private fun ConfigNodesScroller(
         return
     }
 
+    val pageGroup = nodes.firstOrNull()?.parent
+    val searching = LocalSearchFilter.current != null
+
     val scrollState = rememberScrollState()
     Row(modifier) {
         Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(scrollState)) {
-            ConfigsWrapper(nodes)
+            if (!searching && pageGroup != null && pageGroup.hasUIWrapper()) {
+                ConfigUiWrapper(pageGroup)
+            } else {
+                ConfigsWrapper(nodes)
+            }
         }
         ConfigScrollbar(scrollState)
     }
