@@ -65,6 +65,7 @@ fun KeybindConfigWrapper(config: ConfigKeybind, modifier: Modifier = Modifier) {
                         keybind.setFrom(it)
                         version++
                     },
+                    contentPadding = ConfigControlDefaults.IconButtonPadding
                 )
             },
         ) {

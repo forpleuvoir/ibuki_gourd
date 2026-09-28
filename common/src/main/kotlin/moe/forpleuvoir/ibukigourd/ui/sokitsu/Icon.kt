@@ -3,6 +3,9 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -41,7 +44,7 @@ val SokitsuSprite.logicalSize: DpSize get() = DpSize(logicalWidth.dp, logicalHei
  * 图标素材约定：单层、`level=tone` + `tint=Mask`（纯色剪影）—— 这样图标颜色完全由调用点的
  * `tint` 决定，能跟随内容色与状态修正（见 [FlatButton]）。
  *
- * 图标**没有统一的默认尺寸**：布局尺寸 = 素材逻辑尺寸 × [Icon] 的 `scale`（默认取当前像素放大倍率），
+ * 图标**没有统一的默认尺寸**：布局尺寸 = 素材逻辑尺寸 × [Icon] 的 `scale`（缺省取 [LocalIconScale]），
  * 所以要画多大就画多大；需要精确尺寸时传 `size`，需要放大/缩小时改 `scale`（整数）。
  */
 object Icons {
@@ -128,10 +131,19 @@ object Icons {
 }
 
 /**
+ * 图标默认尺寸倍率（Int）：[Icon] 的 `scale` 缺省取它，当前缺省值 `2`。
+ *
+ * 只作用于未显式传 `scale` 的 [Icon]；经 [androidx.compose.runtime.CompositionLocalProvider]
+ * 可在子树内整体改写，例如与像素缩放联动：`LocalIconScale provides LocalSokitsuPixelScale.current`。
+ */
+val LocalIconScale = compositionLocalOf { 2 }
+
+/**
  * 图标：把 [Icons] 里的精灵按 **素材尺寸 × 倍率** 画出来。
  *
- * - 尺寸 = [SokitsuSprite.logicalSize] × [scale]，[scale] 缺省是**字面量 2** —— 需要与像素缩放联动时
- *   显式传 `LocalSokitsuPixelScale.current`；需要固定尺寸时传 [size] 直接接管；
+ * - 尺寸 = [SokitsuSprite.logicalSize] × [scale]，[scale] 缺省取 [LocalIconScale]（缺省值 `2`）——
+ *   需要与像素缩放联动时把 [LocalIconScale] 提供成 `LocalSokitsuPixelScale.current`，或在调用点显式传该值；
+ *   需要固定尺寸时传 [size] 直接接管；
  * - 倍率必须是**整数**（配合整数像素缩放，非整数倍会让纹素大小不均、糊边）；
  * - **父级约束放不下时按能放下的最大整数倍率收缩**：精灵绘制是把源图拉伸到布局尺寸
  *   （`TextureFill.Stretch`），布局尺寸一旦被父级压小，素材就被**非等比**拉伸 —— 例如
@@ -141,14 +153,14 @@ object Icons {
  *   拿到按钮内容色，连 `contentBlend` / `disabledBlend` 的状态修正一起吃到；
  * - 精灵为空（缺素材）时布局尺寸为 0，等于什么都没画。
  *
- * @param scale 尺寸倍率（素材逻辑尺寸 → 布局尺寸），缺省 `2`
+ * @param scale 尺寸倍率（素材逻辑尺寸 → 布局尺寸），缺省取 [LocalIconScale]
  * @param size 显式尺寸；非 null 时无视 [scale]
  */
 @Composable
 fun Icon(
     icon: SokitsuSprite,
     modifier: Modifier = Modifier,
-    scale: Int = 2,
+    scale: Int = LocalIconScale.current,
     size: DpSize? = null,
     tint: Color = Color.Unspecified,
 ) {

@@ -85,7 +85,7 @@ data class DropdownMenuMeta(
                 focused = identifier("ui/dropdown_menu/item/focused"),
                 disabled = identifier("ui/dropdown_menu/item/disabled"),
             ),
-            minSize = DpSize(96.dp, 0.dp),
+            minSize = DpSize(48.dp, 0.dp),
             padding = PaddingValues(6.dp),
             maxHeight = 480.dp,
             spacing = 4.dp,

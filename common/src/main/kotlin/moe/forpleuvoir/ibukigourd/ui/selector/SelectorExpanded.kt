@@ -345,7 +345,7 @@ private fun SelectorSearchField(state: TextFieldState) {
 object SelectorExpandedDefaults {
 
     /** 弹窗内容内边距。 */
-    val dialogPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)
+    val dialogPadding = PaddingValues(12.dp)
 
     /** 弹窗内各段之间的间距。 */
     val dialogSpacing: Dp = 8.dp

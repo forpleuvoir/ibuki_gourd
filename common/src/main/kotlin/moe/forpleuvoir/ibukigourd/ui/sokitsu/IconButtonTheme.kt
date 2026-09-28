@@ -42,7 +42,7 @@ data class IconButtonMeta(
 
         val default = IconButtonMeta(
             minSize = DpSize(48.dp, 48.dp),
-            padding = PaddingValues(6.dp),
+            padding = PaddingValues(2.dp),
             sprite = UiStateIdentifier(
                 normal = identifier("ui/flat_button/normal"),
                 pressed = identifier("ui/flat_button/pressed"),
