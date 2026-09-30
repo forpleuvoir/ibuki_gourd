@@ -46,7 +46,7 @@ import net.minecraft.network.chat.Component
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <E : Any> ta(
+fun <E : Any> ConfigListWrapper(
     config: ConfigList<E>,
     modifier: Modifier = Modifier,
     contentColumnWidth: TableColumnWidth = ConfigDialogDefaults.FillColumnWidth,

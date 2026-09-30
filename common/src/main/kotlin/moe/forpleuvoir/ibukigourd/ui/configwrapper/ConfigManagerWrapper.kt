@@ -54,6 +54,7 @@ import moe.forpleuvoir.ibukigourd.config.matchWithTranslate
 import moe.forpleuvoir.ibukigourd.config.translateComment
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
@@ -375,10 +376,10 @@ private fun ConfigPageTabRow(
                         selected = index == selectedTabIndex,
                         onClick = { onSelect(index) },
                         modifier = Modifier.thenIf(tab.comment.plainText.isNotEmpty()) {
-                            Modifier.tooltip { Text(component = tab.comment) }
+                            Modifier.tooltip { Text(component = InlineStyleText(tab.comment.plainText)) }
                         },
                         text = {
-                            Text(component = tab.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(component = InlineStyleText(tab.title.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         },
                     )
                 }
