@@ -15,7 +15,7 @@ v1.0.0-alpha
   - **【配置】**配置 GUI 重建：`ConfigManagerWrapper`(页签导航 + 跨分组搜索 + 面包屑)、`ConfigGroupWrapper`、行骨架`ConfigRowWrapper`(名称 / 控件 / 重置 / tooltip / 悬停高亮)、各类型 wrapper
   - **【配置】**新增对外扩展点：`UIWrappers`(按节点类型或值类型注册整行呈现)与单节点`uiWrapper { }`(空实现 = 该行不出行)
   - **【配置】**新增配置项构造器：`configEnum(name, default, codec)`(自定义枚举`Codec`)、`configVector2i/2f/2d`与`configVector3i/3f/3d`、`configStringPair` / `configPair` / `configPairList`、`configKeyCode`、`configKeybind` / `configToggleKeybind`
-  - **【配置】**屏幕与对话框配置组重做：进出场时长 / 偏移 / 淡入淡出、停画世界、解除界面内 60 帧上限`unlimit_framerate`、进出场缓动`easing`与自定义曲线`easing_custom`(配曲线编辑器)、`pause_game`(作为`SokitsuScreen.pauseGame`缺省值)
+  - **【配置】**屏幕与对话框配置组重做：进出场时长 / 偏移 / 淡入淡出、停画世界、背景模糊`background_blur`+固定半径`background_blur_radius`、解除界面内 60 帧上限`unlimit_framerate`、进出场缓动`easing`与自定义曲线`easing_custom`(配曲线编辑器)、`pause_game`(作为`SokitsuScreen.pauseGame`缺省值)
   - **【配置】**主题配置组回归：`mode`(跟随系统 / 深色 / 浅色 / 自定义)+`custom_scheme`+配色方案编辑器(槽位按钮组 + 亮暗标记)
   - **【配置】**`configToggleKeybind`切换时默认弹一条「所属组 → 配置名 : 开/关」的`Toast`(tag 取配置路径，连按只刷新同一条)
   - **【事件 / 输入】**键盘与鼠标事件支持取消(含按住重复一并吞掉)，新增`KeyEnvironment`(环境限定)与`KeyTriggerTiming`(按下 / 按住 / 长按 / 长按持续 / 松开 / 按下与松开)

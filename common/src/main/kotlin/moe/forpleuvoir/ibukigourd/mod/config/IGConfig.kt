@@ -9,6 +9,7 @@ import moe.forpleuvoir.compose_minecraft.platform.screen.DialogAnimationDefaults
 import moe.forpleuvoir.compose_minecraft.platform.screen.DialogComposeScreenDefaults
 import moe.forpleuvoir.compose_minecraft.platform.screen.ScreenAnimation
 import moe.forpleuvoir.compose_minecraft.platform.screen.ScreenAnimationDefaults
+import moe.forpleuvoir.compose_minecraft.platform.screen.ScreenBackgroundBlur
 import moe.forpleuvoir.compose_minecraft.platform.textinput.ComposeInputBridge
 import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
@@ -27,6 +28,8 @@ import moe.forpleuvoir.ibukigourd.text.buildText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreenHelper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.EasingConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.IntConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.asState
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonColors
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ColorScheme
@@ -278,6 +281,33 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 .apply { observe { ComposeScreenDefaults.disableWorldRenderByDefault = it.getValue() } }
 
             /**
+             * 新开屏幕的背景模糊方式（compose-minecraft 的 [ScreenBackgroundBlur]）。
+             *
+             * 模糊对象是提交 Compose 内容之前已画入的内容（世界 / 原版父屏 / 原版 GUI），
+             * Compose 内容本身保持锐利；"跟随原版"取原版「菜单背景模糊度」设置。
+             */
+            private val backgroundBlurConfig = configEnum("background_blur", BackgroundBlurMode.Vanilla)
+            val backgroundBlur by backgroundBlurConfig
+                .apply { observe { applyBackgroundBlur() } }
+
+            /**
+             * [BackgroundBlurMode.Fixed] 使用的模糊半径（采样像素数，上限取原版取值域上限）。
+             *
+             * 不在页面上单独出行：模糊方式选到"固定半径"时才出现在 `background_blur` 行下方。
+             */
+            private val backgroundBlurRadiusConfig = configInt(
+                "background_blur_radius",
+                ScreenBackgroundBlur.Fixed.DEFAULT_RADIUS,
+                1,
+                ScreenBackgroundBlur.Fixed.MAX_RADIUS,
+            ).apply { observe { applyBackgroundBlur() } }
+                .uiWrapper { config ->
+                    val mode by backgroundBlurConfig.asState()
+                    if (mode == BackgroundBlurMode.Fixed) IntConfigWrapper(config)
+                }
+            val backgroundBlurRadius by backgroundBlurRadiusConfig
+
+            /**
              * 新开的屏幕是否默认暂停游戏。
              *
              * 作为 [moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen] 的 `pauseGame` 缺省值，
@@ -324,12 +354,18 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 ComposeScreenDefaults.disableWorldRenderByDefault = disableWorldRender
                 ComposeScreenHelper.unlimitFramerate = unlimitFramerate
                 applyEasing()
+                applyBackgroundBlur()
             }
 
             /** 把当前缓动（内置效果或自定义四点）灌给平台的屏幕动画默认值。 */
             private fun applyEasing() {
                 val curve: Ease = easing.resolve(easingCustom)
                 ScreenAnimationDefaults.easing = ComposeEasing { fraction -> curve(fraction) }
+            }
+
+            /** 把当前的模糊方式与半径算成平台的屏幕默认值（新屏开屏时读取）。 */
+            private fun applyBackgroundBlur() {
+                ComposeScreenDefaults.backgroundBlur = resolveBackgroundBlur(backgroundBlur, backgroundBlurRadius)
             }
         }
 
@@ -364,6 +400,32 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 .apply { observe { DialogComposeScreenDefaults.disableWorldRender = it.getValue() } }
 
             /**
+             * 新建对话框屏幕的背景模糊方式（compose-minecraft 的 [ScreenBackgroundBlur]）。
+             *
+             * 缺省不模糊：对话框靠自身遮罩（[scrimColor]）压暗背后的世界 / 原版父屏。
+             */
+            private val backgroundBlurConfig = configEnum("background_blur", BackgroundBlurMode.None)
+            val backgroundBlur by backgroundBlurConfig
+                .apply { observe { applyBackgroundBlur() } }
+
+            /**
+             * [BackgroundBlurMode.Fixed] 使用的模糊半径（采样像素数，上限取原版取值域上限）。
+             *
+             * 不在页面上单独出行：模糊方式选到"固定半径"时才出现在 `background_blur` 行下方。
+             */
+            private val backgroundBlurRadiusConfig = configInt(
+                "background_blur_radius",
+                ScreenBackgroundBlur.Fixed.DEFAULT_RADIUS,
+                1,
+                ScreenBackgroundBlur.Fixed.MAX_RADIUS,
+            ).apply { observe { applyBackgroundBlur() } }
+                .uiWrapper { config ->
+                    val mode by backgroundBlurConfig.asState()
+                    if (mode == BackgroundBlurMode.Fixed) IntConfigWrapper(config)
+                }
+            val backgroundBlurRadius by backgroundBlurRadiusConfig
+
+            /**
              * 进出场缓动：内置效果 + [EasingPreset.Custom]（取 [easingCustom]，见 [EasingConfigWrapper]）。
              *
              * 一条曲线同时作用于进场与出场（出场是它的镜像），与平台默认值的行为一致。
@@ -395,12 +457,19 @@ object IGConfig : ClientModConfigManager(IbukiGourd.MOD_ID, "config") {
                 DialogAnimationDefaults.initialScale = initialScale
                 DialogComposeScreenDefaults.disableWorldRender = disableWorldRender
                 applyEasing()
+                applyBackgroundBlur()
             }
 
             /** 把当前缓动（内置效果或自定义四点）灌给平台的对话框屏幕动画默认值。 */
             private fun applyEasing() {
                 val curve: Ease = easing.resolve(easingCustom)
                 DialogAnimationDefaults.easing = ComposeEasing { fraction -> curve(fraction) }
+            }
+
+            /** 把当前的模糊方式与半径算成平台的对话框默认值（新对话框开屏时读取）。 */
+            private fun applyBackgroundBlur() {
+                DialogComposeScreenDefaults.backgroundBlur =
+                    resolveBackgroundBlur(backgroundBlur, backgroundBlurRadius)
             }
         }
     }
