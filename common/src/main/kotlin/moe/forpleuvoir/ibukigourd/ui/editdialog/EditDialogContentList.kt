@@ -1,5 +1,7 @@
 package moe.forpleuvoir.ibukigourd.ui.editdialog
 
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -8,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -42,6 +46,9 @@ import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
  * @param lazyListState 表格滚动状态；与 `EditDialogContent` 共用同一个，浮动按钮的随滚动显隐才有依据
  * @param maxHeight 表格高度上限，[Dp.Unspecified] 表示只受外层约束
  * @param removeButton 尾列槽位，默认给带二次确认的删除按钮；传 null 则不占尾列
+ * @param iconScale 拖动按钮的图标倍率（素材 16×16 × 倍率 = 逻辑边长），缺省 2
+ * @param rowModifier 逐行附加的修饰（悬停底色、选中态等），罩住含 [EditDialogContentDefaults.rowVerticalPadding]
+ *   上下留白的整行；行高由行内内容决定
  * @param columns 内容列声明（`column(...)`），列的表头一并写在这里
  */
 @Composable
@@ -59,15 +66,21 @@ fun <T> EditDialogContentList(
             contentPadding = EditDialogContentDefaults.iconPadding,
         )
     },
+    iconScale: Int = 2,
+    rowModifier: @Composable (index: Int) -> Modifier = { index ->
+        val source = remember(index) { MutableInteractionSource() }
+        Modifier.hoverable(source).hoverHighlight(source)
+    },
     columns: TableLayoutScope<Keyed<T>>.() -> Unit,
 ) {
-    val iconScale = LocalSokitsuPixelScale.current
-
     LazyTableLayout<Keyed<T>>(
         modifier = modifier.fillMaxWidth().fillMaxHeight().heightIn(max = maxHeight),
         rowGap = EditDialogContentDefaults.rowSpacing,
         listState = lazyListState,
-        rowModifier = { Modifier.height(EditDialogContentDefaults.rowHeight) },
+        rowModifier = { index ->
+            rowModifier(index)
+                .padding(vertical = EditDialogContentDefaults.rowVerticalPadding)
+        },
         // 库默认 animateItemModifier = Modifier.animateItem()：新条目淡入 + 走位，看着像"添加有延迟"。
         // 这里只关掉**淡入**（添加即时出现），保留默认的 fadeOut（删除仍有淡出）与位移；拖拽位移由库自身承担
         rowAnimateItemModifier = { Modifier.animateItem(fadeInSpec = null) },

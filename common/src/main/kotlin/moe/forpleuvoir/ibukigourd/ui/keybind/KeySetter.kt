@@ -210,7 +210,7 @@ fun KeybindSettingSetButton(
         enabled = enabled,
         contentPadding = contentPadding,
     ) {
-        Icon(Icons.Edit, scale = iconScale)
+        Icon(Icons.Setting, scale = iconScale)
     }
 
     if (showDialog) {

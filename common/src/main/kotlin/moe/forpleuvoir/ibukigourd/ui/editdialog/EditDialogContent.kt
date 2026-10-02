@@ -226,8 +226,11 @@ object EditDialogContentDefaults {
      */
     val rowHeight: Dp = 56.dp
 
+    /** [EditDialogContentList] 每行的上下留白；行修饰（悬停底色等）罩住含该留白的整行。 */
+    val rowVerticalPadding: Dp = 8.dp
+
     /** [EditDialogContentList] 的行间距。 */
-    val rowSpacing: Dp = 12.dp
+    val rowSpacing: Dp = 8.dp
 
     /** [EditDialogContentCards] 的卡片内容内边距。 */
     val cardPadding: PaddingValues = PaddingValues(12.dp)
