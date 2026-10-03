@@ -1,11 +1,12 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu
 
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
@@ -92,38 +93,44 @@ object SokitsuScreen {
 }
 
 /**
- * Sokitsu 屏幕内容根（测量包裹）：测量可用**像素**尺寸 → 解析缩放档 → 下发密度与主题。
+ * Sokitsu 屏幕内容根：读取**窗口像素**尺寸 → 解析缩放档 → 下发密度与主题。
  *
- * 层级为 `BoxWithConstraints`（在密度覆盖**之外**，所以测到的是真实屏幕像素）→
- * [CompositionLocalProvider] 覆盖 `LocalDensity` → [SokitsuTheme] 套主题。
+ * 尺寸取自 [LocalWindowInfo] 的 `containerSize`（平台把它作为快照状态写入，组合期读取
+ * 即建立依赖）：窗口尺寸变化在**同一帧的组合阶段**就失效重算，密度与尺寸同帧生效。
  *
- * **用 `LocalDensity` 而不是 `ComposeScreen(density = ...)`**：场景密度在构造时固定、
- * 无运行期 setter；而 `LayoutNode` 的密度取自组合里的 `LocalDensity`（见其
- * `compositionLocalMap` 赋值），在内容根覆盖既能让布局 / 字号生效，又能随窗口尺寸变化
- * 重新解析档位。`Popup` / `Dialog` 图层会继承注册处的组合环境
+ * 层级：`Box` → [CompositionLocalProvider] 覆盖 `LocalDensity` → [SokitsuTheme] 套主题。
+ *
+ * **在内容根覆盖 `LocalDensity`**（平台另有运行期可写的 `ComposeScreen.density`）：`LayoutNode`
+ * 的密度取自组合里的 `LocalDensity`，在内容根覆盖既让布局 / 字号生效，又不需要写状态、
+ * 不额外多一次组合。`Popup` / `Dialog` 图层会继承注册处的组合环境
  * （`PopupHostOverlay` 渲染时重新注入调用处的 `CompositionLocalContext`），弹层因此同样
  * 吃到这里的密度。
  *
  * 不向场景传 `density` 意味着场景自身密度恒为 1f，而内容为档位密度；两者只影响
  * `Owner.density` 这类场景级读取（布局 / 字号 / 输入坐标都走内容密度或像素，不受影响）。
  *
- * **不适用于 `Dialog` / `Popup` 图层内容**：那些图层拿到的是图层约束（对话框还会被
- * `usePlatformDefaultWidth` 收窄），测出来不是窗口分辨率，分档会偏小。需要同款缩放的弹层
- * 应从所在屏幕读 `LocalSokitsuPixelScale`，而不是自己再包一层。
+ * **不适用于 `Dialog` / `Popup` 图层内容**：需要同款缩放的弹层应从所在屏幕读
+ * `LocalSokitsuPixelScale`，而不是自己再包一层。
  *
- * @param modifier 必须让本包裹覆盖**整个窗口**才测得到真实分辨率（默认 [fillMaxSize]）；
- *   包在更小的容器里会按容器尺寸分档
+ * @param modifier 默认 [fillMaxSize]；容器尺寸不参与分档（窗口像素取自场景快照）
  */
 @Composable
 fun SokitsuScreenRoot(
     modifier: Modifier = Modifier.fillMaxSize(),
     content: @Composable () -> Unit,
 ) {
-    BoxWithConstraints(modifier = modifier) {
-        val scale = SokitsuScreenDefaults.resolver.resolve(
-            windowPx = IntSize(constraints.maxWidth, constraints.maxHeight),
+    val windowPx = LocalWindowInfo.current.containerSize
+    // 首帧组合发生在平台写入窗口尺寸之前（containerSize 仍为 0），按基准档起手，
+    // 同帧尺寸落地后重算，不会画出错误档位
+    val scale = if (windowPx.width > 0 && windowPx.height > 0) {
+        SokitsuScreenDefaults.resolver.resolve(
+            windowPx = windowPx,
             basePixelScale = SokitsuThemeMeta.pixelScale,
         )
+    } else {
+        SokitsuScreenScale(1f, SokitsuThemeMeta.pixelScale)
+    }
+    Box(modifier) {
         CompositionLocalProvider(LocalDensity provides Density(scale.density)) {
             SokitsuTheme(pixelScale = scale.pixelScale, content = content)
         }
