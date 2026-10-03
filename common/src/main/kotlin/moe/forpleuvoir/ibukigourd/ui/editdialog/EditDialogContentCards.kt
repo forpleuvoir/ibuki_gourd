@@ -1,6 +1,8 @@
 package moe.forpleuvoir.ibukigourd.ui.editdialog
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -63,6 +65,7 @@ fun <T> EditDialogContentCards(
     cardPadding: PaddingValues = EditDialogContentDefaults.cardPadding,
     cardSpacing: Dp = EditDialogContentDefaults.cardSpacing,
     actions: (@Composable (index: Int, value: T) -> Unit)? = null,
+    title: (@Composable BoxScope.(index: Int, value: T) -> Unit)? = null,
     removeButton: (@Composable (index: Int, value: T) -> Unit)? = { index, value ->
         RemoveConfirmButton(
             message = value.toString(),
@@ -97,7 +100,7 @@ fun <T> EditDialogContentCards(
                 ReorderableItem(
                     state = reorderableState,
                     key = entry.key,
-                    animateItemModifier = Modifier.animateItem(fadeInSpec = null),
+//                    animateItemModifier = Modifier.animateItem(fadeInSpec = null),
                 ) {
                     Surface(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(cardPadding)) {
@@ -111,6 +114,11 @@ fun <T> EditDialogContentCards(
                                     iconScale = cardIconScale,
                                     contentPadding = EditDialogContentDefaults.iconPadding,
                                 )
+                                title?.let {
+                                    Box(Modifier.weight(1f)) {
+                                        it(index, entry.value)
+                                    }
+                                }
                                 // 尾部操作是**一组**：组内顺序由调用方定，不被外层的 SpaceBetween 拆开
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(cardSpacing),

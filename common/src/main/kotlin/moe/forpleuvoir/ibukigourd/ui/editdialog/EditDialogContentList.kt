@@ -83,7 +83,7 @@ fun <T> EditDialogContentList(
         },
         // 库默认 animateItemModifier = Modifier.animateItem()：新条目淡入 + 走位，看着像"添加有延迟"。
         // 这里只关掉**淡入**（添加即时出现），保留默认的 fadeOut（删除仍有淡出）与位移；拖拽位移由库自身承担
-        rowAnimateItemModifier = { Modifier.animateItem(fadeInSpec = null) },
+//        rowAnimateItemModifier = { Modifier.animateItem(fadeInSpec = null) },
         listTrailing = {
             VerticalFlatScroller(
                 adapter = rememberScrollerAdapter(lazyListState),

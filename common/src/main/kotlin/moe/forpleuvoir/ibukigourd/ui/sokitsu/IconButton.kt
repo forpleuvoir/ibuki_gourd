@@ -4,9 +4,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.DpSize
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults.LocalContentPadding
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults.LocalMinSize
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuThemeMeta
 
 /**
@@ -29,8 +33,8 @@ fun IconButton(
     enabled: Boolean = true,
     colors: FlatButtonColors = FlatButtonDefaults.colors(),
     sprite: UiStateSprite = IconButtonDefaults.sprite(),
-    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
-    minSize: DpSize = IconButtonDefaults.minSize,
+    contentPadding: PaddingValues = LocalContentPadding.current,
+    minSize: DpSize = LocalMinSize.current,
     role: Role = Role.Button,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
@@ -57,8 +61,12 @@ object IconButtonDefaults {
     /** 内容内边距（**四边相等**，来自 [IconButtonMeta.padding]）。 */
     val contentPadding: PaddingValues get() = meta.padding
 
+    val LocalContentPadding = compositionLocalOf { contentPadding }
+
     /** 最小尺寸（来自 [IconButtonMeta.minSize]，缺省 56×56 dp）。 */
     val minSize: DpSize get() = meta.minSize
+
+    val LocalMinSize = compositionLocalOf { minSize }
 
     /** 四态精灵：来自 [IconButtonMeta.sprite]（缺省与扁平按钮指向同一批素材）。 */
     fun sprite(): UiStateSprite = meta.sprite.toSprite()

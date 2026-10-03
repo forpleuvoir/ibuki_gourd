@@ -26,6 +26,8 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableColumnWidth
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TableLayoutScope
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
@@ -186,6 +188,7 @@ fun ConfigListRow(
             Surface(
                 modifier = Modifier.weight(1f).height(configControlHeight()),
                 contentAlignment = Alignment.Center,
+                color = SokitsuTheme.colorScheme.surfaceVariant
             ) {
                 Text(component = label)
             }
