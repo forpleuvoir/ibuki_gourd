@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
@@ -65,8 +66,8 @@ fun RemoveConfirmButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     quickAction: () -> Boolean = { isQuickAction },
-    iconScale: Int = 2,
-    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
+    iconScale: Int = LocalIconScale.current,
+    contentPadding: PaddingValues = IconButtonDefaults.LocalContentPadding.current,
     content: (@Composable () -> Unit)? = null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -88,16 +89,6 @@ fun RemoveConfirmButton(
             },
             title = { Text(IGLang.Misc.removeConfirm(message)) },
             content = content,
-            confirmButton = {
-                FlatButton(
-                    onClick = {
-                        onConfirm()
-                        showDialog = false
-                    },
-                ) {
-                    Text(IGLang.Misc.confirm)
-                }
-            },
         )
     }
 }

@@ -31,7 +31,7 @@ fun DragHandle(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     iconScale: Int = 2,
-    contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
+    contentPadding: PaddingValues = IconButtonDefaults.LocalContentPadding.current,
 ) {
     IconButton(
         onClick = {},
