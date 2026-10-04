@@ -65,6 +65,8 @@ class KeyedListState<T> internal constructor(
     /** 只读条目视图，可直接传给 `items(entries, key = { it.key })` 一类列表 API。 */
     val entries: List<Keyed<T>> get() = entriesView
 
+    val values: List<T> get() = entries.values()
+
     /** 条目数。 */
     val size: Int get() = cells.size
 
