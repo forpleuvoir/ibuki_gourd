@@ -1,6 +1,6 @@
 v1.0.0-alpha
   - 版本号由 `0.11.1+alpha` 升至 `1.0.0-alpha`：**UI 渲染栈整体替换**，属破坏性更新，升级前请读末尾的「破坏性变更」
-  - 本条目覆盖自 `v0.11.0+alpha`（`26.1.2`）之后的全部改动，共 100+ 次提交
+  - 本条目覆盖自 `v0.11.0+alpha`（`26.1.2`）之后的全部改动，共 169 次提交
   - `Minecraft`版本更新至`26.2`（Fabric API `0.157.0+26.2` / Loader `0.19.3` / Loom `1.17.19`；NeoForge `26.2.0.59` / moddev `2.0.143`；ModMenu `20.0.1`）
   - 工具链更新至`Kotlin` `2.4.0` / `JVM` `25`；依赖库`nebula`更新至`0.4.0`
   - **【工程】**`aseprite`（`.ase` 解析）与 `reorderable`（拖拽排序，Apache-2.0）两个独立模块并入 `common` 源码：不再作为独立坐标发布、不再出现在对外 POM，也不再作为嵌套 jar 内嵌，随本库自身类一起分发
@@ -12,14 +12,20 @@ v1.0.0-alpha
   - **【UI 重写】**新增组件：`Selector`(单/多选 + 搜索)、`ColorPicker`(HSV/RGB 逐通道条 + 数值框 + 复制粘贴 + 透明棋盘)、`KeySetter`系列、`BezierCurveEditor`+`BezierCurvePlot`、`ItemIcon`(改走原生`Modifier.minecraftItem`，不再离屏烘焙)、`SokitsuContextMenu`(文本框右键，由`SokitsuTheme`注入)
   - **【UI 重写】**新增编辑浮层骨架`ui/editdialog`：`EditDialog` / `EditDialogContent` / `EditDialogContentList`(拖拽排序) / `EditDialogContentCards` / `DragHandle` / `RemoveButton`+`RemoveConfirmButton`
   - **【UI 重写】**新增全局覆盖层`ui/overlay`：`OverlayService`(按 key 注册常驻内容 + `present`门控 + 帧回调)、`OverlayHost`(自持常驻场景，`GuiRendererOverlayMixin`每帧驱动，与屏幕同档缩放，空闲帧零开销)、`OverlayContainer`；`Toast`改为覆盖层的注册条目，`Tooltip`不再产生布局节点
+  - **【UI 重写】**`SokitsuScreenRoot`缩放档改读窗口尺寸快照（`LocalWindowInfo.containerSize`）后经`LocalDensity`下发，尺寸与密度同帧生效，消除换档中间帧造成的列表视口塌陷与行内弹层被关
+  - **【UI 重写】**`EditDialogContentCards`新增`title`插槽；`IconButton`内容内边距与最小尺寸改由 compositionLocal 提供并支持局部覆盖；列表与卡片关闭新条目淡入动画
+  - **【UI 重写】**`SimpleAlertDialog`直通`colors` / `sprite` / `contentPadding` / `minWidth` / `maxWidth`，移除四个单槽位颜色参数；`DragHandle` / `RemoveConfirmButton`默认值改取`LocalIconScale` / `IconButtonDefaults.LocalContentPadding`，`RemoveConfirmButton`沿用缺省确认按钮
+  - **【UI 重写】**`KeyedListState`的值改为每条目独立状态（变化判定由`rememberKeyedList(list, key, policy)`指定，默认`structuralEqualityPolicy`），并暴露`values`只读视图供列表容器取条目值快照
   - **【配置】**配置 GUI 重建：`ConfigManagerWrapper`(页签导航 + 跨分组搜索 + 面包屑)、`ConfigGroupWrapper`、行骨架`ConfigRowWrapper`(名称 / 控件 / 重置 / tooltip / 悬停高亮)、各类型 wrapper
   - **【配置】**新增对外扩展点：`UIWrappers`(按节点类型或值类型注册整行呈现)与单节点`uiWrapper { }`(空实现 = 该行不出行)
   - **【配置】**新增配置项构造器：`configEnum(name, default, codec)`(自定义枚举`Codec`)、`configVector2i/2f/2d`与`configVector3i/3f/3d`、`configStringPair` / `configPair` / `configPairList`、`configKeyCode`、`configKeybind` / `configToggleKeybind`
   - **【配置】**屏幕与对话框配置组重做：进出场时长 / 偏移 / 淡入淡出、停画世界、背景模糊`background_blur`+固定半径`background_blur_radius`、解除界面内 60 帧上限`unlimit_framerate`、进出场缓动`easing`与自定义曲线`easing_custom`(配曲线编辑器)、`pause_game`(作为`SokitsuScreen.pauseGame`缺省值)
   - **【配置】**主题配置组回归：`mode`(跟随系统 / 深色 / 浅色 / 自定义)+`custom_scheme`+配色方案编辑器(槽位按钮组 + 亮暗标记)
   - **【配置】**`configToggleKeybind`切换时默认弹一条「所属组 → 配置名 : 开/关」的`Toast`(tag 取配置路径，连按只刷新同一条)
+  - **【配置】**列表行留白与图标倍率可配：`EditDialogContentList`新增`iconScale`（默认 2）与`rowModifier`（默认整行悬停高亮）；行高改由行内容 + `rowVerticalPadding`（默认 8dp）决定，`rowSpacing`默认 8dp；配置列表行底色改用`surfaceVariant`；`KeybindSettingSetButton`图标改用`Icons.Setting`
   - **【事件 / 输入】**键盘与鼠标事件支持取消(含按住重复一并吞掉)，新增`KeyEnvironment`(环境限定)与`KeyTriggerTiming`(按下 / 按住 / 长按 / 长按持续 / 松开 / 按下与松开)
   - **【事件 / 输入】**`Keybind` / `KeybindSetting`支持穿透、严格、环境、长按阈值与重复间隔；`InputHandler`提供冲突检测与可注销句柄；键位捕获改为事件驱动
+  - **【事件 / 输入】**新增`hs:input`指令（`clear`子命令调用`InputHandler.releaseAll()`释放全部按键）；`IbukiGourdCommand`改为`Initializable`并加入客户端初始化列表
   - **【文本 / i18n】**文本 DSL 与内联样式解析、文本排版工具(`wrapToLines` / `wrapToTextLines` / 尺寸测量)、新增`ThemeLang`；语言文件键整理
   - **【工具】**新增`ColorConvert` / `ColorContrast`(颜色互转与对比色)、`util.codec`(`Codec.identifier`工厂化 + `Codec.ibukigourdIdentifier` + Compose 尺寸编解码`dp` / `size` / `dpSize` / `intSize` / `padding` / `offset`)、`util.math.easing`(`Easing` / `CubicBezier` / `EasingCurve` / `EasingPreset`)
   - **【文档】**`README`(中 / 英)重写为「特性表 + 依赖 + 三分钟上手 + 手册索引」；新增`doc/manual/`开发者手册（12 章：接入 / 配置 / 配置界面 / 指令 / 事件 / 输入 / 文本 / 屏幕与组件 / 覆盖层与提示 / 任务与工具 / 多加载器 / 常见问题）
