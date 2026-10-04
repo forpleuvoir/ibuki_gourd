@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.mod.IbukiGourdModScreen
+import moe.forpleuvoir.ibukigourd.mod.command.IbukiGourdCommand
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.mod.ibukiGourdModScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -39,7 +40,8 @@ object IbukiGourdClient {
     private val crashDetailMaxWidth = 320.dp
 
     private val inits = listOf(
-        ClientModConfigHandler
+        ClientModConfigHandler,
+        IbukiGourdCommand
     )
 
     private val clientResourceReloaderListener = listOf(
