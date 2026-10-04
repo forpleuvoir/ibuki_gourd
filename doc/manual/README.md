@@ -29,7 +29,7 @@ IbukiGourd 是一个多加载器（Fabric + NeoForge）**前置库**：它不提
   配置系统与指令、事件则两端都有对应管理器 / 事件。
 - **`context parameters`**：配置项构造器是 `context(group: ConfigGroup)` 的扩展函数，所以要在
   `ConfigGroup` 的作用域里调用（见 [02 配置系统](02-配置系统.md)）。这是 Kotlin 的实验特性，
-  **调用方模块也要开启**对应编译参数（本库构建脚本里是 `-Xcontext-parameters`；你的项目若报
+  **调用方模块也要开启**对应编译参数（本库构建脚本里是 `-Xexplicit-context-arguments`；你的项目若报
   context 相关错误就补上它）。
 - **界面观感**：像素风 —— 素材是 `.aseprite`，逻辑像素按整数倍放大（`LocalSokitsuPixelScale`），
   布局密度与放大倍率必须同向变化（[08 屏幕与 UI 组件](08-屏幕与UI组件.md)）。

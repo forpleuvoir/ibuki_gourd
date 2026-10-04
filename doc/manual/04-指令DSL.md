@@ -32,13 +32,24 @@ ServerCommandRegistrationEvent.register {
 }
 ```
 
+事件 lambda 的上下文是隐式的（见 [05 事件总线](05-事件总线.md) 第 4 节），也可以把它交给一个自己声明上下文的函数：
+
+```kotlin
+context(dispatcher: CommandDispatcher<out SharedSuggestionProvider>)
+fun helloCommand() = registerCommand("yourCommand") {
+    literal("hello") { execute { clientSource.sendFeedback(Literal("hi!")) } }
+}
+
+ClientCommandRegistrationEvent.register { helloCommand() }
+```
+
 ## 2. 关键 API
 
 ### 入口（`command/dsl/CommandBuildDSL.kt`）
 
 | API | 签名 | 说明 |
 |---|---|---|
-| `registerCommand` | `context(CommandDispatcher<S>) fun <S> registerCommand(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): CommandDispatcher<S>` | 在"已有 dispatcher 上下文"里注册（事件 lambda 内直接用） |
+| `registerCommand` | `context(dispatcher: CommandDispatcher<S>) fun <S> registerCommand(name: String, scope: ArgumentScope<S, LiteralArgumentBuilder<S>>.() -> Unit): CommandDispatcher<S>` | 在"已有 dispatcher 上下文"里注册（事件 lambda 内直接用） |
 | `registerCommand` | `fun <S> CommandDispatcher<S>.registerCommand(name, scope): CommandDispatcher<S>` | 扩展版，手里有 dispatcher 时用 |
 | `createCommand` | `fun <S> createCommand(name, scope): LiteralArgumentBuilder<S>` | 只构造、不注册（自己攒大树时用） |
 
@@ -46,13 +57,15 @@ ServerCommandRegistrationEvent.register {
 
 | 作用域 | API | 说明 |
 |---|---|---|
-| `ArgumentScope<S, T>` | `literal(name) { }` | 追加字面量子节点 |
+| `ArgumentScope<S, T : ArgumentBuilder<S, T>>` | `literal(name) { }` | 追加字面量子节点 |
 | | `"name" { }` | 上面那个的语法糖（`operator fun String.invoke`） |
-| | `argument(name, type: ArgumentType<A>) { }` | 追加参数节点，body 是 `RequiredArgumentScope` |
+| | `argument(name, type: ArgumentType<A>) { }` | 追加参数节点，body 是 `RequiredArgumentScope<S, A>`（`A` 即该参数的值类型） |
 | | `requires { this: S.() -> Boolean }` | 权限 / 条件判定 |
 | | `execute { }` | 挂执行体（返回 1） |
 | | `executes { ...: Int }` | 挂执行体并自己给返回值（失败返回 0） |
-| `RequiredArgumentScope<S, A>` | `suggests(provider)` / `suggests(vararg String)` / `suggests(Stream<String>)` / `suggests { Stream<String> }` | 补全建议 |
+| | `argumentBuilder` | 当前作用域正在构建的 Brigadier builder（DSL 没覆盖的东西直接挂上去） |
+| `RequiredArgumentScope<S, T>` | `suggests(provider)` / `suggests(vararg String)` / `suggests(Stream<String>)` / `suggests(Iterable<String>)` | 补全建议（直接给候选集合） |
+| | `suggests { Stream<String> }` / `suggests { Iterable<String> }` | 补全建议（每次求值；缺省实现走 `SharedSuggestionProvider.suggest`） |
 
 ### 客户端指令的便捷读取（`command/ClientCommandSource.kt`）
 
@@ -69,6 +82,7 @@ literal("whereami") {
 ```
 
 `CommandContext<out SharedSuggestionProvider>.clientSource` 是扩展属性，等价于 `ClientCommandSourceImpl(source, mc)`。
+同文件还有 `SharedSuggestionProvider.clientSource`（手里只有 source 本身、没有 `CommandContext` 时用）。
 
 ## 3. 常见用法
 
@@ -84,8 +98,9 @@ argument("name", StringArgumentType.word()) {
 ### 3.2 嵌套子命令与条件
 
 ```kotlin
+// 服务端（S = CommandSourceStack）
 registerCommand("yourmod") {
-    requires { hasPermission(2) }
+    requires { permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) }
     literal("reload") {
         executes { source.sendSuccess({ Literal("reloaded") }, true); 1 }
     }
@@ -99,9 +114,9 @@ registerCommand("yourmod") {
 
 | 位置 | 用什么 |
 |---|---|
-| 客户端（含 devOnly 测试） | `ClientCommandRegistrationEvent.register { ... }`（Fabric / NeoForge 侧由加载器的 `RegisterClientCommandsEvent` 触发） |
-| 服务端 | `ServerCommandRegistrationEvent.register { ... }`（由 `RegisterCommandsEvent` 触发） |
-| 只想拿 dispatcher 自己注册 | 上面两个事件的 launcher 形态：`ClientCommandRegistrationEvent()(dispatcher, buildContext)`（仓库里加载器适配层就是这么调的） |
+| 客户端（含 devOnly 测试） | `ClientCommandRegistrationEvent.register { ... }`（Fabric 侧由 `ClientCommandRegistrationCallback.EVENT` 触发，NeoForge 侧由 `RegisterClientCommandsEvent` 触发） |
+| 服务端 | `ServerCommandRegistrationEvent.register { ... }`（Fabric 侧由 `CommandRegistrationCallback.EVENT` 触发，NeoForge 侧由 `RegisterCommandsEvent` 触发） |
+| 只想拿 dispatcher 自己注册 | 上面两个事件的 launcher 形态：`ClientCommandRegistrationEvent()(dispatcher, buildContext)`（仓库里加载器适配层就是这么调的；调用它需要 `import moe.forpleuvoir.nebula.event.invoke`） |
 
 ## 4. 注意事项
 
@@ -110,6 +125,9 @@ registerCommand("yourmod") {
 - **`ArgumentScope` 带 `@CommandDslMark`**：不能在 lambda 里嵌套使用别的 `ArgumentScope` 作用域（避免 `then` 挂错父节点）。
 - **客户端指令的参数用 `CommandContext<out SharedSuggestionProvider>`**，`clientSource` 才可用；服务端用 `CommandContext<CommandSourceStack>`，此时没有 `clientSource`。
 - **`require`s 的接收者是 source 类型**：客户端是 `SharedSuggestionProvider`，服务端是 `CommandSourceStack`。
+- **权限判定是对象化的**：`CommandSourceStack` / `SharedSuggestionProvider` 都实现 `PermissionSetSupplier`，
+  在 `requires { }` 里用 `permissions().hasPermission(Permissions.xxx)`（权限常量在
+  `net.minecraft.server.permissions.Permissions`，如 `COMMANDS_GAMEMASTER`）。
 
 ## 5. 相关源码
 
@@ -118,6 +136,7 @@ registerCommand("yourmod") {
 - `event/events/client/ClientCommandRegistrationEvent.kt`、`event/events/server/ServerCommandRegistrationEvent.kt`
 - 加载器接线：`fabric/src/main/kotlin/.../FabricIbukiGourd(Client).kt`、
   `neoforge/src/main/kotlin/.../neoforgeevent/CommandRegistry.kt`
-- 活例子：`common/src/devOnly/kotlin/.../test/TestCommand.kt`（`igtest` 指令）
+- 活例子：`common/src/devOnly/kotlin/.../test/TestCommand.kt`（`igtest` 指令）、
+  `common/src/main/kotlin/.../mod/command/IbukiGourdCommand.kt`（客户端指令 `hs:input`）
 
 下一页：[05 事件总线](05-事件总线.md) →

@@ -48,7 +48,7 @@ dependencies {
 | 占位符 | 当前值 |
 |---|---|
 | `$minecraftVersion` | `26.2` |
-| `$ibukigourdVersion` | `0.11.1+alpha` |
+| `$ibukigourdVersion` | `1.0.0-alpha` |
 
 依赖的库（`nebula`、`compose-minecraft`）会随加载器构件内嵌（fabric 走 `include`、neoforge
 走 `jarJar`），通常无需另行声明；`.ase` 解析（`asetools`）与拖拽排序（`sh.calvin.reorderable`）
