@@ -8,22 +8,18 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
 
 fun Style.hover(itemStack: ItemStack): Style {
-    this.withHoverEvent(HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(itemStack)))
-    return this
+    return this.withHoverEvent(HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(itemStack)))
 }
 
 
 fun Style.hover(entity: Entity): Style {
-    this.withHoverEvent(HoverEvent.ShowEntity(HoverEvent.EntityTooltipInfo(entity.type, entity.uuid, entity.displayName)))
-    return this
+    return this.withHoverEvent(HoverEvent.ShowEntity(HoverEvent.EntityTooltipInfo(entity.type, entity.uuid, entity.displayName)))
 }
 
 fun Style.hover(entityTooltipInfo: HoverEvent.EntityTooltipInfo): Style {
-    this.withHoverEvent(HoverEvent.ShowEntity(entityTooltipInfo))
-    return this
+    return this.withHoverEvent(HoverEvent.ShowEntity(entityTooltipInfo))
 }
 
 fun Style.hover(text: Component): Style {
-    this.withHoverEvent(HoverEvent.ShowText(text))
-    return this
+    return this.withHoverEvent(HoverEvent.ShowText(text))
 }

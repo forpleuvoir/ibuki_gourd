@@ -13,7 +13,7 @@ class LegacyChatFormattingModifier(
     private val formatChars: Set<Char> = fixFormatChars(formatChars)
 
     private fun fixFormatChars(formatChars: Set<Char>): Set<Char> {
-        return formatChars.filter { it !in LEGACY_FORMAT_CHARS }.toSet()
+        return formatChars.filter { it in LEGACY_FORMAT_CHARS }.toSet()
     }
 
     override fun modify(exp: String, current: MutableComponent): MutableComponent? {

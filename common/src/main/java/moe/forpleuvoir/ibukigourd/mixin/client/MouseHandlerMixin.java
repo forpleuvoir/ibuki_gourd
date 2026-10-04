@@ -59,7 +59,7 @@ public abstract class MouseHandlerMixin {
                 final var context = new MouseEvent.MouseKeyContext(
                         keyCode,
                         rawButtonInfo.modifiers(),
-                        true,
+                        false,
                         keyCode.getKeyName(),
                         currentEnv()
                 );

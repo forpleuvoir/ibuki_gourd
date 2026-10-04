@@ -23,7 +23,7 @@ class DecorationModifier(val decorationMapping: DecorationMapping = DecorationMa
         val (cleanExp, state) =
             if (exp.startsWith("!")) exp.substring(1) to false
             else if (exp.startsWith("?")) exp.substring(1) to null
-            else exp to false
+            else exp to true
 
         return when (cleanExp) {
             in decorationMapping.obfuscated    -> current.style { obfuscated(state) }
