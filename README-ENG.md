@@ -48,8 +48,8 @@ dependencies {
 
 | Placeholder | Current value |
 |---|---|
-| `$minecraftVersion` | `26.2` |
-| `$ibukigourdVersion` | `1.0.0-alpha` |
+| `$minecraftVersion` | `26.3` |
+| `$ibukigourdVersion` | `1.1.0-alpha` |
 
 Bundled dependencies (`nebula`, `compose-minecraft`) travel inside the loader artifacts (`include` on Fabric,
 `jarJar` on NeoForge), so you normally do not declare them. `.ase` parsing (`asetools`) and drag-and-drop

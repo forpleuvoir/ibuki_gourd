@@ -1,3 +1,16 @@
+v1.1.0-alpha
+  - `Minecraft`版本更新至`26.3`（Fabric API `0.165.0+26.3` / Loader `0.20.1` / Loom `1.19.3` / Fabric Kotlin `1.14.2+kotlin.2.4.21`；NeoForge `26.3.0.99` / moddev `2.0.148` / neoForm `26.3-1` / Kotlin for Forge `6.4.0`；ModMenu `21.0.0`）
+  - 工具链更新至`Kotlin` `2.4.21` / `Gradle` `9.8.2`；`Mixin` `0.8.7` + MixinExtras `0.5.5`
+  - **【UI】**`compose-minecraft`更新至`0.2.0`（坐标 `compose_minecraft-<platform>-26.3`），Compose 运行时随之升到 `1.12.2`
+  - **【渲染】**渲染栈随 26.3 迁移到 `renderpearl`：`RenderPipeline` / `BlendFunction` / `ColorTargetState` / `PrimitiveTopology` / `GpuFormat` / `GpuTexture` / `FilterMode` 等迁到 `com.mojang.renderpearl.api.*`；自定义管线改挂 `BindGroupLayouts.PROJECTION` + `DYNAMIC_TRANSFORMS`
+  - **【渲染】**`position_hsv_color.fsh` / `sokitsu_tint.fsh` 适配 26.3 着色器约束：`in` / `out` 补 `layout(location = N)`、加 `GL_ARB_separate_shader_objects`、`DynamicTransforms` UBO 字段序为 `ModelViewMat, TextureMat, ColorModulator, ModelOffset`
+  - **【输入】**输入后端换成 SDL：`Keyboard` / `MouseButton` 的键码改为 `InputConstants` 的 SDL scancode 与 1 基鼠标键（左 1 / 中 2 / 右 3），新增 `KeyCode.fromKey(InputConstants.Key)` 按类型分派；`MouseCursor` 改用 `CursorTypes` + `Window.selectCursor`
+  - **【输入】**键位冲突检测改为集合比较（顺序无关，非严格模式下包含关系也算冲突），并剔除 `Keyboard.UNKNOWN`：未设置的绑定之间不再误报冲突
+  - **【Mixin】**`MouseHandler.onMove` 注入补 `xrel` / `yrel` 参数；`GuiRendererMixin` / `PictureInPictureRendererMixin` 的 `BlitRenderState.<init>` 目标点改用 renderpearl 的 `RenderPipeline`；`KeyboardHandlerMixin` 改用 `InputConstants.PRESS` / `RELEASE` / `REPEAT`
+  - **【工程】**Gradle wrapper 升至 `9.8.2`（Loom 1.19.3 要求 ≥ 9.8.0）；`maven.forpleuvoir.moe/snapshots` 仓库加 group 过滤，避免它对 `net.fabricmc` 依赖的 502 打断解析
+  - **【破坏性变更】**依赖坐标随 MC 版本变为`moe.forpleuvoir:ibukigourd-<platform>-26.3`
+  - **【破坏性变更】**快捷键键码改为 SDL scancode：按名称（`key.keyboard.*`）存的旧绑定仍可读取，但错位期间落成 `key.keyboard.unknown` 的绑定会被清为"未设置"，需要重新设置
+
 v1.0.0-alpha
   - 版本号由 `0.11.1+alpha` 升至 `1.0.0-alpha`：**UI 渲染栈整体替换**，属破坏性更新，升级前请读末尾的「破坏性变更」
   - 本条目覆盖自 `v0.11.0+alpha`（`26.1.2`）之后的全部改动，共 169 次提交

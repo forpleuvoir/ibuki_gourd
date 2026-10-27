@@ -1,6 +1,6 @@
 # IbukiGourd 开发者手册
 
-> 面向**使用 IbukiGourd 的模组作者**。本手册里的每个签名都取自仓库源码（MC `26.2`，Kotlin `2.4.0`）。
+> 面向**使用 IbukiGourd 的模组作者**。本手册里的每个签名都取自仓库源码（MC `26.3`，Kotlin `2.4.21`）。
 
 IbukiGourd 是一个多加载器（Fabric + NeoForge）**前置库**：它不提供玩法内容，只提供配置系统、配置界面、
 像素风 UI 组件库、全局覆盖层、指令 DSL、事件总线、输入系统、文本 DSL、i18n 与一批工具。
@@ -24,7 +24,7 @@ IbukiGourd 是一个多加载器（Fabric + NeoForge）**前置库**：它不提
 
 ## 通用约定
 
-- **语言**：库与本文档都用 Kotlin；例子按 MC `26.2` 的官方映射名书写（`Minecraft`、`Screen`、`Component`…）。
+- **语言**：库与本文档都用 Kotlin；例子按 MC `26.3` 的官方映射名书写（`Minecraft`、`Screen`、`Component`…）。
 - **客户端 / 服务端**：带界面的能力（配置界面、屏幕、覆盖层、Toast）都是**客户端**能力；
   配置系统与指令、事件则两端都有对应管理器 / 事件。
 - **`context parameters`**：配置项构造器是 `context(group: ConfigGroup)` 的扩展函数，所以要在

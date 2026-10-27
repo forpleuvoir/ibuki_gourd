@@ -21,17 +21,17 @@
 
 | 项 | 值 |
 |---|---|
-| 语言 | Kotlin `2.4.0`（主），少量 Java（mixin） |
+| 语言 | Kotlin `2.4.21`（主），少量 Java（mixin） |
 | JVM | Java `25` |
-| Minecraft | `26.2` |
-| Fabric | Loader `0.19.3` / API `0.157.0+26.2` / Fabric Kotlin `1.13.12+kotlin.2.4.0` / Loom `1.17.19` |
-| NeoForge | `26.2.0.59` / moddev `2.0.143` / Kotlin for Forge `6.3.0` |
-| Mixin | `0.8.5` + MixinExtras `0.5.3` |
-| UI | compose-minecraft `0.1.0`（`moe.forpleuvoir:compose_minecraft-{common,fabric,neoforge}-26.2`，自研 Compose，内嵌 androidx compose runtime/ui/foundation/animation，渲染直连 MC `GuiGraphics`，无 material3/skia；旧 Compose Desktop 离屏渲染已移除，新 UI 体系为 `ui/sokitsu`，见下） |
+| Minecraft | `26.3` |
+| Fabric | Loader `0.20.1` / API `0.165.0+26.3` / Fabric Kotlin `1.14.2+kotlin.2.4.21` / Loom `1.19.3` |
+| NeoForge | `26.3.0.99` / moddev `2.0.148` / Kotlin for Forge `6.4.0` |
+| Mixin | `0.8.7` + MixinExtras `0.5.5` |
+| UI | compose-minecraft `0.2.0`（`moe.forpleuvoir:compose_minecraft-{common,fabric,neoforge}-26.3`，自研 Compose，内嵌 androidx compose runtime/ui/foundation/animation，渲染直连 MC `GuiGraphics`，无 material3/skia；旧 Compose Desktop 离屏渲染已移除，新 UI 体系为 `ui/sokitsu`，见下） |
 | 依赖库 | `nebula` `0.4.0` |
-| 构建工具 | Gradle（Kotlin DSL），版本目录 `gradle/libs.versions.toml` |
+| 构建工具 | Gradle `9.8.2`（Kotlin DSL），版本目录 `gradle/libs.versions.toml` |
 
-版本号集中在 `gradle.properties`（`group` / `mod_id` / `mod_name` / `version` 等）与 `gradle/libs.versions.toml`。`version` 当前为 `1.0.0-alpha`。
+版本号集中在 `gradle.properties`（`group` / `mod_id` / `mod_name` / `version` 等）与 `gradle/libs.versions.toml`。`version` 当前为 `1.1.0-alpha`。
 
 ## 仓库结构
 
@@ -193,7 +193,7 @@ gradlew.bat :common:test
 
 ## Git 与提交
 
-- 主分支为 `dev`（远程默认分支，`compose-test` 已合入）；**MC 26.2 的移植与 Sokitsu 重写工作在分支 `26.2` 上进行，当前领先 `dev` 130+ 提交**；旧的 `refactor/ui-compose` / `refactor/ui-compose-minecraft` 分支已不存在。开工前先确认当前分支与目标分支。
+- 主分支为 `dev`（远程默认分支，`compose-test` 已合入）；**MC 26.3 的移植工作在分支 `26.3` 上进行（MC 26.2 的移植与 Sokitsu 重写在分支 `26.2`）**；旧的 `refactor/ui-compose` / `refactor/ui-compose-minecraft` 分支已不存在。开工前先确认当前分支与目标分支。
 - commit message 用中文，遵循 Conventional Commits（参考历史：`feat:` / `fix:` / `refactor(ui):` / `docs:` 等）。
 - **提交前先把草稿给用户确认**：拟拆分的提交数量与文件范围 + 每个提交的完整 message（含版本号是否变更 / 是否需要打 tag），确认后才 `git commit`；用户说"提交"不等于可以跳过确认。
 - 仅在被明确要求时才执行 `git commit` / `git push`；在默认分支上应先开分支。
