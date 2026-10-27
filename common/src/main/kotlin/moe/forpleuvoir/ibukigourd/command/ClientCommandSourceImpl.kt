@@ -11,6 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.HolderLookup
+import java.util.function.Predicate
 
 class ClientCommandSourceImpl(
     private val source: SharedSuggestionProvider,
@@ -48,11 +49,12 @@ class ClientCommandSourceImpl(
         return source.absoluteCoordinates
     }
 
-    override fun suggestRegistryElements(
-        lookup: HolderLookup<*>,
+    override fun <E : Any> suggestRegistryElements(
+        lookup: HolderLookup<E>,
         type: SharedSuggestionProvider.ElementSuggestionType,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
+        filter: Predicate<E>
     ) {
-        source.suggestRegistryElements(lookup, type, builder)
+        source.suggestRegistryElements(lookup, type, builder, filter)
     }
 }
