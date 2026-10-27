@@ -49,7 +49,11 @@ repositories {
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
         content { includeGroup "thedarkcolour" }
     }
-    maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
+    maven {
+        name = 'forpleuvoir'
+        url = uri("https://maven.forpleuvoir.moe/snapshots")
+        content { includeGroupByRegex("moe\\.forpleuvoir.*") }
+    }
 
     exclusiveContent {
         forRepository {
