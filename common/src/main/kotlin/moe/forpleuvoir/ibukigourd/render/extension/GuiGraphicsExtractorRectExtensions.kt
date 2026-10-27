@@ -4,7 +4,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import moe.forpleuvoir.ibukigourd.render.IGRenderPipelines
 import moe.forpleuvoir.ibukigourd.render.extension.state.ColoredBoxRenderState
 import moe.forpleuvoir.ibukigourd.render.peekScissorRect

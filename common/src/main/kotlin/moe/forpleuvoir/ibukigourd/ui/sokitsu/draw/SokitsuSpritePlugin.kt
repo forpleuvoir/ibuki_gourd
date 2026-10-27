@@ -1,6 +1,6 @@
 package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
 import moe.forpleuvoir.compose_minecraft.platform.render.CustomDrawContext
 import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugin

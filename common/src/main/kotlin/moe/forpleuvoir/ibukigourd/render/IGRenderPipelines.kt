@@ -1,9 +1,9 @@
 package moe.forpleuvoir.ibukigourd.render
 
-import com.mojang.blaze3d.PrimitiveTopology
-import com.mojang.blaze3d.pipeline.BlendFunction
-import com.mojang.blaze3d.pipeline.ColorTargetState
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology
+import com.mojang.renderpearl.api.pipeline.BlendFunction
+import com.mojang.renderpearl.api.pipeline.ColorTargetState
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import moe.forpleuvoir.ibukigourd.mixin.client.RenderPipelinesAccessor
 import moe.forpleuvoir.ibukigourd.util.identifier
@@ -12,7 +12,8 @@ import net.minecraft.client.renderer.BindGroupLayouts
 object IGRenderPipelines {
 
     private val GUI_HSV_COLOR_SNIPPET: RenderPipeline.Snippet = RenderPipeline.builder()
-        .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
+        .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+        .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
         .withVertexShader("core/gui")
         .withFragmentShader(identifier("core/position_hsv_color"))
         .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
@@ -30,7 +31,8 @@ object IGRenderPipelines {
     // Sokitsu 精灵着色管线：共用一个 sokitsu_tint.fsh，经 withShaderDefine 切出三变体
     // （Mask / Luminance / HueShift；Passthrough 不走着色管线，直通原版贴图管线）。
     private val SOKITSU_TINT_SNIPPET: RenderPipeline.Snippet = RenderPipeline.builder()
-        .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
+        .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+        .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
         .withVertexShader("core/position_tex_color")
         .withFragmentShader(identifier("core/sokitsu_tint"))
         .withBindGroupLayout(BindGroupLayouts.SAMPLER0)

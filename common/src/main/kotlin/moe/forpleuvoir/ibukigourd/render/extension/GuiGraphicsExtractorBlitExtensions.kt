@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.render.extension
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import moe.forpleuvoir.ibukigourd.render.extension.state.IGBlitRenderState
 import moe.forpleuvoir.ibukigourd.render.extension.state.IGTiledBlitRenderState
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture

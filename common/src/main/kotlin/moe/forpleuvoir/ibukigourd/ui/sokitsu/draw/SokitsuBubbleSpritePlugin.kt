@@ -2,7 +2,7 @@ package moe.forpleuvoir.ibukigourd.ui.sokitsu.draw
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import moe.forpleuvoir.compose_minecraft.platform.render.CustomDrawContext
 import moe.forpleuvoir.compose_minecraft.platform.render.MinecraftRenderPlugin
 import moe.forpleuvoir.compose_minecraft.platform.render.toMatrix3x2f
