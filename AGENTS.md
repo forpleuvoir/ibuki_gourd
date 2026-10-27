@@ -162,6 +162,7 @@ gradlew.bat buildAllModJar
 gradlew.bat publishModToSnapshotsRepository   # 快照仓库 maven.forpleuvoir.moe/snapshots
 gradlew.bat publishModToReleasesRepository    # 发布仓库 maven.forpleuvoir.moe/releases
 gradlew.bat publishModToLocalRepository       # Maven Local
+gradlew.bat publishModToModrinth              # 上传 Fabric + NeoForge 产物到 Modrinth（需环境变量 MODRINTH_TOKEN）
 
 # 单模块构建/测试
 gradlew.bat :fabric:build
