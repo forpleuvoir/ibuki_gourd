@@ -1,9 +1,10 @@
 package moe.forpleuvoir.ibukigourd.mixin.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
-import moe.forpleuvoir.ibukigourd.input.KeyCode;
+import moe.forpleuvoir.ibukigourd.input.MouseButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -38,8 +39,9 @@ public abstract class MouseHandlerMixin {
     @Inject(method = "onButton", at = @At("HEAD"), cancellable = true)
     public void onMouseButton(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
         if (handle == this.minecraft.getWindow().handle()) {
-            final var keyCode = (moe.forpleuvoir.ibukigourd.input.MouseButton) KeyCode.fromCode(rawButtonInfo.button());
-            if (action == 1) {
+            final var keyCode = MouseButton.fromCode(rawButtonInfo.button());
+            if (keyCode == null) return;
+            if (action == InputConstants.PRESS) {
                 this.activeButton = rawButtonInfo;
                 final var context = new MouseEvent.MouseKeyContext(
                         keyCode,
@@ -89,7 +91,7 @@ public abstract class MouseHandlerMixin {
     }
 
     @Inject(method = "onMove", at = @At("HEAD"), cancellable = true)
-    public void onMove(long handle, double xpos, double ypos, CallbackInfo ci) {
+    public void onMove(long handle, double xpos, double ypos, double xrel, double yrel, CallbackInfo ci) {
         if (handle == this.minecraft.getWindow().handle()) {
             var x = getScaledXPos(this.minecraft.getWindow());
             var y = getScaledYPos(this.minecraft.getWindow());
@@ -100,7 +102,8 @@ public abstract class MouseHandlerMixin {
                 return;
             }
             if (this.activeButton != null && this.activeButton.button() != -1 && this.mousePressedTime > 0.0) {
-                final var keyCode = (moe.forpleuvoir.ibukigourd.input.MouseButton) KeyCode.fromCode(activeButton.button());
+                final var keyCode = MouseButton.fromCode(activeButton.button());
+                if (keyCode == null) return;
                 final var draggingContext = new MouseEvent.DraggingContext(keyCode, keyCode.getKeyName(), x, y, currentEnv());
                 MouseEvent.Dragging.invoker().invoke(draggingContext);
                 if (draggingContext.isCancelled()) {

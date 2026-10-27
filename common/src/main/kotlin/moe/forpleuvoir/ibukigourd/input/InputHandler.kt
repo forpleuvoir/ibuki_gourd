@@ -74,12 +74,22 @@ object InputHandler : Tickable {
         return true
     }
 
+    /**
+     * 检出与 [keyBind] 冲突的绑定。
+     *
+     * 两侧都为空（未设置）不算冲突；按键按集合比较，非严格模式下包含关系也算冲突
+     * （按下的组合里只要含另一绑定的全部按键，两者会同时触发）。
+     */
     fun detectKeyConflicts(keyBind: Keybind): Sequence<Keybind> {
-        if (keyBind.keys.isEmpty()) return emptySequence()
-        return keybinds.asSequence().filter {
-            it !== keyBind
-        }.filter {
-            it.setting.env conflictOf keyBind.setting.env && it.keys.exactMatch(keyBind.keys)
+        val keys = keyBind.keys.toSet()
+        if (keys.isEmpty()) return emptySequence()
+        val exactOnly = keyBind.setting.strict
+        return keybinds.asSequence().filter { it !== keyBind }.filter { other ->
+            val otherKeys = other.keys.toSet()
+            otherKeys.isNotEmpty() &&
+                    other.setting.env conflictOf keyBind.setting.env &&
+                    if (exactOnly && other.setting.strict) keys == otherKeys
+                    else keys.containsAll(otherKeys) || otherKeys.containsAll(keys)
         }
     }
 

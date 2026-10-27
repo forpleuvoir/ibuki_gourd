@@ -27,7 +27,11 @@ import moe.forpleuvoir.nebula.serialization.codec.list
 import java.util.concurrent.CopyOnWriteArrayList
 
 
-private fun normalizeKeys(keys: Iterable<KeyCode>): List<KeyCode> = keys.distinct()
+/**
+ * 按键去重并剔除 [Keyboard.UNKNOWN]：未映射的键不构成绑定，等同于未设置。
+ */
+private fun normalizeKeys(keys: Iterable<KeyCode>): List<KeyCode> =
+    keys.distinct().filterNot { it == Keyboard.UNKNOWN }
 
 
 @Suppress("MemberVisibilityCanBePrivate")

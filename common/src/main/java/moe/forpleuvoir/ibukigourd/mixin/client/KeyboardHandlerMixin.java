@@ -2,9 +2,10 @@ package moe.forpleuvoir.ibukigourd.mixin.client;
 
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent;
 import moe.forpleuvoir.ibukigourd.input.InputHandler;
-import moe.forpleuvoir.ibukigourd.input.KeyCode;
+import moe.forpleuvoir.ibukigourd.input.Keyboard;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.KeyEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static moe.forpleuvoir.ibukigourd.input.KeyEnvironmentKt.currentEnv;
-import static org.lwjgl.glfw.GLFW.*;
 
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardHandlerMixin {
@@ -26,14 +26,14 @@ public abstract class KeyboardHandlerMixin {
     @Inject(method = "keyPress", at = @At("HEAD"), cancellable = true)
     public void keyPress(long handle, int action, KeyEvent event, CallbackInfo ci) {
         if (handle == this.minecraft.getWindow().handle()) {
-            var keyCode = KeyCode.fromCode(event.key());
+            var keyCode = Keyboard.fromCode(event.key());
             //key press
-            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            if (action == InputConstants.PRESS || action == InputConstants.REPEAT) {
                 final var context = new KeyboardEvent.KeyboardContext(
                         keyCode,
                         event.modifiers(),
                         true,
-                        action == GLFW_REPEAT,
+                        action == InputConstants.REPEAT,
                         keyCode.getKeyName(),
                         currentEnv()
                 );
@@ -45,7 +45,7 @@ public abstract class KeyboardHandlerMixin {
                 if (!InputHandler.onKeyPress(keyCode)) ci.cancel();
             }
             //key release
-            else if (action == GLFW_RELEASE) {
+            else if (action == InputConstants.RELEASE) {
                 final var context = new KeyboardEvent.KeyboardContext(
                         keyCode,
                         event.modifiers(),

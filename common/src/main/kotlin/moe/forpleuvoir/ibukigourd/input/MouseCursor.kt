@@ -1,32 +1,33 @@
 package moe.forpleuvoir.ibukigourd.input
 
+import com.mojang.blaze3d.platform.cursor.CursorType
+import com.mojang.blaze3d.platform.cursor.CursorTypes
 import moe.forpleuvoir.ibukigourd.util.mc
-import org.lwjgl.glfw.GLFW.*
 
 @JvmInline
-value class MouseCursor private constructor(private val value: Int) {
+value class MouseCursor private constructor(private val value: CursorType) {
 
     companion object {
 
-        val ArrowCursor = MouseCursor(GLFW_ARROW_CURSOR)
+        val ArrowCursor = MouseCursor(CursorTypes.ARROW)
 
-        val IbeamCursor = MouseCursor(GLFW_IBEAM_CURSOR)
+        val IbeamCursor = MouseCursor(CursorTypes.IBEAM)
 
-        val CrosshairCursor = MouseCursor(GLFW_CROSSHAIR_CURSOR)
+        val CrosshairCursor = MouseCursor(CursorTypes.CROSSHAIR)
 
-        val PointingHandCursor = MouseCursor(GLFW_POINTING_HAND_CURSOR)
+        val PointingHandCursor = MouseCursor(CursorTypes.POINTING_HAND)
 
-        val ResizeEwCursor = MouseCursor(GLFW_RESIZE_EW_CURSOR)
+        val ResizeEwCursor = MouseCursor(CursorTypes.RESIZE_EW)
 
-        val ResizeNsCursor = MouseCursor(GLFW_RESIZE_NS_CURSOR)
+        val ResizeNsCursor = MouseCursor(CursorTypes.RESIZE_NS)
 
-        val ResizeNwseCursor = MouseCursor(GLFW_RESIZE_NWSE_CURSOR)
+        val ResizeNwseCursor = MouseCursor(CursorType.createStandardCursor(5, "resize_nwse", CursorType.DEFAULT))
 
-        val ResizeNeswCursor = MouseCursor(GLFW_RESIZE_NESW_CURSOR)
+        val ResizeNeswCursor = MouseCursor(CursorType.createStandardCursor(6, "resize_nesw", CursorType.DEFAULT))
 
-        val ResizeAllCursor = MouseCursor(GLFW_RESIZE_ALL_CURSOR)
+        val ResizeAllCursor = MouseCursor(CursorTypes.RESIZE_ALL)
 
-        val NotAllowedCursor = MouseCursor(GLFW_NOT_ALLOWED_CURSOR)
+        val NotAllowedCursor = MouseCursor(CursorTypes.NOT_ALLOWED)
 
         fun reset() {
             ArrowCursor.apply()
@@ -34,9 +35,7 @@ value class MouseCursor private constructor(private val value: Int) {
     }
 
     fun apply() {
-        glfwSetCursor(mc.window.handle(), glfwCreateStandardCursor(value))
+        mc.window.selectCursor(value)
     }
-
-
 
 }

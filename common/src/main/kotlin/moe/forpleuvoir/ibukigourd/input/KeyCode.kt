@@ -33,24 +33,26 @@ sealed interface KeyCode : Matchable<Regex> {
             Keyboard.entries.map { it as KeyCode } + MouseButton.entries.map { it as KeyCode }
         }
 
-        internal val keyMap: Map<Int, KeyCode> by lazy {
-            buildMap {
-                putAll(MouseButton.entries.map { it.code to it })
-                putAll(Keyboard.entries.map { it.code to it })
-            }
-        }
-
+        /**
+         * 按 [InputConstants.Key] 的类型分派到键盘或鼠标命名空间；
+         * 两者的取值区间重叠，不能只凭数值判定。
+         */
         @JvmStatic
-        fun fromCode(code: Int): KeyCode = keyMap[code] ?: Keyboard.UNKNOWN
+        fun fromKey(key: InputConstants.Key): KeyCode =
+            if (key.type == InputConstants.Type.MOUSE) MouseButton.fromCode(key.value) ?: Keyboard.UNKNOWN
+            else Keyboard.fromCode(key.value)
+
+        /** 按键盘扫描码解析；鼠标按键请用 [fromKey]。 */
+        @JvmStatic
+        fun fromCode(code: Int): KeyCode = Keyboard.fromCode(code)
 
         override fun serialization(target: KeyCode): SerializeElement = SerializePrimitive(target.translationKey)
 
         override fun deserialization(data: SerializeElement): Result<KeyCode> = DeserializationException.runCatching {
             data.checkType<SerializePrimitive, KeyCode> {
-                fromCode(InputConstants.getKey(it.asString!!).value)
+                fromKey(InputConstants.getKey(it.asString!!))
             }
         }
     }
 
 }
-
